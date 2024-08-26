@@ -161,7 +161,5 @@ public class DefaultsFileConfigurationTest extends AbstractConfigurationTestBase
       assertEquals(ActiveMQDefaultConfiguration.getDefaultLoggingMetrics(), conf.getMetricsConfiguration().isLogging());
 
       assertEquals(ActiveMQDefaultConfiguration.getDefaultSecurityCacheMetrics(), conf.getMetricsConfiguration().isSecurityCaches());
-
-      assertEquals(ActiveMQDefaultConfiguration.getMirrorReplicaSync(), conf.isMirrorReplicaSync());
    }
 }

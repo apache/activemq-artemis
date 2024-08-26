@@ -47,19 +47,6 @@ import org.apache.commons.collections.buffer.CircularFifoBuffer;
  */
 public class OperationContextImpl implements OperationContext {
 
-
-   private boolean syncReplication = true;
-
-   @Override
-   public void setSyncReplication(boolean syncReplication) {
-      this.syncReplication = syncReplication;
-   }
-
-   @Override
-   public boolean isSyncReplication() {
-      return syncReplication;
-   }
-
    private static final ThreadLocal<OperationContext> threadLocalContext = new ThreadLocal<>();
 
    public static void clearContext() {
@@ -107,29 +94,6 @@ public class OperationContextImpl implements OperationContext {
    static final AtomicLongFieldUpdater<OperationContextImpl> PAGE_LINEUP_UPDATER = AtomicLongFieldUpdater
       .newUpdater(OperationContextImpl.class, "pageLineUpField");
 
-   public long getReplicationLineUpField() {
-      return replicationLineUpField;
-   }
-
-   public long getReplicated() {
-      return replicated;
-   }
-
-   public long getStoreLineUpField() {
-      return storeLineUpField;
-   }
-
-   public long getStored() {
-      return stored;
-   }
-
-   public long getPagedLinedUpField() {
-      return pageLineUpField;
-   }
-
-   public long getPaged() {
-      return paged;
-   }
 
    volatile int executorsPendingField = 0;
    volatile long storeLineUpField = 0;
@@ -320,7 +284,7 @@ public class OperationContextImpl implements OperationContext {
       // no need to use an iterator here, we can save that cost
       for (int i = 0; i < size; i++) {
          final TaskHolder holder = tasks.peek();
-         if (stored < holder.storeLined || syncReplication && replicated < holder.replicationLined || paged < holder.pageLined) {
+         if (stored < holder.storeLined || replicated < holder.replicationLined || paged < holder.pageLined) {
             // End of list here. No other task will be completed after this
             return;
          }
@@ -336,7 +300,7 @@ public class OperationContextImpl implements OperationContext {
          checkStoreTasks();
       }
 
-      if (stored >= minimalStore && (!syncReplication || replicated >= minimalReplicated) && paged >= minimalPage) {
+      if (stored >= minimalStore && replicated >= minimalReplicated && paged >= minimalPage) {
          checkCompleteContext();
       }
    }

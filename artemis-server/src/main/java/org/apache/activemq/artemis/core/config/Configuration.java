@@ -1535,10 +1535,4 @@ public interface Configuration {
    boolean isMirrorPageTransaction();
 
    Configuration setMirrorPageTransaction(boolean ignorePageTransactions);
-
-   /** It is possible to relax data synchronization requirements on a target mirror configured to use journal replication.
-    *  If this is set to false Mirror Operations will not wait a response from replication before completing any operations */
-   boolean isMirrorReplicaSync();
-
-   Configuration setMirrorReplicaSync(boolean replicaSync);
 }

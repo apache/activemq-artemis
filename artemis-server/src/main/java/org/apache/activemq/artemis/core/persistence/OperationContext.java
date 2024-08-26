@@ -37,13 +37,6 @@ public interface OperationContext extends IOCompletion {
     */
    void executeOnCompletion(IOCallback runnable, boolean storeOnly);
 
-   default void setSyncReplication(boolean syncReplication) {
-   }
-
-   default boolean isSyncReplication() {
-      return true;
-   }
-
    /**
     * Execute the task when all IO operations are complete,
     * Or execute it immediately if nothing is pending.

@@ -233,9 +233,6 @@ public class JournalHashMap<K, V, C> implements Map<K, V> {
 
    // callers must be synchronized
    private void removed(MapRecord<K, V> record) {
-      if (logger.isTraceEnabled()) {
-         logger.info("Removing record {}", record, new Exception("trace"));
-      }
       try {
          journal.appendDeleteRecord(record.id, false);
       } catch (Exception e) {

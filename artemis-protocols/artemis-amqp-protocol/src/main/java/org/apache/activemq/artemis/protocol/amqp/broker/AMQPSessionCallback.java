@@ -702,9 +702,8 @@ public class AMQPSessionCallback implements SessionCallback {
       storageManager.setContext(oldContext);
    }
 
-   /** Set the proper operation context in the Thread Local.
-    *  Return the old context*/
    public OperationContext recoverContext() {
+
       OperationContext oldContext = storageManager.getContext();
       manager.getServer().getStorageManager().setContext(serverSession.getSessionContext());
       return oldContext;

@@ -191,7 +191,6 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       brokerProperties.put("addressSettings.#.prefetchPageMessages", "500");
       // if we don't use pageTransactions we may eventually get a few duplicates
       brokerProperties.put("mirrorPageTransaction", "true");
-      brokerProperties.put("mirrorReplicaSync", "false");
       File brokerPropertiesFile = new File(serverLocation, "broker.properties");
       saveProperties(brokerProperties, brokerPropertiesFile);
 
@@ -209,16 +208,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
 
    private static void replaceLogs(File serverLocation) throws Exception {
       File log4j = new File(serverLocation, "/etc/log4j2.properties");
-      assertTrue(FileUtil.findReplace(log4j, "logger.artemis_utils.level=INFO",
-                                      "logger.artemis_utils.level=INFO\n" + "\n" +
-                                         "logger.endpoint.name=org.apache.activemq.artemis.core.replication.ReplicationEndpoint\n" +
-                                         "logger.endpoint.level=INFO\n" +
-                                         "logger.mirrorTarget.name=org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget\n" +
-                                         "logger.mirrorTarget.level=DEBUG\n" +
-                                         "appender.console.filter.threshold.type = ThresholdFilter\n" +
-                                         "appender.console.filter.threshold.level = info"));
-
-
+      assertTrue(FileUtil.findReplace(log4j, "logger.artemis_utils.level=INFO", "logger.artemis_utils.level=INFO\n" + "\n" + "logger.endpoint.name=org.apache.activemq.artemis.core.replication.ReplicationEndpoint\n" + "logger.endpoint.level=DEBUG\n" + "appender.console.filter.threshold.type = ThresholdFilter\n" + "appender.console.filter.threshold.level = info"));
    }
 
    private static void createMirroredBackupServer(String serverName, int portOffset, String clusterStatic, String mirrorURI) throws Exception {
@@ -255,7 +245,6 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       brokerProperties.put("addressSettings.#.prefetchPageMessages", "500");
       // if we don't use pageTransactions we may eventually get a few duplicates
       brokerProperties.put("mirrorPageTransaction", "true");
-      brokerProperties.put("mirrorReplicaSync", "false");
       File brokerPropertiesFile = new File(serverLocation, "broker.properties");
       saveProperties(brokerProperties, brokerPropertiesFile);
 
@@ -414,7 +403,6 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
    }
 
    private static void sendMessages(String queueName) throws JMSException {
-      long start = System.currentTimeMillis();
       ConnectionFactory connectionFactoryDC1A = CFUtil.createConnectionFactory("amqp", uri(DC1_IP));
       try (Connection connection = connectionFactoryDC1A.createConnection()) {
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -427,10 +415,6 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
             if (i > 0 && i % SEND_COMMIT == 0) {
                logger.info("Sent {} messages on {}", i, queueName);
                session.commit();
-
-               long timePassed = System.currentTimeMillis() - start;
-               double secondsPassed = timePassed / 1000f;
-               logger.info("sent {} messages, msgs/second = {}", i, (i / secondsPassed));
             }
          }
 

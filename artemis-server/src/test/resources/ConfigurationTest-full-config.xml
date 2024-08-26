@@ -557,7 +557,6 @@
       <mirror-ack-manager-page-attempts>222</mirror-ack-manager-page-attempts>
       <mirror-ack-manager-retry-delay>333</mirror-ack-manager-retry-delay>
       <mirror-page-transaction>true</mirror-page-transaction>
-      <mirror-replica-sync>false</mirror-replica-sync>
 
       <security-settings>
          <security-setting match="a1">

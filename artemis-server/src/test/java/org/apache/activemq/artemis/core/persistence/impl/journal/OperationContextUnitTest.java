@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -293,97 +292,6 @@ public class OperationContextUnitTest extends ServerTestBase {
       }
    }
 
-   @Test
-   public void testIgnoreReplication() throws Exception {
-      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
-      runAfter(executor::shutdownNow);
-      ConcurrentLinkedQueue<Long> completions = new ConcurrentLinkedQueue();
-      final int N = 500;
-      final OperationContextImpl impl = new OperationContextImpl(new OrderedExecutor(executor));
-
-      // pending work to queue completions till done
-      impl.storeLineUp();
-      impl.setSyncReplication(false);
-      impl.replicationLineUp();
-
-      for (long l = 0; l < N; l++) {
-         long finalL = l;
-         impl.executeOnCompletion(new IOCallback() {
-            @Override
-            public void onError(int errorCode, String errorMessage) {
-            }
-
-            @Override
-            public void done() {
-               completions.add(finalL);
-            }
-         });
-      }
-
-      flushExecutor(executor);
-      assertEquals(0, completions.size());
-      impl.done();
-
-      flushExecutor(executor);
-      assertEquals(N, completions.size());
-
-      impl.replicationDone();
-      flushExecutor(executor);
-
-      for (long i = 0; i < N; i++) {
-         assertEquals(i, (long) completions.poll(), "ordered");
-      }
-   }
-
-   private void flushExecutor(Executor executor) throws Exception {
-      CountDownLatch latch = new CountDownLatch(1);
-      executor.execute(latch::countDown);
-      assertTrue(latch.await(10, TimeUnit.SECONDS));
-   }
-
-   @Test
-   public void testWaitOnReplication() throws Exception {
-      ExecutorService executor = Executors.newSingleThreadScheduledExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
-      runAfter(executor::shutdownNow);
-
-      ConcurrentLinkedQueue<Long> completions = new ConcurrentLinkedQueue();
-
-      final int N = 500;
-      final OperationContextImpl impl = new OperationContextImpl(new OrderedExecutor(executor));
-
-      // pending work to queue completions till done
-      impl.storeLineUp();
-      impl.replicationLineUp();
-
-      for (long l = 0; l < N; l++) {
-         long finalL = l;
-         impl.executeOnCompletion(new IOCallback() {
-            @Override
-            public void onError(int errorCode, String errorMessage) {
-            }
-
-            @Override
-            public void done() {
-               completions.add(finalL);
-            }
-         });
-      }
-
-      impl.done();
-
-      flushExecutor(executor);
-      assertEquals(0, completions.size());
-
-      impl.replicationDone();
-      flushExecutor(executor);
-
-      Wait.assertEquals(N, ()-> completions.size(), 5000, 100);
-
-      for (long i = 0; i < N; i++) {
-         assertEquals(i, (long) completions.poll(), "ordered");
-      }
-
-   }
 
    @Test
    public void testErrorNotLostOnPageSyncError() throws Exception {
@@ -409,7 +317,7 @@ public class OperationContextUnitTest extends ServerTestBase {
       }
 
       try {
-         final int numJobs = 1000;
+         final int numJobs = 10000;
          final CountDownLatch errorsOnLateRegister = new CountDownLatch(numJobs);
 
          for (int i = 0; i < numJobs; i++) {
@@ -434,7 +342,14 @@ public class OperationContextUnitTest extends ServerTestBase {
 
             done.await();
          }
-         assertTrue(errorsOnLateRegister.await(10, TimeUnit.SECONDS));
+
+         assertTrue(Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisfied() throws Exception {
+               return errorsOnLateRegister.await(1, TimeUnit.SECONDS);
+            }
+         }));
+
 
       } finally {
          executor.shutdown();
