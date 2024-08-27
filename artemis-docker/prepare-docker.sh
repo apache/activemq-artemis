@@ -53,9 +53,6 @@ Well done! Now you can continue with building the Docker image:
   # Go to $ARTEMIS_DIST_DIR
   $ cd $ARTEMIS_DIST_DIR
 
-  # For CentOS with full JDK 17
-  $ docker build -f ./docker/Dockerfile-centos7-17 -t artemis-centos .
-
   # For Ubuntu with full JDK 21
   $ docker build -f ./docker/Dockerfile-ubuntu-21 -t artemis-ubuntu .
 
@@ -71,7 +68,7 @@ Well done! Now you can continue with building the Docker image:
   # Multi-platform for Ubuntu on Linux AMD64 & ARM64 with full JDK
   $ docker buildx build --platform linux/amd64,linux/arm64 --push -t {your-repository}/apache-artemis:{your-version} -f ./docker/Dockerfile-ubuntu-21 .
 
-Note: -t artemis-centos and -t artemis-ubuntu are just tag names for the purpose of this guide
+Note: -t artemis-alpine and -t artemis-ubuntu are just tag names for the purpose of this guide
 
 For more info see readme.md
 

@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * You need to build the Artemis Centos image before this test is executed.
- * Follow the instructions under artemis-docker and build the Docker-centos image.
+ * You need to build the Artemis Docker image with 'mvn install -De2e-tests.skipImageBuild=false' before this test is
+ * executed.
  */
 public class QpidDispatchPeerTest extends E2ETestBase {
 
