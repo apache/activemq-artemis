@@ -70,27 +70,27 @@ public interface ActiveMQServerControl {
    long getTotalConnectionCount();
 
    /**
-    * Returns the number of messages in all queues on the server.
+    * Returns the number of messages in all queues currently on the server.
     */
-   @Attribute(desc = "Number of messages in all queues on the server")
+   @Attribute(desc = "Number of messages in all queues currently on the server")
    long getTotalMessageCount();
 
    /**
-    * Returns the number of messages sent to this server since it was started.
+    * Returns the number of messages sent to all queues currently on the server since they were created.
     */
-   @Attribute(desc = "Number of messages sent to this server since it was started")
+   @Attribute(desc = "Number of messages sent to all queues currently on the server since they were created")
    long getTotalMessagesAdded();
 
    /**
-    * Returns the number of messages sent to this server since it was started.
+    * Returns the number of messages acknowledged from all the queues currently on this server since they were created.
     */
-   @Attribute(desc = "Number of messages acknowledged from all the queues on this server since it was started")
+   @Attribute(desc = "Number of messages acknowledged from all the queues currently on this server since they were created")
    long getTotalMessagesAcknowledged();
 
    /**
-    * Returns the number of messages sent to this server since it was started.
+    * Returns the number of consumers on all the queues currently on this server.
     */
-   @Attribute(desc = "Number of consumers consuming messages from all the queues on this server")
+   @Attribute(desc = "Number of consumers on all the queues currently on this server")
    long getTotalConsumerCount();
 
    /**
