@@ -167,7 +167,7 @@ public class ConsumerThread extends Thread {
       running = true;
       MessageConsumer consumer = null;
       String threadName = Thread.currentThread().getName();
-      context.out.println(threadName + " wait until " + messageCount + " messages are consumed");
+      context.out.println(threadName + " wait " + (receiveTimeOut == -1 ? "forever" : receiveTimeOut + "ms") + " until " + messageCount + " messages are consumed");
       try {
          if (durable && destination instanceof Topic) {
             if (filter != null) {
@@ -185,7 +185,12 @@ public class ConsumerThread extends Thread {
          long tStart = System.currentTimeMillis();
          int count = 0;
          while (running && received < messageCount) {
-            Message msg = consumer.receive(receiveTimeOut);
+            Message msg;
+            if (receiveTimeOut == -1) {
+               msg = consumer.receive();
+            } else {
+               msg = consumer.receive(receiveTimeOut);
+            }
             if (msg != null) {
                if (verbose) {
                   context.out.println(threadName + " Received " + (msg instanceof TextMessage ? ((TextMessage) msg).getText() : msg.getJMSMessageID()));

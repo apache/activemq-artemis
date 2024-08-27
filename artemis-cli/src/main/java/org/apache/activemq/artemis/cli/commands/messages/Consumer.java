@@ -41,7 +41,7 @@ public class Consumer extends DestAbstract {
    @Option(names = "--break-on-null", description = "Stop consuming when a null message is received.")
    boolean breakOnNull = false;
 
-   @Option(names = "--receive-timeout", description = "Timeout for receiving messages (in milliseconds).")
+   @Option(names = "--receive-timeout", description = "Timeout for receiving messages (in milliseconds). Specify -1 to wait forever.")
    int receiveTimeout = 3000;
 
    @Option(names = "--filter", description = "The message filter.")
