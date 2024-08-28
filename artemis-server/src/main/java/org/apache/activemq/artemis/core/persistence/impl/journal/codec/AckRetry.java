@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.utils.DataConstants;
 
 public final class AckRetry {
    String nodeID;
-   byte[] temporaryNodeBytes;
+   byte[] nodeIDBytes;
    long messageID;
    AckReason reason;
    int pageAttempts;
@@ -55,10 +55,10 @@ public final class AckRetry {
 
 
    public synchronized byte[] getNodeIDBytes() {
-      if (temporaryNodeBytes == null) {
-         temporaryNodeBytes = nodeID.getBytes(StandardCharsets.US_ASCII);
+      if (nodeIDBytes == null) {
+         nodeIDBytes = nodeID.getBytes(StandardCharsets.US_ASCII);
       }
-      return temporaryNodeBytes;
+      return nodeIDBytes;
    }
 
    public String getNodeID() {

@@ -51,7 +51,6 @@ import org.apache.activemq.artemis.utils.TestParameters;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -59,6 +58,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
@@ -328,7 +328,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
          MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
          for (int i = 0; i < NUMBER_MESSAGES; i++) {
             TextMessage message = (TextMessage) consumer.receive(30_000);
-            Assertions.assertNotNull(message);
+            assertNotNull(message);
             receivedIDs.add(message.getIntProperty("i"));
             if (i > 0 && i % SEND_COMMIT == 0) {
                logger.info("Received {} messages", i);
@@ -339,9 +339,9 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
          session.commit();
       }
 
-      Assertions.assertEquals(NUMBER_MESSAGES, receivedIDs.size());
+      assertEquals(NUMBER_MESSAGES, receivedIDs.size());
       for (int i = 0; i < NUMBER_MESSAGES; i++) {
-         Assertions.assertTrue(receivedIDs.contains(i));
+         assertTrue(receivedIDs.contains(i));
       }
    }
 
@@ -390,7 +390,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
                processDC2_REPLICA = startServer(DC2_REPLICA_NODE, -1, -1, new File(getServerLocation(DC2_REPLICA_NODE), "broker.properties"));
             } else if (i == killAt) { // kill the live on DC2
                logger.info("KillAt {}", killAt);
-               ServerUtil.waitForServerToStart(1, 10_000);
+               ServerUtil.waitForServerToStart(2, 10_000);
                Wait.assertTrue(managementDC2::isReplicaSync);
                processDC2.destroyForcibly();
                assertTrue(processDC2.waitFor(10, TimeUnit.SECONDS));
@@ -401,9 +401,10 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
             message.setIntProperty("i", i);
             producer.send(message);
             TextMessage textMessage = (TextMessage) consumer.receive(5000);
-            Assertions.assertNotNull(textMessage);
-            Assertions.assertEquals(text, textMessage.getText());
+            assertNotNull(textMessage);
+            assertEquals(text, textMessage.getText());
          }
+
       }
 
       final int oddSend = 33;
@@ -433,7 +434,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
          MessageConsumer consumer = session.createConsumer(queue);
          for (int i = 0; i < oddSend; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
-            Assertions.assertNotNull(message);
+            assertNotNull(message);
             assertEquals("oddSend " + i, message.getText());
          }
          assertNull(consumer.receiveNoWait());
@@ -486,7 +487,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
          });
       }
 
-      Assertions.assertTrue(latch.await(5, TimeUnit.MINUTES));
+      assertTrue(latch.await(5, TimeUnit.MINUTES));
 
       int openFiles = lsof();
 
@@ -494,8 +495,8 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
 
       // lsof is showing a file descriptor associated with multiple threads. So it is expected to have quite a few repetitions
       // when the issue is happening we would have around 40k, 50k entries or a lot more if you add more messages.
-      Assertions.assertTrue(openFiles < 4000, () -> "There was " + openFiles + " open files");
-      Assertions.assertEquals(0, errors.get(), "There are errors on the senders");
+      assertTrue(openFiles < 4000, () -> "There was " + openFiles + " open files");
+      assertEquals(0, errors.get(), "There are errors on the senders");
 
    }
 
@@ -515,7 +516,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
             filesCounter.incrementAndGet();
          });
       }
-      Assertions.assertTrue(process.waitFor(10, TimeUnit.SECONDS));
+      assertTrue(process.waitFor(10, TimeUnit.SECONDS));
       return filesCounter.get();
    }
 

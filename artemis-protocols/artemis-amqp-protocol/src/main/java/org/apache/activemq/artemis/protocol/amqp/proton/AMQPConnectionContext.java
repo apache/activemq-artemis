@@ -17,11 +17,9 @@
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,7 +44,6 @@ import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationAddressSenderController;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationQueueSenderController;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
-import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurityException;
@@ -110,8 +107,6 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       getHandler().setReadable(true);
       flush();
    }
-
-   private List<AMQPMirrorControllerTarget> mirrorControllerTargets;
 
    public static final Symbol CONNECTION_OPEN_FAILED = Symbol.valueOf("amqp:connection-establishment-failed");
    public static final String AMQP_CONTAINER_ID = "amqp-container-id";
@@ -201,18 +196,6 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       if (saslClientFactory != null) {
          handler.createClientSASL();
       }
-   }
-
-   public List<AMQPMirrorControllerTarget> getMirrorControllerTargets() {
-      return mirrorControllerTargets;
-   }
-
-   public AMQPConnectionContext addMirrorControllerTarget(AMQPMirrorControllerTarget mirrorControllerTarget) {
-      if (mirrorControllerTargets == null) {
-         mirrorControllerTargets = new ArrayList<>();
-      }
-      mirrorControllerTargets.add(mirrorControllerTarget);
-      return this;
    }
 
    public boolean isLargeMessageSync() {

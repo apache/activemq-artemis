@@ -61,4 +61,7 @@ public interface ActiveMQAMQPProtocolLogger {
 
    @LogMessage(id = 111008, value = "The AckManager timed out waiting for operations to complete on the MirrorTarget. timeout = {} milliseconds", level = LogMessage.Level.WARN)
    void timedOutAckManager(long timeout);
+
+   @LogMessage(id = 111009, value = "The AckManager was interrupt. timeout = {} milliseconds", level = LogMessage.Level.WARN)
+   void interruptedAckManager(Exception e);
 }

@@ -19,8 +19,10 @@ package org.apache.activemq.artemis.protocol.amqp.connect.mirror;
 
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.LongSupplier;
@@ -52,7 +54,6 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
-import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +64,7 @@ public class AckManager implements ActiveMQComponent {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   final Set<AMQPMirrorControllerTarget> mirrorControllerTargets = new HashSet<>();
    final LongSupplier sequenceGenerator;
    final JournalHashMapProvider<AckRetry, AckRetry, Queue> journalHashMapProvider;
    final ActiveMQServer server;
@@ -149,7 +151,7 @@ public class AckManager implements ActiveMQComponent {
 
       HashMap<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> retries = sortRetries();
 
-      scanAndFlushMirrorTargets();
+      flushMirrorTargets();
 
       if (retries.isEmpty()) {
          logger.trace("Nothing to retry!, server={}", server);
@@ -160,19 +162,17 @@ public class AckManager implements ActiveMQComponent {
       return true;
    }
 
-   private void scanAndFlushMirrorTargets() {
-      logger.debug("scanning and flushing mirror targets");
-      // this will navigate on each connection, find the connection that has a mirror controller, and call flushMirrorTarget for each MirrorTargets. (it should be 1 in most cases)
-      // An alternative design instead of going through the connections, would be to register the MirrorTargets within the AckManager, however to avoid memory leaks after disconnects and reconnects it is safer to
-      // scan through the connections
-      server.getRemotingService().getConnections().stream().
-         filter(c -> c instanceof ActiveMQProtonRemotingConnection && ((ActiveMQProtonRemotingConnection) c).getAmqpConnection().getMirrorControllerTargets() != null).
-         forEach(c -> ((ActiveMQProtonRemotingConnection) c).getAmqpConnection().getMirrorControllerTargets().forEach(this::flushMirrorTarget));
+   public synchronized void registerMirror(AMQPMirrorControllerTarget mirrorTarget) {
+      this.mirrorControllerTargets.add(mirrorTarget);
    }
 
-   private void flushMirrorTarget(AMQPMirrorControllerTarget target) {
-      logger.debug("Flushing mirror {}", target);
-      target.flush();
+   public synchronized void unregisterMirror(AMQPMirrorControllerTarget mirrorTarget) {
+      this.mirrorControllerTargets.remove(mirrorTarget);
+   }
+
+   private synchronized void flushMirrorTargets() {
+      logger.debug("scanning and flushing mirror targets");
+      mirrorControllerTargets.forEach(AMQPMirrorControllerTarget::flush);
    }
 
    // Sort the ACK list by address
