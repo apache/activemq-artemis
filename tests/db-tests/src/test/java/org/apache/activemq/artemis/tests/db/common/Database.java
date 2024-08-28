@@ -123,8 +123,7 @@ public enum Database {
       if (driver == null) {
          String className = getDriverClass();
          ClassLoader loader = getDBClassLoader();
-         Class clazz = loader.loadClass(className);
-         driver = (Driver) clazz.getDeclaredConstructor().newInstance();
+         driver = (Driver) loader.loadClass(className).getDeclaredConstructor().newInstance();
       }
       return driver;
    }

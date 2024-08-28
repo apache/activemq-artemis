@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.utils;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -61,7 +62,11 @@ public class FactoryFinder {
             clazz = loadClass(loadProperties(path));
             classMap.put(path, clazz);
          }
-         return clazz.newInstance();
+         try {
+            return clazz.getDeclaredConstructor().newInstance();
+         } catch (NoSuchMethodException | InvocationTargetException e) {
+            throw new IOException(e);
+         }
       }
 
       static Class loadClass(Properties properties) throws ClassNotFoundException, IOException {

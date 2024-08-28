@@ -100,8 +100,7 @@ public class StringRefAddrReferenceTest {
 
    private <T> T getObject(Reference reference, Class<T> tClass) throws Exception {
       String factoryName = reference.getFactoryClassName();
-      Class<?> factoryClass = Class.forName(factoryName);
-      ObjectFactory factory = (ObjectFactory) factoryClass.newInstance();
+      ObjectFactory factory = (ObjectFactory) Class.forName(factoryName).getDeclaredConstructor().newInstance();
       Object o = factory.getObjectInstance(reference, null, null, null);
       if (tClass.isAssignableFrom(tClass)) {
          return tClass.cast(o);

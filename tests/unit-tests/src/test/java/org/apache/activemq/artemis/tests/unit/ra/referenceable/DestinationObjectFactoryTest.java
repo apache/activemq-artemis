@@ -38,8 +38,7 @@ public class DestinationObjectFactoryTest extends ActiveMQTestBase {
       ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue(RandomUtil.randomString());
       Reference reference = queue.getReference();
       String factoryName = reference.getFactoryClassName();
-      Class<?> factoryClass = Class.forName(factoryName);
-      ObjectFactory factory = (ObjectFactory) factoryClass.newInstance();
+      ObjectFactory factory = (ObjectFactory) Class.forName(factoryName).getDeclaredConstructor().newInstance();
       Object object = factory.getObjectInstance(reference, null, null, null);
       assertNotNull(object);
       assertTrue(object instanceof ActiveMQDestination);

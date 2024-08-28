@@ -184,7 +184,7 @@ public final class PasswordMaskingUtil {
             // Service load the codec, if a service is available
             for (SensitiveDataCodec<String> codec : serviceLoader) {
                if (codec.getClass().getCanonicalName().equals(codecClassName)) {
-                  return codec.getClass().newInstance();
+                  return codec.getClass().getDeclaredConstructor().newInstance();
                }
             }
          } catch (Exception e) {
@@ -192,11 +192,11 @@ public final class PasswordMaskingUtil {
          }
          try {
             // If a service is not available, load the codec class using this class's class loader
-            return (SensitiveDataCodec<String>) PasswordMaskingUtil.class.getClassLoader().loadClass(codecClassName).newInstance();
+            return (SensitiveDataCodec<String>) PasswordMaskingUtil.class.getClassLoader().loadClass(codecClassName).getDeclaredConstructor().newInstance();
          } catch (Exception e) {
             try {
                // As a last resort, load the codec class using the current thread's context class loader
-               return (SensitiveDataCodec<String>) Thread.currentThread().getContextClassLoader().loadClass(codecClassName).newInstance();
+               return (SensitiveDataCodec<String>) Thread.currentThread().getContextClassLoader().loadClass(codecClassName).getDeclaredConstructor().newInstance();
             } catch (Exception e2) {
                throw ActiveMQUtilBundle.BUNDLE.errorCreatingCodec(codecClassName, e2);
             }

@@ -52,7 +52,7 @@ public abstract class ContainerService {
          if (providerName == null) {
             loadingService = new TestContainerImpl();
          } else {
-            loadingService = (ContainerService) Class.forName(providerName).newInstance();
+            loadingService = (ContainerService) Class.forName(providerName).getDeclaredConstructor().newInstance();
          }
       } catch (Throwable e) {
          e.printStackTrace();
