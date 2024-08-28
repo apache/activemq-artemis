@@ -205,7 +205,8 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
                @Override
                public void onError(int errorCode, String errorMessage) {
-                  logger.warn("error code = {} / message = {}", errorCode, errorMessage);
+                  // we are not doing any IO here, this is extremely unlikely to happen:
+                  logger.warn("IO Error code on flushing OperationContext for AMQPMirrorControllerTarget . error code = {} / message = {}", errorCode, errorMessage);
                   latch.countDown();
                }
             });
