@@ -129,7 +129,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
          ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
          ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(bais);
 
-         Runnable toRun = (Runnable) testClassLoader.loadClass(ProxyReader.class.getName()).newInstance();
+         Runnable toRun = (Runnable) testClassLoader.loadClass(ProxyReader.class.getName()).getDeclaredConstructor().newInstance();
          toRun.getClass().getField("ois").set(toRun, ois);
          toRun.getClass().getField("testClassLoader").set(toRun, testClassLoader);
          toRun.getClass().getField("originalProxy").set(toRun, originalProxy);

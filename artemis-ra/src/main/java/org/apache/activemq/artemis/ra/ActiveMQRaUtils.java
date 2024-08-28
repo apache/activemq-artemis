@@ -193,7 +193,7 @@ public final class ActiveMQRaUtils {
          try {
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             Class<?> aClass = loader.loadClass(locatorClass);
-            Object o = aClass.newInstance();
+            Object o = aClass.getDeclaredConstructor().newInstance();
             Method m = aClass.getMethod("locateChannel", new Class[]{String.class});
             return (JChannel) m.invoke(o, name);
          } catch (Throwable e) {
@@ -215,12 +215,12 @@ public final class ActiveMQRaUtils {
             ClassLoader loader = getClass().getClassLoader();
             try {
                Class<?> clazz = loader.loadClass(className);
-               return clazz.newInstance();
+               return clazz.getDeclaredConstructor().newInstance();
             } catch (Throwable t) {
                try {
                   loader = Thread.currentThread().getContextClassLoader();
                   if (loader != null)
-                     return loader.loadClass(className).newInstance();
+                     return loader.loadClass(className).getDeclaredConstructor().newInstance();
                } catch (RuntimeException e) {
                   throw e;
                } catch (Exception e) {

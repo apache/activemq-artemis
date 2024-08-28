@@ -61,7 +61,7 @@ public class JNDIReferenceFactory implements ObjectFactory {
          Reference reference = (Reference) object;
          Class<?> theClass = loadClass(this, reference.getClassName());
          if (JNDIStorable.class.isAssignableFrom(theClass)) {
-            JNDIStorable store = (JNDIStorable) theClass.newInstance();
+            JNDIStorable store = (JNDIStorable) theClass.getDeclaredConstructor().newInstance();
             store.setProperties(getProperties(reference));
             result = store;
          }

@@ -50,7 +50,7 @@ public class ArtemisBrokerHelper {
          return;
       }
       try {
-         service = serviceClass.newInstance();
+         service = serviceClass.getDeclaredConstructor().newInstance();
          Method startMethod = serviceClass.getMethod("start");
          startMethod.invoke(service, (Object[]) null);
          LOG.info("started a service instance: " + service);
