@@ -114,7 +114,6 @@
       <fuse.mqtt.client.version>1.16</fuse.mqtt.client.version>
       <caffeine.version>3.1.8</caffeine.version>
       <guava.version>33.2.1-jre</guava.version>
-      <hawtio.version>4.0.0-RC1</hawtio.version>
       <jsr305.version>3.0.2</jsr305.version>
       <jetty.version>11.0.18</jetty.version>
       <jgroups.version>5.3.9.Final</jgroups.version>
