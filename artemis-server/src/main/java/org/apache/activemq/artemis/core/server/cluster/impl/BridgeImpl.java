@@ -205,6 +205,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       return csf;
    }
 
+   // for tests
+   public ServerLocatorInternal getServerLocator() {
+      return serverLocator;
+   }
+
    /* (non-Javadoc)
     * @see org.apache.activemq.artemis.core.server.Consumer#getDeliveringMessages()
     */
@@ -1024,6 +1029,10 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                if (csf == null || csf.isClosed()) {
                   if (state == State.STOPPING || state == State.PAUSING)
                      return;
+                  if (csf != null && csf.isClosed()) {
+                     // ensure we release any references to the existing ClientSessionFactory before creating a new one otherwise we will leak
+                     serverLocator.factoryClosed(csf);
+                  }
                   csf = createSessionFactory();
                   if (csf == null) {
                      // Retrying. This probably means the node is not available (for the cluster connection case)

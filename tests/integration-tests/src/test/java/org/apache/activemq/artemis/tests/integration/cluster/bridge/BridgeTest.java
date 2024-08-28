@@ -58,6 +58,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
@@ -519,6 +520,38 @@ public class BridgeTest extends ActiveMQTestBase {
       if (server0.getConfiguration().isPersistenceEnabled()) {
          assertEquals(0, loadQueues(server0).size());
       }
+   }
+
+   @TestTemplate
+   public void testClientSessionFactoryLeak() throws Exception {
+      Map<String, Object> server0Params = new HashMap<>();
+      server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
+
+      Map<String, Object> server1Params = new HashMap<>();
+      addTargetParameters(server1Params);
+      server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
+
+      final String testAddress = "testAddress";
+      final String queueName0 = "queue0";
+      final String forwardAddress = "forwardAddress";
+
+      TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
+
+      HashMap<String, TransportConfiguration> connectors = new HashMap<>();
+      connectors.put(server1tc.getName(), server1tc);
+      server0.getConfiguration().setConnectorConfigurations(connectors);
+
+      List<String> connectorConfig = List.of(server1tc.getName());
+      // intentionally configure a bridge that will fail to connect and attempt to reconnect multiple times quickly
+      server0.getConfiguration().setBridgeConfigurations(List.of(new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(0).setReconnectAttempts(-1).setStaticConnectors(connectorConfig)));
+      server0.getConfiguration().setQueueConfigs(List.of(QueueConfiguration.of(queueName0).setAddress(testAddress)));
+
+      server1.start();
+      server0.start();
+
+      ServerLocatorImpl serverLocator = (ServerLocatorImpl) ((BridgeImpl)server0.getClusterManager().getBridges().get("bridge1")).getServerLocator();
+      Wait.waitFor(() -> serverLocator.getClientSessionFactoryCount() > 1, 500, 10);
+      assertTrue(serverLocator.getClientSessionFactoryCount() <= 1);
    }
 
    /**
