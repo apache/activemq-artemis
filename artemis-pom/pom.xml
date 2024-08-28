@@ -524,10 +524,10 @@
             <!-- License: (Joint): Apache 2.0 or EPL 2.0 -->
          </dependency>
          <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <version>${jakarta.servlet-api.version}</version>
-            <!-- License: EPL 2.0 -->
+            <groupId>org.eclipse.jetty.toolchain</groupId>
+            <artifactId>jetty-jakarta-servlet-api</artifactId>
+            <version>${jetty-servlet-api.version}</version>
+            <!-- License: (Joint): Apache 2.0 or EPL 2.0 -->
          </dependency>
          <!-- ## End Jetty Wed Dependencies ## -->
 
