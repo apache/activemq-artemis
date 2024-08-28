@@ -869,7 +869,7 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-pmd-plugin</artifactId>
-               <version>3.24.0</version>
+               <version>3.25.0</version>
                <configuration>
                   <linkXRef>true</linkXRef>
                   <minimumTokens>100</minimumTokens>
