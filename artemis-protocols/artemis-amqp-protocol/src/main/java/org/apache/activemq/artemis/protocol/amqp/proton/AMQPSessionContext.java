@@ -314,8 +314,6 @@ public class AMQPSessionContext extends ProtonInitializable {
          final AMQPMirrorControllerTarget protonReceiver =
             new AMQPMirrorControllerTarget(sessionSPI, connection, this, receiver, server);
 
-         connection.addMirrorControllerTarget(protonReceiver);
-
          final HashMap<Symbol, Object> brokerIDProperties = new HashMap<>();
          brokerIDProperties.put(AMQPMirrorControllerSource.BROKER_ID, server.getNodeID().toString());
          receiver.setProperties(brokerIDProperties);
