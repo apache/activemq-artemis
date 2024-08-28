@@ -1914,6 +1914,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return receivedTopology;
    }
 
+   public int getClientSessionFactoryCount() {
+      return factories.size();
+   }
+
    private String fromInterceptors(final List<Interceptor> interceptors) {
       StringBuffer buffer = new StringBuffer();
       boolean first = true;
