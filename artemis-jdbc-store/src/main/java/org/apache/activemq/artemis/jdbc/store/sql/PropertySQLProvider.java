@@ -28,6 +28,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
+import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -299,13 +300,17 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    private static String sql(final String key, final Factory.SQLDialect dialect, final Properties sql) {
+      String result;
       if (dialect != null) {
-         String result = sql.getProperty(key + "." + dialect.getKey());
+         result = sql.getProperty(key + "." + dialect.getKey());
          if (result != null) {
             return result;
          }
       }
-      String result = sql.getProperty(key);
+      result = sql.getProperty(key);
+      if (result == null) {
+         throw ActiveMQJournalBundle.BUNDLE.propertyNotFound(key, dialect.toString());
+      }
       return result;
    }
 

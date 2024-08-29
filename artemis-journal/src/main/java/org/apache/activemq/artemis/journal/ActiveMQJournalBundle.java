@@ -53,4 +53,7 @@ public interface ActiveMQJournalBundle {
    @Message(id = 149007, value = "Thread dump being generated as the asynchronous file.open is not responding fast enough.")
    String threadDumpAfterFileOpenTimeout();
 
+   @Message(id = 149008, value = "Property '{}' not found for dialect '{}'")
+   IllegalStateException propertyNotFound(String property, String dialect);
+
 }
