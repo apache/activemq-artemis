@@ -114,6 +114,7 @@
       <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
       <jib.maven.plugin.version>3.4.3</jib.maven.plugin.version>
       <versions.maven.plugin.version>2.16.1</versions.maven.plugin.version>
+      <maven.pmd.plugin.version>3.25.0</maven.pmd.plugin.version>
       <sevntu.checks.version>1.44.1</sevntu.checks.version>
       <checkstyle.version>10.18.0</checkstyle.version>
       <mockito.version>5.12.0</mockito.version>
@@ -869,7 +870,7 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-pmd-plugin</artifactId>
-               <version>3.24.0</version>
+               <version>${maven.pmd.plugin.version}</version>
                <configuration>
                   <linkXRef>true</linkXRef>
                   <minimumTokens>100</minimumTokens>
