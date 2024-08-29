@@ -28,6 +28,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
+import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -78,7 +79,7 @@ public class PropertySQLProvider implements SQLProvider {
    protected PropertySQLProvider(Factory.SQLDialect dialect, String tableName, Properties sqlProperties) {
       this.dialect = dialect;
       this.sql = sqlProperties;
-      final LetterCase tableNamesCase = LetterCase.parse(sql("table-names-case", dialect, sqlProperties));
+      final LetterCase tableNamesCase = LetterCase.parse(sql("table-names-case", dialect, sqlProperties, true));
       this.tableName = tableNamesCase.apply(tableName);
    }
 
@@ -266,7 +267,7 @@ public class PropertySQLProvider implements SQLProvider {
 
    @Override
    public String currentTimestampTimeZoneId() {
-      return sql("current-timestamp-timezone-id");
+      return sql("current-timestamp-timezone-id", false);
    }
 
    @Override
@@ -294,11 +295,15 @@ public class PropertySQLProvider implements SQLProvider {
       return format(sql("initialize-nodeId"), tableName, NODE_ID_ROW_ID);
    }
 
-   private String sql(final String key) {
-      return sql(key, dialect, sql);
+   protected String sql(final String key) {
+      return sql(key, true);
    }
 
-   private static String sql(final String key, final Factory.SQLDialect dialect, final Properties sql) {
+   protected String sql(final String key, final boolean checkNull) {
+      return sql(key, dialect, sql, checkNull);
+   }
+
+   private static String sql(final String key, final Factory.SQLDialect dialect, final Properties sql, final boolean checkNull) {
       if (dialect != null) {
          String result = sql.getProperty(key + "." + dialect.getKey());
          if (result != null) {
@@ -306,6 +311,9 @@ public class PropertySQLProvider implements SQLProvider {
          }
       }
       String result = sql.getProperty(key);
+      if (checkNull && result == null) {
+         throw ActiveMQJournalBundle.BUNDLE.propertyNotFound(key, dialect != null ? dialect.toString() : null);
+      }
       return result;
    }
 
