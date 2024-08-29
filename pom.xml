@@ -110,7 +110,7 @@
       <jetty.version>10.0.23</jetty.version>
       <jetty-servlet-api.version>4.0.6</jetty-servlet-api.version>
       <jgroups.version>5.3.11.Final</jgroups.version>
-      <errorprone.version>2.30.0</errorprone.version>
+      <errorprone.version>2.31.0</errorprone.version>
       <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
       <jib.maven.plugin.version>3.4.3</jib.maven.plugin.version>
       <versions.maven.plugin.version>2.16.1</versions.maven.plugin.version>
