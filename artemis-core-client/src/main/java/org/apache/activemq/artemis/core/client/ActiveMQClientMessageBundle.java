@@ -240,4 +240,7 @@ public interface ActiveMQClientMessageBundle {
 
    @Message(id = 219068, value = "Connection closed while receiving cluster topology. Group:{}")
    ActiveMQObjectClosedException connectionClosedOnReceiveTopology(DiscoveryGroup discoveryGroup);
+
+   @Message(id = 219069, value = "Unable to create Session. Either the ClientSessionFactory is closed or the ClientProtocolManager is dead.")
+   IllegalStateException unableToCreateSession();
 }
