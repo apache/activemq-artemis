@@ -24,7 +24,6 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Consumer;
@@ -33,7 +32,6 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,27 +41,18 @@ public class Redistributor implements Consumer {
 
    private boolean active;
 
-   private final StorageManager storageManager;
-
    private final PostOffice postOffice;
 
    private final Queue queue;
 
    private final long sequentialID;
 
-   // a Flush executor here is happening inside another executor.
-   // what may cause issues under load. Say you are running out of executors for cases where you don't need to wait at all.
-   // So, instead of using a future we will use a plain ReusableLatch here
-   private ReusableLatch pendingRuns = new ReusableLatch();
-
    public Redistributor(final Queue queue,
-                        final StorageManager storageManager,
+                        final long sequentialID,
                         final PostOffice postOffice) {
       this.queue = queue;
 
-      this.sequentialID = storageManager.generateID();
-
-      this.storageManager = storageManager;
+      this.sequentialID = sequentialID;
 
       this.postOffice = postOffice;
    }
