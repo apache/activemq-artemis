@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.core.postoffice.impl;
 
-import java.util.Set;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Address;
@@ -34,8 +32,6 @@ public class AddressImpl implements Address {
    private final SimpleString[] addressParts;
 
    private final boolean containsWildCard;
-
-   private Set<Address> linkedAddresses = null;
 
    private final WildcardConfiguration wildcardConfiguration;
 
