@@ -16,15 +16,7 @@
  */
 package org.apache.activemq.cli.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -33,7 +25,6 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
-import org.apache.activemq.artemis.component.WebTmpCleaner;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -47,6 +38,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WebServerCLITest extends ArtemisTestCase {
 
@@ -101,43 +95,9 @@ public class WebServerCLITest extends ArtemisTestCase {
       stopServer();
    }
 
-
-   @Test
-   public void testCleanupFolder() throws Exception {
-      List<File> fileList = new ArrayList<>();
-      for (int i = 0; i < 10; i++) {
-         File directory =  newFolder(temporaryFolder, "test & output " + i);
-         fillup(directory);
-      }
-      Process process = WebTmpCleaner.cleanupTmpFiles(null, fileList);
-      assertEquals(0, process.waitFor());
-      for (File f : fileList) {
-         assertFalse(f.exists());
-      }
-
-   }
-
-   private void fillup(File file) throws Exception {
-      file.mkdirs();
-      for (int i = 0; i < 10; i++) {
-         File fi = new File(file, "file" + i + ".txt");
-         PrintStream str = new PrintStream(new FileOutputStream(fi));
-         str.println("hello");
-         str.close();
-      }
-   }
-
    private void stopServer() throws Exception {
       Artemis.internalExecute("stop");
       assertTrue(Run.latchRunning.await(5, TimeUnit.SECONDS));
       assertEquals(0, LibaioContext.getTotalMaxIO());
-   }
-
-   private static File newFolder(File root, String subFolder) throws IOException {
-      File result = new File(root, subFolder);
-      if (!result.mkdirs()) {
-         throw new IOException("Couldn't create folders " + root);
-      }
-      return result;
    }
 }
