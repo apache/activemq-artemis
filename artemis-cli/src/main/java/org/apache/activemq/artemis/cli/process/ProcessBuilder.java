@@ -114,8 +114,6 @@ public class ProcessBuilder {
 
       private final boolean sendToErr;
 
-      boolean failed = false;
-
       ProcessLogger(final boolean print,
                     final InputStream is,
                     final String logName,
@@ -145,8 +143,6 @@ public class ProcessBuilder {
          } catch (IOException e) {
             // ok, stream closed
          }
-
       }
    }
-
 }
