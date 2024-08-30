@@ -846,7 +846,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       synchronized (sessions) {
          if (closed || !clientProtocolManager.isAlive()) {
             session.close();
-            return null;
+            throw ActiveMQClientMessageBundle.BUNDLE.unableToCreateSession();
          }
          sessions.add(session);
       }
