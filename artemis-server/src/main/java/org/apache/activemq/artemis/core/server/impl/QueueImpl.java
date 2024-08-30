@@ -3558,7 +3558,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (redistributor == null && (consumers.isEmpty() || hasUnMatchedPending)) {
          logger.trace("QueueImpl::Adding redistributor on queue {}", this);
 
-         redistributor = new ConsumerHolder(new Redistributor(this, storageManager, postOffice), this);
+         redistributor = new ConsumerHolder(new Redistributor(this, storageManager.generateID(), postOffice), this);
          redistributor.consumer.start();
          consumers.add(redistributor);
          hasUnMatchedPending = false;
