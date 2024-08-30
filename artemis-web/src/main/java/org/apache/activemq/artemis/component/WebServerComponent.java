@@ -242,7 +242,6 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
 
       server.setHandler(handlers);
 
-      cleanupTmp();
       server.start();
 
       printStatus(bindings);
@@ -459,42 +458,6 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       return requestLog;
    }
 
-   private File getLibFolder() {
-      Path lib = artemisHomePath.resolve("lib");
-      File libFolder = new File(lib.toUri());
-      return libFolder;
-   }
-
-   private void cleanupTmp() {
-      if (webContextData.size() == 0) {
-         //there is no webapp to be deployed (as in some tests)
-         return;
-      }
-
-      try {
-         List<File> temporaryFiles = new ArrayList<>();
-         Files.newDirectoryStream(temporaryWarDir).forEach(path -> temporaryFiles.add(path.toFile()));
-
-         if (temporaryFiles.size() > 0) {
-            WebTmpCleaner.cleanupTmpFiles(getLibFolder(), temporaryFiles, true);
-         }
-      } catch (Exception e) {
-         logger.warn("Failed to get base dir for tmp web files", e);
-      }
-   }
-
-   public void cleanupWebTemporaryFiles(List<Pair<WebAppContext, String>> webContextData) throws Exception {
-      List<File> temporaryFiles = new ArrayList<>();
-      for (Pair<WebAppContext, String> data : webContextData) {
-         File tmpdir = data.getA().getTempDirectory();
-         temporaryFiles.add(tmpdir);
-      }
-
-      if (!temporaryFiles.isEmpty()) {
-         WebTmpCleaner.cleanupTmpFiles(getLibFolder(), temporaryFiles);
-      }
-   }
-
    @Override
    public boolean isStarted() {
       return server != null && server.isStarted();
@@ -555,7 +518,6 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          scanner = null;
          scannerScheduler = null;
          scannerTasks.clear();
-         cleanupWebTemporaryFiles(webContextData);
          webContextData.clear();
          jolokiaUrls.clear();
          consoleUrls.clear();

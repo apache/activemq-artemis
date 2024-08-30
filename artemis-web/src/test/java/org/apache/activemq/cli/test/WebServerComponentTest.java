@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.cli.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SSLContext;
@@ -109,6 +103,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WebServerComponentTest extends ArtemisTestCase {
 
@@ -703,7 +703,7 @@ public class WebServerComponentTest extends ArtemisTestCase {
    }
 
    @Test
-   public void testServerCleanupBeforeStart() throws Exception {
+   public void testWebServerCleanupAfterStop() throws Exception {
       final String warName = "simple-app.war";
       createTestWar(warName);
       final String url = "simple-app/";
@@ -718,30 +718,44 @@ public class WebServerComponentTest extends ArtemisTestCase {
       webServerComponent.getWebContextData().add(new Pair(ctxt, null));
 
       WebInfConfiguration cfg = new WebInfConfiguration();
-      List<File> garbage = new ArrayList<>();
-
       cfg.resolveTempDirectory(ctxt);
 
-      File tmpdir = ctxt.getTempDirectory();
-      File testDir = tmpdir.getParentFile();
-
-      createGarbagesInDir(testDir, garbage);
-
-      assertTrue(garbage.size() > 0);
-
-      for (File file : garbage) {
-         assertTrue(file.exists());
-      }
-
       webServerComponent.start();
-
-      //make sure those garbage are gone
-      for (File file : garbage) {
-         assertFalse(file.exists(), "file exist: " + file.getAbsolutePath());
-      }
       assertTrue(webServerComponent.isStarted());
+      File warTempDir = new File(ctxt.getTempDirectory().getAbsolutePath());
+      assertTrue(warTempDir.exists(), warTempDir + " doesn't exist!");
       webServerComponent.stop(true);
       assertFalse(webServerComponent.isStarted());
+
+      assertFalse(warTempDir.exists(), warTempDir + " exists!");
+   }
+
+   @Test
+   public void testWebServerCleanupBeforeStart() throws Exception {
+      final String warName = "simple-app.war";
+      createTestWar(warName);
+      final String url = "simple-app/";
+
+      WebServerDTO webServerDTO = createDefaultWebServerDTO(warName, url);
+
+      WebServerComponent webServerComponent = new WebServerComponent();
+      assertFalse(webServerComponent.isStarted());
+      testedComponents.add(webServerComponent);
+      webServerComponent.configure(webServerDTO, "./target", "./target");
+      WebAppContext ctxt = WebServerComponentTestAccessor.createWebAppContext(webServerComponent, url, warName, Paths.get(".").resolve("target").toAbsolutePath(), null);
+      webServerComponent.getWebContextData().add(new Pair(ctxt, null));
+
+      if (!Files.exists(Paths.get(ctxt.getTempDirectory().getAbsolutePath()))) {
+         Files.createDirectory(Paths.get(ctxt.getTempDirectory().getAbsolutePath()));
+      }
+      long originalLastModified = Files.getLastModifiedTime(Paths.get(ctxt.getTempDirectory().getAbsolutePath())).toMillis();
+      Thread.sleep(5);
+      webServerComponent.start();
+      assertTrue(webServerComponent.isStarted());
+      assertFalse(originalLastModified == Files.getLastModifiedTime(Paths.get(ctxt.getTempDirectory().getAbsolutePath())).toMillis());
+      webServerComponent.stop(true);
+      assertFalse(webServerComponent.isStarted());
+      assertFalse(Files.exists(Paths.get(ctxt.getTempDirectory().getAbsolutePath())), ctxt.getTempDirectory().getAbsolutePath() + " exists!");
    }
 
    @Test
