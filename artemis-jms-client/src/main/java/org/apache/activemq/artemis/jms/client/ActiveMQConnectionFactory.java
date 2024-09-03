@@ -103,6 +103,8 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
 
    private boolean enable1xPrefixes = ActiveMQJMSClient.DEFAULT_ENABLE_1X_PREFIXES;
 
+   private String brokerURL;
+
    @Override
    public void writeExternal(ObjectOutput out) throws IOException {
       URI uri = toURI();
@@ -251,6 +253,7 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       if (readOnly) {
          throw new javax.jms.IllegalStateException("You cannot use setBrokerURL after the connection factory has been used");
       }
+      this.brokerURL = brokerURL;
       ConnectionFactoryParser cfParser = new ConnectionFactoryParser();
       try {
          URI uri = cfParser.expandURI(brokerURL);
@@ -271,6 +274,15 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       if (getPasswordCodec() == null) {
          setPasswordCodec(DefaultConnectionProperties.DEFAULT_PASSWORD_CODEC);
       }
+   }
+
+   /**
+    *
+    * @return The *original* String passed in for the broker URL. This is *not* necessarily the full representation of
+    * all the settings on the ConnectionFactory.
+    */
+   public String getBrokerURL() {
+      return brokerURL;
    }
 
    /**

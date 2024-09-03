@@ -74,6 +74,7 @@ public class ConnectionFactoryURITest {
       ignoreList.add("protocolManagerFactoryStr");
       ignoreList.add("incomingInterceptorList");
       ignoreList.add("outgoingInterceptorList");
+      ignoreList.add("brokerURL");
    }
 
    @Test
@@ -517,6 +518,9 @@ public class ConnectionFactoryURITest {
                             ActiveMQConnectionFactory factory2) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
       PropertyDescriptor[] descriptors = bean.getPropertyUtils().getPropertyDescriptors(factory);
       for (PropertyDescriptor descriptor : descriptors) {
+         if (ignoreList.contains(descriptor.getName())) {
+            continue;
+         }
          if (descriptor.getWriteMethod() != null && descriptor.getReadMethod() != null) {
             assertEquals(bean.getProperty(factory, descriptor.getName()), bean.getProperty(factory2, descriptor.getName()), descriptor.getName() + " incorrect");
          }
