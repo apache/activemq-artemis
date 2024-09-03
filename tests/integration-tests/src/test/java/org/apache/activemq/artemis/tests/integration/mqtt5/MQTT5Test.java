@@ -524,6 +524,11 @@ public class MQTT5Test extends MQTT5TestSupport {
       producer.publish(TOPIC, new byte[0], 1, false);
       assertTrue(ackLatch.await(2, TimeUnit.SECONDS));
 
+      // sanity send using fqqn as we can know the name of a shared sub
+      ackLatch.countUp();
+      producer.publish(TOPIC + "::" + SUB_NAME + "/" + TOPIC, new byte[0], 1, false);
+      assertTrue(ackLatch.await(2, TimeUnit.SECONDS));
+
       producer.disconnect();
       producer.close();
       consumer1.disconnect();
