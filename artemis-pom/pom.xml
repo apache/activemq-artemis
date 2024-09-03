@@ -569,6 +569,15 @@
             <scope>runtime</scope>
          </dependency>
 
+         <!-- needed for tests -->
+         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${commons.compress.version}</version>
+            <!-- license Apache 2 -->
+            <scope>test</scope>
+         </dependency>
+
          <!-- Needed for Micrometer -->
          <dependency>
             <groupId>io.micrometer</groupId>
