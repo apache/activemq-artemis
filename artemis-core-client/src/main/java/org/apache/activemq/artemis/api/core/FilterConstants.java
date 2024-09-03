@@ -78,7 +78,7 @@ public final class FilterConstants {
    public static final SimpleString ACTIVEMQ_PREFIX = SimpleString.of("AMQ");
 
    /**
-    * Proton protocol stores JMSMessageID as NATIVE_MESSAGE_ID
+    * Core to AMQP wrapper can store JMSMessageID as NATIVE_MESSAGE_ID internally
     */
    public static final String NATIVE_MESSAGE_ID = "NATIVE_MESSAGE_ID";
 

@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.UUID;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -106,7 +108,6 @@ public class FilterTest extends SilentTestCase {
       message.setDurable(false);
 
       assertTrue(filter.match(message));
-
    }
 
    @Test
@@ -126,7 +127,6 @@ public class FilterTest extends SilentTestCase {
 
       assertFalse(lessThanSmall.match(message));
       assertFalse(moreThanLarge.match(message));
-
    }
 
    @Test
@@ -155,6 +155,31 @@ public class FilterTest extends SilentTestCase {
       message.setTimestamp(12345678);
 
       assertTrue(filter.match(message));
+   }
+
+   // AMQUserID, i.e. 'user-provided message ID', or what is typically thought of as the MessageID.
+   @Test
+   public void testAMQUserID() throws Exception {
+      // This 'MessageID' is the Artemis 'internal numeric id' assigned to each message
+      message = new CoreMessage().initBuffer(1024).setMessageID(1);
+
+      UUID randomUUID = UUID.randomUUID();
+      org.apache.activemq.artemis.utils.UUID artemisUUID = new org.apache.activemq.artemis.utils.UUID(randomUUID);
+
+      filter = FilterImpl.createFilter(SimpleString.of("AMQUserID='ID:" + randomUUID + "'"));
+      Filter nullFilter = FilterImpl.createFilter(SimpleString.of("AMQUserID IS NULL"));
+      Filter notNullFilter = FilterImpl.createFilter(SimpleString.of("AMQUserID IS NOT NULL"));
+
+      assertFalse(filter.match(message));
+      assertTrue(nullFilter.match(message));
+      assertFalse(notNullFilter.match(message));
+
+      // This 'UserID' is not about user names etc, but what is typically considered as a MessageID.
+      message.setUserID(artemisUUID);
+
+      assertTrue(filter.match(message));
+      assertFalse(nullFilter.match(message));
+      assertTrue(notNullFilter.match(message));
    }
 
    @Test
