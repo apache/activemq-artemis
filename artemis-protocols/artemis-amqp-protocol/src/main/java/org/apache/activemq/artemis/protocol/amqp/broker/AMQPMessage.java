@@ -208,6 +208,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    protected long expiration;
    protected boolean expirationReload = false;
    protected long scheduledTime = -1;
+   protected byte priority = DEFAULT_MESSAGE_PRIORITY;
 
    protected boolean isPaged;
 
@@ -678,6 +679,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       if (!expirationReload) {
          expiration = 0;
       }
+      priority = DEFAULT_MESSAGE_PRIORITY;
       encodedHeaderSize = 0;
       memoryEstimate = -1;
       originalEstimate = -1;
@@ -712,6 +714,9 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
                   if (!expirationReload) {
                      expiration = System.currentTimeMillis() + header.getTtl().longValue();
                   }
+               }
+               if (header.getPriority() != null) {
+                  priority = (byte) Math.min(header.getPriority().intValue(), MAX_MESSAGE_PRIORITY);
                }
             } else if (DeliveryAnnotations.class.equals(constructor.getTypeClass())) {
                deliveryAnnotationsPosition = constructorPos;
@@ -1297,19 +1302,21 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final byte getPriority() {
-      if (header != null && header.getPriority() != null) {
-         return (byte) Math.min(header.getPriority().intValue(), MAX_MESSAGE_PRIORITY);
-      } else {
-         return DEFAULT_MESSAGE_PRIORITY;
-      }
+      return priority;
    }
 
    @Override
    public final org.apache.activemq.artemis.api.core.Message setPriority(byte priority) {
+      // Internally we can only deal with a limited range, but the AMQP value is allowed
+      // to span the full range of the unsigned byte so we store what was actually set in
+      // the AMQP Header section.
+      this.priority = (byte) Math.min(priority & 0xff, MAX_MESSAGE_PRIORITY);
+
       if (header == null) {
          header = new Header();
       }
       header.setPriority(UnsignedByte.valueOf(priority));
+
       return this;
    }
 
