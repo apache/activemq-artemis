@@ -1469,7 +1469,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       @Override
       public Response processAddSession(SessionInfo info) throws Exception {
          // Avoid replaying dup commands
-         if (!state.getSessionIds().contains(info.getSessionId())) {
+         if (state != null && !state.getSessionIds().contains(info.getSessionId())) {
             addSession(info);
             state.addSession(info);
          }
