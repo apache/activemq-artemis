@@ -201,6 +201,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       File brokerXml = new File(serverLocation, "/etc/broker.xml");
       assertTrue(brokerXml.exists());
       assertTrue(FileUtil.findReplace(brokerXml, "<page-size-bytes>10M</page-size-bytes>", "<page-size-bytes>100K</page-size-bytes>"));
+      assertTrue(FileUtil.findReplace(brokerXml, "amqpDuplicateDetection=true;", "amqpDuplicateDetection=true;ackManagerFlushTimeout=" + TimeUnit.MINUTES.toMillis(10) + ";"));
 
       if (TRACE_LOGS) {
          replaceLogs(serverLocation);
@@ -271,6 +272,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
 
       File brokerXml = new File(serverLocation, "/etc/broker.xml");
       assertTrue(brokerXml.exists());
+      assertTrue(FileUtil.findReplace(brokerXml, "amqpDuplicateDetection=true;", "amqpDuplicateDetection=true;ackManagerFlushTimeout=" + TimeUnit.MINUTES.toMillis(10) + ";"));
 
       if (TRACE_LOGS) {
          replaceLogs(serverLocation);
@@ -369,7 +371,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
 
       final int startAt = 300;
       final int killAt = 800;
-      final int totalMessages = 1000;
+      final int totalMessages = 1_600;
       String snfQueue = "$ACTIVEMQ_ARTEMIS_MIRROR_mirror";
 
       try (Connection connection = connectionFactoryDC1A.createConnection()) {
