@@ -491,7 +491,7 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
 
    @Override
    public void processFlowUpdates(AmqpConnection connection) throws IOException {
-      logger.trace("Sender {} flow update, credit = {}", getEndpoint().getCredit());
+      logger.trace("Sender {} flow update, credit = {}", senderId, getEndpoint().getCredit());
 
       doCreditInspection();
    }
