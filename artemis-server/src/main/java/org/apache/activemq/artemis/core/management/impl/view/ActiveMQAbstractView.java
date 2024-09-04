@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -42,6 +43,8 @@ public abstract class ActiveMQAbstractView<T> {
    private static final String SORT_ORDER = "sortOrder";
 
    private static final String SORT_COLUMN = "sortColumn";
+
+   private static final JsonObject DEFAULT_FILTER = JsonUtil.toJsonObject(Map.of(FILTER_FIELD, "", FILTER_OPERATION, "", FILTER_VALUE, ""));
 
    protected Collection<T> collection;
 
@@ -119,7 +122,12 @@ public abstract class ActiveMQAbstractView<T> {
    abstract Object getField(T t, String fieldName);
 
    public void setOptions(String options) {
-      JsonObject json = JsonUtil.readJsonObject(options);
+      JsonObject json;
+      if (options == null || options.isBlank()) {
+         json = DEFAULT_FILTER;
+      } else {
+         json = JsonUtil.readJsonObject(options);
+      }
       if (predicate != null) {
          predicate.setField(json.getString(FILTER_FIELD));
          predicate.setOperation(json.getString(FILTER_OPERATION));
