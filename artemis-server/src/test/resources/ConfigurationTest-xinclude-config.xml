@@ -261,6 +261,7 @@
             <producer-window-size>555k</producer-window-size>
             <pending-ack-timeout>123456</pending-ack-timeout>
             <discovery-group-ref discovery-group-name="dg1"/>
+            <client-id>myClientID</client-id>
          </bridge>
          <bridge name="bridge4">
             <queue-name>queue3</queue-name>
@@ -340,6 +341,7 @@
          <cluster-connection name="cluster-connection3">
             <connector-ref>connector2</connector-ref>
             <message-load-balancing>OFF_WITH_REDISTRIBUTION</message-load-balancing>
+            <client-id>myClientID</client-id>
          </cluster-connection>
       </cluster-connections>
       <broker-connections>

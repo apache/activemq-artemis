@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -67,6 +68,8 @@ import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.management.impl.view.ConnectionField;
+import org.apache.activemq.artemis.core.management.impl.view.predicate.ActiveMQFilterPredicate;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
@@ -88,6 +91,8 @@ import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
@@ -552,6 +557,43 @@ public class BridgeTest extends ActiveMQTestBase {
       ServerLocatorImpl serverLocator = (ServerLocatorImpl) ((BridgeImpl)server0.getClusterManager().getBridges().get("bridge1")).getServerLocator();
       Wait.waitFor(() -> serverLocator.getClientSessionFactoryCount() > 1, 500, 10);
       assertTrue(serverLocator.getClientSessionFactoryCount() <= 1);
+   }
+
+   @TestTemplate
+   public void testBridgeClientID() throws Exception {
+      final String clientId = RandomUtil.randomString();
+      Map<String, Object> server0Params = new HashMap<>();
+      server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
+
+      Map<String, Object> server1Params = new HashMap<>();
+      addTargetParameters(server1Params);
+      server1 = createClusteredServerWithParams(isNetty(), 1, true, server1Params);
+
+      final String testAddress = "testAddress";
+      final String queueName0 = "queue0";
+      final String forwardAddress = "forwardAddress";
+      final String queueName1 = "queue1";
+
+      TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
+
+      HashMap<String, TransportConfiguration> connectors = new HashMap<>();
+      connectors.put(server1tc.getName(), server1tc);
+      server0.getConfiguration().setConnectorConfigurations(connectors);
+
+      List<String> connectorConfig = List.of(server1tc.getName());
+      server0.getConfiguration().setBridgeConfigurations(List.of(new BridgeConfiguration().setName(getName()).setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(10).setReconnectAttempts(250).setStaticConnectors(connectorConfig).setClientId(clientId)));
+      server0.getConfiguration().setQueueConfigs(List.of(QueueConfiguration.of(queueName0).setAddress(testAddress)));
+      server1.getConfiguration().setQueueConfigs(List.of(QueueConfiguration.of(queueName1).setAddress(forwardAddress)));
+
+      server1.start();
+      server0.start();
+
+      Wait.assertTrue(()-> server0.getClusterManager().getBridges().get(getName()).isConnected(), 2000, 25);
+
+      String connectionsAsJsonString = server1.getActiveMQServerControl().listConnections(createJsonFilter(ConnectionField.CLIENT_ID.getName(), ActiveMQFilterPredicate.Operation.EQUALS.toString(), clientId), 1, 1);
+      JsonObject connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+      JsonArray array = (JsonArray) connectionsAsJsonObject.get("data");
+      assertEquals(1, array.size(), "number of connections returned from query");
    }
 
    /**

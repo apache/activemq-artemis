@@ -94,6 +94,7 @@ public class BridgeConfigurationEncodingTest {
       final ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.ANYCAST;
       final long pendingAckTimeout = 5L;
       final String staticConnector = "ii";
+      final String clientId = "mm";
 
       BridgeConfiguration configuration = new BridgeConfiguration()
          .setName(name)
@@ -120,7 +121,8 @@ public class BridgeConfigurationEncodingTest {
          .setCallTimeout(callTimeout)
          .setConcurrency(concurrency)
          .setConfigurationManaged(configurationManaged)
-         .setRoutingType(routingType);
+         .setRoutingType(routingType)
+         .setClientId(clientId);
 
       if (transformer) {
          final String transformerClass = "jj";
@@ -322,6 +324,11 @@ public class BridgeConfigurationEncodingTest {
       data.readBytes(read, 0, 9);
       assertArrayEquals(new byte[] {DataConstants.NOT_NULL, 0, 0, 0, 0, 0, 0, 0, 5}, read);
 
+      // clientId
+      read = new byte[9];
+      data.readBytes(read, 0, 9);
+      assertArrayEquals(new byte[] {DataConstants.NOT_NULL, 0, 0, 0, 2, 0, 109, 0, 109}, read);
+
       assertEquals(0, data.readableBytes());
    }
 
@@ -360,7 +367,8 @@ public class BridgeConfigurationEncodingTest {
          .setRoutingType(ComponentConfigurationRoutingType.ANYCAST)
          .setTransformerConfiguration(mytransformer)
          .setStaticConnectors(List.of("tcp://localhost:61616"))
-         .setPendingAckTimeout(13);
+         .setPendingAckTimeout(13)
+         .setClientId("myClientID");
 
       int encodeSize = configuration.getEncodeSize();
       ActiveMQBuffer data = ActiveMQBuffers.fixedBuffer(encodeSize);
@@ -402,6 +410,7 @@ public class BridgeConfigurationEncodingTest {
       assertEquals("prop3", properties.get("key3"));
       assertEquals(configuration.getStaticConnectors(), persistedBridgeConfiguration.getStaticConnectors());
       assertEquals(configuration.getPendingAckTimeout(), persistedBridgeConfiguration.getPendingAckTimeout());
+      assertEquals(configuration.getClientId(), persistedBridgeConfiguration.getClientId());
    }
 
    @Test
@@ -436,7 +445,8 @@ public class BridgeConfigurationEncodingTest {
          .setRoutingType(ComponentConfigurationRoutingType.ANYCAST)
          .setTransformerConfiguration(mytransformer)
          .setStaticConnectors(List.of("tcp://localhost:61616"))
-         .setPendingAckTimeout(13);
+         .setPendingAckTimeout(13)
+         .setClientId("myClientID");
 
       int encodeSize = configuration.getEncodeSize();
       ActiveMQBuffer data = ActiveMQBuffers.fixedBuffer(encodeSize);
@@ -475,6 +485,7 @@ public class BridgeConfigurationEncodingTest {
       assertEquals(0, properties.size());
       assertEquals(configuration.getStaticConnectors(), persistedBridgeConfiguration.getStaticConnectors());
       assertEquals(configuration.getPendingAckTimeout(), persistedBridgeConfiguration.getPendingAckTimeout());
+      assertEquals(configuration.getClientId(), persistedBridgeConfiguration.getClientId());
    }
 
    @Test
@@ -506,7 +517,8 @@ public class BridgeConfigurationEncodingTest {
          .setConfigurationManaged(true)
          .setRoutingType(ComponentConfigurationRoutingType.ANYCAST)
          .setStaticConnectors(List.of("tcp://localhost:61616"))
-         .setPendingAckTimeout(13);
+         .setPendingAckTimeout(13)
+         .setClientId("myClientID");
 
       int encodeSize = configuration.getEncodeSize();
       ActiveMQBuffer data = ActiveMQBuffers.fixedBuffer(encodeSize);
@@ -542,5 +554,6 @@ public class BridgeConfigurationEncodingTest {
       assertNull(persistedBridgeConfiguration.getTransformerConfiguration());
       assertEquals(configuration.getStaticConnectors(), persistedBridgeConfiguration.getStaticConnectors());
       assertEquals(configuration.getPendingAckTimeout(), persistedBridgeConfiguration.getPendingAckTimeout());
+      assertEquals(configuration.getClientId(), persistedBridgeConfiguration.getClientId());
    }
 }

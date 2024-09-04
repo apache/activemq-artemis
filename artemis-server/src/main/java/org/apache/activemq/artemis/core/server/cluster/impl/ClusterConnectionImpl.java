@@ -183,6 +183,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    private boolean splitBrainDetection;
 
+   private final String clientId;
+
 
    /** For tests only */
    public ServerLocatorInternal getServerLocator() {
@@ -220,7 +222,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final String clusterPassword,
                                 final boolean allowDirectConnectionsOnly,
                                 final long clusterNotificationInterval,
-                                final int clusterNotificationAttempts) throws Exception {
+                                final int clusterNotificationAttempts,
+                                final String clientId) throws Exception {
       this.nodeManager = nodeManager;
 
       this.connector = connector;
@@ -303,6 +306,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
 
       this.storeAndForwardPrefix = server.getInternalNamingPrefix() + SN_PREFIX;
+
+      this.clientId = clientId;
    }
 
    public ClusterConnectionImpl(final ClusterManager manager,
@@ -335,7 +340,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final String clusterPassword,
                                 final boolean allowDirectConnectionsOnly,
                                 final long clusterNotificationInterval,
-                                final int clusterNotificationAttempts) throws Exception {
+                                final int clusterNotificationAttempts,
+                                final String clientId) throws Exception {
       this.nodeManager = nodeManager;
 
       this.connector = connector;
@@ -403,6 +409,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       this.manager = manager;
 
       this.storeAndForwardPrefix = server.getInternalNamingPrefix() + SN_PREFIX;
+
+      this.clientId = clientId;
    }
 
    @Override
@@ -908,7 +916,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       targetLocator.addIncomingInterceptor(new IncomingInterceptorLookingForExceptionMessage(manager, executorFactory.getExecutor()));
       MessageFlowRecordImpl record = new MessageFlowRecordImpl(targetLocator, eventUID, targetNodeID, connector, queueName, queue);
 
-      ClusterConnectionBridge bridge = new ClusterConnectionBridge(this, manager, targetLocator, serverLocator, initialConnectAttempts, reconnectAttempts, retryInterval, retryIntervalMultiplier, maxRetryInterval, nodeManager.getUUID(), record.getEventUID(), record.getTargetNodeID(), record.getQueueName(), record.getQueue(), executorFactory.getExecutor(), null, null, scheduledExecutor, null, useDuplicateDetection, clusterUser, clusterPassword, server, managementService.getManagementAddress(), managementService.getManagementNotificationAddress(), record, record.getConnector(), storeAndForwardPrefix, server.getStorageManager());
+      ClusterConnectionBridge bridge = new ClusterConnectionBridge(this, manager, targetLocator, serverLocator, initialConnectAttempts, reconnectAttempts, retryInterval, retryIntervalMultiplier, maxRetryInterval, nodeManager.getUUID(), record.getEventUID(), record.getTargetNodeID(), record.getQueueName(), record.getQueue(), executorFactory.getExecutor(), null, null, scheduledExecutor, null, useDuplicateDetection, clusterUser, clusterPassword, server, managementService.getManagementAddress(), managementService.getManagementNotificationAddress(), record, record.getConnector(), storeAndForwardPrefix, server.getStorageManager(), clientId);
 
       targetLocator.setIdentity("(Cluster-connection-bridge::" + bridge.toString() + "::" + this.toString() + ")");
 

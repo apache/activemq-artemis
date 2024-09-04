@@ -67,6 +67,7 @@ public final class BridgeConfiguration implements Serializable {
    public static String CONCURRENCY = "concurrency";
    public static String CONFIGURATION_MANAGED = "configuration-managed";
    public static String PENDING_ACK_TIMEOUT = "pending-ack-timeout";
+   public static String CLIENT_ID = "client-id";
 
    private String name = null;
 
@@ -127,6 +128,8 @@ public final class BridgeConfiguration implements Serializable {
 
    private boolean configurationManaged = true;
 
+   private String clientId = null;
+
    public BridgeConfiguration() {
    }
 
@@ -159,6 +162,7 @@ public final class BridgeConfiguration implements Serializable {
       concurrency = other.concurrency;
       configurationManaged = other.configurationManaged;
       pendingAckTimeout = other.pendingAckTimeout;
+      clientId = other.clientId;
    }
 
    public BridgeConfiguration(String name) {
@@ -194,6 +198,7 @@ public final class BridgeConfiguration implements Serializable {
     * <li>call-timeout: {@link #CALL_TIMEOUT}
     * <li>routing-type: {@link #ROUTING_TYPE}
     * <li>concurrency: {@link #CONCURRENCY}
+    * <li>client-id: {@link #CLIENT_ID}
     * </ul><p>
     * The {@code String}-based values will be converted to the proper value types based on the underlying property. For
     * example, if you pass the value "TRUE" for the key "auto-created" the {@code String} "TRUE" will be converted to
@@ -267,6 +272,8 @@ public final class BridgeConfiguration implements Serializable {
             setConcurrency(Integer.parseInt(value));
          } else if (key.equals(PENDING_ACK_TIMEOUT)) {
             setPendingAckTimeout(Long.parseLong(value));
+         } else if (key.equals(CLIENT_ID)) {
+            setClientId(value);
          }
       }
       return this;
@@ -592,6 +599,21 @@ public final class BridgeConfiguration implements Serializable {
    }
 
    /**
+    * @return the bridge client ID
+    */
+   public String getClientId() {
+      return clientId;
+   }
+
+   /**
+    * @param clientId the bridge clientId to set
+    */
+   public BridgeConfiguration setClientId(String clientId) {
+      this.clientId = clientId;
+      return this;
+   }
+
+   /**
     * At this point this is only changed on testcases
     * The bridge shouldn't be sending blocking anyways
     *
@@ -653,6 +675,9 @@ public final class BridgeConfiguration implements Serializable {
       builder.add(CONCURRENCY, getConcurrency());
       builder.add(CONFIGURATION_MANAGED, isConfigurationManaged());
       builder.add(PENDING_ACK_TIMEOUT, getPendingAckTimeout());
+      if (getClientId() != null) {
+         builder.add(CLIENT_ID, getClientId());
+      }
 
       // complex fields (only serialize if value is not null)
 
@@ -749,6 +774,7 @@ public final class BridgeConfiguration implements Serializable {
       result = prime * result + concurrency;
       result = prime * result + (int) (pendingAckTimeout ^ (pendingAckTimeout >>> 32));
       result = prime * result + (configurationManaged ? 1231 : 1237);
+      result = prime * result + ((clientId == null) ? 0 : clientId.hashCode());
       return result;
    }
 
@@ -838,6 +864,11 @@ public final class BridgeConfiguration implements Serializable {
          return false;
       if (configurationManaged != other.configurationManaged)
          return false;
+      if (clientId == null) {
+         if (other.clientId != null)
+            return false;
+      } else if (!clientId.equals(other.clientId))
+         return false;
       return true;
    }
 
@@ -886,7 +917,8 @@ public final class BridgeConfiguration implements Serializable {
          DataConstants.SIZE_BYTE + // routingType
          transformerSize +
          staticConnectorSize +
-         BufferHelper.sizeOfNullableLong(pendingAckTimeout);
+         BufferHelper.sizeOfNullableLong(pendingAckTimeout) +
+         BufferHelper.sizeOfNullableString(clientId);
       return size;
    }
 
@@ -936,6 +968,7 @@ public final class BridgeConfiguration implements Serializable {
          buffer.writeInt(0);
       }
       buffer.writeNullableLong(pendingAckTimeout);
+      buffer.writeNullableString(clientId);
    }
 
    public void decode(ActiveMQBuffer buffer) {
@@ -981,6 +1014,9 @@ public final class BridgeConfiguration implements Serializable {
       }
       if (buffer.readable()) {
          pendingAckTimeout = buffer.readNullableLong();
+      }
+      if (buffer.readable()) {
+         clientId = buffer.readNullableString();
       }
    }
 }

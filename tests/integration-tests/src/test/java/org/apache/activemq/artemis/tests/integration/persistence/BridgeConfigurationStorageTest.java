@@ -63,7 +63,8 @@ public class BridgeConfigurationStorageTest extends StorageManagerTestBase {
          .setProducerWindowSize(123123)
          .setConfirmationWindowSize(123123)
          .setStaticConnectors(Arrays.asList("connector1", "connector2"))
-         .setTransformerConfiguration(mytransformer);
+         .setTransformerConfiguration(mytransformer)
+         .setClientId("myClientID");
 
       journal.storeBridgeConfiguration(new PersistedBridgeConfiguration(configuration));
 
@@ -87,6 +88,7 @@ public class BridgeConfigurationStorageTest extends StorageManagerTestBase {
       assertEquals("prop1", properties.get("key1"));
       assertEquals("prop2", properties.get("key2"));
       assertEquals("prop3", properties.get("key3"));
+      assertEquals(configuration.getClientId(), persistedBridgeConfiguration.getBridgeConfiguration().getClientId());
    }
 
    @TestTemplate

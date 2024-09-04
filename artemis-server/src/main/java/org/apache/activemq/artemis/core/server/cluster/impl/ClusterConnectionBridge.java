@@ -123,7 +123,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                   final MessageFlowRecord flowRecord,
                                   final TransportConfiguration connector,
                                   final String storeAndForwardPrefix,
-                                  final StorageManager storageManager) throws ActiveMQException {
+                                  final StorageManager storageManager,
+                                  final String clientId) throws ActiveMQException {
       super(targetLocator, new BridgeConfiguration()
          .setName(name == null ? null : name.toString())
          .setInitialConnectAttempts(initialConnectAttempts)
@@ -138,7 +139,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
          .setUser(user)
          .setPassword(password)
          .setTransformerConfiguration(transformer)
-         .setRoutingType(ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultBridgeRoutingType())), nodeUUID, queue, executor, scheduledExecutor, server);
+         .setRoutingType(ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultBridgeRoutingType()))
+         .setClientId(clientId), nodeUUID, queue, executor, scheduledExecutor, server);
 
       this.discoveryLocator = discoveryLocator;
 

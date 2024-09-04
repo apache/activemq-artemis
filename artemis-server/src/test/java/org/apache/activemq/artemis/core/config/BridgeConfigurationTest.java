@@ -74,6 +74,7 @@ public class BridgeConfigurationTest {
       assertEquals(ComponentConfigurationRoutingType.MULTICAST, bridgeConfiguration.getRoutingType());
       assertEquals(1, bridgeConfiguration.getConcurrency());
       assertEquals(321, bridgeConfiguration.getPendingAckTimeout());
+      assertEquals("myClientID", bridgeConfiguration.getClientId());
    }
 
    @Test
@@ -202,6 +203,7 @@ public class BridgeConfigurationTest {
       objectBuilder.add(BridgeConfiguration.CONCURRENCY, 1);
       objectBuilder.add(BridgeConfiguration.CONFIGURATION_MANAGED, true);
       objectBuilder.add(BridgeConfiguration.PENDING_ACK_TIMEOUT, 321);
+      objectBuilder.add(BridgeConfiguration.CLIENT_ID, "myClientID");
 
       return objectBuilder.build();
    }

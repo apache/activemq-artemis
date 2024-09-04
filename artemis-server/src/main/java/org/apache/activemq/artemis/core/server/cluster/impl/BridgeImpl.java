@@ -1040,9 +1040,9 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                      return;
                   }
                   // Session is pre-acknowledge
-                  session = (ClientSessionInternal) csf.createSession(configuration.getUser(), configuration.getPassword(), false, true, true, true, 1);
+                  session = (ClientSessionInternal) csf.createSession(configuration.getUser(), configuration.getPassword(), false, true, true, true, 1, configuration.getClientId());
                   session.getProducerCreditManager().setCallback(BridgeImpl.this);
-                  sessionConsumer = (ClientSessionInternal) csf.createSession(configuration.getUser(), configuration.getPassword(), false, true, true, true, 1);
+                  sessionConsumer = (ClientSessionInternal) csf.createSession(configuration.getUser(), configuration.getPassword(), false, true, true, true, 1, configuration.getClientId());
                }
 
                if (configuration.getForwardingAddress() != null) {

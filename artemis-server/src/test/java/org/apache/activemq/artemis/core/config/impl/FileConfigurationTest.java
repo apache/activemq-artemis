@@ -430,12 +430,14 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
             assertEquals("dg1", bc.getDiscoveryGroupName());
             assertEquals(568320, bc.getProducerWindowSize());
             assertEquals(ComponentConfigurationRoutingType.PASS, bc.getRoutingType());
+            assertNull(bc.getClientId());
          } else if (bc.getName().equals("bridge3")) {
             assertEquals("bridge3", bc.getName());
             assertEquals("org.foo.BridgeTransformer3", bc.getTransformerConfiguration().getClassName());
             assertEquals("bridgeTransformerValue1", bc.getTransformerConfiguration().getProperties().get("bridgeTransformerKey1"));
             assertEquals("bridgeTransformerValue2", bc.getTransformerConfiguration().getProperties().get("bridgeTransformerKey2"));
             assertEquals(123456, bc.getPendingAckTimeout());
+            assertEquals("myClientID", bc.getClientId());
          }
       }
 
@@ -454,6 +456,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
             assertEquals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, ccc.getMessageLoadBalancingType());
             assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterCallTimeout(), ccc.getCallTimeout());
             assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterCallFailoverTimeout(), ccc.getCallFailoverTimeout());
+            assertEquals("myClientID", ccc.getClientId());
          } else if (ccc.getName().equals("cluster-connection1")) {
             assertEquals("cluster-connection1", ccc.getName());
             assertEquals(321, ccc.getMinLargeMessageSize(), "clusterConnectionConf minLargeMessageSize");
