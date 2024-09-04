@@ -18,9 +18,11 @@
 package org.apache.activemq.artemis.protocol.amqp.connect.mirror;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.Set;
@@ -178,9 +180,14 @@ public class AckManager implements ActiveMQComponent {
       this.mirrorControllerTargets.remove(mirrorTarget);
    }
 
-   private synchronized void flushMirrorTargets() {
+   private void flushMirrorTargets() {
       logger.debug("scanning and flushing mirror targets");
-      mirrorControllerTargets.forEach(AMQPMirrorControllerTarget::flush);
+      List<AMQPMirrorControllerTarget> targetCopy = copyTargets();
+      targetCopy.forEach(AMQPMirrorControllerTarget::flush);
+   }
+
+   private synchronized List<AMQPMirrorControllerTarget> copyTargets() {
+      return new ArrayList<>(mirrorControllerTargets);
    }
 
    // Sort the ACK list by address
