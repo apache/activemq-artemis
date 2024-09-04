@@ -51,5 +51,6 @@
    <cluster-connection name="cluster-connection3">
       <connector-ref>connector2</connector-ref>
       <message-load-balancing>OFF_WITH_REDISTRIBUTION</message-load-balancing>
+      <client-id>myClientID</client-id>
    </cluster-connection>
 </cluster-connections>

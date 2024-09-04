@@ -1570,6 +1570,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="client-id" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the identifier to use for the bridge connection; helps with identifying the connection on the remote broker
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element ref="discovery-type" maxOccurs="1" minOccurs="1"/>
 
       </xsd:all>
@@ -2594,6 +2602,14 @@
             <xsd:annotation>
                <xsd:documentation>
                   The connector to use for scaling down or when as backup in SCALE_DOWN mode
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="client-id" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the identifier to use for the cluster connection; helps with identifying the connection on the remote broker
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

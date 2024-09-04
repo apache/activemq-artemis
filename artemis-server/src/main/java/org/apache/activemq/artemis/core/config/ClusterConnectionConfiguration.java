@@ -83,6 +83,8 @@ public final class ClusterConnectionConfiguration implements Serializable {
 
    private int clusterNotificationAttempts = ActiveMQDefaultConfiguration.getDefaultClusterNotificationAttempts();
 
+   private String clientId;
+
    public ClusterConnectionConfiguration() {
    }
 
@@ -368,6 +370,15 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return this;
    }
 
+   public String getClientId() {
+      return clientId;
+   }
+
+   public ClusterConnectionConfiguration setClientId(String clientId) {
+      this.clientId = clientId;
+      return this;
+   }
+
    /**
     * This method will match the configuration and return the proper TransportConfiguration for the Configuration
     */
@@ -451,6 +462,7 @@ public final class ClusterConnectionConfiguration implements Serializable {
       temp = Double.doubleToLongBits(retryIntervalMultiplier);
       result = prime * result + (int) (temp ^ (temp >>> 32));
       result = prime * result + ((staticConnectors == null) ? 0 : staticConnectors.hashCode());
+      result = prime * result + ((clientId == null) ? 0 : clientId.hashCode());
       return result;
    }
 
@@ -552,6 +564,13 @@ public final class ClusterConnectionConfiguration implements Serializable {
       } else if (!staticConnectors.equals(other.staticConnectors)) {
          return false;
       }
+      if (clientId == null) {
+         if (other.clientId != null) {
+            return false;
+         }
+      } else if (!clientId.equals(other.clientId)) {
+         return false;
+      }
       return true;
    }
 
@@ -581,6 +600,7 @@ public final class ClusterConnectionConfiguration implements Serializable {
          ", minLargeMessageSize=" + minLargeMessageSize +
          ", clusterNotificationInterval=" + clusterNotificationInterval +
          ", clusterNotificationAttempts=" + clusterNotificationAttempts +
+         ", clientId=" + clientId +
          '}';
    }
 }

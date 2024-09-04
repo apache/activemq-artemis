@@ -16,19 +16,25 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
-import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
-import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Random;
+
+import org.apache.activemq.artemis.api.core.JsonUtil;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
+import org.apache.activemq.artemis.core.management.impl.view.ConnectionField;
+import org.apache.activemq.artemis.core.management.impl.view.predicate.ActiveMQFilterPredicate;
+import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
+import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ClusterConnectionConfigTest extends ClusterTestBase {
 
@@ -101,6 +107,32 @@ public class ClusterConnectionConfigTest extends ClusterTestBase {
          ServerLocatorInternal targetLocator = (ServerLocatorInternal) f.get(record);
          assertEquals(producerWindow, targetLocator.getProducerWindowSize());
       }
+   }
+
+   @Test
+   public void testClusterConnectionClientId() throws Exception {
+      final String clientId = RandomUtil.randomString();
+      setupCluster(MessageLoadBalancingType.ON_DEMAND, (ClusterConnectionConfiguration cfg) -> {
+         cfg.setClientId(clientId);
+      });
+      startServers(0, 1);
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+
+      createQueue(0, "queues.testaddress", "queue0", null, false);
+      createQueue(1, "queues.testaddress", "queue0", null, false);
+
+      waitForBindings(0, "queues.testaddress", 1, 0, true);
+      waitForBindings(1, "queues.testaddress", 1, 0, true);
+
+      waitForBindings(0, "queues.testaddress", 1, 0, false);
+      waitForBindings(1, "queues.testaddress", 1, 0, false);
+
+      String connectionsAsJsonString = servers[1].getActiveMQServerControl().listConnections(createJsonFilter(ConnectionField.CLIENT_ID.getName(), ActiveMQFilterPredicate.Operation.EQUALS.toString(), clientId), 1, 1);
+      JsonObject connectionsAsJsonObject = JsonUtil.readJsonObject(connectionsAsJsonString);
+      JsonArray array = (JsonArray) connectionsAsJsonObject.get("data");
+      assertEquals(1, array.size(), "number of connections returned from query");
    }
 
 }

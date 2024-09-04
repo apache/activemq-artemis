@@ -420,6 +420,7 @@ There can be zero or more cluster connections defined per Apache ActiveMQ Artemi
       <notification-interval>1000</notification-interval>
       <notification-attempts>2</notification-attempts>
       <discovery-group-ref discovery-group-name="my-discovery-group"/>
+      <client-id></client-id>
    </cluster-connection>
 </cluster-connections>
 ----
@@ -581,6 +582,11 @@ Alternatively if you would like your cluster connections to use a static list of
 Here we have defined 2 servers that we know for sure will that at least one will be available.
 There may be many more servers in the cluster but these will;
 be discovered via one of these connectors once an initial connection has been made.
+
+client-id::
+An optional identifier to use for the cluster connection.
+This can help with identifying the connection on the remote broker (e.g. via the web console).
+Default is empty (i.e. unset).
 
 === Cluster User Credentials
 

@@ -65,6 +65,7 @@ Let's kick off with an example:
    <!-- alternative to static-connectors
    <discovery-group-ref discovery-group-name="bridge-discovery-group"/>
    -->
+   <client-id>myClientID</client-id>
 </bridge>
 ----
 
@@ -215,3 +216,8 @@ Pick either this or `static-connector` to connect the bridge to the target serve
 The `discovery-group-ref` element has one attribute - `discovery-group-name`.
 This attribute points to a `discovery-group` defined elsewhere.
 For more information about what discovery-groups are and how to configure them, please see xref:clusters.adoc#clusters[Discovery Groups].
+
+client-id::
+An optional identifier to use for the bridge connection.
+This can help with identifying the connection on the remote broker (e.g. via the web console).
+Default is empty (i.e. unset).
