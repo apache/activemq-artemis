@@ -155,13 +155,8 @@ public class IdempotentACKTest extends SoakTestBase {
 
 
    @Test
-   public void testAMQP() throws Exception {
-      testACKs("AMQP");
-   }
-
-   @Test
-   public void testCORE() throws Exception {
-      testACKs("CORE");
+   public void testRandomProtocol() throws Exception {
+      testACKs(randomProtocol());
    }
 
    private void testACKs(final String protocol) throws Exception {
