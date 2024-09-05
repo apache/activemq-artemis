@@ -145,15 +145,10 @@ public class InterruptedLargeMessageTest extends SoakTestBase {
 
    @Test
    @Timeout(240)
-   public void testAMQP() throws Exception {
-      testInterrupt("AMQP");
+   public void testRandomProtocol() throws Exception {
+      testInterrupt(randomProtocol());
    }
 
-   @Test
-   @Timeout(240)
-   public void testCORE() throws Exception {
-      testInterrupt("CORE");
-   }
 
    private void preCreateInternalQueues(String serverLocation) throws Exception {
       Configuration configuration = createDefaultConfig(0, false);

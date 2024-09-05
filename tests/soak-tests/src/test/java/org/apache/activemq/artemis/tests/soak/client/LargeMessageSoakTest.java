@@ -58,18 +58,8 @@ public class LargeMessageSoakTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testAMQP() throws Exception {
-      testSendReceive("AMQP");
-   }
-
-   @Test
-   public void testCORE() throws Exception {
-      testSendReceive("CORE");
-   }
-
-   @Test
-   public void testOpenWire() throws Exception {
-      testSendReceive("OPENWIRE");
+   public void testRandomProtocol() throws Exception {
+      testSendReceive(randomProtocol());
    }
 
    public void testSendReceive(String protocol) throws Exception {
