@@ -283,13 +283,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       LAST_SENT_UPDATER.lazySet(this, System.currentTimeMillis());
    }
 
-   /**
-    * Log packaged into a separate method for performance reasons.
-    */
-   private static void traceBufferReceived(Object connectionID, Command command) {
-      logger.trace("connectionID: {} RECEIVED: {}", connectionID, (command == null ? "NULL" : command));
-   }
-
    @Override
    public void bufferReceived(Object connectionID, ActiveMQBuffer buffer) {
       super.bufferReceived(connectionID, buffer);
@@ -297,10 +290,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       try {
          Command command = (Command) inWireFormat.unmarshal(buffer);
 
-         // log the openwire command
-         if (logger.isTraceEnabled()) {
-            traceBufferReceived(connectionID, command);
-         }
+         logCommand(command, true);
 
          final ThresholdActor<Command> localVisibleActor = openWireActor;
          if (localVisibleActor != null) {
@@ -526,21 +516,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       return state;
    }
 
-   /**
-    * Log packaged into a separate method for performance reasons.
-    */
-   private static void tracePhysicalSend(Connection transportConnection, Command command) {
-      logger.trace("connectionID: {} SENDING: {}", (transportConnection == null ? "" : transportConnection.getID()), (command == null ? "NULL" : command));
-   }
-
    public void physicalSend(Command command) throws IOException {
       if (this.protocolManager.invokeOutgoing(command, this) != null) {
          return;
       }
 
-      if (logger.isTraceEnabled()) {
-         tracePhysicalSend(transportConnection, command);
-      }
+      logCommand(command, false);
 
       try {
          final ByteSequence bytes = outWireFormat.marshal(command);
@@ -1910,5 +1891,26 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    public CoreMessageObjectPools getCoreMessageObjectPools() {
       return coreMessageObjectPools;
+   }
+
+   public void logCommand(Command command, boolean in) {
+      if (logger.isTraceEnabled()) {
+         StringBuilder message = new StringBuilder()
+            .append("OpenWire(")
+            .append(getRemoteAddress())
+            .append(", ")
+            .append(this.getID())
+            .append("):");
+
+         if (in) {
+            message.append(" IN << ");
+         } else {
+            message.append("OUT >> ");
+         }
+
+         message.append((command == null ? "NULL" : command));
+
+         logger.trace(message.toString());
+      }
    }
 }

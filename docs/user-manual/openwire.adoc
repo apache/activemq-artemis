@@ -109,3 +109,11 @@ The mappings support an optional parameter, `selectorAware` which when true, tra
 NOTE: the selector/filter is persisted with the queue binding in the normal way, such that it works independent of connected consumers.
 
 Please see Virtual Topic Mapping example contained in the OpenWire xref:examples.adoc#examples[examples].
+
+== Logging
+
+Incoming and outgoing OpenWire commands can be logged by enabling `TRACE` for `org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection`.
+This can be extremely useful for debugging or simply monitoring client activity.
+Along with the OpenWire command itself the remote IP address of the client is logged as well as the internal connection ID so that commands from the same client can be correlated.
+
+Follow xref:logging.adoc#configuring-a-specific-level-for-a-logger[these steps] to configure logging appropriately.
