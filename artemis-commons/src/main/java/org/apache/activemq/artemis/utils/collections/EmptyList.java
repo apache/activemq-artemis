@@ -62,6 +62,11 @@ public class EmptyList<E> implements LinkedList<E> {
       }
 
       @Override
+      public E removeLastElement() {
+         return null;
+      }
+
+      @Override
       public void close() {
       }
 

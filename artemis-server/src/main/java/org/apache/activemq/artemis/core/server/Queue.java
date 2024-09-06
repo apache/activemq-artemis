@@ -315,8 +315,6 @@ public interface Queue extends Bindable,CriticalComponent {
 
    MessageReference removeReferenceWithID(long id) throws Exception;
 
-   MessageReference getReference(long id) throws ActiveMQException;
-
    int deleteAllReferences() throws Exception;
 
    int deleteAllReferences(int flushLimit) throws Exception;

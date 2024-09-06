@@ -30,6 +30,14 @@ public interface NodeStore<E> {
 
    void removeNode(E element, LinkedListImpl.Node<E> node);
 
+   default NodeStore<E> setName(String name) {
+      return this;
+   }
+
+   default String getName() {
+      return null;
+   }
+
    /** this is meant to be a quick help to Garbage Collection.
     *  Whenever the IDSupplier list is being cleared, you should first call the clear method and
     *  empty every list before you let the instance go. */

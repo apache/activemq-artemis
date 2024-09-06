@@ -21,6 +21,7 @@ import java.util.HashMap;
 import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.utils.collections.NodeStore;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 
@@ -35,9 +36,26 @@ public class ReferenceNodeStore implements NodeStore<MessageReference> {
    // This is where the messages are stored by server id...
    HashMap<String, LongObjectHashMap<LinkedListImpl.Node<MessageReference>>> lists;
 
+   String name;
+
    String lruListID;
    LongObjectHashMap<LinkedListImpl.Node<MessageReference>> lruMap;
 
+   @Override
+   public String toString() {
+      return "ReferenceNodeStore{" + "name='" + name + "'}" + "@" + Integer.toHexString(System.identityHashCode(ReferenceNodeStore.this));
+   }
+
+   @Override
+   public NodeStore<MessageReference> setName(String name) {
+      this.name = name;
+      return this;
+   }
+
+   @Override
+   public String getName() {
+      return name;
+   }
 
    @Override
    public void storeNode(MessageReference element, LinkedListImpl.Node<MessageReference> node) {
@@ -50,7 +68,10 @@ public class ReferenceNodeStore implements NodeStore<MessageReference> {
       LongObjectHashMap<LinkedListImpl.Node<MessageReference>> nodesMap = getMap(serverID);
       if (nodesMap != null) {
          synchronized (nodesMap) {
-            nodesMap.put(id, node);
+            LinkedListImpl.Node<MessageReference> previousNode = nodesMap.put(id, node);
+            if (previousNode != null) {
+               ActiveMQAMQPProtocolLogger.LOGGER.duplicateNodeStoreID(name, serverID, id, new Exception("trace"));
+            }
          }
       }
    }

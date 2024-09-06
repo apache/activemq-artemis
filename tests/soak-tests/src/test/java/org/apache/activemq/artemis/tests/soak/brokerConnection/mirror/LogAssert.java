@@ -14,22 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.utils.collections;
 
-import java.util.Iterator;
+package org.apache.activemq.artemis.tests.soak.brokerConnection.mirror;
 
-/**
- * A LinkedListIterator
- *
- * This iterator allows the last element to be repeated in the next call to hasNext or next
- */
-public interface LinkedListIterator<E> extends Iterator<E>, AutoCloseable {
+import java.io.File;
 
-   void repeat();
+import org.apache.activemq.artemis.utils.FileUtil;
 
-   /** This method is doing exactly what {@link Iterator#remove()} would do, however it will return the removed element being removed. */
-   E removeLastElement();
+public class LogAssert {
 
-   @Override
-   void close();
+   public static void assertServerLogsForMirror(File serverLocation) throws Exception {
+      File log = new File(serverLocation, "log/artemis.log");
+      FileUtil.find(log, l -> l.contains("NullPointerException") || l.contains("AMQ111010"));
+   }
+
 }
