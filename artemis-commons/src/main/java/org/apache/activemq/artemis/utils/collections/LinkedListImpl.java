@@ -599,14 +599,21 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
       @Override
       public void remove() {
+         removeLastElement();
+      }
+
+      @Override
+      public E removeLastElement() {
          synchronized (LinkedListImpl.this) {
             if (last == null) {
                throw new NoSuchElementException();
             }
 
             if (current == null) {
-               return;
+               return null;
             }
+
+            E returningElement = current.val();
 
             Node<E> prev = current.prev;
 
@@ -615,6 +622,8 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
                last = null;
             }
+
+            return returningElement;
          }
       }
 

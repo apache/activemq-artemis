@@ -1388,11 +1388,6 @@ public class ScheduledDeliveryHandlerTest {
       }
 
       @Override
-      public MessageReference getReference(long id) {
-         return null;
-      }
-
-      @Override
       public int deleteAllReferences() throws Exception {
          return 0;
       }

@@ -64,4 +64,7 @@ public interface ActiveMQAMQPProtocolLogger {
 
    @LogMessage(id = 111009, value = "The AckManager was interrupt. timeout = {} milliseconds", level = LogMessage.Level.WARN)
    void interruptedAckManager(Exception e);
+
+   @LogMessage(id = 111010, value = "Duplicate AckManager node detected. Queue={}, ServerID={}, recordID={}", level = LogMessage.Level.WARN)
+   void duplicateNodeStoreID(String queue, String serverId, long recordID, Exception trace);
 }
