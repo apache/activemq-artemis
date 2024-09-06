@@ -2476,7 +2476,6 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
                                            .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString());
          // Should get a flow but if the link goes away quick enough the broker won't get to this before detaching.
          target.expectFlow().withLinkCredit(1000).optional();
-         target.expectDetach().respond();
 
          // Simulate another broker connecting as a federation instance that will create demand on
          // queue "test::test" and should generate demand to the server the broker connected to
@@ -2508,14 +2507,18 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             client.remoteFlow().withLinkCredit(10).now();
             client.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
+            // Now force close the federation link in an unexpected way which should cause the target to
+            // react and close the federation connection and trigger a rebuild of state, federation links
+            // should normally never be deleted by user management but if it is the state needs to be
+            // rebuilt in order for proper demand tracking.
+            target.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            target.expectDetach().respond();
+
             client.expectDetach();
+            client.expectClose().respond();
             client.remoteDetach().withErrorCondition("amqp:resource-deleted", "Resource deleted").later(30);
             client.waitForScriptToComplete(5, TimeUnit.SECONDS);
          }
-
-         target.waitForScriptToComplete(5, TimeUnit.SECONDS);
-         target.expectClose();
-         target.remoteClose().now();
 
          target.waitForScriptToComplete(5, TimeUnit.SECONDS);
          target.close();
