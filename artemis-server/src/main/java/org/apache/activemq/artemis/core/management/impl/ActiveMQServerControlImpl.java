@@ -4018,6 +4018,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             obj.add("name", brokerConnection.getName());
             obj.add("protocol", brokerConnection.getProtocol());
             obj.add("started", brokerConnection.isStarted());
+            obj.add("uri", brokerConnection.getConfiguration().getUri());
+            obj.add("open", brokerConnection.isOpen());
             connections.add(obj.build());
          }
          return connections.build().toString();

@@ -52,4 +52,6 @@ public interface FederatedQueueConsumer extends MessageHandler {
    void start();
 
    void close();
+
+   long federatedMessageCount();
 }

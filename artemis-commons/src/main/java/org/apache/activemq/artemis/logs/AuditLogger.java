@@ -2744,4 +2744,61 @@ public interface AuditLogger {
 
    @LogMessage(id = 601781, value = "User {} is getting authorization failure count on target resource: {}", level = LogMessage.Level.INFO)
    void getAuthorizationFailureCount(String user, Object source);
+
+   static void startFederation(Object source) {
+      BASE_LOGGER.startFederation(getCaller(), source);
+   }
+
+   @LogMessage(id = 601782, value = "User {} is starting a federation on target resource: {}", level = LogMessage.Level.INFO)
+   void startFederation(String user, Object source);
+
+   static void stopFederation(Object source) {
+      BASE_LOGGER.stopFederation(getCaller(), source);
+   }
+
+   @LogMessage(id = 601783, value = "User {} is stopping a federation on target resource: {}", level = LogMessage.Level.INFO)
+   void stopFederation(String user, Object source);
+
+   static void isSharedConnection(Object source) {
+      BASE_LOGGER.isSharedConnection(getCaller(), source);
+   }
+
+   @LogMessage(id = 601784, value = "User {} is querying isSharedConnection on target resource: {}", level = LogMessage.Level.INFO)
+   void isSharedConnection(String user, Object source);
+
+   static void isPull(Object source) {
+      BASE_LOGGER.isPull(getCaller(), source);
+   }
+
+   @LogMessage(id = 601785, value = "User {} is querying isPull on target resource: {}", level = LogMessage.Level.INFO)
+   void isPull(String user, Object source);
+
+   static void getPriority(Object source) {
+      BASE_LOGGER.getPriority(getCaller(), source);
+   }
+
+   @LogMessage(id = 601786, value = "User {} is getting priority on target resource: {}", level = LogMessage.Level.INFO)
+   void getPriority(String user, Object source);
+
+   static void isOpen(Object source) {
+      BASE_LOGGER.isOpen(getCaller(), source);
+   }
+
+   @LogMessage(id = 601787, value = "User {} is querying isOpen on target resource: {}", level = LogMessage.Level.INFO)
+   void isOpen(String user, Object source);
+
+   static void getUri(Object source) {
+      BASE_LOGGER.getUri(getCaller(), source);
+   }
+
+   @LogMessage(id = 601788, value = "User {} is getting uri on target resource: {}", level = LogMessage.Level.INFO)
+   void getUri(String user, Object source);
+
+   static void getProtocol(Object source) {
+      BASE_LOGGER.getProtocol(getCaller(), source);
+   }
+
+   @LogMessage(id = 601789, value = "User {} is getting protocol on target resource: {}", level = LogMessage.Level.INFO)
+   void getProtocol(String user, Object source);
+
 }

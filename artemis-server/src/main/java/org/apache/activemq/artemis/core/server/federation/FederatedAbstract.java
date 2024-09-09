@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.federation;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,8 +28,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.federation.FederatedQueueConsumerImpl.ClientSessionCallback;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class FederatedAbstract implements ActiveMQServerBasePlugin {
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
    protected final Federation federation;
@@ -115,6 +119,11 @@ public abstract class FederatedAbstract implements ActiveMQServerBasePlugin {
                }
             }
             remoteQueueConsumer = new FederatedQueueConsumerImpl(federation, server, transformer, key, upstream, callback);
+            try {
+               server.getManagementService().registerFederationRemoteConsumer(remoteQueueConsumer);
+            } catch (Throwable ignored) {
+               logger.debug(ignored.getMessage(), ignored);
+            }
             remoteQueueConsumer.start();
             remoteQueueConsumers.put(key, remoteQueueConsumer);
 
@@ -147,6 +156,11 @@ public abstract class FederatedAbstract implements ActiveMQServerBasePlugin {
          if (remoteQueueConsumer.decrementCount() <= 0) {
             remoteQueueConsumer.close();
             remoteQueueConsumers.remove(key);
+            try {
+               server.getManagementService().unregisterFederationRemoteConsumer(federation.getName(), upstream.getName(), key.getAddress(), key.getQueueName(), key.getRoutingType());
+            } catch (Throwable ignored) {
+               logger.debug(ignored.getMessage(), ignored);
+            }
          }
          if (server.hasBrokerFederationPlugins()) {
             try {

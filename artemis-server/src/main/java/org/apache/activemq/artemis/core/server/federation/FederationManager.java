@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.server.federation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
@@ -50,7 +49,7 @@ public class FederationManager implements ActiveMQComponent {
    }
 
    @Override
-   public synchronized void start() throws ActiveMQException {
+   public synchronized void start() throws Exception {
       if (state == State.STARTED) return;
       deploy();
       for (Federation federation : federations.values()) {
@@ -77,7 +76,7 @@ public class FederationManager implements ActiveMQComponent {
       return state == State.STARTED;
    }
 
-   public synchronized void deploy() throws ActiveMQException {
+   public synchronized void deploy() throws Exception {
       for (FederationConfiguration federationConfiguration : server.getConfiguration().getFederationConfigurations()) {
          deploy(federationConfiguration);
       }
@@ -86,17 +85,18 @@ public class FederationManager implements ActiveMQComponent {
       }
    }
 
-   public synchronized boolean undeploy(String name) {
+   public synchronized boolean undeploy(String name) throws Exception {
       Federation federation = federations.remove(name);
       if (federation != null) {
          federation.stop();
       }
+      server.getManagementService().unregisterFederation(federation.getConfig().getName());
       return true;
    }
 
 
 
-   public synchronized boolean deploy(FederationConfiguration federationConfiguration) throws ActiveMQException {
+   public synchronized boolean deploy(FederationConfiguration federationConfiguration) throws Exception {
       Federation federation = federations.get(federationConfiguration.getName());
       if (federation == null) {
          federation = newFederation(federationConfiguration);
@@ -108,8 +108,9 @@ public class FederationManager implements ActiveMQComponent {
       return true;
    }
 
-   private synchronized Federation newFederation(FederationConfiguration federationConfiguration) throws ActiveMQException {
+   private synchronized Federation newFederation(FederationConfiguration federationConfiguration) throws Exception {
       Federation federation = new Federation(server, federationConfiguration);
+      server.getManagementService().registerFederation(federation);
       federations.put(federationConfiguration.getName(), federation);
       if (state == State.STARTED) {
          federation.start();
