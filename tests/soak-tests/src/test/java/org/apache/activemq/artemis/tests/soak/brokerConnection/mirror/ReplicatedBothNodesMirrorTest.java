@@ -202,6 +202,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       assertTrue(brokerXml.exists());
       assertTrue(FileUtil.findReplace(brokerXml, "<page-size-bytes>10M</page-size-bytes>", "<page-size-bytes>100K</page-size-bytes>"));
       assertTrue(FileUtil.findReplace(brokerXml, "amqpDuplicateDetection=true;", "amqpDuplicateDetection=true;ackManagerFlushTimeout=" + TimeUnit.MINUTES.toMillis(10) + ";"));
+      assertTrue(FileUtil.findReplace(brokerXml, "<vote-on-replication-failure>true</vote-on-replication-failure>", "<vote-on-replication-failure>false</vote-on-replication-failure> <check-for-active-server>true</check-for-active-server>"));
 
       if (TRACE_LOGS) {
          replaceLogs(serverLocation);
@@ -273,6 +274,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       File brokerXml = new File(serverLocation, "/etc/broker.xml");
       assertTrue(brokerXml.exists());
       assertTrue(FileUtil.findReplace(brokerXml, "amqpDuplicateDetection=true;", "amqpDuplicateDetection=true;ackManagerFlushTimeout=" + TimeUnit.MINUTES.toMillis(10) + ";"));
+      assertTrue(FileUtil.findReplace(brokerXml, "<backup/>", "<backup><allow-failback>true</allow-failback></backup>"));
 
       if (TRACE_LOGS) {
          replaceLogs(serverLocation);
@@ -370,8 +372,10 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       ConnectionFactory connectionFactoryDC1A = CFUtil.createConnectionFactory(protocol, uri(DC1_IP));
 
       final int startAt = 300;
-      final int killAt = 800;
-      final int totalMessages = 1_600;
+      final int killAt = 500;
+      final int failbackAt = 700;
+      final int lastKillAt = 1200;
+      final int totalMessages = 1_800;
       String snfQueue = "$ACTIVEMQ_ARTEMIS_MIRROR_mirror";
 
       try (Connection connection = connectionFactoryDC1A.createConnection()) {
@@ -390,12 +394,16 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
                // lazy start to allow messages accumulated in the SNF
                processDC2 = startServer(DC2_NODE, -1, -1, new File(getServerLocation(DC2_NODE), "broker.properties"));
                processDC2_REPLICA = startServer(DC2_REPLICA_NODE, -1, -1, new File(getServerLocation(DC2_REPLICA_NODE), "broker.properties"));
-            } else if (i == killAt) { // kill the live on DC2
+            } else if (i == killAt || i == lastKillAt) { // kill the live on DC2
                logger.info("KillAt {}", killAt);
                ServerUtil.waitForServerToStart(2, 10_000);
                Wait.assertTrue(managementDC2::isReplicaSync);
                processDC2.destroyForcibly();
                assertTrue(processDC2.waitFor(10, TimeUnit.SECONDS));
+            } else if (i == failbackAt) {
+               logger.info("Failing back at {}", failbackAt);
+               processDC2 = startServer(DC2_NODE, -1, -1, new File(getServerLocation(DC2_NODE), "broker.properties"));
+               ServerUtil.waitForServerToStart(2, 10_000);
             }
 
             String text = "hello hello hello " + i;
