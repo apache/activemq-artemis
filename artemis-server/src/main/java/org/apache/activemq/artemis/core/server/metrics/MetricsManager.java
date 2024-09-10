@@ -53,11 +53,13 @@ import org.slf4j.LoggerFactory;
 
 public class MetricsManager {
 
+   public static final String BROKER_TAG_NAME = "broker";
+
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final String brokerName;
 
-   private final Tags tags;
+   private final Tags commonTags;
    private final MeterRegistry meterRegistry;
 
    private final Map<String, List<Meter>> meters = new ConcurrentHashMap<>();
@@ -71,38 +73,36 @@ public class MetricsManager {
       this.brokerName = brokerName;
       this.meterRegistry = metricsConfiguration.getPlugin().getRegistry();
       this.addressSettingsRepository = addressSettingsRepository;
-      this.tags = Tags.of("broker", brokerName);
+      this.commonTags = Tags.of(BROKER_TAG_NAME, brokerName);
       if (meterRegistry != null) {
          Metrics.globalRegistry.add(meterRegistry);
          if (metricsConfiguration.isJvmMemory()) {
-            new JvmMemoryMetrics(tags).bindTo(meterRegistry);
+            new JvmMemoryMetrics(commonTags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isJvmGc()) {
-            new JvmGcMetrics(tags).bindTo(meterRegistry);
+            new JvmGcMetrics(commonTags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isJvmThread()) {
-            new JvmThreadMetrics(tags).bindTo(meterRegistry);
+            new JvmThreadMetrics(commonTags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isNettyPool()) {
-            new NettyPooledAllocatorMetrics(PooledByteBufAllocator.DEFAULT.metric(), tags).bindTo(meterRegistry);
+            new NettyPooledAllocatorMetrics(PooledByteBufAllocator.DEFAULT.metric(), commonTags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isFileDescriptors()) {
-            new FileDescriptorMetrics(tags).bindTo(meterRegistry);
+            new FileDescriptorMetrics(commonTags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isProcessor()) {
-            new ProcessorMetrics(tags).bindTo(meterRegistry);
+            new ProcessorMetrics(commonTags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isUptime()) {
-            new UptimeMetrics(tags).bindTo(meterRegistry);
+            new UptimeMetrics(commonTags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isLogging()) {
-            new Log4j2Metrics(tags).bindTo(meterRegistry);
+            new Log4j2Metrics(commonTags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isSecurityCaches() && securityStore.isSecurityEnabled()) {
-            CaffeineCacheMetrics.monitor(meterRegistry,
-               ((SecurityStoreImpl)securityStore).getAuthenticationCache(), "authentication", tags);
-            CaffeineCacheMetrics.monitor(meterRegistry,
-               ((SecurityStoreImpl)securityStore).getAuthorizationCache(), "authorization", tags);
+            CaffeineCacheMetrics.monitor(meterRegistry, ((SecurityStoreImpl)securityStore).getAuthenticationCache(), "authentication", commonTags);
+            CaffeineCacheMetrics.monitor(meterRegistry, ((SecurityStoreImpl)securityStore).getAuthorizationCache(), "authorization", commonTags);
          }
       }
    }
@@ -125,7 +125,7 @@ public class MetricsManager {
       builder.accept((metricName, state, f, description, gaugeTags) -> {
          Builder<Object> meter = Gauge
             .builder("artemis." + metricName, state, f)
-            .tags(tags)
+            .tags(commonTags)
             .tags(gaugeTags)
             .tag("address", address)
             .tag("queue", queue)
@@ -143,7 +143,7 @@ public class MetricsManager {
       builder.accept((metricName, state, f, description, gaugeTags) -> {
          Builder<Object> meter = Gauge
             .builder("artemis." + metricName, state, f)
-            .tags(tags)
+            .tags(commonTags)
             .tags(gaugeTags)
             .tag("address", address)
             .description(description);
@@ -160,7 +160,7 @@ public class MetricsManager {
       builder.accept((metricName, state, f, description, gaugeTags) -> {
          Builder<Object> meter = Gauge
             .builder("artemis." + metricName, state, f)
-            .tags(tags)
+            .tags(commonTags)
             .tags(gaugeTags)
             .description(description);
          gaugeBuilders.add(meter);
