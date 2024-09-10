@@ -17,16 +17,7 @@
 
 package org.apache.activemq.artemis.tests.integration.plugin;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -53,54 +44,42 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Test;
 
-@ExtendWith(ParameterizedTestExtension.class)
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class MetricsPluginTest extends ActiveMQTestBase {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   private boolean legacyConfig;
-
-   @Parameters(name = "legacyConfig={0}")
-   public static Collection<Object[]> getParams() {
-      return Arrays.asList(new Object[][]{{true}, {false}});
-   }
-
-   public MetricsPluginTest(boolean legacyConfig) {
-      this.legacyConfig = legacyConfig;
-   }
 
    protected ActiveMQServer server;
    protected ClientSession session;
    protected ClientSessionFactory sf;
    protected ServerLocator locator;
 
+   protected void configureServer(ActiveMQServer server) {
+      server.getConfiguration().setMetricsConfiguration(new MetricsConfiguration().setPlugin(new SimpleMetricsPlugin().init(null)));
+   }
+
    @Override
    @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
       server = createServer(false, createDefaultInVMConfig());
-      if (legacyConfig) {
-         server.getConfiguration().setMetricsPlugin(new SimpleMetricsPlugin().init(null));
-      } else {
-         server.getConfiguration().setMetricsConfiguration(new MetricsConfiguration().setPlugin(new SimpleMetricsPlugin().init(null)));
-      }
+      configureServer(server);
       server.start();
       locator = createInVMNonHALocator();
       sf = createSessionFactory(locator);
       session = addClientSession(sf.createSession(false, true, true));
    }
 
-   @TestTemplate
+   @Test
    public void testForArtemisMetricsPresence() throws Exception {
       class Metric {
          public final String name;
@@ -195,12 +174,12 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       ));
    }
 
-   @TestTemplate
+   @Test
    public void testForBasicMetricsPresenceAndValue() throws Exception {
       internalTestForBasicMetrics(true);
    }
 
-   @TestTemplate
+   @Test
    public void testDisablingMetrics() throws Exception {
       internalTestForBasicMetrics(false);
    }
@@ -262,7 +241,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       checkMetric(metrics, "artemis.consumer.count", "queue", queueName, 0.0, enabled);
    }
 
-   @TestTemplate
+   @Test
    public void testMessageCountWithPaging() throws Exception {
       final String data = "Simple Text " + UUID.randomUUID().toString();
       final String queueName = "simpleQueue";
@@ -292,7 +271,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       checkMetric(getMetrics(), "artemis.message.count", "queue", queueName, (double) (messageCount * 2));
    }
 
-   @TestTemplate
+   @Test
    public void testMetricsPluginRegistration() {
       assertEquals(SimpleMetricsPlugin.class, server.getConfiguration().getMetricsConfiguration().getPlugin().getClass());
       assertEquals(server, ((SimpleMetricsPlugin)server.getConfiguration().getMetricsConfiguration().getPlugin()).getServer());
