@@ -31,6 +31,7 @@ import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tag;
+import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
@@ -56,6 +57,7 @@ public class MetricsManager {
 
    private final String brokerName;
 
+   private final Tags tags;
    private final MeterRegistry meterRegistry;
 
    private final Map<String, List<Meter>> meters = new ConcurrentHashMap<>();
@@ -69,36 +71,38 @@ public class MetricsManager {
       this.brokerName = brokerName;
       this.meterRegistry = metricsConfiguration.getPlugin().getRegistry();
       this.addressSettingsRepository = addressSettingsRepository;
+      this.tags = Tags.of("broker", brokerName);
       if (meterRegistry != null) {
          Metrics.globalRegistry.add(meterRegistry);
-         meterRegistry.config().commonTags("broker", brokerName);
          if (metricsConfiguration.isJvmMemory()) {
-            new JvmMemoryMetrics().bindTo(meterRegistry);
+            new JvmMemoryMetrics(tags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isJvmGc()) {
-            new JvmGcMetrics().bindTo(meterRegistry);
+            new JvmGcMetrics(tags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isJvmThread()) {
-            new JvmThreadMetrics().bindTo(meterRegistry);
+            new JvmThreadMetrics(tags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isNettyPool()) {
-            new NettyPooledAllocatorMetrics(PooledByteBufAllocator.DEFAULT.metric()).bindTo(meterRegistry);
+            new NettyPooledAllocatorMetrics(PooledByteBufAllocator.DEFAULT.metric(), tags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isFileDescriptors()) {
-            new FileDescriptorMetrics().bindTo(meterRegistry);
+            new FileDescriptorMetrics(tags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isProcessor()) {
-            new ProcessorMetrics().bindTo(meterRegistry);
+            new ProcessorMetrics(tags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isUptime()) {
-            new UptimeMetrics().bindTo(meterRegistry);
+            new UptimeMetrics(tags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isLogging()) {
-            new Log4j2Metrics().bindTo(meterRegistry);
+            new Log4j2Metrics(tags).bindTo(meterRegistry);
          }
          if (metricsConfiguration.isSecurityCaches() && securityStore.isSecurityEnabled()) {
-            CaffeineCacheMetrics.monitor(meterRegistry, ((SecurityStoreImpl)securityStore).getAuthenticationCache(), "authentication");
-            CaffeineCacheMetrics.monitor(meterRegistry, ((SecurityStoreImpl)securityStore).getAuthorizationCache(), "authorization");
+            CaffeineCacheMetrics.monitor(meterRegistry,
+               ((SecurityStoreImpl)securityStore).getAuthenticationCache(), "authentication", tags);
+            CaffeineCacheMetrics.monitor(meterRegistry,
+               ((SecurityStoreImpl)securityStore).getAuthorizationCache(), "authorization", tags);
          }
       }
    }
@@ -118,12 +122,13 @@ public class MetricsManager {
          return;
       }
       final List<Builder<Object>> gaugeBuilders = new ArrayList<>();
-      builder.accept((metricName, state, f, description, tags) -> {
+      builder.accept((metricName, state, f, description, gaugeTags) -> {
          Builder<Object> meter = Gauge
             .builder("artemis." + metricName, state, f)
+            .tags(tags)
+            .tags(gaugeTags)
             .tag("address", address)
             .tag("queue", queue)
-            .tags(tags)
             .description(description);
          gaugeBuilders.add(meter);
       });
@@ -135,11 +140,12 @@ public class MetricsManager {
          return;
       }
       final List<Builder<Object>> gaugeBuilders = new ArrayList<>();
-      builder.accept((metricName, state, f, description, tags) -> {
+      builder.accept((metricName, state, f, description, gaugeTags) -> {
          Builder<Object> meter = Gauge
             .builder("artemis." + metricName, state, f)
-            .tag("address", address)
             .tags(tags)
+            .tags(gaugeTags)
+            .tag("address", address)
             .description(description);
          gaugeBuilders.add(meter);
       });
@@ -151,10 +157,11 @@ public class MetricsManager {
          return;
       }
       final List<Builder<Object>> gaugeBuilders = new ArrayList<>();
-      builder.accept((metricName, state, f, description, tags) -> {
+      builder.accept((metricName, state, f, description, gaugeTags) -> {
          Builder<Object> meter = Gauge
             .builder("artemis." + metricName, state, f)
             .tags(tags)
+            .tags(gaugeTags)
             .description(description);
          gaugeBuilders.add(meter);
       });
