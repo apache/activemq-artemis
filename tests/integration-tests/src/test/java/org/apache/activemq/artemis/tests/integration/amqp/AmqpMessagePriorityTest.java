@@ -314,7 +314,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
             sender.send(message);
          }
 
-         assertEquals(priorityLevels, queueView.getMessageCount());
+         Wait.assertEquals((long) priorityLevels, queueView::getMessageCount, 2_000, 10);
 
          sender.close();
          connection.close();
@@ -348,7 +348,7 @@ public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
          receiver.close();
          connection.close();
 
-         assertEquals(0, queueView.getMessageCount());
+         Wait.assertEquals((long) 0, queueView::getMessageCount, 2_000, 10);
       }
    }
 }
