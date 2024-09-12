@@ -23,6 +23,8 @@ updates:
       # Ignore all these until we move to JDK >= 17
       - dependency-name: 'org.apache.derby:*'
         versions: '>= 10.16'
+      - dependency-name: 'com.google.errorprone:error_prone_core'
+        versions: '>= 2.32'
 
       # Ignore all these until we move to Jakarta
       - dependency-name: 'org.springframework:*'
