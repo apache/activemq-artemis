@@ -128,6 +128,14 @@ public class Wait {
       }
    }
 
+   public static void assertEquals(int size, IntCondition condition, long timeout, long sleepMillis, Supplier<String> messageSupplier) throws Exception {
+      boolean result = waitFor(() -> condition.getCount() == size, timeout, sleepMillis);
+
+      if (!result) {
+         Assertions.assertEquals(size, condition.getCount(), messageSupplier);
+      }
+   }
+
    public static void assertTrue(Condition condition) {
       assertTrue(DEFAULT_FAILURE_MESSAGE, condition);
    }

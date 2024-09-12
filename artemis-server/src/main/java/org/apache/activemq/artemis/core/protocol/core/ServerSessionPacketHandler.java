@@ -1136,7 +1136,16 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             currentLargeMessage = null;
 
             try {
-               session.send(session.getCurrentTransaction(), EmbedMessageUtil.extractEmbedded((ICoreMessage) message.toMessage(), storageManager), false, producers.get(senderID), false);
+               Message m = EmbedMessageUtil.extractEmbedded((ICoreMessage) message.toMessage(), storageManager);
+               session.send(session.getCurrentTransaction(), m, false, producers.get(senderID), false);
+
+               /*
+                * The message embedded in the large Core message (e.g. an AMQP message) may, in fact, not be large. If
+                * this is the case then we need to clean up the large message file that's no longer needed.
+                */
+               if (!m.isLargeMessage()) {
+                  message.deleteFile();
+               }
             } catch (Exception e) {
                message.deleteFile();
                throw e;
