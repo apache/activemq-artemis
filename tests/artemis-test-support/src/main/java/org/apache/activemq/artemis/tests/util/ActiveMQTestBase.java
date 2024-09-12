@@ -2022,7 +2022,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
     */
    protected void validateNoFilesOnLargeDir(final String directory, final int expect) throws Exception {
       File largeMessagesFileDir = new File(directory);
-      Wait.assertEquals(expect, () -> getNumberOfFiles(largeMessagesFileDir));
+      Wait.assertEquals(expect, () -> getNumberOfFiles(largeMessagesFileDir), 5000, 100, () -> "The following large message files remain: " + Arrays.toString(largeMessagesFileDir.listFiles()));
    }
 
    /**
