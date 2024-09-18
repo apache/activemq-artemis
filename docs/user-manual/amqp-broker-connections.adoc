@@ -2,10 +2,7 @@
 :idprefix:
 :idseparator: -
 
-Instead of waiting for clients to connect, a broker can initiate a connection to another endpoint on a specific protocol.
-
-Currently, this feature supports only the AMQP protocol.
-However, in the future, it might be expanded to other protocols.
+Instead of waiting for clients to connect, a broker can also initiate a connection to another server.
 
 Broker connections are configured by the `<broker-connections>` XML element in the `broker.xml` configuration file.
 
@@ -65,6 +62,9 @@ The following types of operations are supported on an AMQP server connection:
 
 * Mirrors
 ** The broker uses an AMQP connection to another broker and duplicates messages and sends acknowledgements over the wire.
+* Federation
+** Broker federation allows the local broker to create remote receivers for addresses or queues that have local demand.
+Conversely it can also send federation configuration to the remote broker causing it to create receivers on the local broker based on remote demand on an address or queue over this same connection.
 * Senders
 ** Messages received on specific queues are transferred to another endpoint.
 * Receivers
@@ -245,7 +245,7 @@ It is recommended to not have active consumers on both servers.
 
 === Example
 
-There is an example as part of the distribution showing dual broker configuration (or disaster recovery) in `./examples/features/broker-connection/disaster-recovery`.
+There is an example as part of the broker xref:examples.adoc[examples] showing dual broker configuration (or disaster recovery) in `./examples/features/broker-connection/disaster-recovery`.
 
 On the provided example above, two brokers are configured to mirror each other and whatever happens in one broker is immediately copied over to the other broker.
 
@@ -535,3 +535,7 @@ When federation consumers are created this value can be used to ensure that thos
 The default is `-1`.
 include-federated::
 Controls if consumers on a queue which come from federation instances should be counted when observing a queue for demand, by default this value is `false` and federation consumers are not counted.
+
+=== Examples
+
+A number of examples for using the federation functionality in a variety of situations can be found in the broker xref:examples.adoc[examples] under directory _./examples/features/broker-connection_.
