@@ -125,7 +125,7 @@ public class M_and_M_FactoryTest extends SoakTestBase {
 
    @Test
    public void testM_and_M_RandomProtocol() throws Exception {
-      test_M_and_M_Sorting(randomProtocol(), 2000, 2, 2, 500);
+      test_M_and_M_Sorting(randomProtocol("AMQP", "CORE"), 2000, 2, 2, 500);
    }
 
    public void test_M_and_M_Sorting(String protocol, int batchSize, int restarts, int clientRuns, int killClientEveryX) throws Exception {

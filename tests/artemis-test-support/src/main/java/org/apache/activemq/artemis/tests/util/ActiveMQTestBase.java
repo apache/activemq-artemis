@@ -229,12 +229,17 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    public ActiveMQTestBase() {
 
    }
+
    protected static String randomProtocol() {
-      String[] protocols = {"AMQP", "OPENWIRE", "CORE"};
-      String protocol = protocols[org.apache.activemq.artemis.tests.util.RandomUtil.randomPositiveInt() % 3];
+      return randomProtocol("AMQP", "OPENWIRE", "CORE");
+   }
+
+   protected static String randomProtocol(String...protocols) {
+      String protocol = protocols[org.apache.activemq.artemis.tests.util.RandomUtil.randomPositiveInt() % protocols.length];
       logger.info("Selecting {} protocol", protocol);
       return protocol;
    }
+
    protected <T> T serialClone(Object object) throws Exception {
       logger.debug("object::{}", object);
       ByteArrayOutputStream bout = new ByteArrayOutputStream();
