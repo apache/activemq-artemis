@@ -288,7 +288,7 @@ public class XMLMessageImporter {
    }
 
    private static byte[] decode(String data) {
-      return Base64.decode(data, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
+      return Base64.decode(data, true);
    }
 
    private interface MessageBodyBytesProcessor {
