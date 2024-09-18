@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.api.core;
 
-import org.apache.activemq.artemis.json.JsonArray;
-import org.apache.activemq.artemis.json.JsonArrayBuilder;
-import org.apache.activemq.artemis.json.JsonNumber;
-import org.apache.activemq.artemis.json.JsonObject;
-import org.apache.activemq.artemis.json.JsonObjectBuilder;
-import org.apache.activemq.artemis.json.JsonString;
-import org.apache.activemq.artemis.json.JsonValue;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
 import java.io.ByteArrayInputStream;
@@ -34,6 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonArrayBuilder;
+import org.apache.activemq.artemis.json.JsonNumber;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonString;
+import org.apache.activemq.artemis.json.JsonValue;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;

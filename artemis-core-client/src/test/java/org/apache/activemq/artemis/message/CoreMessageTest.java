@@ -72,7 +72,7 @@ public class CoreMessageTest {
 
    @BeforeEach
    public void before() {
-      BYTE_ENCODE = Unpooled.wrappedBuffer(Base64.decode(STRING_ENCODE, Base64.DONT_BREAK_LINES | Base64.URL_SAFE));
+      BYTE_ENCODE = Unpooled.wrappedBuffer(Base64.decode(STRING_ENCODE, true));
       // some extra caution here, nothing else, to make sure we would get the same encoding back
       assertEquals(STRING_ENCODE, encodeString(BYTE_ENCODE.array()));
       BYTE_ENCODE.readerIndex(0).writerIndex(BYTE_ENCODE.capacity());
@@ -421,7 +421,7 @@ public class CoreMessageTest {
    }
 
    private String encodeString(byte[] bytes) {
-      return Base64.encodeBytes(bytes, 0, bytes.length, Base64.DONT_BREAK_LINES | Base64.URL_SAFE);
+      return Base64.encodeBytes(bytes, true);
    }
 
 }
