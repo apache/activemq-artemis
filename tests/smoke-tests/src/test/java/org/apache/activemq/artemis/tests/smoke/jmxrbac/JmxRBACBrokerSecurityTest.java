@@ -66,7 +66,7 @@ public class JmxRBACBrokerSecurityTest extends SmokeTestBase {
 
       {
          HelperCreate cliCreateServer = new HelperCreate();
-         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(false).setNoWeb(true).setArtemisInstance(server0Location).
+         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(false).setNoWeb(false).setArtemisInstance(server0Location).
             setConfiguration("./src/main/resources/servers/jmx-rbac-broker-security").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost -Djavax.management.builder.initial=org.apache.activemq.artemis.core.server.management.ArtemisRbacMBeanServerBuilder");
          cliCreateServer.createServer();
       }
