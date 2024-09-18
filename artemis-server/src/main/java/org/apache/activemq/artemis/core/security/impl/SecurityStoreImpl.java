@@ -120,6 +120,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                                           .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
                                           .recordStats()
                                           .build();
+            logger.trace("Created authn cache: {}; maxSize: {}; invalidationInterval: {}", authenticationCache, authenticationCacheSize, invalidationInterval);
          }
          if (authorizationCacheSize == 0) {
             authorizationCache = null;
@@ -129,6 +130,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                                          .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
                                          .recordStats()
                                          .build();
+            logger.trace("Created authz cache: {}; maxSize: {}; invalidationInterval: {}", authorizationCache, authorizationCacheSize, invalidationInterval);
          }
          this.securityRepository.registerListener(this);
       } else {
@@ -473,7 +475,9 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
    private void putAuthenticationCacheEntry(String key, Subject subject) {
       if (authenticationCache != null) {
-         authenticationCache.put(key, new Pair<>(subject != null, subject));
+         Pair<Boolean, Subject> value = new Pair<>(subject != null, subject);
+         authenticationCache.put(key, value);
+         logger.trace("Put into authn cache; key: {}; value: {}", key, value);
       }
    }
 
@@ -481,13 +485,16 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       if (authenticationCache == null) {
          return null;
       } else {
-         return authenticationCache.getIfPresent(key);
+         Pair<Boolean, Subject> value = authenticationCache.getIfPresent(key);
+         logger.trace("Get from authn cache; key: {}; value: {}", key, value);
+         return value;
       }
    }
 
-   private void putAuthorizationCacheEntry(ConcurrentHashSet<SimpleString> set, String key) {
+   private void putAuthorizationCacheEntry(ConcurrentHashSet<SimpleString> value, String key) {
       if (authorizationCache != null) {
-         authorizationCache.put(key, set);
+         authorizationCache.put(key, value);
+         logger.trace("Put into authz cache; key: {}; value: {}", key, value);
       }
    }
 
@@ -495,19 +502,23 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       if (authorizationCache == null) {
          return null;
       } else {
-         return authorizationCache.getIfPresent(key);
+         ConcurrentHashSet<SimpleString> value = authorizationCache.getIfPresent(key);
+         logger.trace("Get from authz cache; key: {}; value: {}", key, value);
+         return value;
       }
    }
 
    public void invalidateAuthorizationCache() {
       if (authorizationCache != null) {
          authorizationCache.invalidateAll();
+         logger.trace("Invalidated authz cache");
       }
    }
 
    public void invalidateAuthenticationCache() {
       if (authenticationCache != null) {
          authenticationCache.invalidateAll();
+         logger.trace("Invalidated authn cache");
       }
    }
 
