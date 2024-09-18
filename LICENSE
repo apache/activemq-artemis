@@ -201,14 +201,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-===============================================================
-= For Base64.java file                                        =
-===============================================================
-
-This file is in the public domain.  For more information see:
-
-activemq-commons/src/main/java/org/apache/activemq/utils/Base64.java
-
 ==============================================================
 = For Font Awesome:  docs/resources/font-awesome/            =
 ==============================================================

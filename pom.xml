@@ -946,7 +946,6 @@
                      <exclude>**/xml.xsd</exclude>
                      <exclude>**/*.pemcfg</exclude>
                      <exclude>**/org/apache/activemq/artemis/utils/json/**</exclude>
-                     <exclude>**/org/apache/activemq/artemis/utils/Base64.java</exclude>
                      <exclude>**/enable-log-bundle-annotation-processor</exclude>
                      <exclude>**/.settings/**</exclude>
                      <exclude>**/.project</exclude>
