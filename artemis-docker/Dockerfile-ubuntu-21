@@ -29,10 +29,13 @@ ENV ANONYMOUS_LOGIN false
 ENV EXTRA_ARGS --http-host 0.0.0.0 --relax-jolokia
 
 # add user and group for artemis
-RUN groupadd -g 1001 -r artemis && useradd -r -u 1001 -g artemis artemis \
- && apt-get -qq -o=Dpkg::Use-Pty=0 update && \
+RUN groupadd -g 1001 -r artemis && useradd -r -u 1001 -g artemis artemis
+
+# install AIO
+RUN apt-get -qq -o=Dpkg::Use-Pty=0 update && \
     apt-get -qq -o=Dpkg::Use-Pty=0 install -y libaio1t64 && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    ln -s  /lib/x86_64-linux-gnu/libaio.so.1t64 /lib/x86_64-linux-gnu/libaio.so.1
 
 USER artemis
 
