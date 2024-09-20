@@ -1621,4 +1621,7 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224139, value = "Failed to stop bridge: {}", level = LogMessage.Level.ERROR)
    void errorStoppingBridge(String bridgeName, Exception e);
+
+   @LogMessage(id = 224140, value = "Clearing bindings on cluster-connection {} failed to remove binding {}: {}", level = LogMessage.Level.WARN)
+   void clusterConnectionFailedToRemoveBindingOnClear(String clusterConnection, String binding, String exceptionMessage);
 }
