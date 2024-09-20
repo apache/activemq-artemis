@@ -1245,10 +1245,14 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          server.getGroupingHandler().sendProposalResponse(response, hops + 1);
       }
 
-      private synchronized void clearBindings() throws Exception {
+      private synchronized void clearBindings() {
          logger.debug("{} clearing bindings", ClusterConnectionImpl.this);
          for (RemoteQueueBinding binding : new HashSet<>(bindings.values())) {
-            removeBinding(binding.getClusterName());
+            try {
+               removeBinding(binding.getClusterName());
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.clusterConnectionFailedToRemoveBindingOnClear(getName().toString(), binding.getClusterName().toString(), e.getMessage());
+            }
          }
       }
 
