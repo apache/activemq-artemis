@@ -74,6 +74,7 @@
       <mirror-ack-manager-queue-attempts>111</mirror-ack-manager-queue-attempts>
       <mirror-ack-manager-page-attempts>222</mirror-ack-manager-page-attempts>
       <mirror-ack-manager-retry-delay>333</mirror-ack-manager-retry-delay>
+      <mirror-ack-manager-warn-unacked>true</mirror-ack-manager-warn-unacked>
       <mirror-page-transaction>true</mirror-page-transaction>
 
 

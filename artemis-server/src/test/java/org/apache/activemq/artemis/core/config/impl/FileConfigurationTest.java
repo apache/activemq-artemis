@@ -582,6 +582,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertEquals(Integer.valueOf(128), conf.getAddressSettings().get("a2").getInitialQueueBufferSize());
 
       assertEquals(111, conf.getMirrorAckManagerQueueAttempts());
+      assertTrue(conf.isMirrorAckManagerWarnUnacked());
       assertEquals(222, conf.getMirrorAckManagerPageAttempts());
       assertEquals(333, conf.getMirrorAckManagerRetryDelay());
       assertTrue(conf.isMirrorPageTransaction());

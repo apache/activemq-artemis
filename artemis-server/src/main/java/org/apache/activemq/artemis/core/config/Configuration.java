@@ -1535,4 +1535,13 @@ public interface Configuration {
    boolean isMirrorPageTransaction();
 
    Configuration setMirrorPageTransaction(boolean ignorePageTransactions);
+
+   /**
+    * should log.warn when ack retries failed.
+    * @param warnUnacked
+    * @return
+    */
+   Configuration setMirrorAckManagerWarnUnacked(boolean warnUnacked);
+
+   boolean isMirrorAckManagerWarnUnacked();
 }

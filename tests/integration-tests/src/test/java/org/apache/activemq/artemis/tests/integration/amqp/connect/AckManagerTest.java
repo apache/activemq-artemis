@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -45,11 +46,13 @@ import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.AckRetry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManager;
@@ -64,6 +67,7 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -294,6 +298,53 @@ public class AckManagerTest extends ActiveMQTestBase {
    }
 
 
+   @Test
+   public void testLogUnack() throws Throwable {
+      String protocol = "AMQP";
+
+      SimpleString TOPIC_NAME = SimpleString.of("tp" + RandomUtil.randomString());
+
+      server1.addAddressInfo(new AddressInfo(TOPIC_NAME).addRoutingType(RoutingType.MULTICAST));
+
+      ConnectionFactory connectionFactory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+
+      // creating 5 subscriptions
+      for (int i = 0; i < 5; i++) {
+         try (Connection connection = connectionFactory.createConnection()) {
+            connection.setClientID("c" + i);
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Topic topic = session.createTopic(TOPIC_NAME.toString());
+            session.createDurableSubscriber(topic, "s" + i);
+         }
+      }
+
+      Queue c1s1 = server1.locateQueue("c1.s1");
+      assertNotNull(c1s1);
+      Queue c2s2 = server1.locateQueue("c2.s2");
+      assertNotNull(c2s2);
+
+      try (AssertionLoggerHandler assertionLoggerHandler = new AssertionLoggerHandler()) {
+         server1.getConfiguration().setMirrorAckManagerWarnUnacked(true);
+         c1s1.addConsumer(Mockito.mock(Consumer.class));
+         AckManager ackManager = AckManagerProvider.getManager(server1);
+         ackManager.ack("neverFound", c1s1, 1000, AckReason.NORMAL, true);
+
+         // ID for there are consumers
+         Wait.assertTrue(() -> assertionLoggerHandler.findText("AMQ111011"), 5000, 100);
+         // ID for give up retry
+         Wait.assertTrue(() -> assertionLoggerHandler.findText("AMQ111012"), 5000, 100);
+
+         server1.getConfiguration().setMirrorAckManagerWarnUnacked(false);
+         assertionLoggerHandler.clear();
+
+         ackManager.ack("neverFound", c1s1, 1000, AckReason.NORMAL, true);
+
+         // ID for there are consumers
+         assertFalse(assertionLoggerHandler.findText("AMQ111011"));
+         // ID for give up retry
+         assertFalse(assertionLoggerHandler.findText("AMQ111012"));
+      }
+   }
 
    @Test
    public void testRetryFromPaging() throws Throwable {

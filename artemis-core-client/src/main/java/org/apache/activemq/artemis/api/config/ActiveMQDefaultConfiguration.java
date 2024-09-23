@@ -715,6 +715,7 @@ public final class ActiveMQDefaultConfiguration {
 
    private static final int DEFAULT_MIRROR_ACK_MANAGER_RETRY_DELAY = Integer.parseInt(System.getProperty(FORMER_ACK_RETRY_CLASS_NAME + ".RETRY_DELAY", "100"));;
 
+   private static final boolean DEFAULT_MIRROR_ACK_MANAGER_WARN_UNACKED = false;
    private static final boolean DEFAULT_MIRROR_PAGE_TRANSACTION = false;
 
    /**
@@ -1959,6 +1960,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static int getMirrorAckManagerPageAttempts() {
       return DEFAULT_MIRROR_ACK_MANAGER_PAGE_ATTEMPTS;
+   }
+
+   public static boolean getMirrorAckManagerWarnUnacked() {
+      return DEFAULT_MIRROR_ACK_MANAGER_WARN_UNACKED;
    }
 
    public static int getMirrorAckManagerRetryDelay() {
