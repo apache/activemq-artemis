@@ -50,7 +50,6 @@ Let's kick off with an example:
    <max-retry-interval>2000</max-retry-interval>
    <initial-connect-attempts>-1</initial-connect-attempts>
    <reconnect-attempts>-1</reconnect-attempts>
-   <failover-on-server-shutdown>false</failover-on-server-shutdown>
    <use-duplicate-detection>true</use-duplicate-detection>
    <confirmation-window-size>10000000</confirmation-window-size>
    <producer-window-size>1048576</producer-window-size>
