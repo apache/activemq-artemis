@@ -67,4 +67,10 @@ public interface ActiveMQAMQPProtocolLogger {
 
    @LogMessage(id = 111010, value = "Duplicate AckManager node detected. Queue={}, ServerID={}, recordID={}", level = LogMessage.Level.WARN)
    void duplicateNodeStoreID(String queue, String serverId, long recordID, Exception trace);
+
+   @LogMessage(id = 111011, value = "There are {} consumers on queue {}, what made the Ack for message with nodeID={}, messageID={} enter a retry list", level = LogMessage.Level.WARN)
+   void unackWithConsumer(int numberOfConsumers, Object queueName, String nodeID, long messageID);
+
+   @LogMessage(id = 111012, value = "Acknowledgement retry failed for {} on address {}, queueID={}", level = LogMessage.Level.WARN)
+   void ackRetryFailed(Object ackRetryInformation, Object address, long queueID);
 }
