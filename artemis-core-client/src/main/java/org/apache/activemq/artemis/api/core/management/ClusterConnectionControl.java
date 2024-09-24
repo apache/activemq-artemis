@@ -141,8 +141,8 @@ public interface ClusterConnectionControl extends ActiveMQComponentControl {
     *
     * @throws Exception
     */
-   @Attribute(desc = "The metrics for the bridge by nodeId. The messagesPendingAcknowledgement counter is incremented when the bridge is has forwarded a message but is waiting acknowledgement from the other broker. The messagesAcknowledged counter is the number of messages actually received by the remote broker for this bridge.")
-   Map<String, Object> getBridgeMetrics(String nodeId) throws Exception;
+   @Operation(desc = "The metrics for the bridge by nodeId. The messagesPendingAcknowledgement counter is incremented when the bridge is has forwarded a message but is waiting acknowledgement from the other broker. The messagesAcknowledged counter is the number of messages actually received by the remote broker for this bridge.")
+   Map<String, Object> getBridgeMetrics(@Parameter(name = "nodeId", desc = "The target node ID") String nodeId) throws Exception;
 
    @Attribute(desc = "The Producer Window Size used by the Cluster Connection")
    long getProducerWindowSize();
