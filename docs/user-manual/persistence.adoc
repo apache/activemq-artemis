@@ -294,8 +294,6 @@ The Apache ActiveMQ Artemis JDBC persistence layer offers the ability to store b
 
 [NOTE]
 ====
-
-
 Using the ActiveMQ Artemis File Journal is the *recommended* configuration as it offers higher levels of performance and is more mature.
 Performance for both paging and large messages is especially diminished with JDBC.
 The JDBC  persistence layer is targeted to those users who _must_ use a database e.g. due to internal company policy.
