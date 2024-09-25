@@ -80,11 +80,17 @@ public interface Message {
    // The value is somewhat higher on 64 bit architectures, probably due to different alignment
    int memoryOffset = 352;
 
+   SimpleString PREFIX_AMQP_ANNOTATIONS = SimpleString.of("x-opt-amq");
+
    // We use properties to establish routing context on clustering.
    // However if the client resends the message after receiving, it needs to be removed, so we mark these internal
    Predicate<SimpleString> INTERNAL_PROPERTY_NAMES_PREDICATE =
       name -> (name.startsWith(Message.HDR_ROUTE_TO_IDS) && !name.equals(Message.HDR_ROUTE_TO_IDS)) ||
       (name.startsWith(Message.HDR_ROUTE_TO_ACK_IDS) && !name.equals(Message.HDR_ROUTE_TO_ACK_IDS));
+
+   // We use certain AMQP properteis in mirror. We have to remove them in case of protocol conversion between AMQP and CORE
+   Predicate<SimpleString> AMQP_PROPERTY_PREDICATE =
+      name -> (name.startsWith(Message.PREFIX_AMQP_ANNOTATIONS));
 
    SimpleString HDR_ROUTE_TO_IDS = SimpleString.of("_AMQ_ROUTE_TO");
 
@@ -199,6 +205,9 @@ public interface Message {
 
    default void clearInternalProperties() {
       // only on core
+   }
+
+   default void clearAMQPProperties() {
    }
 
    /**
