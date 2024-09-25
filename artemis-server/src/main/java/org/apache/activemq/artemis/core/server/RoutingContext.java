@@ -41,6 +41,10 @@ public interface RoutingContext {
 
    MirrorOption getMirrorOption();
 
+   boolean isDivertDisabled();
+
+   void disableDivert();
+
    void forEachDurable(Consumer<Queue> consumer);
 
    RoutingContext setMirrorOption(MirrorOption option);
