@@ -351,7 +351,17 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
 
          String nodeID = idSupplier.getServerID(message);
 
-         if (nodeID != null && nodeID.equals(getRemoteMirrorId())) {
+         String remoteID = getRemoteMirrorId();
+
+         if (remoteID == null) {
+            if (AMQPMirrorControllerTarget.getControllerInUse() != null) {
+               // in case the remoteID is not yet connected, we will use from the currentTarget (if there's one) to avoid a race
+               // while the servers are reconnecting
+               remoteID = AMQPMirrorControllerTarget.getControllerInUse().getRemoteMirrorId();
+            }
+         }
+
+         if (nodeID != null && nodeID.equals(remoteID)) {
             logger.trace("sendMessage::Message {} already belonged to the node, {}, it won't circle send", message, getRemoteMirrorId());
             return;
          }
