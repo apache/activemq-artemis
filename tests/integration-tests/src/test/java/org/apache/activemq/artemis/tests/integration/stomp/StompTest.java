@@ -2120,4 +2120,54 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
+   @Test
+   public void testMultipleSubscriptionsOnMulticastAddressReadSameMessage() throws Exception {
+      doTestMultipleSubscriptionsOnMulticastAddressReadSameMessage(10);
+   }
+
+   @Test
+   public void testMultipleSubscriptionsOnMulticastAddressReadSameLargeMessage() throws Exception {
+      doTestMultipleSubscriptionsOnMulticastAddressReadSameMessage(120_000);
+   }
+
+   private void doTestMultipleSubscriptionsOnMulticastAddressReadSameMessage(int size) throws Exception {
+      final String body = "A".repeat(size);
+
+      final StompClientConnection conn_r1 = StompClientConnectionFactory.createClientConnection(uri);
+      final StompClientConnection conn_r2 = StompClientConnectionFactory.createClientConnection(uri);
+
+      try {
+         conn_r1.connect(defUser, defPass);
+         subscribeTopic(conn_r1, null, null, null);
+
+         conn_r2.connect(defUser, defPass);
+         subscribeTopic(conn_r2, null, null, null);
+
+         // Sender
+         conn.connect(defUser, defPass);
+         send(conn, getTopicPrefix() + getTopicName(), null, body, true, RoutingType.MULTICAST);
+
+         ClientStompFrame frame1 = conn_r1.receiveFrame(10000);
+         ClientStompFrame frame2 = conn_r2.receiveFrame(10000);
+
+         assertEquals(Stomp.Responses.MESSAGE, frame2.getCommand());
+         assertEquals(Stomp.Responses.MESSAGE, frame1.getCommand());
+
+         assertEquals(getTopicPrefix() + getTopicName(), frame2.getHeader(Stomp.Headers.Send.DESTINATION));
+         assertEquals(getTopicPrefix() + getTopicName(), frame1.getHeader(Stomp.Headers.Send.DESTINATION));
+
+         assertEquals(RoutingType.MULTICAST.toString(), frame2.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
+         assertEquals(RoutingType.MULTICAST.toString(), frame1.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
+
+         assertNull(frame2.getHeader(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE.toString()));
+         assertNull(frame1.getHeader(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE.toString()));
+
+         assertEquals(body, frame2.getBody());
+         assertEquals(body, frame1.getBody());
+      } finally {
+         conn.disconnect();
+         conn_r1.disconnect();
+         conn_r2.disconnect();
+      }
+   }
 }

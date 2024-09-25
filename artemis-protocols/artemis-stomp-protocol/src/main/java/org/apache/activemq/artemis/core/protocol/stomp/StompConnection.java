@@ -626,7 +626,7 @@ public final class StompConnection extends AbstractRemotingConnection {
    public StompFrame createStompMessage(ICoreMessage message,
                                         StompSubscription subscription,
                                         ServerConsumer consumer,
-                                        int deliveryCount) {
+                                        int deliveryCount) throws ActiveMQException {
       return frameHandler.createMessageFrame(message, subscription, consumer, deliveryCount);
    }
 
