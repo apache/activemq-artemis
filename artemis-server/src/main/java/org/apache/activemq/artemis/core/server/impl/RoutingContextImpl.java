@@ -61,6 +61,8 @@ public class RoutingContextImpl implements RoutingContext {
 
    Boolean internalOnly = null;
 
+   boolean divertDisabled = false;
+
    volatile int version;
 
    MirrorOption mirrorOption = MirrorOption.enabled;
@@ -87,6 +89,16 @@ public class RoutingContextImpl implements RoutingContext {
    @Override
    public MirrorOption getMirrorOption() {
       return mirrorOption;
+   }
+
+   @Override
+   public boolean isDivertDisabled() {
+      return divertDisabled;
+   }
+
+   @Override
+   public void disableDivert() {
+      divertDisabled = true;
    }
 
    @Override

@@ -368,7 +368,9 @@ public final class BindingsImpl implements Bindings {
          }
          final Filter filter = binding.getFilter();
          if (filter == null || filter.match(message)) {
-            binding.getBindable().route(message, context);
+            if (!(binding instanceof DivertBinding && context.isDivertDisabled())) {
+               binding.getBindable().route(message, context);
+            }
             routed = true;
          }
       }
@@ -415,7 +417,9 @@ public final class BindingsImpl implements Bindings {
          }
 
          if (nextBinding != null) {
-            nextBinding.route(message, context);
+            if (!(context.isDivertDisabled() && nextBinding instanceof DivertBinding)) {
+               nextBinding.route(message, context);
+            }
          }
       });
    }
