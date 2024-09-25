@@ -334,11 +334,6 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          return;
       }
 
-      if (invalidTarget(context.getMirrorSource(), message)) {
-         logger.trace("sendMessage::server {} is discarding send to avoid infinite loop (reflection with the mirror)", server);
-         return;
-      }
-
       if (ignoreAddress(address)) {
          logger.trace("sendMessage::server {} is discarding send to address {}, address doesn't match filter", server, address);
          return;
@@ -351,7 +346,16 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
 
          String nodeID = idSupplier.getServerID(message);
 
-         if (nodeID != null && nodeID.equals(getRemoteMirrorId())) {
+         String remoteID = getRemoteMirrorId();
+
+         if (remoteID == null) {
+            if (AMQPMirrorControllerTarget.getControllerInUse() != null) {
+               // In case source has not yet connected, we need to take the ID from the Target in use to avoid infinite reflections
+               remoteID = AMQPMirrorControllerTarget.getControllerInUse().getRemoteMirrorId();
+            }
+         }
+
+         if (nodeID != null && nodeID.equals(remoteID)) {
             logger.trace("sendMessage::Message {} already belonged to the node, {}, it won't circle send", message, getRemoteMirrorId());
             return;
          }
