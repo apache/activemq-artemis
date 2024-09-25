@@ -3665,6 +3665,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          tx.commit();
       }
 
+      if (server.hasBrokerMessagePlugins()) {
+         server.callBrokerMessagePlugins(plugin -> plugin.messageMoved(tx, ref, reason, address, queueID, consumer, copyMessage, routingStatus));
+      }
+
       return routingStatus;
    }
 

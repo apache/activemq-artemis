@@ -54,6 +54,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -96,6 +97,7 @@ import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledV
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.BEFORE_UPDATE_ADDRESS;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_ACKED;
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_EXPIRED;
+import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.MESSAGE_MOVED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -410,6 +412,35 @@ public class CorePluginTest extends JMSTestBase {
       server.addOrUpdateAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
 
       verifier.validatePluginMethodsEquals(1, BEFORE_UPDATE_ADDRESS, AFTER_UPDATE_ADDRESS);
+   }
+
+   @Test
+   public void testMessageMoved() throws Exception {
+      final String queue1Name = "queue1";
+      final String queue2Name = "queue2";
+      createQueue(queue2Name);
+      org.apache.activemq.artemis.core.server.Queue artemisQueue = server.locateQueue(queue1Name);
+      org.apache.activemq.artemis.core.server.Queue artemisQueue2 = server.locateQueue(queue2Name);
+
+      conn = cf.createConnection();
+      conn.start();
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      MessageProducer prod = sess.createProducer(queue);
+
+      byte[] msgs = new byte[1024];
+      for (int i = 0; i < msgs.length; i++) {
+         msgs[i] = RandomUtil.randomByte();
+      }
+
+      TextMessage msg1 = sess.createTextMessage(new String(msgs));
+      prod.send(msg1);
+      conn.close();
+
+      artemisQueue.moveReferences(null, artemisQueue2.getAddress(), null);
+      Wait.assertEquals(1L, artemisQueue2::getMessageCount, 2000, 100);
+
+      verifier.validatePluginMethodsEquals(1, MESSAGE_MOVED);
    }
 
    private class AckPluginVerifier implements ActiveMQServerPlugin {

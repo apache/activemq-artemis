@@ -290,4 +290,28 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
       //by default call the old method for backwards compatibility
       this.messageAcknowledged(ref, reason, consumer);
    }
+
+   /**
+    * A message has been moved
+    *
+    * @param tx The transaction associated with the move
+    * @param ref The ref of the message moved
+    * @param reason The move reason
+    * @param destAddress the destination address for the move operation
+    * @param destQueueID the destination queueID for the move operation - this field is optional and can be null
+    * @param consumer the consumer that moved the message - this field is optional and can be null
+    * @param newMessage the new message created by the move operation
+    * @param result routing status of the move operation
+    * @throws ActiveMQException
+    */
+   default void messageMoved(final Transaction tx,
+                             final MessageReference ref,
+                             final AckReason reason,
+                             final SimpleString destAddress,
+                             final Long destQueueID,
+                             final ServerConsumer consumer,
+                             final Message newMessage,
+                             final RoutingStatus result) throws ActiveMQException {
+
+   }
 }
