@@ -224,7 +224,7 @@ public class AmqpTestSupport extends ActiveMQTestBase {
    }
 
    protected String getConfiguredProtocols() {
-      return "AMQP,OPENWIRE";
+      return "AMQP,OPENWIRE,CORE";
    }
 
 

@@ -1189,6 +1189,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       } else {
          startedTX = false;
       }
+      if (context.getMirrorSource() == null) {
+         message.clearAMQPProperties();
+      }
       message.clearInternalProperties();
       Bindings bindings;
       final AddressInfo addressInfo = checkAddress(context, address);

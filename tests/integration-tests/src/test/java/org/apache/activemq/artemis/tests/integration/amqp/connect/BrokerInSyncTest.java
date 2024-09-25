@@ -29,9 +29,11 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 import java.io.PrintStream;
 import java.net.URI;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -159,9 +161,22 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server.stop();
    }
 
-
    @Test
    public void testSingleMessage() throws Exception {
+      testSingleMessage("AMQP");
+   }
+
+   @Test
+   public void testSingleMessageCore() throws Exception {
+      testSingleMessage("CORE");
+   }
+
+   @Test
+   public void testSingleMessageOpenWire() throws Exception {
+      testSingleMessage("OPENWIRE");
+   }
+
+   public void testSingleMessage(String protocol) throws Exception {
       server.setIdentity("Server1");
       {
          AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("connectTowardsServer2", "tcp://localhost:" + AMQP_PORT_2).setReconnectAttempts(3).setRetryInterval(100);
@@ -187,12 +202,12 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null);
       Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null);
 
-      ConnectionFactory cf1 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+      ConnectionFactory cf1 = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + AMQP_PORT);
       Connection connection1 = cf1.createConnection();
       Session session1 = connection1.createSession(true, Session.SESSION_TRANSACTED);
       connection1.start();
 
-      ConnectionFactory cf2 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT_2);
+      ConnectionFactory cf2 = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + AMQP_PORT_2);
       Connection connection2 = cf2.createConnection();
       Session session2 = connection2.createSession(true, Session.SESSION_TRANSACTED);
       connection2.start();
@@ -229,11 +244,56 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       Wait.assertEquals(2, queueOnServer1::getMessageCount);
       Wait.assertEquals(2, queueOnServer2::getMessageCount);
 
+
+      connection2.start();
+      try (MessageConsumer consumer = session2.createConsumer(queue)) {
+         javax.jms.Message receivedMessage = consumer.receive(5000);
+         assertNotNull(message);
+         checkProperties(connection2, receivedMessage);
+         session2.commit();
+      }
+
+      Wait.assertEquals(1L, queueOnServer1::getMessageCount, 5000, 100);
+      Wait.assertEquals(1L, queueOnServer2::getMessageCount, 5000, 100);
+
+      connection1.start();
+      try (MessageConsumer consumer = session1.createConsumer(queue)) {
+         javax.jms.Message receivedMessage = consumer.receive(5000);
+         assertNotNull(message);
+         checkProperties(connection1, receivedMessage);
+         session1.commit();
+      }
+
       connection1.close();
       connection2.close();
 
+      Wait.assertEquals(0L, queueOnServer1::getMessageCount, 5000, 100);
+      Wait.assertEquals(0L, queueOnServer2::getMessageCount, 5000, 100);
+
       server_2.stop();
       server.stop();
+   }
+
+
+   private void checkProperties(Connection connection, javax.jms.Message message) throws Exception {
+      try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
+         TemporaryQueue temporaryQueue = session.createTemporaryQueue();
+         MessageProducer producer = session.createProducer(temporaryQueue);
+         producer.send(message);
+         connection.start();
+         MessageConsumer consumer = session.createConsumer(temporaryQueue);
+         javax.jms.Message receivedMessage = consumer.receive(5000);
+         assertNotNull(receivedMessage);
+
+         // The cleanup for x-opt happens on server's side.
+         // we may receive if coming directly from a mirrored queue,
+         // however we should cleanup on the next send to avoid invalid IDs on the server
+         Enumeration propertyNames = receivedMessage.getPropertyNames();
+         while (propertyNames.hasMoreElements()) {
+            String property = String.valueOf(propertyNames.nextElement());
+            assertFalse(property.startsWith("x-opt"));
+         }
+      }
    }
 
 

@@ -161,6 +161,14 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
+   public void clearAMQPProperties() {
+      final TypedProperties properties = this.properties;
+      if (properties != null && properties.clearAMQPProperties()) {
+         messageChanged();
+      }
+   }
+
+   @Override
    public Persister<Message> getPersister() {
       return CoreMessagePersister.getInstance();
    }
@@ -621,7 +629,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       try {
          TypedProperties properties = this.properties;
          if (properties == null) {
-            properties = new TypedProperties(INTERNAL_PROPERTY_NAMES_PREDICATE);
+            properties = new TypedProperties(INTERNAL_PROPERTY_NAMES_PREDICATE, AMQP_PROPERTY_PREDICATE);
             if (buffer != null && propertiesLocation >= 0) {
                final ByteBuf byteBuf = buffer.duplicate().readerIndex(propertiesLocation);
                properties.decode(byteBuf, coreMessageObjectPools == null ? null : coreMessageObjectPools.getPropertiesDecoderPools());
@@ -737,7 +745,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          properties = null;
          propertiesLocation = buffer.readerIndex();
       } else {
-         properties = new TypedProperties(INTERNAL_PROPERTY_NAMES_PREDICATE);
+         properties = new TypedProperties(INTERNAL_PROPERTY_NAMES_PREDICATE, AMQP_PROPERTY_PREDICATE);
          properties.decode(buffer, pools == null ? null : pools.getPropertiesDecoderPools());
       }
    }
