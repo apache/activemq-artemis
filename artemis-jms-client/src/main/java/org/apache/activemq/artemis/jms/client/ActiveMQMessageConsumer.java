@@ -155,6 +155,10 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
       }
    }
 
+   public SimpleString getAutoDeleteQueueName() {
+      return autoDeleteQueueName;
+   }
+
    // QueueReceiver implementation ----------------------------------
 
    @Override
