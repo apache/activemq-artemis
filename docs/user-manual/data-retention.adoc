@@ -2,13 +2,17 @@
 :idprefix:
 :idseparator: -
 
-If you enable `journal-retention` on broker.xml, ActiveMQ Artemis will keep copy of every data that has passed through the broker on this folder.
+If you enable `journal-retention-directory` on broker.xml, ActiveMQ Artemis will keep copy of every data that has passed through the broker on this folder.
 
 [,xml]
 ----
-    ...
-      <journal-retention unit="DAYS" directory="history" period="365" storage-limit="10G"/>
-    ...
+<configuration...>
+   <core...>
+      ...
+      <journal-retention-directory unit="DAYS" period="365" storage-limit="10G">history</journal-retention-directory>
+      ...
+   </core>
+</configuration>
 ----
 
 ActiveMQ Artemis will keep a copy of each generated journal file, up to the configured retention period, at the unit chose.
