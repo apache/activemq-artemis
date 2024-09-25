@@ -212,6 +212,10 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          return;
       }
 
+      if (addressInfo.isTemporary()) {
+         return;
+      }
+
       if (ignoreAddress(addressInfo.getName())) {
          return;
       }
@@ -249,6 +253,11 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
 
          return;
       }
+
+      if (queueConfiguration.isTemporary()) {
+         return;
+      }
+
       if (ignoreAddress(queueConfiguration.getAddress())) {
          if (logger.isTraceEnabled()) {
             logger.trace("Skipping create {}, queue address {} doesn't match filter", queueConfiguration, queueConfiguration.getAddress());
@@ -338,8 +347,6 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          logger.trace("sendMessage::server {} is discarding send to address {}, address doesn't match filter", server, address);
          return;
       }
-
-      logger.trace("sendMessage::{} send message {}", server, message);
 
       try {
          context.setReusable(false);
