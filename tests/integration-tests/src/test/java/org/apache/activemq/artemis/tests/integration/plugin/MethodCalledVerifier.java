@@ -87,6 +87,7 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    public static final String AFTER_REMOVE_BINDING = "afterRemoveBinding";
    public static final String MESSAGE_EXPIRED = "messageExpired";
    public static final String MESSAGE_ACKED = "messageAcknowledged";
+   public static final String MESSAGE_MOVED = "messageMoved";
    public static final String BEFORE_SEND = "beforeSend";
    public static final String AFTER_SEND = "afterSend";
    public static final String ON_SEND_EXCEPTION = "onSendException";
@@ -297,6 +298,23 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
       Objects.requireNonNull(ref);
       Objects.requireNonNull(reason);
       methodCalled(MESSAGE_ACKED);
+   }
+
+   @Override
+   public void messageMoved(final Transaction tx,
+                            final MessageReference ref,
+                            final AckReason reason,
+                            final SimpleString destAddress,
+                            final Long destQueueID,
+                            final ServerConsumer consumer,
+                            final Message newMessage,
+                            final RoutingStatus result) {
+      Objects.requireNonNull(ref);
+      Objects.requireNonNull(reason);
+      Objects.requireNonNull(destAddress);
+      Objects.requireNonNull(newMessage);
+      Objects.requireNonNull(result);
+      methodCalled(MESSAGE_MOVED);
    }
 
    @Override
