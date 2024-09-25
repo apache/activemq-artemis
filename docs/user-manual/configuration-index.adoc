@@ -252,6 +252,11 @@ This is a list
 | The amount in bytes before all addresses are considered full.
 | Half of the JVM's `-Xmx`
 
+| xref:paging.adoc#global-max-messages[global-max-messages]
+| Number of messages before all addresses will enter into their Full Policy configured.
+It works in conjunction with global-max-size, being watever value hits its maximum first.
+| `-1`
+
 | xref:graceful-shutdown.adoc#graceful-server-shutdown[graceful-shutdown-enabled]
 | true means that graceful shutdown is enabled.
 | `false`
@@ -345,13 +350,29 @@ The system will create as many files as needed however when reclaiming files it 
 | the type of journal to use.
 | `ASYNCIO`
 
+| xref:data-retention.adoc#data-retention[journal-retention-directory]
+| where to keep retained data including attributes for how long to keep it (`unit` & `period`) and how much to keep (`storage-limit`)
+| n/a
+
 | xref:persistence.adoc#configuring-the-message-journal[journal-datasync]
 | It will use msync/fsync on journal operations.
 | `true`
 
+| journal-device-block-size
+| The size in bytes used by the storage device. This is usually translated as `fstat`/`st_blksize`, and this is a way to bypass the value returned as `st_blksize`.
+| `4096`
+
+| log-journal-write-rate
+| Whether to log messages about the journal write rate.
+| `false`
+
 | xref:large-messages.adoc#large-messages[large-messages-directory]
 | the directory to store large messages.
 | `data/largemessages`
+
+| xref:large-messages.adoc#configuring-the-server[large-message-sync]
+| should sync large messages before closing the file
+| `true`
 
 | log-delegate-factory-class-name
 | *deprecated* the name of the factory class to use for log delegation.
@@ -379,8 +400,15 @@ If set to "true" the passwords are masked.
 | xref:paging.adoc#max-disk-usage[max-disk-usage]
 | The max percentage of data we should use from disks.
 The broker will block while the disk is full.
-Disable by setting -1.
+Disable by setting `-1`.
 | 90
+
+| xref:paging.adoc#minimum-disk-free[min-disk-free]
+| Min free bytes on disk below which the system blocks or fails clients.
+Supports byte notation like "K", "MB", "GB", etc.
+Will override `max-disk-usage` if both are set.
+Disable by setting `-1`.
+| `-1`
 
 | xref:perf-tuning.adoc#performance-tuning[memory-measure-interval]
 | frequency to sample JVM memory in ms (or -1 to disable memory sampling).
@@ -487,13 +515,21 @@ In most cases this should be set to '1'.
 | Maximum number of threads to use for the scheduled thread pool.
 | 5
 
-| xref:security.adoc#authentication-authorization[security-enabled]
+| xref:security.adoc#basic-configuration[security-enabled]
 | true means that security is enabled.
 | `true`
 
-| xref:security.adoc#authentication-authorization[security-invalidation-interval]
+| xref:security.adoc#caching-security-operations[security-invalidation-interval]
 | how long (in ms) to wait before invalidating the security cache.
 | 10000
+
+| xref:security.adoc#caching-security-operations[authentication-cache-size]
+| how large to make the authentication cache
+| 1000
+
+| xref:security.adoc#caching-security-operations[authorization-cache-size]
+| how large to make the authorization cache
+| 1000
 
 | system-property-prefix
 | Prefix for replacing configuration settings using Bean Utils.
@@ -505,6 +541,10 @@ In most cases this should be set to '1'.
 
 | xref:security.adoc#tracking-the-validated-user[populate-validated-user]
 | whether or not to add the name of the validated user to the messages that user sends.
+| `false`
+
+| xref:security.adoc#tracking-the-validated-user[reject-empty-validated-user]
+| true means that the server will not allow any message that doesn't have a validated user, in JMS this is `JMSXUserID`
 | `false`
 
 | xref:security.adoc#role-based-security-for-addresses[security-settings]
@@ -604,6 +644,57 @@ in your security-settings.
 | [[management-rbac-prefix]] management-rbac-prefix
 | parameter to configure the prefix for security-settings match addresses to control RBAC on xref:management.adoc#jmx-authorization-in-broker-xml[JMX MBean operations] and optionally on xref:management.adoc#fine-grained-rbac-on-management-messages[management messages]
 | mops (shorthand for management operations)
+
+| xref:address-model.adoc#temporary-queues[temporary-queue-namespace]
+| the namespace to use for looking up address settings for temporary queues
+| n/a
+
+| xref:mqtt.adoc#automatic-subscription-clean-up[mqtt-session-scan-interval]
+| how often (in ms) to scan for expired MQTT sessions
+| `5000`
+
+| xref:mqtt.adoc#persistent-subscriptions[mqtt-session-state-persistence-timeout]
+| how long (in ms) to wait to persist MQTT session state
+| `5000`
+
+| xref:federation.adoc#federation[federations]
+| a list of federation elements
+| n/a
+
+| xref:connection-routers.adoc#connection-routers[connection-routers]
+| a list of connection-router elements
+| n/a
+
+| mirror-ack-manager-queue-attempts
+| The number of times a mirror target would retry an acknowledgement on the queue before scanning page files for the message.
+| `5`
+
+| mirror-ack-manager-page-attempts
+| The number of times a mirror target would retry an acknowledgement on paging.
+| `2`
+
+| mirror-ack-manager-retry-delay
+| Period in milliseconds for which retries are going to be exercised.
+| `100`
+
+| mirror-page-transaction
+| Should Mirror use Page Transactions When target destinations is paging?
+When a target queue on the mirror is paged, the mirror will not record a page transaction for every message.
+The default is `false`, and the overhead of paged messages will be smaller, but there is a possibility of eventual duplicates in case of interrupted communication between the mirror source and target.
+If you set this to `true` there will be a record stored on the journal for the page-transaction additionally to the record in the page store.
+| `false`
+
+| xref:management.adoc#suppressing-session-notifications[suppress-session-notifications]
+| Whether to suppress `SESSION_CREATED` and `SESSION_CLOSED` notifications.
+Set to `true` to reduce notification overhead.
+However, these are required to enforce unique client ID utilization in a cluster for MQTT clients.
+| `false`
+
+| xref:address-settings.adoc#literal-matches[literal-match-markers]
+| The characters that mark a "literal" match.
+A literal match means the setting(s) will only apply to the exact match regardless of wildcards.
+If this setting is not omitted then it must be two characters - the start marker and the end marker.
+| n/a
 |===
 
 == address-setting type

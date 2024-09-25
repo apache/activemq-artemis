@@ -600,7 +600,7 @@
          <xsd:element name="journal-retention-directory" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  the directory to store journal-retention message in and rention configuraion.
+                  where to keep retained data including attributes for how long to keep it (unit and period) and how much to keep (storage-limit)
                </xsd:documentation>
             </xsd:annotation>
             <xsd:complexType>
@@ -636,7 +636,7 @@
                               Notice we first remove files based on period and if you're using more storage then you
                               configured we start removing older files.
                               By default this is unlimited (not filled).
-                              Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+                              Supports byte notation like "K", "MB", "MiB", "GB", etc.
                            </xsd:documentation>
                         </xsd:annotation>
                      </xsd:attribute>
@@ -685,7 +685,7 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="journal-device-block-size" type="xsd:long" maxOccurs="1" minOccurs="0">
+         <xsd:element name="journal-device-block-size" type="xsd:long" default="4096" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The size in bytes used by the device. This is usually translated as fstat/st_blksize
@@ -698,7 +698,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   The size (in bytes) of the internal buffer on the journal.
-                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+                  Supports byte notation like "K", "MB", "MiB", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -733,7 +733,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   The size (in bytes) of each journal file.
-                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+                  Supports byte notation like "K", "MB", "MiB", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -809,7 +809,7 @@
                <xsd:documentation>
                   Size (in bytes) before all addresses will enter into their Full Policy configured upon messages being
                   produced.
-                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+                  Supports byte notation like "K", "MB", "MiB", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -827,7 +827,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   Min free bytes on disk below which the system blocks or fails clients. Supports byte notation like
-                  "K", "Mb", "GB", etc. Will override max-disk-usage if both are set.
+                  "K", "MB", "GB", etc. Will override max-disk-usage if both are set.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1429,7 +1429,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   Any message larger than this size (in bytes) is considered a large message (to be sent in chunks).
-                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+                  Supports byte notation like "K", "MB", "MiB", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1514,7 +1514,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   Once the bridge has received this many bytes, it sends a confirmation.
-                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+                  Supports byte notation like "K", "MB", "MiB", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1523,7 +1523,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   Producer flow control.
-                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+                  Supports byte notation like "K", "MB", "MiB", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -2469,7 +2469,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   Messages larger than this are considered large-messages.
-                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+                  Supports byte notation like "K", "MB", "MiB", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -2567,7 +2567,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   The size (in bytes) of the window used for confirming data from the server connected to.
-                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+                  Supports byte notation like "K", "MB", "MiB", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -2576,7 +2576,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   Producer flow control.
-                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+                  Supports byte notation like "K", "MB", "MiB", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -2912,7 +2912,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   The max page size (in bytes) to use for all addresses when using JDBC.
-                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+                  Supports byte notation like "K", "MB", "MiB", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -3941,7 +3941,7 @@
                   <xsd:documentation>
                      the maximum size (in bytes) for an address (-1 means no limits). This is used in PAGING, BLOCK and
                      FAIL policies.
-                     Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+                     Supports byte notation like "K", "MB", "MiB", "GB", etc.
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -3958,7 +3958,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   After the address enters into page mode, this attribute will configure how many pages can be written into page before activating the page-full-policy.
-                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+                  Supports byte notation like "K", "MB", "MiB", "GB", etc.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -3986,7 +3986,7 @@
                <xsd:annotation>
                   <xsd:documentation>
                      The page size (in bytes) to use for an address.
-                     Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+                     Supports byte notation like "K", "MB", "MiB", "GB", etc.
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -4588,7 +4588,7 @@
    <xsd:element name="connector-services">
       <xsd:annotation>
          <xsd:documentation>
-            a list of connector services
+            DEPRECATED: a list of connector services
          </xsd:documentation>
       </xsd:annotation>
       <xsd:complexType>
@@ -4604,7 +4604,7 @@
          <xsd:element maxOccurs="1" minOccurs="1" name="factory-class" type="xsd:string">
             <xsd:annotation>
                <xsd:documentation>
-                  Name of the factory class of the ConnectorService
+                  DEPRECATED: Name of the factory class of the ConnectorService
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
