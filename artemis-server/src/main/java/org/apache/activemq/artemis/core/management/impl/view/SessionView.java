@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class SessionView extends ActiveMQAbstractView<ServerSession> {
 
-   private static final String defaultSortColumn = SessionField.ID.getName();
+   private static final String defaultSortField = SessionField.ID.getName();
 
    public SessionView() {
       super();
@@ -79,6 +79,6 @@ public class SessionView extends ActiveMQAbstractView<ServerSession> {
 
    @Override
    public String getDefaultOrderColumn() {
-      return defaultSortColumn;
+      return defaultSortField;
    }
 }

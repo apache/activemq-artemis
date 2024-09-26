@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class QueueView extends ActiveMQAbstractView<QueueControl> {
 
-   private static final String defaultSortColumn = QueueField.NAME.getName();
+   private static final String defaultSortField = QueueField.NAME.getName();
 
    private ActiveMQServer server;
 
@@ -162,6 +162,6 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
 
    @Override
    public String getDefaultOrderColumn() {
-      return defaultSortColumn;
+      return defaultSortField;
    }
 }

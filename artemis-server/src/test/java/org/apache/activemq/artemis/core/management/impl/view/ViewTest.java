@@ -20,6 +20,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 public class ViewTest {
 
    @Test
@@ -37,6 +40,14 @@ public class ViewTest {
    }
 
    @Test
+   public void testConnectionViewLegacySort() {
+      ConnectionView connectionView = new ConnectionView(Mockito.mock(ActiveMQServer.class));
+      assertNotEquals("protocol", connectionView.getDefaultOrderColumn());
+      connectionView.setOptions("{\"field\":\"protocol\",\"operation\":\"EQUALS\",\"value\":\"CORE\",\"sortColumn\":\"protocol\",\"sortOrder\":\"asc\"}");
+      assertEquals("protocol", connectionView.getSortField());
+   }
+
+   @Test
    public void testDefaultSessionViewNullOptions() {
       SessionView sessionView = new SessionView();
       // sanity check to ensure this doesn't just blow up
@@ -48,6 +59,14 @@ public class ViewTest {
       SessionView sessionView = new SessionView();
       // sanity check to ensure this doesn't just blow up
       sessionView.setOptions("");
+   }
+
+   @Test
+   public void testSessionViewLegacySort() {
+      SessionView sessionView = new SessionView();
+      assertNotEquals("user", sessionView.getDefaultOrderColumn());
+      sessionView.setOptions("{\"field\":\"user\",\"operation\":\"EQUALS\",\"value\":\"123\",\"sortColumn\":\"user\",\"sortOrder\":\"asc\"}");
+      assertEquals("user", sessionView.getSortField());
    }
 
    @Test
@@ -65,6 +84,14 @@ public class ViewTest {
    }
 
    @Test
+   public void testAddressViewLegacySort() {
+      AddressView addressView = new AddressView(Mockito.mock(ActiveMQServer.class));
+      assertNotEquals("name", addressView.getDefaultOrderColumn());
+      addressView.setOptions("{\"field\":\"name\",\"operation\":\"EQUALS\",\"value\":\"123\",\"sortColumn\":\"name\",\"sortOrder\":\"asc\"}");
+      assertEquals("name", addressView.getSortField());
+   }
+
+   @Test
    public void testDefaultQueueViewNullOptions() {
       QueueView queueView = new QueueView(Mockito.mock(ActiveMQServer.class));
       // sanity check to ensure this doesn't just blow up
@@ -76,6 +103,14 @@ public class ViewTest {
       QueueView queueView = new QueueView(Mockito.mock(ActiveMQServer.class));
       // sanity check to ensure this doesn't just blow up
       queueView.setOptions("");
+   }
+
+   @Test
+   public void testQueueViewLegacySort() {
+      QueueView view = new QueueView(Mockito.mock(ActiveMQServer.class));
+      assertNotEquals("id", view.getDefaultOrderColumn());
+      view.setOptions("{\"field\":\"id\",\"operation\":\"EQUALS\",\"value\":\"123\",\"sortColumn\":\"id\",\"sortOrder\":\"asc\"}");
+      assertEquals("id", view.getSortField());
    }
 
    @Test
@@ -93,6 +128,14 @@ public class ViewTest {
    }
 
    @Test
+   public void testConsumerViewLegacySort() {
+      ConsumerView view = new ConsumerView(Mockito.mock(ActiveMQServer.class));
+      assertNotEquals("user", view.getDefaultOrderColumn());
+      view.setOptions("{\"field\":\"user\",\"operation\":\"EQUALS\",\"value\":\"123\",\"sortColumn\":\"user\",\"sortOrder\":\"asc\"}");
+      assertEquals("user", view.getSortField());
+   }
+
+   @Test
    public void testDefaultProducerViewNullOptions() {
       ProducerView producerView = new ProducerView(Mockito.mock(ActiveMQServer.class));
       // sanity check to ensure this doesn't just blow up
@@ -104,5 +147,13 @@ public class ViewTest {
       ProducerView producerView = new ProducerView(Mockito.mock(ActiveMQServer.class));
       // sanity check to ensure this doesn't just blow up
       producerView.setOptions("");
+   }
+
+   @Test
+   public void testProducerViewLegacySort() {
+      ProducerView view = new ProducerView(Mockito.mock(ActiveMQServer.class));
+      assertNotEquals("user", view.getDefaultOrderColumn());
+      view.setOptions("{\"field\":\"user\",\"operation\":\"EQUALS\",\"value\":\"123\",\"sortColumn\":\"user\",\"sortOrder\":\"asc\"}");
+      assertEquals("user", view.getSortField());
    }
 }

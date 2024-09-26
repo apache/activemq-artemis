@@ -51,7 +51,7 @@ var Artemis;
                                       <button type="button" class="btn btn-default dropdown-toggle" id="filter" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{$ctrl.filter.text.sortByText}}<span class="caret"></span></button>
                                       <ul class="dropdown-menu">
                                         <li ng-repeat="option in $ctrl.filter.fieldOptions"
-                                              id="option.id" ng-click="$ctrl.filter.values.sortColumn = option.id;$ctrl.filter.text.sortByText = option.name">{{ option.name }}</ul>
+                                              id="option.id" ng-click="$ctrl.filter.values.sortField = option.id;$ctrl.filter.text.sortByText = option.name">{{ option.name }}</ul>
                                       </ul>
                                 </div>
                                 <div class="input-group-btn">
