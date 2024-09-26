@@ -16,7 +16,11 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -155,5 +159,54 @@ public class ViewTest {
       assertNotEquals("user", view.getDefaultOrderColumn());
       view.setOptions("{\"field\":\"user\",\"operation\":\"EQUALS\",\"value\":\"123\",\"sortColumn\":\"user\",\"sortOrder\":\"asc\"}");
       assertEquals("user", view.getSortField());
+   }
+
+   @Test
+   public void testPageSizeAndPageNumber() {
+      ActiveMQAbstractView myView = new ActiveMQAbstractView() {
+         @Override
+         Object getField(Object o, String fieldName) {
+            return null;
+         }
+
+         @Override
+         public Class getClassT() {
+            return null;
+         }
+
+         @Override
+         public JsonObjectBuilder toJson(Object obj) {
+            return null;
+         }
+
+         @Override
+         public String getDefaultOrderColumn() {
+            return "";
+         }
+      };
+
+      List<Integer> list = new ArrayList<>();
+      for (int i = 0; i < 1000; i++) {
+         list.add(i);
+      }
+
+      myView.setCollection(list);
+
+      // one or more inputs is -1
+      assertEquals(list.size(), myView.getPagedResult(-1, -1).size());
+      assertEquals(list.size(), myView.getPagedResult(123, -1).size());
+      assertEquals(list.size(), myView.getPagedResult(-1, 123).size());
+
+      // page 0 - not really valid but still "works"
+      assertEquals(0, myView.getPagedResult(0, 123).size());
+
+
+      assertEquals(123, myView.getPagedResult(1, 123).size());
+
+      // last page
+      assertEquals(100, myView.getPagedResult(10, 100).size());
+
+      // past the last page
+      assertEquals(0, myView.getPagedResult(11, 100).size());
    }
 }
