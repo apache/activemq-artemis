@@ -88,8 +88,15 @@ public abstract class ActiveMQAbstractView<T> {
 
    public List<T> getPagedResult(int page, int pageSize) {
       List<T> builder = new ArrayList<>();
-      int start = (page - 1) * pageSize;
-      int end = Math.min(page * pageSize, collection.size());
+      final int start;
+      final int end;
+      if (page == -1 || pageSize == -1) {
+         start = 0;
+         end = collection.size();
+      } else {
+         start = (page - 1) * pageSize;
+         end = Math.min(page * pageSize, collection.size());
+      }
       int i = 0;
       for (T e : collection.stream().sorted(getComparator()).collect(Collectors.toList())) {
          if (i >= start && i < end) {
