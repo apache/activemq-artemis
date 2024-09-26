@@ -530,22 +530,29 @@ See the xref:examples.adoc#jmx-management[JMX Management Example] which shows ho
 
 === Exposing JMX using Jolokia
 
-The default Broker configuration ships with the https://jolokia.org[Jolokia] HTTP agent deployed as a web application.
+The default broker configuration ships with the https://jolokia.org[Jolokia] HTTP agent deployed as a web application.
 Jolokia is a remote JMX-over-HTTP bridge that exposes MBeans.
-For a full guide as to how to use it refer to https://jolokia.org/documentation.html[Jolokia Documentation], however a simple example to query the broker's version would be to use a `curl` command like this:
+For a full guide as to how to use it refer to https://jolokia.org/reference/html/manual/jolokia_protocol.html[Jolokia documentation].
+
+==== Reading an Attribute
+
+A simple example to check whether a broker is active would be to use a `curl` command like this:
+
 [,console]
 ----
-$ curl -v -H "Origin: http://localhost" -u myUser:myPass http://localhost:8161/console/jolokia/read/org.apache.activemq.artemis:broker=\"0.0.0.0\"/Active
+$ curl -s -H "Origin: http://localhost" -u myUser:myPass http://localhost:8161/console/jolokia/read/org.apache.activemq.artemis:broker=\"0.0.0.0\"/Active
 ----
-Or you could send a JSON formatted request instead of using the URL
+
+Or you could send a JSON formatted `POST` request instead of using the URL
+
 [,console]
 ----
-$ curl -v -H "Origin: http://localhost" -u myUser:myPass --header "Content-type: application/json" --request POST --data '{"attribute": "Active", "mbean": "org.apache.activemq.artemis:broker=\"0.0.0.0\"", "type": "read"}' http://localhost:8161/console/jolokia
+$ curl -s -H "Origin: http://localhost" -u myUser:myPass --header "Content-type: application/json" --request POST --data '{"attribute": "Active", "mbean": "org.apache.activemq.artemis:broker=\"0.0.0.0\"", "type": "read"}' http://localhost:8161/console/jolokia
 ----
 
-By default it's necessary to pass the `Origin` header due to the CORS checking which is configured in `etc/jolokia-access.xml`.
+By default it's necessary to pass the `Origin` header due to the https://en.wikipedia.org/wiki/Cross-origin_resource_sharing[CORS] checking which is configured in `etc/jolokia-access.xml`.
 
-Such a `curl` command would give you back something like the following (after formatting):
+Either such `curl` command would give you back something like the following (after formatting):
 
 [,json]
 ----
@@ -555,11 +562,336 @@ Such a `curl` command would give you back something like the following (after fo
     "attribute": "Version",
     "type": "read"
   },
-  "value": "2.24.0",
+  "value": "true",
   "timestamp": 1663086398,
   "status": 200
 }
 ----
+
+The value of the attribute is contained in `value` (i.e. `true`).
+You could easily parse this JSON data with a tool like https://jqlang.github.io/jq/[`jq`] which is available in most Linux distributions, e.g.:
+
+[,console]
+----
+$ curl -s -H "Origin: http://localhost" -u myUser:myPass --header "Content-type: application/json" --request POST --data '{"attribute": "Active", "mbean": "org.apache.activemq.artemis:broker=\"0.0.0.0\"", "type": "read"}' http://localhost:8161/console/jolokia | jq -r '.value'
+----
+
+This command would simply return:
+
+[,console]
+----
+true
+----
+
+See more details on Jolokia's `read` functionality in the https://jolokia.org/reference/html/manual/jolokia_protocol.html#read[Jolokia documentation].
+
+==== Executing an Operation
+
+Aside from reading an attribute the next most common task is executing an operation.
+For example, you can list the connections to the broker with `curl` and parse the output with `jq` like this:
+
+[,console]
+----
+$ curl -s -H "Origin: http://localhost" -u myUser:myPass "http://localhost:8161/console/jolokia/exec/org.apache.activemq.artemis:broker=\"0.0.0.0\"/listConnections/\"\"/-1/-1" | jq '.value | fromjson'
+----
+
+Or you could send a JSON formatted `POST` request instead of using the URL
+
+[,console]
+----
+$ curl -s -H "Origin: http://localhost" -u myUser:myPass --header "Content-type: application/json" --request POST --data '{"operation": "listConnections", "mbean": "org.apache.activemq.artemis:broker=\"0.0.0.0\"", "type": "exec", "arguments": [ "", -1, -1 ] }' http://localhost:8161/console/jolokia | jq '.value | fromjson'
+----
+
+Either such command would give you back something like the following (after formatting):
+
+[,json]
+----
+{
+  "data": [
+    {
+      "connectionID": "bd8d4635",
+      "remoteAddress": "127.0.0.1:55754",
+      "users": "",
+      "creationTime": "Wed Jan 1 12:00:00 CDT 2020",
+      "implementation": "RemotingConnectionImpl",
+      "protocol": "CORE",
+      "clientID": "",
+      "localAddress": "tcp:///127.0.0.1:61616",
+      "sessionCount": 2
+    },
+    {
+      "connectionID": "2a7ac661",
+      "remoteAddress": "127.0.0.1:54394",
+      "users": "",
+      "creationTime": "Wed Jan 1 12:00:00 CDT 2020",
+      "implementation": "OpenWireConnection",
+      "protocol": "OPENWIRE",
+      "clientID": "ID:myMachine-34439-1727292626395-0:1",
+      "localAddress": "tcp:///127.0.0.1:61616",
+      "sessionCount": 3
+    }
+  ],
+  "count": 2
+}
+----
+
+You could also leverage the <<management-method-option-syntax>> to get more specific results.
+
+[,console]
+----
+$ curl -s -H "Origin: http://localhost" -u myUser:myPass "http://localhost:8161/console/jolokia/exec/org.apache.activemq.artemis:broker=\"0.0.0.0\"/listConnections/\{\"field\":\"protocol\",\"operation\":\"EQUALS\",\"value\":\"OPENWIRE\"\}/-1/-1" | jq '.value | fromjson'
+----
+
+Or you could send a JSON formatted `POST` request instead of using the URL
+
+[,console]
+----
+$ curl -s -H "Origin: http://localhost" -u myUser:myPass --header "Content-type: application/json" --request POST --data '{"operation": "listConnections", "mbean": "org.apache.activemq.artemis:broker=\"0.0.0.0\"", "type": "exec", "arguments": [ "{\"field\":\"protocol\",\"operation\":\"EQUALS\",\"value\":\"OPENWIRE\"}", -1, -1 ] }' http://localhost:8161/console/jolokia | jq '.value | fromjson'
+----
+
+Either such command would give you back something like the following (after formatting):
+
+[,json]
+----
+{
+  "data": [
+    {
+      "connectionID": "2a7ac661",
+      "remoteAddress": "127.0.0.1:54394",
+      "users": "",
+      "creationTime": "Wed Jan 1 12:00:00 CDT 2020",
+      "implementation": "OpenWireConnection",
+      "protocol": "OPENWIRE",
+      "clientID": "ID:myMachine-34439-1727292626395-0:1",
+      "localAddress": "tcp:///127.0.0.1:61616",
+      "sessionCount": 3
+    }
+  ],
+  "count": 1
+}
+----
+
+See more details on Jolokia's `exec` functionality in the https://jolokia.org/reference/html/manual/jolokia_protocol.html#exec[Jolokia documentation].
+
+=== Management Method Option Syntax
+
+When there are lots of these resources to manage it can sometimes be difficult to find a particular resource.
+For example, if there are 1,000 connections to the broker and you just want to manage one particular connection that is using a specific client ID.
+A handful of management operations support a special JSON syntax to filter results based on the following inputs:
+
+* `field` (see the list of fields for each management operation below)
+* `operation`
+** `CONTAINS`
+** `NOT_CONTAINS`
+** `EQUALS`
+** `GREATER_THAN`
+** `LESS_THAN`
+* `value`
+* `sortField` (optional)
+* `sortOrder` (optional)
+** `asc`
+** `desc`
+
+Here are the methods which support this syntax along with the available fields:
+
+listConnections::
+* `connectionID`
+* `clientID`
+* `users`
+* `protocol`
+* `sessionCount`
+* `remoteAddress`
+* `localAddress`
+* `sessionID`
+* `creationTime`
+* `implementation`
+* Example:
++
+[,json]
+----
+{
+  "field": "protocol",
+  "operation": "EQUALS",
+  "value": "OPENWIRE"
+}
+----
+
+listSessions::
+* `id`
+* `connectionID`
+* `consumerCount`
+* `producerCount`
+* `user`
+* `validatedUser`
+* `protocol`
+* `clientID`
+* `localAddress`
+* `remoteAddress`
+* `creationTime`
+* Example:
++
+[,json]
+----
+{
+  "field": "remoteAddress",
+  "operation": "CONTAINS",
+  "value": "127.0.0.1"
+}
+----
+
+listAddresses::
+* `id`
+* `name`
+* `routingTypes`
+* `producerId`
+* `queueCount`
+* `internal`
+* Example:
++
+[,json]
+----
+{
+  "field": "name",
+  "operation": "CONTAINS",
+  "value": "shipping"
+}
+----
+
+listQueues::
+* `id`
+* `name`
+* `consumerID`
+* `address`
+* `maxConsumers`
+* `filter`
+* `messageCount`
+* `consumerCount`
+* `deliveringCount`
+* `messagesAdded`
+* `messagesAcked`
+* `messagesExpired`
+* `routingType`
+* `user`
+* `autoCreated`
+* `durable`
+* `paused`
+* `temporary`
+* `purgeOnNoConsumers`
+* `messagesKilled`
+* `directDeliver`
+* `lastValue`
+* `exclusive`
+* `scheduledCount`
+* `lastValueKey`
+* `groupRebalance`
+* `groupRebalancePauseDispatch`
+* `groupBuckets`
+* `groupFirstKey`
+* `enabled`
+* `ringSize`
+* `consumersBeforeDispatch`
+* `delayBeforeDispatch`
+* `autoDelete`
+* `internalQueue`
+* Example:
++
+[,json]
+----
+{
+  "field": "consumerCount",
+  "operation": "GREATER_THAN",
+  "value": "7"
+}
+----
+
+listConsumers::
+* `id` or `consumerID`
+* `sequentialId` or `sequentialId`
+* `session` or `sessionID`
+* `connection` or `connectionID`
+* `queue` or `queueName`
+* `filter`
+* `address`
+* `user`
+* `validatedUser`
+* `protocol`
+* `clientID`
+* `localAddress`
+* `remoteAddress`
+* `queueType`
+* `browseOnly`
+* `creationTime`
+* `messagesInTransit` or `deliveringCount`
+* `messagesInTransitSize`
+* `messagesDelivered`
+* `messagesDeliveredSize`
+* `messagesAcknowledged`
+* `messagesAcknowledgedAwaitingCommit`
+* `lastDeliveredTime`
+* `lastAcknowledgedTime`
+* `status`
+* Example:
++
+[,json]
+----
+{
+  "field": "messagesAcknowledged",
+  "operation": "LESS_THAN",
+  "value": "10"
+}
+----
+
+listProducers::
+* `id`
+* `name`
+* `session` or `sessionID`
+* `connectionID`
+* `address` or `destination`
+* `user`
+* `validatedUser`
+* `protocol`
+* `clientID`
+* `localAddress`
+* `remoteAddress`
+* `creationTime`
+* `msgSent`
+* `msgSizeSent`
+* `lastProducedMessageID`
+* Example:
++
+[,json]
+----
+{
+  "field": "validatedUser",
+  "operation": "EQUALS",
+  "value": "bob"
+}
+----
+
+==== Sorting
+
+Results can be sorted by any field in either ascending (`asc`) or descending (`desc`) order.
+For example, use something like this in a call to `listConnections` to get all the AMQP connections with the newest connections first.
+
+[,json]
+----
+{
+  "field": "protocol",
+  "operation": "EQUALS",
+  "value": "AMQP",
+  "sortField": "creationTime",
+  "sortOrder": "desc"
+}
+----
+
+==== Pagination
+
+These methods also support _pagination_.
+In other words, the results can be divided into groups and then iterated through.
+The second parameter is the "page number" (i.e. which page to inspect) and the third parameter is the "page size" (i.e. how many results to return on each page).
+This is how, for example, the web console displays paginated results.
+
+To disable pagination pass `-1` for either page number of page size (or both).
 
 === JMX and the Web Console
 
