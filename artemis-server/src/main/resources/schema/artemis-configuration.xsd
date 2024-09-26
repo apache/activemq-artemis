@@ -2306,6 +2306,14 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
+      <xsd:attribute name="no-forward" type="xsd:boolean" use="optional" default="false">
+         <xsd:annotation>
+            <xsd:documentation>
+               If this is true, the mirror at the opposite end of the link will not forward messages or instructions coming from this broker to any other mirrors down the line.
+               This is false by default.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
       <xsd:attribute name="address-filter" type="xsd:string" use="optional">
          <xsd:annotation>
             <xsd:documentation>

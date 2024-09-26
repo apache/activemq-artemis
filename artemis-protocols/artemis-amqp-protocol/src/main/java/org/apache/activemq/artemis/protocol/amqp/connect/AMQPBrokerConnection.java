@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.protocol.amqp.connect;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -306,10 +307,10 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    public void createLink(Queue queue, AMQPBrokerConnectionElement connectionElement) {
       if (connectionElement.getType() == AMQPBrokerConnectionAddressType.PEER) {
          Symbol[] dispatchCapability = new Symbol[]{AMQPMirrorControllerSource.QPID_DISPATCH_WAYPOINT_CAPABILITY};
-         connectSender(queue, queue.getAddress().toString(), null, null, null, null, dispatchCapability, null);
+         connectSender(queue, queue.getAddress().toString(), null, null, null, null, null, dispatchCapability, null);
          connectReceiver(protonRemotingConnection, session, sessionContext, queue, dispatchCapability);
       } else if (connectionElement.getType() == AMQPBrokerConnectionAddressType.SENDER) {
-         connectSender(queue, queue.getAddress().toString(), null, null, null, null, null, null);
+         connectSender(queue, queue.getAddress().toString(), null, null, null, null, null, null, null);
       } else if (connectionElement.getType() == AMQPBrokerConnectionAddressType.RECEIVER) {
          connectReceiver(protonRemotingConnection, session, sessionContext, queue);
       }
@@ -450,21 +451,25 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                   final Queue queue = server.locateQueue(getMirrorSNF(replica));
 
                   final boolean coreTunnelingEnabled = isCoreMessageTunnelingEnabled(replica);
-                  final Symbol[] desiredCapabilities;
 
+                  ArrayList<Symbol> desiredCapabilitiesList = new ArrayList<>();
+                  desiredCapabilitiesList.add(AMQPMirrorControllerSource.MIRROR_CAPABILITY);
                   if (coreTunnelingEnabled) {
-                     desiredCapabilities = new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY,
-                                                         AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT};
-                  } else {
-                     desiredCapabilities = new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY};
+                     desiredCapabilitiesList.add(AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT);
+                  }
+                  if (replica.isNoForward()) {
+                     desiredCapabilitiesList.add(AMQPMirrorControllerSource.NO_FORWARD);
                   }
 
-                  final Symbol[] requiredOfferedCapabilities = new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY};
+                  final Symbol[] desiredCapabilities = (Symbol[]) desiredCapabilitiesList.toArray(new Symbol[]{});
+
+                  final Symbol[] requiredOfferedCapabilities = replica.isNoForward() ? new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY, AMQPMirrorControllerSource.NO_FORWARD} : new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY};
 
                   connectSender(queue,
                                 queue.getName().toString(),
                                 mirrorControllerSource::setLink,
                                 (r) -> AMQPMirrorControllerSource.validateProtocolData(protonProtocolManager.getReferenceIDSupplier(), r, getMirrorSNF(replica)),
+                                (r) -> mirrorControllerSource.filterMessage(r),
                                 server.getNodeID().toString(),
                                 desiredCapabilities,
                                 null,
@@ -771,6 +776,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                               String targetName,
                               java.util.function.Consumer<Sender> senderConsumer,
                               java.util.function.Consumer<? super MessageReference> beforeDeliver,
+                              java.util.function.Predicate<? super MessageReference> beforeDeliverFiltering,
                               String brokerID,
                               Symbol[] desiredCapabilities,
                               Symbol[] targetCapabilities,
@@ -831,7 +837,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
             // Using attachments to set up a Runnable that will be executed inside AMQPBrokerConnection::remoteLinkOpened
             sender.attachments().set(AMQP_LINK_INITIALIZER_KEY, Runnable.class, () -> {
-               ProtonServerSenderContext senderContext = new ProtonServerSenderContext(protonRemotingConnection.getAmqpConnection(), sender, sessionContext, sessionContext.getSessionSPI(), outgoingInitializer).setBeforeDelivery(beforeDeliver);
+               ProtonServerSenderContext senderContext = new ProtonServerSenderContext(protonRemotingConnection.getAmqpConnection(), sender, sessionContext, sessionContext.getSessionSPI(), outgoingInitializer).setBeforeDelivery(beforeDeliver).setBeforeDeliveryFiltering(beforeDeliverFiltering);
                try {
                   if (!cancelled.get()) {
                      if (futureTimeout != null) {

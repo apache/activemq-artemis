@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.nullValue;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -349,20 +350,41 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
       doTestProducerMessageIsMirroredWithCorrectMessageFormat(false);
    }
 
+   @Test
+   @Timeout(20)
+   public void testProducerMessageIsMirroredWithNoForwardAndTunneling() throws Exception {
+      doTestProducerMessageIsMirroredWithCorrectMessageFormat(true, true);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testProducerMessageIsMirroredWithNoForwardAndWithoutTunneling() throws Exception {
+      doTestProducerMessageIsMirroredWithCorrectMessageFormat(false, true);
+   }
+
    private void doTestProducerMessageIsMirroredWithCorrectMessageFormat(boolean tunneling) throws Exception {
+      doTestProducerMessageIsMirroredWithCorrectMessageFormat(tunneling, false);
+   }
+
+   private void doTestProducerMessageIsMirroredWithCorrectMessageFormat(boolean tunneling, boolean noForward) throws Exception {
       final Map<String, Object> brokerProperties = new HashMap<>();
       brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
 
       final String[] capabilities;
+      ArrayList<String> capabilitiesList = new ArrayList<>();
       final int messageFormat;
 
+      capabilitiesList.add("amq.mirror");
       if (tunneling) {
-         capabilities = new String[] {"amq.mirror", AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString()};
+         capabilitiesList.add(AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString());
          messageFormat = AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
       } else {
-         capabilities = new String[] {"amq.mirror"};
          messageFormat = 0; // AMQP default
       }
+      if (noForward) {
+         capabilitiesList.add(AMQPMirrorControllerSource.NO_FORWARD.toString());
+      }
+      capabilities = capabilitiesList.toArray(new String[]{});
 
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLPlainConnect("user", "pass", "PLAIN", "ANONYMOUS");
@@ -387,6 +409,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          AMQPMirrorBrokerConnectionElement mirrorElement = new AMQPMirrorBrokerConnectionElement();
          mirrorElement.addProperty(TUNNEL_CORE_MESSAGES, Boolean.toString(tunneling));
          mirrorElement.setQueueCreation(true);
+         mirrorElement.setNoForward(noForward);
 
          AMQPBrokerConnectConfiguration amqpConnection =
                new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());

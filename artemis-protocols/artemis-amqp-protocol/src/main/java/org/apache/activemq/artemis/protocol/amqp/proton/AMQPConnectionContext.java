@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -458,14 +459,19 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          return;
       }
 
+      ArrayList<Symbol> offeredCapabilitiesList = new ArrayList<>();
+      offeredCapabilitiesList.add(AMQPMirrorControllerSource.MIRROR_CAPABILITY);
       // We need to check if the remote desires to send us tunneled core messages or not, and if
       // we support that we need to offer that back so it knows it can actually do core tunneling.
       if (verifyDesiredCapability(receiver, AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT)) {
-         receiver.setOfferedCapabilities(new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY,
-                                                       AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT});
-      } else {
-         receiver.setOfferedCapabilities(new Symbol[]{AMQPMirrorControllerSource.MIRROR_CAPABILITY});
+         offeredCapabilitiesList.add(AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT);
       }
+
+      // If the remote wants us to not forward any messages to other mirrors we need to offer that capability
+      if (verifyDesiredCapability(receiver, AMQPMirrorControllerSource.NO_FORWARD)) {
+         offeredCapabilitiesList.add(AMQPMirrorControllerSource.NO_FORWARD);
+      }
+      receiver.setOfferedCapabilities((Symbol[]) offeredCapabilitiesList.toArray(new Symbol[]{}));
 
       protonSession.addReplicaTarget(receiver);
    }

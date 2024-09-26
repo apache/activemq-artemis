@@ -70,6 +70,8 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public static final Symbol QUEUE = Symbol.getSymbol("x-opt-amq-mr-qu");
    public static final Symbol BROKER_ID = Symbol.getSymbol("x-opt-amq-bkr-id");
    public static final SimpleString BROKER_ID_SIMPLE_STRING = SimpleString.of(BROKER_ID.toString());
+   public static final SimpleString NO_FORWARD_SOURCE = SimpleString.of("x-opt-amq-mr-no-fwd-src");
+   public static final SimpleString RECEIVER_ID_FILTER = SimpleString.of("x-opt-amq-mr-rcv-id-filter");
 
    // Events:
    public static final Symbol ADD_ADDRESS = Symbol.getSymbol("addAddress");
@@ -89,9 +91,11 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    // Capabilities
    public static final Symbol MIRROR_CAPABILITY = Symbol.getSymbol("amq.mirror");
    public static final Symbol QPID_DISPATCH_WAYPOINT_CAPABILITY = Symbol.valueOf("qd.waypoint");
+   public static final Symbol NO_FORWARD = Symbol.getSymbol("amq.no.forward");
 
    public static final SimpleString INTERNAL_ID_EXTRA_PROPERTY = SimpleString.of(INTERNAL_ID.toString());
    public static final SimpleString INTERNAL_BROKER_ID_EXTRA_PROPERTY = SimpleString.of(BROKER_ID.toString());
+   public static final SimpleString INTERNAL_NO_FORWARD = SimpleString.of(NO_FORWARD.toString());
 
    private static final ThreadLocal<RoutingContext> mirrorControlRouting = ThreadLocal.withInitial(() -> new RoutingContextImpl(null));
 
@@ -230,12 +234,17 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public void deleteAddress(AddressInfo addressInfo) throws Exception {
       logger.trace("{} deleteAddress {}", server, addressInfo);
 
+      if (isBlockedByNoForward()) {
+         return;
+      }
+
       if (invalidTarget(getControllerInUse()) || addressInfo.isInternal()) {
          return;
       }
       if (ignoreAddress(addressInfo.getName())) {
          return;
       }
+
       if (deleteQueues) {
          Message message = createMessage(addressInfo.getName(), null, DELETE_ADDRESS, null, addressInfo.toJSON());
          routeMirrorCommand(server, message);
@@ -245,6 +254,10 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    @Override
    public void createQueue(QueueConfiguration queueConfiguration) throws Exception {
       logger.trace("{} createQueue {}", server, queueConfiguration);
+
+      if (isBlockedByNoForward()) {
+         return;
+      }
 
       if (invalidTarget(getControllerInUse()) || queueConfiguration.isInternal()) {
          if (logger.isTraceEnabled()) {
@@ -264,6 +277,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          }
          return;
       }
+
       if (addQueues) {
          Message message = createMessage(queueConfiguration.getAddress(), queueConfiguration.getName(), CREATE_QUEUE, null, queueConfiguration.toJSON());
          routeMirrorCommand(server, message);
@@ -274,6 +288,10 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public void deleteQueue(SimpleString address, SimpleString queue) throws Exception {
       if (logger.isTraceEnabled()) {
          logger.trace("{} deleteQueue {}/{}", server, address, queue);
+      }
+
+      if (isBlockedByNoForward()) {
+         return;
       }
 
       if (invalidTarget(getControllerInUse())) {
@@ -310,6 +328,14 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       return controller != null && sameNode(getRemoteMirrorId(), controller.getRemoteMirrorId());
    }
 
+   private boolean isBlockedByNoForward() {
+      return getControllerInUse() != null && getControllerInUse().isNoForward();
+   }
+
+   private boolean isBlockedByNoForward(Message message) {
+      return isBlockedByNoForward() || Boolean.TRUE.equals(message.getBrokerProperty(INTERNAL_NO_FORWARD));
+   }
+
    private boolean ignoreAddress(SimpleString address) {
       if (address.startsWith(server.getConfiguration().getManagementAddress())) {
          return true;
@@ -338,6 +364,11 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public void sendMessage(Transaction tx, Message message, RoutingContext context) {
       SimpleString address = context.getAddress(message);
 
+      if (isBlockedByNoForward(message)) {
+         logger.trace("sendMessage::server {} is discarding the send because its source is setting a noForward policy", server);
+         return;
+      }
+
       if (context.isInternal()) {
          logger.trace("sendMessage::server {} is discarding send to avoid sending to internal queue", server);
          return;
@@ -352,6 +383,8 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          logger.trace("sendMessage::server {} is discarding send to address {}, address doesn't match filter", server, address);
          return;
       }
+
+      logger.trace("sendMessage::{} send message {}", server, message);
 
       try {
          context.setReusable(false);
@@ -467,6 +500,28 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       }
    }
 
+   /**
+    * Checks if the message ref should be filtered or not.
+    * @param ref the message to check
+    * @return true if the INTERNAL_RECEIVER_ID_FILTER annotation of the message is set to a different value
+    * than the remoteMirrorID, false otherwise.
+    */
+   public boolean filterMessage(MessageReference ref) {
+      Object filterID = ref.getMessage().getAnnotation(RECEIVER_ID_FILTER);
+      if (filterID != null) {
+         String remoteMirrorId = getRemoteMirrorId();
+         if (remoteMirrorId != null) {
+            if (remoteMirrorId.equals(filterID)) {
+               return false;
+            } else {
+               return true;
+            }
+         }
+         return false;
+      }
+      return false;
+   }
+
    /** This method will return the brokerID used by the message */
    private static String setProtocolData(ReferenceIDSupplier referenceIDSupplier, MessageReference ref) {
       String brokerID = referenceIDSupplier.getServerID(ref);
@@ -543,6 +598,21 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          logger.trace("preAcknowledge::tx={}, ref={}, reason={}", tx, ref, reason);
       }
 
+      String noForwardSource = null;
+      String remoteMirrorId = getRemoteMirrorId();
+      // The remote mirror ID might not be known at this point because the remote mirror hasn't been connected yet or connection was lost.
+      // However, if the remote mirror ID is known there's a possibility to early check if the acknowledgment is supposed to reach the destination
+      // based on the noForward policy of the message about to be acked.
+      if (Boolean.TRUE.equals(ref.getMessage().getBooleanProperty(INTERNAL_NO_FORWARD))) {
+         noForwardSource = String.valueOf(ref.getMessage().getBrokerProperty(NO_FORWARD_SOURCE));
+         if (remoteMirrorId != null && !remoteMirrorId.equals(noForwardSource)) {
+            if (logger.isInfoEnabled()) {
+               logger.info("Due to the noForward policy in place, no Ack for the ref={} should reach the remote mirror ID", ref, remoteMirrorId);
+            }
+            return;
+         }
+      }
+
       MirrorController controllerInUse = getControllerInUse();
 
       // Retried ACKs are not forwarded.
@@ -578,6 +648,13 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       String nodeID = idSupplier.getServerID(ref); // notice the brokerID will be null for any message generated on this broker.
       long internalID = idSupplier.getID(ref);
       Message messageCommand = createMessage(ref.getQueue().getAddress(), ref.getQueue().getName(), POST_ACK, nodeID, internalID, reason);
+
+      // When the remote mirror ID couldn't be known in advance, the ack is annotated with the ID it is supposed to reach. This value
+      // will be used to filter out acks that do violate the configured noForward policy.
+      if (remoteMirrorId == null && noForwardSource != null) {
+         messageCommand.setBrokerProperty(RECEIVER_ID_FILTER, noForwardSource);
+      }
+
       if (sync) {
          OperationContext operationContext;
          operationContext = OperationContextImpl.getContext(server.getExecutorFactory());
