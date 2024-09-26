@@ -343,6 +343,11 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          return;
       }
 
+      if (invalidTarget(context.getMirrorSource(), message)) {
+         logger.trace("sendMessage::server {} is discarding send to avoid infinite loop (reflection with the mirror)", server);
+         return;
+      }
+
       if (ignoreAddress(address)) {
          logger.trace("sendMessage::server {} is discarding send to address {}, address doesn't match filter", server, address);
          return;
