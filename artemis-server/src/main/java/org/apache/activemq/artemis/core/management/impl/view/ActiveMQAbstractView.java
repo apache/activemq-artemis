@@ -42,7 +42,14 @@ public abstract class ActiveMQAbstractView<T> {
 
    private static final String SORT_ORDER = "sortOrder";
 
+   private static final String ASCENDING = "asc";
+
+   private static final String DESCENDING = "desc";
+
+   @Deprecated(forRemoval = true)
    private static final String SORT_COLUMN = "sortColumn";
+
+   private static final String SORT_FIELD = "sortField";
 
    private static final JsonObject DEFAULT_FILTER = JsonUtil.toJsonObject(Map.of(FILTER_FIELD, "", FILTER_OPERATION, "", FILTER_VALUE, ""));
 
@@ -50,15 +57,13 @@ public abstract class ActiveMQAbstractView<T> {
 
    protected ActiveMQFilterPredicate<T> predicate;
 
-   protected String sortColumn;
+   protected String sortField;
 
    protected String sortOrder;
 
-   protected String options;
-
    public ActiveMQAbstractView() {
-      this.sortColumn = getDefaultOrderColumn();
-      this.sortOrder = "asc";
+      this.sortField = getDefaultOrderColumn();
+      this.sortOrder = ASCENDING;
    }
 
    public void setCollection(Collection<T> collection) {
@@ -102,10 +107,10 @@ public abstract class ActiveMQAbstractView<T> {
    public Comparator<T> getComparator() {
       return (left, right) -> {
          try {
-            Object leftValue = getField(left, sortColumn);
-            Object rightValue = getField(right, sortColumn);
+            Object leftValue = getField(left, sortField);
+            Object rightValue = getField(right, sortField);
             if (leftValue instanceof Comparable && rightValue instanceof Comparable) {
-               if (sortOrder.equals("desc")) {
+               if (sortOrder.equalsIgnoreCase(DESCENDING)) {
                   return ((Comparable) rightValue).compareTo(leftValue);
                } else {
                   return ((Comparable) leftValue).compareTo(rightValue);
@@ -132,8 +137,12 @@ public abstract class ActiveMQAbstractView<T> {
          predicate.setField(json.getString(FILTER_FIELD));
          predicate.setOperation(json.getString(FILTER_OPERATION));
          predicate.setValue(json.getString(FILTER_VALUE));
-         if (json.containsKey(SORT_COLUMN) && json.containsKey(SORT_ORDER)) {
-            this.sortColumn = json.getString(SORT_COLUMN);
+         if ((json.containsKey(SORT_COLUMN) || json.containsKey(SORT_FIELD)) && json.containsKey(SORT_ORDER)) {
+            if (json.containsKey(SORT_COLUMN)) {
+               this.sortField = json.getString(SORT_COLUMN);
+            } else {
+               this.sortField = json.getString(SORT_FIELD);
+            }
             this.sortOrder = json.getString(SORT_ORDER);
          }
       }
@@ -144,6 +153,14 @@ public abstract class ActiveMQAbstractView<T> {
    public abstract JsonObjectBuilder toJson(T obj);
 
    public abstract String getDefaultOrderColumn();
+
+   public String getSortField() {
+      return sortField;
+   }
+
+   public String getSortOrder() {
+      return sortOrder;
+   }
 
    /**
     * JsonObjectBuilder will throw an NPE if a null value is added.  For this reason we check for null explicitly when

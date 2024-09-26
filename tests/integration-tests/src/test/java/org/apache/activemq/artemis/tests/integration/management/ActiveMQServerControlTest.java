@@ -6317,12 +6317,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       return ManagementControlHelper.createActiveMQServerControl(mbeanServer);
    }
 
-   private String createJsonFilter(String fieldName, String operationName, String value,String sortColumn, String sortOrder) {
+   private String createJsonFilter(String fieldName, String operationName, String value, String sortField, String sortOrder) {
       HashMap<String, Object> filterMap = new HashMap<>();
       filterMap.put("field", fieldName);
       filterMap.put("operation", operationName);
       filterMap.put("value", value);
-      filterMap.put("sortColumn", sortColumn);
+      filterMap.put("sortField", sortField);
       filterMap.put("sortOrder", sortOrder);
       JsonObject jsonFilterObject = JsonUtil.toJsonObject(filterMap);
       return jsonFilterObject.toString();

@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.utils.StringUtil;
 
 public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
 
-   private static final String defaultSortColumn = ConnectionField.CONNECTION_ID.getName();
+   private static final String defaultSortField = ConnectionField.CONNECTION_ID.getName();
 
    private final ActiveMQServer server;
 
@@ -104,6 +104,6 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
 
    @Override
    public String getDefaultOrderColumn() {
-      return defaultSortColumn;
+      return defaultSortField;
    }
 }

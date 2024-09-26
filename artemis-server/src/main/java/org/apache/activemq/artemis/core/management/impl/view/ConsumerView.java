@@ -32,7 +32,7 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
    public static final String CONSUMER_STATUS_ORPHANED = "Orphaned";
 
 
-   private static final String defaultSortColumn = ConsumerField.ID.getName();
+   private static final String defaultSortField = ConsumerField.ID.getName();
 
    private final ActiveMQServer server;
 
@@ -153,6 +153,6 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
 
    @Override
    public String getDefaultOrderColumn() {
-      return defaultSortColumn;
+      return defaultSortField;
    }
 }

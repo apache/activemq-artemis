@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
 
-   private static final String defaultSortColumn = ProducerField.CREATION_TIME.getName();
+   private static final String defaultSortField = ProducerField.CREATION_TIME.getName();
 
    private final ActiveMQServer server;
 
@@ -106,6 +106,6 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
 
    @Override
    public String getDefaultOrderColumn() {
-      return defaultSortColumn;
+      return defaultSortField;
    }
 }

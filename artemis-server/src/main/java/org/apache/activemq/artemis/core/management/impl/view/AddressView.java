@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class AddressView extends ActiveMQAbstractView<AddressInfo> {
 
-   private static final String defaultSortColumn = AddressField.ID.getName();
+   private static final String defaultSortField = AddressField.ID.getName();
 
    private final ActiveMQServer server;
 
@@ -90,6 +90,6 @@ public class AddressView extends ActiveMQAbstractView<AddressInfo> {
 
    @Override
    public String getDefaultOrderColumn() {
-      return defaultSortColumn;
+      return defaultSortField;
    }
 }
