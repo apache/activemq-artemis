@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 public class ActiveMQFilterPredicate<T> implements Predicate<T> {
 
    public enum Operation {
-      CONTAINS, NOT_CONTAINS, EQUALS, GREATER_THAN, LESS_THAN;
+      CONTAINS, NOT_CONTAINS, EQUALS, NOT_EQUALS, GREATER_THAN, LESS_THAN;
    }
 
    protected String field;
@@ -31,10 +31,6 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
    protected String value;
 
    protected Operation operation;
-
-   public static boolean contains(String field, String value) {
-      return field.contains(value);
-   }
 
    public ActiveMQFilterPredicate() {
    }
@@ -65,7 +61,7 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
    }
 
    public void setOperation(String operation) {
-      if (operation != null && !operation.equals("")) {
+      if (operation != null && !operation.isBlank()) {
          this.operation = Operation.valueOf(operation);
       }
    }
@@ -75,6 +71,8 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
          switch (operation) {
             case EQUALS:
                return equals(field, value);
+            case NOT_EQUALS:
+               return !equals(field, value);
             case CONTAINS:
                return contains(field, value);
             case NOT_CONTAINS:
@@ -104,16 +102,22 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
             longValue = Long.parseLong(value);
          } catch (NumberFormatException ex) {
             //cannot compare
-            return false;
+            if (operation == Operation.NOT_EQUALS || operation == Operation.NOT_CONTAINS) {
+               return true;
+            } else {
+               return false;
+            }
          }
 
          switch (operation) {
             case EQUALS:
                return field == longValue;
+            case NOT_EQUALS:
+               return field != longValue;
             case CONTAINS:
                return false;
             case NOT_CONTAINS:
-               return false;
+               return true;
             case LESS_THAN:
                return field < longValue;
             case GREATER_THAN:
@@ -131,16 +135,22 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
             intValue = Integer.parseInt(value);
          } catch (NumberFormatException ex) {
             //cannot compare
-            return false;
+            if (operation == Operation.NOT_EQUALS || operation == Operation.NOT_CONTAINS) {
+               return true;
+            } else {
+               return false;
+            }
          }
 
          switch (operation) {
             case EQUALS:
                return field == intValue;
+            case NOT_EQUALS:
+               return field != intValue;
             case CONTAINS:
                return false;
             case NOT_CONTAINS:
-               return false;
+               return true;
             case LESS_THAN:
                return field < intValue;
             case GREATER_THAN:
@@ -158,16 +168,22 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
             floatValue = Float.parseFloat(value);
          } catch (NumberFormatException ex) {
             //cannot compare
-            return false;
+            if (operation == Operation.NOT_EQUALS || operation == Operation.NOT_CONTAINS) {
+               return true;
+            } else {
+               return false;
+            }
          }
 
          switch (operation) {
             case EQUALS:
                return field == floatValue;
+            case NOT_EQUALS:
+               return field != floatValue;
             case CONTAINS:
                return false;
             case NOT_CONTAINS:
-               return false;
+               return true;
             case LESS_THAN:
                return field < floatValue;
             case GREATER_THAN:

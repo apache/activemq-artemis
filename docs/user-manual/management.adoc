@@ -684,6 +684,7 @@ A handful of management operations support a special JSON syntax to filter resul
 ** `CONTAINS`
 ** `NOT_CONTAINS`
 ** `EQUALS`
+** `NOT_EQUALS`
 ** `GREATER_THAN`
 ** `LESS_THAN`
 * `value`

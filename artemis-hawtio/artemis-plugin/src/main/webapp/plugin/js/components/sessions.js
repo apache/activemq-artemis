@@ -129,6 +129,7 @@ var Artemis;
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},
+                {id: 'NOT_EQUALS', name: 'Not Equals'},
                 {id: 'CONTAINS', name: 'Contains'},
                 {id: 'NOT_CONTAINS', name: 'Does Not Contain'},
                 {id: 'GREATER_THAN', name: 'Greater Than'},
