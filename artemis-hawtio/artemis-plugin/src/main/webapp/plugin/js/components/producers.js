@@ -119,6 +119,7 @@ var Artemis;
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},
+                {id: 'NOT_EQUALS', name: 'Not Equals'},
                 {id: 'CONTAINS', name: 'Contains'}
             ],
             sortOptions: [
