@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -32,15 +33,18 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Test basic send and receive scenarios using only AMQP sender and receiver links.
@@ -165,7 +169,6 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
    private static final String PRIORITY = "priority";
    private static final String REPLY_TO = "replyTo";
    private static final String TIME_TO_LIVE = "timeToLive";
-
 
    private boolean checkMessageProperties(AMQPMessage message, Map<String, Object> expectedProperties) {
       assertNotNull(message);
@@ -299,6 +302,153 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       assertTrue(passed[0], "connection not set");
       sender.close();
       receiver.close();
+      connection.close();
+   }
+
+   @Test
+   @Timeout(60)
+   public void testReencodeMessageWithByteArrayPropertyAddedOnIngress() throws Exception {
+      final CountDownLatch arrived = new CountDownLatch(1);
+      final CountDownLatch departed = new CountDownLatch(1);
+      final AtomicBoolean propertyAddedOnReceive = new AtomicBoolean(false);
+      final AtomicBoolean propertyFoundOnDispatch = new AtomicBoolean(false);
+
+      final String BYTE_PROPERTY_KEY = "byte-property";
+      final byte[] BYTE_PROPERTY_VALUE = "test".getBytes(StandardCharsets.UTF_8);
+
+      server.getRemotingService().addIncomingInterceptor(new AmqpInterceptor() {
+
+         @Override
+         public boolean intercept(AMQPMessage message, RemotingConnection connection) throws ActiveMQException {
+            message.putBytesProperty(BYTE_PROPERTY_KEY, BYTE_PROPERTY_VALUE);
+
+            try {
+               message.reencode();
+               propertyAddedOnReceive.set(true);
+            } catch (Exception ex) {
+               return false; // Reject message if updated encode fails, test will fail
+            } finally {
+               arrived.countDown();
+            }
+
+            return true;
+         }
+      });
+
+      final AmqpClient client = createAmqpClient();
+      final AmqpConnection connection = addConnection(client.connect());
+      final AmqpSession session = connection.createSession();
+      final AmqpSender sender = session.createSender(getTestName());
+      final AmqpMessage message = new AmqpMessage();
+
+      message.setMessageId("MSG:1");
+      message.setText("Test-Message");
+
+      sender.send(message);
+
+      assertTrue(arrived.await(2, TimeUnit.SECONDS));
+      assertTrue(propertyAddedOnReceive.get());
+
+      server.getRemotingService().addOutgoingInterceptor(new AmqpInterceptor() {
+
+         @Override
+         public boolean intercept(AMQPMessage packet, RemotingConnection connection) throws ActiveMQException {
+            if (packet.containsProperty(BYTE_PROPERTY_KEY)) {
+               propertyFoundOnDispatch.set(true);
+            }
+
+            departed.countDown();
+            return true;
+         }
+      });
+
+      final AmqpReceiver receiver = session.createReceiver(getTestName());
+      receiver.flow(2);
+
+      final AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
+      assertNotNull(amqpMessage);
+      assertEquals(departed.getCount(), 0);
+      assertTrue(propertyFoundOnDispatch.get());
+      assertNotNull(amqpMessage.getApplicationProperty(BYTE_PROPERTY_KEY));
+      assertTrue(amqpMessage.getApplicationProperty(BYTE_PROPERTY_KEY) instanceof Binary);
+
+      final Binary binary = (Binary) amqpMessage.getApplicationProperty(BYTE_PROPERTY_KEY);
+      assertEquals(BYTE_PROPERTY_VALUE.length, binary.getLength());
+
+      // Make a safe copy in case binary payload is not in exact sized array.
+      final byte[] copy = new byte[BYTE_PROPERTY_VALUE.length];
+      System.arraycopy(binary.getArray(), binary.getArrayOffset(), copy, 0, binary.getLength());
+
+      assertArrayEquals(BYTE_PROPERTY_VALUE, copy);
+
+      sender.close();
+      receiver.close();
+      connection.close();
+   }
+
+   @Test
+   @Timeout(60)
+   public void testGetBytesPropertyReturnsByteArray() throws Exception {
+      doTestGetBytesPropertyReturnsByteArray("array-payload".getBytes(StandardCharsets.UTF_8));
+   }
+
+   @Test
+   @Timeout(60)
+   public void testGetBytesPropertyReturnsEmptyByteArray() throws Exception {
+      doTestGetBytesPropertyReturnsByteArray(new byte[0]);
+   }
+
+   public void doTestGetBytesPropertyReturnsByteArray(byte[] array) throws Exception {
+
+      final CountDownLatch arrived = new CountDownLatch(1);
+      final AtomicBoolean bytesReturnedFromBrokerMessage = new AtomicBoolean(false);
+
+      final String BYTE_PROPERTY_KEY = "byte-property";
+
+      server.getRemotingService().addIncomingInterceptor(new AmqpInterceptor() {
+
+         @Override
+         public boolean intercept(AMQPMessage message, RemotingConnection connection) throws ActiveMQException {
+            try {
+               final Object appProperty = message.getApplicationProperties().getValue().get(BYTE_PROPERTY_KEY);
+
+               // The application property should return the encoded Binary value
+               assertNotNull(appProperty);
+               assertTrue(appProperty instanceof Binary);
+
+               final byte[] payload = message.getBytesProperty(BYTE_PROPERTY_KEY);
+
+               // The getBytesProperty API should unwrap and return the byte array
+               assertEquals(array.length, payload.length);
+               assertArrayEquals(array, payload);
+
+               bytesReturnedFromBrokerMessage.set(true);
+            } catch (Exception ex) {
+               return false; // Reject message if updated encode fails, test will fail
+            } finally {
+               arrived.countDown();
+            }
+
+            return true;
+         }
+      });
+
+      final AmqpClient client = createAmqpClient();
+      final AmqpConnection connection = addConnection(client.connect());
+      final AmqpSession session = connection.createSession();
+      final AmqpSender sender = session.createSender(getTestName());
+      final AmqpMessage message = new AmqpMessage();
+
+      message.setMessageId("MSG:1");
+      message.setText("Test-Message");
+      message.setApplicationProperty(BYTE_PROPERTY_KEY, new Binary(array));
+
+      sender.send(message);
+
+      assertTrue(arrived.await(2, TimeUnit.SECONDS));
+      assertTrue(bytesReturnedFromBrokerMessage.get());
+
+      sender.close();
       connection.close();
    }
 }

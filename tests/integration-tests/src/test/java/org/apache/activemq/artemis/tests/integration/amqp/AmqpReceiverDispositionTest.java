@@ -19,13 +19,18 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
+import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.message.Message;
 import org.junit.jupiter.api.Test;
@@ -39,6 +44,13 @@ import org.junit.jupiter.api.Timeout;
  */
 
 public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
+
+   private final int MIN_LARGE_MESSAGE_SIZE = 2048;
+
+   @Override
+   protected void configureAMQPAcceptorParameters(Map<String, Object> params) {
+      params.put("amqpMinLargeMessageSize", MIN_LARGE_MESSAGE_SIZE);
+   }
 
    @Test
    @Timeout(30)
@@ -184,6 +196,70 @@ public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
       assertEquals(expectedDeliveryCount,
             protonMessage2.getDeliveryCount(),
             "Unexpected updated value for AMQP delivery-count");
+
+      connection.close();
+   }
+
+   @Test
+   @Timeout(30)
+   public void testReplayMessageForFQQNRejectedMessage() throws Exception {
+      doTestReplayMessageForFQQNRejectedMessage(10);
+   }
+
+   @Test
+   @Timeout(30)
+   public void testReplayMessageForFQQNRejectedLargeMessage() throws Exception {
+      doTestReplayMessageForFQQNRejectedMessage(MIN_LARGE_MESSAGE_SIZE);
+   }
+
+   public void doTestReplayMessageForFQQNRejectedMessage(int payloadSize) throws Exception {
+      server.createQueue(QueueConfiguration.of("A1").setAddress("A")
+                                                    .setRoutingType(RoutingType.MULTICAST)
+                                                    .setDurable(true));
+
+      final String targetFQQN = "A::A1";
+      final AmqpClient client = createAmqpClient();
+      final AmqpConnection connection = addConnection(client.connect());
+      final AmqpSession session = connection.createSession();
+      final AmqpSender sender = session.createSender(targetFQQN);
+      final AmqpMessage message = new AmqpMessage();
+
+      final String payload = "#".repeat(payloadSize);
+
+      message.setMessageId("MSG:1");
+      message.setText("Test-Message: " + payload);
+      message.setDurable(true);
+
+      sender.send(message);
+
+      final AmqpReceiver receiver = session.createReceiver(targetFQQN);
+      receiver.flow(1);
+
+      final AmqpMessage rejected = receiver.receive(5, TimeUnit.SECONDS);
+      assertNotNull(rejected, "Did not receive message that we want to reject");
+
+      rejected.reject();
+
+      final Queue queueView = server.locateQueue(targetFQQN);
+      final Queue dlqView = server.locateQueue("ActiveMQ.DLQ");
+
+      Wait.assertEquals(0L, () -> queueView.getMessageCount(), 5000, 100);
+      Wait.assertEquals(1L, () -> dlqView.getMessageCount(), 5000, 100);
+
+      // This call with the message sent to an FQQN results in a new application
+      // property being added whose payload is a byte array
+
+      dlqView.retryMessages(null); // No filter so all should match
+
+      Wait.assertEquals(0L, () -> dlqView.getMessageCount(), 5000, 100);
+      Wait.assertEquals(1L, () -> queueView.getMessageCount(), 5000, 100);
+
+      receiver.flow(2);
+
+      final AmqpMessage retriedMessage = receiver.receive(5, TimeUnit.SECONDS);
+
+      assertNotNull(retriedMessage);
+      assertEquals("MSG:1", retriedMessage.getMessageId());
 
       connection.close();
    }

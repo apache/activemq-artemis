@@ -2690,7 +2690,142 @@ public class AMQPMessageTest {
       assertEquals("test-ma", readMessageAnnotations.getValue().get(Symbol.valueOf("test-ma")));
    }
 
+   @Test
+   public void testPutAndGetOfMessageBytesProperties() {
+      final byte[] empty = new byte[0];
+      final byte[] array = new byte[] {0, 1, 2, 3};
+
+      final AMQPStandardMessage message = new AMQPStandardMessage(0, encodedProtonMessage, null);
+
+      assertNull(message.getBytesProperty("test"));
+
+      // Empty byte array
+      message.putBytesProperty("test", empty);
+      final byte[] emptyResult = message.getBytesProperty("test");
+      assertArrayEquals(empty, emptyResult);
+
+      // Populated byte array
+      message.putBytesProperty("test", array);
+      final byte[] arrayResult = message.getBytesProperty("test");
+      assertArrayEquals(array, arrayResult);
+
+      // null value set and get
+      message.putBytesProperty("test", null);
+
+      assertNull(message.getBytesProperty("test"));
+   }
+
+   @Test
+   public void testPutAndGetOfMessageBytesPropertiesViaObjectPropertyAccessor() {
+      final byte[] empty = new byte[0];
+      final byte[] array = new byte[] {0, 1, 2, 3};
+
+      final AMQPStandardMessage message = new AMQPStandardMessage(0, encodedProtonMessage, null);
+
+      assertNull(message.getObjectProperty("test"));
+
+      // Empty byte array
+      message.putObjectProperty("test", empty);
+      final byte[] emptyResult = (byte[]) message.getObjectProperty("test");
+      assertArrayEquals(empty, emptyResult);
+
+      // Populated byte array
+      message.putObjectProperty("test", array);
+      final byte[] arrayResult = (byte[]) message.getObjectProperty("test");
+      assertArrayEquals(array, arrayResult);
+
+      // null value set and get
+      message.putObjectProperty("test", null);
+
+      assertNull(message.getObjectProperty("test"));
+   }
+
+   @Test
+   public void testGetBytesPropertyHandlesOffsetArrayInBinary() {
+      final byte[] array = new byte[] {0, 1, 2, 3};
+      final byte[] offsetArray = new byte[] {1, 0, 1, 2, 3, 4};
+      final Binary offsetBinary = new Binary(offsetArray, 1, array.length);
+
+      final AMQPMessageTestExtension message = new AMQPMessageTestExtension(0, encodedProtonMessage, null);
+
+      assertNull(message.getBytesProperty("test"));
+
+      final ApplicationProperties applicationProperties = message.getDecodedApplicationProperties();
+      assertNotNull(applicationProperties.getValue());
+
+      applicationProperties.getValue().put("test", offsetBinary);
+
+      assertTrue(message.containsProperty("test"));
+
+      final byte[] arrayResult = message.getBytesProperty("test");
+
+      assertArrayEquals(array, arrayResult);
+   }
+
+   @Test
+   public void testGetBytesFromObjectPropertyHandlesOffsetArrayInBinary() {
+      final byte[] array = new byte[] {0, 1, 2, 3};
+      final byte[] offsetArray = new byte[] {1, 0, 1, 2, 3, 4};
+      final Binary offsetBinary = new Binary(offsetArray, 1, array.length);
+
+      final AMQPMessageTestExtension message = new AMQPMessageTestExtension(0, encodedProtonMessage, null);
+
+      assertNull(message.getObjectProperty("test"));
+
+      final ApplicationProperties applicationProperties = message.getDecodedApplicationProperties();
+      assertNotNull(applicationProperties.getValue());
+
+      applicationProperties.getValue().put("test", offsetBinary);
+
+      assertTrue(message.containsProperty("test"));
+
+      final Object result = message.getObjectProperty("test");
+
+      assertTrue(result instanceof byte[]);
+      assertArrayEquals(array, (byte[]) result);
+   }
+
+   @Test
+   public void testBytesPropertySetAndReencode() {
+      final byte[] array = new byte[] {0, 1, 2, 3};
+
+      final AMQPStandardMessage message = new AMQPStandardMessage(0, encodedProtonMessage, null);
+
+      assertNull(message.getBytesProperty("test"));
+
+      message.putBytesProperty("test", array);
+      message.reencode();
+
+      assertTrue(message.containsProperty("test"));
+
+      // Decodes the value from the AMQP data encoding and then checks on the contents
+      final Binary result = (Binary) message.getApplicationProperties().getValue().get("test");
+
+      assertNotNull(result);
+      assertEquals(array.length, result.getLength());
+
+      // Safe copy to account for possible offset array
+      final byte[] copy = new byte[array.length];
+      System.arraycopy(result.getArray(), result.getArrayOffset(), copy, 0, result.getLength());
+
+      assertArrayEquals(array, copy);
+   }
+
    //----- Test Support ------------------------------------------------------//
+
+   // Extension allows public access to decoded application properties that is otherwise
+   // not accessible directly.
+   private class AMQPMessageTestExtension extends AMQPStandardMessage {
+
+      AMQPMessageTestExtension(long messageFormat, byte[] data, TypedProperties extraProperties) {
+         super(messageFormat, data, extraProperties, null);
+      }
+
+      @Override
+      public ApplicationProperties getDecodedApplicationProperties() {
+         return applicationProperties;
+      }
+   }
 
    private MessageImpl createProtonMessage() {
       MessageImpl message = (MessageImpl) Proton.message();
