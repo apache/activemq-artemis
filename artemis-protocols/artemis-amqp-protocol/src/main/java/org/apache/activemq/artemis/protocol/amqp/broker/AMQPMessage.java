@@ -1538,7 +1538,6 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       return (Long) getMessageAnnotation(AMQPMessageSupport.INGRESS_TIME_MSG_ANNOTATION);
    }
 
-
    // JMS Style property access methods.  These can result in additional decode of AMQP message
    // data from Application properties.  Updates to application properties puts the message in a
    // dirty state and requires a re-encode of the data to update all buffer state data otherwise
@@ -1617,14 +1616,18 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    private Object getApplicationObjectProperty(String key) {
       Object value = getApplicationPropertiesMap(false).get(key);
       if (value instanceof Number) {
-         // slow path
+         // AMQP Numeric types must be converted to a compatible value.
          if (value instanceof UnsignedInteger ||
-            value instanceof UnsignedByte ||
-            value instanceof UnsignedLong ||
-            value instanceof UnsignedShort) {
+             value instanceof UnsignedByte ||
+             value instanceof UnsignedLong ||
+             value instanceof UnsignedShort) {
             return ((Number) value).longValue();
          }
+      } else if (value instanceof Binary) {
+         // Binary wrappers must be unwrapped into a byte[] form.
+         return getBytesProperty(key);
       }
+
       return value;
    }
 
@@ -1671,7 +1674,25 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final byte[] getBytesProperty(String key) throws ActiveMQPropertyConversionException {
-      return (byte[]) getApplicationPropertiesMap(false).get(key);
+      final Object value = getApplicationPropertiesMap(false).get(key);
+
+      if (value instanceof Binary) {
+         final Binary binary = (Binary) value;
+
+         if (binary.getArray() == null) {
+            return null;
+         } else if (binary.getArrayOffset() == 0 && binary.getLength() == binary.getArray().length) {
+            return binary.getArray();
+         } else {
+            final byte[] payload = new byte[binary.getLength()];
+
+            System.arraycopy(binary.getArray(), binary.getArrayOffset(), payload, 0, binary.getLength());
+
+            return payload;
+         }
+      } else {
+         return (byte[]) value;
+      }
    }
 
    @Override
@@ -1741,7 +1762,14 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final org.apache.activemq.artemis.api.core.Message putBytesProperty(String key, byte[] value) {
-      getApplicationPropertiesMap(true).put(key, value);
+      Binary payload = null;
+
+      if (value != null) {
+         payload = new Binary(value);
+      }
+
+      getApplicationPropertiesMap(true).put(key, payload);
+
       return this;
    }
 
@@ -1835,7 +1863,13 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final org.apache.activemq.artemis.api.core.Message putObjectProperty(String key, Object value) throws ActiveMQPropertyConversionException {
-      getApplicationPropertiesMap(true).put(key, value);
+      if (value instanceof byte[]) {
+         // Prevent error from proton encoding, byte array must be wrapped in a Binary type.
+         putBytesProperty(key, (byte[]) value);
+      } else {
+         getApplicationPropertiesMap(true).put(key, value);
+      }
+
       return this;
    }
 
