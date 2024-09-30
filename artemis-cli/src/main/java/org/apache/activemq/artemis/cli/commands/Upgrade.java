@@ -26,9 +26,10 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -42,6 +43,9 @@ public class Upgrade extends InstallAbstract {
    // These are the JVM arguments we must keep between upgrades
    private static final String[] KEEPING_JVM_ARGUMENTS = new String[]{"-Xmx", "-Djava.security.auth.login.config", "-Dhawtio.roles="};
 
+   // These are the renamed JVM arguments we must keep between upgrades
+   // The keys MUST be one of the current KEEPING_JVM_ARGUMENTS args above, the values then being its old variant to be renamed.
+   private static final Map<String, String> KEEPING_JVM_ARGUMENTS_ALTERNATES = Map.of("-Dhawtio.roles=", "-Dhawtio.role=");
 
    // this is the prefix where we can find the JDK arguments in Windows script
    private static final String JDK_PREFIX_WINDOWS = "IF \"%JAVA_ARGS%\"==\"\" (set JAVA_ARGS=";
@@ -147,8 +151,10 @@ public class Upgrade extends InstallAbstract {
          final File serviceXml = new File(bin, Create.ARTEMIS_SERVICE_XML);
          final File serviceXmlBkp = new File(binBkp, Create.ARTEMIS_SERVICE_XML);
 
+         final Map<String, String> keepPrefixAlternates = Map.of("<startargument>-Dhawtio.roles=", "<startargument>-Dhawtio.role=");
+
          write(Create.BIN_ARTEMIS_SERVICE_XML, serviceXmlTmp, filters, false, false);
-         upgrade(context, serviceXmlTmp, serviceXml, serviceXmlBkp,
+         upgrade(context, serviceXmlTmp, serviceXml, serviceXmlBkp, keepPrefixAlternates,
                  "<env name=\"ARTEMIS_INSTANCE\"", "<env name=\"ARTEMIS_INSTANCE_ETC\"",
                  "<env name=\"ARTEMIS_INSTANCE_URI\"", "<env name=\"ARTEMIS_INSTANCE_ETC_URI\"",
                  "<env name=\"ARTEMIS_DATA_DIR\"", "<logpath>", "<startargument>-Xmx", "<stopargument>-Xmx",
@@ -159,16 +165,17 @@ public class Upgrade extends InstallAbstract {
          final File artemisProfileCmdBkp = new File(etcBkp, Create.ETC_ARTEMIS_PROFILE_CMD);
 
          write("etc/" + Create.ETC_ARTEMIS_PROFILE_CMD, artemisProfileCmdTmp, filters, false, false);
-         upgradeJDK(context, JDK_PREFIX_WINDOWS, "", KEEPING_JVM_ARGUMENTS, artemisProfileCmdTmp, artemisProfileCmd, artemisProfileCmdBkp,
-                    "set ARTEMIS_INSTANCE=\"", "set ARTEMIS_DATA_DIR=", "set ARTEMIS_ETC_DIR=", "set ARTEMIS_OOME_DUMP=", "set ARTEMIS_INSTANCE_URI=", "set ARTEMIS_INSTANCE_ETC_URI=");
+         upgradeJDK(context, JDK_PREFIX_WINDOWS, "", KEEPING_JVM_ARGUMENTS_ALTERNATES, KEEPING_JVM_ARGUMENTS, artemisProfileCmdTmp, artemisProfileCmd, artemisProfileCmdBkp,
+                    Collections.emptyMap(), "set ARTEMIS_INSTANCE=\"", "set ARTEMIS_DATA_DIR=", "set ARTEMIS_ETC_DIR=", "set ARTEMIS_OOME_DUMP=", "set ARTEMIS_INSTANCE_URI=", "set ARTEMIS_INSTANCE_ETC_URI=");
 
          File artemisUtilityProfileCmd = new File(etcFolder, Create.ETC_ARTEMIS_UTILITY_PROFILE_CMD);
          File artemisUtilityProfileCmdTmp = new File(tmp, Create.ETC_ARTEMIS_UTILITY_PROFILE_CMD);
          File artemisUtilityProfileCmdBkp = new File(etcBkp, Create.ETC_ARTEMIS_UTILITY_PROFILE_CMD);
+
          if (artemisUtilityProfileCmd.exists()) {
             write("etc/" + Create.ETC_ARTEMIS_UTILITY_PROFILE_CMD, artemisUtilityProfileCmdTmp, filters, false, false);
-            upgradeJDK(context, JDK_PREFIX_WINDOWS, "", KEEPING_JVM_ARGUMENTS, artemisUtilityProfileCmdTmp, artemisUtilityProfileCmd, artemisUtilityProfileCmdBkp,
-                       "set ARTEMIS_INSTANCE=\"", "set ARTEMIS_DATA_DIR=", "set ARTEMIS_ETC_DIR=", "set ARTEMIS_OOME_DUMP=", "set ARTEMIS_INSTANCE_URI=", "set ARTEMIS_INSTANCE_ETC_URI=");
+            upgradeJDK(context, JDK_PREFIX_WINDOWS, "", KEEPING_JVM_ARGUMENTS_ALTERNATES, KEEPING_JVM_ARGUMENTS, artemisUtilityProfileCmdTmp, artemisUtilityProfileCmd, artemisUtilityProfileCmdBkp,
+                       Collections.emptyMap(), "set ARTEMIS_INSTANCE=\"", "set ARTEMIS_DATA_DIR=", "set ARTEMIS_ETC_DIR=", "set ARTEMIS_OOME_DUMP=", "set ARTEMIS_INSTANCE_URI=", "set ARTEMIS_INSTANCE_ETC_URI=");
          } else {
             if (data == null || data.equals("data")) {
                dataFolder = getDATA(context, dataFolder, artemisProfileCmd, "set ARTEMIS_DATA_DIR=");
@@ -195,21 +202,24 @@ public class Upgrade extends InstallAbstract {
          write(Create.BIN_ARTEMIS_SERVICE, artemisServiceTmp, filters, false, false);
          upgrade(context, artemisServiceTmp, artemisService, artemisServiceBkp); // we replace the whole thing
 
+         final Map<String, String> keepPrefixAlternates = Map.of("HAWTIO_ROLES=", "HAWTIO_ROLE=");
+
          File artemisProfile = new File(etcFolder, Create.ETC_ARTEMIS_PROFILE);
          File artemisProfileTmp = new File(tmp, Create.ETC_ARTEMIS_PROFILE);
          File artemisProfileBkp = new File(etcBkp, Create.ETC_ARTEMIS_PROFILE);
+
          write("etc/" + Create.ETC_ARTEMIS_PROFILE, artemisProfileTmp, filters, false, false);
-         upgradeJDK(context, JDK_PREFIX_LINUX, "\"", KEEPING_JVM_ARGUMENTS, artemisProfileTmp, artemisProfile, artemisProfileBkp,
-               "ARTEMIS_INSTANCE=", "ARTEMIS_DATA_DIR=", "ARTEMIS_ETC_DIR=", "ARTEMIS_OOME_DUMP=", "ARTEMIS_INSTANCE_URI=", "ARTEMIS_INSTANCE_ETC_URI=", "HAWTIO_ROLE=");
-         replaceLines(context, artemisProfileTmp, artemisProfile, artemisProfileBkp, "^HAWTIO_ROLE(.*)$,HAWTIO_ROLES$1");
+         upgradeJDK(context, JDK_PREFIX_LINUX, "\"", KEEPING_JVM_ARGUMENTS_ALTERNATES, KEEPING_JVM_ARGUMENTS, artemisProfileTmp, artemisProfile, artemisProfileBkp,
+               keepPrefixAlternates, "ARTEMIS_INSTANCE=", "ARTEMIS_DATA_DIR=", "ARTEMIS_ETC_DIR=", "ARTEMIS_OOME_DUMP=", "ARTEMIS_INSTANCE_URI=", "ARTEMIS_INSTANCE_ETC_URI=", "HAWTIO_ROLES=");
 
          File artemisUtilityProfile = new File(etcFolder, Create.ETC_ARTEMIS_UTILITY_PROFILE);
          File artemisUtilityProfileTmp = new File(tmp, Create.ETC_ARTEMIS_UTILITY_PROFILE);
          File artemisUtilityProfileBkp = new File(etcBkp, Create.ETC_ARTEMIS_UTILITY_PROFILE);
+
          if (artemisUtilityProfile.exists()) {
             write("etc/" + Create.ETC_ARTEMIS_UTILITY_PROFILE, artemisUtilityProfileTmp, filters, false, false);
-            upgradeJDK(context, JDK_PREFIX_LINUX, "\"", KEEPING_JVM_ARGUMENTS, artemisUtilityProfileTmp, artemisUtilityProfile, artemisUtilityProfileBkp,
-               "ARTEMIS_INSTANCE=", "ARTEMIS_DATA_DIR=", "ARTEMIS_ETC_DIR=", "ARTEMIS_OOME_DUMP=", "ARTEMIS_INSTANCE_URI=", "ARTEMIS_INSTANCE_ETC_URI=");
+            upgradeJDK(context, JDK_PREFIX_LINUX, "\"", KEEPING_JVM_ARGUMENTS_ALTERNATES, KEEPING_JVM_ARGUMENTS, artemisUtilityProfileTmp, artemisUtilityProfile, artemisUtilityProfileBkp,
+                  keepPrefixAlternates, "ARTEMIS_INSTANCE=", "ARTEMIS_DATA_DIR=", "ARTEMIS_ETC_DIR=", "ARTEMIS_OOME_DUMP=", "ARTEMIS_INSTANCE_URI=", "ARTEMIS_INSTANCE_ETC_URI=", "HAWTIO_ROLES=");
          } else {
             if (data == null || data.equals("data")) {
                dataFolder = getDATA(context, dataFolder, artemisProfile, "ARTEMIS_DATA_DIR=");
@@ -236,6 +246,16 @@ public class Upgrade extends InstallAbstract {
 
       //we remove the unwanted wars after updating them above just in case we are upgrading from an older version where the format was different
       removeWars(context, bootstrapXml);
+
+      final File hawtioOIDC = new File(etcFolder, Create.ETC_OIDC_PROPERTIES);
+
+      if (!hawtioOIDC.exists()) {
+         context.out.println("Creating " + hawtioOIDC);
+         try (InputStream inputStream = openStream("etc/" + Create.ETC_OIDC_PROPERTIES);
+              OutputStream outputStream = new FileOutputStream(hawtioOIDC)) {
+            copy(inputStream, outputStream);
+         }
+      }
 
       upgradeLogging(context, etcFolder, etcBkp);
 
@@ -281,20 +301,25 @@ public class Upgrade extends InstallAbstract {
       return defaultPath;
    }
 
-   private void upgradeJDK(ActionContext context, String jdkPrefix, String endOfLine, String[] keepArguments, File tmpFile, File targetFile, File bkpFile, String... keepingPrefixes) throws Exception {
-
+   private void upgradeJDK(ActionContext context, String jdkPrefix, String endOfLine, Map<String, String> keepArgumentAlternates, String[] keepArguments, File tmpFile, File targetFile, File bkpFile, Map<String, String> keepPrefixAlternates, String... keepingPrefixes) throws Exception {
       final HashMap<String, String> replaceMatrix = new HashMap<>();
       final HashMap<String, String> currentArguments = new HashMap<>();
 
       doUpgrade(context, tmpFile, targetFile, bkpFile,
                 oldLine -> {
                    if (oldLine.trim().startsWith(jdkPrefix)) {
-                      JVMArgumentParser.parseOriginalArgs(jdkPrefix, endOfLine, oldLine, keepArguments, currentArguments);
+                      JVMArgumentParser.parseOriginalArgs(jdkPrefix, endOfLine, oldLine, keepArgumentAlternates, keepArguments, currentArguments);
                       return;
                    } else {
                       for (String prefix : keepingPrefixes) {
                          if (oldLine.trim().startsWith(prefix)) {
                             replaceMatrix.put(prefix, oldLine);
+                         } else if (keepPrefixAlternates.containsKey(prefix)) {
+                            String oldPrefix = keepPrefixAlternates.get(prefix);
+                            if (oldLine.trim().startsWith(oldPrefix)) {
+                               String renamedOldLine = oldLine.replaceFirst(oldPrefix, prefix);
+                               replaceMatrix.put(prefix, renamedOldLine);
+                            }
                          }
                       }
                    }
@@ -329,6 +354,10 @@ public class Upgrade extends InstallAbstract {
    }
 
    private void upgrade(ActionContext context, File tmpFile, File targetFile, File bkpFile, String... keepingPrefixes) throws Exception {
+      upgrade(context, tmpFile, targetFile, bkpFile, Collections.emptyMap(), keepingPrefixes);
+   }
+
+   private void upgrade(ActionContext context, File tmpFile, File targetFile, File bkpFile, Map<String, String> keepPrefixAlternates, String... keepingPrefixes) throws Exception {
       HashMap<String, String> replaceMatrix = new HashMap<>();
 
       doUpgrade(context, tmpFile, targetFile, bkpFile,
@@ -337,6 +366,12 @@ public class Upgrade extends InstallAbstract {
                     for (String prefix : keepingPrefixes) {
                        if (oldLine.trim().startsWith(prefix)) {
                           replaceMatrix.put(prefix, oldLine);
+                       } else if (keepPrefixAlternates.containsKey(prefix)) {
+                          String oldPrefix = keepPrefixAlternates.get(prefix);
+                          if (oldLine.trim().startsWith(oldPrefix)) {
+                             String renamedOldLine = oldLine.replaceFirst(oldPrefix, prefix);
+                             replaceMatrix.put(prefix, renamedOldLine);
+                          }
                        }
                     }
                  }
