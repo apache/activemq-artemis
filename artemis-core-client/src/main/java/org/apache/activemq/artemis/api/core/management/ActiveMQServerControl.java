@@ -1708,6 +1708,10 @@ public interface ActiveMQServerControl {
       return getDivertNames();
    }
 
+   /**
+    * @deprecated Deprecated in favor of {@link #createDivert(String)}
+    */
+   @Deprecated
    @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
    void createDivert(@Parameter(name = "name", desc = "Name of the divert") String name,
                      @Parameter(name = "routingName", desc = "Routing name of the divert") String routingName,
@@ -1717,6 +1721,10 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "filterString", desc = "Filter of the divert") String filterString,
                      @Parameter(name = "transformerClassName", desc = "Class name of the divert's transformer") String transformerClassName) throws Exception;
 
+   /**
+    * @deprecated Deprecated in favor of {@link #createDivert(String)}
+    */
+   @Deprecated
    @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
    void createDivert(@Parameter(name = "name", desc = "Name of the divert") String name,
                      @Parameter(name = "routingName", desc = "Routing name of the divert") String routingName,
@@ -1727,6 +1735,10 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "transformerClassName", desc = "Class name of the divert's transformer") String transformerClassName,
                      @Parameter(name = "routingType", desc = "How should the routing-type on the diverted messages be set?") String routingType) throws Exception;
 
+   /**
+    * @deprecated Deprecated in favor of {@link #createDivert(String)}
+    */
+   @Deprecated
    @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
    void createDivert(@Parameter(name = "name", desc = "Name of the divert") String name,
                      @Parameter(name = "routingName", desc = "Routing name of the divert") String routingName,
@@ -1738,6 +1750,10 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "transformerProperties", desc = "Configuration properties of the divert's transformer") Map<String, String> transformerProperties,
                      @Parameter(name = "routingType", desc = "How should the routing-type on the diverted messages be set?") String routingType) throws Exception;
 
+   /**
+    * @deprecated Deprecated in favor of {@link #createDivert(String)}
+    */
+   @Deprecated
    @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
    void createDivert(@Parameter(name = "name", desc = "Name of the divert") String name,
                      @Parameter(name = "routingName", desc = "Routing name of the divert") String routingName,
@@ -1750,8 +1766,17 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "routingType", desc = "How should the routing-type on the diverted messages be set?") String routingType) throws Exception;
 
    /**
+    * Create a Divert.
+    *
+    * @param divertConfiguration the configuration of the divert in JSON format
+    */
+   @Operation(desc = "Create a Divert", impact = MBeanOperationInfo.ACTION)
+   void createDivert(@Parameter(name = "divertConfiguration", desc = "the configuration of the divert in JSON format") String divertConfiguration) throws Exception;
+
+   /**
     * update a divert
     */
+   @Deprecated
    @Operation(desc = "Update a divert", impact = MBeanOperationInfo.ACTION)
    void updateDivert(@Parameter(name = "name", desc = "Name of the queue") String name,
                      @Parameter(name = "forwardingAddress", desc = "Address to divert to") String forwardingAddress,
@@ -1759,6 +1784,12 @@ public interface ActiveMQServerControl {
                      @Parameter(name = "transformerClassName", desc = "Class name of the divert's transformer") String transformerClassName,
                      @Parameter(name = "transformerProperties", desc = "Configuration properties of the divert's transformer") Map<String, String> transformerProperties,
                      @Parameter(name = "routingType", desc = "How should the routing-type on the diverted messages be set?") String routingType) throws Exception;
+
+   /**
+    * update a divert
+    */
+   @Operation(desc = "Update a divert", impact = MBeanOperationInfo.ACTION)
+   void updateDivert(@Parameter(name = "divertConfiguration", desc = "the configuration of the divert in JSON format") String divertConfiguration) throws Exception;
 
    @Operation(desc = "Destroy a Divert", impact = MBeanOperationInfo.ACTION)
    void destroyDivert(@Parameter(name = "name", desc = "Name of the divert") String name) throws Exception;

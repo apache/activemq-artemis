@@ -3669,16 +3669,24 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                             final String transformerClassName,
                             final Map<String, String> transformerProperties,
                             final String routingType) throws Exception {
+      TransformerConfiguration transformerConfiguration = transformerClassName == null || transformerClassName.isEmpty() ? null : new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
+      createDivert(new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).setRoutingType(ComponentConfigurationRoutingType.valueOf(routingType)));
+   }
+
+   @Override
+   public void createDivert(final String divertConfiguration) throws Exception {
+      createDivert(DivertConfiguration.fromJSON(divertConfiguration));
+   }
+
+
+   private void createDivert(final DivertConfiguration config) throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.createDivert(this.server, name, routingName, address, forwardingAddress,
-                  exclusive, filterString, transformerClassName, transformerProperties, routingType);
+         AuditLogger.createDivert(this.server, config);
       }
       checkStarted();
 
       clearIO();
       try {
-         TransformerConfiguration transformerConfiguration = transformerClassName == null || transformerClassName.isEmpty() ? null : new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
-         DivertConfiguration config = new DivertConfiguration().setName(name).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(exclusive).setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).setRoutingType(ComponentConfigurationRoutingType.valueOf(routingType));
          server.deployDivert(config);
       } finally {
          blockOnIO();
@@ -3692,22 +3700,32 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                             final String transformerClassName,
                             final Map<String, String> transformerProperties,
                             final String routingType) throws Exception {
+      TransformerConfiguration transformerConfiguration = transformerClassName == null || transformerClassName.isEmpty() ? null : new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
+
+      DivertConfiguration config = new DivertConfiguration()
+         .setName(name)
+         .setForwardingAddress(forwardingAddress)
+         .setFilterString(filterString)
+         .setTransformerConfiguration(transformerConfiguration)
+         .setRoutingType(ComponentConfigurationRoutingType.valueOf(routingType));
+
+      updateDivert(config);
+   }
+
+   @Override
+   public void updateDivert(final String divertConfiguration) throws Exception {
+      updateDivert(DivertConfiguration.fromJSON(divertConfiguration));
+   }
+
+   private void updateDivert(final DivertConfiguration config) throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.updateDivert(this.server, name, forwardingAddress, filterString,
-                                  transformerClassName, transformerProperties, routingType);
+         AuditLogger.updateDivert(this.server, config);
       }
       checkStarted();
 
       clearIO();
 
       try {
-         TransformerConfiguration transformerConfiguration = transformerClassName == null  || transformerClassName.isEmpty() ? null :
-            new TransformerConfiguration(transformerClassName).setProperties(transformerProperties);
-
-         DivertConfiguration config = new DivertConfiguration().setName(name).setForwardingAddress(forwardingAddress).
-            setFilterString(filterString).setTransformerConfiguration(transformerConfiguration).
-            setRoutingType(ComponentConfigurationRoutingType.valueOf(routingType));
-
          final Divert divert = server.updateDivert(config);
          if (divert == null) {
             throw ActiveMQMessageBundle.BUNDLE.divertDoesNotExist(config.getName());

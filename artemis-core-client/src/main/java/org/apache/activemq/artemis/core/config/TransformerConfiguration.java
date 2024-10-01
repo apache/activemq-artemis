@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.config;
 
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
 import org.apache.activemq.artemis.json.JsonObject;
@@ -92,6 +93,16 @@ public final class TransformerConfiguration implements Serializable {
       return result;
    }
 
+   public JsonObjectBuilder createJsonObjectBuilder() {
+      JsonObjectBuilder tcBuilder = JsonLoader.createObjectBuilder().add(TransformerConfiguration.CLASS_NAME, getClassName());
+      if (getProperties() != null && getProperties().size() > 0) {
+         JsonObjectBuilder propBuilder = JsonLoader.createObjectBuilder();
+         getProperties().forEach(propBuilder::add);
+         tcBuilder.add(TransformerConfiguration.PROPERTIES, propBuilder);
+      }
+      return tcBuilder;
+   }
+
    /**
     * @param properties the properties to set
     */
@@ -133,4 +144,10 @@ public final class TransformerConfiguration implements Serializable {
       return true;
    }
 
+   @Override
+   public String toString() {
+      return "TransformerConfiguration [" +
+         "className=" + className +
+         ", properties=" + properties + "]";
+   }
 }

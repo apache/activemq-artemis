@@ -80,6 +80,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.management.impl.view.ConnectionField;
@@ -1728,6 +1729,15 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testNullRouteNameOnDivert() throws Exception {
+      testNullRouteNameOnDivert(false);
+   }
+
+   @TestTemplate
+   public void testNullRouteNameOnDivertJSON() throws Exception {
+      testNullRouteNameOnDivert(true);
+   }
+
+   private void testNullRouteNameOnDivert(boolean json) throws Exception {
       String address = RandomUtil.randomString();
       String name = RandomUtil.randomString();
       String forwardingAddress = RandomUtil.randomString();
@@ -1737,13 +1747,26 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
       assertEquals(0, serverControl.getDivertNames().length);
 
-      serverControl.createDivert(name.toString(), null, address, forwardingAddress, true, null, null);
+      if (json) {
+         serverControl.createDivert(new DivertConfiguration().setName(name).setAddress(address).setForwardingAddress(forwardingAddress).toJSON());
+      } else {
+         serverControl.createDivert(name.toString(), null, address, forwardingAddress, true, null, null);
+      }
 
       checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
    }
 
    @TestTemplate
    public void testCreateAndDestroyDivert() throws Exception {
+      testCreateAndDestroyDivert(false);
+   }
+
+   @TestTemplate
+   public void testCreateAndDestroyDivertJSON() throws Exception {
+      testCreateAndDestroyDivert(true);
+   }
+
+   private void testCreateAndDestroyDivert(boolean json) throws Exception {
       String address = RandomUtil.randomString();
       String name = RandomUtil.randomString();
       String routingName = RandomUtil.randomString();
@@ -1754,7 +1777,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
       assertEquals(0, serverControl.getDivertNames().length);
 
-      serverControl.createDivert(name.toString(), routingName, address, forwardingAddress, true, null, null);
+      if (json) {
+         serverControl.createDivert(new DivertConfiguration().setName(name.toString()).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(true).toJSON());
+      } else {
+         serverControl.createDivert(name.toString(), routingName, address, forwardingAddress, true, null, null);
+      }
 
       checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
       DivertControl divertControl = ManagementControlHelper.createDivertControl(name.toString(), address, mbeanServer);
@@ -1829,6 +1856,15 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCreateAndDestroyDivertServerRestart() throws Exception {
+      testCreateAndDestroyDivertServerRestart(false);
+   }
+
+   @TestTemplate
+   public void testCreateAndDestroyDivertServerRestartJSON() throws Exception {
+      testCreateAndDestroyDivertServerRestart(true);
+   }
+
+   private void testCreateAndDestroyDivertServerRestart(boolean json) throws Exception {
       String address = RandomUtil.randomString();
       String name = RandomUtil.randomString();
 
@@ -1837,7 +1873,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
       assertEquals(0, serverControl.getDivertNames().length);
 
-      serverControl.createDivert(name.toString(), RandomUtil.randomString(), address, RandomUtil.randomString(), true, null, null);
+      if (json) {
+         serverControl.createDivert(new DivertConfiguration().setName(name.toString()).setRoutingName(RandomUtil.randomString()).setAddress(address).setForwardingAddress(RandomUtil.randomString()).setExclusive(true).toJSON());
+      } else {
+         serverControl.createDivert(name.toString(), RandomUtil.randomString(), address, RandomUtil.randomString(), true, null, null);
+      }
 
       checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
       assertEquals(1, serverControl.getDivertNames().length);
@@ -1857,6 +1897,15 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCreateAndUpdateDivert() throws Exception {
+      testCreateAndUpdateDivert(false);
+   }
+
+   @TestTemplate
+   public void testCreateAndUpdateDivertJSON() throws Exception {
+      testCreateAndUpdateDivert(true);
+   }
+
+   private void testCreateAndUpdateDivert(boolean json) throws Exception {
       String address = RandomUtil.randomString();
       String name = RandomUtil.randomString();
       String routingName = RandomUtil.randomString();
@@ -1868,7 +1917,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       checkNoResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
       assertEquals(0, serverControl.getDivertNames().length);
 
-      serverControl.createDivert(name.toString(), routingName, address, forwardingAddress, true, null, null);
+      if (json) {
+         serverControl.createDivert(new DivertConfiguration().setName(name.toString()).setRoutingName(routingName).setAddress(address).setForwardingAddress(forwardingAddress).setExclusive(true).toJSON());
+      } else {
+         serverControl.createDivert(name.toString(), routingName, address, forwardingAddress, true, null, null);
+      }
 
       checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
       DivertControl divertControl = ManagementControlHelper.createDivertControl(name.toString(), address, mbeanServer);
@@ -1920,7 +1973,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(text, message.getStringProperty("prop"));
       assertNull(updatedDivertedConsumer.receiveImmediate());
 
-      serverControl.updateDivert(name.toString(), updatedForwardingAddress, null, null, null, ActiveMQDefaultConfiguration.getDefaultDivertRoutingType());
+      if (json) {
+         serverControl.updateDivert(new DivertConfiguration().setName(name.toString()).setForwardingAddress(updatedForwardingAddress).toJSON());
+      } else {
+         serverControl.updateDivert(name.toString(), updatedForwardingAddress, null, null, null, ActiveMQDefaultConfiguration.getDefaultDivertRoutingType());
+      }
 
       checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
       divertControl = ManagementControlHelper.createDivertControl(name.toString(), address, mbeanServer);

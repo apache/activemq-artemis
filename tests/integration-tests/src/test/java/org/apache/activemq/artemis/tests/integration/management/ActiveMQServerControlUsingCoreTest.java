@@ -1514,6 +1514,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void createDivert(String divertConfiguration) throws Exception {
+            proxy.invokeOperation("createDivert", divertConfiguration);
+         }
+
+         @Override
          public void updateDivert(String name,
                                   String forwardingAddress,
                                   String filterString,
@@ -1521,6 +1526,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                                   Map<String, String> transformerProperties,
                                   String routingType) throws Exception {
             proxy.invokeOperation("updateDivert", name, forwardingAddress, filterString, transformerClassName, transformerProperties, routingType);
+         }
+
+         @Override
+         public void updateDivert(String divertConfiguration) throws Exception {
+            proxy.invokeOperation("updateDivert", divertConfiguration);
          }
 
          @Override
