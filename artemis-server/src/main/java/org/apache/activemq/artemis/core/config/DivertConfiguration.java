@@ -17,19 +17,34 @@
 package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
+import java.io.StringReader;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonString;
+import org.apache.activemq.artemis.json.JsonValue;
 import org.apache.activemq.artemis.utils.BufferHelper;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 public class DivertConfiguration implements Serializable, EncodingSupport {
 
    private static final long serialVersionUID = 6910543740464269629L;
+
+   public static String NAME = "name";
+   public static String ROUTING_NAME = "routing-name";
+   public static String ADDRESS = "address";
+   public static String FORWARDING_ADDRESS = "forwarding-address";
+   public static String EXCLUSIVE = "exclusive";
+   public static String FILTER_STRING = "filter-string";
+   public static String TRANSFORMER_CONFIGURATION = "transformer-configuration";
+   public static String ROUTING_TYPE = "routing-type";
 
    private String name = null;
 
@@ -48,6 +63,54 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
    private ComponentConfigurationRoutingType routingType = ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType());
 
    public DivertConfiguration() {
+   }
+
+   /**
+    * Set the value of a parameter based on its "key" {@code String}. Valid key names and corresponding {@code static}
+    * {@code final} are:
+    * <p><ul>
+    * <li>name: {@link #NAME}
+    * <li>routing-name: {@link #ROUTING_NAME}
+    * <li>address: {@link #ADDRESS}
+    * <li>forwarding-address: {@link #FORWARDING_ADDRESS}
+    * <li>exclusive: {@link #EXCLUSIVE}
+    * <li>filter-string: {@link #FILTER_STRING}
+    * <li>transformer-configuration: {@link #TRANSFORMER_CONFIGURATION}
+    * <li>routing-type: {@link #ROUTING_TYPE}
+    * </ul><p>
+    * The {@code String}-based values will be converted to the proper value types based on the underlying property. For
+    * example, if you pass the value "TRUE" for the key "exclusive" the {@code String} "TRUE" will be converted to
+    * the {@code Boolean} {@code true}.
+    *
+    * @param key the key to set to the value
+    * @param value the value to set for the key
+    * @return this {@code DivertConfiguration}
+    */
+   public DivertConfiguration set(String key, String value) {
+      if (key != null) {
+         if (key.equals(NAME)) {
+            setName(value);
+         } else if (key.equals(ROUTING_NAME)) {
+            setRoutingName(value);
+         } else if (key.equals(ADDRESS)) {
+            setAddress(value);
+         } else if (key.equals(FORWARDING_ADDRESS)) {
+            setForwardingAddress(value);
+         } else if (key.equals(EXCLUSIVE)) {
+            setExclusive(Boolean.parseBoolean(value));
+         } else if (key.equals(FILTER_STRING)) {
+            setFilterString(value);
+         } else if (key.equals(TRANSFORMER_CONFIGURATION)) {
+            // create a transformer instance from a JSON string
+            TransformerConfiguration transformerConfiguration = TransformerConfiguration.fromJSON(value);
+            if (transformerConfiguration != null) {
+               setTransformerConfiguration(transformerConfiguration);
+            }
+         } else if (key.equals(ROUTING_TYPE)) {
+            setRoutingType(ComponentConfigurationRoutingType.valueOf(value));
+         }
+      }
+      return this;
    }
 
    public String getName() {
@@ -148,6 +211,71 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
    public DivertConfiguration setRoutingType(final ComponentConfigurationRoutingType routingType) {
       this.routingType = routingType;
       return this;
+   }
+
+   /**
+    * This method returns a JSON-formatted {@code String} representation of this {@code DivertConfiguration}. It is a
+    * simple collection of key/value pairs. The keys used are referenced in {@link #set(String, String)}.
+    *
+    * @return a JSON-formatted {@code String} representation of this {@code DivertConfiguration}
+    */
+   public String toJSON() {
+      JsonObjectBuilder builder = JsonLoader.createObjectBuilder();
+
+      if (getName() != null) {
+         builder.add(NAME, getName());
+      }
+      if (getRoutingName() != null) {
+         builder.add(ROUTING_NAME, getRoutingName());
+      }
+      if (getAddress() != null) {
+         builder.add(ADDRESS, getAddress());
+      }
+      if (getForwardingAddress() != null) {
+         builder.add(FORWARDING_ADDRESS, getForwardingAddress());
+      }
+
+      builder.add(EXCLUSIVE, isExclusive());
+
+      if (getFilterString() != null) {
+         builder.add(FILTER_STRING, getFilterString());
+      }
+
+      TransformerConfiguration tc = getTransformerConfiguration();
+      if (tc != null) {
+         builder.add(TRANSFORMER_CONFIGURATION, tc.createJsonObjectBuilder());
+      }
+
+      if (getRoutingType() != null) {
+         builder.add(ROUTING_TYPE, getRoutingType().name());
+      }
+
+      return builder.build().toString();
+   }
+
+   /**
+    * This method returns a {@code DivertConfiguration} created from the JSON-formatted input {@code String}. The input
+    * should be a simple object of key/value pairs. Valid keys are referenced in {@link #set(String, String)}.
+    *
+    * @param jsonString json string
+    * @return the {@code DivertConfiguration} created from the JSON-formatted input {@code String}
+    */
+   public static DivertConfiguration fromJSON(String jsonString) {
+      JsonObject json = JsonLoader.readObject(new StringReader(jsonString));
+
+      DivertConfiguration result = new DivertConfiguration();
+
+      for (Map.Entry<String, JsonValue> entry : json.entrySet()) {
+         if (entry.getValue().getValueType() == JsonValue.ValueType.STRING) {
+            result.set(entry.getKey(), ((JsonString) entry.getValue()).getString());
+         } else if (entry.getValue().getValueType() == JsonValue.ValueType.NULL) {
+            result.set(entry.getKey(), null);
+         } else {
+            result.set(entry.getKey(), entry.getValue().toString());
+         }
+      }
+
+      return result;
    }
 
    @Override
@@ -262,7 +390,15 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
 
    @Override
    public String toString() {
-      return "DivertConfiguration{" + "name='" + name + '\'' + ", routingName='" + routingName + '\'' + ", address='" + address + '\'' + ", forwardingAddress='" + forwardingAddress + '\'' + ", exclusive=" + exclusive + ", filterString='" + filterString + '\'' + ", transformerConfiguration=" + transformerConfiguration + '}';
+      return "DivertConfiguration [" +
+         "name=" + name +
+         ", routingName=" + routingName +
+         ", address=" + address +
+         ", forwardingAddress=" + forwardingAddress +
+         ", exclusive=" + exclusive +
+         ", filterString=" + filterString +
+         ", routing-type=" + routingType +
+         ", transformerConfiguration=" + transformerConfiguration + "]";
    }
 
    @Override

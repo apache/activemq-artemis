@@ -694,13 +694,7 @@ public final class BridgeConfiguration implements Serializable {
 
       TransformerConfiguration tc = getTransformerConfiguration();
       if (tc != null) {
-         JsonObjectBuilder tcBuilder = JsonLoader.createObjectBuilder().add(TransformerConfiguration.CLASS_NAME, tc.getClassName());
-         if (tc.getProperties() != null && tc.getProperties().size() > 0) {
-            JsonObjectBuilder propBuilder = JsonLoader.createObjectBuilder();
-            tc.getProperties().forEach(propBuilder::add);
-            tcBuilder.add(TransformerConfiguration.PROPERTIES, propBuilder);
-         }
-         builder.add(TRANSFORMER_CONFIGURATION, tcBuilder);
+         builder.add(TRANSFORMER_CONFIGURATION, tc.createJsonObjectBuilder());
       }
 
       return builder.build().toString();
