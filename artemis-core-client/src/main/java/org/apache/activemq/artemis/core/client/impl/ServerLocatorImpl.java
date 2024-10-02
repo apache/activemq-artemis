@@ -687,6 +687,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          boolean topologyArrayTried = !config.useTopologyForLoadBalancing || topologyArray == null || topologyArray.length == 0;
          boolean staticTried = false;
          boolean shouldTryStatic = useInitConnector();
+         long interval = config.retryInterval;
 
          while (retry && !isClosed()) {
             retry = false;
@@ -746,9 +747,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                            }
                         }
                      }
-                     if (factory.waitForRetry(config.retryInterval)) {
+                     if (factory.waitForRetry(interval)) {
                         throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToServers();
                      }
+                     interval = getNextRetryInterval(interval, config.retryIntervalMultiplier, config.maxRetryInterval);
                      retry = true;
                   } else {
                      throw e;
@@ -777,6 +779,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
 
       return factory;
+   }
+
+   @Override
+   public long getNextRetryInterval(long retryInterval, double retryIntervalMultiplier, long maxRetryInterval) {
+      // Exponential back-off
+      long nextRetryInterval = (long) (retryInterval * retryIntervalMultiplier);
+
+      if (nextRetryInterval > maxRetryInterval) {
+         nextRetryInterval = maxRetryInterval;
+      }
+
+      return nextRetryInterval;
    }
 
    private void executeDiscovery() throws ActiveMQException {
