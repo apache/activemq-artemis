@@ -94,4 +94,6 @@ public interface ServerLocatorInternal extends ServerLocator {
    int getConnectorsSize();
 
    Pair<TransportConfiguration, TransportConfiguration> selectNextConnectorPair();
+
+   long getNextRetryInterval(long retryInterval, double retryIntervalMultiplier, long maxRetryInterval);
 }
