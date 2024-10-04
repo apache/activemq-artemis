@@ -108,7 +108,14 @@ jobs:
           ref: ${{ env.EXAMPLES_BRANCH }}
           path: activemq-artemis-examples
 
-      - name: Build Main
+      - name: Build Main (JDK11 / -Prelease)
+        if: matrix.java == '11'
+        run: |
+          cd activemq-artemis
+          mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Pdev -Prelease -Dgpg.skip install
+
+      - name: Build Main (JDK >11)
+        if: matrix.java != '11'
         run: |
           cd activemq-artemis
           mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Pdev -Pjmh install
