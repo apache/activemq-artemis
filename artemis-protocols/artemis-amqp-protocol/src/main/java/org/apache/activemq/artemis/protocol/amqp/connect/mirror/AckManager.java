@@ -54,7 +54,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.apache.activemq.artemis.core.server.mirror.MirrorController;
+import org.apache.activemq.artemis.core.server.mirror.TargetMirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
@@ -237,7 +237,7 @@ public class AckManager implements ActiveMQComponent {
 
    // to be used with the same executor as the PagingStore executor
    public void retryAddress(SimpleString address, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> acksToRetry) {
-      MirrorController previousController = AMQPMirrorControllerTarget.getControllerInUse();
+      TargetMirrorController previousController = AMQPMirrorControllerTarget.getControllerInUse();
       logger.trace("retrying address {} on server {}", address, server);
       try {
          AMQPMirrorControllerTarget.setControllerInUse(disabledAckMirrorController);
@@ -518,7 +518,7 @@ public class AckManager implements ActiveMQComponent {
 
 
 
-   private static class DisabledAckMirrorController implements MirrorController {
+   private static class DisabledAckMirrorController implements TargetMirrorController {
 
       @Override
       public boolean isRetryACK() {
@@ -563,6 +563,11 @@ public class AckManager implements ActiveMQComponent {
       @Override
       public String getRemoteMirrorId() {
          return null;
+      }
+
+      @Override
+      public boolean isNoForward() {
+         return false;
       }
    }
 }

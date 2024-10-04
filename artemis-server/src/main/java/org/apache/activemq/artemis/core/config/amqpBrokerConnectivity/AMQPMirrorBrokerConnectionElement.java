@@ -30,6 +30,8 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
 
    boolean queueCreation = true;
 
+   boolean noForward = false;
+
    boolean queueRemoval = true;
 
    boolean messageAcknowledgements = true;
@@ -72,6 +74,15 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
 
    public AMQPMirrorBrokerConnectionElement setQueueCreation(boolean queueCreation) {
       this.queueCreation = queueCreation;
+      return this;
+   }
+
+   public boolean getNoForward() {
+      return noForward;
+   }
+
+   public AMQPMirrorBrokerConnectionElement setNoForward(boolean noForward) {
+      this.noForward = noForward;
       return this;
    }
 
