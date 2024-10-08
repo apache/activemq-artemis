@@ -14,14 +14,17 @@ These terms will be used throughout the documentation, configuration, source cod
 
 === Configuration
 
-These nouns identify how the broker is _configured_, e.g. in `broker.xml`. The configuration allows brokers to be paired together as a _primary/backup_ group (i.e. an _HA pair_ of brokers.
+These nouns identify how the broker is _configured_, e.g. in `broker.xml`. The configuration allows brokers to be paired together as _primary/backup_ (i.e. an _HA pair_ of brokers).
 
 primary::
 This identifies the main broker in the high availability configuration.
 Oftentimes the hardware on this broker will be higher performance than the hardware on the backup broker.
 Typically, this broker is started before the backup and is active most of the time.
-Each primary server can have 1 or more backup servers.
-However, only one backup will take over the primary server's work.
++
+Each primary server can be paired with one backup server.
+Other backups can be configured, but the primary will only pair with one.
+When the primary fails the backup will take over.
+At this point if there are other backups configured then the backup that took over will pair with one of those.
 
 backup::
 This identifies the broker that should take over when the primary broker fails in a high availability configuration.
