@@ -142,6 +142,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    protected static final int CRITICAL_CONSUMER = 3;
    protected static final int CRITICAL_CHECK_DEPAGE = 4;
 
+   // The prefix for Mirror SNF Queues
+   public static final String MIRROR_ADDRESS = "$ACTIVEMQ_ARTEMIS_MIRROR";
+
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private static final AtomicIntegerFieldUpdater<QueueImpl> dispatchingUpdater = AtomicIntegerFieldUpdater.newUpdater(QueueImpl.class, "dispatching");
    private static final AtomicLongFieldUpdater<QueueImpl> dispatchStartTimeUpdater = AtomicLongFieldUpdater.newUpdater(QueueImpl.class, "dispatchStartTime");
@@ -2472,7 +2475,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public synchronized boolean expireReference(final long messageID) throws Exception {
-      if (isExpirationRedundant()) {
+      if (isExpiryDisabled()) {
          return false;
       }
 
@@ -2494,7 +2497,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public synchronized int expireReferences(final Filter filter) throws Exception {
-      if (isExpirationRedundant()) {
+      if (isExpiryDisabled()) {
          return 0;
       }
 
@@ -2523,13 +2526,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void expireReferences(Runnable done) {
-      if (isExpirationRedundant()) {
+      if (isExpiryDisabled()) {
          if (done != null) {
             done.run();
          }
          return;
       }
-
 
       if (!queueDestroyed) {
          getExecutor().execute(new ExpiryScanner(done));
@@ -2541,12 +2543,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   public boolean isExpirationRedundant() {
+   private boolean isExpiryDisabled() {
       final SimpleString expiryAddress = addressSettings.getExpiryAddress();
       if (expiryAddress != null && expiryAddress.equals(this.address)) {
          // check expire with itself would be silly (waste of time)
          logger.trace("Redundant expiration from {} to {}", address, expiryAddress);
 
+         return true;
+      }
+
+      if (isInternalQueue() && name.toString().startsWith(MIRROR_ADDRESS)) {
+         logger.trace("Mirror SNF queues are not supposed to expire messages. Address={}, Queue={}", address, name);
          return true;
       }
 
