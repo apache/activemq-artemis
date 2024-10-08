@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.protocol.amqp.client.ProtonClientProtocolManager;
@@ -64,7 +65,7 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private static final List<String> websocketRegistryNames = Arrays.asList("amqp");
 
-   public static final String MIRROR_ADDRESS = "$ACTIVEMQ_ARTEMIS_MIRROR";
+   public static final String MIRROR_ADDRESS = QueueImpl.MIRROR_ADDRESS;
 
    private final List<AmqpInterceptor> incomingInterceptors = new ArrayList<>();
    private final List<AmqpInterceptor> outgoingInterceptors = new ArrayList<>();
