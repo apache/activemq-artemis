@@ -641,9 +641,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 222109, value = "Timed out waiting for write lock on consumer {} from {}. Check the Thread dump", level = LogMessage.Level.WARN)
    void timeoutLockingConsumer(String consumer, String remoteAddress);
 
-   @LogMessage(id = 222110, value = "no queue IDs defined!,  originalMessage  = {}, copiedMessage = {}, props={}", level = LogMessage.Level.WARN)
+   @LogMessage(id = 222110, value = "no queue IDs defined!,  originalMessage = {}, props={}", level = LogMessage.Level.WARN)
    void noQueueIdDefined(org.apache.activemq.artemis.api.core.Message message,
-                         org.apache.activemq.artemis.api.core.Message messageCopy,
                          SimpleString idsHeaderName);
 
    @LogMessage(id = 222111, value = "exception while invoking {} on {}", level = LogMessage.Level.TRACE)
