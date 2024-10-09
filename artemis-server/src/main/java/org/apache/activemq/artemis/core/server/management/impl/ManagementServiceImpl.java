@@ -52,9 +52,11 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.BaseBroadcastGroupControl;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
+import org.apache.activemq.artemis.api.core.management.BrokerConnectionControl;
 import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.artemis.api.core.management.ConnectionRouterControl;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
+import org.apache.activemq.artemis.api.core.management.FederationControl;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
@@ -67,9 +69,13 @@ import org.apache.activemq.artemis.core.management.impl.AddressControlImpl;
 import org.apache.activemq.artemis.core.management.impl.BaseBroadcastGroupControlImpl;
 import org.apache.activemq.artemis.core.management.impl.BridgeControlImpl;
 import org.apache.activemq.artemis.core.management.impl.BroadcastGroupControlImpl;
+import org.apache.activemq.artemis.core.management.impl.BrokerConnectionControlImpl;
 import org.apache.activemq.artemis.core.management.impl.ClusterConnectionControlImpl;
 import org.apache.activemq.artemis.core.management.impl.ConnectionRouterControlImpl;
 import org.apache.activemq.artemis.core.management.impl.DivertControlImpl;
+import org.apache.activemq.artemis.core.management.impl.FederationControlImpl;
+import org.apache.activemq.artemis.core.management.impl.FederationRemoteConsumerControlImpl;
+import org.apache.activemq.artemis.core.management.impl.FederationStreamControlImpl;
 import org.apache.activemq.artemis.core.management.impl.JGroupsChannelBroadcastGroupControlImpl;
 import org.apache.activemq.artemis.core.management.impl.JGroupsFileBroadcastGroupControlImpl;
 import org.apache.activemq.artemis.core.management.impl.QueueControlImpl;
@@ -88,12 +94,16 @@ import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.federation.FederatedQueueConsumer;
+import org.apache.activemq.artemis.core.server.federation.Federation;
+import org.apache.activemq.artemis.core.server.federation.FederationStream;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.CleaningActivateCallback;
 import org.apache.activemq.artemis.core.server.management.GuardInvocationHandler;
@@ -419,6 +429,19 @@ public class ManagementServiceImpl implements ManagementService {
    }
 
    @Override
+   public void registerBrokerConnection(BrokerConnection brokerConnection) throws Exception {
+      BrokerConnectionControl control = new BrokerConnectionControlImpl(brokerConnection, storageManager);
+      registerInJMX(objectNameBuilder.getBrokerConnectionObjectName(brokerConnection.getName()), control);
+      registerInRegistry(ResourceNames.BROKER_CONNECTION + brokerConnection.getName(), control);
+   }
+
+   @Override
+   public void unregisterBrokerConnection(String name) throws Exception {
+      unregisterFromJMX(objectNameBuilder.getBrokerConnectionObjectName(name));
+      unregisterFromRegistry(ResourceNames.BROKER_CONNECTION + name);
+   }
+
+   @Override
    public void registerBridge(final Bridge bridge) throws Exception {
       bridge.setNotificationService(this);
       BridgeControl control = new BridgeControlImpl(bridge, storageManager);
@@ -430,6 +453,51 @@ public class ManagementServiceImpl implements ManagementService {
    public void unregisterBridge(final String name) throws Exception {
       unregisterFromJMX(objectNameBuilder.getBridgeObjectName(name));
       unregisterFromRegistry(ResourceNames.BRIDGE + name);
+   }
+
+   @Override
+   public void registerFederation(final Federation federation) throws Exception {
+      FederationControl control = new FederationControlImpl(federation, storageManager);
+      registerInJMX(objectNameBuilder.getFederationObjectName(federation.getConfig().getName()), control);
+      registerInRegistry(ResourceNames.FEDERATION + federation.getName(), control);
+   }
+
+   @Override
+   public void unregisterFederation(final String name) throws Exception {
+      unregisterFromJMX(objectNameBuilder.getFederationObjectName(name));
+      unregisterFromRegistry(ResourceNames.FEDERATION + name);
+   }
+
+   @Override
+   public void registerFederationStream(final FederationStream federationStream) throws Exception {
+      logger.info("Registering federationStream {} for {} with hashcode {}", federationStream.getName(), federationStream.getFederation().getName(), federationStream.hashCode());
+      FederationStreamControlImpl control = new FederationStreamControlImpl(federationStream, storageManager);
+      registerInJMX(objectNameBuilder.getFederationStreamObjectName(federationStream.getFederation().getName(), federationStream.getName()), control);
+      registerInRegistry(ResourceNames.FEDERATION_STREAM + federationStream.getName(), control);
+   }
+
+   @Override
+   public void unregisterFederationStream(final SimpleString federationName, final SimpleString streamName) throws Exception {
+      unregisterFromJMX(objectNameBuilder.getFederationStreamObjectName(federationName, streamName));
+      unregisterFromRegistry(ResourceNames.FEDERATION_STREAM + streamName);
+   }
+
+   @Override
+   public void registerFederationRemoteConsumer(final FederatedQueueConsumer federatedQueueConsumer) throws Exception {
+      FederationRemoteConsumerControlImpl control = new FederationRemoteConsumerControlImpl(federatedQueueConsumer, storageManager);
+
+      registerInJMX(objectNameBuilder.getFederationRemoteConsumerObjectName(federatedQueueConsumer.getFederation().getName(), federatedQueueConsumer.getFederationUpstream().getName(), federatedQueueConsumer.getKey().getAddress(), federatedQueueConsumer.getKey().getQueueName(), federatedQueueConsumer.getKey().getRoutingType()), control);
+      registerInRegistry(ResourceNames.FEDERATION_REMOTE_CONSUMER + federatedQueueConsumer.getKey().getQueueName(), control);
+   }
+
+   @Override
+   public void unregisterFederationRemoteConsumer(final SimpleString name,
+                                                  final SimpleString streamName,
+                                                  final SimpleString address,
+                                                  final SimpleString queueName,
+                                                  RoutingType routingType) throws Exception {
+      unregisterFromJMX(objectNameBuilder.getFederationRemoteConsumerObjectName(name, streamName, address, queueName, routingType));
+      unregisterFromRegistry(ResourceNames.FEDERATION_REMOTE_CONSUMER + name);
    }
 
    @Override

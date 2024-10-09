@@ -127,12 +127,30 @@ public final class ObjectNameBuilder {
    }
 
    /**
+    * Returns the ObjectName used by BrokerConnectionControl.
+    *
+    * @see BrokerConnectionControl
+    */
+   public ObjectName getBrokerConnectionObjectName(String name) throws Exception {
+      return createObjectName("broker-connection", name);
+   }
+
+   /**
     * Returns the ObjectName used by BridgeControl.
     *
     * @see BridgeControl
     */
    public ObjectName getBridgeObjectName(final String name) throws Exception {
       return createObjectName("bridge", name);
+   }
+
+   /**
+    * Returns the ObjectName used by FederationControl.
+    *
+    * @see FederationControl
+    */
+   public ObjectName getFederationObjectName(String name) throws Exception {
+      return createObjectName("federation", name);
    }
 
    /**
@@ -169,4 +187,28 @@ public final class ObjectNameBuilder {
    public ObjectName getSecurityObjectName() throws Exception {
       return ObjectName.getInstance("hawtio:type=security,area=jmx,name=ArtemisJMXSecurity");
    }
+
+   /**
+    * Returns the ObjectName used by FederationStreamControl.
+    *
+    * @see FederationStreamControl
+    */
+   public ObjectName getFederationStreamObjectName(SimpleString federationName,
+                                                   SimpleString streamName) throws Exception {
+      return ObjectName.getInstance(String.format("%s,component=federations,name=%s,streamName=%s", getActiveMQServerName(), ObjectName.quote(federationName.toString()), ObjectName.quote(streamName.toString().toLowerCase())));
+   }
+
+   /**
+    * Returns the ObjectName used by FederationRemoteConsumerControl.
+    *
+    * @see FederationRemoteConsumerControl
+    */
+   public ObjectName getFederationRemoteConsumerObjectName(final SimpleString federationName,
+                                                           final SimpleString streamName,
+                                                           final SimpleString address,
+                                                           final SimpleString queueName,
+                                                           RoutingType routingType) throws Exception {
+      return ObjectName.getInstance(String.format("%s,component=federations,name=%s,streamName=%s,address=%s,subcomponent=queues,routing-type=%s,queue=%s", getActiveMQServerName(), ObjectName.quote(federationName.toString()), ObjectName.quote(streamName.toString()), ObjectName.quote(address.toString()), ObjectName.quote(routingType.toString().toLowerCase()), ObjectName.quote(queueName.toString())));
+   }
+
 }

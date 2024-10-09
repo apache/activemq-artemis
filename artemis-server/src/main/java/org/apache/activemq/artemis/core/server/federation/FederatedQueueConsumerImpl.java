@@ -22,6 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
@@ -65,6 +66,7 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
    private ClientSessionFactoryInternal clientSessionFactory;
    private ClientSession clientSession;
    private ClientConsumerInternal clientConsumer;
+   private final AtomicLong federatedMessageCount = new AtomicLong();
    private final AtomicInteger pendingPullCredit = new AtomicInteger();
    private QueueHandle queueHandle;
 
@@ -246,6 +248,11 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
       }
    }
 
+   @Override
+   public long federatedMessageCount() {
+      return federatedMessageCount.get();
+   }
+
    private void scheduleDisconnect(int delay) {
       scheduledExecutorService.schedule(() -> {
          try {
@@ -304,6 +311,7 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
          message = transformer == null ? message : transformer.transform(message);
          if (message != null) {
             server.getPostOffice().route(message, true);
+            federatedMessageCount.incrementAndGet();
          }
          clientMessage.acknowledge();
 

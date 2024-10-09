@@ -41,9 +41,13 @@ import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.federation.FederatedQueueConsumer;
+import org.apache.activemq.artemis.core.server.federation.Federation;
+import org.apache.activemq.artemis.core.server.federation.FederationStream;
 import org.apache.activemq.artemis.core.server.routing.ConnectionRouter;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
@@ -124,6 +128,22 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
 
    void unregisterBridge(String name) throws Exception;
 
+   void registerFederation(Federation federation) throws Exception;
+
+   void unregisterFederation(String name) throws Exception;
+
+   void registerFederationStream(FederationStream federationStream) throws Exception;
+
+   void unregisterFederationStream(SimpleString federationName, SimpleString streamName) throws Exception;
+
+   void registerFederationRemoteConsumer(FederatedQueueConsumer federatedQueueConsumer) throws Exception;
+
+   void unregisterFederationRemoteConsumer(SimpleString name,
+                                           SimpleString streamName,
+                                           SimpleString address,
+                                           SimpleString queueName,
+                                           RoutingType routingType) throws Exception;
+
    void registerCluster(ClusterConnection cluster, ClusterConnectionConfiguration configuration) throws Exception;
 
    void unregisterCluster(String name) throws Exception;
@@ -145,4 +165,8 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
    Object getAttribute(String resourceName, String attribute, SecurityAuth auth);
 
    Object invokeOperation(String resourceName, String operation, Object[] params, SecurityAuth auth) throws Exception;
+
+   void registerBrokerConnection(BrokerConnection brokerConnection) throws Exception;
+
+   void unregisterBrokerConnection(String name) throws Exception;
 }
