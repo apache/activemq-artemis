@@ -1219,6 +1219,8 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       cf.setProtocolManagerFactoryStr(cfConfig.getProtocolManagerFactoryStr());
       cf.setDeserializationDenyList(cfConfig.getDeserializationDenyList());
       cf.setDeserializationAllowList(cfConfig.getDeserializationAllowList());
+      cf.setSerialFilter(cfConfig.getSerialFilter());
+      cf.setSerialFilterClassName(cfConfig.getSerialFilterClassName());
       cf.setInitialMessagePacketSize(cfConfig.getInitialMessagePacketSize());
       cf.setEnable1xPrefixes(cfConfig.isEnable1xPrefixes());
       cf.setEnableSharedClientID(cfConfig.isEnableSharedClientID());

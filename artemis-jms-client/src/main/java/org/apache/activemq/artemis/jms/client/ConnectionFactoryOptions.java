@@ -42,4 +42,11 @@ public interface ConnectionFactoryOptions {
 
    void setDeserializationAllowList(String allowList);
 
+   String getSerialFilter();
+
+   void setSerialFilter(String serialFilter);
+
+   String getSerialFilterClassName();
+
+   void setSerialFilterClassName(String serialFilterClassName);
 }

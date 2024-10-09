@@ -121,6 +121,10 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    private String deserializationAllowList;
 
+   private String serialFilter;
+
+   private String serialFilterClassName;
+
    private int initialMessagePacketSize = ActiveMQClient.DEFAULT_INITIAL_MESSAGE_PACKET_SIZE;
 
    private boolean enable1xPrefixes = ActiveMQJMSClient.DEFAULT_ENABLE_1X_PREFIXES;
@@ -658,6 +662,9 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
       compressionLevel = buffer.readableBytes() > 0 ? BufferHelper.readNullableInteger(buffer) : ActiveMQClient.DEFAULT_COMPRESSION_LEVEL;
 
+      serialFilter = buffer.readableBytes() > 0 ? BufferHelper.readNullableSimpleStringAsString(buffer) : null;
+
+      serialFilterClassName = buffer.readableBytes() > 0 ? BufferHelper.readNullableSimpleStringAsString(buffer) : null;
    }
 
    @Override
@@ -756,6 +763,10 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       BufferHelper.writeNullableBoolean(buffer, useTopologyForLoadBalancing);
 
       BufferHelper.writeNullableInteger(buffer, compressionLevel);
+
+      BufferHelper.writeAsNullableSimpleString(buffer, serialFilter);
+
+      BufferHelper.writeAsNullableSimpleString(buffer, serialFilterClassName);
    }
 
    @Override
@@ -878,7 +889,11 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
          BufferHelper.sizeOfNullableBoolean(useTopologyForLoadBalancing) +
 
-         BufferHelper.sizeOfNullableInteger(compressionLevel);
+         BufferHelper.sizeOfNullableInteger(compressionLevel) +
+
+         BufferHelper.sizeOfNullableSimpleString(serialFilter) +
+
+         BufferHelper.sizeOfNullableSimpleString(serialFilterClassName);
 
       return size;
    }
@@ -932,6 +947,26 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    @Override
    public void setDeserializationAllowList(String allowList) {
       this.deserializationAllowList = allowList;
+   }
+
+   @Override
+   public String getSerialFilter() {
+      return serialFilter;
+   }
+
+   @Override
+   public void setSerialFilter(String serialFilter) {
+      this.serialFilter = serialFilter;
+   }
+
+   @Override
+   public String getSerialFilterClassName() {
+      return serialFilterClassName;
+   }
+
+   @Override
+   public void setSerialFilterClassName(String serialFilterClassName) {
+      this.serialFilterClassName = serialFilterClassName;
    }
 
    @Override

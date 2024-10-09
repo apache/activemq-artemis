@@ -94,6 +94,10 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
 
    private String deserializationAllowList;
 
+   private String serialFilter;
+
+   private String serialFilterClassName;
+
    private boolean cacheDestinations;
 
    // keeping this field for serialization compatibility only. do not use it
@@ -207,6 +211,26 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
    @Override
    public void setDeserializationAllowList(String allowList) {
       this.deserializationAllowList = allowList;
+   }
+
+   @Override
+   public String getSerialFilter() {
+      return serialFilter;
+   }
+
+   @Override
+   public void setSerialFilter(String serialFilter) {
+      this.serialFilter = serialFilter;
+   }
+
+   @Override
+   public String getSerialFilterClassName() {
+      return serialFilterClassName;
+   }
+
+   @Override
+   public void setSerialFilterClassName(String serialFilterClassName) {
+      this.serialFilterClassName = serialFilterClassName;
    }
 
    @Override

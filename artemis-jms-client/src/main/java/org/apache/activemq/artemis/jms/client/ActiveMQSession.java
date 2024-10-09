@@ -708,6 +708,14 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return connection.getDeserializationAllowList();
    }
 
+   public String getSerialFilter() {
+      return connection.getSerialFilter();
+   }
+
+   public String getSerialFilterClassName() {
+      return connection.getSerialFilterClassName();
+   }
+
    enum ConsumerDurability {
       DURABLE, NON_DURABLE;
    }

@@ -937,6 +937,30 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setDeserializationAllowList(deserializationAllowList);
    }
 
+   public String getSerialFilter() {
+      logger.trace("getSerialFilter()");
+
+      return raProperties.getSerialFilter();
+   }
+
+   public void setSerialFilter(String serialFilter) {
+      logger.trace("setSerialFilter({})", serialFilter);
+
+      raProperties.setSerialFilter(serialFilter);
+   }
+
+   public String getSerialFilterClassName() {
+      logger.trace("getSerialFilterClassName()");
+
+      return raProperties.getSerialFilterClassName();
+   }
+
+   public void setSerialFilterClassName(String serialFilterClassName) {
+      logger.trace("setSerialFilterClassName({})", serialFilterClassName);
+
+      raProperties.setSerialFilterClassName(serialFilterClassName);
+   }
+
    /**
     * Get min large message size
     *
@@ -1943,6 +1967,14 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       stringVal = overrideProperties.getDeserializationAllowList() != null ? overrideProperties.getDeserializationAllowList() : raProperties.getDeserializationAllowList();
       if (stringVal != null) {
          cf.setDeserializationAllowList(stringVal);
+      }
+      stringVal = overrideProperties.getSerialFilter() != null ? overrideProperties.getSerialFilter() : raProperties.getSerialFilter();
+      if (stringVal != null) {
+         cf.setSerialFilter(stringVal);
+      }
+      stringVal = overrideProperties.getSerialFilterClassName() != null ? overrideProperties.getSerialFilterClassName() : raProperties.getSerialFilterClassName();
+      if (stringVal != null) {
+         cf.setSerialFilterClassName(stringVal);
       }
 
       cf.setIgnoreJTA(isIgnoreJTA());
