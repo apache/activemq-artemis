@@ -27,11 +27,14 @@ import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -50,6 +53,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataExporter;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataImporter;
 import org.apache.activemq.artemis.core.persistence.impl.journal.BatchingIDGenerator;
@@ -57,6 +61,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageM
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
@@ -64,6 +69,7 @@ import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedT
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.unit.util.InVMContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -1283,4 +1289,78 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       locator.close();
       server.stop();
    }
+
+
+   @TestTemplate
+   public void testRemovedQueue() throws Exception {
+      final int numberOfMessages = 100;
+
+      server = createServer(true, true);
+      server.start();
+      checkForLongs();
+
+      String queueName = getTestClassName() + RandomUtil.randomString();
+      createAnycastPair(server, queueName);
+      org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(queueName);
+      assertNotNull(serverQueue);
+      assertEquals(RoutingType.ANYCAST, serverQueue.getRoutingType());
+      {
+         ConnectionFactory factory = CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616");
+         try (Connection connection = factory.createConnection()) {
+            Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+            Queue queue = session.createQueue(queueName);
+            MessageProducer producer = session.createProducer(queue);
+            for (int i = 0; i < numberOfMessages; i++) {
+               producer.send(session.createTextMessage("hello " + i));
+            }
+            session.commit();
+         }
+      }
+
+      {
+         // this is forcing a situation where the queue was removed and the messages are still in the journal
+         AddressInfo addressInfo = server.getAddressInfo(serverQueue.getAddress());
+         long tx = server.getStorageManager().generateID();
+         server.getStorageManager().deleteAddressBinding(tx, addressInfo.getId());
+         server.getStorageManager().deleteQueueBinding(tx, serverQueue.getID());
+         server.getStorageManager().commitBindings(tx);
+      }
+
+      server.stop();
+
+      final String fileName = "test.out";
+
+      FileOutputStream fileOutputStream = new FileOutputStream(new File(getTestDir(), fileName));
+      BufferedOutputStream bufferOut = new BufferedOutputStream(fileOutputStream);
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+
+      // the journal should still export even though the bindings don't exist any more
+      // this is to "facilitate" users recovering or undoing mistakes
+      xmlDataExporter.process(bufferOut, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      bufferOut.close();
+      assertNull(xmlDataExporter.getLastError());
+
+      server.start();
+
+      XmlDataImporter importer = new XmlDataImporter();
+      importer.input = new File(getTestDir(), fileName).getAbsolutePath();
+      importer.execute(new ActionContext());
+
+      {
+         ConnectionFactory factory = CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616");
+         try (Connection connection = factory.createConnection()) {
+            Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+            connection.start();
+            Queue queue = session.createQueue("UndefinedQueue_" + serverQueue.getID());
+            MessageConsumer consumer = session.createConsumer(queue);
+            for (int i = 0; i < numberOfMessages; i++) {
+               TextMessage message = (TextMessage) consumer.receive(5000);
+               assertNotNull(message);
+               assertEquals("hello " + i, message.getText());
+            }
+            session.commit();
+         }
+      }
+   }
+
 }
