@@ -72,9 +72,18 @@
          <includes>
             <include>org.apache.activemq:artemis-console:war</include>
          </includes>
-         <outputDirectory>web</outputDirectory>
-         <unpack>false</unpack>
-         <outputFileNameMapping>console.war</outputFileNameMapping>
+         <outputDirectory>web/console.war</outputDirectory>
+         <unpack>true</unpack>
+         <!-- Exclude these jar files from console since they are already provided in the broker distribution.
+              If any of these jars is dropped from the broker distribution they should be added back to the console. -->
+         <unpackOptions>
+            <excludes>
+               <exclude>**/guava*.jar</exclude>
+               <exclude>**/commons-io*.jar</exclude>
+               <exclude>**/commons-logging*.jar</exclude>
+               <exclude>**/failureaccess*.jar</exclude>
+            </excludes>
+         </unpackOptions>
          <useProjectArtifact>false</useProjectArtifact>
          <directoryMode>0755</directoryMode>
          <fileMode>0644</fileMode>
