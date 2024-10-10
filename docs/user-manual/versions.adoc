@@ -20,6 +20,12 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 * The `two-way` algorithm of the default codec is deprecated, use a custom codec instead.
 
+=== Upgrading from 2.37.0
+
+* Due to https://issues.apache.org/jira/browse/ARTEMIS-5096[ARTEMIS-5096] the web console's archive (i.e. `console.war`) will now be uncompressed.
+This change was necessary in order to remove certain jar files from the archive which were already being distributed in the broker's main `lib` directory.
+Eliminating these duplicate jars will decrease the size of the broker distribution and it also means the console will, in some cases, use updated dependencies and prevent security tools from flagging older jars.
+
 == 2.37.0
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12354977[Full release notes]
