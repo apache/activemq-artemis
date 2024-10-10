@@ -36,8 +36,8 @@ public interface ActiveMQClientLogger {
    @LogMessage(id = 212001, value = "Error on clearing messages", level = LogMessage.Level.WARN)
    void errorClearingMessages(Throwable e);
 
-   @LogMessage(id = 212002, value = "Timed out waiting for handler to complete processing", level = LogMessage.Level.WARN)
-   void timeOutWaitingForProcessing();
+   @LogMessage(id = 212002, value = "Timed out after waiting {}ms for handler to complete processing", level = LogMessage.Level.WARN)
+   void timeOutWaitingForProcessing(long duration);
 
    @LogMessage(id = 212003, value = "Unable to close session", level = LogMessage.Level.WARN)
    void unableToCloseSession(Exception e);

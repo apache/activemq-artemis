@@ -41,6 +41,14 @@ public class FutureLatch implements Runnable {
       }
    }
 
+   public void await() {
+      try {
+         latch.await();
+      } catch (InterruptedException e) {
+         // ignore
+      }
+   }
+
    @Override
    public void run() {
       latch.countDown();
