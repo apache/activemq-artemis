@@ -80,6 +80,12 @@ public final class XmlDataExporter extends DBOption {
 
    private XMLStreamWriter xmlWriter;
 
+   private Throwable lastError;
+
+   // I am creating a hidden feature now, in case users ever ask to expose this, it would be already here.
+   @Option(names = "undefined-prefix", hidden = true, description = "In case a queue does not exist, this will define the prefix to be used on the message export.")
+   private String undefinedPrefix = "UndefinedQueue_";
+
    // an inner map of message refs hashed by the queue ID to which they belong and then hashed by their record ID
    private final Map<Long, HashMap<Long, ReferenceDescribe>> messageRefs = new HashMap<>();
 
@@ -99,6 +105,15 @@ public final class XmlDataExporter extends DBOption {
    long bindingsPrinted = 0L;
 
    XMLMessageExporter exporter;
+
+   public String getUndefinedPrefix() {
+      return undefinedPrefix;
+   }
+
+   public XmlDataExporter setUndefinedPrefix(String undefinedPrefix) {
+      this.undefinedPrefix = undefinedPrefix;
+      return this;
+   }
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -331,9 +346,14 @@ public final class XmlDataExporter extends DBOption {
          xmlWriter.writeEndDocument();
          xmlWriter.flush();
          xmlWriter.close();
-      } catch (Exception e) {
+      } catch (Throwable e) {
          e.printStackTrace();
+         this.lastError = e;
       }
+   }
+
+   public Throwable getLastError() {
+      return lastError;
    }
 
    private void printBindingsAsXML() throws XMLStreamException {
@@ -475,7 +495,22 @@ public final class XmlDataExporter extends DBOption {
    private List<String> extractQueueNames(HashMap<Long, DescribeJournal.ReferenceDescribe> refMap) {
       List<String> queues = new ArrayList<>();
       for (DescribeJournal.ReferenceDescribe ref : refMap.values()) {
-         queues.add(queueBindings.get(ref.refEncoding.queueID).getQueueName().toString());
+         String queueName;
+
+         PersistentQueueBindingEncoding persistentQueueBindingEncoding = queueBindings.get(ref.refEncoding.queueID);
+         if (persistentQueueBindingEncoding == null) {
+            PersistentQueueBindingEncoding undefinedQueue = new PersistentQueueBindingEncoding();
+            undefinedQueue.setId(ref.refEncoding.queueID);
+            undefinedQueue.replaceQueueName(SimpleString.of(undefinedPrefix + ref.refEncoding.queueID));
+            undefinedQueue.replaceAddress(undefinedQueue.getQueueName());
+            queueBindings.put(undefinedQueue.getId(), undefinedQueue);
+            queueName = String.valueOf(undefinedQueue.getQueueName());
+            getActionContext().err.println("Queue ID " + ref.refEncoding.queueID + " not defined. Exporting it as " + undefinedQueue.getQueueName());
+         } else {
+            queueName = String.valueOf(persistentQueueBindingEncoding.getQueueName());
+         }
+
+         queues.add(queueName);
       }
       return queues;
    }

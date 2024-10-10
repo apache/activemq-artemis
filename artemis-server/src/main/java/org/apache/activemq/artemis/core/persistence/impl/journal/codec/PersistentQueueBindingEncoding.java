@@ -186,6 +186,10 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.name = newName;
    }
 
+   public void replaceAddress(SimpleString address) {
+      this.address = address;
+   }
+
    @Override
    public SimpleString getFilterString() {
       return filterString;
