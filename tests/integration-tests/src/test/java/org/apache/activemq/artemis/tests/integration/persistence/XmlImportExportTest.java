@@ -35,8 +35,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.UUID;
 
@@ -65,16 +63,13 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.unit.util.InVMContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -82,20 +77,11 @@ import java.lang.invoke.MethodHandles;
 /**
  * A test of the XML export/import functionality
  */
-@ExtendWith(ParameterizedTestExtension.class)
 public class XmlImportExportTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private boolean forceLongs;
-
-   @Parameters(name = "forceLongs={0}")
-   public static Collection getParameters() {
-      return Arrays.asList(new Object[][]{{true}, {false}});
-   }
-
-   public XmlImportExportTest(boolean forceLongs) {
-      this.forceLongs = forceLongs;
+   public XmlImportExportTest() {
 
    }
 
@@ -107,15 +93,15 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    private ClientSessionFactory factory;
    private InVMContext namingContext;
 
-   protected void checkForLongs() {
-      if (forceLongs) {
-         JournalStorageManager manager = (JournalStorageManager) server.getStorageManager();
-         BatchingIDGenerator idGenerator = (BatchingIDGenerator) manager.getIDGenerator();
-         idGenerator.forceNextID((Integer.MAX_VALUE) + 1L);
-      }
+   // this is to force nextID > Integer.MAX_VALUE.
+   // just to make it more challenging if there's any encoding using integer internally by mistake.
+   protected void forceLong() {
+      JournalStorageManager manager = (JournalStorageManager) server.getStorageManager();
+      BatchingIDGenerator idGenerator = (BatchingIDGenerator) manager.getIDGenerator();
+      idGenerator.forceNextID((Integer.MAX_VALUE) + 1L);
    }
 
-   @TestTemplate
+   @Test
    public void testMessageProperties() throws Exception {
       ClientSession session = basicSetUp();
 
@@ -165,7 +151,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -223,11 +209,11 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       jmsServer.start();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
-      checkForLongs();
+      forceLong();
       return addClientSession(factory.createSession(false, true, true));
    }
 
-   @TestTemplate
+   @Test
    public void testMessageTypes() throws Exception {
 
       ClientSession session = basicSetUp();
@@ -264,7 +250,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -293,7 +279,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       assertEquals(Message.DEFAULT_TYPE, msg.getType());
    }
 
-   @TestTemplate
+   @Test
    public void testTextMessage() throws Exception {
       StringBuilder data = new StringBuilder();
       for (int i = 0; i < 2608; i++) {
@@ -322,7 +308,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -340,7 +326,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       assertEquals(data.toString(), msg.getBodyBuffer().readString());
    }
 
-   @TestTemplate
+   @Test
    public void testBytesMessage() throws Exception {
       StringBuilder data = new StringBuilder();
       for (int i = 0; i < 2610; i++) {
@@ -369,7 +355,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -389,7 +375,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       assertEquals(data.toString().getBytes().length, result.length);
    }
 
-   @TestTemplate
+   @Test
    public void testMessageAttributes() throws Exception {
 
       ClientSession session = basicSetUp();
@@ -418,7 +404,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -438,7 +424,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       assertNotNull(msg.getUserID());
    }
 
-   @TestTemplate
+   @Test
    public void testBindingAttributes() throws Exception {
       ClientSession session = basicSetUp();
 
@@ -458,7 +444,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -481,7 +467,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       assertTrue(queueQuery.isDurable());
    }
 
-   @TestTemplate
+   @Test
    public void testLargeMessage() throws Exception {
       server = createServer(true);
       server.start();
@@ -525,7 +511,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -555,7 +541,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       session.commit();
    }
 
-   @TestTemplate
+   @Test
    public void testLargeMessagesNoTmpFiles() throws Exception {
       server = createServer(true);
       server.start();
@@ -600,7 +586,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -643,7 +629,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       }
    }
 
-   @TestTemplate
+   @Test
    public void testLargeJmsTextMessage() throws Exception {
       basicSetUp();
       ConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory("vm://0", "test");
@@ -673,7 +659,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, true, true);
@@ -696,7 +682,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       c.close();
    }
 
-   @TestTemplate
+   @Test
    public void testPartialQueue() throws Exception {
       ClientSession session = basicSetUp();
 
@@ -728,7 +714,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -749,7 +735,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       assertNotNull(msg);
    }
 
-   @TestTemplate
+   @Test
    public void testPagedMessageWithMissingBinding() throws Exception {
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
@@ -796,7 +782,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = locator.createSessionFactory();
       session = factory.createSession(false, true, true);
@@ -822,7 +808,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       server.stop();
    }
 
-   @TestTemplate
+   @Test
    public void testPaging() throws Exception {
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
@@ -865,7 +851,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, true, true);
@@ -887,7 +873,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       }
    }
 
-   @TestTemplate
+   @Test
    public void testPagedLargeMessage() throws Exception {
       final String MY_ADDRESS = "myAddress";
       final String MY_QUEUE = "myQueue";
@@ -945,7 +931,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = locator.createSessionFactory();
       session = factory.createSession(false, true, true);
@@ -981,7 +967,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       server.stop();
    }
 
-   @TestTemplate
+   @Test
    public void testTransactional() throws Exception {
       ClientSession session = basicSetUp();
 
@@ -1005,7 +991,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = createSessionFactory(locator);
       session = factory.createSession(false, false, true);
@@ -1023,7 +1009,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       assertNotNull(msg);
    }
 
-   @TestTemplate
+   @Test
    public void testBody() throws Exception {
       final String QUEUE_NAME = "A1";
       server = createServer(true);
@@ -1053,7 +1039,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = locator.createSessionFactory();
       session = factory.createSession(false, false, true);
@@ -1076,7 +1062,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       server.stop();
    }
 
-   @TestTemplate
+   @Test
    public void testBody2() throws Exception {
       final String QUEUE_NAME = "A1";
       server = createServer(true);
@@ -1111,7 +1097,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = locator.createSessionFactory();
       session = factory.createSession(false, false, true);
@@ -1137,7 +1123,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       server.stop();
    }
 
-   @TestTemplate
+   @Test
    public void testRoutingTypes() throws Exception {
       SimpleString myAddress = SimpleString.of("myAddress");
       ClientSession session = basicSetUp();
@@ -1161,7 +1147,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = locator.createSessionFactory();
       session = factory.createSession(false, false, true);
@@ -1177,7 +1163,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       assertTrue(server.getAddressInfo(myAddress).getRoutingTypes().contains(RoutingType.MULTICAST));
    }
 
-   @TestTemplate
+   @Test
    public void testEmptyRoutingTypes() throws Exception {
       SimpleString myAddress = SimpleString.of("myAddress");
       ClientSession session = basicSetUp();
@@ -1198,7 +1184,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = locator.createSessionFactory();
       session = factory.createSession(false, false, true);
@@ -1213,7 +1199,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       assertEquals(0, server.getAddressInfo(myAddress).getRoutingTypes().size());
    }
 
-   @TestTemplate
+   @Test
    public void testImportWrongRoutingType() throws Exception {
       SimpleString myAddress = SimpleString.of("myAddress");
       SimpleString myQueue = SimpleString.of("myQueue");
@@ -1262,7 +1248,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       clearDataRecreateServerDirs();
       server.start();
-      checkForLongs();
+      forceLong();
       locator = createInVMNonHALocator();
       factory = locator.createSessionFactory();
       session = factory.createSession(false, false, true);
@@ -1291,13 +1277,13 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    }
 
 
-   @TestTemplate
+   @Test
    public void testRemovedQueue() throws Exception {
       final int numberOfMessages = 100;
 
       server = createServer(true, true);
       server.start();
-      checkForLongs();
+      forceLong();
 
       String queueName = getTestClassName() + RandomUtil.randomString();
       createAnycastPair(server, queueName);
