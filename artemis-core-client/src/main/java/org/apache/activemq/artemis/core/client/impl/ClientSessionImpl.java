@@ -144,6 +144,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    private final String groupID;
 
+   private volatile int onMessageCloseTimeout;
+
    private volatile boolean inClose;
 
    private volatile boolean mayAttemptToFailover = true;
@@ -189,6 +191,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                      final int compressionLevel,
                      final int initialMessagePacketSize,
                      final String groupID,
+                     final int onMessageCloseTimeout,
                      final SessionContext sessionContext,
                      final Executor executor,
                      final Executor confirmationExecutor,
@@ -245,6 +248,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       this.initialMessagePacketSize = initialMessagePacketSize;
 
       this.groupID = groupID;
+
+      this.onMessageCloseTimeout = onMessageCloseTimeout;
 
       producerCreditManager = new ClientProducerCreditManagerImpl(this, producerWindowSize);
 
@@ -2012,7 +2017,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                                  final boolean browseOnly) throws ActiveMQException {
       checkClosed();
 
-      ClientConsumerInternal consumer = sessionContext.createConsumer(queueName, filterString, priority, windowSize, maxRate, ackBatchSize, browseOnly, executor, flowControlExecutor);
+      ClientConsumerInternal consumer = sessionContext.createConsumer(queueName, filterString, priority, windowSize, maxRate, ackBatchSize, browseOnly, executor, flowControlExecutor, onMessageCloseTimeout);
 
       addConsumer(consumer);
 
