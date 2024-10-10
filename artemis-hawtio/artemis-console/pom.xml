@@ -76,9 +76,14 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <useCache>true</useCache>
+          <!-- exclude these jars as they are already shipped with the broker -->
           <packagingExcludes>
             **/lib/slf4j*.jar,
-            **/lib/log4j*.jar
+            **/lib/log4j*.jar,
+            **/lib/guava*.jar,
+            **/lib/commons-io*.jar,
+            **/lib/commons-logging*.jar,
+            **/lib/failureaccess*.jar
           </packagingExcludes>
           <failOnMissingWebXml>false</failOnMissingWebXml>
           <webResources>
@@ -100,7 +105,6 @@
                 <exclude>img/icons/**/*</exclude>
                 <exclude>img/**/*</exclude>
                 <exclude>fonts/glyphicons**</exclude>
-                <exclude>WEB-INF/lib/guava*.jar</exclude>
                 <exclude>WEB-INF/lib/checker-qual-*.jar</exclude>
                 <exclude>WEB-INF/lib/error_prone_annotations-*.jar</exclude>
                 <exclude>WEB-INF/lib/j2objc-annotations-*.jar</exclude>
