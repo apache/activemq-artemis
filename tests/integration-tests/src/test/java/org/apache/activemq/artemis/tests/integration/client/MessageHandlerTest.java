@@ -16,16 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -34,9 +31,17 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MessageHandlerTest extends ActiveMQTestBase {
 
@@ -115,6 +120,64 @@ public class MessageHandlerTest extends ActiveMQTestBase {
       assertNull(consumer.getLastException());
 
       session.close();
+   }
+
+   @Test
+   @Timeout(20)
+   public void testMessageHandlerCloseTimeout() throws Exception {
+      // create Netty acceptor so client can use new onMessageCloseTimeout URL parameter
+      server.getRemotingService().createAcceptor("netty", "tcp://127.0.0.1:61616").start();
+      final int TIMEOUT = 100;
+      locator = ActiveMQClient.createServerLocator("tcp://127.0.0.1:61616?onMessageCloseTimeout=" + TIMEOUT);
+      sf = createSessionFactory(locator);
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
+      ClientProducer producer = session.createProducer(QUEUE);
+      producer.send(createTextMessage(session, "m"));
+
+      ClientConsumer consumer = session.createConsumer(QUEUE, null, false);
+
+      session.start();
+
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         CountDownLatch beginLatch = new CountDownLatch(1);
+         AtomicBoolean messageHandlerFinished = new AtomicBoolean(false);
+         CountDownLatch completedLatch = new CountDownLatch(1);
+
+         consumer.setMessageHandler(message -> {
+            try {
+               beginLatch.countDown();
+               // don't just Thread.sleep() here because it will be interrupted on
+               // ClientConsumer.close()
+               while (!messageHandlerFinished.get()) {
+                  try {
+                     Thread.sleep(10);
+                  } catch (InterruptedException e) {
+                     // ignore
+                  }
+               }
+            } finally {
+               completedLatch.countDown();
+            }
+         });
+
+         try {
+            beginLatch.await();
+            long start = System.currentTimeMillis();
+            consumer.close();
+            long duration = System.currentTimeMillis() - start;
+
+            assertTrue(duration >= TIMEOUT, "Closing consumer took " + duration + "ms");
+            assertEquals(1, completedLatch.getCount(), "MessageHandler should still be working!");
+         } finally {
+            // don't let the MessageHandler stick around even if an assertion failed
+            messageHandlerFinished.set(true);
+         }
+
+         assertTrue(loggerHandler.findText("AMQ212002", TIMEOUT + "ms"), "timeout message not found in logs");
+
+         assertTrue(completedLatch.await(10, TimeUnit.SECONDS), "MessageHandler should complete!");
+      }
    }
 
    @Test

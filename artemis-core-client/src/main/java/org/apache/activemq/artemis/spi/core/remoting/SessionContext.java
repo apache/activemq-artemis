@@ -340,7 +340,8 @@ public abstract class SessionContext {
                                                          int ackBatchSize,
                                                          boolean browseOnly,
                                                          Executor executor,
-                                                         Executor flowControlExecutor) throws ActiveMQException;
+                                                         Executor flowControlExecutor,
+                                                         int onMessageCloseTimeout) throws ActiveMQException;
 
    /**
     * Performs a round trip to the server requesting what is the current tx timeout on the session

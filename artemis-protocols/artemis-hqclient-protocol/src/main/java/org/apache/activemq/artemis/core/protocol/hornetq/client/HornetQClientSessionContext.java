@@ -83,7 +83,8 @@ public class HornetQClientSessionContext extends ActiveMQSessionContext {
                                                 int ackBatchSize,
                                                 boolean browseOnly,
                                                 Executor executor,
-                                                Executor flowControlExecutor) throws ActiveMQException {
+                                                Executor flowControlExecutor,
+                                                int onMessageCloseTimeout) throws ActiveMQException {
       long consumerID = idGenerator.generateID();
 
       ActiveMQConsumerContext consumerContext = new ActiveMQConsumerContext(consumerID);
@@ -96,7 +97,7 @@ public class HornetQClientSessionContext extends ActiveMQSessionContext {
       // could be overridden on the queue settings
       // The value we send is just a hint
 
-      return new ClientConsumerImpl(session, consumerContext, queueName, filterString, priority, browseOnly, windowSize, calcWindowSize(windowSize), ackBatchSize, maxRate > 0 ? new TokenBucketLimiterImpl(maxRate, false) : null, executor, flowControlExecutor, this, queueInfo.toQueueQuery(), lookupTCCL());
+      return new ClientConsumerImpl(session, consumerContext, queueName, filterString, priority, browseOnly, windowSize, calcWindowSize(windowSize), ackBatchSize, maxRate > 0 ? new TokenBucketLimiterImpl(maxRate, false) : null, executor, flowControlExecutor, this, queueInfo.toQueueQuery(), lookupTCCL(), onMessageCloseTimeout);
    }
 
 }
