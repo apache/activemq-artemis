@@ -66,6 +66,8 @@ public class TransportConstants {
 
    public static final String USE_EPOLL_PROP_NAME = "useEpoll";
 
+   public static final String USE_IOURING_PROP_NAME = "useIoUring";
+
    public static final String USE_KQUEUE_PROP_NAME = "useKQueue";
 
    @Deprecated
@@ -212,6 +214,8 @@ public class TransportConstants {
    public static final boolean DEFAULT_USE_EPOLL = true;
 
    public static final boolean DEFAULT_USE_KQUEUE = true;
+
+   public static final boolean DEFAULT_USE_IOURING = false;
 
    public static final boolean DEFAULT_USE_INVM = false;
 
@@ -409,6 +413,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.USE_NIO_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.USE_EPOLL_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.USE_KQUEUE_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.USE_IOURING_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.USE_INVM_PROP_NAME);
       //noinspection deprecation
       allowableAcceptorKeys.add(TransportConstants.PROTOCOL_PROP_NAME);
@@ -484,6 +489,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.USE_EPOLL_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.USE_KQUEUE_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.USE_IOURING_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.USE_GLOBAL_WORKER_POOL_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.HOST_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.PORT_PROP_NAME);

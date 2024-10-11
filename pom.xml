@@ -121,6 +121,7 @@
       <mockito.version>5.14.1</mockito.version>
       <jctools.version>4.0.5</jctools.version>
       <netty.version>4.1.114.Final</netty.version>
+      <netty.incubator.io_uring.version>0.0.25.Final</netty.incubator.io_uring.version>
       <hdrhistogram.version>2.2.2</hdrhistogram.version>
       <curator.version>5.7.0</curator.version>
       <zookeeper.version>3.9.2</zookeeper.version>
@@ -261,6 +262,7 @@
 
       <netty-transport-native-epoll-classifier>linux-x86_64</netty-transport-native-epoll-classifier>
       <netty-transport-native-kqueue-classifier>osx-x86_64</netty-transport-native-kqueue-classifier>
+      <netty-transport-native-io_uring-classifier>linux-x86_64</netty-transport-native-io_uring-classifier>
 
       <fast-tests>false</fast-tests>
 

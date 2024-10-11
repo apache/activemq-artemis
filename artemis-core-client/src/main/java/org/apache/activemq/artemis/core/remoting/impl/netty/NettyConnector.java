@@ -98,6 +98,8 @@ import io.netty.handler.proxy.ProxyHandler;
 import io.netty.handler.proxy.Socks4ProxyHandler;
 import io.netty.handler.proxy.Socks5ProxyHandler;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.incubator.channel.uring.IOUringEventLoopGroup;
+import io.netty.incubator.channel.uring.IOUringSocketChannel;
 import io.netty.resolver.NoopAddressResolverGroup;
 import io.netty.util.AttributeKey;
 import io.netty.util.ResourceLeakDetector;
@@ -137,6 +139,7 @@ public class NettyConnector extends AbstractConnector {
    public static String NIO_CONNECTOR_TYPE = "NIO";
    public static String EPOLL_CONNECTOR_TYPE = "EPOLL";
    public static String KQUEUE_CONNECTOR_TYPE = "KQUEUE";
+   public static String IOURING_CONNECTOR_TYPE = "IO_URING";
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -295,6 +298,8 @@ public class NettyConnector extends AbstractConnector {
 
    private boolean useKQueue;
 
+   private boolean useIoUring;
+
    private int remotingThreads;
 
    private boolean useGlobalWorkerPool;
@@ -404,6 +409,7 @@ public class NettyConnector extends AbstractConnector {
 
       useEpoll = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_EPOLL_PROP_NAME, TransportConstants.DEFAULT_USE_EPOLL, configuration);
       useKQueue = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_KQUEUE_PROP_NAME, TransportConstants.DEFAULT_USE_KQUEUE, configuration);
+      useIoUring = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_IOURING_PROP_NAME, TransportConstants.DEFAULT_USE_IOURING, configuration);
 
       useServlet = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_SERVLET_PROP_NAME, TransportConstants.DEFAULT_USE_SERVLET, configuration);
       host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST, configuration);
@@ -528,6 +534,8 @@ public class NettyConnector extends AbstractConnector {
          return;
       }
 
+      boolean defaultRemotingThreads = remotingThreads == -1;
+
       if (remotingThreads == -1) {
          // Default to number of cores * 3
          remotingThreads = Runtime.getRuntime().availableProcessors() * 3;
@@ -535,14 +543,30 @@ public class NettyConnector extends AbstractConnector {
 
       String connectorType;
 
-      if (useEpoll && CheckDependencies.isEpollAvailable()) {
+      if (useIoUring && CheckDependencies.isIoUringAvailable()) {
+         //IO_URING should default to 1 remotingThread unless specified in config
+         remotingThreads = defaultRemotingThreads ? 1 : remotingThreads;
+
+         if (useGlobalWorkerPool) {
+            group = SharedEventLoopGroup.getInstance((threadFactory -> new IOUringEventLoopGroup(remotingThreads, threadFactory)));
+         } else {
+            group = new IOUringEventLoopGroup(remotingThreads);
+         }
+
+         connectorType = IOURING_CONNECTOR_TYPE;
+         channelClazz = IOUringSocketChannel.class;
+
+         logger.debug("Connector {} using native io_uring", this);
+      } else if (useEpoll && CheckDependencies.isEpollAvailable()) {
          if (useGlobalWorkerPool) {
             group = SharedEventLoopGroup.getInstance((threadFactory -> new EpollEventLoopGroup(remotingThreads, threadFactory)));
          } else {
             group = new EpollEventLoopGroup(remotingThreads);
          }
+
          connectorType = EPOLL_CONNECTOR_TYPE;
          channelClazz = EpollSocketChannel.class;
+
          logger.debug("Connector {} using native epoll", this);
       } else if (useKQueue && CheckDependencies.isKQueueAvailable()) {
          if (useGlobalWorkerPool) {
@@ -550,19 +574,21 @@ public class NettyConnector extends AbstractConnector {
          } else {
             group = new KQueueEventLoopGroup(remotingThreads);
          }
+
          connectorType = KQUEUE_CONNECTOR_TYPE;
          channelClazz = KQueueSocketChannel.class;
+
          logger.debug("Connector {} using native kqueue", this);
       } else {
          if (useGlobalWorkerPool) {
-            channelClazz = NioSocketChannel.class;
             group = SharedEventLoopGroup.getInstance((threadFactory -> new NioEventLoopGroup(remotingThreads, threadFactory)));
          } else {
-            channelClazz = NioSocketChannel.class;
             group = new NioEventLoopGroup(remotingThreads);
          }
+
          connectorType = NIO_CONNECTOR_TYPE;
          channelClazz = NioSocketChannel.class;
+
          logger.debug("Connector {} using nio", this);
       }
       // if we are a servlet wrap the socketChannelFactory
