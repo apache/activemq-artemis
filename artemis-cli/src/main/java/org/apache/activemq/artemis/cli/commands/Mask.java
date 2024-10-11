@@ -36,6 +36,9 @@ public class Mask extends ActionAbstract {
    @Option(names = "--hash", description = "Whether to use a hash (one-way). Default: false.")
    boolean hash = false;
 
+   @Option(names = "--algorithm", description = "The algorithm to encode a password.")
+   String algorithm;
+
    @Option(names = "--key", description = "The key (Blowfish) to mask a password.")
    String key;
 
@@ -48,15 +51,21 @@ public class Mask extends ActionAbstract {
    public Object execute(ActionContext context) throws Exception {
       Map<String, String> params = new HashMap<>();
 
-      if (hash) {
-         params.put(DefaultSensitiveStringCodec.ALGORITHM, DefaultSensitiveStringCodec.ONE_WAY);
+      if (algorithm != null) {
+         params.put(DefaultSensitiveStringCodec.ALGORITHM_PARAM, algorithm);
+
+         if (hash) {
+            context.out.println("Option --hash ignored when the algorithm option is used");
+         }
+      } else if (hash) {
+         params.put(DefaultSensitiveStringCodec.ALGORITHM_PARAM, DefaultSensitiveStringCodec.ALGORITHM_ONE_WAY);
       }
 
       if (key != null) {
          if (hash) {
             context.out.println("Option --key ignored in case of hashing");
          } else {
-            params.put(DefaultSensitiveStringCodec.BLOWFISH_KEY, key);
+            params.put(DefaultSensitiveStringCodec.KEY_PARAM, key);
          }
       }
 
@@ -84,6 +93,10 @@ public class Mask extends ActionAbstract {
 
    public void setHash(boolean hash) {
       this.hash = hash;
+   }
+
+   public void setAlgorithm(String algorithm) {
+      this.algorithm = algorithm;
    }
 
    public void setKey(String key) {

@@ -211,7 +211,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
       assertEquals("helloworld", config.getClusterPassword());
 
       //if we add mask, it should be able to decode correctly
-      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
       String mask = codec.encode("helloworld");
 
       String maskPasswordPart = "<mask-password>true</mask-password>";
@@ -266,7 +266,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
       assertEquals("helloworld", config.getClusterPassword());
 
       //if we add mask, it should be able to decode correctly
-      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
       String mask = codec.encode("helloworld");
 
       clusterPasswordPart = "<cluster-password>" + PasswordMaskingUtil.wrap(mask) + "</cluster-password>";

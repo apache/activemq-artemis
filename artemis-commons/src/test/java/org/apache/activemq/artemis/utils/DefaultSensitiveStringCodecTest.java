@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,29 +36,68 @@ public class DefaultSensitiveStringCodecTest {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   public void testDefaultAlgorithm() throws Exception {
+   public void testDefaultCodec() {
       SensitiveDataCodec<String> codec = PasswordMaskingUtil.getDefaultCodec();
       assertTrue(codec instanceof DefaultSensitiveStringCodec);
    }
 
    @Test
+   public void testDefaultAlgorithm() throws Exception {
+      testAlgorithm(Collections.emptyMap());
+
+      testAlgorithm(Map.of(DefaultSensitiveStringCodec.KEY_PARAM, "my-key"));
+
+      System.setProperty(DefaultSensitiveStringCodec.KEY_SYS_PROP, "my-key");
+      try {
+         testAlgorithm(Collections.emptyMap());
+      } finally {
+         System.clearProperty(DefaultSensitiveStringCodec.KEY_SYS_PROP);
+      }
+   }
+
+   @Test
    public void testOnewayAlgorithm() throws Exception {
-      testAlgorithm(DefaultSensitiveStringCodec.ONE_WAY);
+      testAlgorithm(Map.of(DefaultSensitiveStringCodec.ALGORITHM_PARAM, DefaultSensitiveStringCodec.ALGORITHM_ONE_WAY));
    }
 
    @Test
    public void testTwowayAlgorithm() throws Exception {
-      testAlgorithm(DefaultSensitiveStringCodec.TWO_WAY);
+      testAlgorithm(Map.of(DefaultSensitiveStringCodec.ALGORITHM_PARAM,
+         DefaultSensitiveStringCodec.ALGORITHM_TWO_WAY));
+      testAlgorithm(Map.of(DefaultSensitiveStringCodec.ALGORITHM_PARAM, DefaultSensitiveStringCodec.ALGORITHM_TWO_WAY,
+         DefaultSensitiveStringCodec.KEY_PARAM, "my-key"));
    }
 
-   private void testAlgorithm(String algorithm) throws Exception {
-      DefaultSensitiveStringCodec codec = getDefaultSensitiveStringCodec(algorithm);
+   @Test
+   public void testTwoway1Algorithm() throws Exception {
+      try {
+         testAlgorithm(Map.of(DefaultSensitiveStringCodec.ALGORITHM_PARAM,
+            DefaultSensitiveStringCodec.ALGORITHM_TWO_WAY_1));
+         fail();
+      } catch (Exception e) {
+         assertEquals(IllegalArgumentException.class, e.getClass());
+      }
+
+      testAlgorithm(Map.of(DefaultSensitiveStringCodec.ALGORITHM_PARAM, DefaultSensitiveStringCodec.ALGORITHM_TWO_WAY_1,
+         DefaultSensitiveStringCodec.KEY_PARAM, "my-key"));
+
+      System.setProperty(DefaultSensitiveStringCodec.KEY_SYS_PROP, "my-key");
+      try {
+         testAlgorithm(Map.of(DefaultSensitiveStringCodec.ALGORITHM_PARAM, DefaultSensitiveStringCodec.ALGORITHM_TWO_WAY_1,
+            DefaultSensitiveStringCodec.KEY_PARAM, "my-key"));
+      } finally {
+         System.clearProperty(DefaultSensitiveStringCodec.KEY_SYS_PROP);
+      }
+   }
+
+   private void testAlgorithm(Map<String, String> params) throws Exception {
+      DefaultSensitiveStringCodec codec = getDefaultSensitiveStringCodec(params);
 
       String plainText = "some_password";
       String maskedText = codec.encode(plainText);
       logger.debug("encoded value: {}", maskedText);
 
-      if (algorithm.equals(DefaultSensitiveStringCodec.ONE_WAY)) {
+      if (DefaultSensitiveStringCodec.ALGORITHM_ONE_WAY.equals(params.get(DefaultSensitiveStringCodec.ALGORITHM_PARAM))) {
          //one way can't decode
          try {
             codec.decode(maskedText);
@@ -83,7 +123,7 @@ public class DefaultSensitiveStringCodecTest {
       DefaultSensitiveStringCodec codecFromEnvVarConfig = new DefaultSensitiveStringCodec() {
          @Override
          public String getFromEnv(String v) {
-            if (v.contains("_") && !v.contains(".")) {
+            if (DefaultSensitiveStringCodec.KEY_ENV_VAR.equals(v)) {
                return someString;
             }
             return null;
@@ -92,21 +132,28 @@ public class DefaultSensitiveStringCodecTest {
       Map<String, String> params = new HashMap<>();
       codecFromEnvVarConfig.init(params);
       String blaVersion = codecFromEnvVarConfig.encode(someString);
-      assertNotEquals(blaVersion,  getDefaultSensitiveStringCodec(DefaultSensitiveStringCodec.TWO_WAY).encode(someString));
+      Map<String, String> twowayParams = Map.of(DefaultSensitiveStringCodec.ALGORITHM_PARAM, DefaultSensitiveStringCodec.ALGORITHM_ONE_WAY);
+      assertNotEquals(blaVersion,  getDefaultSensitiveStringCodec(twowayParams).encode(someString));
    }
 
    @Test
    public void testCompareWithOnewayAlgorithm() throws Exception {
-      testCompareWithAlgorithm(DefaultSensitiveStringCodec.ONE_WAY);
+      testCompareWithAlgorithm(Map.of(DefaultSensitiveStringCodec.ALGORITHM_PARAM, DefaultSensitiveStringCodec.ALGORITHM_ONE_WAY));
    }
 
    @Test
    public void testCompareWithTwowayAlgorithm() throws Exception {
-      testCompareWithAlgorithm(DefaultSensitiveStringCodec.TWO_WAY);
+      testCompareWithAlgorithm(Map.of(DefaultSensitiveStringCodec.ALGORITHM_PARAM, DefaultSensitiveStringCodec.ALGORITHM_TWO_WAY));
    }
 
-   private void testCompareWithAlgorithm(String algorithm) throws Exception {
-      DefaultSensitiveStringCodec codec = getDefaultSensitiveStringCodec(algorithm);
+   @Test
+   public void testCompareWithTwoway1Algorithm() throws Exception {
+      testCompareWithAlgorithm(Map.of(DefaultSensitiveStringCodec.ALGORITHM_PARAM, DefaultSensitiveStringCodec.ALGORITHM_TWO_WAY_1,
+         DefaultSensitiveStringCodec.KEY_PARAM, "my-key"));
+   }
+
+   private void testCompareWithAlgorithm(Map<String, String> params) throws Exception {
+      DefaultSensitiveStringCodec codec = getDefaultSensitiveStringCodec(params);
 
       String plainText = "some_password";
       String maskedText = codec.encode(plainText);
@@ -118,12 +165,9 @@ public class DefaultSensitiveStringCodecTest {
       assertFalse(codec.verify(otherPassword.toCharArray(), maskedText));
    }
 
-   private DefaultSensitiveStringCodec getDefaultSensitiveStringCodec(String algorithm) throws Exception {
+   private DefaultSensitiveStringCodec getDefaultSensitiveStringCodec(Map<String, String> params) throws Exception {
       DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
-      Map<String, String> params = new HashMap<>();
-      params.put(DefaultSensitiveStringCodec.ALGORITHM, algorithm);
       codec.init(params);
-
       return codec;
    }
 }

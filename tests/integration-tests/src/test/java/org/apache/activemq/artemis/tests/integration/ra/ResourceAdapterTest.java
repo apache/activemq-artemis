@@ -694,7 +694,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
       String mask = codec.encode("helloworld");
 
       qResourceAdapter.setUseMaskedPassword(true);
@@ -730,7 +730,7 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       qResourceAdapter.setConnectorClassName(INVM_CONNECTOR_FACTORY);
       ActiveMQRATestBase.MyBootstrapContext ctx = new ActiveMQRATestBase.MyBootstrapContext();
 
-      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
       String mask = codec.encode("helloworld");
 
       qResourceAdapter.setPassword(PasswordMaskingUtil.wrap(mask));

@@ -42,4 +42,7 @@ public interface ActiveMQUtilBundle {
 
    @Message(id = 209004, value = "Failed to parse long value from {}")
    IllegalArgumentException failedToParseLong(String value);
+
+   @Message(id = 209005, value = "Invalid algorithm: {}")
+   IllegalArgumentException invalidAlgorithm(String algorithm);
 }

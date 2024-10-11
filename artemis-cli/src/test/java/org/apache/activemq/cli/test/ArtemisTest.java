@@ -1260,7 +1260,7 @@ public class ArtemisTest extends CliTestBase {
       logger.debug(context.getStdout());
       SensitiveDataCodec<String> codec = mask.getCodec();
       assertEquals(DefaultSensitiveStringCodec.class, codec.getClass());
-      assertTrue(((DefaultSensitiveStringCodec)codec).verify(password1.toCharArray(), result));
+      assertTrue(codec.verify(password1.toCharArray(), result));
 
       context = new TestActionContext();
       mask = new Mask();
@@ -1269,6 +1269,33 @@ public class ArtemisTest extends CliTestBase {
       result = (String) mask.execute(context);
       logger.debug(context.getStdout());
       assertEquals(encrypt2, result);
+   }
+
+   @Test
+   public void testMaskCommandWithTwoWay1Algorithm() throws Exception {
+      final String password = "my-password";
+      final String key = "my-key";
+
+      TestActionContext context = new TestActionContext();
+      Mask mask = new Mask();
+      mask.setAlgorithm(DefaultSensitiveStringCodec.ALGORITHM_TWO_WAY_1);
+      mask.setPassword(password);
+      mask.setKey(key);
+      String result0 = (String) mask.execute(context);
+      String result1 = (String) mask.execute(context);
+
+      SensitiveDataCodec<String> codec = mask.getCodec();
+      assertEquals(DefaultSensitiveStringCodec.class, codec.getClass());
+
+      assertNotEquals(password, result0);
+      assertTrue(codec.verify(password.toCharArray(), result0));
+      assertEquals(password, codec.decode(result0));
+
+      assertNotEquals(password, result1);
+      assertTrue(codec.verify(password.toCharArray(), result1));
+      assertEquals(password, codec.decode(result1));
+
+      assertNotEquals(result0, result1);
    }
 
    @Test
