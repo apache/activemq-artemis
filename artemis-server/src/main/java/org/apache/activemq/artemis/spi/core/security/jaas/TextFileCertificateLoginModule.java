@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.spi.core.security.jaas;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.x500.X500Principal;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Map;
@@ -44,6 +45,7 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
    private Map<String, Set<String>> rolesByUser;
    private Map<String, Pattern> regexpByUser;
    private Map<String, String> usersByDn;
+   boolean normalise = false; // leaving this off by default as it validates the input, which may blow up with preexisting config
 
    /**
     * Performs initialization of file paths. A standard JAAS override.
@@ -54,7 +56,12 @@ public class TextFileCertificateLoginModule extends CertificateLoginModule {
                           Map<String, ?> sharedState,
                           Map<String, ?> options) {
       super.initialize(subject, callbackHandler, sharedState, options);
-      usersByDn = load(USER_FILE_PROP_NAME, "", options).invertedPropertiesMap();
+      normalise = booleanOption("normalise", options);
+      if (normalise) {
+         usersByDn = load(USER_FILE_PROP_NAME, "", options, (String v) -> new X500Principal(v).getName()).invertedPropertiesMap();
+      } else {
+         usersByDn = load(USER_FILE_PROP_NAME, "", options).invertedPropertiesMap();
+      }
       regexpByUser = load(USER_FILE_PROP_NAME, "", options).regexpPropertiesMap();
       rolesByUser = load(ROLE_FILE_PROP_NAME, "", options).invertedPropertiesValuesMap();
    }

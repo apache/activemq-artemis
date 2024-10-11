@@ -78,6 +78,9 @@ public class ReloadableProperties {
                   adler32.update(sKey.getBytes(StandardCharsets.UTF_8));
                   adler32.update('=');
                   adler32.update(sValue.getBytes(StandardCharsets.UTF_8));
+                  if (!looksLikeRegexp(sValue)) {
+                     value = normaliseStringValue(sValue);
+                  }
                }
                return super.put(key, value);
             }
@@ -101,6 +104,10 @@ public class ReloadableProperties {
          updateStatus();
       }
       return this;
+   }
+
+   protected String normaliseStringValue(String key) {
+      return key;
    }
 
    private void updateStatus() {

@@ -41,7 +41,16 @@ public class PropertiesLoader {
       }
    }
 
+
+   interface NormaliseStringValues {
+      String normalize(String o);
+   }
+
    public ReloadableProperties load(String nameProperty, String fallbackName, Map options) {
+      return load(nameProperty, fallbackName, options, null);
+   }
+
+   public ReloadableProperties load(String nameProperty, String fallbackName, Map options, NormaliseStringValues valueNormaliser) {
       ReloadableProperties result;
       FileNameKey key = new FileNameKey(nameProperty, fallbackName, options);
       key.setDebug(debug);
@@ -49,7 +58,16 @@ public class PropertiesLoader {
       synchronized (staticCache) {
          result = staticCache.get(key);
          if (result == null) {
-            result = new ReloadableProperties(key);
+            if (valueNormaliser == null) {
+               result = new ReloadableProperties(key);
+            } else {
+               result = new ReloadableProperties(key) {
+                  @Override
+                  protected String normaliseStringValue(String value) {
+                     return valueNormaliser.normalize(value);
+                  }
+               };
+            }
             staticCache.put(key, result);
          }
       }
