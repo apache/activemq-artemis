@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.utils;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -203,27 +204,36 @@ public final class PasswordMaskingUtil {
          }
       });
 
+      Map<String, String> props = new HashMap<>();
       if (parts.length > 1) {
-         Map<String, String> props = new HashMap<>();
-
          for (int i = 1; i < parts.length; i++) {
             String[] keyVal = parts[i].split("=");
             if (keyVal.length != 2)
                throw ActiveMQUtilBundle.BUNDLE.invalidProperty(parts[i]);
             props.put(keyVal[0], keyVal[1]);
          }
-         try {
-            codecInstance.init(props);
-         } catch (Exception e) {
-            throw new ActiveMQException("Fail to init codec", e, ActiveMQExceptionType.SECURITY_EXCEPTION);
-         }
+      }
+      try {
+         codecInstance.init(props);
+      } catch (Exception e) {
+         throw new ActiveMQException("Fail to init codec", e, ActiveMQExceptionType.SECURITY_EXCEPTION);
       }
 
       return codecInstance;
    }
 
    public static DefaultSensitiveStringCodec getDefaultCodec() {
-      return new DefaultSensitiveStringCodec();
+      return getDefaultCodec(Collections.emptyMap());
+   }
+
+   public static DefaultSensitiveStringCodec getDefaultCodec(Map<String, String> params) {
+      DefaultSensitiveStringCodec defaultCodec = new DefaultSensitiveStringCodec();
+      try {
+         defaultCodec.init(params);
+      } catch (Exception e) {
+         throw ActiveMQUtilBundle.BUNDLE.errorCreatingCodec(DefaultSensitiveStringCodec.class.getName(), e);
+      }
+      return defaultCodec;
    }
 
 }

@@ -179,7 +179,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       BufferHandler handler = (connectionID, buffer) -> {
       };
 
-      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
 
       System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
       System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("securepass")));
@@ -209,7 +209,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       BufferHandler handler = (connectionID, buffer) -> {
       };
 
-      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
 
       System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
       System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("bad password")));
@@ -386,7 +386,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
-      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
 
       System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
       System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("securepass")));
@@ -410,7 +410,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
-      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
 
       System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
       System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("bad password")));
@@ -503,7 +503,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
 
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
-      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
 
       System.setProperty(NettyConnector.ACTIVEMQ_SSL_PASSWORD_CODEC_CLASS_PROP_NAME, NettyConnectorTestPasswordCodec.class.getName());
       System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");

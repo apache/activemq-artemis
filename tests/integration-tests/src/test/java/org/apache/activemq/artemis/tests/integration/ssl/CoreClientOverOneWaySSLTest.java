@@ -355,8 +355,6 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       String text = RandomUtil.randomString();
 
       DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
-      Map<String, String> params = new HashMap<>();
-      codec.init(params);
 
       String masked = codec.encode(PASSWORD);
       String url = "tcp://127.0.0.1:61616?sslEnabled=true;trustStorePath=" + CLIENT_SIDE_TRUSTSTORE + ";trustStorePassword=" + masked + ";activemq.usemaskedpassword=true";
@@ -389,8 +387,6 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       String text = RandomUtil.randomString();
 
       DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
-      Map<String, String> params = new HashMap<>();
-      codec.init(params);
 
       String masked = codec.encode(PASSWORD);
 

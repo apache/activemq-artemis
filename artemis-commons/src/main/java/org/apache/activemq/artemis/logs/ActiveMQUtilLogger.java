@@ -83,4 +83,7 @@ public interface ActiveMQUtilLogger {
 
    @LogMessage(id = 202016, value = "Could not list files to clean up in {}", level = LogMessage.Level.WARN)
    void failedListFilesToCleanup(String path);
+
+   @LogMessage(id = 202017, value = "Algorithm two-way is deprecated and will be removed from the default codec in a future version. Use a custom codec instead. Consult the manual for details.", level = LogMessage.Level.WARN)
+   void deprecatedDefaultCodecTwoWayAlgorithm();
 }
