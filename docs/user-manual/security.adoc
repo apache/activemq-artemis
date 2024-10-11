@@ -828,6 +828,10 @@ boolean flag;
 whether or not to reload the properties files when a modification occurs;
 default is `false`
 
+normalise::
+boolean flag; whether the DN values should be validated and normalised into the X500Name string format used for matching; default is false.
+Using this option can avoid the ambiguity around the string form of a DN that is discussed below. When true, the DN string is validated, and then normalised into the internal X500Name format.
+
 In the context of the certificate login module, the `users.properties` file consists of a list of properties of the form, `UserName=StringifiedSubjectDN` or `UserName=/SubjectDNRegExp/`.
 For example, to define the users, `system`, `user` and `guest` as well as a `hosts` user matching several DNs, you could create a file like the following:
 
