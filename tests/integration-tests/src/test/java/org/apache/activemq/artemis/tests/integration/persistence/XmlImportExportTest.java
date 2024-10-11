@@ -27,11 +27,15 @@ import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.EnumSet;
 import java.util.UUID;
 
@@ -48,6 +52,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataExporter;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataImporter;
 import org.apache.activemq.artemis.core.persistence.impl.journal.BatchingIDGenerator;
@@ -55,11 +60,13 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageM
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.registry.JndiBindingRegistry;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.JMSServerManager;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -1269,4 +1276,116 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       locator.close();
       server.stop();
    }
+
+
+   @Test
+   public void testRemovedQueue() throws Exception {
+
+      String undefinedPrefix = "undef_" + RandomUtil.randomString() + "_";
+      final int numberOfMessages = 100;
+
+      server = createServer(true, true);
+      server.start();
+      forceLong();
+
+      String anycastQueueName = getTestClassName() + RandomUtil.randomString();
+      String multicastQueueName = getTestClassName() + RandomUtil.randomString();
+      createAnycastPair(server, anycastQueueName);
+      server.addAddressInfo(new AddressInfo(multicastQueueName).addRoutingType(RoutingType.MULTICAST).setAutoCreated(false));
+      server.createQueue(QueueConfiguration.of(multicastQueueName).setRoutingType(RoutingType.MULTICAST).setAddress(multicastQueueName));
+
+      org.apache.activemq.artemis.core.server.Queue anycastServerQueue = server.locateQueue(anycastQueueName);
+      assertNotNull(anycastServerQueue);
+      assertEquals(RoutingType.ANYCAST, anycastServerQueue.getRoutingType());
+      org.apache.activemq.artemis.core.server.Queue multiCastServerQueue = server.locateQueue(multicastQueueName);
+      assertNotNull(multiCastServerQueue);
+      assertEquals(RoutingType.MULTICAST, multiCastServerQueue.getRoutingType());
+
+      {
+         ConnectionFactory factory = CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616");
+         try (Connection connection = factory.createConnection()) {
+            Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+            Topic topic = session.createTopic(multicastQueueName);
+            Queue queue = session.createQueue(anycastQueueName);
+
+            try (MessageProducer producer = session.createProducer(queue)) {
+               for (int i = 0; i < numberOfMessages; i++) {
+                  producer.send(session.createTextMessage("hello " + i));
+               }
+            }
+
+            try (MessageProducer producer = session.createProducer(topic)) {
+               for (int i = 0; i < numberOfMessages; i++) {
+                  producer.send(session.createTextMessage("hello " + i));
+               }
+            }
+
+            session.commit();
+         }
+      }
+
+      // this is forcing a situation where the queue was removed and the messages are still in the journal
+      removeAddressAndQueue(anycastServerQueue);
+      removeAddressAndQueue(multiCastServerQueue);
+
+      server.stop();
+
+      final String fileName = "test.out";
+
+      FileOutputStream fileOutputStream = new FileOutputStream(new File(getTestDir(), fileName));
+      BufferedOutputStream bufferOut = new BufferedOutputStream(fileOutputStream);
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+
+      xmlDataExporter.setUndefinedPrefix(undefinedPrefix);
+
+      // the journal should still export even though the bindings don't exist any more
+      // this is to "facilitate" users recovering or undoing mistakes
+      xmlDataExporter.process(bufferOut, getBindingsDir(), getJournalDir(), getPageDir(), getLargeMessagesDir());
+      bufferOut.close();
+      assertNull(xmlDataExporter.getLastError());
+
+      server.start();
+
+      XmlDataImporter importer = new XmlDataImporter();
+      importer.input = new File(getTestDir(), fileName).getAbsolutePath();
+      importer.execute(new ActionContext());
+
+      {
+         ConnectionFactory factory = CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616");
+         try (Connection connection = factory.createConnection()) {
+            Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+            connection.start();
+
+            Queue anycastJMSQueue = session.createQueue(undefinedPrefix + anycastServerQueue.getID());
+            Queue multicastJMSQueue = session.createQueue(undefinedPrefix + multiCastServerQueue.getID() + "::" + undefinedPrefix + multiCastServerQueue.getID());
+
+            try (MessageConsumer consumer = session.createConsumer(anycastJMSQueue)) {
+               for (int i = 0; i < numberOfMessages; i++) {
+                  TextMessage message = (TextMessage) consumer.receive(5000);
+                  assertNotNull(message);
+                  assertEquals("hello " + i, message.getText());
+               }
+            }
+
+            try (MessageConsumer consumer = session.createConsumer(multicastJMSQueue)) {
+               for (int i = 0; i < numberOfMessages; i++) {
+                  TextMessage message = (TextMessage) consumer.receive(5000);
+                  assertNotNull(message);
+                  assertEquals("hello " + i, message.getText());
+               }
+            }
+
+            session.commit();
+         }
+      }
+   }
+
+   private void removeAddressAndQueue(org.apache.activemq.artemis.core.server.Queue serverQueue) throws Exception {
+      AddressInfo addressInfo = server.getAddressInfo(serverQueue.getAddress());
+      long tx = server.getStorageManager().generateID();
+      server.getStorageManager().deleteAddressBinding(tx, addressInfo.getId());
+      server.getStorageManager().deleteQueueBinding(tx, serverQueue.getID());
+      server.getStorageManager().commitBindings(tx);
+   }
+
 }

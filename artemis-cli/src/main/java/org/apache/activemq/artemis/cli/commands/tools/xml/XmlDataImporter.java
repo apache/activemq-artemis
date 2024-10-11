@@ -288,8 +288,23 @@ public final class XmlDataImporter extends ConnectionConfigurationAbtract {
       }
    }
 
+
+   private void createUndefinedQueue(String name, RoutingType routingType) throws Exception {
+      ClientSession.QueueQuery queueQuery = managementSession.queueQuery(SimpleString.of(name));
+      if (!queueQuery.isExists()) {
+         managementSession.createQueue(QueueConfiguration.of(name).setRoutingType(routingType).setDurable(true).setAutoCreateAddress(true));
+      }
+   }
+
+
    private void sendMessage(List<String> queues, Message message) throws Exception {
-      final String destination = addressMap.get(queues.get(0));
+      String destination = addressMap.get(queues.get(0));
+      if (destination == null) {
+         createUndefinedQueue(queues.get(0), message.getRoutingType());
+         destination = queues.get(0);
+         addressMap.put(queues.get(0), queues.get(0));
+      }
+
       final ByteBuffer buffer = ByteBuffer.allocate(queues.size() * 8);
 
       final boolean debugLog = logger.isDebugEnabled();

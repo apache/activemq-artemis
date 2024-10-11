@@ -289,6 +289,9 @@ public final class ManagementHelper {
     * Returns whether the invocation of the management operation on the server resource succeeded.
     */
    public static boolean hasOperationSucceeded(final Message message) {
+      if (message == null) {
+         return false;
+      }
       if (!ManagementHelper.isOperationResult(message)) {
          return false;
       }
