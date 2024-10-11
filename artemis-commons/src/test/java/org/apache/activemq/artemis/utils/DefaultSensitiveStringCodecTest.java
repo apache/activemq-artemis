@@ -22,11 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,29 +37,53 @@ public class DefaultSensitiveStringCodecTest {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
-   public void testDefaultAlgorithm() throws Exception {
+   public void testDefaultCodec() {
       SensitiveDataCodec<String> codec = PasswordMaskingUtil.getDefaultCodec();
       assertTrue(codec instanceof DefaultSensitiveStringCodec);
    }
 
    @Test
-   public void testOnewayAlgorithm() throws Exception {
-      testAlgorithm(DefaultSensitiveStringCodec.ONE_WAY);
+   public void testDefaultAlgorithm() throws Exception {
+      testAlgorithm(Collections.emptyMap());
+
+      testAlgorithm(Map.of(DefaultSensitiveStringCodec.BLOWFISH_KEY, "my-key"));
+
+      System.setProperty(DefaultSensitiveStringCodec.KEY_SYSTEM_PROPERTY, "my-key");
+      try {
+         testAlgorithm(Collections.emptyMap());
+      } finally {
+         System.clearProperty(DefaultSensitiveStringCodec.KEY_SYSTEM_PROPERTY);
+      }
    }
 
    @Test
-   public void testTwowayAlgorithm() throws Exception {
-      testAlgorithm(DefaultSensitiveStringCodec.TWO_WAY);
+   public void testOneWayAlgorithm() throws Exception {
+      testAlgorithm(Map.of(DefaultSensitiveStringCodec.ALGORITHM, DefaultSensitiveStringCodec.ONE_WAY));
    }
 
-   private void testAlgorithm(String algorithm) throws Exception {
-      DefaultSensitiveStringCodec codec = getDefaultSensitiveStringCodec(algorithm);
+   @Test
+   public void testTwoWayAlgorithm() throws Exception {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         testAlgorithm(Map.of(DefaultSensitiveStringCodec.ALGORITHM,
+            DefaultSensitiveStringCodec.TWO_WAY));
+         assertTrue(loggerHandler.findText("AMQ202017"));
+      }
+
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         testAlgorithm(Map.of(DefaultSensitiveStringCodec.ALGORITHM, DefaultSensitiveStringCodec.TWO_WAY,
+            DefaultSensitiveStringCodec.BLOWFISH_KEY, "my-key"));
+         assertTrue(loggerHandler.findText("AMQ202017"));
+      }
+   }
+
+   private void testAlgorithm(Map<String, String> params) throws Exception {
+      DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec(params);
 
       String plainText = "some_password";
       String maskedText = codec.encode(plainText);
       logger.debug("encoded value: {}", maskedText);
 
-      if (algorithm.equals(DefaultSensitiveStringCodec.ONE_WAY)) {
+      if (DefaultSensitiveStringCodec.ONE_WAY.equals(params.get(DefaultSensitiveStringCodec.ALGORITHM))) {
          //one way can't decode
          try {
             codec.decode(maskedText);
@@ -92,21 +118,23 @@ public class DefaultSensitiveStringCodecTest {
       Map<String, String> params = new HashMap<>();
       codecFromEnvVarConfig.init(params);
       String blaVersion = codecFromEnvVarConfig.encode(someString);
-      assertNotEquals(blaVersion,  getDefaultSensitiveStringCodec(DefaultSensitiveStringCodec.TWO_WAY).encode(someString));
+      Map<String, String> twoWayParams = Map.of(DefaultSensitiveStringCodec.ALGORITHM, DefaultSensitiveStringCodec.TWO_WAY);
+      assertNotEquals(blaVersion,  PasswordMaskingUtil.getDefaultCodec(twoWayParams).encode(someString));
    }
 
    @Test
-   public void testCompareWithOnewayAlgorithm() throws Exception {
-      testCompareWithAlgorithm(DefaultSensitiveStringCodec.ONE_WAY);
+   public void testCompareWithOneWayAlgorithm() throws Exception {
+      testCompareWithAlgorithm(Map.of(DefaultSensitiveStringCodec.ALGORITHM, DefaultSensitiveStringCodec.ONE_WAY));
    }
 
    @Test
-   public void testCompareWithTwowayAlgorithm() throws Exception {
-      testCompareWithAlgorithm(DefaultSensitiveStringCodec.TWO_WAY);
+   public void testCompareWithTwoWayAlgorithm() throws Exception {
+      testCompareWithAlgorithm(Map.of(DefaultSensitiveStringCodec.ALGORITHM, DefaultSensitiveStringCodec.TWO_WAY));
    }
 
-   private void testCompareWithAlgorithm(String algorithm) throws Exception {
-      DefaultSensitiveStringCodec codec = getDefaultSensitiveStringCodec(algorithm);
+
+   private void testCompareWithAlgorithm(Map<String, String> params) throws Exception {
+      DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec(params);
 
       String plainText = "some_password";
       String maskedText = codec.encode(plainText);
@@ -116,14 +144,5 @@ public class DefaultSensitiveStringCodecTest {
 
       String otherPassword = "some_other_password";
       assertFalse(codec.verify(otherPassword.toCharArray(), maskedText));
-   }
-
-   private DefaultSensitiveStringCodec getDefaultSensitiveStringCodec(String algorithm) throws Exception {
-      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
-      Map<String, String> params = new HashMap<>();
-      params.put(DefaultSensitiveStringCodec.ALGORITHM, algorithm);
-      codec.init(params);
-
-      return codec;
    }
 }

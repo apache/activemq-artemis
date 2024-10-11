@@ -26,13 +26,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
+import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -59,15 +59,23 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
    public static final String TWO_WAY = "two-way";
    public static final String KEY_SYSTEM_PROPERTY = "artemis.default.sensitive.string.codec.key";
 
-   private CodecAlgorithm algorithm = new BlowfishAlgorithm(Collections.EMPTY_MAP);
+   private CodecAlgorithm algorithm;
 
    @Override
    public String decode(Object secret) throws Exception {
+      if (algorithm == null) {
+         throw new IllegalStateException("Algorithm not initialized");
+      }
+
       return algorithm.decode((String) secret);
    }
 
    @Override
    public String encode(Object secret) throws Exception {
+      if (algorithm == null) {
+         throw new IllegalStateException("Algorithm not initialized");
+      }
+
       return algorithm.encode((String) secret);
    }
 
@@ -76,6 +84,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       String algorithm = params.get(ALGORITHM);
       if (algorithm == null || algorithm.equals(TWO_WAY)) {
          //two way
+         ActiveMQUtilLogger.LOGGER.deprecatedDefaultCodecTwoWayAlgorithm();
          this.algorithm = new BlowfishAlgorithm(params);
       } else if (algorithm.equals(ONE_WAY)) {
          this.algorithm = new PBKDF2Algorithm(params);
@@ -131,6 +140,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       }
    }
 
+   @Deprecated
    private class BlowfishAlgorithm extends CodecAlgorithm {
 
       private byte[] internalKey = "clusterpassword".getBytes();
