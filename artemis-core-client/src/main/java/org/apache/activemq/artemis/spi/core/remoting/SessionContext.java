@@ -361,6 +361,8 @@ public abstract class SessionContext {
 
    public abstract void recreateConsumerOnServer(ClientConsumerInternal consumerInternal, long consumerId, boolean isSessionStarted) throws ActiveMQException;
 
+   public abstract void recreateProducerOnServer(ClientProducerInternal producer);
+
    public abstract void xaFailed(Xid xid) throws ActiveMQException;
 
    public abstract void restartSession() throws ActiveMQException;
