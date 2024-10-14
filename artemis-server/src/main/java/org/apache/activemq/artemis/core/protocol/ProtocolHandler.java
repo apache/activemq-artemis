@@ -37,6 +37,8 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
+
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ConnectionCreator;
@@ -152,15 +154,27 @@ public class ProtocolHandler {
             FullHttpRequest request = (FullHttpRequest) msg;
             HttpHeaders headers = request.headers();
             String upgrade = headers.get("upgrade");
+
             if (upgrade != null && upgrade.equalsIgnoreCase("websocket")) {
                int stompMaxFramePayloadLength = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MAX_FRAME_PAYLOAD_LENGTH, -1, nettyAcceptor.getConfiguration());
                if (stompMaxFramePayloadLength != -1) {
                   ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption(TransportConstants.STOMP_MAX_FRAME_PAYLOAD_LENGTH, TransportConstants.WEB_SOCKET_MAX_FRAME_PAYLOAD_LENGTH);
                }
                stompMaxFramePayloadLength = stompMaxFramePayloadLength != -1 ? stompMaxFramePayloadLength : TransportConstants.DEFAULT_WEB_SOCKET_MAX_FRAME_PAYLOAD_LENGTH;
+
                int webSocketMaxFramePayloadLength = ConfigurationHelper.getIntProperty(TransportConstants.WEB_SOCKET_MAX_FRAME_PAYLOAD_LENGTH, -1, nettyAcceptor.getConfiguration());
-               String encoderConfigType = ConfigurationHelper.getStringProperty(TransportConstants.WEB_SOCKET_ENCODER_TYPE, TransportConstants.DEFAULT_WEB_SOCKET_ENCODER_TYPE, nettyAcceptor.getConfiguration());
-               ctx.pipeline().addLast("websocket-handler", new WebSocketServerHandler(websocketSubprotocolIds, webSocketMaxFramePayloadLength != -1 ? webSocketMaxFramePayloadLength : stompMaxFramePayloadLength, WebSocketFrameEncoderType.valueOfType(encoderConfigType)));
+               webSocketMaxFramePayloadLength = webSocketMaxFramePayloadLength != -1 ? webSocketMaxFramePayloadLength : stompMaxFramePayloadLength;
+
+               final boolean enableCompression = ConfigurationHelper.getBooleanProperty(
+                  TransportConstants.WEB_SOCKET_COMPRESSION_SUPPORTED, TransportConstants.DEFAULT_WEB_SOCKET_COMPRESSION_SUPPORTED, nettyAcceptor.getConfiguration());
+               final String encoderConfigType = ConfigurationHelper.getStringProperty(
+                  TransportConstants.WEB_SOCKET_ENCODER_TYPE, TransportConstants.DEFAULT_WEB_SOCKET_ENCODER_TYPE, nettyAcceptor.getConfiguration());
+
+               if (enableCompression) {
+                  ctx.pipeline().addLast(new WebSocketServerCompressionHandler());
+               }
+
+               ctx.pipeline().addLast("websocket-handler", new WebSocketServerHandler(websocketSubprotocolIds, webSocketMaxFramePayloadLength, WebSocketFrameEncoderType.valueOfType(encoderConfigType), enableCompression));
                ctx.pipeline().addLast(new ProtocolDecoder(false, false));
                ctx.pipeline().remove(this);
                ctx.pipeline().remove(HTTP_HANDLER);
