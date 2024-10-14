@@ -351,6 +351,15 @@ public class TransportConstants {
 
    public static final int DEFAULT_HANDSHAKE_TIMEOUT = 10;
 
+   /*
+    * Defines if the WS acceptor allows a client to request compression via WS extensions for
+    * per message deflate. By default this is not enabled and the WS upgrade response will not
+    * carry any compression support headers when the client indicates it supports compression.
+    */
+   public static final String WEB_SOCKET_COMPRESSION_SUPPORTED = "webSocketCompressionSupported";
+
+   public static final boolean DEFAULT_WEB_SOCKET_COMPRESSION_SUPPORTED = false;
+
    public static final String QUIET_PERIOD = "quietPeriod";
 
    public static final String DISABLE_STOMP_SERVER_HEADER = "disableStompServerHeader";
