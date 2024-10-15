@@ -29,6 +29,7 @@ import java.util.Objects;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.AutoCompletion;
+import org.apache.activemq.artemis.cli.commands.Completion;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.Disconnect;
 import org.apache.activemq.artemis.cli.commands.HelpAction;
@@ -301,6 +302,8 @@ public class Artemis implements Runnable {
          commandLine.addSubcommand(new Create());
          commandLine.addSubcommand(new Upgrade());
       }
+
+      commandLine.addSubcommand(new Completion());
 
       return commandLine;
    }
