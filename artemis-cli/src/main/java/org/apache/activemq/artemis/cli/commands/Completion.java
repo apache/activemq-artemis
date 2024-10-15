@@ -17,46 +17,33 @@
 
 package org.apache.activemq.artemis.cli.commands;
 
-import java.io.File;
-
 import org.apache.activemq.artemis.cli.Artemis;
 import picocli.AutoComplete;
 import picocli.CommandLine;
-import picocli.CommandLine.Parameters;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
-@Command(name = "auto-complete", description = "Generates the auto complete script file to be used in bash or zsh. This feature is deprecated in favor of ./artemis completion", hidden = true)
-public class AutoCompletion implements Runnable {
+@Command(name = "completion", description = "Generates the auto complete script file to be used in bash or zsh. Usage: source <(./artemis completion)")
+public class Completion implements Runnable {
 
-   public AutoCompletion() {
+   public Completion() {
    }
-
    @Option(names = "--start-script", description = "the script used to start artemis. (default ./artemis)", defaultValue = "./artemis")
    String startScript;
-
-   @Parameters (description = "The generated auto-complete script", defaultValue = "auto-complete-artemis.sh")
-   File autoCompleteFile;
-
 
    @Override
    public void run() {
       try {
          CommandLine artemisCommand = Artemis.buildCommand(true, true, true);
-         AutoComplete.bash(startScript, autoCompleteFile, null, artemisCommand);
-         System.out.println("Type the following commands before you can use auto-complete:");
-         System.out.println("*******************************************************************************************************************************");
-         System.out.println("source " + autoCompleteFile.getAbsolutePath());
-         System.out.println("*******************************************************************************************************************************");
-
+         System.out.print(AutoComplete.bash(startScript, artemisCommand));
       } catch (Throwable e) {
          e.printStackTrace();
       }
    }
 
-   // I'm letting the possibility of calling AutoCompletion directly bypassing the artemis CLI.
+   // I'm letting the possibility of calling Completion directly bypassing the artemis CLI.
    public static void main(String[] args) {
-      CommandLine commandLine = new CommandLine(new AutoCompletion());
+      CommandLine commandLine = new CommandLine(new Completion());
       commandLine.execute(args);
    }
 }

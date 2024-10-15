@@ -25,25 +25,28 @@ $ ./artemis help
 Usage: artemis [COMMAND]
 ActiveMQ Artemis Command Line
 Commands:
-  help           use 'help <command>' for more information
-  auto-complete  Generates the auto complete script file to be used in bash or
-                   zsh.
-  shell          JLine3 shell helping using the CLI
-  producer       Send message(s) to a broker.
-  transfer       Move messages from one destination towards another destination.
-  consumer       Consume messages from a queue.
-  browser        Browse messages on a queue.
-  mask           Mask a password and print it out.
-  version        Print version information.
-  perf           use 'help perf' for sub commands list
-  check          use 'help check' for sub commands list
-  queue          use 'help check' for sub commands list
-  address        use 'help address' for sub commands list
-  data           use 'help data' for sub commands list
-  create         Create a new broker instance.
-  upgrade        Update a broker instance to the current artemis.home, keeping
-                   all the data and broker.xml. Warning: backup your instance
-                   before using this command and compare the files.
+  help        use 'help <command>' for more information
+  pwd         Information on current folder and instance.
+  shell       JLine3 shell helping using the CLI
+  producer    Send message(s) to a broker.
+  transfer    Move messages from one destination towards another destination.
+  consumer    Consume messages from a queue.
+  browser     Browse messages on a queue.
+  mask        Mask a password and print it out.
+  version     Print version information.
+  perf        use 'help perf' for sub commands list
+  check       use 'help check' for sub commands list
+  queue       use 'help queue' for sub commands list
+  address     use 'help address' for sub commands list
+  connect     Connect to the broker validating credentials for commands.
+  disconnect  Clear previously typed user credentials.
+  data        use 'help data' for sub commands list
+  create      Create a new broker instance.
+  upgrade     Update a broker instance to the current artemis.home, keeping all
+                the data and broker.xml. Warning: backup your instance before
+                using this command and compare the files.
+  completion  Generates the auto complete script file to be used in bash or
+                zsh. Usage: source <(./artemis completion)
 ----
 
 It is also possible to use `help` at a specific command or sub-command for more information.
@@ -285,14 +288,7 @@ Bash and Zsh provide ways to auto-complete commands. To integrate with that func
 
 [,console]
 ----
-$ ./artemis auto-complete
-----
-
-This will generate a file named `auto-complete-artemis.sh` that can be installed using:
-
-[,console]
-----
-$ source ./auto-complete-artemis.sh
+$ source <(./artemis completion)
 ----
 
 After the auto-completion is installed you can view auto-completion information by pressing kbd:[TAB]:
@@ -300,9 +296,9 @@ After the auto-completion is installed you can view auto-completion information 
 [,console]
 ----
 $ ./artemis
-activation     browser        create         kill           perf-journal   run            transfer       version
-address        check          data           mask           producer       shell          upgrade
-auto-complete  consumer       help           perf           queue          stop           user
+activation    check         consumer      disconnect    mask          producer      run           transfer      version
+address       completion    create        help          perf          pwd           shell         upgrade
+browser       connect       data          kill          perf-journal  queue         stop          user
 ----
 
 In order to see the various parameters available you must type `--` then press kbd:[TAB]:
