@@ -105,8 +105,8 @@ For example, a properties file containing:
 ----
 securityEnabled=false
 acceptorConfigurations.tcp.factoryClassName=org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory
-acceptorConfigurations.tcp.params.HOST=localhost
-acceptorConfigurations.tcp.params.PORT=61616
+acceptorConfigurations.tcp.params.host=localhost
+acceptorConfigurations.tcp.params.port=61616
 ----
 
 would: 1) disable RBAC security checks 2) add or modify an acceptor named "tcp" that will use Netty 3) set the acceptor named "tcp" 'HOST' parameter to localhost 4) set the acceptor named "tcp" 'PORT' parameter to 61616
