@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.tests.integration.amqp.connect;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.CONNECTION_FORCED;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TUNNEL_CORE_MESSAGES;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -27,6 +28,7 @@ import static org.hamcrest.Matchers.nullValue;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,11 +45,14 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
@@ -188,6 +193,43 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
 
    @Test
    @Timeout(20)
+   public void testBrokerHandlesSenderLinkOmitsNoForwardCapability() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+            .withName(Matchers.startsWith("$ACTIVEMQ_ARTEMIS_MIRROR"))
+            .withDesiredCapabilities("amq.mirror", AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString(), AMQPMirrorControllerSource.NO_FORWARD.toString())
+            .respond()
+            .withOfferedCapabilities("amq.mirror", AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString());
+         peer.expectClose().withError(CONNECTION_FORCED.toString()).optional(); // Can hit the wire in rare instances.
+         peer.expectConnectionToDrop();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+            // No user or pass given, it will have to select ANONYMOUS even though PLAIN also offered
+            AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            amqpConnection.setReconnectAttempts(0);// No reconnects
+            amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setNoForward(true));
+            server.getConfiguration().addAMQPConnection(amqpConnection);
+            server.start();
+
+            Wait.assertTrue(() -> loggerHandler.findText("AMQ111001"));
+            assertEquals(1, loggerHandler.countText("AMQ119018"));
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            server.stop();
+         }
+      }
+   }
+
+   @Test
+   @Timeout(20)
    public void testBrokerAddsAddressAndQueue() throws Exception {
       final Map<String, Object> brokerProperties = new HashMap<>();
       brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
@@ -226,6 +268,118 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
          server.stop();
+      }
+   }
+
+
+   @Test
+   @Timeout(20)
+   public void testNoForwardBlocksMessagesAndControlsPropagation() throws Exception {
+      final Map<String, Object> brokerProperties = new HashMap<>();
+      brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
+
+      // Topology of the test: server -(noForward)-> server_2 -> peer_3
+      try (ProtonTestServer peer_3 = new ProtonTestServer()) {
+         peer_3.expectSASLPlainConnect("user", "pass", "PLAIN", "ANONYMOUS");
+         peer_3.expectOpen().respond();
+         peer_3.expectBegin().respond();
+         peer_3.expectAttach().ofSender()
+            .withName(Matchers.startsWith("$ACTIVEMQ_ARTEMIS_MIRROR"))
+            .withDesiredCapabilities("amq.mirror", AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString())
+            .respond()
+            .withOfferedCapabilities("amq.mirror", AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString())
+            .withPropertiesMap(brokerProperties);
+         peer_3.remoteFlow().withLinkCredit(10).queue();
+         peer_3.start();
+
+         final URI remoteURI = peer_3.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final int AMQP_PORT_2 = BROKER_PORT_NUM + 1;
+         final ActiveMQServer server_2 = createServer(AMQP_PORT_2, false);
+         {
+            AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(getTestMethodName() + "toPeer3", "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            amqpConnection.setReconnectAttempts(0);// No reconnects
+            amqpConnection.setUser("user");
+            amqpConnection.setPassword("pass");
+            amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setQueueCreation(true).setAddressFilter(getQueueName() + ",sometest"));
+            server_2.getConfiguration().addAMQPConnection(amqpConnection);
+         }
+
+         {
+            AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(getTestMethodName() + "toServer2", "tcp://localhost:" + AMQP_PORT_2);
+            amqpConnection.addElement(new AMQPMirrorBrokerConnectionElement().setQueueCreation(true).setAddressFilter(getQueueName()).setNoForward(true));
+            server.getConfiguration().addAMQPConnection(amqpConnection);
+         }
+
+         // connect the topology
+         server_2.start();
+         peer_3.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         server.start();
+
+         // Create queues & send messages on server, nothing will reach peer_3
+         createAddressAndQueues(server);
+         Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null);
+         Wait.assertTrue(() -> server.locateQueue(getQueueName()) != null);
+
+         final org.apache.activemq.artemis.core.server.Queue q1 = server.locateQueue(getQueueName());
+         assertNotNull(q1);
+
+         final org.apache.activemq.artemis.core.server.Queue q2 = server_2.locateQueue(getQueueName());
+         assertNotNull(q2);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("CORE", "tcp://localhost:" + BROKER_PORT_NUM);
+         try (Connection conn = factory.createConnection()) {
+            final Session session = conn.createSession();
+            conn.start();
+
+            final MessageProducer producer = session.createProducer(session.createQueue(getQueueName()));
+            producer.send(session.createTextMessage("message"));
+            producer.close();
+
+            org.apache.activemq.artemis.utils.Wait.assertEquals(1L, q1::getMessageCount, 100, 100);
+            org.apache.activemq.artemis.utils.Wait.assertEquals(1L, q2::getMessageCount, 100, 100);
+
+            final MessageConsumer consumer = session.createConsumer(session.createQueue(getQueueName()));
+            TextMessage message = (TextMessage) consumer.receive(100);
+            consumer.close();
+
+            org.apache.activemq.artemis.utils.Wait.assertEquals(0L, q1::getMessageCount, 100, 100);
+            org.apache.activemq.artemis.utils.Wait.assertEquals(0L, q2::getMessageCount, 100, 100);
+
+            assertNotNull(message);
+            assertEquals("message", message.getText());
+         }
+
+         // give some time to peer_3 to receive messages (if any)
+         Thread.sleep(100);
+         peer_3.waitForScriptToComplete(5, TimeUnit.SECONDS); // if messages are received here, this should error out
+
+         // Then send messages on the broker directly connected to the peer, the messages should make it to the peer.
+         // Receiving these 3 messages in that order confirms that no previous data reched the Peer, therefore validating
+         // the test.
+         peer_3.expectTransfer().accept(); // Address create
+         peer_3.expectTransfer().accept(); // Queue create
+         peer_3.expectTransfer().withMessageFormat(AMQP_TUNNELED_CORE_MESSAGE_FORMAT).accept(); // Producer Message
+
+         server_2.addAddressInfo(new AddressInfo(SimpleString.of("sometest"), RoutingType.ANYCAST));
+         server_2.createQueue(QueueConfiguration.of("sometest").setRoutingType(RoutingType.ANYCAST));
+
+         final ConnectionFactory factory_2 = CFUtil.createConnectionFactory("CORE", "tcp://localhost:" + AMQP_PORT_2);
+         try (Connection connection = factory_2.createConnection()) {
+            final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+            final MessageProducer producer = session.createProducer(session.createQueue("sometest"));
+            final TextMessage message = session.createTextMessage("test");
+
+            connection.start();
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+            producer.send(message);
+         }
+
+         peer_3.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         server.stop();
+         server_2.stop();
       }
    }
 
@@ -349,20 +503,41 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
       doTestProducerMessageIsMirroredWithCorrectMessageFormat(false);
    }
 
+   @Test
+   @Timeout(20)
+   public void testProducerMessageIsMirroredWithNoForwardAndTunneling() throws Exception {
+      doTestProducerMessageIsMirroredWithCorrectMessageFormat(true, true);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testProducerMessageIsMirroredWithNoForwardAndTunelingAndWithoutTunneling() throws Exception {
+      doTestProducerMessageIsMirroredWithCorrectMessageFormat(false, true);
+   }
+
    private void doTestProducerMessageIsMirroredWithCorrectMessageFormat(boolean tunneling) throws Exception {
+      doTestProducerMessageIsMirroredWithCorrectMessageFormat(tunneling, false);
+   }
+
+   private void doTestProducerMessageIsMirroredWithCorrectMessageFormat(boolean tunneling, boolean noForward) throws Exception {
       final Map<String, Object> brokerProperties = new HashMap<>();
       brokerProperties.put(AMQPMirrorControllerSource.BROKER_ID.toString(), "Test-Broker");
 
       final String[] capabilities;
+      ArrayList<String> capabilitiesList = new ArrayList<>();
       final int messageFormat;
 
+      capabilitiesList.add("amq.mirror");
       if (tunneling) {
-         capabilities = new String[] {"amq.mirror", AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString()};
+         capabilitiesList.add(AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString());
          messageFormat = AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
       } else {
-         capabilities = new String[] {"amq.mirror"};
          messageFormat = 0; // AMQP default
       }
+      if (noForward) {
+         capabilitiesList.add(AMQPMirrorControllerSource.NO_FORWARD.toString());
+      }
+      capabilities = capabilitiesList.toArray(new String[]{});
 
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLPlainConnect("user", "pass", "PLAIN", "ANONYMOUS");
@@ -387,6 +562,7 @@ public class AMQPMirrorConnectionTest extends AmqpClientTestSupport {
          AMQPMirrorBrokerConnectionElement mirrorElement = new AMQPMirrorBrokerConnectionElement();
          mirrorElement.addProperty(TUNNEL_CORE_MESSAGES, Boolean.toString(tunneling));
          mirrorElement.setQueueCreation(true);
+         mirrorElement.setNoForward(noForward);
 
          AMQPBrokerConnectConfiguration amqpConnection =
                new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());

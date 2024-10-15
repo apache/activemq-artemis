@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
-import org.apache.activemq.artemis.core.server.mirror.MirrorController;
+import org.apache.activemq.artemis.core.server.mirror.TargetMirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
@@ -53,6 +53,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreLargeMessageReader;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreMessageReader;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.MessageReader;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonAbstractReceiver;
 import org.apache.activemq.artemis.utils.ByteUtil;
@@ -77,8 +78,10 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirro
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.DELETE_QUEUE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.EVENT_TYPE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_BROKER_ID_EXTRA_PROPERTY;
+import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.NO_FORWARD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_DESTINATION;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_ID;
+import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_NO_FORWARD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.POST_ACK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.QUEUE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_ID_EXTRA_PROPERTY;
@@ -86,18 +89,25 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirro
 import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
 
-public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implements MirrorController {
+public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implements TargetMirrorController {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final ThreadLocal<MirrorController> CONTROLLER_THREAD_LOCAL = new ThreadLocal<>();
+   private static final ThreadLocal<TargetMirrorController> CONTROLLER_THREAD_LOCAL = new ThreadLocal<>();
 
-   public static void setControllerInUse(MirrorController controller) {
+   public static void setControllerInUse(TargetMirrorController controller) {
       CONTROLLER_THREAD_LOCAL.set(controller);
    }
 
-   public static MirrorController getControllerInUse() {
+   public static TargetMirrorController getControllerInUse() {
       return CONTROLLER_THREAD_LOCAL.get();
+   }
+
+   private boolean noMessageForwarding = false;
+
+   @Override
+   public boolean isNoForward() {
+      return noMessageForwarding;
    }
 
    /**
@@ -248,6 +258,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       this.configuration = server.getConfiguration();
       this.referenceNodeStore = sessionSPI.getProtocolManager().getReferenceIDSupplier();
       mirrorContext = protonSession.getSessionSPI().getSessionContext();
+      this.noMessageForwarding = AmqpSupport.verifyDesiredCapability(receiver, NO_FORWARD);
    }
 
    @Override
@@ -534,6 +545,9 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
       message.setBrokerProperty(INTERNAL_ID_EXTRA_PROPERTY, internalID);
       message.setBrokerProperty(INTERNAL_BROKER_ID_EXTRA_PROPERTY, internalMirrorID);
+      if (noMessageForwarding) {
+         message.setBrokerProperty(INTERNAL_NO_FORWARD, true);
+      }
 
       if (internalAddress != null) {
          message.setAddress(internalAddress);

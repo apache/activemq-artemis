@@ -89,9 +89,11 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    // Capabilities
    public static final Symbol MIRROR_CAPABILITY = Symbol.getSymbol("amq.mirror");
    public static final Symbol QPID_DISPATCH_WAYPOINT_CAPABILITY = Symbol.valueOf("qd.waypoint");
+   public static final Symbol NO_FORWARD = Symbol.getSymbol("amq.no.forward");
 
    public static final SimpleString INTERNAL_ID_EXTRA_PROPERTY = SimpleString.of(INTERNAL_ID.toString());
    public static final SimpleString INTERNAL_BROKER_ID_EXTRA_PROPERTY = SimpleString.of(BROKER_ID.toString());
+   public static final SimpleString INTERNAL_NO_FORWARD = SimpleString.of(NO_FORWARD.toString());
 
    private static final ThreadLocal<RoutingContext> mirrorControlRouting = ThreadLocal.withInitial(() -> new RoutingContextImpl(null));
 
@@ -230,12 +232,17 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public void deleteAddress(AddressInfo addressInfo) throws Exception {
       logger.trace("{} deleteAddress {}", server, addressInfo);
 
+      if (isBlockedByNoForward()) {
+         return;
+      }
+
       if (invalidTarget(getControllerInUse()) || addressInfo.isInternal()) {
          return;
       }
       if (ignoreAddress(addressInfo.getName())) {
          return;
       }
+
       if (deleteQueues) {
          Message message = createMessage(addressInfo.getName(), null, DELETE_ADDRESS, null, addressInfo.toJSON());
          routeMirrorCommand(server, message);
@@ -245,6 +252,10 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    @Override
    public void createQueue(QueueConfiguration queueConfiguration) throws Exception {
       logger.trace("{} createQueue {}", server, queueConfiguration);
+
+      if (isBlockedByNoForward()) {
+         return;
+      }
 
       if (invalidTarget(getControllerInUse()) || queueConfiguration.isInternal()) {
          if (logger.isTraceEnabled()) {
@@ -264,6 +275,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          }
          return;
       }
+
       if (addQueues) {
          Message message = createMessage(queueConfiguration.getAddress(), queueConfiguration.getName(), CREATE_QUEUE, null, queueConfiguration.toJSON());
          routeMirrorCommand(server, message);
@@ -274,6 +286,10 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public void deleteQueue(SimpleString address, SimpleString queue) throws Exception {
       if (logger.isTraceEnabled()) {
          logger.trace("{} deleteQueue {}/{}", server, address, queue);
+      }
+
+      if (isBlockedByNoForward()) {
+         return;
       }
 
       if (invalidTarget(getControllerInUse())) {
@@ -310,6 +326,14 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       return controller != null && sameNode(getRemoteMirrorId(), controller.getRemoteMirrorId());
    }
 
+   private boolean isBlockedByNoForward() {
+      return getControllerInUse() != null && getControllerInUse().isNoForward();
+   }
+
+   private boolean isBlockedByNoForward(Message message) {
+      return isBlockedByNoForward() || Boolean.TRUE.equals(message.getBrokerProperty(INTERNAL_NO_FORWARD));
+   }
+
    private boolean ignoreAddress(SimpleString address) {
       if (address.startsWith(server.getConfiguration().getManagementAddress())) {
          return true;
@@ -338,6 +362,11 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public void sendMessage(Transaction tx, Message message, RoutingContext context) {
       SimpleString address = context.getAddress(message);
 
+      if (isBlockedByNoForward(message)) {
+         logger.trace("sendMessage::server {} is discarding the message because its source is setting a noForward policy", server);
+         return;
+      }
+
       if (context.isInternal()) {
          logger.trace("sendMessage::server {} is discarding send to avoid sending to internal queue", server);
          return;
@@ -352,6 +381,8 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          logger.trace("sendMessage::server {} is discarding send to address {}, address doesn't match filter", server, address);
          return;
       }
+
+      logger.trace("sendMessage::{} send message {}", server, message);
 
       try {
          context.setReusable(false);
@@ -541,6 +572,10 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public void preAcknowledge(final Transaction tx, final MessageReference ref, final AckReason reason) throws Exception {
       if (logger.isTraceEnabled()) {
          logger.trace("preAcknowledge::tx={}, ref={}, reason={}", tx, ref, reason);
+      }
+
+      if (isBlockedByNoForward()) {
+         return;
       }
 
       MirrorController controllerInUse = getControllerInUse();
