@@ -45,9 +45,13 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.federation.FederatedQueueConsumer;
+import org.apache.activemq.artemis.core.server.federation.Federation;
+import org.apache.activemq.artemis.core.server.federation.FederationStream;
 import org.apache.activemq.artemis.core.server.management.GuardInvocationHandler;
 import org.apache.activemq.artemis.core.server.routing.ConnectionRouter;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
@@ -317,6 +321,40 @@ public class ClusteredResetMockTest extends ServerTestBase {
       }
 
       @Override
+      public void registerFederation(Federation federation) {
+
+      }
+
+      @Override
+      public void unregisterFederation(String name) {
+
+      }
+
+      @Override
+      public void registerFederationStream(FederationStream federationStream) {
+
+      }
+
+      @Override
+      public void unregisterFederationStream(SimpleString federationName, SimpleString streamName) {
+
+      }
+
+      @Override
+      public void registerFederationRemoteConsumer(FederatedQueueConsumer federatedQueueConsumer) {
+
+      }
+
+      @Override
+      public void unregisterFederationRemoteConsumer(SimpleString name,
+                                                     SimpleString streamame,
+                                                     SimpleString address,
+                                                     SimpleString queueName,
+                                                     RoutingType routingType) {
+
+      }
+
+      @Override
       public void registerCluster(ClusterConnection cluster,
                                   ClusterConnectionConfiguration configuration) throws Exception {
 
@@ -370,6 +408,16 @@ public class ClusteredResetMockTest extends ServerTestBase {
       @Override
       public Object invokeOperation(String resourceName, String operation, Object[] params, SecurityAuth auth) throws Exception {
          return null;
+      }
+
+      @Override
+      public void registerBrokerConnection(BrokerConnection brokerConnection) {
+
+      }
+
+      @Override
+      public void unregisterBrokerConnection(String name) {
+
       }
 
       @Override
