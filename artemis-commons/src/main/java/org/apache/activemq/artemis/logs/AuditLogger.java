@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 /**
- * Logger Code 60
+ * Logger Codes 600000 - 609999
  */
 @LogBundle(projectCode = "AMQ", regexID = "60[0-9]{4}")
 public interface AuditLogger {

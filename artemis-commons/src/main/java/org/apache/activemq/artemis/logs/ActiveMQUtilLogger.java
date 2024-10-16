@@ -20,9 +20,9 @@ import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
 
 /**
- * Logger Code 20
+ * Logger Codes 200000 - 208999
  */
-@LogBundle(projectCode = "AMQ", regexID = "20[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "20[0-8][0-9]{3}", retiredIDs = {202000, 202013, 202014})
 public interface ActiveMQUtilLogger {
 
    ActiveMQUtilLogger LOGGER = BundleFactory.newBundle(ActiveMQUtilLogger.class, ActiveMQUtilLogger.class.getPackage().getName());
@@ -32,9 +32,6 @@ public interface ActiveMQUtilLogger {
 
    @LogMessage(id = 201001, value = "Network is unhealthy, stopping service {}", level = LogMessage.Level.WARN)
    void stoppingService(String component);
-
-   @LogMessage(id = 202000, value = "Missing privileges to set Thread Context Class Loader on Thread Factory. Using current Thread Context Class Loader", level = LogMessage.Level.WARN)
-   void missingPrivsForClassloader();
 
    @LogMessage(id = 202001, value = "{} is a loopback address and will be discarded.", level = LogMessage.Level.WARN)
    void addressloopback(String address);
@@ -71,12 +68,6 @@ public interface ActiveMQUtilLogger {
 
    @LogMessage(id = 202012, value = "Object cannot be serialized.", level = LogMessage.Level.WARN)
    void failedToSerializeObject(Exception e);
-
-   @LogMessage(id = 202013, value = "Unable to deserialize object.", level = LogMessage.Level.WARN)
-   void failedToDeserializeObject(Exception e);
-
-   @LogMessage(id = 202014, value = "Unable to encode byte array into Base64 notation.", level = LogMessage.Level.WARN)
-   void failedToEncodeByteArrayToBase64Notation(Exception e);
 
    @LogMessage(id = 202015, value = "Failed to clean up file {}", level = LogMessage.Level.WARN)
    void failedToCleanupFile(String file);

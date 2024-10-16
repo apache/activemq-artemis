@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-import java.io.File;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
@@ -34,18 +33,16 @@ import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQIncompatibleClientServerException;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionException;
-import org.apache.activemq.artemis.api.core.ActiveMQInvalidQueueConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
-import org.apache.activemq.artemis.api.core.ActiveMQRoutingException;
 import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.api.core.ActiveMQReplicationTimeooutException;
+import org.apache.activemq.artemis.api.core.ActiveMQRoutingException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.ActiveMQSessionCreationException;
 import org.apache.activemq.artemis.api.core.ActiveMQTimeoutException;
-import org.apache.activemq.artemis.api.core.ActiveMQUnexpectedRoutingTypeForAddress;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -55,14 +52,14 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.server.cluster.impl.BridgeImpl;
+import org.apache.activemq.artemis.logs.BundleFactory;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.Message;
-import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
- * Logger Code 22
+ * Logger Codes 229000 - 229999
  */
-@LogBundle(projectCode = "AMQ", regexID = "22[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "229[0-9]{3}", retiredIDs = {229001, 229003, 229008, 229010, 229060, 229064, 229075, 229100, 229101, 229118, 229201, 229202, 229246})
 public interface ActiveMQMessageBundle {
 
    ActiveMQMessageBundle BUNDLE = BundleFactory.newBundle(ActiveMQMessageBundle.class);
@@ -70,14 +67,8 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229000, value = "Activation for server {}")
    String activationForServer(ActiveMQServer server);
 
-   @Message(id = 229001, value = "Generating thread dump")
-   String generatingThreadDump();
-
    @Message(id = 229002, value = "Thread {} name = {} id = {} group = {}")
    String threadDump(Thread key, String name, Long id, ThreadGroup threadGroup);
-
-   @Message(id = 229003, value = "End Thread dump")
-   String endThreadDump();
 
    @Message(id = 229004, value = "Information about server {}\nCluster Connection:{}")
    String serverDescribe(String identity, String describe);
@@ -91,14 +82,8 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229007, value = "unhandled error during replication")
    ActiveMQInternalErrorException replicationUnhandledError(Exception e);
 
-   @Message(id = 229008, value = "Primary node contains more journals than the backup node. Probably a version match error")
-   ActiveMQInternalErrorException replicationTooManyJournals();
-
    @Message(id = 229009, value = "Unhandled file type {}")
    ActiveMQInternalErrorException replicationUnhandledFileType(ReplicationSyncFileMessage.FileType fileType);
-
-   @Message(id = 229010, value = "Remote Backup can not be up-to-date!")
-   ActiveMQInternalErrorException replicationBackupUpToDate();
 
    @Message(id = 229011, value = "unhandled data type!")
    ActiveMQInternalErrorException replicationUnhandledDataType();
@@ -238,9 +223,6 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229059, value = "Binding ID is null")
    IllegalArgumentException bindingIdNotSpecified();
 
-   @Message(id = 229060, value = "Distance is null")
-   IllegalArgumentException distancenotSpecified();
-
    @Message(id = 229061, value = "Connection already exists with id {}")
    IllegalArgumentException connectionExists(Object id);
 
@@ -249,9 +231,6 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229063, value = "Acceptor with id {} not registered")
    IllegalArgumentException acceptorNotExists(Integer id);
-
-   @Message(id = 229064, value = "Unknown protocol {}")
-   IllegalArgumentException unknownProtocol(String protocol);
 
    @Message(id = 229065, value = "node id is null")
    IllegalArgumentException nodeIdNull();
@@ -282,9 +261,6 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229074, value = "Error instantiating transformer class {}")
    IllegalArgumentException errorCreatingTransformerClass(String transformerClassName, Exception e);
-
-   @Message(id = 229075, value = "method autoEncode doesn't know how to convert {} yet")
-   IllegalArgumentException autoConvertError(Class<? extends Object> aClass);
 
    /**
     * Message used on on {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
@@ -325,12 +301,6 @@ public interface ActiveMQMessageBundle {
    // this code has to match with version 2.3.x as it's used on integration tests at Wildfly and JBoss EAP
    @Message(id = 229099, value = "Unable to authenticate cluster user: {}")
    ActiveMQClusterSecurityException unableToValidateClusterUser(String user);
-
-   @Message(id = 229100, value = "Trying to move a journal file that refers to a file instead of a directory: {}")
-   IllegalStateException journalDirIsFile(File fDir);
-
-   @Message(id = 229101, value = "error trying to backup journal files at directory: {}")
-   IllegalStateException couldNotMoveJournal(File dir);
 
    @Message(id = 229102, value = "Address \"{}\" is full.")
    ActiveMQAddressFullException addressIsFull(String addressName);
@@ -377,9 +347,6 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229117, value = "Replicator is null. Replication was likely terminated.")
    ActiveMQIllegalStateException replicatorIsNull();
 
-   @Message(id = 229118, value = "Management method not applicable for current server configuration")
-   IllegalStateException methodNotApplicable();
-
    @Message(id = 229119, value = "Free storage space is at {} of {} total. Usage rate is {} which is beyond the configured <max-disk-usage>. System will start blocking producers.")
    ActiveMQIOErrorException diskBeyondLimit(String usableSpace, String totalSpace, String usage);
 
@@ -388,12 +355,6 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229200, value = "Maximum Consumer Limit Reached on Queue:(address={},queue={})")
    ActiveMQQueueMaxConsumerLimitReached maxConsumerLimitReachedForQueue(SimpleString address, SimpleString queueName);
-
-   @Message(id = 229201, value = "Expected Routing Type {} but found {} for address {}")
-   ActiveMQUnexpectedRoutingTypeForAddress unexpectedRoutingTypeForAddress(RoutingType expectedRoutingType, Set<RoutingType> supportedRoutingTypes, SimpleString address);
-
-   @Message(id = 229202, value = "Invalid Queue Configuration for Queue {}, Address {}.  Expected {} to be {} but was {}")
-   ActiveMQInvalidQueueConfiguration invalidQueueConfiguration(SimpleString queueName, SimpleString address, String queuePropertyName, Object expectedValue, Object actualValue);
 
    @Message(id = 229203, value = "Address Does Not Exist: {}")
    ActiveMQAddressDoesNotExistException addressDoesNotExist(SimpleString address);
@@ -528,9 +489,6 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229245, value = "Management controller is busy with another task. Please try again")
    ActiveMQTimeoutException managementBusy();
-
-   @Message(id = 229246, value = "Invalid page full message policy type {}")
-   IllegalArgumentException invalidPageFullPolicyType(String val);
 
    @Message(id = 229247, value = "Invalid address configuration for '{}'. Address must support multicast and/or anycast.")
    IllegalArgumentException addressWithNoRoutingType(String address);

@@ -21,9 +21,9 @@ import org.apache.activemq.artemis.logs.annotation.Message;
 import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
- * Logger Code 33
+ * Logger Codes 339000 - 339999
  */
-@LogBundle(projectCode = "AMQ", regexID = "33[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "339[0-9]{3}")
 public interface ActiveMQStompProtocolMessageBundle {
 
    ActiveMQStompProtocolMessageBundle BUNDLE = BundleFactory.newBundle(ActiveMQStompProtocolMessageBundle.class);
