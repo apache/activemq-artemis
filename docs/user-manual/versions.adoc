@@ -18,13 +18,31 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 === Highlights
 
-* The `two-way` algorithm of the default codec is deprecated, use a custom codec instead.
+* WebSocket compression is now supported.
+This compression can be used transparently for AMQP, STOMP, or MQTT when communication is over WebSockets.
+* The xref:broker-plugins.adoc#plugin-support[`ActiveMQServerMessagePlugin`] now has a `messageMoved()` callback.
+* xref:core-bridges.adoc#configuring-core-bridges[Core bridge configuration] now supports `client-id` which will make it much easier to identify bridge connections on remote brokers.
+* The `consumer` xref:using-cli.adoc[CLI command] now supports consuming messages "forever" by specifying `-1` for `--receive-timeout`.
+* The xref:security.adoc#caching-security-operations[authentication & authorization caches] now have detailed debug logging.
+* There's been a handful of updates to broker management:
+** The documentation has been improved with more examples for xref:management.adoc#exposing-jmx-using-jolokia[Jolokia] and a new sub-section on xref:management.adoc#management-method-option-syntax[management method option syntax].
+** It's now possible to pass empty "options" to the xref:management.adoc#management-method-option-syntax[management methods] that accept them.
+** The management methods which return paged results can now return all the results together by specifying `-1` for either the page or the pageSize.
+** The xref:management.adoc#management-method-option-syntax[management method option syntax] now supports the `NOT_EQUALS` operator for greater flexibility with filtering results of management operations.
+** Configuration for diverts created via management can now be done via JSON.
+* The `TextFileCertificateLoginModule` now supports normalisation of DN property values.
+See https://issues.apache.org/jira/browse/ARTEMIS-5102[ARTEMIS-5102] for more details
+
 
 === Upgrading from 2.37.0
 
 * Due to https://issues.apache.org/jira/browse/ARTEMIS-5096[ARTEMIS-5096] the web console's archive (i.e. `console.war`) will now be uncompressed.
 This change was necessary in order to remove certain jar files from the archive which were already being distributed in the broker's main `lib` directory.
 Eliminating these duplicate jars will decrease the size of the broker distribution and it also means the console will, in some cases, use updated dependencies and prevent security tools from flagging older jars.
+* Due to https://issues.apache.org/jira/browse/ARTEMIS-5101[ARTEMIS-5101] the `two-way` algorithm in the default sensitive string codec used for symmetric password masking is now deprecated.
+It will continue to work, but it will print a warning to the log.
+This is the first step in a process to get to eliminate passwords are stored in configuration files except those encoded by strong one-way hashing algorithms.
+Other use-cases will be pushed toward certificate-based security (i.e. mutual TLS) or something equivalent that requires no password.
 
 == 2.37.0
 
