@@ -47,6 +47,7 @@ public class ServerLocatorConfig {
    public int initialConnectAttempts = ActiveMQClient.INITIAL_CONNECT_ATTEMPTS;
    public int failoverAttempts = ActiveMQClient.DEFAULT_FAILOVER_ATTEMPTS;
    public int initialMessagePacketSize = ActiveMQClient.DEFAULT_INITIAL_MESSAGE_PACKET_SIZE;
+   public int onMessageCloseTimeout = ActiveMQClient.DEFAULT_ONMESSAGE_CLOSE_TIMEOUT;
    public boolean cacheLargeMessagesClient = ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT;
    public int compressionLevel = ActiveMQClient.DEFAULT_COMPRESSION_LEVEL;
    public boolean compressLargeMessage = ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES;
