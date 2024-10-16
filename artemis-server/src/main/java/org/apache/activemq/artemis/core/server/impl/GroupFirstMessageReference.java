@@ -38,7 +38,6 @@ public class GroupFirstMessageReference implements MessageReference {
    private final MessageReference messageReference;
    private final SimpleString key;
    private volatile Message message;
-   private volatile PagingStore owner;
 
    public GroupFirstMessageReference(SimpleString key, MessageReference messageReference) {
       this.messageReference = messageReference;
