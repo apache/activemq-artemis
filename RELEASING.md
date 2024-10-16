@@ -44,10 +44,16 @@ cd activemq-artemis
 git remote add upstream https://gitbox.apache.org/repos/asf/activemq-artemis.git
 ```
 
-If your git `user.email` and/or `user.name` are not set globally then you'll need to set these on the newly clone 
-repository as they will be used during the release process to make commits to the upstream repository, e.g.:
+Verify your Git `user.email` and `user.name` are set correctly by running:
 
+```sh
+git config user.email
+git config user.name
 ```
+
+If not set correctly you'll need to run one or both of the following commands as these config values will be used during the release process to make commits to the upstream repository:
+
+```sh
 git config user.email "username@apache.org"
 git config user.name "FirstName LastName"
 ```
