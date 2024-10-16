@@ -45,7 +45,6 @@ public final class ReplicationPrimaryIsStoppingMessage extends PacketImpl {
       }
    }
 
-   private int finalMessage;
    private PrimaryStopping primaryStopping;
 
    public ReplicationPrimaryIsStoppingMessage() {
