@@ -21,7 +21,7 @@ import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.Message;
 
 /**
- * Logger Code 85
+ * Logger Code 850000 - 859999
  */
 @LogBundle(projectCode = "AMQ", regexID = "85[0-9]{4}")
 public interface MQTTBundle {

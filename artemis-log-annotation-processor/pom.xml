@@ -33,4 +33,13 @@
       <!-- Always disable annotation processing for ourselves. -->
       <maven.compiler.proc>none</maven.compiler.proc>
    </properties>
+
+   <dependencies>
+      <dependency>
+         <groupId>com.github.mifmif</groupId>
+         <artifactId>generex</artifactId>
+         <version>1.0.2</version>
+         <scope>compile</scope>
+      </dependency>
+   </dependencies>
 </project>
