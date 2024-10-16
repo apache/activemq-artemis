@@ -20,7 +20,6 @@ import java.util.function.Consumer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -38,7 +37,6 @@ public class GroupFirstMessageReference implements MessageReference {
    private final MessageReference messageReference;
    private final SimpleString key;
    private volatile Message message;
-   private volatile PagingStore owner;
 
    public GroupFirstMessageReference(SimpleString key, MessageReference messageReference) {
       this.messageReference = messageReference;

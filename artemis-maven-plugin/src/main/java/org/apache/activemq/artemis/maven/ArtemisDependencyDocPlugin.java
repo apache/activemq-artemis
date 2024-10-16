@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -53,11 +52,6 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
 
    @Parameter
    String name;
-
-   /**
-    * The plugin descriptor
-    */
-   private PluginDescriptor descriptor;
 
    @Parameter
    private String[] groupOrder;
