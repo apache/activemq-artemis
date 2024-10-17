@@ -1,0 +1,495 @@
+= Releasing Apache ActiveMQ Artemis
+
+This document outlines the process by which Apache ActiveMQ Artemis can be released.
+For more general information see the https://www.apache.org/legal/release-policy.html[Apache Release Policy].
+
+== Preliminary Steps
+
+Things to do before issuing a new release:
+
+* Update `docs/user-manual/en/versions.adoc` to include appropriate release notes and upgrade instructions.
+See previous entries for guidance.
+* Build the release locally using:
++
+[,console]
+----
+mvn clean install -Prelease
+----
+
+* Verify:
+
+. User Manual has been created properly (in `artemis-website/target/classes/user-manual/`)
+. JavaDocs are created correctly, including the diagrams (in `artemis-website/target/apidocs/`)
+
+* Test the standalone release on Windows as well as Linux:
+
+. Unpack the distribution zip or tar.gz
+. Start and stop the server
+
+* Run the examples from the https://github.com/apache/activemq-artemis-examples/tree/development[development branch].
+
+If everything is successful follow these next steps to build and publish artifacts to ASF Nexus and send out a release vote.
+
+== Verify Key to Sign the Release
+
+If you don't have a key to sign the release artifacts follow https://infra.apache.org/release-signing.html[these instructions from Apache].
+
+=== List Your Key
+
+* If your key is not listed at https://dist.apache.org/repos/dist/release/activemq/KEYS then generate the key information, e.g.:
++
+[,console]
+----
+gpg --list-sigs username@apache.org > /tmp/key; gpg --armor --export username@apache.org >> /tmp/key
+----
++
+Then send the key information in `/tmp/key` to `private@activemq.apache.org` so it can be added.
+
+* If your key is not listed at https://home.apache.org/keys/committer/ then add your key id (available via `gpg --fingerprint <key>`) to the `OpenPGP Public Key Primary Fingerprint` field at https://id.apache.org/.
++
+NOTE: This is just the key id, not the whole fingerprint.
+
+== Clone Source Repo
+
+Create a _fresh_ clone and add a new `upstream` remote. The release plugin will use `upstream` for pushing the tag.
+
+[,console]
+----
+git clone https://github.com/apache/activemq-artemis.git
+cd activemq-artemis
+git remote add upstream https://gitbox.apache.org/repos/asf/activemq-artemis.git
+----
+
+Verify your Git `user.email` and `user.name` are set correctly by running:
+
+[,console]
+----
+git config user.email
+git config user.name
+----
+
+If not set correctly you'll need to run one or both of the following commands as these config values will be used during the release process to make commits to the upstream repository:
+
+[,console]
+----
+git config user.email "username@apache.org"
+git config user.name "FirstName LastName"
+----
+
+This should be the same `user.email` and `user.name` you use on your main repository.
+
+== Prepare Maven Release
+
+Execute the following Maven command to prepare the release:
+
+[,console]
+----
+mvn clean release:prepare -Prelease
+----
+
+[NOTE]
+.Don't Push Automatically
+====
+You could *optionally* set `pushChanges=false` so the version commit and tag won't be pushed upstream.
+
+[,console]
+----
+mvn clean release:prepare -DpushChanges=false -Prelease
+----
+
+You will need to push manually later.
+====
+
+You will be prompted to select the new development version.
+By default Maven will select the next _micro_ release.
+However, micro releases are relatively rare so select the next _minor_ release instead.
+
+[,console]
+----
+[INFO] Checking dependencies and plugins for snapshots ...
+What is the release version for "ActiveMQ Artemis Parent"? (artemis-pom) 2.31.0: :
+What is the SCM release tag or label for "ActiveMQ Artemis Parent"? (artemis-pom) 2.31.0: :
+What is the new development version for "ActiveMQ Artemis Parent"? (artemis-pom) 2.31.1-SNAPSHOT: : 2.32.0-SNAPSHOT
+----
+
+For more information look at the https://maven.apache.org/maven-release/maven-release-plugin/prepare-mojo.html#pushChanges[Maven prepare plugin documentation].
+
+[NOTE]
+.Push Manually
+====
+If you set `pushChanges=false` then you will have to push the changes manually.  The first push is for the commit for updating the `pom.xml` files, and the second push is for the tag, e.g.:
+
+[,console]
+----
+git push upstream
+git push upstream <version>
+----
+====
+
+== Upload to ASF Nexus
+
+Ensure that your environment is ready to deploy to the ASF Nexus repository as described at https://infra.apache.org/publishing-maven-artifacts.html[Publishing Maven Artifacts]
+
+Before starting the upload copy the `release.properties` that is generated during the release at the root of the project.
+You could need it later if the upload fails.
+
+Upload to ASF Nexus:
+
+[,console]
+----
+mvn release:perform -Prelease
+----
+
+This can take quite a while depending on your Internet connection speed.
+
+[NOTE]
+.Resume Release Upload
+====
+If something happened during the release upload to ASF Nexus you may need to eventually redo the upload.
+Remove the incomplete repository using the "Drop" button on https://repository.apache.org/#stagingRepositories[ASF Nexus].
+
+Before starting the upload again check the `release.properties` at the root of the project.
+There is a `release.properties` file that is generated at the root of the project during the release.
+In case you want to upload a previously tagged release, add this file as follows:
+
+* `release.properties`
++
+[,console]
+----
+scm.url=scm:git:https://github.com/apache/activemq-artemis.git
+scm.tag=2.31.0
+----
+====
+
+Keep the checkout used to run the release process for later.
+The website update scripts will reference it for documentation output.
+
+== Close the Staging Repository
+
+Give the https://repository.apache.org/#stagingRepositories[staging repository] contents a quick inspection using the content navigation area.
+If everything looks good close the staging repo using the "Close" button on ASF Nexus website, locking it from further modification and exposing its contents at a staging URL to allow testing.
+Set a description such as "ActiveMQ Artemis <version> (RC1)" while closing.
+
+== Stage the Release
+
+Use the closed staging repo contents to populate the dist dev area with the official release artifacts for voting.
+Use the script already present in the repo to download the files and populate a new `${CURRENT-RELEASE}` dir:
+
+[,console]
+----
+svn co https://dist.apache.org/repos/dist/dev/activemq/activemq-artemis/
+cd activemq-artemis
+./prepare-release.sh https://repository.apache.org/content/repositories/orgapacheactivemq-${NEXUS-REPO-ID} ${CURRENT-RELEASE}
+----
+Give the files a check over and commit the new dir and start a vote if all looks well.
+
+[,console]
+----
+svn add <version>
+svn commit
+----
+
+Old staged releases can be cleaned out periodically.
+
+== Generate the Commit Report
+
+Generate the commit report:
+
+[,console]
+----
+git clone https://gitbox.apache.org/repos/asf/activemq-website.git
+cd activemq-website
+./scripts/release/create-artemis-git-report.sh path/to/activemq-artemis <previous-version> <version>
+----
+
+.Example command used for 2.31.0 following 2.30.0:
+[,console]
+----
+git clone https://gitbox.apache.org/repos/asf/activemq-website.git
+cd activemq-website
+./scripts/release/create-artemis-git-report.sh ../activemq-artemis 2.30.0 2.31.0
+----
+
+This will parse all the commits between the previous and current tag while looking at current Jira status.
+
+The report page should have been created in the website repo at: `src/components/artemis/download/commit-report-<version>.html`.
+Check it over and commit + push when satisfied.
+
+== Cleanup Jira
+
+Use the commit report to do some Jira cleanup making sure your commits and Jira are accurate:
+
+* Close as "Done" all Jiras related to the commits included in the report, but exclude all Jira related to a commit reverted by a commit included in the same report.
+You can execute a bulk change on all Jira related at the commits included in the commit using the link `Jiras on this Report` at the bottom of the report.
+* Ensure that the _next_ version being released exists by checking the https://issues.apache.org/jira/projects/ARTEMIS?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page[ActiveMQ Artemis releases page].
+If not, you need an administrator account to create it using the `Manage Versions` button at the https://issues.apache.org/jira/projects/ARTEMIS?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page[ActiveMQ Artemis Releases page]
+* If necessary, move all Jiras not closed to this next release setting the `Fix Version` field.
+* Regenerate the report once you cleared Jira to check your work.
+
+== Locate Release Notes
+
+. Go to the https://issues.apache.org/jira/projects/ARTEMIS?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page[releases page] for the Artemis Jira project
+. Click on the version being released
+. Click the "Release Notes" link near the top of the page
+. Grab the URL to put into the `VOTE` email
+
+== Send Vote Email
+
+Once all the artifacts are staged send an email to `dev@activemq.apache.org`.
+It should have a subject like:
+
+----
+[VOTE] Apache ActiveMQ Artemis <version>
+----
+
+Here is an example for the body of the message:
+
+----
+I would like to propose an Apache ActiveMQ Artemis <version> release.
+
+Highlights include:
+
+ - [ARTEMIS-123] - Great new feature 1
+ - [ARTEMIS-456] - Great new feature 2
+
+* Full release notes:
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=<releaseNotesID>&projectId=12315920
+
+* Commit report:
+https://activemq.apache.org/components/artemis/download/commit-report-<version>
+
+* Source and binary distributions:
+https://dist.apache.org/repos/dist/dev/activemq/activemq-artemis/<version>/
+
+* Maven staging repository:
+https://repository.apache.org/content/repositories/orgapacheactivemq-<repoID>
+
+* How to validate the release:
+https://activemq.apache.org/components/artemis/documentation/hacking-guide/#validating-releases
+
+It is tagged in the source repo as <version>
+
+[ ] +1 approve this release
+[ ] +0 no opinion
+[ ] -1 disapprove (and reason why)
+
+Here's my +1
+----
+
+== Sent Result Email
+
+Rules for the Apache voting process are stipulated https://www.apache.org/foundation/voting.html[here].
+
+Assuming the vote is successful send a email to `dev@activemq.apache.org` with a subject like:
+
+----
+[RESULT] [VOTE] Apache ActiveMQ Artemis <version>
+----
+
+Here is an example for the body of the message:
+
+----
+The vote passed with 4 votes, 3 binding and 1 non-binding.
+
+The following votes were received:
+
+Binding:
++1 John Doe
++1 Jane Doe
++1 Bill Smith
+
+Non Binding:
++1 Mike Williams
+
+Thank you to everyone who contributed and took the time to review the release candidates and vote.
+
+I will add the files to the dist release repo and release the Maven staging repo, updating the website once it has had time to sync to the CDN and Maven Central.
+
+
+Regards
+----
+
+== Promote Artifacts
+
+After a successful vote populate the dist _release_ area using the staged files from the dist _dev_ area to allow them to mirror.
+
+NOTE: This can only be done by a PMC member.
+
+Use the script already present in the repo to copy the staged files from the dist dev area to the dist release area:
+
+[,console]
+----
+svn co https://dist.apache.org/repos/dist/dev/activemq/activemq-artemis/
+cd activemq-artemis
+./promote-release.sh ${CURRENT-RELEASE}
+----
+
+It takes ~15 minutes to sync with the CDN.
+The CDN content can be viewed https://dlcdn.apache.org/activemq/activemq-artemis/[here].
+
+== Release the Staging Repository
+
+Go to https://repository.apache.org/#stagingRepositories[ASF Nexus] and click the "Release" button.
+
+It takes ~30-60 minutes to sync with Maven Central.
+The content can be viewed https://repo1.maven.org/maven2/org/apache/activemq/[here].
+
+== Update Web Site
+
+Wait for the CDN to sync first after updating SVN, and additionally for Maven Central to sync, before proceeding.
+Check:
+
+* https://dlcdn.apache.org/activemq/activemq-artemis/[CDN content]
+* https://repo1.maven.org/maven2/org/apache/activemq/[Maven Central content]
+
+Clone the `activemq-website` repository:
+
+[,console]
+----
+git clone https://gitbox.apache.org/repos/asf/activemq-website.git
+cd activemq-website
+----
+
+NOTE: Some of the release scripts use https://www.python.org/[Python], ensure you have it installed before proceeding.
+Also, the https://pyyaml.org/wiki/PyYAMLDocumentation[PyYAML] lib is used.
+Examples for installing that include using `dnf install python3-pyyaml` on Fedora, or installing it using Pip by running `pip install pyyaml`.
+
+Once the CDN and Maven Central are up-to-date then proceed:
+
+. Run the release-addition script:
++
+[,console]
+----
+./scripts/release/add-artemis-release.sh path/to/activemq-artemis <previous-version> <new-version>
+----
++
+.Example from the 2.32.0 release:
+[,console]
+----
+./scripts/release/add-artemis-release.sh ../activemq-artemis 2.31.2 2.32.0
+----
++
+This script does the following:
+
+* Creates the new release collection file at `src/_artemis_releases/artemis-<padded-version-string>.md`.
+* Creates the new release notes file at `src/components/artemis/download/release-notes-<new-version>.md`.
+* Creates the git-report if it wasn't already present (as it should be, at `src/components/artemis/download/commit-report-<new-version>.html`).
+* Moves the prior latest documentation content to `src/components/artemis/documentation/<previous-version>`.
+* Replaces the latest documentation at `src/components/artemis/documentation/latest` with those from the new release.
+* Replaces the JavaDoc at `src/components/artemis/documentation/javadocs/javadoc-latest` with those from the new release.
+
+. Open the release collection file at `+src/_artemis_releases/artemis-<padded-version-string>.md+` and update `shortDescription` as appropriate to the release content.
+. Update the `artemis` list within the `+src/_data/current_releases.yml+` file if needed to set the new version stream as current.
+
+Check over `git status`, etc. Run `git add` for all the added directories & files and then `git commit -m "updates for <version> release"`.
+Once pushed, the changes should be published automatically by the `jekyll_websites` builder of the https://ci2.apache.org/#/builders[Apache Buildbot].
+
+== Update Examples Repo
+
+The https://github.com/apache/activemq-artemis-examples[examples repo] should be updated to reflect the new release and development versions.
+
+[,console]
+----
+git clone https://gitbox.apache.org/repos/asf/activemq-artemis-examples.git
+cd activemq-artemis-examples
+git checkout development
+./scripts/release/update-branch-versions.sh <release-version> <new-main-snapshot-version>
+----
+
+.Example from the 2.32.0 release:
+[,console]
+----
+git clone https://gitbox.apache.org/repos/asf/activemq-artemis-examples.git
+cd activemq-artemis-examples
+git checkout development
+./scripts/release/update-branch-versions.sh 2.32.0 2.33.0-SNAPSHOT
+----
+
+Check things over and then push the `development` and `main` branches and the `<release-version>` tag (optionally use your fork, to test things out before pushing to the main examples repo or even to raise PRs).
+
+[,console]
+----
+git push origin main development <release-version>
+----
+
+NOTE: The `main` branch CI build does not build Artemis so the release must be available on Maven Central _before_ pushing main or the build will fail.
+The `development` branch will check out the Artemis' `main` branch and build against that or it can be manually triggered and pointed to e.g a release tag.
+
+== Upload Docker Images
+
+. If you don't have an account on https://hub.docker.com/ then create one.
+. https://docs.docker.com/engine/install/[Install `docker`] in your environment.
+. If you don't already have it, then install the https://github.com/docker/buildx#installing[`buildx` Docker plugin] to support multi-platform builds because `release-docker.sh` will create images for both `linux/amd64` and `linux/arm64`. This, of course, requires the base images from Eclipse Temurin to support these platforms as well (which they do).
+. Ensure you have access to push images to `apache/activemq-artemis`. If you don't have access you can request it by creating an INFRA Jira ticket (e.g. https://issues.apache.org/jira/browse/INFRA-24831[INFRA-24831]).
+. Go to the `scripts` directory and run `release-docker.sh` with the proper parameters, e.g.:
++
+[,console]
+----
+./release-docker.sh 2.31.0 apache
+----
++
+You can easily perform a test run by using your personal account, e.g.:
++
+[,console]
+----
+./release-docker.sh 2.31.0 myUsername
+----
+
+== Send Announcement Email
+
+Once the website is updated then send an email to `users@activemq.apache.org` & `dev@activemq.apache.org` with a subject like:
+
+----
+[ANNOUNCE] ActiveMQ Artemis <version> Released
+----
+
+Here is an example for the body of the message:
+
+----
+I'm pleased to announce the release of ActiveMQ Artemis <version>.
+
+* Downloads:
+https://activemq.apache.org/components/artemis/download/
+
+* Complete list of updates:
+https://activemq.apache.org/components/artemis/download/release-notes-<version>
+
+I would like to highlight these improvements:
+
+- Summary of feature 1:
+<link to relevant documentation>
+
+- Summary of feature 2:
+<link to relevant documentation>
+
+- Summary of feature 3:
+<link to relevant documentation>
+
+As usual it contains a handful of bug fixes and other improvements.
+
+Many thanks to all those who contributed to this release!
+----
+
+== Clean Dist Area
+
+Only the current releases should be mirrored.
+Older releases must be cleared:
+
+[,console]
+----
+svn rm -m "clean out older release" https://dist.apache.org/repos/dist/release/activemq/activemq-artemis/${OLD-RELEASE}
+----
+
+Any links to them on the site must be updated to reference the ASF archive instead at https://archive.apache.org/dist/activemq/activemq-artemis/ (this should already have been done implicitly in the previous step).
+
+Ensure old releases are only removed after the site is updated in order to avoid broken links.
+
+== Update Apache Release Data
+
+Update the release information in https://reporter.apache.org/addrelease.html?activemq[Apache Reporter].
+This information will be used in the quarterly reports submitted to the Apache Board.
+
+== Apache Guide
+
+For more information consult this http://www.apache.org/dev/publishing-maven-artifacts.html[Apache guide].
+
