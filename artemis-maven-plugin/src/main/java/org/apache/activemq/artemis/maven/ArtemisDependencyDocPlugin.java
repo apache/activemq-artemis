@@ -54,11 +54,6 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
    @Parameter
    String name;
 
-   /**
-    * The plugin descriptor
-    */
-   private PluginDescriptor descriptor;
-
    @Parameter
    private String[] groupOrder;
 
