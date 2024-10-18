@@ -23,6 +23,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.AutoCreateResult;
@@ -565,14 +566,7 @@ public class AMQPSessionCallback implements SessionCallback {
             sessionExecutor.execute(() -> inSessionSend(context, transaction, message, delivery, receiver, routingContext));
          }
       } catch (Exception e) {
-         if (message.isLargeMessage()) {
-            try {
-               ((LargeServerMessage) message).deleteFile();
-            } catch (Exception e1) {
-               logger.warn("Error while deleting undelivered large AMQP message: {}", e.getMessage());
-            }
-         }
-
+         onSendFailed(message, transaction, e);
          throw e;
       } finally {
          resetContext(oldcontext);
@@ -605,11 +599,11 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    private void inSessionSend(final ProtonServerReceiverContext context,
-                           final Transaction transaction,
-                           final Message message,
-                           final Delivery delivery,
-                           final Receiver receiver,
-                           final RoutingContext routingContext) {
+                              final Transaction transaction,
+                              final Message message,
+                              final Delivery delivery,
+                              final Receiver receiver,
+                              final RoutingContext routingContext) {
       OperationContext oldContext = recoverContext();
       try {
          if (invokeIncoming(message, (ActiveMQProtonRemotingConnection) transportConnection.getProtocolConnection()) == null) {
@@ -643,20 +637,30 @@ public class AMQPSessionCallback implements SessionCallback {
          }
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
-
-         if (message.isLargeMessage()) {
-            try {
-               ((LargeServerMessage) message).deleteFile();
-            } catch (Exception e1) {
-               logger.warn("Error while deleting undelivered large AMQP message: {}", e.getMessage());
-            }
-         }
-
+         onSendFailed(message, transaction, e);
          context.deliveryFailed(delivery, receiver, e);
       } finally {
          resetContext(oldContext);
       }
+   }
 
+   private void onSendFailed(Message message, Transaction transaction, Exception cause) {
+      if (message.isLargeMessage()) {
+         try {
+            ((LargeServerMessage) message).deleteFile();
+         } catch (Exception e1) {
+            logger.warn("Error while deleting undelivered large AMQP message: {}", cause.getMessage());
+         }
+      }
+
+      if (transaction != null) {
+         if (cause instanceof ActiveMQException) {
+            transaction.markAsRollbackOnly((ActiveMQException) cause);
+         } else {
+            transaction.markAsRollbackOnly(
+               new ActiveMQInternalErrorException("Delivery failure triggered TXN to be marked as rollback only", cause));
+         }
+      }
    }
 
    private void sendError(int errorCode, String errorMessage, Receiver receiver) {
