@@ -1431,6 +1431,16 @@ comma separated values for allow list
 
 These properties, once specified, are eventually set on the corresponding internal factories.
 
+=== Filtering using built-in JVM support
+
+Now that Apache ActiveMQ Artemis requires a minimum JVM version of 11, built-in Java serialization filtering mechanisms can be utilized.
+Instead of providing an `allow list` or `deny list`, you can specify either a `serialFilter` or `serialFilterClassName`.
+
+* `serialFilter` - A pattern based filter that allows you to define allow/deny lists and constraints limiting graph complexity and size. https://docs.oracle.com/en/java/javase/17/core/serialization-filtering1.html#JSCOR-GUID-8296D8E8-2B93-4B9A-856E-0A65AF9B8C66[Filter Syntax]
+* `serialFilterClassName` - For those who need a custom filtering solution, you can supply an implementation of https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/ObjectInputFilter.html[ObjectInputFilter]
+
+Configure the same way via url, system properties, resource adapter, or set directly on `ActiveMQConnectionFactory`
+
 == Masking Passwords
 
 For details about masking passwords in broker.xml please see the xref:masking-passwords.adoc#masking-passwords[Masking Passwords] chapter.
