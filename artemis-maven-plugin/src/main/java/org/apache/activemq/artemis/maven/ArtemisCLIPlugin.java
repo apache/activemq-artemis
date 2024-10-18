@@ -24,7 +24,6 @@ import org.apache.activemq.artemis.boot.Artemis;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -32,8 +31,6 @@ import org.apache.maven.project.MavenProject;
 
 @Mojo(name = "cli", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
-
-   private PluginDescriptor descriptor;
 
    @Parameter(defaultValue = "${noServer}")
    boolean ignore;

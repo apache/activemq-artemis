@@ -39,11 +39,6 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
    @Parameter
    String name;
 
-   /**
-    * The plugin descriptor
-    */
-   private PluginDescriptor descriptor;
-
    @Parameter
    private String[] libListWithDeps;
 

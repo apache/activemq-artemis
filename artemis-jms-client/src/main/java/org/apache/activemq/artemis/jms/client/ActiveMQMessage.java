@@ -202,7 +202,6 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    private boolean clientAck;
 
-   private long jmsDeliveryTime;
 
 
    /*
