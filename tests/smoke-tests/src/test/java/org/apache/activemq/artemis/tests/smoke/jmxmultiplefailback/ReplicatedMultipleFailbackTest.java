@@ -47,7 +47,7 @@ import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.Wait;
-import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -193,25 +193,25 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
       deleteDirectory(server3Location);
 
       {
-         HelperCreate cliCreateServer = new HelperCreate();
+         HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).setConfiguration("./src/main/resources/servers/replicated-failback-primary1").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
          cliCreateServer.createServer();
       }
 
       {
-         HelperCreate cliCreateServer = new HelperCreate();
+         HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server1Location).setConfiguration("./src/main/resources/servers/replicated-failback-primary2").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
          cliCreateServer.createServer();
       }
 
       {
-         HelperCreate cliCreateServer = new HelperCreate();
+         HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server2Location).setConfiguration("./src/main/resources/servers/replicated-failback-primary3").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
          cliCreateServer.createServer();
       }
 
       {
-         HelperCreate cliCreateServer = new HelperCreate();
+         HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server3Location).setConfiguration("./src/main/resources/servers/replicated-failback-backup1").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
          cliCreateServer.createServer();
       }

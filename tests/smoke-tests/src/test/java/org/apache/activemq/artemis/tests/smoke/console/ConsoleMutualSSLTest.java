@@ -20,7 +20,7 @@ import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -42,7 +42,7 @@ public class ConsoleMutualSSLTest extends SmokeTestBase {
    public static void createServers() throws Exception {
       File server0Location = getFileServerLocation(SERVER_NAME);
       deleteDirectory(server0Location);
-      HelperCreate cliCreateServer = new HelperCreate();
+      HelperCreate cliCreateServer = helperCreate();
       cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(false).setConfiguration("./src/main/resources/servers/console-mutual-ssl").
          setNoWeb(false).setArtemisInstance(server0Location).setArgs( "--http-host",
                      "localhost",

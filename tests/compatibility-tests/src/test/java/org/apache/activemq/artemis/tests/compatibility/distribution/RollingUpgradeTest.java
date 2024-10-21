@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.utils.RealServerTestBase;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.TestParameters;
 import org.apache.activemq.artemis.utils.Wait;
-import org.apache.activemq.artemis.utils.cli.helper.HelperBase;
+import org.apache.activemq.artemis.cli.commands.helper.HelperBase;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,12 +184,12 @@ public class RollingUpgradeTest extends RealServerTestBase {
 
    @Test
    public void testRollUpgrade_2_30() throws Exception {
-      testRollUpgrade(new File(TWO_THIRTY), HelperBase.getHome());
+      testRollUpgrade(new File(TWO_THIRTY), HelperBase.getHome(ARTEMIS_HOME_PROPERTY));
    }
 
    @Test
    public void testRollUpgrade_2_36() throws Exception {
-      testRollUpgrade(new File(TWO_THIRTY_SIX), HelperBase.getHome());
+      testRollUpgrade(new File(TWO_THIRTY_SIX), HelperBase.getHome(ARTEMIS_HOME_PROPERTY));
    }
 
    // Define a System Property TEST_ROLLED_DISTRIBUTION towards the Artemis Home of your choice and this will
@@ -200,7 +200,7 @@ public class RollingUpgradeTest extends RealServerTestBase {
       String distribution = TestParameters.testProperty("ROLLED", "DISTRIBUTION", null);
       assumeTrue(distribution != null);
 
-      String distributionUpgrading = TestParameters.testProperty("ROLLED", "DISTRIBUTION_UPGRADE", HelperBase.getHome().getAbsolutePath());
+      String distributionUpgrading = TestParameters.testProperty("ROLLED", "DISTRIBUTION_UPGRADE", HelperBase.getHome(ARTEMIS_HOME_PROPERTY).getAbsolutePath());
       testRollUpgrade(new File(distribution),  new File(distributionUpgrading));
    }
 

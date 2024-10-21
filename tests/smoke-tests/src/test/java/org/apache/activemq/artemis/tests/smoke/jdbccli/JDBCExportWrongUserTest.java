@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfigurat
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.junit.jupiter.api.Test;
 
 public class JDBCExportWrongUserTest extends SmokeTestBase {
@@ -43,7 +43,7 @@ public class JDBCExportWrongUserTest extends SmokeTestBase {
 
       runAfter(() -> deleteDirectory(server0Location));
 
-      HelperCreate cliCreateServer = new HelperCreate();
+      HelperCreate cliCreateServer = helperCreate();
       cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).addArgs("--jdbc", "--jdbc-connection-url", "fakeOne");
       cliCreateServer.createServer();
 

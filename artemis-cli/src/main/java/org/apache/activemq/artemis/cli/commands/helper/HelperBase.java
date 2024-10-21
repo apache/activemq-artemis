@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.utils.cli.helper;
+package org.apache.activemq.artemis.cli.commands.helper;
 
 import java.io.File;
 import java.lang.invoke.MethodHandles;
@@ -27,8 +27,6 @@ public class HelperBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public static final String ARTEMIS_HOME_PROPERTY = "artemis.distribution.output";
-
    File artemisHome;
    File artemisInstance;
 
@@ -37,9 +35,11 @@ public class HelperBase {
       logger.debug("using artemisHome as {}", artemisHome);
    }
 
-   public static File getHome() {
-      return getHome(ARTEMIS_HOME_PROPERTY);
+   HelperBase(File artemisHome) {
+      setArtemisHome(artemisHome);
+      logger.debug("using artemisHome as {}", artemisHome);
    }
+
 
    public static File getHome(String homeProperty) {
       String valueHome = System.getProperty(homeProperty);

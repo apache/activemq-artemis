@@ -48,13 +48,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.artemis.api.core.management.SimpleManagement;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.Wait;
-import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
@@ -77,7 +77,7 @@ public class ClientFailureSoakTest extends SoakTestBase {
    public static void createServers() throws Exception {
       File serverLocation = getFileServerLocation(SERVER_NAME_0);
       deleteDirectory(serverLocation);
-      HelperCreate cliCreateServer = new HelperCreate();
+      HelperCreate cliCreateServer = helperCreate();
       cliCreateServer.setAllowAnonymous(true).setArtemisInstance(serverLocation);
       cliCreateServer.setArgs("--global-max-messages", "500000", "--java-options", "-ea", "--java-options", "-Xmx512M", "--queues", "CLIENT_TEST,OUT_QUEUE");
       cliCreateServer.createServer();

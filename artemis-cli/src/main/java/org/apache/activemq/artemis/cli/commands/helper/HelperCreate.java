@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.utils.cli.helper;
+package org.apache.activemq.artemis.cli.commands.helper;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,12 +36,12 @@ import org.slf4j.LoggerFactory;
  *  You may use by creating a new instance, filling the properties, and calling the method create */
 public class HelperCreate extends HelperBase {
 
-   public HelperCreate() {
-      super(ARTEMIS_HOME_PROPERTY);
-   }
-
    public HelperCreate(String homeProperty) {
       super(homeProperty);
+   }
+
+   public HelperCreate(File artemisHome) {
+      super(artemisHome);
    }
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

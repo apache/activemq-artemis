@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
@@ -64,6 +65,12 @@ public class RealServerTestBase extends ActiveMQTestBase {
    private static final int JMX_SERVER_PORT = 10099;
 
    public static final String basedir = System.getProperty("basedir");
+
+   public static final String ARTEMIS_HOME_PROPERTY = "artemis.distribution.output";
+
+   public static HelperCreate helperCreate() {
+      return new HelperCreate(ARTEMIS_HOME_PROPERTY);
+   }
 
    @AfterEach
    public void after() throws Exception {

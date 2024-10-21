@@ -36,11 +36,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.cli.commands.tools.PrintData;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
-import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,13 +65,13 @@ public class DualMirrorNoContainerTest extends SmokeTestBase {
       deleteDirectory(server0Location);
 
       {
-         HelperCreate cliCreateServer = new HelperCreate();
+         HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setAllowAnonymous(false).setUser("A").setPassword("A").setNoWeb(true).setConfiguration("./src/main/resources/servers/brokerConnect/mirrorSecurityA").setArtemisInstance(server0Location);
          cliCreateServer.createServer();
       }
 
       {
-         HelperCreate cliCreateServer = new HelperCreate();
+         HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setAllowAnonymous(false).setUser("B").setPassword("B").setNoWeb(true).setPortOffset(1).setConfiguration("./src/main/resources/servers/brokerConnect/mirrorSecurityB").setArtemisInstance(server1Location);
          cliCreateServer.createServer();
       }
