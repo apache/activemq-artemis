@@ -34,7 +34,7 @@ import java.util.HashSet;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
-import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -58,7 +58,7 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
       File serverLocation = getFileServerLocation(name);
       deleteDirectory(serverLocation);
 
-      HelperCreate cliCreateServer = new HelperCreate();
+      HelperCreate cliCreateServer = helperCreate();
       cliCreateServer.setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(serverLocation);
       cliCreateServer.setConfiguration("./src/main/resources/servers/" + name);
       cliCreateServer.createServer();

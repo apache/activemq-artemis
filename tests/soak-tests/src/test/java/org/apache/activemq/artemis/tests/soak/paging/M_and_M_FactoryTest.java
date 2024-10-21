@@ -46,7 +46,7 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.Wait;
-import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,7 +68,7 @@ public class M_and_M_FactoryTest extends SoakTestBase {
          File serverLocation = getFileServerLocation(SERVER_NAME_0);
          deleteDirectory(serverLocation);
 
-         HelperCreate cliCreateServer = new HelperCreate();
+         HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(serverLocation);
          cliCreateServer.setConfiguration("./src/main/resources/servers/mmfactory");
          cliCreateServer.setArgs("--java-options", "-Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.port=11099 -Dcom.sun.management.jmxremote.rmi.port=11098 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false");

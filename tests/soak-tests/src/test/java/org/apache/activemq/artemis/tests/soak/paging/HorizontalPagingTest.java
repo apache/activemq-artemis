@@ -43,7 +43,7 @@ import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.TestParameters;
-import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
@@ -89,7 +89,7 @@ public class HorizontalPagingTest extends SoakTestBase {
          File serverLocation = getFileServerLocation(SERVER_NAME_0);
          deleteDirectory(serverLocation);
 
-         HelperCreate cliCreateServer = new HelperCreate();
+         HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(serverLocation);
          // some limited memory to make it more likely to fail
          cliCreateServer.setArgs("--java-memory", "2g");

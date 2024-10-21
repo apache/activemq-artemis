@@ -36,7 +36,7 @@ import java.rmi.server.RemoteRef;
 
 import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
-import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.jctools.util.UnsafeAccess;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,7 +64,7 @@ public class JmxConnectionTest extends SmokeTestBase {
       deleteDirectory(server0Location);
 
       {
-         HelperCreate cliCreateServer = new HelperCreate();
+         HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).
             setConfiguration("./src/main/resources/servers/jmx").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
          cliCreateServer.createServer();

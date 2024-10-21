@@ -32,11 +32,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -55,7 +55,7 @@ public class ReplicationFlowControlTest extends SoakTestBase {
          File serverLocation = getFileServerLocation(SERVER_NAME_0);
          deleteDirectory(serverLocation);
 
-         HelperCreate cliCreateServer = new HelperCreate();
+         HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(serverLocation);
          cliCreateServer.setConfiguration("./src/main/resources/servers/replicated-static0");
          cliCreateServer.createServer();
@@ -64,7 +64,7 @@ public class ReplicationFlowControlTest extends SoakTestBase {
          File serverLocation = getFileServerLocation(SERVER_NAME_1);
          deleteDirectory(serverLocation);
 
-         HelperCreate cliCreateServer = new HelperCreate();
+         HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(serverLocation);
          cliCreateServer.setConfiguration("./src/main/resources/servers/replicated-static1");
          cliCreateServer.createServer();

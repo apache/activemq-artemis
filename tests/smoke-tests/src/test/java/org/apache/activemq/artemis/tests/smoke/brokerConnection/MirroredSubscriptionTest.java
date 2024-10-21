@@ -42,7 +42,7 @@ import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,13 +64,13 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
       deleteDirectory(server0Location);
 
       {
-         HelperCreate cliCreateServer = new HelperCreate();
+         HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setAllowAnonymous(true).setRole("amq").setUser("admin").setPassword("admin").setNoWeb(true).setConfiguration("./src/main/resources/servers/mirrored-subscriptions/broker1").setArtemisInstance(server0Location);
          cliCreateServer.createServer();
       }
 
       {
-         HelperCreate cliCreateServer = new HelperCreate();
+         HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setAllowAnonymous(true).setRole("amq").setUser("admin").setPassword("admin").setNoWeb(true).setConfiguration("./src/main/resources/servers/mirrored-subscriptions/broker2").setArtemisInstance(server1Location);
          cliCreateServer.createServer();
       }
