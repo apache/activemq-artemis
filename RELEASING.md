@@ -140,64 +140,6 @@ Give the staging repository contents a quick inspection using the content naviga
 staging repo using the "Close" button on Nexus website, locking it from further modification and exposing its contents
 at a staging URL to allow testing. Set a description such as "ActiveMQ Artemis <version> (RC1)" while closing.
 
-Note the staging repo URL, of form `https://repository.apache.org/content/repositories/orgapacheactivemq-<repo-id>`.
-
-
-## Verify build reproducibility
-
-We can now check the reproducibility of the staged build using the tooling from [Reproducible Central](https://github.com/jvm-repo-rebuild/reproducible-central).
-The main tooling documentation can be found at [TOOLS.md](https://github.com/jvm-repo-rebuild/reproducible-central/blob/master/doc/TOOLS.md).
-There is a nightly monitoring of new staged/released versions, with related helper commands, at [add.md](https://github.com/jvm-repo-rebuild/reproducible-central/blob/master/doc/add.md).
-
-Based on these, at the time of writing instructions to perform a reproducibility check of the staged build would be as follows.
-
-Clone the repository:
-```sh
-git clone https://github.com/jvm-repo-rebuild/reproducible-central
-cd reproducible-central
-```
-
-If you are using podman, indicate so:
-```sh
-export RB_OCI_ENGINE=podman
-```
-
-If you use podman on an SELinux host (e.g Fedora, RHEL, etc), set volume flags to allow container mounts to be made within your checkout:
-```sh
-export RB_OCI_VOLUME_FLAGS=":Z,rw"
-```
-
-Generate the new `artemis-<version>.buildspec` file based on the last previously created buildspec:
-```sh
-bin/add-new-release.sh content/org/apache/activemq/artemis/artemis-<previous-version>.buildspec <version> orgapacheactivemq-<repo-id>
-```
-
-Run the reproducibility check using the newly created buildspec:
-```sh
-./rebuild.sh content/org/apache/activemq/artemis/artemis-<version>.buildspec orgapacheactivemq-<repo-id>
-```
-
-In both of the script commands above, the last argument is the name of the staging repository for the release build, to which comparison will be made by setting it as the reference repo.
-The generalised "staging" group repository name can also be used, however it has a sync/setup delay, and access to other builds, which the specific build repo alone does not.
-If the final argument is omitted, the comparison will be run with Maven Central as the reference repo.
-
-During the check, the release tag is checked out, and the build performed in a container according to the buildspec details.
-For each module, the Maven Artifact Plugin is used to compare the freshly built output, in checkout found under `content/org/apache/activemq/artemis/buildcache/artemis-pom/`, with the staged build artifact downloaded from the reference repo, i.e the staging repo or Maven Central. The downloaded reference files are themselves stored under `content/org/apache/activemq/artemis/buildcache/artemis-pom/target/reference/org.apache.activemq/`
-
-For doing re-runs or checking future versions, `git clean` can be used to wipe all the build and local repo files that are created within the checkout, if you dont just create a fresh checkout.
-
-To do a dry run and see the files/dirs that would be deleted by cleaning, run:
-```sh
-git clean -n -d -x
-```
-
-To actually delete the files/dirs, run:
-```sh
-git clean -f -d -x
-```
-In both cases, if there are any files you wish to save from deletion, additionally use the `-e` option to exclude them.
-
-
 ## Stage the release to the dist dev area
 
 Use the closed staging repo contents to populate the dist dev svn area
