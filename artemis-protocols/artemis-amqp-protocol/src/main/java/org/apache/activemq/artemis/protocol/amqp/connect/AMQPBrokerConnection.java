@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.protocol.amqp.connect;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -430,16 +431,19 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                   final Queue queue = server.locateQueue(getMirrorSNF(replica));
 
                   final boolean coreTunnelingEnabled = isCoreMessageTunnelingEnabled(replica);
-                  final Symbol[] desiredCapabilities;
 
+                  ArrayList<Symbol> desiredCapabilitiesList = new ArrayList<>();
+                  desiredCapabilitiesList.add(AMQPMirrorControllerSource.MIRROR_CAPABILITY);
                   if (coreTunnelingEnabled) {
-                     desiredCapabilities = new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY,
-                                                         AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT};
-                  } else {
-                     desiredCapabilities = new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY};
+                     desiredCapabilitiesList.add(AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT);
+                  }
+                  if (replica.getNoForward()) {
+                     desiredCapabilitiesList.add(AMQPMirrorControllerSource.NO_FORWARD);
                   }
 
-                  final Symbol[] requiredOfferedCapabilities = new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY};
+                  final Symbol[] desiredCapabilities = (Symbol[]) desiredCapabilitiesList.toArray(new Symbol[]{});
+
+                  final Symbol[] requiredOfferedCapabilities = replica.getNoForward() ? new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY, AMQPMirrorControllerSource.NO_FORWARD} : new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY};
 
                   connectSender(queue,
                                 queue.getName().toString(),
