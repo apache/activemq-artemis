@@ -35,6 +35,9 @@ mvn clean install -Prelease
 . Start and stop the server
 
 * Run the examples from the https://github.com/apache/activemq-artemis-examples/tree/development[development branch].
+* Check your https://en.wikipedia.org/wiki/Umask[`umask`] setting.
+Releases have traditionally been built using a umask of `0022`.
+If your `umask` value does not match this then the release is likely to fail the <<verify-build-reproducibility,build reproducibility verification>> step later.
 
 If everything is successful follow these next steps to build and publish artifacts to ASF Nexus and send out a release vote.
 
