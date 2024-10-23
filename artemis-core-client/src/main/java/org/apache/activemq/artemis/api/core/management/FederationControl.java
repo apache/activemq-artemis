@@ -14,30 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.server;
+package org.apache.activemq.artemis.api.core.management;
 
-import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
-
-public interface BrokerConnection extends ActiveMQComponent {
+/**
+ * A federationControl is used to manage a federation.
+ */
+public interface FederationControl extends ActiveMQComponentControl {
 
    /**
-    * @return the unique name of the broker connection
+    * Returns the name of this federation
     */
+   @Attribute(desc = "name of this federation")
    String getName();
 
    /**
-    * @return the protocol that underlies the broker connection implementation.
+    * Returns the name of the user the federation is associated with.
     */
-   String getProtocol();
-
-   /**
-    * @return the configuration that was used to create this broker connection.
-    */
-   BrokerConnectConfiguration getConfiguration();
-
-   /**
-    * @return if the connection is currently open.
-    */
-   boolean isOpen();
+   @Attribute(desc = "name of the user the federation is associated with")
+   String getUser();
 
 }

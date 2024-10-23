@@ -477,19 +477,31 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
             //Register close and failure listeners, if the initial downstream connection goes down then we
             //want to terminate the upstream connection
             rc.addCloseListener(() -> {
-               server.getFederationManager().undeploy(config.getName());
+               try {
+                  server.getFederationManager().undeploy(config.getName());
+               } catch (Throwable ignored) {
+                  logger.debug(ignored.getMessage(), ignored);
+               }
             });
 
             rc.addFailureListener(new FailureListener() {
                @Override
                public void connectionFailed(ActiveMQException exception, boolean failedOver) {
-                  server.getFederationManager().undeploy(config.getName());
+                  try {
+                     server.getFederationManager().undeploy(config.getName());
+                  } catch (Throwable ignored) {
+                     logger.debug(ignored.getMessage(), ignored);
+                  }
                }
 
                @Override
                public void connectionFailed(ActiveMQException exception, boolean failedOver,
                                             String scaleDownTargetNodeID) {
-                  server.getFederationManager().undeploy(config.getName());
+                  try {
+                     server.getFederationManager().undeploy(config.getName());
+                  } catch (Throwable ignored) {
+                     logger.debug(ignored.getMessage(), ignored);
+                  }
                }
             });
 
