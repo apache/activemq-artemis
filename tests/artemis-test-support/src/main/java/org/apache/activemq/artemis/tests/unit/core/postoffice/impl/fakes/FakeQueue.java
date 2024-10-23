@@ -949,6 +949,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public boolean copyReference(long messageID, SimpleString address, Binding binding) throws Exception {
+      return false;
+   }
+
+   @Override
    public void forceDelivery() {
       // no-op
 

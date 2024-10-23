@@ -41,6 +41,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -55,6 +56,7 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -2614,6 +2616,268 @@ public class QueueControlTest extends ManagementTestBase {
       consumeMessages(1, session, queue);
       consumeMessages(1, session, otherQueue);
 
+      session.deleteQueue(queue);
+      session.deleteQueue(otherQueue);
+   }
+
+   @TestTemplate
+   public void testCopyMessage() throws Exception {
+      SimpleString address = SimpleString.of("address");//RandomUtil.randomSimpleString();
+      SimpleString queue = SimpleString.of("queue");//RandomUtil.randomSimpleString();
+      SimpleString otherAddress = SimpleString.of("otherAddress");//RandomUtil.randomSimpleString();
+      SimpleString otherQueue = SimpleString.of("otherQueue");//RandomUtil.randomSimpleString();
+      SimpleString otherQueue2 = SimpleString.of("otherQueue2");//RandomUtil.randomSimpleString();
+
+
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(otherQueue).setAddress(otherAddress).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(otherQueue2).setAddress(otherAddress).setDurable(durable));
+      ClientProducer producer = session.createProducer(address);
+
+      // send 2 messages on queue
+      producer.send(session.createMessage(durable));
+      producer.send(session.createMessage(durable));
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      QueueControl otherQueueControl = createManagementControl(otherAddress, otherQueue);
+      QueueControl otherQueueControl2 = createManagementControl(otherAddress, otherQueue2);
+      assertMessageMetrics(queueControl, 2, durable);
+      assertMessageMetrics(otherQueueControl, 0, durable);
+      assertMessageMetrics(otherQueueControl2, 0, durable);
+
+      // the message IDs are set on the server
+      Map<String, Object>[] messages = queueControl.listMessages(null);
+      assertEquals(2, messages.length);
+      long messageID = (Long) messages[0].get("messageID");
+
+      boolean copied = queueControl.copyMessage(messageID, otherQueue.toString());
+      assertTrue(copied);
+
+      assertMessageMetrics(queueControl, 2, durable);
+      assertMessageMetrics(otherQueueControl, 1, durable);
+      assertMessageMetrics(otherQueueControl2, 0, durable);
+
+      messageID = (Long) messages[1].get("messageID");
+      copied = queueControl.copyMessage(messageID, otherQueue.toString());
+      assertTrue(copied);
+
+      assertMessageMetrics(queueControl, 2, durable);
+      assertMessageMetrics(otherQueueControl, 2, durable);
+      assertMessageMetrics(otherQueueControl2, 0, durable);
+
+      consumeMessages(2, session, queue);
+      consumeMessages(2, session, otherQueue);
+      consumeMessages(0, session, otherQueue2);
+
+      session.deleteQueue(queue);
+      session.deleteQueue(otherQueue);
+      session.deleteQueue(otherQueue2);
+   }
+
+   @TestTemplate
+   public void testCopyLargeMessage() throws Exception {
+      SimpleString address = SimpleString.of("address");//RandomUtil.randomSimpleString();
+      SimpleString queue = SimpleString.of("queue");//RandomUtil.randomSimpleString();
+      SimpleString otherAddress = SimpleString.of("otherAddress");//RandomUtil.randomSimpleString();
+      SimpleString otherQueue = SimpleString.of("otherQueue");//RandomUtil.randomSimpleString();
+      SimpleString otherQueue2 = SimpleString.of("otherQueue2");//RandomUtil.randomSimpleString();
+
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(otherQueue).setAddress(otherAddress).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(otherQueue2).setAddress(otherAddress).setDurable(durable));
+      ClientProducer producer = session.createProducer(address);
+
+      final byte[] payload1 = new byte[ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE + 1000];
+      final Random random1 = new Random(System.currentTimeMillis());
+      random1.nextBytes(payload1);
+      final ClientMessage sentMessage1 = session.createMessage(durable).writeBodyBufferBytes(payload1);
+
+      final byte[] payload2 = new byte[ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE + 1000];
+      final Random random2 = new Random(System.currentTimeMillis());
+      random2.nextBytes(payload2);
+      final ClientMessage sentMessage2 = session.createMessage(durable).writeBodyBufferBytes(payload2);
+
+      // send 2 messages on queue
+      producer.send(sentMessage1);
+      producer.send(sentMessage2);
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      QueueControl otherQueueControl = createManagementControl(otherAddress, otherQueue);
+      QueueControl otherQueueControl2 = createManagementControl(otherAddress, otherQueue2);
+      assertMessageMetrics(queueControl, 2, durable);
+      assertMessageMetrics(otherQueueControl, 0, durable);
+      assertMessageMetrics(otherQueueControl2, 0, durable);
+
+      // the message IDs are set on the server
+      Map<String, Object>[] messages = queueControl.listMessages(null);
+      assertEquals(2, messages.length);
+      long messageID = (Long) messages[0].get("messageID");
+
+      boolean copied = queueControl.copyMessage(messageID, otherQueue.toString());
+      assertTrue(copied);
+
+      assertMessageMetrics(queueControl, 2, durable);
+      assertMessageMetrics(otherQueueControl, 1, durable);
+      assertMessageMetrics(otherQueueControl2, 0, durable);
+
+      messageID = (Long) messages[1].get("messageID");
+      copied = queueControl.copyMessage(messageID, otherQueue.toString());
+      assertTrue(copied);
+
+      assertMessageMetrics(queueControl, 2, durable);
+      assertMessageMetrics(otherQueueControl, 2, durable);
+      assertMessageMetrics(otherQueueControl2, 0, durable);
+
+      ClientConsumer consumer1 = session.createConsumer(queue);
+      ClientMessage clientMessage = consumer1.receiveImmediate();
+      assertNotNull(clientMessage);
+      byte[] returnedPayload = new byte[clientMessage.getBodySize()];
+      clientMessage.getBodyBuffer().readBytes(returnedPayload);
+      assertEqualsByteArrays(payload1, returnedPayload);
+
+      clientMessage = consumer1.receiveImmediate();
+      assertNotNull(clientMessage);
+      returnedPayload = new byte[clientMessage.getBodySize()];
+      clientMessage.getBodyBuffer().readBytes(returnedPayload);
+      assertEqualsByteArrays(payload2, returnedPayload);
+
+      ClientConsumer consumer2 = session.createConsumer(otherQueue);
+      clientMessage = consumer2.receiveImmediate();
+      assertNotNull(clientMessage);
+      returnedPayload = new byte[clientMessage.getBodySize()];
+      clientMessage.getBodyBuffer().readBytes(returnedPayload);
+      assertEqualsByteArrays(payload1, returnedPayload);
+
+      clientMessage = consumer2.receiveImmediate();
+      assertNotNull(clientMessage);
+      returnedPayload = new byte[clientMessage.getBodySize()];
+      clientMessage.getBodyBuffer().readBytes(returnedPayload);
+      assertEqualsByteArrays(payload2, returnedPayload);
+
+      consumeMessages(0, session, otherQueue2);
+
+      consumer1.close();
+      consumer2.close();
+
+      session.deleteQueue(queue);
+      session.deleteQueue(otherQueue);
+      session.deleteQueue(otherQueue2);
+   }
+
+   @TestTemplate
+   public void testCoreCopyMessage() throws Exception {
+      testCopyMessage("CORE", false);
+   }
+
+   @TestTemplate
+   public void testCoreCopyLargeMessage() throws Exception {
+      testCopyMessage("CORE", true);
+   }
+
+   @TestTemplate
+   public void testAMQPCopyMessage() throws Exception {
+      testCopyMessage("AMQP", false);
+   }
+
+   @TestTemplate
+   public void testAMQPCopyLargeMessage() throws Exception {
+      testCopyMessage("AMQP", true);
+   }
+
+   @TestTemplate
+   public void testOpenwireCopyMessage() throws Exception {
+      testCopyMessage("OPENWIRE", false);
+   }
+
+
+   @TestTemplate
+   public void testOpenwireCopyLargeMessage() throws Exception {
+      testCopyMessage("OPENWIRE", true);
+   }
+
+   public void testCopyMessage(String protocol, boolean isLarge) throws Exception {
+      SimpleString address = SimpleString.of("queue1");//RandomUtil.randomSimpleString();
+      SimpleString queue = SimpleString.of("queue1");//RandomUtil.randomSimpleString();
+      SimpleString otherAddress = SimpleString.of("queue2");//RandomUtil.randomSimpleString();
+      SimpleString otherQueue = SimpleString.of("queue2");//RandomUtil.randomSimpleString();
+
+
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(otherQueue).setAddress(otherAddress).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
+
+      ConnectionFactory connectionFactory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+
+      try (Connection connection = connectionFactory.createConnection()) {
+         Session jmsProducerSession = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+         Session jmsConsumerSession = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+         javax.jms.Queue queue1 = jmsProducerSession.createQueue("queue1");
+         javax.jms.Queue queue2 = jmsConsumerSession.createQueue("queue2");
+
+         MessageProducer producer = jmsProducerSession.createProducer(queue1);
+
+         final String payload1;
+         final String payload2;
+         if (isLarge) {
+            final Random random1 = new Random(System.currentTimeMillis());
+            byte[] bytePayload1 = new byte[ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE + 1000];
+            random1.nextBytes(bytePayload1);
+            payload1 = new String(bytePayload1);
+            final Random random2 = new Random(System.currentTimeMillis());
+            byte[] bytePayload2 = new byte[ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE + 1000];
+            random2.nextBytes(bytePayload2);
+            payload2 = new String(bytePayload2);
+         } else {
+            payload1 = "message1";
+            payload2 = "message2";
+         }
+
+         // send 2 messages on queue
+         producer.send(jmsProducerSession.createTextMessage(payload1));
+         producer.send(jmsProducerSession.createTextMessage(payload2));
+
+         QueueControl queueControl = createManagementControl(address, queue, RoutingType.ANYCAST);
+         QueueControl otherQueueControl = createManagementControl(otherAddress, otherQueue, RoutingType.ANYCAST);
+         assertMessageMetrics(queueControl, 2, durable);
+         assertMessageMetrics(otherQueueControl, 0, durable);
+
+         // the message IDs are set on the server
+         Map<String, Object>[] messages = queueControl.listMessages(null);
+         assertEquals(2, messages.length);
+         long messageID = (Long) messages[0].get("messageID");
+
+         boolean copied = queueControl.copyMessage(messageID, otherQueue.toString());
+         assertTrue(copied);
+
+         assertMessageMetrics(queueControl, 2, durable);
+         assertMessageMetrics(otherQueueControl, 1, durable);
+
+         messageID = (Long) messages[1].get("messageID");
+         copied = queueControl.copyMessage(messageID, otherQueue.toString());
+         assertTrue(copied);
+
+         assertMessageMetrics(queueControl, 2, durable);
+         assertMessageMetrics(otherQueueControl, 2, durable);
+
+         MessageConsumer consumer1 = jmsConsumerSession.createConsumer(queue1);
+         MessageConsumer consumer2 = jmsConsumerSession.createConsumer(queue2);
+         connection.start();
+
+         javax.jms.TextMessage message = (TextMessage) consumer1.receive(500);
+         assertNotNull(message);
+         assertEquals(payload1, message.getText());
+         message = (TextMessage) consumer1.receive(500);
+         assertNotNull(message);
+         assertEquals(payload2, message.getText());
+
+         message = (TextMessage) consumer2.receive(500);
+         assertNotNull(message);
+         assertEquals(payload1, message.getText());
+         message = (TextMessage) consumer2.receive(500);
+         assertNotNull(message);
+         assertEquals(payload2, message.getText());
+
+         connection.close();
+      }
       session.deleteQueue(queue);
       session.deleteQueue(otherQueue);
    }

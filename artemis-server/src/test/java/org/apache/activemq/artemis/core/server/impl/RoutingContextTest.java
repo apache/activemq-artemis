@@ -729,6 +729,11 @@ public class RoutingContextTest {
       }
 
       @Override
+      public boolean copyReference(long messageID, SimpleString address, Binding binding) throws Exception {
+         return false;
+      }
+
+      @Override
       public int retryMessages(Filter filter) throws Exception {
          return 0;
       }

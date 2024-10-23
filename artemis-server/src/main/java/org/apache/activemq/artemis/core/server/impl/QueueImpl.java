@@ -2790,6 +2790,26 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       });
    }
 
+   @Override
+   public synchronized boolean copyReference(final long messageID,
+                                             final SimpleString toQueue,
+                                             final Binding binding) throws Exception {
+      try (LinkedListIterator<MessageReference> iter = iterator()) {
+         while (iter.hasNext()) {
+            MessageReference ref = iter.next();
+            if (ref.getMessage().getMessageID() == messageID) {
+               try {
+                  copy(null, toQueue, binding, ref);
+               } catch (Exception e) {
+                  throw e;
+               }
+               return true;
+            }
+         }
+         return false;
+      }
+   }
+
    public synchronized int rerouteMessages(final SimpleString queueName, final Filter filter) throws Exception {
       return iterQueue(DEFAULT_FLUSH_LIMIT, filter, new QueueIterateAction() {
          @Override
@@ -3675,6 +3695,38 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          server.callBrokerMessagePlugins(plugin -> plugin.messageMoved(tx, ref, reason, address, queueID, consumer, copyMessage, routingStatus));
       }
 
+      return routingStatus;
+   }
+
+   private RoutingStatus copy(final Transaction originalTX,
+                              final SimpleString address,
+                              final Binding binding,
+                              final MessageReference ref) throws Exception {
+      Transaction tx;
+
+      if (originalTX != null) {
+         tx = originalTX;
+      } else {
+         // if no TX we create a new one to commit at the end
+         tx = new TransactionImpl(storageManager);
+      }
+
+      Message copyMessage = makeCopy(ref, false, false, address);
+
+      Object originalRoutingType = ref.getMessage().getBrokerProperty(Message.HDR_ORIG_ROUTING_TYPE);
+      if (originalRoutingType != null && originalRoutingType instanceof Byte) {
+         copyMessage.setRoutingType(RoutingType.getType((Byte) originalRoutingType));
+      }
+
+      RoutingStatus routingStatus;
+      {
+         RoutingContext context = new RoutingContextImpl(tx);
+         routingStatus = postOffice.route(copyMessage, context, false, false, binding);
+      }
+
+      if (originalTX == null) {
+         tx.commit();
+      }
       return routingStatus;
    }
 
