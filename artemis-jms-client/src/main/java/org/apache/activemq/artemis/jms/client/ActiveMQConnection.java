@@ -696,6 +696,13 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       return this.factoryReference.getDeserializationAllowList();
    }
 
+   public String getSerialFilter() {
+      return this.factoryReference.getSerialFilter();
+   }
+
+   public String getSerialFilterClassName() {
+      return this.factoryReference.getSerialFilterClassName();
+   }
 
    private static class JMSFailureListener implements SessionFailureListener {
 
