@@ -16,16 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -37,6 +33,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MessageHandlerTest extends ActiveMQTestBase {
 
@@ -115,6 +116,42 @@ public class MessageHandlerTest extends ActiveMQTestBase {
       assertNull(consumer.getLastException());
 
       session.close();
+   }
+
+   @Test
+   public void testMessageHandlerCloseTimeout() throws Exception {
+      // create Netty acceptor so client can use new onMessageCloseTimeout URL parameter
+      server.getRemotingService().createAcceptor("netty", "tcp://127.0.0.1:61616").start();
+      final int timeout = 1000;
+      locator = ActiveMQClient.createServerLocator("tcp://127.0.0.1:61616?onMessageCloseTimeout=" + timeout);
+      sf = createSessionFactory(locator);
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
+      session.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
+      ClientProducer producer = session.createProducer(QUEUE);
+      producer.send(createTextMessage(session, "m"));
+
+      ClientConsumer consumer = session.createConsumer(QUEUE, null, false);
+
+      session.start();
+
+      CountDownLatch latch = new CountDownLatch(1);
+      consumer.setMessageHandler(message -> {
+         latch.countDown();
+         // don't just Thread.sleep() here because it will be interrupted on ClientConsumer.close()
+         long start = System.currentTimeMillis();
+         while (System.currentTimeMillis() - start < 2000) {
+            try {
+               Thread.sleep(100);
+            } catch (InterruptedException e) {
+               // ignore
+            }
+         }
+      });
+      latch.await();
+      long start = System.currentTimeMillis();
+      consumer.close();
+      long end = System.currentTimeMillis();
+      assertTrue( (end - start >= timeout) && (end - start <= 2000), "Closing consumer took " + (end - start) + "ms");
    }
 
    @Test

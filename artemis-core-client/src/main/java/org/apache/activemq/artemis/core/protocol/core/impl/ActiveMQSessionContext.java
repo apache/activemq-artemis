@@ -400,7 +400,8 @@ public class ActiveMQSessionContext extends SessionContext {
                                                 int ackBatchSize,
                                                 boolean browseOnly,
                                                 Executor executor,
-                                                Executor flowControlExecutor) throws ActiveMQException {
+                                                Executor flowControlExecutor,
+                                                int onMessageCloseTimeout) throws ActiveMQException {
       long consumerID = idGenerator.generateID();
 
       ActiveMQConsumerContext consumerContext = new ActiveMQConsumerContext(consumerID);
@@ -420,7 +421,7 @@ public class ActiveMQSessionContext extends SessionContext {
       // The value we send is just a hint
       final int consumerWindowSize = windowSize == ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE ? this.getDefaultConsumerWindowSize(queueInfo) : windowSize;
 
-      return new ClientConsumerImpl(session, consumerContext, queueName, filterString, priority, browseOnly, consumerWindowSize, calcWindowSize(consumerWindowSize), ackBatchSize, maxRate > 0 ? new TokenBucketLimiterImpl(maxRate, false) : null, executor, flowControlExecutor, this, queueInfo.toQueueQuery(), lookupTCCL());
+      return new ClientConsumerImpl(session, consumerContext, queueName, filterString, priority, browseOnly, consumerWindowSize, calcWindowSize(consumerWindowSize), ackBatchSize, maxRate > 0 ? new TokenBucketLimiterImpl(maxRate, false) : null, executor, flowControlExecutor, this, queueInfo.toQueueQuery(), lookupTCCL(), onMessageCloseTimeout);
    }
 
    @Override

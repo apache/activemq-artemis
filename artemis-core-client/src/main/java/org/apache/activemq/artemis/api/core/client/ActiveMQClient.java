@@ -138,6 +138,8 @@ public final class ActiveMQClient {
 
    public static final int DEFAULT_INITIAL_MESSAGE_PACKET_SIZE = 1500;
 
+   public static final int DEFAULT_ONMESSAGE_CLOSE_TIMEOUT = 10_000;
+
    public static final boolean DEFAULT_XA = false;
 
    public static final boolean DEFAULT_HA = false;

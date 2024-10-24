@@ -745,6 +745,25 @@ public interface ServerLocator extends AutoCloseable {
    ServerLocator setInitialMessagePacketSize(int size);
 
    /**
+    * Returns the timeout for onMessage completion when closing ClientConsumers created through this factory.
+    * <p>
+    * Value is in milliseconds, default value is {@link ActiveMQClient#DEFAULT_ONMESSAGE_CLOSE_TIMEOUT}.
+    *
+    * @return the timeout for onMessage completion when closing ClientConsumers created through this factory
+    */
+   int getOnMessageCloseTimeout();
+
+   /**
+    * Sets the timeout for onMessage completion when closing ClientConsumers created through this factory.
+    * <p>
+    * Value must be greater than 0.
+    *
+    * @param onMessageCloseTimeout how long to wait for the ClientConsumer's MessageHandler's onMessage method to finish before closing or stopping the ClientConsumer.
+    * @return this ServerLocator
+    */
+   ServerLocator setOnMessageCloseTimeout(int onMessageCloseTimeout);
+
+   /**
     * Adds an interceptor which will be executed <em>after packets are received from the server</em>.
     *
     * @param interceptor an Interceptor

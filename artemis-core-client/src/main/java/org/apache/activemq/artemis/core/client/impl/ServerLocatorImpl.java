@@ -1299,6 +1299,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    @Override
+   public int getOnMessageCloseTimeout() {
+      return config.onMessageCloseTimeout;
+   }
+
+   @Override
+   public ServerLocator setOnMessageCloseTimeout(int onMessageCloseTimeout) {
+      checkWrite();
+      config.onMessageCloseTimeout = onMessageCloseTimeout;
+      return this;
+   }
+
+   @Override
    public ServerLocatorImpl setGroupID(final String groupID) {
       checkWrite();
       this.groupID = groupID;
