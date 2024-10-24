@@ -32,17 +32,15 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import com.mifmif.common.regex.Generex;
 import org.apache.activemq.artemis.logs.annotation.GetLogger;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
@@ -80,13 +78,17 @@ public class LogAnnotationProcessor extends AbstractProcessor {
       HashMap<Integer, String> messages = new HashMap<>();
 
       try {
-         validateIDs(annotations, roundEnv);
-
          for (TypeElement annotation : annotations) {
             for (Element annotatedTypeEl : roundEnv.getElementsAnnotatedWith(annotation)) {
                TypeElement annotatedType = (TypeElement) annotatedTypeEl;
 
                LogBundle bundleAnnotation = annotatedType.getAnnotation(LogBundle.class);
+
+               // Validate the retiredIDs, if any, are valid and pre-sorted
+               validateRetiredIDsAreValidAndSorted(annotatedType, bundleAnnotation);
+
+               // Collect all the active IDs for this LogBundle
+               final List<Integer> activeIDs = collectActiveIDs(annotatedType);
 
                String fullClassName = annotatedType.getQualifiedName() + "_impl";
                String interfaceName = annotatedType.getSimpleName().toString();
@@ -140,6 +142,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
                   if (el.getKind() == ElementKind.METHOD) {
                      ExecutableElement executableMember = (ExecutableElement) el;
 
+                     // If adding any new types, update collectActiveIDs method
                      Message messageAnnotation = el.getAnnotation(Message.class);
                      LogMessage logAnnotation = el.getAnnotation(LogMessage.class);
                      GetLogger getLogger = el.getAnnotation(GetLogger.class);
@@ -151,19 +154,21 @@ public class LogAnnotationProcessor extends AbstractProcessor {
                      int generatedPaths = 0;
 
                      if (messageAnnotation != null) {
+                        validateRegexID(bundleAnnotation, messageAnnotation.id());
                         generatedPaths++;
                         if (DEBUG) {
                            debug("... annotated with " + messageAnnotation);
                         }
-                        generateMessage(bundleAnnotation, writerOutput, executableMember, messageAnnotation, messages);
+                        generateMessage(bundleAnnotation, writerOutput, executableMember, messageAnnotation, messages, activeIDs);
                      }
 
                      if (logAnnotation != null) {
+                        validateRegexID(bundleAnnotation, logAnnotation.id());
                         generatedPaths++;
                         if (DEBUG) {
                            debug("... annotated with " + logAnnotation);
                         }
-                        generateLogger(bundleAnnotation, writerOutput, executableMember, logAnnotation, messages);
+                        generateLogger(bundleAnnotation, writerOutput, executableMember, logAnnotation, messages, activeIDs);
                      }
 
                      if (getLogger != null) {
@@ -200,99 +205,30 @@ public class LogAnnotationProcessor extends AbstractProcessor {
       return true;
    }
 
-   private void validateIDs(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-      Map<String, List<Integer>> activeIdsPerClass = new HashMap<>();
-      Map<String, List<Integer>> retiredIdsPerClass = new HashMap<>();
-      for (TypeElement annotation : annotations) {
-         for (Element annotatedTypeEl : roundEnv.getElementsAnnotatedWith(annotation)) {
-            TypeElement annotatedType = (TypeElement) annotatedTypeEl;
-            System.out.println("Looking at: " + annotatedType.getQualifiedName());
-
-            List<Integer> activeIds = new ArrayList<>();
-            activeIdsPerClass.put(annotatedType.getQualifiedName().toString(), activeIds);
-
-            List<Integer> retiredIds = new ArrayList<>();
-            retiredIdsPerClass.put(annotatedType.getQualifiedName().toString(), retiredIds);
-            retiredIds.addAll(IntStream.of(annotatedType.getAnnotation(LogBundle.class).retiredIDs()).boxed().collect(Collectors.toList()));
-
-            StringBuilder failure = new StringBuilder();
-            for (Element el : annotatedType.getEnclosedElements()) {
-               if (el.getKind() == ElementKind.METHOD) {
-                  Message messageAnnotation = el.getAnnotation(Message.class);
-                  if (messageAnnotation != null) {
-                     int id = messageAnnotation.id();
-                     validateRegexID(annotatedType.getAnnotation(LogBundle.class), id);
-                     if (retiredIds.contains(id)) {
-                        failure.append("Code ID " + id + " has been retired. ");
-                        continue;
-                     } else if (activeIds.contains(id)) {
-                        failure.append("Code ID " + id + " is in active use. ");
-                        continue;
-                     }
-                     activeIds.add(messageAnnotation.id());
-                  }
-
-                  LogMessage logAnnotation = el.getAnnotation(LogMessage.class);
-                  if (logAnnotation != null) {
-                     int id = logAnnotation.id();
-                     validateRegexID(annotatedType.getAnnotation(LogBundle.class), id);
-                     if (retiredIds.contains(id)) {
-                        failure.append("Code ID " + id + " has been retired. ");
-                        continue;
-                     } else if (activeIds.contains(id)) {
-                        failure.append("Code ID " + id + " is in active use. ");
-                        continue;
-                     }
-                     activeIds.add(logAnnotation.id());
-                  }
-               }
-            }
-            if (failure.length() > 0) {
-               int nextValidValue = 0;
-               String regex = annotatedType.getAnnotation(LogBundle.class).regexID();
-               if (regex != null && !regex.isBlank()) {
-                  Generex generex = new Generex(regex);
-                  com.mifmif.common.regex.util.Iterator it = generex.iterator();
-                  boolean nextValidValueFound = false;
-                  while (it.hasNext()) {
-                     nextValidValue = Integer.parseInt(it.next());
-                     if (!retiredIds.contains(nextValidValue) && !activeIds.contains(nextValidValue)) {
-                        nextValidValueFound = true;
-                        break;
-                     }
-                  }
-                  if (nextValidValueFound) {
-                     failure.append("Consider using ").append(nextValidValue).append(" instead. It is the smallest value matching \"").append(regex).append("\" which is neither retired nor active.");
-                  } else {
-                     failure.append("No more valid codes are available!");
-                  }
-               }
-               throw new IllegalArgumentException(failure.toString());
-            }
-            activeIds.sort(null);
-            retiredIds.sort(null);
-            debug("Found active IDs: " + activeIds);
-            debug("Found retired IDs: " + retiredIds);
-         }
+   private static void validateRegexID(LogBundle bundleAnnotation, long id) {
+      if (!isAllowedIDValue(bundleAnnotation, id)) {
+         throw new IllegalArgumentException("Code " + id + " does not match regular expression \"" + bundleAnnotation.regexID() + "\" specified on the LogBundle");
       }
    }
 
-   void validateRegexID(LogBundle bundleAnnotation, long id) {
+   private static boolean isAllowedIDValue(LogBundle bundleAnnotation, long id) {
       if (bundleAnnotation.regexID() != null && !bundleAnnotation.regexID().isEmpty()) {
          String toStringID = Long.toString(id);
-         if (!toStringID.matches(bundleAnnotation.regexID())) {
-            throw new IllegalArgumentException("Code " + id + " does not match regular expression \"" + bundleAnnotation.regexID() + "\" specified on the LogBundle");
-         }
+
+         return toStringID.matches(bundleAnnotation.regexID());
       }
+
+      return true;
    }
 
    private static void generateMessage(LogBundle bundleAnnotation,
                                 PrintWriter writerOutput,
                                 ExecutableElement executableMember,
                                 Message messageAnnotation,
-                                HashMap<Integer, String> processedMessages) {
+                                HashMap<Integer, String> processedMessages,
+                                List<Integer> activeIDs) {
 
-      verifyIdNotProcessedPreviously(messageAnnotation.id(), messageAnnotation.value(), processedMessages);
+      verifyIdNotRetiredOrProcessedPreviously(bundleAnnotation, executableMember, messageAnnotation.id(), messageAnnotation.value(), processedMessages, activeIDs);
       verifyMessagePlaceholders(messageAnnotation.value(), executableMember);
 
       processedMessages.put(messageAnnotation.id(), messageAnnotation.value());
@@ -429,9 +365,10 @@ public class LogAnnotationProcessor extends AbstractProcessor {
                                PrintWriter writerOutput,
                                ExecutableElement executableMember,
                                LogMessage messageAnnotation,
-                               HashMap<Integer, String> processedMessages) {
+                               HashMap<Integer, String> processedMessages,
+                               List<Integer> activeIDs) {
 
-      verifyIdNotProcessedPreviously(messageAnnotation.id(), messageAnnotation.value(), processedMessages);
+      verifyIdNotRetiredOrProcessedPreviously(bundleAnnotation, executableMember, messageAnnotation.id(), messageAnnotation.value(), processedMessages, activeIDs);
       verifyMessagePlaceholders(messageAnnotation.value(), executableMember);
 
       processedMessages.put(messageAnnotation.id(), messageAnnotation.value());
@@ -561,13 +498,45 @@ public class LogAnnotationProcessor extends AbstractProcessor {
       }
    }
 
-   private static void verifyIdNotProcessedPreviously(final Integer id, final String message, final HashMap<Integer, String> processedMessages) {
+   private static void verifyIdNotRetiredOrProcessedPreviously(final LogBundle bundleAnnotation, final ExecutableElement executableMember, final Integer id, final String message, final HashMap<Integer, String> processedMessages, final List<Integer> activeIDs) {
       Objects.requireNonNull(id, "id must not be null");
 
-      if (processedMessages.containsKey(id)) {
-         String previousMessage = processedMessages.get(id);
-         throw new IllegalStateException("message " + id + " with definition = " + message + " was previously defined as " + previousMessage);
+      boolean retiredID = isRetiredID(bundleAnnotation, id);
+      if (processedMessages.containsKey(id) || retiredID) {
+         StringBuilder failure = new StringBuilder();
+
+         failure.append(executableMember.getEnclosingElement().toString()).append(": ");
+
+         if (processedMessages.containsKey(id)) {
+            String previousMessage = processedMessages.get(id);
+
+            failure.append("ID ").append(id)
+                   .append(" with message '").append(message)
+                   .append("' was previously used already, to define message '").append(previousMessage)
+                   .append("'. ");
+         }
+
+         if (retiredID) {
+            failure.append("ID ").append(id).append(" was previously retired, another ID must be used. ");
+         }
+
+         Integer nextId = Collections.max(activeIDs) + 1;
+         while (isRetiredID(bundleAnnotation, nextId) ) {
+            nextId++;
+         }
+
+         if (isAllowedIDValue(bundleAnnotation, nextId)) {
+            failure.append("Consider trying ID ").append(nextId).append(" which is the next unused value.");
+         } else {
+            failure.append("There are no new IDs available within the given ID regex: " + bundleAnnotation.regexID());
+         }
+
+         throw new IllegalStateException(failure.toString());
       }
+   }
+
+   private static boolean isRetiredID(final LogBundle bundleAnnotation, final Integer id) {
+      return Arrays.binarySearch(bundleAnnotation.retiredIDs(), id) >= 0;
    }
 
    private static boolean verifyIfExceptionArgument(final ExecutableElement executableMember, final VariableElement parameter, final boolean hasMoreParams, final boolean hasExistingException) {
@@ -587,5 +556,67 @@ public class LogAnnotationProcessor extends AbstractProcessor {
       }
 
       return isException;
+   }
+
+   private static void validateRetiredIDsAreValidAndSorted(TypeElement annotatedType, LogBundle bundleAnnotation) {
+      int[] retiredIDs = bundleAnnotation.retiredIDs();
+      if (retiredIDs.length == 0) {
+         // Nothing to check
+         return;
+      }
+
+      for (int id : retiredIDs) {
+         if (!isAllowedIDValue(bundleAnnotation, id)) {
+            throw new IllegalArgumentException(annotatedType + ": The retiredIDs elements must each match the configured regexID. The ID " + id + " does not match: " + bundleAnnotation.regexID());
+         }
+      }
+
+      int[] sortedRetiredIDs = Arrays.copyOf(retiredIDs, retiredIDs.length);
+      Arrays.sort(sortedRetiredIDs);
+
+      if (!Arrays.equals(retiredIDs, sortedRetiredIDs)) {
+         StringBuilder sortedIDsMessage = new StringBuilder();
+         sortedIDsMessage.append("{");
+
+         int count = 1;
+         for (int id : sortedRetiredIDs) {
+            sortedIDsMessage.append(id);
+
+            if (count != sortedRetiredIDs.length) {
+               sortedIDsMessage.append(", ");
+               count++;
+            }
+         }
+
+         sortedIDsMessage.append("}");
+
+         throw new IllegalArgumentException(annotatedType + ": The retiredIDs value must be sorted. Try using: " + sortedIDsMessage.toString());
+      }
+
+      debug("Found retired IDs: " + Arrays.toString(retiredIDs));
+   }
+
+   private static List<Integer> collectActiveIDs(TypeElement annotatedType) {
+      List<Integer> activeIds = new ArrayList<>();
+
+      for (Element el : annotatedType.getEnclosedElements()) {
+         if (el.getKind() == ElementKind.METHOD) {
+            Message messageAnnotation = el.getAnnotation(Message.class);
+            if (messageAnnotation != null) {
+               activeIds.add(messageAnnotation.id());
+            }
+
+            LogMessage logAnnotation = el.getAnnotation(LogMessage.class);
+            if (logAnnotation != null) {
+               activeIds.add(logAnnotation.id());
+            }
+         }
+      }
+
+      activeIds.sort(null);
+
+      debug("Found active IDs: " + activeIds);
+
+      return activeIds;
    }
 }
