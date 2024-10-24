@@ -6,7 +6,7 @@ The goal of this guide is to explain these differences and help make a transitio
 
 Migration is a fairly broad term in systems like these, so what are we talking about here?
 This guide will be focused only on broker server migration.
-We'll assume that the current system is a working ActiveMQ "Classic" broker with OpenWire JMS clients.
+We'll assume that the current system is a working ActiveMQ Classic broker with OpenWire JMS clients.
 We'll see how we can replace the broker with Artemis and leave the clients intact.
 
 This guide is aimed at experienced ActiveMQ users that want to learn more about what's different in Artemis.

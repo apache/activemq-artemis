@@ -1,6 +1,6 @@
 = Virtual Topics
 
-Virtual Topics (a specialisation of virtual destinations) in ActiveMQ "Classic" typically address two different but related problems.
+Virtual Topics (a specialisation of virtual destinations) in ActiveMQ Classic typically address two different but related problems.
 Let's take each in turn:
 
 == Shared access to a JMS durable topic subscription
@@ -21,7 +21,7 @@ JMS 2.0 adds the possibility of shared subscriptions with new API's that are ful
 
 Secondly, Artemis uses a queue per topic subscriber model internally, and it is possibly to directly address the subscription queue using its Fully Qualified Queue name (FQQN).
 
-For example, a default 5.x consumer destination for topic `VirtualTopic.Orders` subscription `A`:
+For example, a default Classic consumer destination for topic `VirtualTopic.Orders` subscription `A`:
 
 ----
     ...
@@ -42,7 +42,7 @@ If OpenWire clients cannot be modified, Artemis supports a virtual topic wildcar
 The format is a comma separated list of strings pairs, delimited with a ';'.
 Each pair identifies a filter to match the virtual topic consumer destination, and an int that specifies the number of path matches that terminate the consumer queue identity.
 
-E.g: For the default 5.x virtual topic consumer prefix of `Consumer.*.` the parameter `virtualTopicConsumerWildcards` should be: `Consumer.*.>;2`.
+E.g: For the default Classic virtual topic consumer prefix of `Consumer.*.` the parameter `virtualTopicConsumerWildcards` should be: `Consumer.*.>;2`.
 However, there is a caveat because this value needs to be encoded in a uri for the xml configuration.
 Any unsafe url characters , in this case: `> ;` need to be escaped with their hex code point representation;
 leading to a value of `Consumer.*.%3E%3B2`.
@@ -50,7 +50,7 @@ In this way a consumer destination of `Consumer.A.VirtualTopic.Orders` will be t
 
 == Durable topic subscribers in a network of brokers
 
-The store and forward network bridges in 5.x create a durable subscriber per destination.
+The store and forward network bridges in Classic create a durable subscriber per destination.
 As demand migrates across a network, duplicate durable subs get created on each node in the network, but they do not migrate.
 The end result can result in duplicate message storage and ultimately duplicate delivery, which is not good.
 When durable subscribers map to virtual topic subscriber queues, the queues can migrate, and the problem can be avoided.

@@ -1718,7 +1718,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
          XidImpl xid1 = new XidImpl(xid);
          Transaction transaction = server.getResourceManager().getTransaction(xid1);
-         //amq5.x doesn't pass suspend flags to broker,
+         //ActiveMQ Classic doesn't pass suspend flags to broker,
          //directly suspend the tx
          transaction.suspend();
 

@@ -1,4 +1,4 @@
-= Differences From ActiveMQ "Classic"
+= Differences From ActiveMQ Classic
 
 == Architectural differences
 
@@ -37,7 +37,7 @@ Once the memory is freed, messages are moved from these page files into the jour
 With paging working like this, messages are read from the file journal only when the broker starts up, in order to recreate this in-memory version of the journal.
 In this case, the journal is only read sequentially, meaning that there's no need to keep an index of messages in the journal.
 
-This is one of the main differences between ActiveMQ "Classic" and Artemis.
+This is one of the main differences between ActiveMQ Classic and Artemis.
 It's important to understand it early on as it affects a lot of destination policy settings and how we configure brokers in order to support these scenarios properly.
 
 == Addressing differences

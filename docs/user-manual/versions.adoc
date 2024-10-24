@@ -539,7 +539,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 * xref:ha.adoc#apache-zookeeper-integration[Replication integrated with ZooKeeper]
 * xref:connection-routers.adoc#connection-routers[Connection Routers]
 * xref:core-bridges.adoc#configuring-core-bridges[Concurrency] configuration for core bridges.
-* xref:filter-expressions.adoc#xpath[XPath filter expressions] (for parity with ActiveMQ "Classic").
+* xref:filter-expressions.adoc#xpath[XPath filter expressions] (for parity with ActiveMQ Classic).
 
 === Upgrading from 2.17.0
 
@@ -593,7 +593,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 === Highlights
 
-* xref:broker-plugins.adoc#using-the-brokermessageauthorizationplugin[Message-level authorization] similar to ActiveMQ "Classic".
+* xref:broker-plugins.adoc#using-the-brokermessageauthorizationplugin[Message-level authorization] similar to ActiveMQ Classic.
 * A count of addresses and queues is now available from the management API.
 * You can now reload the broker's configuration from disk via the management API rather than waiting for the periodic  disk scan to pick it up
 * Performance improvements on libaio journal.
@@ -913,7 +913,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 === Highlights
 
-* Support advanced destination options like `consumersBeforeDispatchStarts` and `timeBeforeDispatchStarts` from 5.x.
+* Support advanced destination options like `consumersBeforeDispatchStarts` and `timeBeforeDispatchStarts` from Classic.
 * Add support for delays before deleting addresses and queues via xref:address-settings.adoc#address-settings[`auto-delete-queues-delay` and `auto-delete-addresses-delay` Address Settings].
 * Support xref:web-server.adoc#embedded-web-server[logging HTTP access].
 * Add a CLI command to purge a queue.
@@ -926,7 +926,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 * Support xref:security.adoc#ldaploginmodule[connection pooling in LDAPLoginModule].
 * Support configuring a default consumer window size via xref:address-settings.adoc#address-settings[`default-consumer-window-size` Address Setting].
 * Support xref:masking-passwords.adoc#masking-passwords[masking] `key-store-password` and `trust-store-password` in management.xml.
-* Support xref:message-grouping.adoc#closing-a-message-group[`JMSXGroupSeq` -1 to close/reset message groups] from 5.x.
+* Support xref:message-grouping.adoc#closing-a-message-group[`JMSXGroupSeq` -1 to close/reset message groups] from Classic.
 * Allow configuration of xref:management.adoc#remote-jmx-access[RMI registry port].
 * Support routing-type configuration on xref:core-bridges.adoc#configuring-core-bridges[core bridge].
 * Move artemis-native as its own project, as https://github.com/apache/activemq-artemis-native[activemq-artemis-native].
@@ -984,7 +984,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 === Highlights
 
 * xref:exclusive-queues.adoc#exclusive-queues[Exclusive consumers].
-* Equivalent ActiveMQ "Classic" Virtual Topic naming abilities.
+* Equivalent ActiveMQ Classic Virtual Topic naming abilities.
 * SSL Certificate revocation list.
 * xref:last-value-queues.adoc#last-value-queues[Last-value queue] support for OpenWire.
 * Support xref:masking-passwords.adoc#masking-passwords[masked passwords] in bootstrap.xm and login.config
@@ -1209,7 +1209,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 * Improvements around performance
 * OSGi support.
-* Support functionality equivalent to all 5.x JAAS login modules including:
+* Support functionality equivalent to all Classic JAAS login modules including:
  ** Properties file
  ** LDAP
  ** SSL certificate
@@ -1238,7 +1238,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 === Highlights
 
 * First release of the https://lists.apache.org/thread/7y4o61zzk5y9bdjqsho2p6k7860kmzbt[donated code-base] as ActiveMQ Artemis!
-* Lots of features for parity with ActiveMQ "Classic" including:
+* Lots of features for parity with ActiveMQ Classic including:
  ** OpenWire support
  ** AMQP 1.0 support
  ** URL based connections

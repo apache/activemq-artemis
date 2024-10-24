@@ -25,7 +25,7 @@
 
    <artifactId>activemq5-unit-tests</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ5.x unit tests</name>
+   <name>ActiveMQ Classic unit tests</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>

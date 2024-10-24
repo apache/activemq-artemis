@@ -101,7 +101,7 @@ public interface Stomp {
 
          // Extensions
 
-         // ActiveMQ 5.x Scheduled Message Compatibility.
+         // ActiveMQ Classic Scheduled Message Compatibility.
          String AMQ_SCHEDULED_DELAY = "AMQ_SCHEDULED_DELAY";
 
          // Provides a hard time of delivery option (Epoch based)
@@ -155,12 +155,12 @@ public interface Stomp {
          String DURABLE_SUBSCRIPTION_NAME = "durable-subscription-name";
 
          /**
-          * Backwards compatibility for STOMP clients that were using 5.x
+          * Backwards compatibility for STOMP clients that were using Classic
           */
          String ACTIVEMQ_DURABLE_SUBSCRIPTION_NAME = "activemq.subscriptionName";
 
          /**
-          * Backwards compatibility for STOMP clients that were using 5.x
+          * Backwards compatibility for STOMP clients that were using Classic
           */
          String ACTIVEMQ_PREFETCH_SIZE = "activemq.prefetchSize";
 
@@ -171,7 +171,7 @@ public interface Stomp {
          String NO_LOCAL = "no-local";
 
          /**
-          * Backwards compatibility for STOMP clients that were using 5.x
+          * Backwards compatibility for STOMP clients that were using Classic
           */
          String ACTIVEMQ_NO_LOCAL = "activemq.noLocal";
 
@@ -197,7 +197,7 @@ public interface Stomp {
          String DURABLE_SUBSCRIPTION_NAME = "durable-subscription-name";
 
          /**
-          * Backwards compatibility for STOMP clients that were using 5.x
+          * Backwards compatibility for STOMP clients that were using Classic
           */
          String ACTIVEMQ_DURABLE_SUBSCRIPTION_NAME = "activemq.subscriptionName";
       }

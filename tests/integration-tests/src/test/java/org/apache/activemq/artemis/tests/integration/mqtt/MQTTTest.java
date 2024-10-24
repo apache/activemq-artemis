@@ -1164,7 +1164,7 @@ public class MQTTTest extends MQTTTestSupport {
    @Disabled
    @Test
    @Timeout(90)
-   // TODO ActiveMQ 5.x does not reset the message id generator even after a clean session.  In Artemis we always reset.
+   // TODO ActiveMQ Classic does not reset the message id generator even after a clean session.  In Artemis we always reset.
    // If there is a good reason for this we should follow ActiveMQ.
    public void testPacketIdGeneratorCleanSession() throws Exception {
       final String[] cleanClientIds = new String[]{"", "clean-packetid", null};

@@ -225,8 +225,8 @@ See the JavaDoc on `org.apache.activemq.artemis.core.server.SecuritySettingPlugi
 
 ==== LegacyLDAPSecuritySettingPlugin
 
-This plugin will read the security information that was previously handled by http://activemq.apache.org/security.html[`LDAPAuthorizationMap`] and the http://activemq.apache.org/cached-ldap-authorization-module.html[`cachedLDAPAuthorizationMap`] in Apache ActiveMQ "Classic" and turn it into Artemis security settings where possible.
-The security implementations of ActiveMQ "Classic" and Artemis don't match perfectly so some translation must occur to achieve near equivalent functionality.
+This plugin will read the security information that was previously handled by http://activemq.apache.org/security.html[`LDAPAuthorizationMap`] and the http://activemq.apache.org/cached-ldap-authorization-module.html[`cachedLDAPAuthorizationMap`] in Apache ActiveMQ Classic and turn it into Artemis security settings where possible.
+The security implementations of ActiveMQ Classic and Artemis don't match perfectly so some translation must occur to achieve near equivalent functionality.
 
 Here is an example of the plugin's configuration:
 
@@ -323,12 +323,12 @@ The default  value is `false`.
 
 allowQueueAdminOnRead::
 Whether or not to map the legacy `read` permission to the `createDurableQueue`, `createNonDurableQueue`, and `deleteDurableQueue` permissions so that JMS clients can create durable and non-durable subscriptions without needing the `admin` permission.
-This was allowed in ActiveMQ "Classic".
+This was allowed in ActiveMQ Classic.
 The default value is `false`.
 
-The name of the queue or topic defined in LDAP will serve as the "match" for the security-setting, the permission value will be mapped from the ActiveMQ "Classic" type to the Artemis type, and the role will be mapped as-is.
+The name of the queue or topic defined in LDAP will serve as the "match" for the security-setting, the permission value will be mapped from the ActiveMQ Classic type to the Artemis type, and the role will be mapped as-is.
 
-ActiveMQ "Classic" only has 3 permission types - `read`, `write`, and `admin`.
+ActiveMQ Classic only has 3 permission types - `read`, `write`, and `admin`.
 These permission types are described on their http://activemq.apache.org/security.html[website].
 However, as described previously, ActiveMQ Artemis has 9 permission types - `createAddress`, `deleteAddress`, `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue`, `send`, `consume`, `browse`, and `manage`.
 Here's how the old types are mapped to the new types:
@@ -344,9 +344,9 @@ admin::
 
 As mentioned, there are a few places where a translation was performed to achieve some equivalence.:
 
-* This mapping doesn't include the Artemis `manage` permission type by default since there is no type analogous for that in ActiveMQ "Classic".
+* This mapping doesn't include the Artemis `manage` permission type by default since there is no type analogous for that in ActiveMQ Classic.
 However, if `mapAdminToManage` is `true` then the legacy `admin` permission will be mapped to the `manage` permission.
-* The `admin` permission in ActiveMQ "Classic" relates to whether or not the broker will auto-create a destination if it doesn't exist and the user sends a message to it.
+* The `admin` permission in ActiveMQ Classic relates to whether or not the broker will auto-create a destination if it doesn't exist and the user sends a message to it.
 Artemis automatically allows the automatic creation of a destination if the user has permission to send message to it.
 Therefore, the plugin will map the `admin` permission to the 6 aforementioned permissions in Artemis by default.
 If `mapAdminToManage` is `true` then the legacy `admin` permission will be mapped to the `manage` permission as well.

@@ -283,7 +283,7 @@ The `stomp-websockets` xref:examples.adoc[example] shows how to configure an Apa
 STOMP clients can use the `consumer-window-size` header on the `SUBSCRIBE` frame to control the flow of messages to clients.
 This is broadly discussed in the xref:flow-control.adoc#flow-control[Flow Control] chapter.
 
-This ability is similar to the `activemq.prefetchSize` header supported by ActiveMQ "Classic".
+This ability is similar to the `activemq.prefetchSize` header supported by ActiveMQ Classic.
 However, that header specifies the size in terms of _messages_ whereas `consumer-window-size` specifies the size in terms of _bytes_.
 ActiveMQ Artemis supports the `activemq.prefetchSize` header for backwards compatibility but the value will be interpreted as _bytes_ just like `consumer-window-size` would be.
 If both `activemq.prefetchSize` and `consumer-window-size` are set then the value for `consumer-window-size` will be used.
