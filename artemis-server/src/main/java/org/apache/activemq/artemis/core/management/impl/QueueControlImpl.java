@@ -1362,6 +1362,32 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
+   public boolean copyMessage(final long messageID,
+                              final String targetQueue) throws Exception {
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.copyMessage(queue, messageID, targetQueue);
+         }
+         checkStarted();
+
+         clearIO();
+         try {
+            Binding binding = server.getPostOffice().getBinding(SimpleString.of(targetQueue));
+
+            if (binding == null) {
+               throw ActiveMQMessageBundle.BUNDLE.noQueueFound(targetQueue);
+            }
+
+            return queue.copyReference(messageID, binding.getAddress(), binding);
+         } finally {
+            blockOnIO();
+         }
+      }
+
+   }
+
+   @Override
    public int moveMessages(final String filterStr, final String otherQueueName) throws Exception {
       return moveMessages(filterStr, otherQueueName, false);
    }

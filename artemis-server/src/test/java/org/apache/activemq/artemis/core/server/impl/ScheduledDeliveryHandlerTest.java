@@ -1487,6 +1487,11 @@ public class ScheduledDeliveryHandlerTest {
       }
 
       @Override
+      public boolean copyReference(long messageID, SimpleString address, Binding binding) throws Exception {
+         return false;
+      }
+
+      @Override
       public void addRedistributor(long delay) {
 
       }

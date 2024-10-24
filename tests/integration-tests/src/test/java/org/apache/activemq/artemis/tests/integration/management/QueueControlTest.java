@@ -2618,6 +2618,60 @@ public class QueueControlTest extends ManagementTestBase {
       session.deleteQueue(otherQueue);
    }
 
+   @TestTemplate
+   public void testCopyMessage() throws Exception {
+      SimpleString address = SimpleString.of("address");//RandomUtil.randomSimpleString();
+      SimpleString queue = SimpleString.of("queue");//RandomUtil.randomSimpleString();
+      SimpleString otherAddress = SimpleString.of("otherAddress");//RandomUtil.randomSimpleString();
+      SimpleString otherQueue = SimpleString.of("otherQueue");//RandomUtil.randomSimpleString();
+      SimpleString otherQueue2 = SimpleString.of("otherQueue2");//RandomUtil.randomSimpleString();
+
+
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(otherQueue).setAddress(otherAddress).setDurable(durable));
+      session.createQueue(QueueConfiguration.of(otherQueue2).setAddress(otherAddress).setDurable(durable));
+      ClientProducer producer = session.createProducer(address);
+
+      // send 2 messages on queue
+      producer.send(session.createMessage(durable));
+      producer.send(session.createMessage(durable));
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      QueueControl otherQueueControl = createManagementControl(otherAddress, otherQueue);
+      QueueControl otherQueueControl2 = createManagementControl(otherAddress, otherQueue2);
+      assertMessageMetrics(queueControl, 2, durable);
+      assertMessageMetrics(otherQueueControl, 0, durable);
+      assertMessageMetrics(otherQueueControl2, 0, durable);
+
+      // the message IDs are set on the server
+      Map<String, Object>[] messages = queueControl.listMessages(null);
+      assertEquals(2, messages.length);
+      long messageID = (Long) messages[0].get("messageID");
+
+      boolean copied = queueControl.copyMessage(messageID, otherQueue.toString());
+      assertTrue(copied);
+
+      assertMessageMetrics(queueControl, 2, durable);
+      assertMessageMetrics(otherQueueControl, 1, durable);
+      assertMessageMetrics(otherQueueControl2, 0, durable);
+
+      messageID = (Long) messages[1].get("messageID");
+      copied = queueControl.copyMessage(messageID, otherQueue.toString());
+      assertTrue(copied);
+
+      assertMessageMetrics(queueControl, 2, durable);
+      assertMessageMetrics(otherQueueControl, 2, durable);
+      assertMessageMetrics(otherQueueControl2, 0, durable);
+
+      consumeMessages(2, session, queue);
+      consumeMessages(2, session, otherQueue);
+      consumeMessages(0, session, otherQueue2);
+
+      session.deleteQueue(queue);
+      session.deleteQueue(otherQueue);
+      session.deleteQueue(otherQueue2);
+   }
+
    /**
     *    Moving message from another address to a single "child" queue of a multicast address
     *

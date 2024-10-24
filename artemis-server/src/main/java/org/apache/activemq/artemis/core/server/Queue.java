@@ -380,6 +380,9 @@ public interface Queue extends Bindable,CriticalComponent {
                       int messageCount,
                       Binding binding) throws Exception;
 
+
+   boolean copyReference(long messageID, SimpleString queue, Binding binding) throws Exception;
+
    int retryMessages(Filter filter) throws Exception;
 
    default int retryMessages(Filter filter, Integer expectedHits) throws Exception {

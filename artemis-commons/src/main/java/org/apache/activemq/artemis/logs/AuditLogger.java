@@ -2744,4 +2744,12 @@ public interface AuditLogger {
 
    @LogMessage(id = 601781, value = "User {} is getting authorization failure count on target resource: {}", level = LogMessage.Level.INFO)
    void getAuthorizationFailureCount(String user, Object source);
+
+
+   static void copyMessage(Object source, Object... args) {
+      BASE_LOGGER.copyMessage(getCaller(), source, parametersList(args));
+   }
+
+   @LogMessage(id = 601782, value = "User {} is copying a message to another queue on target resource: {} {}", level = LogMessage.Level.INFO)
+   void copyMessage(String user, Object source, String args);
 }

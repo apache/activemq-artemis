@@ -507,6 +507,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public boolean copyMessage(long messageID, String targetQueue) throws Exception {
+            return (Boolean) proxy.invokeOperation("copyMessage", messageID, targetQueue);
+         }
+
+         @Override
          public int moveMessages(final String filter,
                                  final String otherQueueName,
                                  final boolean rejectDuplicates) throws Exception {
