@@ -21,24 +21,15 @@ import org.apache.activemq.artemis.logs.annotation.LogMessage;
 import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
- * Logger Code 10
+ * Logger Codes 100000 - 109999
  */
-@LogBundle(projectCode = "AMQ", regexID = "10[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "10[0-9]{4}", retiredIDs = {101001, 101002, 101003})
 public interface ActiveMQBootstrapLogger {
 
    ActiveMQBootstrapLogger LOGGER = BundleFactory.newBundle(ActiveMQBootstrapLogger.class, ActiveMQBootstrapLogger.class.getPackage().getName());
 
    @LogMessage(id = 101000, value = "Starting ActiveMQ Artemis Server version {}", level = LogMessage.Level.INFO)
    void serverStarting(String version);
-
-   @LogMessage(id = 101001, value = "Stopping ActiveMQ Artemis Server", level = LogMessage.Level.INFO)
-   void serverStopping();
-
-   @LogMessage(id = 101002, value = "Starting Naming server on {}:{} (rmi {}:{})", level = LogMessage.Level.INFO)
-   void startedNamingService(String bindAddress, int port, String rmiBindAddress, int rmiPort);
-
-   @LogMessage(id = 101003, value = "Halting ActiveMQ Artemis Server after user request", level = LogMessage.Level.INFO)
-   void serverKilled();
 
    @LogMessage(id = 104000, value = "Failed to delete file {}", level = LogMessage.Level.ERROR)
    void errorDeletingFile(String name);

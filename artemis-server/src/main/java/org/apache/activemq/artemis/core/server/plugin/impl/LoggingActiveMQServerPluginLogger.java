@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 
 /**
- * Logger Code 84
+ * Logger Codes 840000 - 849999
  */
 @LogBundle(projectCode = "AMQ", regexID = "84[0-9]{4}")
 public interface LoggingActiveMQServerPluginLogger {

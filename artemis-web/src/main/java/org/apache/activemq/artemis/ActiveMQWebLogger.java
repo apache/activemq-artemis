@@ -16,16 +16,14 @@
  */
 package org.apache.activemq.artemis;
 
+import org.apache.activemq.artemis.logs.BundleFactory;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
-
-import java.io.File;
 
 /**
- * Logger Code 24
+ * Logger Codes 240000 - 249999
  */
-@LogBundle(projectCode = "AMQ", regexID = "24[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "24[0-9]{4}", retiredIDs = {244003})
 public interface ActiveMQWebLogger  {
 
    ActiveMQWebLogger LOGGER = BundleFactory.newBundle(ActiveMQWebLogger.class, ActiveMQWebLogger.class.getPackage().getName());
@@ -47,9 +45,6 @@ public interface ActiveMQWebLogger  {
 
    @LogMessage(id = 241006, value = "Stopped embedded web server", level = LogMessage.Level.INFO)
    void stoppedEmbeddedWebServer();
-
-   @LogMessage(id = 244003, value = "Temporary file not deleted on shutdown: {}", level = LogMessage.Level.WARN)
-   void tmpFileNotDeleted(File tmpdir);
 
    @LogMessage(id = 244005, value = "Web customizer {} not loaded: {}", level = LogMessage.Level.WARN)
    void customizerNotLoaded(String customizer, Throwable t);

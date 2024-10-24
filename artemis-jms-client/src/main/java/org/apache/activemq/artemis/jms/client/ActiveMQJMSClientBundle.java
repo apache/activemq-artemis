@@ -33,9 +33,9 @@ import org.apache.activemq.artemis.logs.annotation.Message;
 import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
- * Logger Code 13
+ * Logger Codes 139000 - 139999
  */
-@LogBundle(projectCode = "AMQ", regexID = "13[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "139[0-9]{3}")
 public interface ActiveMQJMSClientBundle {
 
    ActiveMQJMSClientBundle BUNDLE = BundleFactory.newBundle(ActiveMQJMSClientBundle.class);
