@@ -864,12 +864,13 @@ public final class ChannelImpl implements Channel {
 
    }
 
-   private void addResendPacket(Packet packet) {
-      resendCache.add(packet);
+   protected void addResendPacket(Packet packet) {
+      if (resendCache != null) {
+         resendCache.add(packet);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("RemotingConnectionID={} ChannelImpl::addResendPacket adding packet {} stored commandID={} possible commandIDr={}",
-                      (connection == null ? "NULL" : connection.getID()), packet, firstStoredCommandID, (firstStoredCommandID + resendCache.size()));
+         if (logger.isTraceEnabled()) {
+            logger.trace("RemotingConnectionID={} ChannelImpl::addResendPacket adding packet {} stored commandID={} possible commandIDr={}", (connection == null ? "NULL" : connection.getID()), packet, firstStoredCommandID, (firstStoredCommandID + resendCache.size()));
+         }
       }
    }
 
