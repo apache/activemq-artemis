@@ -47,15 +47,13 @@ Please see xref:stomp.adoc#stomp[Stomp] for more details.
 
 ActiveMQ Classic defines its own wire protocol: OpenWire.
 In order to support ActiveMQ Classic clients, Apache ActiveMQ Artemis supports OpenWire.
-Any ActiveMQ 5.12.x or higher can be used with Apache ActiveMQ Artemis.
+Any application using the OpenWire JMS client library shipped with ActiveMQ 5.12.x or higher can be used with Apache ActiveMQ Artemis.
 
 Please see xref:openwire.adoc#openwire[OpenWire] for more details.
 
 === Core
 
-ActiveMQ Classic defines its own wire protocol: OpenWire.
-In order to support ActiveMQ Classic clients, Apache ActiveMQ Artemis supports OpenWire.
-Any ActiveMQ 5.12.x or higher can be used with Apache ActiveMQ Artemis.
+ActiveMQ Artemis defines its own wire protocol: Core.
 
 Please see xref:core.adoc#using-core[Core] for more details.
 
