@@ -26,9 +26,9 @@ import org.apache.activemq.artemis.logs.BundleFactory;
 import org.w3c.dom.Node;
 
 /**
- * Logger Code 21
+ * Logger Codes 210000 - 218999
  */
-@LogBundle(projectCode = "AMQ", regexID = "21[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "21[0-8][0-9]{3}", retiredIDs = {214029})
 public interface ActiveMQClientLogger {
 
    ActiveMQClientLogger LOGGER = BundleFactory.newBundle(ActiveMQClientLogger.class, ActiveMQClientLogger.class.getPackage().getName());
@@ -329,9 +329,6 @@ public interface ActiveMQClientLogger {
 
    @LogMessage(id = 214025, value = "Invalid type {}, Using default connection factory at {}", level = LogMessage.Level.ERROR)
    void invalidCFType(String type, String uri);
-
-   @LogMessage(id = 214029, value = "Unexpected response from HTTP server: {}", level = LogMessage.Level.ERROR)
-   void unexpectedResponseFromHttpServer(Object response);
 
    @LogMessage(id = 214030, value = "Failed to bind {}={}", level = LogMessage.Level.ERROR)
    void failedToBind(String p1, String p2, Throwable cause);

@@ -27,24 +27,18 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFound
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurityException;
 
 /**
- * Logger Code 11
+ * Logger Codes 119000 - 119999
  */
-@LogBundle(projectCode = "AMQ", regexID = "11[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "119[0-9]{3}", retiredIDs = {119000, 119003, 119012, 119013})
 public interface ActiveMQAMQPProtocolMessageBundle {
 
    ActiveMQAMQPProtocolMessageBundle BUNDLE = BundleFactory.newBundle(ActiveMQAMQPProtocolMessageBundle.class);
-
-   @Message(id = 119000, value = "target address not set")
-   ActiveMQAMQPInvalidFieldException targetAddressNotSet();
 
    @Message(id = 119001, value = "error creating temporary queue, {}")
    ActiveMQAMQPInternalErrorException errorCreatingTemporaryQueue(String message);
 
    @Message(id = 119002, value = "target address {} does not exist")
    ActiveMQAMQPNotFoundException addressDoesntExist(String address);
-
-   @Message(id = 119003, value = "error finding temporary queue, {}")
-   ActiveMQAMQPNotFoundException errorFindingTemporaryQueue(String message);
 
    @Message(id = 119005, value = "error creating consumer, {}")
    ActiveMQAMQPInternalErrorException errorCreatingConsumer(String message);
@@ -63,12 +57,6 @@ public interface ActiveMQAMQPProtocolMessageBundle {
 
    @Message(id = 119011, value = "source address not set")
    ActiveMQAMQPInvalidFieldException sourceAddressNotSet();
-
-   @Message(id = 119012, value = "error rolling back coordinator: {}")
-   ActiveMQAMQPIllegalStateException errorRollingbackCoordinator(String message);
-
-   @Message(id = 119013, value = "error committing coordinator: {}")
-   ActiveMQAMQPIllegalStateException errorCommittingCoordinator(String message);
 
    @Message(id = 119014, value = "Transaction not found: xid={}")
    ActiveMQAMQPIllegalStateException txNotFound(String xidToString);

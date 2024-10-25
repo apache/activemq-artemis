@@ -25,9 +25,9 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import javax.jms.IllegalStateException;
 
 /**
- * Logger Code 15
+ * Logger Codes 150000 - 158999
  */
-@LogBundle(projectCode = "AMQ", regexID = "15[0-9]{4}")
+@LogBundle(projectCode = "AMQ", regexID = "15[0-8][0-9]{3}")
 public interface ActiveMQRALogger {
 
    /**

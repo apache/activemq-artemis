@@ -27,7 +27,13 @@ public @interface LogBundle {
 
    String projectCode();
 
-   /** if set, every code generated must match this regular expression.
-    *  this is useful to validate ranges.*/
+   /** If set, every code generated must match this regular expression.
+    * This is useful to validate ranges.
+    */
    String regexID() default "";
+
+   /** If set, no ID from this list can be used.
+    * This is useful to ensure we do not re-use IDs which were used and removed in the past.
+    */
+   int[] retiredIDs() default {};
 }
