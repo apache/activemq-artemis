@@ -35,7 +35,8 @@ RUN groupadd -g 1001 -r artemis && useradd -r -u 1001 -g artemis artemis
 RUN apt-get -qq -o=Dpkg::Use-Pty=0 update && \
     apt-get -qq -o=Dpkg::Use-Pty=0 install -y libaio1t64 && \
     rm -rf /var/lib/apt/lists/* && \
-    ln -s  /lib/x86_64-linux-gnu/libaio.so.1t64 /lib/x86_64-linux-gnu/libaio.so.1
+
+RUN ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/libaio.so.1
 
 USER artemis
 
