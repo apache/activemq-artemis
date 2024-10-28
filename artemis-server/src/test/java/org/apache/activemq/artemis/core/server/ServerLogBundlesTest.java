@@ -16,11 +16,16 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogEntry;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -51,6 +56,18 @@ public class ServerLogBundlesTest {
          ActiveMQServerLogger.LOGGER.autoRemoveAddress("addressBreadCrumb");
 
          assertTrue(loggerHandler.findText("AMQ224113", "addressBreadCrumb"));
+
+         List<LogEntry> entries = loggerHandler.getLogEntries();
+         assertEquals(1, entries.size());
+
+         LogEntry entry = entries.get(0);
+         assertNotNull(entry.getMessage(), "message not as expected");
+         assertTrue(entry.getMessage().startsWith("AMQ224113"), "message not as expected");
+         assertEquals(LogLevel.INFO, entry.getLogLevel(), "level not as expected");
+
+         // Check that the expected ActiveMQServerLogger logger name was used.
+         assertEquals(SERVER_LOGGER, "org.apache.activemq.artemis.core.server");
+         assertEquals(SERVER_LOGGER, entry.getLoggerName(), "logger name used not as expected");
       }
    }
 
@@ -66,16 +83,32 @@ public class ServerLogBundlesTest {
    }
 
    @Test
-   public void testActiveMQQueueLogger() throws Exception {
+   public void testPageFlowControlMethodWithDefinedLoggerName() throws Exception {
       int messageCount = 1003;
       int messageBytes = 70004;
       int maxMessages = 1000;
       int maxMessagesBytes = 60001;
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
-         ActiveMQQueueLogger.LOGGER.warnPageFlowControl("addressBreadCrumb", "queueBreadCrumb", messageCount, messageBytes, maxMessages, maxMessagesBytes);
+         // This method defines its own logger name, overriding the normal ActiveMQServerLogger-wide logger used
+         ActiveMQServerLogger.LOGGER.warnPageFlowControl("addressBreadCrumb", "queueBreadCrumb", messageCount, messageBytes, maxMessages, maxMessagesBytes);
 
          assertTrue(loggerHandler.findText("AMQ224127", "addressBreadCrumb", "queueBreadCrumb", String.valueOf(messageCount), String.valueOf(messageBytes), String.valueOf(maxMessages), String.valueOf(maxMessagesBytes)));
+
+         List<LogEntry> entries = loggerHandler.getLogEntries();
+         assertEquals(1, entries.size());
+
+         LogEntry entry = entries.get(0);
+         assertNotNull(entry.getMessage(), "message not as expected");
+         assertTrue(entry.getMessage().startsWith("AMQ224127"), "message not as expected");
+         assertEquals(LogLevel.WARN, entry.getLogLevel(), "level not as expected");
+
+         // Check that the expected override logger name was used.
+         assertEquals(QUEUE_LOGGER, "org.apache.activemq.artemis.core.server.Queue");
+         assertEquals(QUEUE_LOGGER, entry.getLoggerName(), "logger name used not as expected");
+
+         assertNotEquals(SERVER_LOGGER, entry.getLoggerName(), "logger name used not as expected");
+         assertNotEquals(SERVER_LOGGER, QUEUE_LOGGER, "logger names should not be equal");
       }
    }
 }

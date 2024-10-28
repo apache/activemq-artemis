@@ -77,7 +77,6 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
-import org.apache.activemq.artemis.core.server.ActiveMQQueueLogger;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Consumer;
@@ -3401,7 +3400,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             if (!pageFlowControlled && (maxReadBytes > 0 && deliveringMetrics.getPersistentSize() >= maxReadBytes || maxReadMessages > 0 && deliveringMetrics.getMessageCount() >= maxReadMessages)) {
                if (System.currentTimeMillis() - pageFlowControlledLastLog > PAGE_FLOW_CONTROL_PRINT_INTERVAL) {
                   pageFlowControlledLastLog = System.currentTimeMillis();
-                  ActiveMQQueueLogger.LOGGER.warnPageFlowControl(String.valueOf(address), String.valueOf(name), deliveringMetrics.getMessageCount(), deliveringMetrics.getPersistentSize(), maxReadMessages, maxReadBytes);
+                  ActiveMQServerLogger.LOGGER.warnPageFlowControl(String.valueOf(address), String.valueOf(name), deliveringMetrics.getMessageCount(), deliveringMetrics.getPersistentSize(), maxReadMessages, maxReadBytes);
                }
                if (logger.isDebugEnabled()) {
                   logger.debug("Message dispatch from paging is blocked. Address {}/Queue{} will not read any more messages from paging " +

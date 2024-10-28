@@ -51,8 +51,10 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 /**
  * Logger Codes 220000 - 228999
  */
-@LogBundle(projectCode = "AMQ", regexID = "22[0-8][0-9]{3}", retiredIDs = {221026, 221052, 222012, 222020, 222021, 222022, 222024, 222027, 222028, 222029, 222052, 222071, 222078, 222079, 222083, 222084, 222088, 222090, 222102, 222128, 222134, 222135, 222152, 222159, 222163, 222167, 222170, 222171, 222182, 222192, 222193, 222204, 222252, 222255, 222257, 222259, 222260, 222288, 224001, 224002, 224003, 224005, 224035, 224100, 224121, 224127})
+@LogBundle(projectCode = "AMQ", regexID = "22[0-8][0-9]{3}", retiredIDs = {221026, 221052, 222012, 222020, 222021, 222022, 222024, 222027, 222028, 222029, 222052, 222071, 222078, 222079, 222083, 222084, 222088, 222090, 222102, 222128, 222134, 222135, 222152, 222159, 222163, 222167, 222170, 222171, 222182, 222192, 222193, 222204, 222252, 222255, 222257, 222259, 222260, 222288, 224001, 224002, 224003, 224005, 224035, 224100, 224121})
 public interface ActiveMQServerLogger {
+
+   // Note: logger ID 224127 uses "org.apache.activemq.artemis.core.server.Queue" for its logger category, rather than ActiveMQServerLogger.class.getPackage().getName()
 
    ActiveMQServerLogger LOGGER = BundleFactory.newBundle(ActiveMQServerLogger.class, ActiveMQServerLogger.class.getPackage().getName());
 
@@ -1439,7 +1441,12 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224126, value = "Failure during protocol handshake on connection to {} from {}", level = LogMessage.Level.ERROR)
    void failureDuringProtocolHandshake(SocketAddress localAddress, SocketAddress remoteAddress, Throwable e);
 
-   // notice loggerID=224127 is reserved as it's been used at ActiveMQQueueLogger
+   // Note the custom loggerName rather than the overall LogBundle-wide definition used by other methods.
+   @LogMessage(id = 224127, value = "Message dispatch from paging is blocked. Address {}/Queue {} will not read any more messages from paging until pending messages are acknowledged. "
+                                  + "There are currently {} messages pending ({} bytes) with max reads at maxPageReadMessages({}) and maxPageReadBytes({}). "
+                                  + "Either increase reading attributes at the address-settings or change your consumers to acknowledge more often.",
+                                  loggerName = "org.apache.activemq.artemis.core.server.Queue", level = LogMessage.Level.WARN)
+   void warnPageFlowControl(String address, String queue, long messageCount, long messageBytes, long maxMessages, long maxMessagesBytes);
 
    @LogMessage(id = 224128, value = "Free storage space is at {} which is below the configured <min-disk-free>. System will start blocking producers.", level = LogMessage.Level.WARN)
    void minDiskFreeReached(String usableSpace);

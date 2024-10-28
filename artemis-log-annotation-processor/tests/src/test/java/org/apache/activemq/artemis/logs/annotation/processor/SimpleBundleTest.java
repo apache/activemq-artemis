@@ -25,10 +25,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogEntry;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
 
 public class SimpleBundleTest {
 
@@ -60,10 +64,31 @@ public class SimpleBundleTest {
    }
 
    @Test
-   public void testPrint() {
-      SimpleBundle.MESSAGES.printMessage();
-      for (int i = 0; i < 10; i++) {
-         SimpleBundle.MESSAGES.printMessage(i);
+   public void testPrint() throws IOException {
+      try (AssertionLoggerHandler logHandler = new AssertionLoggerHandler()) {
+         SimpleBundle.MESSAGES.printMessage();
+
+         for (int i = 0; i < 10; i++) {
+            SimpleBundle.MESSAGES.printMessage(i);
+         }
+
+         assertEquals(11, logHandler.getNumberOfMessages());
+         assertEquals(11, logHandler.countText("This is a print!!!"));
+
+         String expectedMessage1 = "TST5: This is a print!!!";
+         assertTrue(logHandler.findText(expectedMessage1), "message not found in logs");
+
+         String expectedMessage2prefix = "TST6: This is a print!!! ";
+         for (int i = 0; i < 10; i++) {
+            assertTrue(logHandler.findText(expectedMessage2prefix + i), "message not found in logs");
+         }
+
+         List<LogEntry> entries = logHandler.getLogEntries();
+
+         assertEquals(11, entries.size());
+         entries.forEach(entry -> {
+            assertEquals(SimpleBundle.class.getName(), entry.getLoggerName(), "logger name not as expected");
+         });
       }
    }
 
@@ -141,6 +166,48 @@ public class SimpleBundleTest {
 
    @Test
    public void testGetLogger() {
-      assertNotNull(SimpleBundle.MESSAGES.getLogger());
+      Logger logger = SimpleBundle.MESSAGES.getLogger();
+      assertNotNull(logger);
+      assertEquals(SimpleBundle.class.getName(), logger.getName());
+   }
+
+   @Test
+   public void testLoggerNameOverrideWithParameters() throws Exception {
+      try (AssertionLoggerHandler logHandler = new AssertionLoggerHandler()) {
+         SimpleBundle.MESSAGES.overrideLoggerNameWithParameter("BREADCRUMB");
+
+         final String expectedMessage = "TST15: Logger name overridden to add .OVERRIDE.PARAMS suffix. BREADCRUMB";
+
+         assertTrue(logHandler.findText(expectedMessage), "message not found in logs");
+         assertEquals(1, logHandler.getNumberOfMessages());
+
+         List<LogEntry> entries = logHandler.getLogEntries();
+         assertEquals(1, entries.size());
+
+         LogEntry entry = entries.get(0);
+         assertEquals(expectedMessage, entry.getMessage(), "message not as expected");
+         assertEquals(LogLevel.WARN, entry.getLogLevel(), "level not as expected");
+         assertEquals(SimpleBundle.LOGGER_NAME_OVERRIDE_PARAMS, entry.getLoggerName(), "logger name not as expected");
+      }
+   }
+
+   @Test
+   public void testLoggerNameOverrideWithoutParameters() throws Exception {
+      try (AssertionLoggerHandler logHandler = new AssertionLoggerHandler()) {
+         SimpleBundle.MESSAGES.overrideLoggerNameWithoutParameter();
+
+         final String expectedMessage = "TST16: Logger name overridden to add .OVERRIDE.NO_PARAMS suffix.";
+
+         assertTrue(logHandler.findText(expectedMessage), "message not found in logs");
+         assertEquals(1, logHandler.getNumberOfMessages());
+
+         List<LogEntry> entries = logHandler.getLogEntries();
+         assertEquals(1, entries.size());
+
+         LogEntry entry = entries.get(0);
+         assertEquals(expectedMessage, entry.getMessage(), "message not as expected");
+         assertEquals(LogLevel.WARN, entry.getLogLevel(), "level not as expected");
+         assertEquals(SimpleBundle.LOGGER_NAME_OVERRIDE_NO_PARAMS, entry.getLoggerName(), "logger name not as expected");
+      }
    }
 }

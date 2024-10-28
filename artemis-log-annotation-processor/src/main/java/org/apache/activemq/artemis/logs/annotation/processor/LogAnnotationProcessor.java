@@ -373,6 +373,16 @@ public class LogAnnotationProcessor extends AbstractProcessor {
 
       processedMessages.put(messageAnnotation.id(), messageAnnotation.value());
 
+      final String loggerFieldName;
+      if (messageAnnotation.loggerName().isBlank()) {
+         loggerFieldName = "logger";
+      } else {
+         loggerFieldName = "logger_" + messageAnnotation.id();
+
+         writerOutput.println("   private static final Logger " + loggerFieldName + " = LoggerFactory.getLogger(\"" + messageAnnotation.loggerName() + "\");");
+         writerOutput.println();
+      }
+
       // This is really a debug output
       writerOutput.println("   // " + encodeSpecialChars(messageAnnotation.toString()));
       writerOutput.println("   @Override");
@@ -420,12 +430,12 @@ public class LogAnnotationProcessor extends AbstractProcessor {
       final String methodName = getLoggerOutputMethodName(messageAnnotation);
       final String formattingString = encodeSpecialChars(bundleAnnotation.projectCode() + messageAnnotation.id() + ": " + messageAnnotation.value());
 
-      writerOutput.println("      if (logger." + isEnabledMethodName + "()) {");
+      writerOutput.println("      if (" + loggerFieldName + "." + isEnabledMethodName + "()) {");
 
       if (hasParameters) {
-         writerOutput.println("         logger." + methodName + "(\"" + formattingString + "\", " + callList + ");");
+         writerOutput.println("         " + loggerFieldName + "." + methodName + "(\"" + formattingString + "\", " + callList + ");");
       } else {
-         writerOutput.println("         logger." + methodName + "(\"" + formattingString + "\");");
+         writerOutput.println("         " + loggerFieldName + "." + methodName + "(\"" + formattingString + "\");");
       }
 
       writerOutput.println("      }");
