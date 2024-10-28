@@ -24,7 +24,7 @@ import org.w3c.dom.Node;
 /**
  * Logger Codes 120000 - 128999
  */
-@LogBundle(projectCode = "AMQ", regexID = "12[0-8][0-9]{3}", retiredIDs = {122008, 122013, 122014, 122016})
+@LogBundle(projectCode = "AMQ", regexID = "12[0-8][0-9]{3}", retiredIDs = {121003, 122008, 122013, 122014, 122016})
 public interface ActiveMQJMSServerLogger {
 
    ActiveMQJMSServerLogger LOGGER = BundleFactory.newBundle(ActiveMQJMSServerLogger.class, ActiveMQJMSServerLogger.class.getPackage().getName());
