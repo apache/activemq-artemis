@@ -3995,6 +3995,102 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
       }
    }
 
+   @Test
+   @Timeout(20)
+   public void testNewFederationConsumerCreatedWhenDemandRemovedAndAddedWithDelayedPreviousDetach() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSenderSettleModeSettled()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue.setName("queue-policy");
+         receiveFromQueue.addToIncludes(getTestName(), getTestName());
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalQueuePolicy(receiveFromQueue);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("queue-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString());
+         peer.expectFlow().withLinkCredit(1000);
+         peer.expectDetach().respond().afterDelay(40); // Defer the detach response for a bit
+
+         server.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.ANYCAST)
+                                                                .setAddress(getTestName())
+                                                                .setAutoCreated(false));
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         // Create demand on the queue which creates a federation consumer then let it close which
+         // should shut down that federation consumer.
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageConsumer consumer = session.createConsumer(session.createQueue(getTestName()));
+
+            connection.start();
+
+            consumer.receiveNoWait();
+         }
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("queue-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString());
+         peer.expectFlow().withLinkCredit(1000);
+         peer.expectDetach().respond();
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageConsumer consumer = session.createConsumer(session.createQueue(getTestName()));
+
+            connection.start();
+
+            consumer.receiveNoWait();
+         }
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
    private static void sendQueueAddedEvent(ProtonTestPeer peer, String address, String queue, int handle, int deliveryId) {
       final Map<String, Object> eventMap = new LinkedHashMap<>();
       eventMap.put(REQUESTED_ADDRESS_NAME, address);
