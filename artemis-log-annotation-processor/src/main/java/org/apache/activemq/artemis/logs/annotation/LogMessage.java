@@ -53,5 +53,8 @@ public @interface LogMessage {
       TRACE;
    }
 
-
+   /**
+    * Override the default LogBundle-wide logger name for this message.
+    */
+   String loggerName() default "";
 }

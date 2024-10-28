@@ -82,8 +82,16 @@ public interface SimpleBundle {
    @LogMessage(id = 14, value = "An Exceptional example", level = LogMessage.Level.WARN)
    void onlyException(MyException e);
 
-
-
    @GetLogger
    Logger getLogger();
+
+   String LOGGER_NAME_OVERRIDE_PARAMS = "org.apache.activemq.artemis.logs.annotation.processor.SimpleBundle.OVERRIDE.PARAMS";
+
+   @LogMessage(id = 15, value = "Logger name overridden to add .OVERRIDE.PARAMS suffix. {}", loggerName = LOGGER_NAME_OVERRIDE_PARAMS, level = LogMessage.Level.WARN)
+   void overrideLoggerNameWithParameter(String parameter);
+
+   String LOGGER_NAME_OVERRIDE_NO_PARAMS = "org.apache.activemq.artemis.logs.annotation.processor.SimpleBundle.OVERRIDE.NO_PARAMS";
+
+   @LogMessage(id = 16, value = "Logger name overridden to add .OVERRIDE.NO_PARAMS suffix.", loggerName = LOGGER_NAME_OVERRIDE_NO_PARAMS, level = LogMessage.Level.WARN)
+   void overrideLoggerNameWithoutParameter();
 }

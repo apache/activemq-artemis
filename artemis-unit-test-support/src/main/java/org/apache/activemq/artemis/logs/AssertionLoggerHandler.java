@@ -21,8 +21,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Deque;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -60,11 +62,14 @@ public class AssertionLoggerHandler extends AbstractAppender implements Closeabl
       LogEntry logEntry = new LogEntry();
       logEntry.message = event.getMessage().getFormattedMessage();
       logEntry.level = event.getLevel();
+      logEntry.loggerName = event.getLoggerName();
+
       if (captureStackTrace && event.getThrown() != null) {
          StringWriter stackOutput = new StringWriter();
          event.getThrown().printStackTrace(new PrintWriter(stackOutput));
          logEntry.stackTrace = stackOutput.toString();
       }
+
       messages.addFirst(logEntry);
    }
 
@@ -202,13 +207,39 @@ public class AssertionLoggerHandler extends AbstractAppender implements Closeabl
       messages.clear();
    }
 
+   public List<LogEntry> getLogEntries() {
+      return messages.stream().collect(Collectors.toList());
+   }
+
    public int getNumberOfMessages() {
       return messages.size();
    }
 
-   private static class LogEntry {
-      String message;
-      String stackTrace;
-      Level level;
+   public static class LogEntry {
+      private String message;
+      private String stackTrace;
+      private Level level;
+      private String loggerName;
+
+      public String getMessage() {
+         return message;
+      }
+
+      public LogLevel getLogLevel() {
+         return LogLevel.fromImplLevel(level);
+      }
+
+      public String getLoggerName() {
+         return loggerName;
+      }
+
+      /**
+       * Only useful if {@link AssertionLoggerHandler} was created with
+       * {@link AssertionLoggerHandler#AssertionLoggerHandler(boolean captureStackTrace)}
+       * to enable StackTrace collection.
+       */
+      public String getStackTrace() {
+         return stackTrace;
+      }
    }
 }
