@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -99,6 +100,11 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
    // Redefined because AMQPMessage uses SimpleString in its annotations API for some reason.
    private static final SimpleString MESSAGE_HOPS_ANNOTATION =
       SimpleString.of(AMQPFederationPolicySupport.MESSAGE_HOPS_ANNOTATION.toString());
+
+   // Sequence ID value used to keep links that would otherwise have the same name from overlapping
+   // this generally occurs when a remote link detach is delayed and new demand is added before it
+   // arrives resulting in an unintended link stealing scenario in the proton engine.
+   private static final AtomicLong LINK_SEQUENCE_ID = new AtomicLong();
 
    private static final Symbol[] DEFAULT_OUTCOMES = new Symbol[]{Accepted.DESCRIPTOR_SYMBOL, Rejected.DESCRIPTOR_SYMBOL,
                                                                  Released.DESCRIPTOR_SYMBOL, Modified.DESCRIPTOR_SYMBOL};
@@ -255,7 +261,8 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
    private String generateLinkName() {
       return "federation-" + federation.getName() +
              "-address-receiver-" + consumerInfo.getAddress() +
-             "-" + federation.getServer().getNodeID();
+             "-" + federation.getServer().getNodeID() +
+             "-" + LINK_SEQUENCE_ID.incrementAndGet();
    }
 
    private void asyncCreateReceiver() {
