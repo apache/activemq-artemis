@@ -27,7 +27,7 @@ import javax.jms.IllegalStateException;
 /**
  * Logger Codes 150000 - 158999
  */
-@LogBundle(projectCode = "AMQ", regexID = "15[0-8][0-9]{3}")
+@LogBundle(projectCode = "AMQ", regexID = "15[0-8][0-9]{3}", retiredIDs = {152000})
 public interface ActiveMQRALogger {
 
    /**
