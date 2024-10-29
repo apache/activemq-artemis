@@ -28,8 +28,12 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurity
 
 /**
  * Logger Codes 119000 - 119999
+ *
+ * (Though IDs 119030 - 119299 are to be avoided due to use by other classes historically,
+ * ActiveMQClientMessageBundle and ActiveMQMessageBundle, prior to their codes being
+ * changed in commit b3529dcea428fa697aacbceacc6641e47cfb74ba for ARTEMIS-1018)
  */
-@LogBundle(projectCode = "AMQ", regexID = "119[0-9]{3}", retiredIDs = {119000, 119003, 119012, 119013})
+@LogBundle(projectCode = "AMQ", regexID = "119[3-9][0-9]{2}|1190[0-2][0-9]", retiredIDs = {119000, 119003, 119004, 119009, 119012, 119013})
 public interface ActiveMQAMQPProtocolMessageBundle {
 
    ActiveMQAMQPProtocolMessageBundle BUNDLE = BundleFactory.newBundle(ActiveMQAMQPProtocolMessageBundle.class);
@@ -105,4 +109,8 @@ public interface ActiveMQAMQPProtocolMessageBundle {
 
    @Message(id = 119029, value =  "Receiver link refused for address {}")
    ActiveMQAMQPIllegalStateException receiverLinkRefused(String address);
+
+   // IDs 119030-119299 are reserved due to historic use by ActiveMQClientMessageBundle and ActiveMQMessageBundle
+
+   // The next ID used needs to be 119300.
 }

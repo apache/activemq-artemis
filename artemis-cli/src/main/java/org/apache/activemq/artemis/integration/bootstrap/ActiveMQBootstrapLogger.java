@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.logs.BundleFactory;
 /**
  * Logger Codes 100000 - 109999
  */
-@LogBundle(projectCode = "AMQ", regexID = "10[0-9]{4}", retiredIDs = {101001, 101002, 101003})
+@LogBundle(projectCode = "AMQ", regexID = "10[0-9]{4}", retiredIDs = {101001, 101002, 101003, 101004, 101005, 102000, 104001, 104002})
 public interface ActiveMQBootstrapLogger {
 
    ActiveMQBootstrapLogger LOGGER = BundleFactory.newBundle(ActiveMQBootstrapLogger.class, ActiveMQBootstrapLogger.class.getPackage().getName());
