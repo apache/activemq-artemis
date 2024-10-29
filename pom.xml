@@ -385,8 +385,9 @@
                   <artifactId>dependency-check-maven</artifactId>
                   <version>${owasp.version}</version>
                   <configuration>
+                     <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
                      <!-- <skipProvidedScope>true</skipProvidedScope>
-                      <skipRuntimeScope>true</skipRuntimeScope> -->
+                     <skipRuntimeScope>true</skipRuntimeScope> -->
                   </configuration>
                   <executions>
                      <execution>
