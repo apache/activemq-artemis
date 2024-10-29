@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.logs.BundleFactory;
 /**
  * Logger Codes 159000 - 159999
  */
-@LogBundle(projectCode = "AMQ", regexID = "159[0-9]{3}")
+@LogBundle(projectCode = "AMQ", regexID = "159[0-9]{3}", retiredIDs = {159008})
 public interface ActiveMQRABundle {
 
    /**
