@@ -386,8 +386,8 @@
                   <version>${owasp.version}</version>
                   <configuration>
                      <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
-                     <!-- <skipProvidedScope>true</skipProvidedScope>
-                     <skipRuntimeScope>true</skipRuntimeScope> -->
+                     <skipTestScope>true</skipTestScope>
+                     <skipProvidedScope>true</skipProvidedScope>
                   </configuration>
                   <executions>
                      <execution>
