@@ -78,4 +78,4 @@ If you wish to generate a report for dependency CVEs you may build with the `-Po
 ----
 $ mvn -Powasp verify -DskipTests
 ----
-The output will be under `./target/dependency-check-report.html` for *each* sub-module.
+The output for every module will be aggregated in `./target/dependency-check-report.html`.
