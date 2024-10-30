@@ -274,7 +274,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final StorageManager storageManager;
 
-   private volatile AddressSettings addressSettings;
+   // Instead of looking up the AddressSettings every time, we cache and monitor it through onChange
+   private volatile AddressSettings cachedAddressSettings;
 
    private final ActiveMQServer server;
 
@@ -733,9 +734,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (addressSettingsRepository != null) {
          addressSettingsRepositoryListener = new AddressSettingsRepositoryListener(addressSettingsRepository);
          addressSettingsRepository.registerListener(addressSettingsRepositoryListener);
-         this.addressSettings = addressSettingsRepository.getMatch(getAddressSettingsMatch());
+         this.cachedAddressSettings = addressSettingsRepository.getMatch(getAddressSettingsMatch());
       } else {
-         this.addressSettings = new AddressSettings();
+         this.cachedAddressSettings = new AddressSettings();
       }
 
       if (pageSubscription != null) {
@@ -757,9 +758,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       this.ringSize = queueConfiguration.getRingSize() == null ? ActiveMQDefaultConfiguration.getDefaultRingSize() : queueConfiguration.getRingSize();
 
-      this.initialQueueBufferSize = this.addressSettings.getInitialQueueBufferSize() == null
+      this.initialQueueBufferSize = this.cachedAddressSettings.getInitialQueueBufferSize() == null
               ? ActiveMQDefaultConfiguration.INITIAL_QUEUE_BUFFER_SIZE
-              : this.addressSettings.getInitialQueueBufferSize();
+              : this.cachedAddressSettings.getInitialQueueBufferSize();
       this.intermediateMessageReferences = new MpscUnboundedArrayQueue<>(initialQueueBufferSize);
    }
 
@@ -2129,36 +2130,92 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     *           hence no information about delivering statistics should be updated. */
    @Override
    public void expire(final MessageReference ref, final ServerConsumer consumer, boolean delivering) throws Exception {
-      if (addressSettings.getExpiryAddress() != null) {
-         createExpiryResources();
+      expire(null, ref, consumer, delivering);
+   }
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("moving expired reference {} to address = {} from queue={}", ref, addressSettings.getExpiryAddress(), name);
+   private void expire(final Transaction tx, final MessageReference ref, final ServerConsumer consumer, boolean delivering) throws Exception {
+      AddressSettings settingsToUse = getMessageAddressSettings(ref.getMessage());
+      SimpleString expiryAddress = settingsToUse.getExpiryAddress();
+
+      if (logger.isDebugEnabled()) {
+         logger.debug("expire on {}/{}, consumer={}, expiryAddress={}", this.address, this.name, consumer, expiryAddress);
+      }
+
+      if (expiryAddress != null && expiryAddress.length() != 0) {
+         String messageAddress = ref.getMessage().getAddress();
+
+         if (messageAddress == null) {
+            // in the unlikely event where a message does not have an address stored on the message itself,
+            // we will get the address from the current queue
+            messageAddress = String.valueOf(getAddress());
+         }
+         createExpiryResources(messageAddress, settingsToUse);
+
+         Bindings bindingList = postOffice.lookupBindingsForAddress(expiryAddress);
+
+         if (bindingList == null || bindingList.getBindings().isEmpty()) {
+            if (!printErrorExpiring) {
+               // print this only once
+               ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoBindings(expiryAddress);
+               printErrorExpiring = true;
+            }
+            acknowledge(tx, ref, AckReason.EXPIRED, null, delivering);
+         } else {
+            move(tx, expiryAddress, null, ref, false, AckReason.EXPIRED, consumer, null, delivering);
+         }
+      } else {
+         if (!printErrorExpiring) {
+            printErrorExpiring = true;
+            // print this only once
+            ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoAddress(name);
          }
 
-         move(null, addressSettings.getExpiryAddress(), null, ref, false, AckReason.EXPIRED, consumer, null, delivering);
-      } else {
-         logger.trace("expiry is null, just acking expired message for reference {} from queue={}", ref, name);
-
-         acknowledge(null, ref, AckReason.EXPIRED, consumer, delivering);
+         acknowledge(tx, ref, AckReason.EXPIRED, consumer, delivering);
       }
 
       // potentially auto-delete this queue if this expired the last message
       refCountForConsumers.check();
 
       if (server != null && server.hasBrokerMessagePlugins()) {
-         server.callBrokerMessagePlugins(plugin -> plugin.messageExpired(ref, addressSettings.getExpiryAddress(), consumer));
+         if (tx == null) {
+            server.callBrokerMessagePlugins(plugin -> plugin.messageExpired(ref, settingsToUse.getExpiryAddress(), consumer));
+         } else {
+            ExpiryLogger expiryLogger = (ExpiryLogger) tx.getProperty(TransactionPropertyIndexes.EXPIRY_LOGGER);
+            if (expiryLogger == null) {
+               expiryLogger = new ExpiryLogger();
+               tx.putProperty(TransactionPropertyIndexes.EXPIRY_LOGGER, expiryLogger);
+               tx.addOperation(expiryLogger);
+            }
+
+            expiryLogger.addExpiry(address, ref);
+
+            // potentially auto-delete this queue if this expired the last message
+            tx.addOperation(new TransactionOperationAbstract() {
+               @Override
+               public void afterCommit(Transaction tx) {
+                  refCountForConsumers.check();
+               }
+            });
+         }
+      }
+   }
+
+   private AddressSettings getMessageAddressSettings(Message message) {
+      if (message.getAddress() == null || message.getAddress().equals(String.valueOf(address))) {
+         return cachedAddressSettings;
+      } else {
+         return server.getAddressSettingsRepository().getMatch(message.getAddress());
       }
    }
 
    @Override
    public SimpleString getExpiryAddress() {
-      return this.addressSettings.getExpiryAddress();
+      return this.cachedAddressSettings.getExpiryAddress();
    }
 
    @Override
    public SimpleString getDeadLetterAddress() {
-      return this.addressSettings.getDeadLetterAddress();
+      return this.cachedAddressSettings.getDeadLetterAddress();
    }
 
    @Override
@@ -2510,7 +2567,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             MessageReference ref = iter.next();
             if (filter == null || filter.match(ref.getMessage())) {
                incDelivering(ref);
-               expire(tx, ref, true);
+               expire(tx, ref, null, true);
                iter.remove();
                refRemoved(ref);
                count++;
@@ -2543,7 +2600,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private boolean isExpiryDisabled() {
-      final SimpleString expiryAddress = addressSettings.getExpiryAddress();
+      final SimpleString expiryAddress = cachedAddressSettings.getExpiryAddress();
       if (expiryAddress != null && expiryAddress.equals(this.address)) {
          // check expire with itself would be silly (waste of time)
          logger.trace("Redundant expiration from {} to {}", address, expiryAddress);
@@ -2637,7 +2694,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             final Transaction tx = new TransactionImpl(storageManager);
             for (MessageReference ref : expiredMessages) {
                try {
-                  expire(tx, ref, true);
+                  expire(tx, ref, null, true);
                   refRemoved(ref);
                } catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.errorExpiringReferencesOnQueue(ref, e);
@@ -3598,23 +3655,23 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          storageManager.updateDeliveryCount(reference);
       }
 
-      int maxDeliveries = addressSettings.getMaxDeliveryAttempts();
+      int maxDeliveries = cachedAddressSettings.getMaxDeliveryAttempts();
       int deliveryCount = reference.getDeliveryCount();
 
       // First check DLA
       if (maxDeliveries > 0 && deliveryCount >= maxDeliveries) {
          if (logger.isTraceEnabled()) {
             logger.trace("Sending reference {} to DLA = {} since ref.getDeliveryCount={} and maxDeliveries={} from queue={}",
-                         reference, addressSettings.getDeadLetterAddress(), reference.getDeliveryCount(), maxDeliveries, name);
+                         reference, cachedAddressSettings.getDeadLetterAddress(), reference.getDeliveryCount(), maxDeliveries, name);
          }
-         boolean dlaResult = sendToDeadLetterAddress(null, reference, addressSettings.getDeadLetterAddress());
+         boolean dlaResult = sendToDeadLetterAddress(null, reference, cachedAddressSettings.getDeadLetterAddress());
 
          return new Pair<>(false, dlaResult);
       } else {
          // Second check Redelivery Delay
-         long redeliveryDelay = addressSettings.getRedeliveryDelay();
+         long redeliveryDelay = cachedAddressSettings.getRedeliveryDelay();
          if (!ignoreRedeliveryDelay && redeliveryDelay > 0) {
-            redeliveryDelay = calculateRedeliveryDelay(addressSettings, deliveryCount);
+            redeliveryDelay = calculateRedeliveryDelay(cachedAddressSettings, deliveryCount);
 
             if (logger.isTraceEnabled()) {
                logger.trace("Setting redeliveryDelay={} on reference={}", redeliveryDelay, reference);
@@ -3896,51 +3953,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return LargeServerMessageImpl.checkLargeMessage(copy, storageManager);
    }
 
-   private void expire(final Transaction tx, final MessageReference ref, boolean delivering) throws Exception {
-      SimpleString expiryAddress = addressSettings.getExpiryAddress();
-
-      if (expiryAddress != null && expiryAddress.length() != 0) {
-
-         createExpiryResources();
-
-         Bindings bindingList = postOffice.lookupBindingsForAddress(expiryAddress);
-
-         if (bindingList == null || bindingList.getBindings().isEmpty()) {
-            ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoBindings(expiryAddress);
-            acknowledge(tx, ref, AckReason.EXPIRED, null, delivering);
-         } else {
-            move(tx, expiryAddress, null, ref, false, AckReason.EXPIRED, null, null, delivering);
-         }
-      } else {
-         if (!printErrorExpiring) {
-            printErrorExpiring = true;
-            // print this only once
-            ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoAddress(name);
-         }
-
-         acknowledge(tx, ref, AckReason.EXPIRED, null, delivering);
-      }
-
-      if (server != null && server.hasBrokerMessagePlugins()) {
-         ExpiryLogger expiryLogger = (ExpiryLogger)tx.getProperty(TransactionPropertyIndexes.EXPIRY_LOGGER);
-         if (expiryLogger == null) {
-            expiryLogger = new ExpiryLogger();
-            tx.putProperty(TransactionPropertyIndexes.EXPIRY_LOGGER, expiryLogger);
-            tx.addOperation(expiryLogger);
-         }
-
-         expiryLogger.addExpiry(address, ref);
-      }
-
-      // potentially auto-delete this queue if this expired the last message
-      tx.addOperation(new TransactionOperationAbstract() {
-         @Override
-         public void afterCommit(Transaction tx) {
-            refCountForConsumers.check();
-         }
-      });
-   }
-
    private class ExpiryLogger extends TransactionOperationAbstract {
 
       List<Pair<SimpleString, MessageReference>> expiries = new LinkedList<>();
@@ -3964,7 +3976,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public boolean sendToDeadLetterAddress(final Transaction tx, final MessageReference ref) throws Exception {
-      return sendToDeadLetterAddress(tx, ref, addressSettings.getDeadLetterAddress());
+      return sendToDeadLetterAddress(tx, ref, cachedAddressSettings.getDeadLetterAddress());
    }
 
    private boolean sendToDeadLetterAddress(final Transaction tx,
@@ -3999,22 +4011,23 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private void createDeadLetterResources() throws Exception {
       AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(getAddress().toString());
-      createResources(addressSettings.isAutoCreateDeadLetterResources(), addressSettings.getDeadLetterAddress(), addressSettings.getDeadLetterQueuePrefix(), addressSettings.getDeadLetterQueueSuffix());
+      createResources(String.valueOf(getAddress()), addressSettings.isAutoCreateDeadLetterResources(), addressSettings.getDeadLetterAddress(), addressSettings.getDeadLetterQueuePrefix(), addressSettings.getDeadLetterQueueSuffix());
    }
 
-   private void createExpiryResources() throws Exception {
-      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(getAddress().toString());
-      createResources(addressSettings.isAutoCreateExpiryResources(), addressSettings.getExpiryAddress(), addressSettings.getExpiryQueuePrefix(), addressSettings.getExpiryQueueSuffix());
+   private void createExpiryResources(String address, AddressSettings messageAddressSettings) throws Exception {
+      createResources(address, messageAddressSettings.isAutoCreateExpiryResources(), messageAddressSettings.getExpiryAddress(), messageAddressSettings.getExpiryQueuePrefix(), messageAddressSettings.getExpiryQueueSuffix());
    }
 
-   private void createResources(boolean isAutoCreate, SimpleString destinationAddress, SimpleString prefix, SimpleString suffix) throws Exception {
-      if (isAutoCreate && !getAddress().equals(destinationAddress)) {
+   private void createResources(String address, boolean isAutoCreate, SimpleString destinationAddress, SimpleString prefix, SimpleString suffix) throws Exception {
+      if (isAutoCreate && !address.equals(destinationAddress)) {
          if (destinationAddress != null && destinationAddress.length() != 0) {
-            SimpleString destinationQueueName = prefix.concat(getAddress()).concat(suffix);
-            SimpleString filter = SimpleString.of(String.format("%s = '%s'", Message.HDR_ORIGINAL_ADDRESS, getAddress()));
+            SimpleString destinationQueueName = prefix.concat(address).concat(suffix);
+            SimpleString filter = SimpleString.of(String.format("%s = '%s'", Message.HDR_ORIGINAL_ADDRESS, address));
             try {
+               logger.debug("Creating Resource queue {}", destinationQueueName);
                server.createQueue(QueueConfiguration.of(destinationQueueName).setAddress(destinationAddress).setFilterString(filter).setAutoCreated(true).setAutoCreateAddress(true), true);
             } catch (ActiveMQQueueExistsException e) {
+               logger.debug("resource {} already existed, ignoring outcome", destinationQueueName);
                // ignore
             }
          }
@@ -4770,7 +4783,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private void configureSlowConsumerReaper() {
-      if (addressSettings == null || addressSettings.getSlowConsumerThreshold() == AddressSettings.DEFAULT_SLOW_CONSUMER_THRESHOLD) {
+      if (cachedAddressSettings == null || cachedAddressSettings.getSlowConsumerThreshold() == AddressSettings.DEFAULT_SLOW_CONSUMER_THRESHOLD) {
          if (slowConsumerReaperFuture != null) {
             slowConsumerReaperFuture.cancel(false);
             slowConsumerReaperFuture = null;
@@ -4780,13 +4793,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
       } else {
          if (slowConsumerReaperRunnable == null) {
-            scheduleSlowConsumerReaper(addressSettings);
-         } else if (slowConsumerReaperRunnable.checkPeriod != addressSettings.getSlowConsumerCheckPeriod() || slowConsumerReaperRunnable.thresholdInMsgPerSecond != addressSettings.getSlowConsumerThreshold() || !slowConsumerReaperRunnable.policy.equals(addressSettings.getSlowConsumerPolicy())) {
+            scheduleSlowConsumerReaper(cachedAddressSettings);
+         } else if (slowConsumerReaperRunnable.checkPeriod != cachedAddressSettings.getSlowConsumerCheckPeriod() || slowConsumerReaperRunnable.thresholdInMsgPerSecond != cachedAddressSettings.getSlowConsumerThreshold() || !slowConsumerReaperRunnable.policy.equals(cachedAddressSettings.getSlowConsumerPolicy())) {
             if (slowConsumerReaperFuture != null) {
                slowConsumerReaperFuture.cancel(false);
                slowConsumerReaperFuture = null;
             }
-            scheduleSlowConsumerReaper(addressSettings);
+            scheduleSlowConsumerReaper(cachedAddressSettings);
          }
       }
    }
@@ -4847,7 +4860,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       @Override
       public void onChange() {
-         addressSettings = addressSettingsRepository.getMatch(getAddressSettingsMatch());
+         cachedAddressSettings = addressSettingsRepository.getMatch(getAddressSettingsMatch());
          checkDeadLetterAddressAndExpiryAddress();
          configureSlowConsumerReaper();
       }
@@ -4863,10 +4876,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private void checkDeadLetterAddressAndExpiryAddress() {
       if (!Env.isTestEnv() && !internalQueue && !address.equals(server.getConfiguration().getManagementNotificationAddress())) {
-         if (addressSettings.getDeadLetterAddress() == null) {
+         if (cachedAddressSettings.getDeadLetterAddress() == null) {
             ActiveMQServerLogger.LOGGER.AddressSettingsNoDLA(name);
          }
-         if (addressSettings.getExpiryAddress() == null) {
+         if (cachedAddressSettings.getExpiryAddress() == null) {
             ActiveMQServerLogger.LOGGER.AddressSettingsNoExpiryAddress(name);
          }
       }
