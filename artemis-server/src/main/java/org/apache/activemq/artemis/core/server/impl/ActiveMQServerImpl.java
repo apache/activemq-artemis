@@ -111,6 +111,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContex
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
@@ -2383,6 +2384,30 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       return (Queue) binding.getBindable();
+   }
+
+   @Override
+   public Queue locateQueue(String address, String queue) throws Exception {
+      Bindings bindings = postOffice.getBindingsForAddress(SimpleString.of(address));
+      if (bindings == null) {
+         return null;
+      }
+
+      Binding binding = bindings.getBinding(queue);
+      if (binding == null) {
+         return null;
+      }
+
+      Bindable bindingContent = binding.getBindable();
+
+      if (!(bindingContent instanceof Queue)) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("localQueue({}. {}) found non Queue ( {} ) on binding table, returning null instead", address, queue, bindingContent);
+         }
+         return null;
+      }
+
+      return (Queue) bindingContent;
    }
 
    @Deprecated
