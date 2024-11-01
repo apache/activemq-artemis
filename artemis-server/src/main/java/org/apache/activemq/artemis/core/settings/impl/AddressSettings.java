@@ -117,6 +117,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final long DEFAULT_MAX_EXPIRY_DELAY = -1;
 
+   public static final boolean DEFAULT_NEVER_EXPIRE = false;
+
    public static final boolean DEFAULT_SEND_TO_DLA_ON_NO_ROUTE = false;
 
    public static final long DEFAULT_SLOW_CONSUMER_THRESHOLD = -1;
@@ -265,6 +267,11 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       metaBean.add(Long.class, "maxExpiryDelay", (t, p) -> t.maxExpiryDelay = p, t -> t.maxExpiryDelay);
    }
    private Long maxExpiryDelay = null;
+
+   static {
+      metaBean.add(Boolean.class, "neverExpire", (t, p) -> t.neverExpire = p, t -> t.neverExpire);
+   }
+   private Boolean neverExpire = null;
 
    static {
       metaBean.add(Boolean.class, "defaultLastValueQueue", (t, p) -> t.defaultLastValueQueue = p, t -> t.defaultLastValueQueue);
@@ -1047,6 +1054,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public AddressSettings setMaxExpiryDelay(final Long maxExpiryDelay) {
       this.maxExpiryDelay = maxExpiryDelay;
+      return this;
+   }
+
+   public Boolean getNeverExpire() {
+      return neverExpire != null ? neverExpire : AddressSettings.DEFAULT_NEVER_EXPIRE;
+   }
+
+   public AddressSettings setNeverExpire(final Boolean neverExpire) {
+      this.neverExpire = neverExpire;
       return this;
    }
 

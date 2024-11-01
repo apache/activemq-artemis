@@ -36,7 +36,40 @@ a Long property containing the _actual expiration time_ of the expired message
 
 == Configuring Expiry Delay
 
-Default expiry delay can be configured in the address-setting configuration:
+There are multiple address-settings which you can use to modify the expiry delay for incoming messages:
+
+. `never-expire`
+. `expiry-delay`
+. `max-expiry-delay` & `min-expiry-delay`
+
+These settings are applied exclusively in this order of precedence. For example, if `never-expire` is set and `expiry-delay` is also set then `expiry-delay` is ignored completely and `never-expire` is enforced.
+
+[WARNING]
+====
+If you set any of these values for the `expiry-address` then messages which expire will have corresponding new expiry delays potentially causing the expired messages to themselves expire and be removed completely from the broker.
+====
+
+Let's look at each of these in turn.
+
+=== Never Expire
+
+If you want to force messages to _never_ expire regardless of their existing settings then set `never-expire` to `true`, e.g.:
+
+[,xml]
+----
+<!-- messages will never expire -->
+<address-setting match="exampleQueue">
+   <never-expire>true</never-expire>
+</address-setting>
+----
+
+For example, if `never-expire` is set to `true` and a message which is using an expiration of `10` arrives then its expiration time of `10` will be changed to `0`.
+
+The default is `false`.
+
+=== Modify Default Expiry
+
+To modify the expiry delay on a message using the _default expiration_ (i.e. `0`) set `expiry-delay`, e.g.
 
 [,xml]
 ----
@@ -47,14 +80,14 @@ Default expiry delay can be configured in the address-setting configuration:
 </address-setting>
 ----
 
-`expiry-delay` defines the expiration time in milliseconds that will be used for messages  which are using the default expiration time (i.e. 0).
+For example, if `expiry-delay` is set to `10` and a message which is using the default expiration time (i.e. `0`) arrives then its expiration time of `0` will be changed to `10`.
+However, if a message which is using an expiration time of `20` arrives then its expiration time will remain unchanged.
 
-For example, if `expiry-delay` is set to "10" and a message which is using the default  expiration time (i.e. 10) arrives then its expiration time of "0" will be changed to "10." However, if a message which is using an expiration time of "20" arrives then its expiration time will remain unchanged.
-Setting `expiry-delay` to "-1" will disable this feature.
+This value is measured in milliseconds. The default is `-1` (i.e. disabled).
 
-The default is `-1`.
+=== Enforce an Expiry Range
 
-If `expiry-delay` is _not set_ then minimum and maximum expiry delay values can be configured in the address-setting configuration.
+To enforce a range of expiry delay values
 
 [,xml]
 ----
@@ -67,20 +100,17 @@ If `expiry-delay` is _not set_ then minimum and maximum expiry delay values can 
 Semantics are as follows:
 
 * Messages _without_ an expiration will be set to `max-expiry-delay`.
-If `max-expiry-delay` is not defined then the message will be set to `min-expiry-delay`.
-If `min-expiry-delay` is not defined then the message will not be changed.
-* Messages with an expiration _above_ `max-expiry-delay` will be set to `max-expiry-delay`
-* Messages with an expiration _below_ `min-expiry-delay` will be set to `min-expiry-delay`
-* Messages with an expiration _within_ `min-expiry-delay` and `max-expiry-delay` range will not be changed
-* Any value set for `expiry-delay` other than the default (i.e. `-1`) will override the aforementioned min/max settings.
+** If `max-expiry-delay` is not defined then the message will be set to `min-expiry-delay`.
+** If `min-expiry-delay` is not defined then the message will not be changed.
+* Messages with an expiration _above_ `max-expiry-delay` will be set to `max-expiry-delay`.
+* Messages with an expiration _below_ `min-expiry-delay` will be set to `min-expiry-delay`.
+* Messages with an expiration _within_ `min-expiry-delay` and `max-expiry-delay` range will not be changed.
 
-The default for both `min-expiry-delay` and `max-expiry-delay` is `-1` (i.e. disabled).
+These values are measured in milliseconds. The default for both is `-1` (i.e. disabled).
 
 [WARNING]
 ====
-**If you set expiry-delay, or min/max-expiry-delay, on the expiration target address beware of the following:**
-
-* Messages will get a new expiration when moved to the expiry queue, rather than being set to 0 as usual, and so may disappear after the new expiration.
+Setting a value of `0` for `max-expiry-delay` will cause messages to expire _immediately_.
 ====
 
 == Configuring Expiry Addresses

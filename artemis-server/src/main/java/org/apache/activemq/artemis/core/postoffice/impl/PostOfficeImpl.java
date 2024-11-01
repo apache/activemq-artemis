@@ -1355,26 +1355,40 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       return status;
    }
 
-   // HORNETQ-1029
-   private static void applyExpiryDelay(Message message, AddressSettings settings) {
+   protected static void applyExpiryDelay(Message message, AddressSettings settings) {
       long expirationOverride = settings.getExpiryDelay();
 
-      // A -1 <expiry-delay> means don't do anything
-      if (expirationOverride >= 0) {
-         // only override the expiration on messages where the expiration hasn't been set by the user
+      if (settings.getNeverExpire()) {
+         if (message.getExpiration() != 0) {
+            message.setExpiration(0);
+         }
+      } else if (expirationOverride >= 0) {
+         // A -1 <expiry-delay> means don't do anything
          if (message.getExpiration() == 0) {
-            message.setExpiration(System.currentTimeMillis() + expirationOverride);
+            // only override the expiration on messages where the expiration hasn't been set by the user
+            message.setExpiration(getExpirationToSet(expirationOverride));
          }
       } else {
          long minExpiration = settings.getMinExpiryDelay();
          long maxExpiration = settings.getMaxExpiryDelay();
 
-         if (maxExpiration != AddressSettings.DEFAULT_MAX_EXPIRY_DELAY && (message.getExpiration() == 0 || message.getExpiration() > (System.currentTimeMillis() + maxExpiration))) {
-            message.setExpiration(System.currentTimeMillis() + maxExpiration);
+         if (message.getExpiration() == 0) {
+            // if the incoming message has NO expiration then apply the max if set and if not set then apply the min if set
+            if (maxExpiration != AddressSettings.DEFAULT_MAX_EXPIRY_DELAY) {
+               message.setExpiration(getExpirationToSet(maxExpiration));
+            } else if (minExpiration != AddressSettings.DEFAULT_MIN_EXPIRY_DELAY) {
+               message.setExpiration(getExpirationToSet(minExpiration));
+            }
+         } else if (maxExpiration != AddressSettings.DEFAULT_MAX_EXPIRY_DELAY && message.getExpiration() > (System.currentTimeMillis() + maxExpiration)) {
+            message.setExpiration(getExpirationToSet(maxExpiration));
          } else if (minExpiration != AddressSettings.DEFAULT_MIN_EXPIRY_DELAY && message.getExpiration() < (System.currentTimeMillis() + minExpiration)) {
-            message.setExpiration(System.currentTimeMillis() + minExpiration);
+            message.setExpiration(getExpirationToSet(minExpiration));
          }
       }
+   }
+
+   private static long getExpirationToSet(long expiration) {
+      return System.currentTimeMillis() + expiration;
    }
 
    @Override

@@ -31,7 +31,10 @@ Here an example of an `address-setting` entry that might be found in the `broker
       <auto-create-expiry-resources>false</auto-create-expiry-resources>
       <expiry-queue-prefix></expiry-queue-prefix>
       <expiry-queue-suffix></expiry-queue-suffix>
-      <expiry-delay>123</expiry-delay>
+      <never-expire>false</never-expire>
+      <expiry-delay>-1</expiry-delay>
+      <min-expiry-delay>-1</min-expiry-delay>
+      <max-expiry-delay>-1</max-expiry-delay>
       <redelivery-delay>5000</redelivery-delay>
       <redelivery-delay-multiplier>1.0</redelivery-delay-multiplier>
       <redelivery-collision-avoidance-factor>0.0</redelivery-collision-avoidance-factor>
@@ -123,12 +126,24 @@ The suffix used for automatically created expiry queues.
 Default is empty.
 Read more in the chapter about xref:message-expiry.adoc#message-expiry[message expiry].
 
+never-expire::
+If `true` this overrides the expiration time for all messages so that they never expire.
+The default is `false`.
+Read more about xref:message-expiry.adoc#configuring-expiry-delay[message expiry].
+
 expiry-delay::
-The expiration time that will be used for messages which are using the default expiration time (i.e. 0).
-For example, if `expiry-delay` is set to "10" and a message which is using the default expiration time (i.e. 0) arrives then its expiration time of "0" will be changed to "10." However, if a message which is using an expiration time of "20" arrives then its expiration time will remain unchanged.
-Setting `expiry-delay` to "-1" will disable this feature.
-The default is "-1".
-Read more about xref:message-expiry.adoc#configuring-expiry-addresses[message expiry].
+The expiration time that will be used for messages which are using the default expiration time (i.e. `0`).
+For example, if `expiry-delay` is set to `10` and a message which is using the default expiration time (i.e. `0`) arrives then its expiration time of `0` will be changed to `10`.
+However, if a message which is using an expiration time of `20` arrives then its expiration time will remain unchanged.
+Setting `expiry-delay` to `-1` will disable this feature.
+The default is `-1`.
+Read more about xref:message-expiry.adoc#configuring-expiry-delay[message expiry].
+
+min-expiry-delay::
+max-expiry-delay::
+These are applied if the aforementioned `expiry-delay` isn't set.
+Unlike `expiry-delay`, they can impact the expiration of a message even if that message is using a non-default expiration time.
+There are a xref:message-expiry.adoc#configuring-expiry-delay[handful of rules] which dictate the behavior of these settings.
 
 max-delivery-attempts::
 defines how many time a cancelled message can be redelivered before sending to the `dead-letter-address`.
