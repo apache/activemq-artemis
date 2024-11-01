@@ -305,6 +305,11 @@ public final class AddressSettingsInfo {
    private long maxExpiryDelay;
 
    static {
+      META_BEAN.add(Boolean.class, "noExpiry", (o, p) -> o.noExpiry = p, o -> o.noExpiry);
+   }
+   private boolean noExpiry;
+
+   static {
       META_BEAN.add(Boolean.class, "enableMetrics", (o, p) -> o.enableMetrics = p, o -> o.enableMetrics);
    }
    private boolean enableMetrics;
@@ -554,6 +559,10 @@ public final class AddressSettingsInfo {
 
    public long getMaxExpiryDelay() {
       return maxExpiryDelay;
+   }
+
+   public boolean isNoExpiry() {
+      return noExpiry;
    }
 
    public boolean isEnableMetrics() {

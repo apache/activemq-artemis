@@ -506,6 +506,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertEquals(1L, (long) conf.getAddressSettings().get("a1").getExpiryDelay());
       assertEquals(2L, (long) conf.getAddressSettings().get("a1").getMinExpiryDelay());
       assertEquals(3L, (long) conf.getAddressSettings().get("a1").getMaxExpiryDelay());
+      assertTrue(conf.getAddressSettings().get("a1").isNoExpiry());
       assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_EXPIRY_RESOURCES, conf.getAddressSettings().get("a1").isAutoCreateExpiryResources());
       assertEquals(AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX, conf.getAddressSettings().get("a1").getExpiryQueuePrefix());
       assertEquals(AddressSettings.DEFAULT_EXPIRY_QUEUE_SUFFIX, conf.getAddressSettings().get("a1").getExpiryQueueSuffix());
@@ -547,6 +548,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertEquals(-1L, (long) conf.getAddressSettings().get("a2").getExpiryDelay());
       assertEquals(-1L, (long) conf.getAddressSettings().get("a2").getMinExpiryDelay());
       assertEquals(-1L, (long) conf.getAddressSettings().get("a2").getMaxExpiryDelay());
+      assertFalse(conf.getAddressSettings().get("a2").isNoExpiry());
       assertTrue(conf.getAddressSettings().get("a2").isAutoCreateDeadLetterResources());
       assertEquals("", conf.getAddressSettings().get("a2").getExpiryQueuePrefix().toString());
       assertEquals(".EXP", conf.getAddressSettings().get("a2").getExpiryQueueSuffix().toString());
