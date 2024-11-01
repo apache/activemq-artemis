@@ -233,6 +233,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String MAX_EXPIRY_DELAY_NODE_NAME = "max-expiry-delay";
 
+   private static final String NO_EXPIRY_NODE_NAME = "no-expiry";
+
    private static final String REDELIVERY_DELAY_NODE_NAME = "redelivery-delay";
 
    private static final String REDELIVERY_DELAY_MULTIPLIER_NODE_NAME = "redelivery-delay-multiplier";
@@ -1331,6 +1333,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setMinExpiryDelay(XMLUtil.parseLong(child));
          } else if (MAX_EXPIRY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMaxExpiryDelay(XMLUtil.parseLong(child));
+         } else if (NO_EXPIRY_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setNoExpiry(XMLUtil.parseBoolean(child));
          } else if (REDELIVERY_DELAY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setRedeliveryDelay(XMLUtil.parseLong(child));
          } else if (REDELIVERY_DELAY_MULTIPLIER_NODE_NAME.equalsIgnoreCase(name)) {

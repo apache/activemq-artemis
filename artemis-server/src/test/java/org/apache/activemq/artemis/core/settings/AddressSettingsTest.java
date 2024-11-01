@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.settings;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.invoke.MethodHandles;
 
@@ -60,6 +61,7 @@ public class AddressSettingsTest extends ServerTestBase {
       assertEquals(AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES, addressSettings.isAutoDeleteAddresses());
       assertEquals(ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), addressSettings.isDefaultPurgeOnNoConsumers());
       assertEquals(Integer.valueOf(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers()), addressSettings.getDefaultMaxConsumers());
+      assertEquals(AddressSettings.DEFAULT_NO_EXPIRY, addressSettings.isNoExpiry());
    }
 
    @Test
@@ -93,6 +95,7 @@ public class AddressSettingsTest extends ServerTestBase {
       addressSettingsToMerge.setMaxExpiryDelay(777L);
       addressSettingsToMerge.setIDCacheSize(5);
       addressSettingsToMerge.setInitialQueueBufferSize(256);
+      addressSettingsToMerge.setNoExpiry(true);
 
       if (copy) {
          addressSettings = addressSettings.mergeCopy(addressSettingsToMerge);
@@ -115,6 +118,7 @@ public class AddressSettingsTest extends ServerTestBase {
       assertEquals(Long.valueOf(777), addressSettings.getMaxExpiryDelay());
       assertEquals(Integer.valueOf(5), addressSettings.getIDCacheSize());
       assertEquals(Integer.valueOf(256), addressSettings.getInitialQueueBufferSize());
+      assertTrue(addressSettings.isNoExpiry());
    }
 
    @Test
@@ -139,6 +143,7 @@ public class AddressSettingsTest extends ServerTestBase {
       addressSettingsToMerge.setMessageCounterHistoryDayLimit(1002);
       addressSettingsToMerge.setAddressFullMessagePolicy(AddressFullMessagePolicy.DROP);
       addressSettingsToMerge.setMaxSizeBytesRejectThreshold(10 * 1024);
+      addressSettingsToMerge.setNoExpiry(true);
       if (copy) {
          addressSettings = addressSettings.mergeCopy(addressSettingsToMerge);
       } else {
@@ -166,6 +171,7 @@ public class AddressSettingsTest extends ServerTestBase {
       assertEquals(addressSettings.getRedeliveryMultiplier(), 2.5, 0.000001);
       assertEquals(AddressFullMessagePolicy.DROP, addressSettings.getAddressFullMessagePolicy());
       assertEquals(addressSettings.getMaxSizeBytesRejectThreshold(), 10 * 1024);
+      assertTrue(addressSettings.isNoExpiry());
    }
 
    @Test
@@ -236,6 +242,7 @@ public class AddressSettingsTest extends ServerTestBase {
       addressSettings.setRedeliveryDelay(1003);
       addressSettings.setRedeliveryMultiplier(1.0);
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.DROP);
+      addressSettings.setNoExpiry(true);
 
       String json = addressSettings.toJSON();
       logger.info("Json:: {}", json);
