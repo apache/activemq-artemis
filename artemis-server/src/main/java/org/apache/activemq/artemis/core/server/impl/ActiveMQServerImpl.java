@@ -4657,6 +4657,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          configuration.parseProperties(propertiesFileUrl);
          updateStatus(ServerStatus.CONFIGURATION_COMPONENT, configuration.getStatus());
          deployReloadableConfigFromConfiguration();
+         deployConfiguredBrokerPlugins(config);
       }
    }
 
@@ -4785,6 +4786,27 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("protocol services");
          updateProtocolServices();
+      }
+   }
+
+   private void deployConfiguredBrokerPlugins(Configuration newConfiguration) {
+      ActiveMQServerLogger.LOGGER.reloadingConfiguration("broker plugins");
+
+      if (hasBrokerPlugins() || !newConfiguration.getConfiguredBrokerPlugins().isEmpty()) {
+
+         for (ActiveMQServerBasePlugin plugin : configuration.getConfiguredBrokerPlugins()) {
+            if (!newConfiguration.getConfiguredBrokerPlugins().contains(plugin)) {
+               unRegisterBrokerPlugin(plugin);
+            }
+         }
+
+         for (ActiveMQServerBasePlugin plugin : newConfiguration.getConfiguredBrokerPlugins()) {
+            if (!configuration.getConfiguredBrokerPlugins().contains(plugin)) {
+               configuration.registerConfiguredBrokerPlugin(plugin);
+               plugin.registered(this);
+            }
+         }
+
       }
    }
 
