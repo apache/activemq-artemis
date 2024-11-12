@@ -75,6 +75,7 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.management.impl.view.AddressView;
@@ -834,7 +835,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String getHAPolicy() {
-      return configuration.getHAPolicyConfiguration().getType().getName();
+      HAPolicyConfiguration haConfig = configuration.getHAPolicyConfiguration();
+      return haConfig == null ? null : haConfig.getType().getName();
    }
 
    @Override

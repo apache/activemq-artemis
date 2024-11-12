@@ -240,6 +240,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(conf.getJournalCompactPercentage(), serverControl.getJournalCompactPercentage());
       assertEquals(conf.isPersistenceEnabled(), serverControl.isPersistenceEnabled());
       assertEquals(conf.getJournalPoolFiles(), serverControl.getJournalPoolFiles());
+      assertEquals(null, conf.getHAPolicyConfiguration());
+      assertEquals(conf.getHAPolicyConfiguration(), serverControl.getHAPolicy());
       assertTrue(serverControl.isActive());
    }
 
