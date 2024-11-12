@@ -36,55 +36,55 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "transfer", description = "Move messages from one destination towards another destination.")
+@Command(name = "transfer", description = "Move messages from one JMS destination towards another JMS destination.")
 public class Transfer extends InputAbstract {
 
    @Option(names = "--source-url", description = "URL for the source broker. Default: build URL from 'artemis' acceptor defined in the broker.xml or tcp://localhost:61616 if the default cannot be parsed.")
    protected String sourceURL = DEFAULT_BROKER_URL;
 
-   @Option(names = "--source-acceptor", description = "Acceptor used to build URL towards the broker. Default: 'artemis'.")
+   @Option(names = "--source-acceptor", description = "Acceptor from the local broker.xml used to build URL towards the broker. Default: 'artemis'.")
    protected String sourceAcceptor = DEFAULT_BROKER_ACCEPTOR;
 
-   @Option(names = "--source-user", description = "User used to connect to source broker.")
+   @Option(names = "--source-user", description = "Username for the JMS connection to the source broker.")
    protected String sourceUser;
 
-   @Option(names = "--source-password", description = "Password used to connect to source broker.")
+   @Option(names = "--source-password", description = "Password for the JMS connection to the source broker.")
    protected String sourcePassword;
 
    @Option(names = "--target-url", description = "URL for the target broker. Default: build URL from 'artemis' acceptor defined in the broker.xml or tcp://localhost:61616 if the default cannot be parsed.")
    protected String targetURL = DEFAULT_BROKER_URL;
 
-   @Option(names = "--target-user", description = "User used to connect to target broker.")
+   @Option(names = "--target-user", description = "Username for the JMS connection to the target broker.")
    protected String targetUser;
 
-   @Option(names = "--target-password", description = "Password used to connect to target broker.")
+   @Option(names = "--target-password", description = "Password for the JMS connection to the target broker.")
    protected String targetPassword;
 
    @Option(names = "--receive-timeout", description = "Amount of time (in milliseconds) to wait before giving up the receiving loop; 0 means no wait, -1 means wait forever. Default: 5000.")
    int receiveTimeout = 5000;
 
-   @Option(names = "--source-client-id", description = "ClientID to be associated with source connection.")
+   @Option(names = "--source-client-id", description = "JMS client ID to be associated with source connection.")
    String sourceClientID;
 
    @Option(names = "--source-protocol", description = "Protocol used. Valid values are amqp or core. Default: core.")
    String sourceProtocol = "core";
 
-   @Option(names = "--source-queue", description = "Source JMS queue to be used. Cannot be set with --source-topic.")
+   @Option(names = "--source-queue", description = "Source JMS queue to transfer messages from. Cannot be used in conjunction with --source-topic.")
    String sourceQueue;
 
-   @Option(names = "--shared-durable-subscription", description = "Name of a shared subscription name to be used on the source topic.")
+   @Option(names = "--shared-durable-subscription", description = "Name of the JMS shared durable subscription to be used on the source JMS topic.")
    String sharedDurableSubscription;
 
-   @Option(names = "--shared-subscription", description = "Name of a shared subscription name to be used on the source topic.")
+   @Option(names = "--shared-subscription", description = "Name of the JMS shared non-durable subscription name to be used on the source JMS topic.")
    String sharedSubscription;
 
-   @Option(names = "--durable-consumer", description = "Name of a durable consumer to be used on the source topic.")
+   @Option(names = "--durable-consumer", description = "Name of the JMS unshared durable subscription to be used on the source JMS topic.")
    String durableConsumer;
 
    @Option(names = "--no-Local", description = "Use noLocal when applicable on topic operation")
    boolean noLocal;
 
-   @Option(names = "--source-topic", description = "Source JMS topic to be used. Cannot bet set with --source-queue.")
+   @Option(names = "--source-topic", description = "Source JMS topic to be used. Cannot be used in conjuction with --source-queue.")
    String sourceTopic;
 
    @Option(names = "--source-filter", description = "Filter to be used with the source consumer.")
@@ -93,10 +93,10 @@ public class Transfer extends InputAbstract {
    @Option(names = "--target-protocol", description = "Protocol used. Valid values are amqp or core. Default: core.")
    String targetProtocol = "core";
 
-   @Option(names = {"--commit-interval"}, description = "Transaction batch size. Default: 1000.")
+   @Option(names = "--commit-interval", description = "How many messages to transfer before committing the associated transaction. Default: 1000.")
    int commitInterval = 1000;
 
-   @Option(names = "--copy", description = "If this option is chosen we will perform a copy by rolling back the original transaction on the source.")
+   @Option(names = "--copy", description = "Copy messages instead of transferring them.")
    boolean copy;
 
    @Option(names = "--target-queue", description = "Target JMS queue to be used. Cannot be set with --target-topic.")
@@ -372,7 +372,7 @@ public class Transfer extends InputAbstract {
                consumer = sourceSession.createSharedConsumer(topic, sharedSubscription);
             }
          } else {
-            throw new IllegalArgumentException("you have to specify --durable-consumer, --shared-durable-subscription or --shared-subscription with a topic");
+            throw new IllegalArgumentException("you must specify either --durable-consumer, --shared-durable-subscription or --shared-subscription with a JMS topic");
          }
       }
 
@@ -442,7 +442,7 @@ public class Transfer extends InputAbstract {
 
    Destination createDestination(String role, Session session, String queue, String topic) throws Exception {
       if (queue != null && topic != null) {
-         throw new IllegalArgumentException("Cannot have topic and queue passed as " + role);
+         throw new IllegalArgumentException("Cannot have both topic and queue passed as " + role);
       }
 
       if (queue != null) {
