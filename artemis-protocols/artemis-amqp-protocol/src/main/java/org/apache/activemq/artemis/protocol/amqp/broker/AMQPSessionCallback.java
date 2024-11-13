@@ -306,11 +306,15 @@ public class AMQPSessionCallback implements SessionCallback {
       createTemporaryQueue(queueName, queueName, routingType, null, maxConsumers);
    }
 
+   public void createTemporaryQueue(SimpleString queueName, RoutingType routingType, Integer maxConsumers, Boolean internal) throws Exception {
+      createTemporaryQueue(queueName, queueName, routingType, null, maxConsumers, internal);
+   }
+
    public void createTemporaryQueue(SimpleString address,
                                     SimpleString queueName,
                                     RoutingType routingType,
                                     SimpleString filter) throws Exception {
-      createTemporaryQueue(address, queueName, routingType, filter, null);
+      createTemporaryQueue(address, queueName, routingType, filter, null, null);
    }
 
    public void createTemporaryQueue(SimpleString address,
@@ -318,13 +322,23 @@ public class AMQPSessionCallback implements SessionCallback {
                                     RoutingType routingType,
                                     SimpleString filter,
                                     Integer maxConsumers) throws Exception {
+      createTemporaryQueue(address, queueName, routingType, filter, null, null);
+   }
+
+   public void createTemporaryQueue(SimpleString address,
+                                    SimpleString queueName,
+                                    RoutingType routingType,
+                                    SimpleString filter,
+                                    Integer maxConsumers,
+                                    Boolean internal) throws Exception {
       try {
          serverSession.createQueue(QueueConfiguration.of(queueName).setAddress(address)
-                                                                    .setRoutingType(routingType)
-                                                                    .setFilterString(filter)
-                                                                    .setTemporary(true)
-                                                                    .setDurable(false)
-                                                                    .setMaxConsumers(maxConsumers));
+                                                                   .setRoutingType(routingType)
+                                                                   .setFilterString(filter)
+                                                                   .setTemporary(true)
+                                                                   .setDurable(false)
+                                                                   .setMaxConsumers(maxConsumers)
+                                                                   .setInternal(internal));
       } catch (ActiveMQSecurityException se) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingTempDestination(se.getMessage());
       }

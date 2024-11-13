@@ -47,6 +47,9 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.allOf;
 
@@ -66,11 +69,13 @@ import javax.jms.JMSException;
 import javax.jms.Session;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederatedBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationAddressPolicyElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationQueuePolicyElement;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.ActiveMQServerAMQPFederationPlugin;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
@@ -870,6 +875,13 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
 
          Wait.assertTrue(() -> server.locateQueue(federationControlSenderAddress) != null);
 
+         final Queue result = server.locateQueue(SimpleString.of(federationControlSenderAddress));
+
+         assertNotNull(result);
+         assertTrue(result.isTemporary());
+         assertTrue(result.isInternalQueue());
+         assertEquals(1, result.getMaxConsumers());
+
          // Try and bind to the control address which should be rejected as the queue
          // was created with max consumers of one.
          peer.expectAttach().ofSender()
@@ -1026,6 +1038,13 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          // The events receiver from the remote should trigger a temporary queue to be created on
          // the server to allow sends of events beyond currently available credit.
          Wait.assertTrue(() -> server.locateQueue(federationEventsSenderAddress) != null);
+
+         final Queue result = server.locateQueue(SimpleString.of(federationEventsSenderAddress));
+
+         assertNotNull(result);
+         assertTrue(result.isTemporary());
+         assertTrue(result.isInternalQueue());
+         assertEquals(1, result.getMaxConsumers());
 
          // Try and bind to the events address which should be rejected as the queue
          // was created with max consumers of one.

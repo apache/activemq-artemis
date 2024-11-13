@@ -125,7 +125,7 @@ public class AMQPFederationCommandDispatcher implements SenderController {
       controlAddress = federation.prefixControlLinkQueueName(sender.getRemoteTarget().getAddress());
 
       try {
-         session.createTemporaryQueue(SimpleString.of(getControlLinkAddress()), RoutingType.ANYCAST, 1);
+         session.createTemporaryQueue(SimpleString.of(getControlLinkAddress()), RoutingType.ANYCAST, 1, true);
       } catch (Exception e) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
       }
