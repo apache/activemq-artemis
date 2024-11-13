@@ -120,7 +120,7 @@
       <checkstyle.version>10.20.1</checkstyle.version>
       <mockito.version>5.14.2</mockito.version>
       <jctools.version>4.0.5</jctools.version>
-      <netty.version>4.1.114.Final</netty.version>
+      <netty.version>4.1.115.Final</netty.version>
       <hdrhistogram.version>2.2.2</hdrhistogram.version>
       <curator.version>5.7.1</curator.version>
       <zookeeper.version>3.9.3</zookeeper.version>
@@ -132,7 +132,7 @@
       <asciidoctorj.pdf.version>2.3.19</asciidoctorj.pdf.version>
 
       <!-- this is basically for tests -->
-      <netty-tcnative-version>2.0.66.Final</netty-tcnative-version>
+      <netty-tcnative-version>2.0.69.Final</netty-tcnative-version>
       <proton.version>0.34.1</proton.version>
       <protonj2.version>1.0.0-M22</protonj2.version>
       <slf4j.version>2.0.16</slf4j.version>
