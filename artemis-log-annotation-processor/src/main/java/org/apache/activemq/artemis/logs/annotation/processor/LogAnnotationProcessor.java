@@ -154,7 +154,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
                      int generatedPaths = 0;
 
                      if (messageAnnotation != null) {
-                        validateRegexID(bundleAnnotation, messageAnnotation.id());
+                        validateRegexID(bundleAnnotation.regexID(), executableMember, messageAnnotation.id());
                         generatedPaths++;
                         if (DEBUG) {
                            debug("... annotated with " + messageAnnotation);
@@ -163,7 +163,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
                      }
 
                      if (logAnnotation != null) {
-                        validateRegexID(bundleAnnotation, logAnnotation.id());
+                        validateRegexID(bundleAnnotation.regexID(), executableMember, logAnnotation.id());
                         generatedPaths++;
                         if (DEBUG) {
                            debug("... annotated with " + logAnnotation);
@@ -205,17 +205,19 @@ public class LogAnnotationProcessor extends AbstractProcessor {
       return true;
    }
 
-   private static void validateRegexID(LogBundle bundleAnnotation, long id) {
-      if (!isAllowedIDValue(bundleAnnotation, id)) {
-         throw new IllegalArgumentException("Code " + id + " does not match regular expression \"" + bundleAnnotation.regexID() + "\" specified on the LogBundle");
+   private static void validateRegexID(String regexID, ExecutableElement executableMember, long id) {
+      if (!isAllowedIDValue(regexID, id)) {
+         String enclosingClass = executableMember.getEnclosingElement().toString();
+
+         throw new IllegalArgumentException(enclosingClass + ": Code " + id + " does not match regular expression specified on the LogBundle: " + regexID);
       }
    }
 
-   private static boolean isAllowedIDValue(LogBundle bundleAnnotation, long id) {
-      if (bundleAnnotation.regexID() != null && !bundleAnnotation.regexID().isEmpty()) {
+   private static boolean isAllowedIDValue(String regexID, long id) {
+      if (regexID != null && !regexID.isEmpty()) {
          String toStringID = Long.toString(id);
 
-         return toStringID.matches(bundleAnnotation.regexID());
+         return toStringID.matches(regexID);
       }
 
       return true;
@@ -535,7 +537,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
             nextId++;
          }
 
-         if (isAllowedIDValue(bundleAnnotation, nextId)) {
+         if (isAllowedIDValue(bundleAnnotation.regexID(), nextId)) {
             failure.append("Consider trying ID ").append(nextId).append(" which is the next unused value.");
          } else {
             failure.append("There are no new IDs available within the given ID regex: " + bundleAnnotation.regexID());
@@ -575,9 +577,10 @@ public class LogAnnotationProcessor extends AbstractProcessor {
          return;
       }
 
+      String regexID = bundleAnnotation.regexID();
       for (int id : retiredIDs) {
-         if (!isAllowedIDValue(bundleAnnotation, id)) {
-            throw new IllegalArgumentException(annotatedType + ": The retiredIDs elements must each match the configured regexID. The ID " + id + " does not match: " + bundleAnnotation.regexID());
+         if (!isAllowedIDValue(regexID, id)) {
+            throw new IllegalArgumentException(annotatedType + ": The retiredIDs elements must each match the configured regexID. The ID " + id + " does not match: " + regexID);
          }
       }
 

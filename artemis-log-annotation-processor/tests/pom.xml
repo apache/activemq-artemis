@@ -70,5 +70,12 @@
          <artifactId>junit-jupiter-engine</artifactId>
          <scope>test</scope>
       </dependency>
+
+      <!-- Used to exercise the annotation processor directly -->
+      <dependency>
+         <groupId>com.karuslabs</groupId>
+         <artifactId>elementary</artifactId>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 </project>
