@@ -136,7 +136,7 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
       }
 
       try {
-         session.createTemporaryQueue(SimpleString.of(getEventsLinkAddress()), RoutingType.ANYCAST, 1);
+         session.createTemporaryQueue(SimpleString.of(getEventsLinkAddress()), RoutingType.ANYCAST, 1, true);
       } catch (Exception e) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
       }
