@@ -578,6 +578,13 @@
             <scope>test</scope>
          </dependency>
 
+         <dependency>
+            <groupId>com.karuslabs</groupId>
+            <artifactId>elementary</artifactId>
+            <version>${elementary.version}</version>
+            <scope>test</scope>
+         </dependency>
+
          <!-- Needed for Micrometer -->
          <dependency>
             <groupId>io.micrometer</groupId>
