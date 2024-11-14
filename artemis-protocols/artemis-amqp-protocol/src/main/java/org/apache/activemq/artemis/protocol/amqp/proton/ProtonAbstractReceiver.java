@@ -345,25 +345,23 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
                           Message message, DeliveryAnnotations deliveryAnnotations) {
       connection.requireInHandler();
 
-      try {
-         receiver.advance();
+      receiver.advance();
 
-         Transaction tx = null;
-         if (delivery.getRemoteState() instanceof TransactionalState) {
-            TransactionalState txState = (TransactionalState) delivery.getRemoteState();
-            try {
-               tx = this.sessionSPI.getTransaction(txState.getTxnId(), false);
-            } catch (Exception e) {
-               this.onExceptionWhileReading(e);
-            }
+      Transaction tx = null;
+      if (delivery.getRemoteState() instanceof TransactionalState) {
+         TransactionalState txState = (TransactionalState) delivery.getRemoteState();
+         try {
+            tx = this.sessionSPI.getTransaction(txState.getTxnId(), false);
+         } catch (Exception e) {
+            this.onExceptionWhileReading(e);
          }
-
-         actualDelivery(message, delivery, deliveryAnnotations, receiver, tx);
-      } finally {
-         // reader is complete, we give it up now
-         this.messageReader.close();
-         this.messageReader = null;
       }
+
+      //  messageReader.close should be called before the delivery, to signal the reader is complete.
+      this.messageReader.close();
+      this.messageReader = null;
+
+      actualDelivery(message, delivery, deliveryAnnotations, receiver, tx);
    }
 
    @Override
