@@ -343,7 +343,7 @@ public class ClusteredLargeMessageInterruptTest extends SoakTestBase {
 
       killProcess(serverProcess);
       assertTrue(serverProcess.waitFor(1, TimeUnit.MINUTES));
-      assertTrue(sendDone.await(1, TimeUnit. MINUTES));
+      assertTrue(sendDone.await(1, TimeUnit.MINUTES));
 
       sendDone = startSendingThreads(executorService, protocol, 1, SENDING_THREADS, tx, queueName);
       CountDownLatch receiverDone = startConsumingThreads(executorService, protocol, 1, CONSUMING_THREADS, tx, queueName);
