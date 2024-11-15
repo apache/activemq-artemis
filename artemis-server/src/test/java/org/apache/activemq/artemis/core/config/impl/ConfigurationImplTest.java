@@ -1871,9 +1871,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       insertionOrderedProperties.put("storeConfiguration.jdbcLockExpirationMillis", 321);
       insertionOrderedProperties.put("storeConfiguration.jdbcLockRenewPeriodMillis", 654);
       insertionOrderedProperties.put("storeConfiguration.jdbcNetworkTimeout", 987);
-      insertionOrderedProperties.put("storeConfiguration.jdbcPassword", "pass");
+      insertionOrderedProperties.put("storeConfiguration.dataSourceProperties.password", "pass");
       insertionOrderedProperties.put("storeConfiguration.jdbcUser", "user");
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+
       assertTrue(configuration.getStoreConfiguration() instanceof DatabaseStorageConfiguration);
       DatabaseStorageConfiguration dsc = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
       assertEquals(dsc.getLargeMessageTableName(), "lmtn");
@@ -1888,7 +1891,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals(dsc.getJdbcLockExpirationMillis(), 321);
       assertEquals(dsc.getJdbcLockRenewPeriodMillis(), 654);
       assertEquals(dsc.getJdbcNetworkTimeout(), 987);
-      assertEquals(dsc.getJdbcPassword(), "pass");
+      assertEquals(dsc.getDataSourceProperties().get("password"), "pass");
       assertEquals(dsc.getJdbcUser(), "user");
       assertEquals(dsc.getNodeManagerStoreTableName(), "nmtn");
       assertEquals(dsc.getPageStoreTableName(), "pstn");
