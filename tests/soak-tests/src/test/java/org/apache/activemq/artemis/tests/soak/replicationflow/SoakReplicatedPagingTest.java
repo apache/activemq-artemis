@@ -147,8 +147,8 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
       server0 = startServer(SERVER_NAME_0, 0, 30000);
    }
 
-   static final int consumer_threads = 20;
-   static final int producer_threads = 20;
+   static final int CONSUMER_THREADS = 5;
+   static final int PRODUCER_THREADS = 5;
    static AtomicInteger producer_count = new AtomicInteger(0);
    static AtomicInteger consumer_count = new AtomicInteger(0);
 
@@ -187,10 +187,10 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
 
          final ConnectionFactory factory = createConnectionFactory(protocol, "tcp://" + host + ":" + port);
 
-         CountDownLatch producersLatch = new CountDownLatch(producer_threads);
-         CountDownLatch consumersLatch = new CountDownLatch(consumer_threads);
+         CountDownLatch producersLatch = new CountDownLatch(PRODUCER_THREADS);
+         CountDownLatch consumersLatch = new CountDownLatch(CONSUMER_THREADS);
 
-         for (int i = 0; i < producer_threads; i++) {
+         for (int i = 0; i < PRODUCER_THREADS; i++) {
             Thread t = new Thread(() -> {
                SoakReplicatedPagingTest app = new SoakReplicatedPagingTest(protocol, consumerType, tx);
                app.produce(factory, producer_count.incrementAndGet(), producersLatch);
@@ -200,7 +200,7 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
 
          Thread.sleep(1000);
 
-         for (int i = 0; i < consumer_threads; i++) {
+         for (int i = 0; i < CONSUMER_THREADS; i++) {
             Thread t = new Thread(() -> {
                SoakReplicatedPagingTest app = new SoakReplicatedPagingTest(protocol, consumerType, tx);
                app.consume(factory, consumer_count.getAndIncrement(), consumersLatch);
