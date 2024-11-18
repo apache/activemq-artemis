@@ -34,7 +34,15 @@ public final class ResourceNames {
 
    public static final String ADDRESS = "address.";
 
+   public static final String BROKER_CONNECTION = "brokerconnection.";
+
    public static final String BRIDGE = "bridge.";
+
+   public static final String FEDERATION = "federation.";
+
+   public static final String FEDERATION_STREAM = "federationstream.";
+
+   public static final String FEDERATION_REMOTE_CONSUMER = "federationremoteconsumer.";
 
    public static final String ACCEPTOR = "acceptor.";
 

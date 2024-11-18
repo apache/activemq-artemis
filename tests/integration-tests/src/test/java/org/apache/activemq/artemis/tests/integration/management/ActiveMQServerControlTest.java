@@ -6151,6 +6151,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          public BrokerConnectConfiguration getConfiguration() {
             return null;
          }
+
+         @Override
+         public boolean isOpen() {
+            return false;
+         }
+
       }
       Fake fake = new Fake("fake" + UUIDGenerator.getInstance().generateStringUUID());
       server.registerBrokerConnection(fake);
