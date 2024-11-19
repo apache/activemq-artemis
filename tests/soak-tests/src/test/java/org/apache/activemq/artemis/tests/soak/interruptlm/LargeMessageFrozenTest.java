@@ -340,7 +340,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
          assertNull(consumer.receiveNoWait());
       }
 
-      assertEquals(0L, serverQueue.getMessageCount());
+      Wait.assertEquals(0L, serverQueue::getMessageCount, 5000, 100);
 
       Wait.assertEquals(0, () -> {
          System.gc();
