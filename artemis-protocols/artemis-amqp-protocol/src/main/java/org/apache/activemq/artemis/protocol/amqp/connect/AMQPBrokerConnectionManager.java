@@ -89,6 +89,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
       AMQPBrokerConnection amqpBrokerConnection = new AMQPBrokerConnection(this, configuration, protonProtocolManagerFactory, server);
       amqpBrokerConnections.put(configuration.getName(), amqpBrokerConnection);
       server.registerBrokerConnection(amqpBrokerConnection);
+      server.getManagementService().registerBrokerConnection(amqpBrokerConnection);
 
       if (start) {
          amqpBrokerConnection.start();
@@ -142,6 +143,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
                   connection.stop();
                } finally {
                   server.unregisterBrokerConnection(connection);
+                  server.getManagementService().unregisterBrokerConnection(connection.getName());
                }
             }
 
@@ -183,6 +185,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
                connection.stop();
             } finally {
                server.unregisterBrokerConnection(connection);
+               server.getManagementService().unregisterBrokerConnection(connection.getName());
             }
          }
       }
@@ -211,6 +214,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
                   connection.stop();
                } finally {
                   server.unregisterBrokerConnection(connection);
+                  server.getManagementService().unregisterBrokerConnection(connection.getName());
                }
             }
          } finally {

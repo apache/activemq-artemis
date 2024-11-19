@@ -22,9 +22,11 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
-
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -32,6 +34,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumer;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromAddressPolicy;
+import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromResourcePolicy;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo.Role;
 import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationAddressPolicyManager;
 import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationConsumerInternal;
@@ -48,6 +51,8 @@ public class AMQPFederationAddressPolicyManager extends FederationAddressPolicyM
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   protected final AtomicLong messageCount = new AtomicLong();
+   protected final BiConsumer<FederationConsumerInfo, Message> messageObserver = (i, m) -> messageCount.incrementAndGet();
    protected final AMQPFederation federation;
    protected final String remoteQueueFilter;
 
@@ -62,7 +67,19 @@ public class AMQPFederationAddressPolicyManager extends FederationAddressPolicyM
    }
 
    @Override
-   protected void handlePolicyManagerStarted(FederationReceiveFromAddressPolicy policy) {
+   public AMQPFederation getFederation() {
+      return federation;
+   }
+
+   /**
+    * @return the number of messages that all federation consumer of this policy have received from the remote.
+    */
+   public long getMessagesReceived() {
+      return messageCount.get();
+   }
+
+   @Override
+   protected void handlePolicyManagerStarted(FederationReceiveFromResourcePolicy policy) {
       // Capture state for the current connection on each start of the policy manager.
       configuration = new AMQPFederationConsumerConfiguration(federation.getConfiguration(), policy.getProperties());
       session = federation.getSessionContext();
@@ -96,7 +113,7 @@ public class AMQPFederationAddressPolicyManager extends FederationAddressPolicyM
 
       // Don't initiate anything yet as the caller might need to register error handlers etc
       // before the attach is sent otherwise they could miss the failure case.
-      return new AMQPFederationAddressConsumer(federation, configuration, session, consumerInfo, policy);
+      return new AMQPFederationAddressConsumer(this, configuration, session, consumerInfo, messageObserver);
    }
 
    @Override

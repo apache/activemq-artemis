@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.core.settings.impl.Match;
  * Policy used to provide federation of remote to local broker queues, once created the policy
  * configuration is immutable.
  */
-public class FederationReceiveFromQueuePolicy implements BiPredicate<String, String> {
+public class FederationReceiveFromQueuePolicy implements FederationReceiveFromResourcePolicy, BiPredicate<String, String> {
 
    private final Set<QueueMatcher> includeMatchers = new LinkedHashSet<>();
    private final Set<QueueMatcher> excludeMatchers = new LinkedHashSet<>();
@@ -76,6 +76,12 @@ public class FederationReceiveFromQueuePolicy implements BiPredicate<String, Str
       excludes.forEach((entry) -> excludeMatchers.add(new QueueMatcher(entry.getKey(), entry.getValue(), wildcardConfig)));
    }
 
+   @Override
+   public FederationType getPolicyType() {
+      return FederationType.QUEUE_FEDERATION;
+   }
+
+   @Override
    public String getPolicyName() {
       return policyName;
    }
@@ -96,10 +102,12 @@ public class FederationReceiveFromQueuePolicy implements BiPredicate<String, Str
       return excludes;
    }
 
+   @Override
    public Map<String, Object> getProperties() {
       return properties;
    }
 
+   @Override
    public TransformerConfiguration getTransformerConfiguration() {
       return transformerConfig;
    }

@@ -49,26 +49,29 @@ import org.slf4j.LoggerFactory;
  * monitoring broker queues for demand and creating a consumer for on the remote side
  * to federate messages back to this peer.
  */
-public abstract class FederationQueuePolicyManager implements ActiveMQServerConsumerPlugin, ActiveMQServerBindingPlugin {
+public abstract class FederationQueuePolicyManager extends FederationPolicyManager implements ActiveMQServerConsumerPlugin, ActiveMQServerBindingPlugin {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   protected final ActiveMQServer server;
    protected final Predicate<ServerConsumer> federationConsumerMatcher;
    protected final FederationReceiveFromQueuePolicy policy;
    protected final Map<FederationConsumerInfo, FederationQueueEntry> demandTracking = new HashMap<>();
-   protected final FederationInternal federation;
-
-   private volatile boolean started;
 
    public FederationQueuePolicyManager(FederationInternal federation, FederationReceiveFromQueuePolicy queuePolicy) throws ActiveMQException {
-      Objects.requireNonNull(federation, "The Federation instance cannot be null");
+      super(federation);
+
       Objects.requireNonNull(queuePolicy, "The Queue match policy cannot be null");
 
-      this.federation = federation;
       this.policy = queuePolicy;
-      this.server = federation.getServer();
       this.federationConsumerMatcher = createFederationConsumerMatcher(server, queuePolicy);
+   }
+
+   /**
+    * @return the receive from queue policy that backs the queue policy manager.
+    */
+   @Override
+   public FederationReceiveFromQueuePolicy getPolicy() {
+      return policy;
    }
 
    /**
@@ -78,6 +81,10 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
     * federation connection has been established.
     */
    public synchronized void start() {
+      if (!federation.isStarted()) {
+         throw new IllegalStateException("Cannot start a federation policy manager when the federation is stopped.");
+      }
+
       if (!started) {
          started = true;
          handlePolicyManagerStarted(policy);
@@ -305,16 +312,6 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
    }
 
    /**
-    * Called on start of the manager before any other actions are taken to allow the subclass time
-    * to configure itself and prepare any needed state prior to starting management of federated
-    * resources.
-    *
-    * @param policy
-    *    The policy configuration for this policy manager.
-    */
-   protected abstract void handlePolicyManagerStarted(FederationReceiveFromQueuePolicy policy);
-
-   /**
     * Create a new {@link FederationConsumerInfo} based on the given {@link ServerConsumer}
     * and the configured {@link FederationReceiveFromQueuePolicy}. A subclass must override this
     * method to return a consumer information object with additional data used be that implementation.
@@ -340,18 +337,6 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
    protected FederationQueueEntry createConsumerEntry(FederationConsumerInfo consumerInfo) {
       return new FederationQueueEntry(consumerInfo);
    }
-
-   /**
-    * Create a new {@link FederationConsumerInternal} instance using the consumer information
-    * given. This is called when local demand for a matched queue requires a new consumer to
-    * be created. A subclass must override this to perform the creation of the remote consumer.
-    *
-    * @param consumerInfo
-    *    The {@link FederationConsumerInfo} that defines the consumer to be created.
-    *
-    * @return a new {@link FederationConsumerInternal} instance that will reside in this manager.
-    */
-   protected abstract FederationConsumerInternal createFederationConsumer(FederationConsumerInfo consumerInfo);
 
    /**
     * Creates a {@link Predicate} that should return true if the given consumer is a federation
@@ -389,42 +374,6 @@ public abstract class FederationQueuePolicyManager implements ActiveMQServerCons
          };
       }
    }
-
-   /**
-    * Signal any registered plugins for this federation instance that a remote Queue consumer
-    * is being created.
-    *
-    * @param info
-    *    The {@link FederationConsumerInfo} that describes the remote Queue consumer
-    */
-   protected abstract void signalBeforeCreateFederationConsumer(FederationConsumerInfo info);
-
-   /**
-    * Signal any registered plugins for this federation instance that a remote Queue consumer
-    * has been created.
-    *
-    * @param consumer
-    *    The {@link FederationConsumerInfo} that describes the remote Queue consumer
-    */
-   protected abstract void signalAfterCreateFederationConsumer(FederationConsumer consumer);
-
-   /**
-    * Signal any registered plugins for this federation instance that a remote Queue consumer
-    * is about to be closed.
-    *
-    * @param consumer
-    *    The {@link FederationConsumer} that that is about to be closed.
-    */
-   protected abstract void signalBeforeCloseFederationConsumer(FederationConsumer consumer);
-
-   /**
-    * Signal any registered plugins for this federation instance that a remote Queue consumer
-    * has now been closed.
-    *
-    * @param consumer
-    *    The {@link FederationConsumer} that that has been closed.
-    */
-   protected abstract void signalAfterCloseFederationConsumer(FederationConsumer consumer);
 
    /**
     * Query all registered plugins for this federation instance to determine if any wish to

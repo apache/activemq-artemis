@@ -127,6 +127,29 @@ public final class ObjectNameBuilder {
    }
 
    /**
+    * Returns the ObjectName used by broker connection management objects for outgoing connections.
+    *
+    * @see BrokerConnectionControl
+    */
+   public ObjectName getBrokerConnectionObjectName(String name) throws Exception {
+      return ObjectName.getInstance(getBrokerConnectionBaseObjectNameString(name));
+   }
+
+   /**
+    * Returns the base ObjectName string used by for outgoing broker connections and possibly broker connection
+    * services that are registered by broker connection specific features. This value is pre-quoted and ready
+    * for use in an ObjectName.getIstnace call but is intended for use by broker connection components to create
+    * names specific to a broker connection feature that registers its own object for management.
+    *
+    * @return the base object name string that is used for broker connection Object names.
+    *
+    * @see BrokerConnectionControl
+    */
+   public String getBrokerConnectionBaseObjectNameString(String name) throws Exception {
+      return getActiveMQServerName() + ",component=broker-connections,name=" + ObjectName.quote(name);
+   }
+
+   /**
     * Returns the ObjectName used by BridgeControl.
     *
     * @see BridgeControl

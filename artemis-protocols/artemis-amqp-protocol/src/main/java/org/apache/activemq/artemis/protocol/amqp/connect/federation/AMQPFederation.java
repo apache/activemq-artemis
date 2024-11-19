@@ -34,9 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromAddressPolicy;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromQueuePolicy;
-import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationAddressPolicyManager;
 import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationInternal;
-import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationQueuePolicyManager;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.qpid.proton.engine.Link;
@@ -63,13 +61,14 @@ public abstract class AMQPFederation implements FederationInternal {
    private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
 
    // Local policies that should be matched against demand on local addresses and queues.
-   protected final Map<String, FederationQueuePolicyManager> queueMatchPolicies = new ConcurrentHashMap<>();
-   protected final Map<String, FederationAddressPolicyManager> addressMatchPolicies = new ConcurrentHashMap<>();
+   protected final Map<String, AMQPFederationQueuePolicyManager> queueMatchPolicies = new ConcurrentHashMap<>();
+   protected final Map<String, AMQPFederationAddressPolicyManager> addressMatchPolicies = new ConcurrentHashMap<>();
    protected final Map<String, Predicate<Link>> linkClosedinterceptors = new ConcurrentHashMap<>();
 
    protected final WildcardConfiguration wildcardConfiguration;
    protected final ScheduledExecutorService scheduler;
 
+   protected final String brokerConnectionName;
    protected final String name;
    protected final ActiveMQServer server;
 
@@ -83,10 +82,11 @@ public abstract class AMQPFederation implements FederationInternal {
    protected boolean started;
    protected volatile boolean connected;
 
-   public AMQPFederation(String name, ActiveMQServer server) {
+   public AMQPFederation(String brokerConnectionName, String name, ActiveMQServer server) {
       Objects.requireNonNull(name, "Federation name cannot be null");
       Objects.requireNonNull(server, "Provided server instance cannot be null");
 
+      this.brokerConnectionName = brokerConnectionName;
       this.name = name;
       this.server = server;
       this.scheduler = server.getScheduledPool();
@@ -260,7 +260,7 @@ public abstract class AMQPFederation implements FederationInternal {
     * @throws ActiveMQException if an error occurs processing the added policy
     */
    public synchronized AMQPFederation addQueueMatchPolicy(FederationReceiveFromQueuePolicy queuePolicy) throws ActiveMQException {
-      final FederationQueuePolicyManager manager = new AMQPFederationQueuePolicyManager(this, queuePolicy);
+      final AMQPFederationQueuePolicyManager manager = new AMQPFederationQueuePolicyManager(this, queuePolicy);
 
       queueMatchPolicies.put(queuePolicy.getPolicyName(), manager);
 
@@ -286,7 +286,7 @@ public abstract class AMQPFederation implements FederationInternal {
     * @throws ActiveMQException if an error occurs processing the added policy
     */
    public synchronized AMQPFederation addAddressMatchPolicy(FederationReceiveFromAddressPolicy addressPolicy) throws ActiveMQException {
-      final FederationAddressPolicyManager manager = new AMQPFederationAddressPolicyManager(this, addressPolicy);
+      final AMQPFederationAddressPolicyManager manager = new AMQPFederationAddressPolicyManager(this, addressPolicy);
 
       addressMatchPolicies.put(addressPolicy.getPolicyName(), manager);
 
@@ -477,6 +477,66 @@ public abstract class AMQPFederation implements FederationInternal {
          });
       } catch (ActiveMQException t) {
          ActiveMQServerLogger.LOGGER.federationPluginExecutionError("federationStopped", t);
+      }
+   }
+
+   /*
+    * This section contains internal management support APIs for resources managed by this
+    * Federation instance. The resources that are managed by a federation source or target
+    * call into this batch of API to add and remove themselves into management which allows
+    * the given federation source or target the control over how the resources are represented
+    * in the management hierarchy.
+    *
+    * NOTE: Currently the fact that broker connection name is null indicates that the resource
+    * is from a remote broker connection and no management types are registered. This should
+    * be improved upon when remote broker connection management registration is implemented.
+    */
+
+   void registerAddressPolicyManagement(AMQPFederationAddressPolicyManager manager) throws Exception {
+      if (brokerConnectionName != null) {
+         AMQPFederationManagementSupport.registerAddressPolicyControl(brokerConnectionName, manager);
+      }
+   }
+
+   void unregisterAddressPolicyManagement(AMQPFederationAddressPolicyManager manager) throws Exception {
+      if (brokerConnectionName != null) {
+         AMQPFederationManagementSupport.unregisterAddressPolicyControl(brokerConnectionName, manager);
+      }
+   }
+
+   void registerAddressConsumerManagement(AMQPFederationAddressPolicyManager manager, AMQPFederationAddressConsumer consumer) throws Exception {
+      if (brokerConnectionName != null) {
+         AMQPFederationManagementSupport.registerAddressConsumerControl(brokerConnectionName, manager, consumer);
+      }
+   }
+
+   void unregisterAddressConsumerManagement(AMQPFederationAddressPolicyManager manager, AMQPFederationAddressConsumer consumer) throws Exception {
+      if (brokerConnectionName != null) {
+         AMQPFederationManagementSupport.unregisterAddressConsumerControl(brokerConnectionName, manager, consumer);
+      }
+   }
+
+   void registerQueuePolicyManagement(AMQPFederationQueuePolicyManager manager) throws Exception {
+      if (brokerConnectionName != null) {
+         AMQPFederationManagementSupport.registerQueuePolicyControl(brokerConnectionName, manager);
+      }
+   }
+
+   void unregisterQueuePolicyManagement(AMQPFederationQueuePolicyManager manager) throws Exception {
+      if (brokerConnectionName != null) {
+         AMQPFederationManagementSupport.unregisterQueuePolicyControl(brokerConnectionName, manager);
+      }
+   }
+
+   void registerQueueConsumerManagement(AMQPFederationQueuePolicyManager manager, AMQPFederationQueueConsumer consumer) throws Exception {
+      if (brokerConnectionName != null) {
+         AMQPFederationManagementSupport.registerQueueConsumerControl(brokerConnectionName, manager, consumer);
+      }
+   }
+
+   void unregisterQueueConsumerManagement(AMQPFederationQueuePolicyManager manager, AMQPFederationQueueConsumer consumer) throws Exception {
+      if (brokerConnectionName != null) {
+         AMQPFederationManagementSupport.unregisterQueueConsumerControl(brokerConnectionName, manager, consumer);
       }
    }
 }

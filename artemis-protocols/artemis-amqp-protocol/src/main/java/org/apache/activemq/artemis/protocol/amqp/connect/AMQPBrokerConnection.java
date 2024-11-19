@@ -195,6 +195,17 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    }
 
    @Override
+   public boolean isConnected() {
+      final NettyConnection connection = this.connection;
+
+      if (connection != null) {
+         return connection.isOpen();
+      } else {
+         return false;
+      }
+   }
+
+   @Override
    public boolean isStarted() {
       return started;
    }
@@ -208,49 +219,58 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    }
 
    @Override
-   public void stop() {
-      if (!started) return;
-      started = false;
-      if (protonRemotingConnection != null) {
-         protonRemotingConnection.fail(new ActiveMQException("Stopping Broker Connection"));
-         protonRemotingConnection = null;
-         connection = null;
-      }
-      ScheduledFuture<?> scheduledFuture = reconnectFuture;
-      reconnectFuture = null;
-      if (scheduledFuture != null) {
-         scheduledFuture.cancel(true);
-      }
-      if (brokerFederation != null) {
-         try {
-            brokerFederation.stop();
-         } catch (ActiveMQException e) {
+   public synchronized void stop() {
+      if (started) {
+         started = false;
+
+         if (protonRemotingConnection != null) {
+            protonRemotingConnection.fail(new ActiveMQException("Stopping Broker Connection"));
+            protonRemotingConnection = null;
+            connection = null;
+         }
+
+         final ScheduledFuture<?> scheduledFuture = reconnectFuture;
+         reconnectFuture = null;
+         if (scheduledFuture != null) {
+            scheduledFuture.cancel(true);
+         }
+
+         if (brokerFederation != null) {
+            try {
+               brokerFederation.stop();
+            } catch (ActiveMQException e) {
+               logger.debug("Error caught while stopping federation instance.", e);
+            } finally {
+               brokerFederation = null;
+            }
          }
       }
    }
 
    @Override
-   public void start() throws Exception {
-      if (started) return;
-      started = true;
-      server.getConfiguration().registerBrokerPlugin(this);
-      try {
-         if (brokerConnectConfiguration != null && brokerConnectConfiguration.getConnectionElements() != null) {
-            for (AMQPBrokerConnectionElement connectionElement : brokerConnectConfiguration.getConnectionElements()) {
-               final AMQPBrokerConnectionAddressType elementType = connectionElement.getType();
+   public synchronized void start() throws Exception {
+      if (!started) {
+         started = true;
 
-               if (elementType == AMQPBrokerConnectionAddressType.MIRROR) {
-                  installMirrorController((AMQPMirrorBrokerConnectionElement) connectionElement, server);
-               } else if (elementType == AMQPBrokerConnectionAddressType.FEDERATION) {
-                  installFederation((AMQPFederatedBrokerConnectionElement) connectionElement, server);
+         server.getConfiguration().registerBrokerPlugin(this);
+         try {
+            if (brokerConnectConfiguration != null && brokerConnectConfiguration.getConnectionElements() != null) {
+               for (AMQPBrokerConnectionElement connectionElement : brokerConnectConfiguration.getConnectionElements()) {
+                  final AMQPBrokerConnectionAddressType elementType = connectionElement.getType();
+
+                  if (elementType == AMQPBrokerConnectionAddressType.MIRROR) {
+                     installMirrorController((AMQPMirrorBrokerConnectionElement) connectionElement, server);
+                  } else if (elementType == AMQPBrokerConnectionAddressType.FEDERATION) {
+                     installFederation((AMQPFederatedBrokerConnectionElement) connectionElement, server);
+                  }
                }
             }
+         } catch (Throwable e) {
+            logger.warn(e.getMessage(), e);
+            return;
          }
-      } catch (Throwable e) {
-         logger.warn(e.getMessage(), e);
-         return;
+         connectExecutor.execute(() -> doConnect());
       }
-      connectExecutor.execute(() -> doConnect());
    }
 
    public ActiveMQServer getServer() {

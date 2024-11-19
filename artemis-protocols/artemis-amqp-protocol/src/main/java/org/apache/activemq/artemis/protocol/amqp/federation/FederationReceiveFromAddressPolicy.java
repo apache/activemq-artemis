@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.core.settings.impl.Match;
  * Policy used to provide federation of remote to local broker addresses, once created the policy
  * configuration is immutable.
  */
-public class FederationReceiveFromAddressPolicy implements BiPredicate<String, RoutingType> {
+public class FederationReceiveFromAddressPolicy implements FederationReceiveFromResourcePolicy, BiPredicate<String, RoutingType> {
 
    private final Set<AddressMatcher> includesMatchers = new LinkedHashSet<>();
    private final Set<AddressMatcher> excludesMatchers = new LinkedHashSet<>();
@@ -85,6 +85,12 @@ public class FederationReceiveFromAddressPolicy implements BiPredicate<String, R
       excludes.forEach((address) -> excludesMatchers.add(new AddressMatcher(address, wildcardConfig)));
    }
 
+   @Override
+   public FederationType getPolicyType() {
+      return FederationType.ADDRESS_FEDERATION;
+   }
+
+   @Override
    public String getPolicyName() {
       return policyName;
    }
@@ -117,10 +123,12 @@ public class FederationReceiveFromAddressPolicy implements BiPredicate<String, R
       return excludes;
    }
 
+   @Override
    public Map<String, Object> getProperties() {
       return properties;
    }
 
+   @Override
    public TransformerConfiguration getTransformerConfiguration() {
       return transformerConfig;
    }

@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
@@ -132,6 +133,10 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
 
    void unregisterConnectionRouter(String name) throws Exception;
 
+   void registerBrokerConnection(BrokerConnection brokerConnection) throws Exception;
+
+   void unregisterBrokerConnection(String name) throws Exception;
+
    Object getResource(String resourceName);
 
    Object[] getResources(Class<?> resourceType);
@@ -145,4 +150,5 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
    Object getAttribute(String resourceName, String attribute, SecurityAuth auth);
 
    Object invokeOperation(String resourceName, String operation, Object[] params, SecurityAuth auth) throws Exception;
+
 }

@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
@@ -373,6 +374,16 @@ public class ClusteredResetMockTest extends ServerTestBase {
       }
 
       @Override
+      public void registerBrokerConnection(BrokerConnection brokerConnection) {
+
+      }
+
+      @Override
+      public void unregisterBrokerConnection(String name) {
+
+      }
+
+      @Override
       public void start() throws Exception {
 
       }
@@ -408,5 +419,4 @@ public class ClusteredResetMockTest extends ServerTestBase {
 
       }
    }
-
 }

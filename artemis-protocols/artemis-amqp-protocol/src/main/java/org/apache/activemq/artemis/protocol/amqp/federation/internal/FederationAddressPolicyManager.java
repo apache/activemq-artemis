@@ -29,15 +29,14 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.federation.Federation;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugin;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.protocol.amqp.federation.Federation;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumer;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromAddressPolicy;
@@ -57,25 +56,28 @@ import org.slf4j.LoggerFactory;
  * which can federate all messages to the local side where the existing queues can apply
  * any filtering they have in place.
  */
-public abstract class FederationAddressPolicyManager implements ActiveMQServerBindingPlugin, ActiveMQServerAddressPlugin {
+public abstract class FederationAddressPolicyManager extends FederationPolicyManager implements ActiveMQServerBindingPlugin, ActiveMQServerAddressPlugin {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   protected final ActiveMQServer server;
-   protected final FederationInternal federation;
    protected final FederationReceiveFromAddressPolicy policy;
    protected final Map<String, FederationAddressEntry> demandTracking = new HashMap<>();
    protected final Map<DivertBinding, Set<QueueBinding>> divertsTracking = new HashMap<>();
 
-   private volatile boolean started;
-
    public FederationAddressPolicyManager(FederationInternal federation, FederationReceiveFromAddressPolicy addressPolicy) throws ActiveMQException {
-      Objects.requireNonNull(federation, "The Federation instance cannot be null");
+      super(federation);
+
       Objects.requireNonNull(addressPolicy, "The Address match policy cannot be null");
 
-      this.federation = federation;
       this.policy = addressPolicy;
-      this.server = federation.getServer();
+   }
+
+   /**
+    * @return the receive from address policy that backs the address policy manager.
+    */
+   @Override
+   public FederationReceiveFromAddressPolicy getPolicy() {
+      return policy;
    }
 
    /**
@@ -85,6 +87,10 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
     * federation connection has been established.
     */
    public synchronized void start() {
+      if (!federation.isStarted()) {
+         throw new IllegalStateException("Cannot start a federation policy manager when the federation is stopped.");
+      }
+
       if (!started) {
          started = true;
          handlePolicyManagerStarted(policy);
@@ -479,16 +485,6 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
    }
 
    /**
-    * Called on start of the manager before any other actions are taken to allow the subclass time
-    * to configure itself and prepare any needed state prior to starting management of federated
-    * resources.
-    *
-    * @param policy
-    *    The policy configuration for this policy manager.
-    */
-   protected abstract void handlePolicyManagerStarted(FederationReceiveFromAddressPolicy policy);
-
-   /**
     * Create a new {@link FederationConsumerInfo} based on the given {@link AddressInfo}
     * and the configured {@link FederationReceiveFromAddressPolicy}. A subclass must override this
     * method to return a consumer information object with the data used be that implementation.
@@ -516,58 +512,8 @@ public abstract class FederationAddressPolicyManager implements ActiveMQServerBi
    }
 
    /**
-    * Create a new {@link FederationConsumerInternal} instance using the consumer information
-    * given. This is called when local demand for a matched queue requires a new consumer to
-    * be created. This method by default will call the configured consumer factory function that
-    * was provided when the manager was created, a subclass can override this to perform additional
-    * actions for the create operation.
-    *
-    * @param consumerInfo
-    *    The {@link FederationConsumerInfo} that defines the consumer to be created.
-    *
-    * @return a new {@link FederationConsumerInternal} instance that will reside in this manager.
-    */
-   protected abstract FederationConsumerInternal createFederationConsumer(FederationConsumerInfo consumerInfo);
-
-   /**
-    * Signal any registered plugins for this federation instance that a remote Address consumer
-    * is being created.
-    *
-    * @param info
-    *    The {@link FederationConsumerInfo} that describes the remote Address consumer
-    */
-   protected abstract void signalBeforeCreateFederationConsumer(FederationConsumerInfo info);
-
-   /**
-    * Signal any registered plugins for this federation instance that a remote Address consumer
-    * has been created.
-    *
-    * @param consumer
-    *    The {@link FederationConsumerInfo} that describes the remote Address consumer
-    */
-   protected abstract void signalAfterCreateFederationConsumer(FederationConsumer consumer);
-
-   /**
-    * Signal any registered plugins for this federation instance that a remote Address consumer
-    * is about to be closed.
-    *
-    * @param consumer
-    *    The {@link FederationConsumer} that that is about to be closed.
-    */
-   protected abstract void signalBeforeCloseFederationConsumer(FederationConsumer consumer);
-
-   /**
-    * Signal any registered plugins for this federation instance that a remote Address consumer
-    * has now been closed.
-    *
-    * @param consumer
-    *    The {@link FederationConsumer} that that has been closed.
-    */
-   protected abstract void signalAfterCloseFederationConsumer(FederationConsumer consumer);
-
-   /**
     * Query all registered plugins for this federation instance to determine if any wish to
-    * prevent a federation consumer from being created for the given Queue.
+    * prevent a federation consumer from being created for the given resource.
     *
     * @param address
     *    The address on which the manager is intending to create a remote consumer for.
