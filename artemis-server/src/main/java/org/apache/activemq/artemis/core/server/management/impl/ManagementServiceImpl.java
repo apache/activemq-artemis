@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.BaseBroadcastGroupControl;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
+import org.apache.activemq.artemis.api.core.management.BrokerConnectionControl;
 import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.artemis.api.core.management.ConnectionRouterControl;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
@@ -67,6 +68,7 @@ import org.apache.activemq.artemis.core.management.impl.AddressControlImpl;
 import org.apache.activemq.artemis.core.management.impl.BaseBroadcastGroupControlImpl;
 import org.apache.activemq.artemis.core.management.impl.BridgeControlImpl;
 import org.apache.activemq.artemis.core.management.impl.BroadcastGroupControlImpl;
+import org.apache.activemq.artemis.core.management.impl.BrokerConnectionControlImpl;
 import org.apache.activemq.artemis.core.management.impl.ClusterConnectionControlImpl;
 import org.apache.activemq.artemis.core.management.impl.ConnectionRouterControlImpl;
 import org.apache.activemq.artemis.core.management.impl.DivertControlImpl;
@@ -88,6 +90,7 @@ import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
@@ -416,6 +419,19 @@ public class ManagementServiceImpl implements ManagementService {
    public void unregisterBroadcastGroup(final String name) throws Exception {
       unregisterFromJMX(objectNameBuilder.getBroadcastGroupObjectName(name));
       unregisterFromRegistry(ResourceNames.BROADCAST_GROUP + name);
+   }
+
+   @Override
+   public void registerBrokerConnection(BrokerConnection brokerConnection) throws Exception {
+      BrokerConnectionControl control = new BrokerConnectionControlImpl(brokerConnection, storageManager);
+      registerInJMX(objectNameBuilder.getBrokerConnectionObjectName(brokerConnection.getName()), control);
+      registerInRegistry(ResourceNames.BROKER_CONNECTION + brokerConnection.getName(), control);
+   }
+
+   @Override
+   public void unregisterBrokerConnection(String name) throws Exception {
+      unregisterFromJMX(objectNameBuilder.getBrokerConnectionObjectName(name));
+      unregisterFromRegistry(ResourceNames.BROKER_CONNECTION + name);
    }
 
    @Override

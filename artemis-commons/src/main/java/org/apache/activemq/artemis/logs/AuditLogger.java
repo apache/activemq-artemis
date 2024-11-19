@@ -2744,4 +2744,61 @@ public interface AuditLogger {
 
    @LogMessage(id = 601781, value = "User {} is getting authorization failure count on target resource: {}", level = LogMessage.Level.INFO)
    void getAuthorizationFailureCount(String user, Object source);
+
+   static void isConnected(Object source) {
+      BASE_LOGGER.isConnected(getCaller(), source);
+   }
+
+   @LogMessage(id = 601782, value = "User {} is getting connected state on target resource: {}", level = LogMessage.Level.INFO)
+   void isConnected(String user, Object source);
+
+   static void getUri(Object source) {
+      BASE_LOGGER.getUri(getCaller(), source);
+   }
+
+   @LogMessage(id = 601783, value = "User {} is getting URI on target resource: {}", level = LogMessage.Level.INFO)
+   void getUri(String user, Object source);
+
+   static void getProtocol(Object source) {
+      BASE_LOGGER.getProtocol(getCaller(), source);
+   }
+
+   @LogMessage(id = 601784, value = "User {} is getting the protocol on target resource: {}", level = LogMessage.Level.INFO)
+   void getProtocol(String user, Object source);
+
+   static void getType(Object source) {
+      BASE_LOGGER.getType(getCaller(), source);
+   }
+
+   @LogMessage(id = 601785, value = "User {} is getting the type on target resource: {}", level = LogMessage.Level.INFO)
+   void getType(String user, Object source);
+
+   static void getRole(Object source) {
+      BASE_LOGGER.getRole(getCaller(), source);
+   }
+
+   @LogMessage(id = 601786, value = "User {} is getting the role on target resource: {}", level = LogMessage.Level.INFO)
+   void getRole(String user, Object source);
+
+   static void getFqqn(Object source) {
+      BASE_LOGGER.getFqqn(getCaller(), source);
+   }
+
+   @LogMessage(id = 601787, value = "User {} is getting the FQQN on target resource: {}", level = LogMessage.Level.INFO)
+   void getFqqn(String user, Object source);
+
+   static void getPriority(Object source) {
+      BASE_LOGGER.getPriority(getCaller(), source);
+   }
+
+   @LogMessage(id = 601788, value = "User {} is getting the priority on target resource: {}", level = LogMessage.Level.INFO)
+   void getPriority(String user, Object source);
+
+   static void getMessagesReceived(Object source) {
+      BASE_LOGGER.getMessagesReceived(getCaller(), source);
+   }
+
+   @LogMessage(id = 601789, value = "User {} is getting the number of messages received on target resource: {}", level = LogMessage.Level.INFO)
+   void getMessagesReceived(String user, Object source);
+
 }

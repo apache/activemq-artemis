@@ -46,7 +46,7 @@ public class AMQPFederationTarget extends AMQPFederation {
    private final AMQPFederationConfiguration configuration;
 
    public AMQPFederationTarget(String name, AMQPFederationConfiguration configuration, AMQPSessionContext session, ActiveMQServer server) {
-      super(name, server);
+      super(null, name, server);
 
       Objects.requireNonNull(session, "Provided session instance cannot be null");
 

@@ -14,30 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.server;
+package org.apache.activemq.artemis.protocol.amqp.federation;
 
-import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
-
-public interface BrokerConnection extends ActiveMQComponent {
-
-   /**
-    * @return the unique name of the broker connection
-    */
-   String getName();
+/**
+ * Enumeration that define the type of federation a policy or resource implements.
+ */
+public enum FederationType {
 
    /**
-    * @return the protocol that underlies the broker connection implementation.
+    * Indicates a resource that is handling Address federation
     */
-   String getProtocol();
+   ADDRESS_FEDERATION("address-federation"),
 
    /**
-    * @return <code>true</code> if the broker connection is currently connected to the remote.
+    * Indicates a resource that is handling Queue federation
     */
-   boolean isConnected();
+   QUEUE_FEDERATION("queue-federation");
 
-   /**
-    * @return the configuration that was used to create this broker connection.
-    */
-   BrokerConnectConfiguration getConfiguration();
+   private final String typeName;
 
+   FederationType(String typeName) {
+      this.typeName = typeName;
+   }
+
+   @Override
+   public String toString() {
+      return typeName;
+   }
 }

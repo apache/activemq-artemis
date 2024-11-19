@@ -48,6 +48,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -70,6 +71,8 @@ import javax.jms.Session;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.BrokerConnectionControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederatedBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationAddressPolicyElement;
@@ -153,6 +156,75 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          server.start();
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testBrokerConnectsAndCreateManagementResource() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLPlainConnect("testUser", "pass", "PLAIN", "ANONYMOUS");
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         // No user or pass given, it will have to select ANONYMOUS even though PLAIN also offered
+         AMQPBrokerConnectConfiguration amqpConnection =
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setRetryInterval(100);
+         amqpConnection.setUser("testUser");
+         amqpConnection.setPassword("pass");
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final BrokerConnectionControl brokerConnection = (BrokerConnectionControl)
+            server.getManagementService().getResource(ResourceNames.BROKER_CONNECTION + getTestName());
+
+         assertNotNull(brokerConnection);
+         assertTrue(brokerConnection.isConnected());
+         assertTrue(brokerConnection.isStarted());
+         assertNotNull(brokerConnection.getUri());
+         assertEquals(getTestName(), brokerConnection.getName());
+         assertEquals("testUser", brokerConnection.getUser());
+         assertEquals(0, brokerConnection.getReconnectAttempts());
+         assertEquals(100, brokerConnection.getRetryInterval());
+         assertEquals("AMQP", brokerConnection.getProtocol());
+
+         peer.expectClose().optional();
+         peer.expectConnectionToDrop();
+
+         brokerConnection.stop();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         // Reflects state change but no NPE when connection is stopped.
+         assertFalse(brokerConnection.isConnected());
+         assertFalse(brokerConnection.isStarted());
+         assertNotNull(brokerConnection.getUri());
+         assertEquals(getTestName(), brokerConnection.getName());
+         assertEquals("testUser", brokerConnection.getUser());
+         assertEquals(0, brokerConnection.getReconnectAttempts());
+         assertEquals(100, brokerConnection.getRetryInterval());
+         assertEquals("AMQP", brokerConnection.getProtocol());
+
+         peer.expectSASLPlainConnect("testUser", "pass", "PLAIN", "ANONYMOUS");
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+
+         brokerConnection.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         assertTrue(brokerConnection.isConnected());
+         assertTrue(brokerConnection.isStarted());
+
+         peer.close();
       }
    }
 

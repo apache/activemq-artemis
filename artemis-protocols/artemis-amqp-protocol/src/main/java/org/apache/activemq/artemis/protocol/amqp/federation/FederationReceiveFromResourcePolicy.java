@@ -14,30 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.server;
+package org.apache.activemq.artemis.protocol.amqp.federation;
 
-import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
+import java.util.Map;
 
-public interface BrokerConnection extends ActiveMQComponent {
+import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 
-   /**
-    * @return the unique name of the broker connection
-    */
-   String getName();
-
-   /**
-    * @return the protocol that underlies the broker connection implementation.
-    */
-   String getProtocol();
+/**
+ * Interface that a Federation receive from (address or queue) policy should implement
+ * and provides some common APIs that each should share.
+ */
+public interface FederationReceiveFromResourcePolicy {
 
    /**
-    * @return <code>true</code> if the broker connection is currently connected to the remote.
+    * @return the federation type this policy configuration defines.
     */
-   boolean isConnected();
+   FederationType getPolicyType();
 
    /**
-    * @return the configuration that was used to create this broker connection.
+    * @return the name assigned to this federation policy.
     */
-   BrokerConnectConfiguration getConfiguration();
+   String getPolicyName();
+
+   /**
+    * @return a {@link Map} of properties that were used in the policy configuration.
+    */
+   Map<String, Object> getProperties();
+
+   /**
+    * @return the {@link TransformerConfiguration} that was specified in the policy configuration.
+    */
+   TransformerConfiguration getTransformerConfiguration();
 
 }
