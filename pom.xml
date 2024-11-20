@@ -26,7 +26,6 @@
       <groupId>org.apache</groupId>
       <artifactId>apache</artifactId>
       <version>33</version>
-      <relativePath>org.apache:apache</relativePath>
    </parent>
 
    <modules>
