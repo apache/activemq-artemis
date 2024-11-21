@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Objects;
@@ -623,8 +624,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       File largeMessageCache = null;
 
       if (session.isCacheLargeMessageClient()) {
-         largeMessageCache = File.createTempFile("tmp-large-message-" + largeMessage.getMessageID() + "-", ".tmp");
-         largeMessageCache.deleteOnExit();
+         largeMessageCache = createLargeMessageCache(largeMessage.getMessageID());
       }
 
       ClientSessionFactory sf = session.getSessionFactory();
@@ -646,6 +646,17 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       handleRegularMessage(largeMessage);
    }
 
+   private File createLargeMessageCache(long messageId) throws IOException {
+      File largeMessageCache = File.createTempFile("tmp-large-message-" + messageId + "-", ".tmp");
+      largeMessageCache.setReadable(false);
+      largeMessageCache.setExecutable(false);
+      largeMessageCache.setWritable(false);
+      largeMessageCache.setReadable(true, true);
+      largeMessageCache.setWritable(true, true);
+      largeMessageCache.deleteOnExit();
+      return largeMessageCache;
+   }
+
    @Override
    public synchronized void handleLargeMessage(final ClientLargeMessageInternal clientLargeMessage,
                                                long largeMessageSize) throws Exception {
@@ -658,8 +669,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       File largeMessageCache = null;
 
       if (session.isCacheLargeMessageClient()) {
-         largeMessageCache = File.createTempFile("tmp-large-message-" + clientLargeMessage.getMessageID() + "-", ".tmp");
-         largeMessageCache.deleteOnExit();
+         largeMessageCache = createLargeMessageCache(clientLargeMessage.getMessageID());
       }
 
       ClientSessionFactory sf = session.getSessionFactory();
