@@ -410,8 +410,12 @@ public class ReconnectTest extends ActiveMQTestBase {
    }
 
    boolean matchConsumers(ActiveMQServer server, ClientSessionInternal session, ClientConsumer clientConsumer) {
-      Set<ServerConsumer> serverConsumers = server.getSessionByID(session.getName()).getServerConsumers();
-      if (serverConsumers.size() != 1) {
+      ServerSession serverSession = server.getSessionByID(session.getName());
+      if (serverSession == null) {
+         return false;
+      }
+      Set<ServerConsumer> serverConsumers = serverSession.getServerConsumers();
+      if (serverConsumers == null || serverConsumers.size() != 1) {
          return false;
       }
       ServerConsumer serverConsumer = serverConsumers.iterator().next();
