@@ -78,6 +78,14 @@ public class LVQTest extends ActiveMQTestBase {
       m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       producer.send(m1);
       producer.send(m2);
+
+      Queue lvQueue = server.locateQueue(qName1);
+      // delivering is asynchronous. We have to make sure that all messages were sent
+      Wait.assertEquals(2L, lvQueue::getMessagesAdded, 5000, 100);
+      // messages were replaced by the LVQ so it should have only one
+      Wait.assertEquals(1L, lvQueue::getMessageCount, 5000, 100);
+      Wait.assertEquals(1L, lvQueue::getMessagesReplaced, 5000, 100);
+
       clientSession.start();
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
