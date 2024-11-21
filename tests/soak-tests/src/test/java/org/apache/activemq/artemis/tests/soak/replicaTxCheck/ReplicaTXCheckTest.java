@@ -27,6 +27,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import javax.jms.TransactionRolledBackException;
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
@@ -230,16 +231,23 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
 
          HashSet<Integer> received = new HashSet<>();
          int rec = 0;
-         while (true) {
-            TextMessage message = (TextMessage) subscription.receive(100);
-            if (message == null) {
-               logger.info("Received {} messages", rec);
-               break;
+         for (long timeout = System.currentTimeMillis() + 60_000; System.currentTimeMillis() < timeout;) {
+            rec = 0;
+            while (true) {
+               TextMessage message = (TextMessage) subscription.receive(100);
+               if (message == null) {
+                  logger.info("Received {} messages", rec);
+                  break;
+               }
+               received.add(message.getIntProperty("i"));
+               rec++;
             }
-            received.add(message.getIntProperty("i"));
-            rec++;
+            try {
+               targetSession.commit();
+               break;
+            } catch (TransactionRolledBackException ok) {
+            }
          }
-         targetSession.commit();
 
          for (i = 0; i < NUMBER_OF_MESSAGES; i++) {
             assertTrue(received.contains(i));
