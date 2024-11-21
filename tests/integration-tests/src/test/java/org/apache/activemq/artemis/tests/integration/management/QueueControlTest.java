@@ -142,7 +142,7 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testMoveMessagesInPagingMode() throws Exception {
-      final int TOTAL_MESSAGES = 10000;
+      final int TOTAL_MESSAGES = 100;
       final String DLA = "DLA";
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(false, false);
@@ -153,7 +153,7 @@ public class QueueControlTest extends ManagementTestBase {
       session.createQueue(QueueConfiguration.of(dlq));
 
       // Set up paging on the queue address
-      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(16 * 1024).setDeadLetterAddress(dlq);
+      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(1024 * 1024).setMaxSizeBytes(1).setDeadLetterAddress(dlq);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
 
       sendMessageBatch(TOTAL_MESSAGES, session, queueAddr);
@@ -170,11 +170,11 @@ public class QueueControlTest extends ManagementTestBase {
       String queueControlResourceName = ResourceNames.QUEUE + "testQueue";
       Object resource = server.getManagementService().getResource(queueControlResourceName);
       QueueControl queueControl = (QueueControl) resource;
-      assertEquals(queueControl.getMessageCount(), 10000);
+      assertEquals(queueControl.getMessageCount(), TOTAL_MESSAGES);
 
       // move messages to DLQ
-      int count = queueControl.moveMessages(500, "", DLA, false, 500);
-      assertEquals(500, count);
+      int count = queueControl.moveMessages(5, "", DLA, false, 10);
+      assertEquals(10, count);
 
       //messages shouldn't move on to the same queue
       try {
@@ -184,13 +184,13 @@ public class QueueControlTest extends ManagementTestBase {
          //ok
       }
 
-      // 9500 left
-      count = queueControl.moveMessages(1000, "", DLA, false, 9000);
-      assertEquals(9000, count);
+      // 90 left, moving 7 messages
+      count = queueControl.moveMessages(1000, "", DLA, false, 7);
+      assertEquals(7, count);
 
-      // 500 left, try move 1000
+      // 83 left, trying to move 1000
       count = queueControl.moveMessages(100, "", DLA, false, 1000);
-      assertEquals(500, count);
+      assertEquals(83, count);
 
       // zero left, try move again
       count = queueControl.moveMessages(100, "", DLA, false, 1000);
