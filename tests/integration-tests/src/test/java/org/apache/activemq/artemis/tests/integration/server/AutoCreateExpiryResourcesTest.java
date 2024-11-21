@@ -60,6 +60,9 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
       // set common address settings needed for all tests; make sure to use getMatch instead of addMatch in invidual tests or these will be overwritten
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoCreateExpiryResources(true).setExpiryAddress(expiryAddress).setExpiryDelay(EXPIRY_DELAY));
 
+      // avoiding expiration of the expiration
+      server.getAddressSettingsRepository().addMatch(String.valueOf(expiryAddress), new AddressSettings().setExpiryDelay(-1L));
+
       server.start();
    }
 
@@ -129,7 +132,7 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
    }
 
    private void testAutoCreatedExpiryFilter(RoutingType routingType) throws Exception {
-      final int ITERATIONS = 50;
+      final int ITERATIONS = 5;
       final int MESSAGE_COUNT = 5;
 
       for (int i = 0; i < ITERATIONS; i++) {
@@ -149,6 +152,11 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
          locator.close();
          Wait.assertTrue(() -> server.locateQueue(getDefaultExpiryQueueName(address)) != null, 2000, 10);
          Queue expiry = server.locateQueue(AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX.concat(address).concat(AddressSettings.DEFAULT_EXPIRY_QUEUE_SUFFIX));
+
+         // This sleep is to make the message would survive in the Expiry Address after the default delay
+         // to catch any eventual misconfiguration
+         Thread.sleep(EXPIRY_DELAY);
+
          Wait.assertEquals(MESSAGE_COUNT, expiry::getMessageCount);
       }
 
@@ -167,6 +175,10 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
       ClientSession session = addClientSession(sessionFactory.createSession(true, true));
       Wait.assertTrue(() -> server.locateQueue(expiryQueueName) != null, 2000, 100);
       Wait.assertEquals(1, server.locateQueue(expiryQueueName) :: getMessageCount);
+
+      // This sleep is to make the message would survive in the Expiry Address after the default delay
+      // to catch any eventual misconfiguration
+      Thread.sleep(EXPIRY_DELAY);
 
       ClientConsumer consumer = session.createConsumer(expiryQueueName);
       session.start();
@@ -194,6 +206,10 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
 
       triggerExpiration();
 
+      // This sleep is to make the message would survive in the Expiry Address after the default delay
+      // to catch any eventual misconfiguration
+      Thread.sleep(EXPIRY_DELAY);
+
       JMSContext context = new ActiveMQConnectionFactory("vm://0").createContext();
       context.start();
       assertNotNull(context.createConsumer(context.createQueue(fqqn)).receive(2000));
@@ -209,6 +225,10 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
       }
 
       triggerExpiration(false);
+
+      // This sleep is to make the message would survive in the Expiry Address after the default delay
+      // to catch any eventual misconfiguration
+      Thread.sleep(EXPIRY_DELAY);
 
       Wait.assertTrue(() -> server.locateQueue(expiryQueueName) != null, 2_000, 20);
       Wait.assertEquals(COUNT, () -> server.locateQueue(expiryQueueName).getMessageCount(), 2000, 20);

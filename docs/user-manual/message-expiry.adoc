@@ -76,6 +76,13 @@ If `min-expiry-delay` is not defined then the message will not be changed.
 
 The default for both `min-expiry-delay` and `max-expiry-delay` is `-1` (i.e. disabled).
 
+[WARNING]
+====
+**If you set expiry-delay, or min/max-expiry-delay, on the expiration target address beware of the following:**
+
+* Messages will get a new expiration when moved to the expiry queue, rather than being set to 0 as usual, and so may disappear after the new expiration.
+====
+
 == Configuring Expiry Addresses
 
 Expiry address are defined in the address-setting configuration:
