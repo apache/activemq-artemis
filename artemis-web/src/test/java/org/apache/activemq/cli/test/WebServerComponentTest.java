@@ -431,14 +431,36 @@ public class WebServerComponentTest extends ArtemisTestCase {
 
    @Test
    public void testSSLAutoReload() throws Exception {
-      File keyStoreFile = new File(tempFolder, "server-keystore.p12");
+      testSSLAutoReload(false);
+   }
+   @Test
+   public void testSSLAutoReloadWithSymbolicLinks() throws Exception {
+      testSSLAutoReload(true);
+   }
+
+   public void testSSLAutoReload(boolean useSymbolicLinks) throws Exception {
+      File serverFolder = new File(tempFolder, "server");
+      File keyStoreFile = new File(serverFolder, "server-keystore.p12");
+
+      assertTrue(serverFolder.mkdir());
 
       Files.copy(WebServerComponentTest.class.getClassLoader().getResourceAsStream("server-keystore.p12"),
          keyStoreFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
+      File storeFolder = new File(tempFolder, "store");
+      assertTrue(storeFolder.mkdir());
+
+      String keyStorePath;
+      if (useSymbolicLinks) {
+         keyStorePath = Files.createSymbolicLink(storeFolder.toPath().resolve(
+             "store-keystore.p12"), keyStoreFile.toPath()).toString();
+      } else {
+         keyStorePath = keyStoreFile.getAbsolutePath();
+      }
+
       BindingDTO bindingDTO = new BindingDTO();
       bindingDTO.setSslAutoReload(true);
-      bindingDTO.setKeyStorePath(keyStoreFile.getAbsolutePath());
+      bindingDTO.setKeyStorePath(keyStorePath);
       bindingDTO.setKeyStorePassword(KEY_STORE_PASSWORD);
       WebServerComponent webServerComponent = startSimpleSecureServer(bindingDTO);
 
@@ -476,9 +498,21 @@ public class WebServerComponentTest extends ArtemisTestCase {
 
    @Test
    public void testSSLAutoReloadPemConfigSources() throws Exception {
-      File serverKeyFile = new File(tempFolder, "server-key.pem");
-      File serverCertFile = new File(tempFolder, "server-cert.pem");
-      File serverPemConfigFile = new File(tempFolder, "server-pem-config.properties");
+      testSSLAutoReloadPemConfigSources(false);
+   }
+
+   @Test
+   public void testSSLAutoReloadPemConfigSourcesWithSymbolicLinks() throws Exception {
+      testSSLAutoReloadPemConfigSources(true);
+   }
+
+   private void testSSLAutoReloadPemConfigSources(boolean useSymbolicLinks) throws Exception {
+      File serverFolder = new File(tempFolder, "server");
+      File serverKeyFile = new File(serverFolder, "server-key.pem");
+      File serverCertFile = new File(serverFolder, "server-cert.pem");
+      File serverPemConfigFile = new File(serverFolder, "server-pem-config.properties");
+
+      assertTrue(serverFolder.mkdir());
 
       Files.copy(WebServerComponentTest.class.getClassLoader().getResourceAsStream("server-key.pem"),
          serverKeyFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -486,14 +520,37 @@ public class WebServerComponentTest extends ArtemisTestCase {
       Files.copy(WebServerComponentTest.class.getClassLoader().getResourceAsStream("server-cert.pem"),
          serverCertFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
+      File storeFolder = new File(tempFolder, "store");
+      assertTrue(storeFolder.mkdir());
+
+      String sourceKey;
+      String sourceCert;
+      if (useSymbolicLinks) {
+         sourceKey = Files.createSymbolicLink(storeFolder.toPath().resolve(
+             "store-key.pem"), serverKeyFile.toPath()).toString();
+         sourceCert = Files.createSymbolicLink(storeFolder.toPath().resolve(
+             "store-cert.pem"), serverCertFile.toPath()).toString();
+      } else {
+         sourceKey = serverKeyFile.getAbsolutePath();
+         sourceCert = serverCertFile.getAbsolutePath();
+      }
+
       Files.write(serverPemConfigFile.toPath(), Arrays.asList(new String[]{
-         "source.key=" + serverKeyFile.getAbsolutePath(),
-         "source.cert=" + serverCertFile.getAbsolutePath()
+         "source.key=" + sourceKey,
+         "source.cert=" + sourceCert
       }));
+
+      String keyStorePath;
+      if (useSymbolicLinks) {
+         keyStorePath = Files.createSymbolicLink(storeFolder.toPath().resolve(
+             "store-pem-config.properties"), serverPemConfigFile.toPath()).toString();
+      } else {
+         keyStorePath = serverPemConfigFile.getAbsolutePath();
+      }
 
       BindingDTO bindingDTO = new BindingDTO();
       bindingDTO.setSslAutoReload(true);
-      bindingDTO.setKeyStorePath(serverPemConfigFile.getAbsolutePath());
+      bindingDTO.setKeyStorePath(keyStorePath);
       bindingDTO.setKeyStoreType(PemConfigUtil.PEMCFG_STORE_TYPE);
 
       WebServerComponent webServerComponent = startSimpleSecureServer(bindingDTO);
