@@ -275,7 +275,7 @@ public class Artemis implements Runnable {
       commandLine.addSubcommand(new QueueGroup(commandLine));
       commandLine.addSubcommand(new AddressGroup(commandLine));
 
-      if (shellEnabled) {
+      if (Shell.inShell()) {
          commandLine.addSubcommand(new Connect());
          commandLine.addSubcommand(new Disconnect());
       }

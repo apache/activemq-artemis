@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.cli.commands;
 
+import org.apache.activemq.artemis.cli.Shell;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import picocli.CommandLine;
 
@@ -28,6 +29,12 @@ public class Disconnect extends ConnectionAbstract {
       super.execute(context);
       CONNECTION_INFORMATION.remove();
       context.out.println("Connection information cleared!");
+
+      if (Shell.inShell()) {
+         Shell.setDefaultPrompt();
+         Shell.setConnected(false);
+      }
+
       return null;
    }
 }

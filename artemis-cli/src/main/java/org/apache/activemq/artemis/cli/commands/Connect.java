@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.cli.commands;
 
+import org.apache.activemq.artemis.cli.Shell;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import picocli.CommandLine;
 
@@ -30,6 +31,11 @@ public class Connect extends ConnectionAbstract {
          CONNECTION_INFORMATION.remove();
          createConnectionFactory();
          context.out.println("Connection Successful!");
+
+         if (Shell.inShell()) {
+            Shell.setConnected(true);
+         }
+
       } catch (Exception e) {
          context.out.println("Connection Failure!");
          e.printStackTrace();
