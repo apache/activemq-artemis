@@ -54,6 +54,12 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       // invalid test when using core protocol (noise from itself)
    }
 
+   @Disabled
+   @Override
+   @TestTemplate
+   public void testListAllConsumersAsJSON() throws Exception {
+      // invalid test when using core protocol (noise from itself)
+   }
 
    @Disabled
    @Override
