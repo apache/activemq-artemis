@@ -137,6 +137,13 @@ public class ConnectionConfigurationAbtract extends InputAbstract {
          this.brokerURL = brokerURL;
          this.user = user;
          this.password = password;
+
+         if (user != null) {
+            Shell.setPrompt(user + "@" + brokerURL);
+         } else {
+            Shell.setPrompt(brokerURL);
+         }
+
       }
    }
 

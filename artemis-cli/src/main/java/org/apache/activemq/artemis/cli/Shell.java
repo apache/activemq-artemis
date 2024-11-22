@@ -67,6 +67,8 @@ public class Shell implements Runnable {
    }
 
    private static ThreadLocal<AtomicBoolean> IN_SHELL = ThreadLocal.withInitial(() -> new AtomicBoolean(false));
+   private static ThreadLocal<AtomicBoolean> CONNECTED = ThreadLocal.withInitial(() -> new AtomicBoolean(false));
+   private static ThreadLocal<String> PROMPT = new ThreadLocal<>();
 
    public static boolean inShell() {
       return IN_SHELL.get().get();
@@ -74,6 +76,14 @@ public class Shell implements Runnable {
 
    public static void setInShell() {
       IN_SHELL.get().set(true);
+   }
+
+   public static boolean isConnected() {
+      return CONNECTED.get().get();
+   }
+
+   public static void setConnected(boolean connected) {
+      CONNECTED.get().set(connected);
    }
 
    public static void runShell(boolean printBanner) {
@@ -104,7 +114,6 @@ public class Shell implements Runnable {
                .build();
             factory.setTerminal(terminal);
 
-            String prompt = org.apache.activemq.artemis.cli.Terminal.YELLOW_UNICODE + Artemis.getNameFromBanner() + " > " + org.apache.activemq.artemis.cli.Terminal.CLEAR_UNICODE;
             String rightPrompt = null;
 
             if (printBanner) {
@@ -121,7 +130,7 @@ public class Shell implements Runnable {
                   // We build a new command every time, as they could have state from previous executions
                   systemRegistry.setCommandRegistries(new PicocliCommands(Artemis.buildCommand(isInstance, !isInstance, false)));
                   systemRegistry.cleanUp();
-                  line = reader.readLine(prompt, rightPrompt, (MaskingCallback) null, null);
+                  line = reader.readLine(getPrompt(), rightPrompt, (MaskingCallback) null, null);
                   systemRegistry.execute(line);
                } catch (InterruptedException e) {
                   e.printStackTrace();
@@ -129,6 +138,11 @@ public class Shell implements Runnable {
                } catch (UserInterruptException userInterruptException) {
                   // ignore
                } catch (EndOfFileException e) {
+                  if (isConnected()) {
+                     //if connected, [Ctrl + D] tries to disconnect instead of close
+                     systemRegistry.execute("disconnect");
+                     continue;
+                  }
                   return;
                } catch (Exception e) {
                   systemRegistry.trace(e);
@@ -152,6 +166,29 @@ public class Shell implements Runnable {
          e.printStackTrace();
       }
       System.out.print(org.apache.activemq.artemis.cli.Terminal.CLEAR_UNICODE);
+   }
+
+   private static String getPrompt() {
+      if (PROMPT.get() == null) {
+         setDefaultPrompt();
+      }
+
+      return PROMPT.get();
+   }
+
+   public static void setDefaultPrompt() {
+      try {
+         setPrompt(Artemis.getNameFromBanner());
+      } catch (Exception e) {
+         System.out.println("Error when getting prompt name from banner:");
+         e.printStackTrace();
+
+         setPrompt("Artemis Shell");
+      }
+   }
+
+   public static void setPrompt(String prompt) {
+      PROMPT.set(org.apache.activemq.artemis.cli.Terminal.YELLOW_UNICODE + prompt + " > " + org.apache.activemq.artemis.cli.Terminal.CLEAR_UNICODE);
    }
 
 }
