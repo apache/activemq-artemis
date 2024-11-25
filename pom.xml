@@ -114,7 +114,7 @@
       <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
       <jib.maven.plugin.version>3.4.4</jib.maven.plugin.version>
       <versions.maven.plugin.version>2.16.1</versions.maven.plugin.version>
-      <maven.pmd.plugin.version>3.25.0</maven.pmd.plugin.version>
+      <maven.pmd.plugin.version>3.26.0</maven.pmd.plugin.version>
       <sevntu.checks.version>1.44.1</sevntu.checks.version>
       <checkstyle.version>10.20.1</checkstyle.version>
       <mockito.version>5.14.2</mockito.version>
