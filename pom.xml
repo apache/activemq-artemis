@@ -187,7 +187,7 @@
       <hadoop.minikdc.version>3.4.1</hadoop.minikdc.version>
       <mockserver.version>5.15.0</mockserver.version>
 
-      <owasp.version>10.0.4</owasp.version>
+      <owasp.version>11.1.0</owasp.version>
       <spring.version>5.3.39</spring.version>
 
       <jackson.version>2.18.1</jackson.version>
