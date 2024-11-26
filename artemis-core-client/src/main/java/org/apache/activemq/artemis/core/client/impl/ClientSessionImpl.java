@@ -1450,6 +1450,12 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                      }
                   }
 
+                  for (ClientProducerInternal producer : cloneProducers()) {
+                     synchronized (producer) {
+                        sessionContext.recreateProducerOnServer(producer);
+                     }
+                  }
+
                   if ((!autoCommitAcks || !autoCommitSends) && workDone) {
                      // this is protected by a lock, so we can guarantee nothing will sneak here
                      // while we do our work here
