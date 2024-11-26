@@ -1380,7 +1380,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             }
          } else if (maxExpiration != AddressSettings.DEFAULT_MAX_EXPIRY_DELAY && message.getExpiration() >= (System.currentTimeMillis() + maxExpiration)) {
             message.setExpiration(getExpirationToSet(maxExpiration));
-         } else if (minExpiration != AddressSettings.DEFAULT_MIN_EXPIRY_DELAY && message.getExpiration() < (System.currentTimeMillis() + minExpiration)) {
+         } else if (minExpiration != AddressSettings.DEFAULT_MIN_EXPIRY_DELAY && (minExpiration == 0 || message.getExpiration() < (System.currentTimeMillis() + minExpiration))) {
             message.setExpiration(getExpirationToSet(minExpiration));
          }
       }

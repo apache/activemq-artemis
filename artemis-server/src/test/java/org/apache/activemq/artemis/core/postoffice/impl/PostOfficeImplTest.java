@@ -100,6 +100,14 @@ public class PostOfficeImplTest {
    }
 
    @Test
+   public void testZeroMinExpiryDelayWhenExpirationSetInFuture() {
+      Message mockMessage = Mockito.mock(Message.class);
+      Mockito.when(mockMessage.getExpiration()).thenReturn(System.currentTimeMillis() + 500_000L);
+      PostOfficeImpl.applyExpiryDelay(mockMessage, new AddressSettings().setMinExpiryDelay(0L));
+      Mockito.verify(mockMessage).setExpiration(0L);
+   }
+
+   @Test
    public void testNonZeroMinExpiryDelayWhenExpirationNotSet() {
       Message mockMessage = Mockito.mock(Message.class);
       Mockito.when(mockMessage.getExpiration()).thenReturn(0L);
