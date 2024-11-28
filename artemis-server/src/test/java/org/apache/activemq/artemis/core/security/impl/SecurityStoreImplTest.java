@@ -18,10 +18,15 @@ package org.apache.activemq.artemis.core.security.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.security.auth.Subject;
+import java.security.PrivilegedExceptionAction;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.management.impl.ManagementRemotingConnection;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
@@ -32,6 +37,8 @@ import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 
 public class SecurityStoreImplTest {
 
@@ -113,4 +120,49 @@ public class SecurityStoreImplTest {
       assertEquals("joe", securityStore.getCaller("joe", subject));
    }
 
+   @Test
+   public void testManagementAuthorizationAfterNullAuthenticationFailure() throws Exception {
+      ActiveMQSecurityManager5 securityManager = Mockito.mock(ActiveMQSecurityManager5.class);
+      Mockito.when(securityManager.authorize(ArgumentMatchers.any(Subject.class),
+          ArgumentMatchers.isNull(),
+          ArgumentMatchers.any(CheckType.class),
+          ArgumentMatchers.anyString())).
+          thenReturn(true);
+
+      SecurityStoreImpl securityStore = new SecurityStoreImpl(
+          new HierarchicalObjectRepository<>(),
+          securityManager,
+          10000,
+          true,
+          "",
+          null,
+          null,
+          1000,
+          1000);
+
+      try {
+         securityStore.authenticate(null, null, Mockito.mock(RemotingConnection.class), null);
+         fail("Authentication must fail");
+      } catch (Throwable t) {
+         assertEquals(ActiveMQSecurityException.class, t.getClass());
+      }
+
+      SecurityAuth session = Mockito.mock(SecurityAuth.class);
+      Mockito.when(session.getRemotingConnection()).thenReturn(new ManagementRemotingConnection());
+
+      Subject viewSubject = new Subject();
+      viewSubject.getPrincipals().add(new UserPrincipal("v"));
+      viewSubject.getPrincipals().add(new RolePrincipal("viewers"));
+
+      Object checkResult = Subject.doAs(viewSubject, (PrivilegedExceptionAction<Object>) () -> {
+         try {
+            securityStore.check(SimpleString.of("test"), CheckType.VIEW, session);
+            return true;
+         } catch (Exception ignore) {
+            return false;
+         }
+      });
+
+      assertEquals(true, checkResult);
+   }
 }
