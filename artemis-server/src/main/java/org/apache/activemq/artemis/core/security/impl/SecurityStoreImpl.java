@@ -442,15 +442,15 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
     * @return the authenticated Subject with all associated role principals
     */
    private Subject getSubjectForAuthorization(SecurityAuth auth, ActiveMQSecurityManager5 securityManager) {
-      String authnCacheKey = createAuthenticationCacheKey(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection());
-      Pair<Boolean, Subject> cached = getAuthenticationCacheEntry(authnCacheKey);
-
-      if (cached == null && auth.getUsername() == null && auth.getPassword() == null && auth.getRemotingConnection() instanceof ManagementRemotingConnection) {
+      if (auth.getUsername() == null && auth.getPassword() == null && auth.getRemotingConnection() instanceof ManagementRemotingConnection) {
          AccessControlContext accessControlContext = AccessController.getContext();
          if (accessControlContext != null) {
-            cached = new Pair<>(true, Subject.getSubject(accessControlContext));
+            return Subject.getSubject(accessControlContext);
          }
       }
+
+      String authnCacheKey = createAuthenticationCacheKey(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection());
+      Pair<Boolean, Subject> cached = getAuthenticationCacheEntry(authnCacheKey);
 
       /*
        * We don't need to worry about the cached boolean being false as users always have to
