@@ -25,6 +25,8 @@ updates:
         versions: '>= 10.16'
       - dependency-name: 'com.google.errorprone:error_prone_core'
         versions: '>= 2.32'
+      - dependency-name: 'org.apache.felix:maven-bundle-plugin'
+        versions: '>= 6'
 
       # Ignore all these until we move to Jakarta
       - dependency-name: 'org.springframework:*'
