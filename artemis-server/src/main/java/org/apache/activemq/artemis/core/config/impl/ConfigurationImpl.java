@@ -341,6 +341,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private MetricsConfiguration metricsConfiguration = null;
 
    private final List<ActiveMQServerBasePlugin> brokerPlugins = new CopyOnWriteArrayList<>();
+   private final List<ActiveMQServerBasePlugin> configuredBrokerPlugins = new CopyOnWriteArrayList<>();
    private final List<ActiveMQServerConnectionPlugin> brokerConnectionPlugins = new CopyOnWriteArrayList<>();
    private final List<ActiveMQServerSessionPlugin> brokerSessionPlugins = new CopyOnWriteArrayList<>();
    private final List<ActiveMQServerConsumerPlugin> brokerConsumerPlugins = new CopyOnWriteArrayList<>();
@@ -2271,6 +2272,14 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public void registerConfiguredBrokerPlugin(final ActiveMQServerBasePlugin plugin) {
+      if (!configuredBrokerPlugins.contains(plugin)) {
+         configuredBrokerPlugins.add(plugin);
+         registerBrokerPlugin(plugin);
+      }
+   }
+
+   @Override
    public void registerBrokerPlugins(final List<ActiveMQServerBasePlugin> plugins) {
       plugins.forEach(plugin -> registerBrokerPlugin(plugin));
    }
@@ -2321,7 +2330,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public void unRegisterBrokerPlugin(final ActiveMQServerBasePlugin plugin) {
+      configuredBrokerPlugins.remove(plugin);
       brokerPlugins.remove(plugin);
+
       if (plugin instanceof ActiveMQServerConnectionPlugin) {
          brokerConnectionPlugins.remove(plugin);
       }
@@ -2363,6 +2374,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public List<ActiveMQServerBasePlugin> getBrokerPlugins() {
       return brokerPlugins;
+   }
+
+   @Override
+   public List<ActiveMQServerBasePlugin> getConfiguredBrokerPlugins() {
+      return configuredBrokerPlugins;
    }
 
    // for properties type inference
