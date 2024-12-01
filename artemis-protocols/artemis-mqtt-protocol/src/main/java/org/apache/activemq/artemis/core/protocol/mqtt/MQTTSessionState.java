@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import javax.security.auth.Subject;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,7 +42,6 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.settings.impl.Match;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class MQTTSessionState {
 
@@ -85,6 +86,11 @@ public class MQTTSessionState {
 
    private WillStatus willStatus = WillStatus.NOT_SENT;
 
+   /**
+    * Stored client's identity to be used when sending will message in combination with mutual TLS authentication
+    */
+   private Subject willIdentity;
+
    private boolean failed = false;
 
    private int clientMaxPacketSize = 0;
@@ -101,18 +107,18 @@ public class MQTTSessionState {
 
    /**
     * This constructor deserializes session data from a message. The format is as follows.
-    *
-    *  - byte: version
-    *  - int: subscription count
-    *
-    *  There may be 0 or more subscriptions. The subscription format is as follows.
-    *
-    *  - String: topic name
-    *  - int: QoS
-    *  - boolean: no-local
-    *  - boolean: retain as published
-    *  - int: retain handling
-    *  - int (nullable): subscription identifier
+    * <p>
+    * - byte: version
+    * - int: subscription count
+    * <p>
+    * There may be 0 or more subscriptions. The subscription format is as follows.
+    * <p>
+    * - String: topic name
+    * - int: QoS
+    * - boolean: no-local
+    * - boolean: retain as published
+    * - int: retain handling
+    * - int (nullable): subscription identifier
     *
     * @param message the message holding the MQTT session data
     */
@@ -195,7 +201,9 @@ public class MQTTSessionState {
       return subscriptions.values();
    }
 
-   public boolean addSubscription(MqttTopicSubscription subscription, WildcardConfiguration wildcardConfiguration, Integer subscriptionIdentifier) throws Exception {
+   public boolean addSubscription(MqttTopicSubscription subscription,
+                                  WildcardConfiguration wildcardConfiguration,
+                                  Integer subscriptionIdentifier) throws Exception {
       // synchronized to prevent race with removeSubscription
       synchronized (subscriptions) {
          addressMessageMap.putIfAbsent(MQTTUtil.getCoreAddressFromMqttTopic(subscription.topicName(), wildcardConfiguration), new ConcurrentHashMap<>());
@@ -338,6 +346,14 @@ public class MQTTSessionState {
       this.willStatus = willStatus;
    }
 
+   public Subject getWillIdentity() {
+      return willIdentity;
+   }
+
+   public void setWillIdentity(Subject willIdentity) {
+      this.willIdentity = willIdentity;
+   }
+
    public boolean isFailed() {
       return failed;
    }
@@ -443,6 +459,7 @@ public class MQTTSessionState {
    }
 
    public class OutboundStore {
+
       private HashMap<Pair<Long, Long>, Integer> artemisToMqttMessageMap = new HashMap<>();
 
       private HashMap<Integer, Pair<Long, Long>> mqttToServerIds = new HashMap<>();
@@ -464,8 +481,7 @@ public class MQTTSessionState {
                      currentId = 0;
                   }
                   ++currentId;
-               }
-               while (mqttToServerIds.containsKey(currentId));
+               } while (mqttToServerIds.containsKey(currentId));
                id = currentId;
             }
             return id;

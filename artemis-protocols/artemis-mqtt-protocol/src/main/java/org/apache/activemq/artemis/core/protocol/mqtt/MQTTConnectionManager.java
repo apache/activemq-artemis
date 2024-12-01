@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import javax.security.auth.Subject;
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 import io.netty.buffer.ByteBufAllocator;
@@ -26,7 +28,12 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
+import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.ASSIGNED_CLIENT_IDENTIFIER;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.AUTHENTICATION_METHOD;
@@ -43,6 +50,8 @@ import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.WILL_D
  */
 public class MQTTConnectionManager {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
    private MQTTSession session;
 
    public MQTTConnectionManager(MQTTSession session) {
@@ -51,7 +60,10 @@ public class MQTTConnectionManager {
       session.getConnection().addFailureListener(failureListener);
    }
 
-   synchronized void connect(MqttConnectMessage connect, String validatedUser, String username, String password) throws Exception {
+   synchronized void connect(MqttConnectMessage connect,
+                             String validatedUser,
+                             String username,
+                             String password) throws Exception {
       if (session.getVersion() == MQTTVersion.MQTT_5) {
          session.getConnection().setProtocolVersion(Byte.toString(MqttVersion.MQTT_5.protocolLevel()));
          String authenticationMethod = MQTTUtil.getProperty(String.class, connect.variableHeader().properties(), AUTHENTICATION_METHOD);
@@ -87,26 +99,7 @@ public class MQTTConnectionManager {
       }
 
       if (connect.variableHeader().isWillFlag()) {
-         session.getState().setWill(true);
-         byte[] willMessage = connect.payload().willMessageInBytes();
-         session.getState().setWillMessage(ByteBufAllocator.DEFAULT.buffer(willMessage.length).writeBytes(willMessage));
-         session.getState().setWillQoSLevel(connect.variableHeader().willQos());
-         session.getState().setWillRetain(connect.variableHeader().isWillRetain());
-         session.getState().setWillTopic(connect.payload().willTopic());
-
-         if (session.getVersion() == MQTTVersion.MQTT_5) {
-            MqttProperties willProperties = connect.payload().willProperties();
-            if (willProperties != null) {
-               MqttProperties.MqttProperty willDelayInterval = willProperties.getProperty(WILL_DELAY_INTERVAL.value());
-               if (willDelayInterval != null) {
-                  session.getState().setWillDelayInterval(( int) willDelayInterval.value());
-               }
-               List<? extends MqttProperties.MqttProperty> userProperties = willProperties.getProperties(MqttProperties.MqttPropertyType.USER_PROPERTY.value());
-               if (userProperties != null) {
-                  session.getState().setWillUserProperties(userProperties);
-               }
-            }
-         }
+         defineLastWillAndTestament(connect, username, password);
       }
 
       MqttProperties connackProperties;
@@ -127,6 +120,39 @@ public class MQTTConnectionManager {
       session.getProtocolHandler().sendConnack(MQTTReasonCodes.SUCCESS, sessionPresent && !cleanStart, connackProperties);
       // ensure we don't publish before the CONNACK
       session.start();
+   }
+
+   private void defineLastWillAndTestament(MqttConnectMessage connect, String username, String password) {
+      session.getState().setWill(true);
+      byte[] willMessage = connect.payload().willMessageInBytes();
+      session.getState().setWillMessage(ByteBufAllocator.DEFAULT.buffer(willMessage.length).writeBytes(willMessage));
+      session.getState().setWillQoSLevel(connect.variableHeader().willQos());
+      session.getState().setWillRetain(connect.variableHeader().isWillRetain());
+      session.getState().setWillTopic(connect.payload().willTopic());
+
+      ActiveMQSecurityManager securityManager = session.getProtocolHandler().getServer().getSecurityManager();
+      if (securityManager instanceof ActiveMQSecurityManager5) {
+         try {
+            Subject subject = ((ActiveMQSecurityManager5) securityManager).authenticate(username, password, session.getServerSession().getRemotingConnection(), session.getServerSession().getSecurityDomain());
+            session.getState().setWillIdentity(subject);
+         } catch (NoCacheLoginException e) {
+            logger.debug("Unable to store LWT authorization data due to exception: {}", e.getMessage());
+         }
+      }
+
+      if (session.getVersion() == MQTTVersion.MQTT_5) {
+         MqttProperties willProperties = connect.payload().willProperties();
+         if (willProperties != null) {
+            MqttProperties.MqttProperty willDelayInterval = willProperties.getProperty(WILL_DELAY_INTERVAL.value());
+            if (willDelayInterval != null) {
+               session.getState().setWillDelayInterval((int) willDelayInterval.value());
+            }
+            List<? extends MqttProperties.MqttProperty> userProperties = willProperties.getProperties(MqttProperties.MqttPropertyType.USER_PROPERTY.value());
+            if (userProperties != null) {
+               session.getState().setWillUserProperties(userProperties);
+            }
+         }
+      }
    }
 
    private MqttProperties getConnackProperties() {
