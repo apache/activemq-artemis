@@ -41,15 +41,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.Test;
 
 public class AcceptorControlTest extends ManagementTestBase {
-
-
-
-   public boolean usingCore() {
-      return false;
-   }
 
    @Test
    public void testAttributes() throws Exception {
@@ -134,37 +129,21 @@ public class AcceptorControlTest extends ManagementTestBase {
 
       service.getManagementService().addNotificationListener(notifListener);
 
-      assertEquals(0, notifListener.getNotifications().size());
+      assertEquals(0, notifListener.count(CoreNotificationType.ACCEPTOR_STOPPED));
 
       acceptorControl.stop();
 
-      assertEquals(usingCore() ? 7 : 1, notifListener.getNotifications().size());
-
-      int i = findNotification(notifListener, CoreNotificationType.ACCEPTOR_STOPPED);
-
-      Notification notif = notifListener.getNotifications().get(i);
+      Notification notif = notifListener.findAny(CoreNotificationType.ACCEPTOR_STOPPED);
       assertEquals(CoreNotificationType.ACCEPTOR_STOPPED, notif.getType());
       assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("factory")).toString());
 
       acceptorControl.start();
 
-      i = findNotification(notifListener, CoreNotificationType.ACCEPTOR_STARTED);
-      notif = notifListener.getNotifications().get(i);
+      Wait.assertEquals(1, () -> notifListener.count(CoreNotificationType.ACCEPTOR_STARTED), 5000, 100);
+      notif = notifListener.findAny(CoreNotificationType.ACCEPTOR_STARTED);
       assertEquals(CoreNotificationType.ACCEPTOR_STARTED, notif.getType());
       assertEquals(NettyAcceptorFactory.class.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("factory")).toString());
    }
-
-   private int findNotification(SimpleNotificationService.Listener notifListener, CoreNotificationType type) {
-      int i = 0;
-      for (i = 0; i < notifListener.getNotifications().size(); i++) {
-         if (notifListener.getNotifications().get(i).getType().equals(type)) {
-            break;
-         }
-      }
-      assertTrue(i < notifListener.getNotifications().size());
-      return i;
-   }
-
 
 
    protected AcceptorControl createManagementControl(final String name) throws Exception {

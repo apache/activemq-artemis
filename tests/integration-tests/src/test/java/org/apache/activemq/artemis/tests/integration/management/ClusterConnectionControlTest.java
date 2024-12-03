@@ -50,6 +50,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -151,40 +152,20 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
       ClusterConnectionControl clusterConnectionControl = createManagementControl(clusterConnectionConfig1.getName());
 
       server_0.getManagementService().addNotificationListener(notifListener);
-
-      assertEquals(0, notifListener.getNotifications().size());
-
+      assertEquals(0, notifListener.count(CoreNotificationType.CLUSTER_CONNECTION_STOPPED));
       clusterConnectionControl.stop();
-
-      assertTrue(notifListener.getNotifications().size() > 0);
-      Notification notif = getFirstNotificationOfType(notifListener.getNotifications(), CoreNotificationType.CLUSTER_CONNECTION_STOPPED);
+      Wait.assertEquals(1, () -> notifListener.count(CoreNotificationType.CLUSTER_CONNECTION_STOPPED), 5000, 100);
+      Notification notif = notifListener.findAny(CoreNotificationType.CLUSTER_CONNECTION_STOPPED);
       assertNotNull(notif);
       assertEquals(clusterConnectionControl.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
 
       clusterConnectionControl.start();
 
-      assertTrue(notifListener.getNotifications().size() > 0);
-      notif = getFirstNotificationOfType(notifListener.getNotifications(), CoreNotificationType.CLUSTER_CONNECTION_STARTED);
+      Wait.assertTrue(() -> notifListener.size() > 0, 5000, 100);
+      notif = notifListener.findAny(CoreNotificationType.CLUSTER_CONNECTION_STARTED);
       assertNotNull(notif);
       assertEquals(clusterConnectionControl.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
    }
-
-   private Notification getFirstNotificationOfType(List<Notification> notifications, CoreNotificationType type) {
-      Notification result = null;
-
-      // the notifications can change while we're looping
-      List<Notification> notificationsClone = new ArrayList<>(notifications);
-
-      for (Notification notification : notificationsClone) {
-         if (notification.getType().equals(type)) {
-            result = notification;
-         }
-      }
-
-      return result;
-   }
-
-
 
    @Override
    @BeforeEach

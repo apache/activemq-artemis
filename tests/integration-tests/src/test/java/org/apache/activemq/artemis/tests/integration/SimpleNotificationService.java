@@ -16,15 +16,20 @@
  */
 package org.apache.activemq.artemis.tests.integration;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.activemq.artemis.api.core.management.NotificationType;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleNotificationService implements NotificationService {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final List<NotificationListener> listeners = new ArrayList<>();
 
@@ -55,15 +60,55 @@ public class SimpleNotificationService implements NotificationService {
 
    public static class Listener implements NotificationListener {
 
+      public synchronized int count(NotificationType... interestingTypes) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("count for {}", stringOf(interestingTypes));
+         }
+         return (int) notifications.stream().filter(n -> matchTypes(n, interestingTypes)).count();
+      }
+
+      private static String stringOf(NotificationType[] types) {
+         StringBuilder builder = new StringBuilder();
+         builder.append("types[" + types.length + "] = {");
+         for (int i = 0; i < types.length; i++) {
+            builder.append(types[i]);
+            if (i + 1 < types.length) {
+               builder.append(",");
+            }
+         }
+         builder.append("}");
+         return builder.toString();
+      }
+
+      public synchronized int size() {
+         return notifications.size();
+      }
+
+      private boolean matchTypes(Notification notification, NotificationType... interestingTypes) {
+         logger.debug("matching {}", notification);
+         for (NotificationType t : interestingTypes) {
+            logger.debug("looking to match {} with type parameter {}", notification, t);
+            if (notification.getType() == t) {
+               return true;
+            }
+         }
+         return false;
+      }
+
+      public synchronized Notification findAny(NotificationType notificationType) {
+         return notifications.stream().filter(n -> n.getType() == notificationType).findAny().get();
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////////
+      // Note: Do not expose this collection directly.
+      // Instead, filter notifications by the types you are interested in.
+      // Previous tests validated whether this collection was empty, but later, new notifications were added.
+      // These tests became flaky as they received irrelevant notifications.
       private final List<Notification> notifications = new ArrayList<>();
 
       @Override
-      public void onNotification(final Notification notification) {
+      public synchronized void onNotification(final Notification notification) {
          notifications.add(notification);
-      }
-
-      public List<Notification> getNotifications() {
-         return notifications;
       }
 
    }

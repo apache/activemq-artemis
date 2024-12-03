@@ -78,11 +78,6 @@ public class AcceptorControlUsingCoreTest extends AcceptorControlTest {
 
 
    @Override
-   public boolean usingCore() {
-      return true;
-   }
-
-   @Override
    @Test
    public void testStartStop() throws Exception {
       // this test does not make sense when using core messages:

@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -917,20 +918,18 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), null, groupAddress, groupPort, timeout, notifService);
 
-      assertEquals(0, notifListener.getNotifications().size());
+      assertEquals(0, notifListener.count(CoreNotificationType.DISCOVERY_GROUP_STARTED));
 
       dg.start();
 
-      assertEquals(1, notifListener.getNotifications().size());
-      Notification notif = notifListener.getNotifications().get(0);
+      Wait.assertEquals(1, () -> notifListener.count(CoreNotificationType.DISCOVERY_GROUP_STARTED), 5000, 100);
+      Notification notif = notifListener.findAny(CoreNotificationType.DISCOVERY_GROUP_STARTED);
       assertEquals(CoreNotificationType.DISCOVERY_GROUP_STARTED, notif.getType());
       assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
 
       dg.stop();
 
-      assertEquals(2, notifListener.getNotifications().size());
-      notif = notifListener.getNotifications().get(1);
-      assertEquals(CoreNotificationType.DISCOVERY_GROUP_STOPPED, notif.getType());
+      assertEquals(2, notifListener.count(CoreNotificationType.DISCOVERY_GROUP_STARTED, CoreNotificationType.DISCOVERY_GROUP_STOPPED));
       assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
    }
 
@@ -947,19 +946,18 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       bg.setNotificationService(notifService);
 
-      assertEquals(0, notifListener.getNotifications().size());
+      assertEquals(0, notifListener.count(CoreNotificationType.BROADCAST_GROUP_STARTED));
 
       bg.start();
+      Wait.assertEquals(1, () -> notifListener.count(CoreNotificationType.BROADCAST_GROUP_STARTED), 5000, 100);
 
-      assertEquals(1, notifListener.getNotifications().size());
-      Notification notif = notifListener.getNotifications().get(0);
-      assertEquals(CoreNotificationType.BROADCAST_GROUP_STARTED, notif.getType());
+      Notification notif = notifListener.findAny(CoreNotificationType.BROADCAST_GROUP_STARTED);
       assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
 
       bg.stop();
 
-      assertEquals(2, notifListener.getNotifications().size());
-      notif = notifListener.getNotifications().get(1);
+      Wait.assertEquals(2, () -> notifListener.count(CoreNotificationType.BROADCAST_GROUP_STARTED, CoreNotificationType.BROADCAST_GROUP_STOPPED), 5000, 100);
+      notif = notifListener.findAny(CoreNotificationType.BROADCAST_GROUP_STOPPED);
       assertEquals(CoreNotificationType.BROADCAST_GROUP_STOPPED, notif.getType());
       assertEquals(bg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
    }

@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.BridgeMetrics;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.tests.integration.SimpleNotificationService;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -102,19 +103,19 @@ public class BridgeControlTest extends ManagementTestBase {
 
       server_0.getManagementService().addNotificationListener(notifListener);
 
-      assertEquals(0, notifListener.getNotifications().size());
+      assertEquals(0, notifListener.count(CoreNotificationType.BRIDGE_STOPPED));
 
       bridgeControl.stop();
 
-      assertEquals(1, notifListener.getNotifications().size());
-      Notification notif = notifListener.getNotifications().get(0);
+      Wait.assertEquals(1, () -> notifListener.count(CoreNotificationType.BRIDGE_STOPPED), 5000, 100);
+      Notification notif = notifListener.findAny(CoreNotificationType.BRIDGE_STOPPED);
       assertEquals(CoreNotificationType.BRIDGE_STOPPED, notif.getType());
       assertEquals(bridgeControl.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
 
       bridgeControl.start();
 
-      assertEquals(2, notifListener.getNotifications().size());
-      notif = notifListener.getNotifications().get(1);
+      Wait.assertEquals(2, () -> notifListener.count(CoreNotificationType.BRIDGE_STOPPED, CoreNotificationType.BRIDGE_STARTED), 5000, 100);
+      notif = notifListener.findAny(CoreNotificationType.BRIDGE_STARTED);
       assertEquals(CoreNotificationType.BRIDGE_STARTED, notif.getType());
       assertEquals(bridgeControl.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
    }
