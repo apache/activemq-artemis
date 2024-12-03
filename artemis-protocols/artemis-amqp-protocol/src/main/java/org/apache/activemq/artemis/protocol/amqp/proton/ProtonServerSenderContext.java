@@ -89,7 +89,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    private int credits = 0;
    private AtomicInteger pending = new AtomicInteger(0);
    private java.util.function.Consumer<? super MessageReference> beforeDelivery;
-   private java.util.function.Predicate<? super MessageReference> beforeDeliveryFiltering;
+   private java.util.function.Predicate<? super MessageReference> shouldFilterRef;
 
    protected volatile Runnable afterDelivery;
    protected volatile MessageWriter messageWriter = SenderController.REJECTING_MESSAGE_WRITER;
@@ -121,8 +121,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       return this;
    }
 
-   public ProtonServerSenderContext setBeforeDeliveryFiltering(java.util.function.Predicate<? super MessageReference> beforeDeliveryFiltering) {
-      this.beforeDeliveryFiltering = beforeDeliveryFiltering;
+   public ProtonServerSenderContext setShouldFilterRef(java.util.function.Predicate<? super MessageReference> shouldFilterRef) {
+      this.shouldFilterRef = shouldFilterRef;
       return this;
    }
 
@@ -447,6 +447,13 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       return handled;
    }
 
+   public boolean filterRef(MessageReference ref) {
+      if (shouldFilterRef != null) {
+         return shouldFilterRef.test(ref);
+      }
+      return false;
+   }
+
    private final class ConnectionFlushIOCallback implements IOCallback {
 
       @Override
@@ -479,12 +486,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
       if (beforeDelivery != null) {
          beforeDelivery.accept(messageReference);
-      }
-
-      if (beforeDeliveryFiltering != null) {
-         if (beforeDeliveryFiltering.test(messageReference)) {
-            return 0;
-         }
       }
 
       synchronized (creditsLock) {

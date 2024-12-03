@@ -506,7 +506,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
     * @return true if the INTERNAL_RECEIVER_ID_FILTER annotation of the message is set to a different value
     * than the remoteMirrorID, false otherwise.
     */
-   public boolean filterMessage(MessageReference ref) {
+   public boolean shouldFilterRef(MessageReference ref) {
       Object filterID = ref.getMessage().getAnnotation(RECEIVER_ID_FILTER);
       if (filterID != null) {
          String remoteMirrorId = getRemoteMirrorId();
@@ -514,6 +514,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
             if (remoteMirrorId.equals(filterID)) {
                return false;
             } else {
+               logger.trace("filtering message {} as remote mirror ID {} diverges from the wanted receiver {}", ref, remoteMirrorId, filterID);
                return true;
             }
          }
@@ -607,7 +608,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          noForwardSource = String.valueOf(ref.getMessage().getBrokerProperty(NO_FORWARD_SOURCE));
          if (remoteMirrorId != null && !remoteMirrorId.equals(noForwardSource)) {
             if (logger.isInfoEnabled()) {
-               logger.info("Due to the noForward policy in place, no Ack for the ref={} should reach the remote mirror ID", ref, remoteMirrorId);
+               logger.trace("Due to the noForward policy in place, no Ack for the ref={} should reach the remote mirror ID", ref, remoteMirrorId);
             }
             return;
          }

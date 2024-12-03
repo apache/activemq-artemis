@@ -469,7 +469,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                                 queue.getName().toString(),
                                 mirrorControllerSource::setLink,
                                 (r) -> AMQPMirrorControllerSource.validateProtocolData(protonProtocolManager.getReferenceIDSupplier(), r, getMirrorSNF(replica)),
-                                (r) -> mirrorControllerSource.filterMessage(r),
+                                (r) -> mirrorControllerSource.shouldFilterRef(r),
                                 server.getNodeID().toString(),
                                 desiredCapabilities,
                                 null,
@@ -776,7 +776,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                               String targetName,
                               java.util.function.Consumer<Sender> senderConsumer,
                               java.util.function.Consumer<? super MessageReference> beforeDeliver,
-                              java.util.function.Predicate<? super MessageReference> beforeDeliverFiltering,
+                              java.util.function.Predicate<? super MessageReference> shouldFilterRef,
                               String brokerID,
                               Symbol[] desiredCapabilities,
                               Symbol[] targetCapabilities,
@@ -837,7 +837,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
             // Using attachments to set up a Runnable that will be executed inside AMQPBrokerConnection::remoteLinkOpened
             sender.attachments().set(AMQP_LINK_INITIALIZER_KEY, Runnable.class, () -> {
-               ProtonServerSenderContext senderContext = new ProtonServerSenderContext(protonRemotingConnection.getAmqpConnection(), sender, sessionContext, sessionContext.getSessionSPI(), outgoingInitializer).setBeforeDelivery(beforeDeliver).setBeforeDeliveryFiltering(beforeDeliverFiltering);
+               ProtonServerSenderContext senderContext = new ProtonServerSenderContext(protonRemotingConnection.getAmqpConnection(), sender, sessionContext, sessionContext.getSessionSPI(), outgoingInitializer).setBeforeDelivery(beforeDeliver).setShouldFilterRef(shouldFilterRef);
                try {
                   if (!cancelled.get()) {
                      if (futureTimeout != null) {
