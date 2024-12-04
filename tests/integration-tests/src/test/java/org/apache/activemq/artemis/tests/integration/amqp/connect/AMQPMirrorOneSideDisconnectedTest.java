@@ -27,6 +27,7 @@ import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
@@ -113,11 +114,15 @@ public class AMQPMirrorOneSideDisconnectedTest extends ActiveMQTestBase {
       } catch (Exception ignored) {
       }
 
+      Wait.assertTrue(() -> serverA.queueQuery(SimpleString.of(queueName)).isExists(), 5000, 100);
+      Wait.assertTrue(() -> serverB.queueQuery(SimpleString.of(queueName)).isExists(), 5000, 100);
+      Wait.assertTrue(() -> serverA.queueQuery(SimpleString.of(divertedQueue)).isExists(), 5000, 100);
+      Wait.assertTrue(() -> serverB.queueQuery(SimpleString.of(divertedQueue)).isExists(), 5000, 100);
+
       Queue divertedQueueA = serverA.locateQueue(divertedQueue);
       Queue divertedQueueB = serverB.locateQueue(divertedQueue);
       Queue queueA = serverA.locateQueue(queueName);
       Queue queueB = serverB.locateQueue(queueName);
-
 
       long nmessages = 10;
 
@@ -135,7 +140,6 @@ public class AMQPMirrorOneSideDisconnectedTest extends ActiveMQTestBase {
       Wait.assertEquals(nmessages, divertedQueueB::getMessageCount, 5000, 100);
       Wait.assertEquals(nmessages, queueA::getMessageCount, 5000, 100);
       Wait.assertEquals(nmessages, queueB::getMessageCount, 5000, 100);
-
 
       Queue serverAMirrorSNF = serverA.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_A_to_B");
       Wait.assertEquals(0L, serverAMirrorSNF::getMessageCount, 5000, 100);
