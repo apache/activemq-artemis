@@ -2154,7 +2154,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          Bindings bindingList = postOffice.lookupBindingsForAddress(expiryAddress);
 
          if (bindingList == null || bindingList.getBindings().isEmpty()) {
-            ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoBindings(expiryAddress);
+            if (!printErrorExpiring) {
+               // print this only once
+               ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoBindings(expiryAddress);
+               printErrorExpiring = true;
+            }
             acknowledge(tx, ref, AckReason.EXPIRED, null, delivering);
          } else {
             move(tx, expiryAddress, null, ref, false, AckReason.EXPIRED, consumer, null, delivering);
@@ -2171,6 +2175,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       if (server != null && server.hasBrokerMessagePlugins()) {
          if (tx == null) {
+            // potentially auto-delete this queue if this expired the last message
+            refCountForConsumers.check();
+
             server.callBrokerMessagePlugins(plugin -> plugin.messageExpired(ref, settingsToUse.getExpiryAddress(), consumer));
          } else {
             ExpiryLogger expiryLogger = (ExpiryLogger) tx.getProperty(TransactionPropertyIndexes.EXPIRY_LOGGER);
