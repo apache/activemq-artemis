@@ -715,7 +715,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    private void checkAndCreateDir(final File dir, final boolean create) {
       if (!dir.exists()) {
          if (create) {
-            if (!dir.mkdirs()) {
+            if (!dir.mkdirs() && !dir.exists()) {
                throw new IllegalStateException("Failed to create directory " + dir);
             }
          } else {
