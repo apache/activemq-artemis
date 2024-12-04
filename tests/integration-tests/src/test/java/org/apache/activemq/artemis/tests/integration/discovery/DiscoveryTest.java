@@ -929,7 +929,9 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       dg.stop();
 
-      assertEquals(2, notifListener.count(CoreNotificationType.DISCOVERY_GROUP_STARTED, CoreNotificationType.DISCOVERY_GROUP_STOPPED));
+      Wait.assertEquals(2, () -> notifListener.count(CoreNotificationType.DISCOVERY_GROUP_STARTED, CoreNotificationType.DISCOVERY_GROUP_STOPPED), 5000, 100);
+      notif = notifListener.findAny(CoreNotificationType.DISCOVERY_GROUP_STOPPED);
+      assertEquals(CoreNotificationType.DISCOVERY_GROUP_STOPPED, notif.getType());
       assertEquals(dg.getName(), notif.getProperties().getSimpleStringProperty(SimpleString.of("name")).toString());
    }
 
