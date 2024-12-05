@@ -95,10 +95,10 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.DefaultRoutePlanner;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
+import org.eclipse.jetty.ee8.webapp.WebInfConfiguration;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.ThreadPool;
-import org.eclipse.jetty.webapp.WebAppContext;
-import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -164,7 +164,7 @@ public class WebServerComponentTest extends ArtemisTestCase {
       }
       WebServerComponent webServerComponent = new WebServerComponent();
       assertFalse(webServerComponent.isStarted());
-      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      webServerComponent.configure(webServerDTO, "src/test/resources/", "src/test/resources/");
       testedComponents.add(webServerComponent);
       webServerComponent.start();
       final int port = webServerComponent.getPort();
@@ -227,7 +227,7 @@ public class WebServerComponentTest extends ArtemisTestCase {
       webServerDTO.webContentEnabled = true;
       WebServerComponent webServerComponent = new WebServerComponent();
       assertFalse(webServerComponent.isStarted());
-      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      webServerComponent.configure(webServerDTO, "src/test/resources/", "src/test/resources/");
       webServerComponent.start();
       // Make the connection attempt.
       verifyConnection(webServerComponent.getPort());
@@ -251,7 +251,7 @@ public class WebServerComponentTest extends ArtemisTestCase {
       webServerDTO.webContentEnabled = true;
       WebServerComponent webServerComponent = new WebServerComponent();
       assertFalse(webServerComponent.isStarted());
-      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      webServerComponent.configure(webServerDTO, "src/test/resources/", "src/test/resources/");
       webServerComponent.start();
       // Make the connection attempt.
       verifyConnection(webServerComponent.getPort());
@@ -305,7 +305,7 @@ public class WebServerComponentTest extends ArtemisTestCase {
 
       WebServerComponent webServerComponent = new WebServerComponent();
       assertFalse(webServerComponent.isStarted());
-      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      webServerComponent.configure(webServerDTO, "src/test/resources/", "src/test/resources/");
       testedComponents.add(webServerComponent);
       webServerComponent.start();
 
@@ -660,7 +660,7 @@ public class WebServerComponentTest extends ArtemisTestCase {
 
       WebServerComponent webServerComponent = new WebServerComponent();
       assertFalse(webServerComponent.isStarted());
-      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      webServerComponent.configure(webServerDTO, "src/test/resources/", "src/test/resources/");
       testedComponents.add(webServerComponent);
       webServerComponent.start();
       final int port = webServerComponent.getPort();

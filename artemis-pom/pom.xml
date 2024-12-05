@@ -526,6 +526,14 @@
             <!-- License: (Joint): Apache 2.0 or EPL 2.0 -->
          </dependency>
          <dependency>
+            <groupId>org.eclipse.jetty.ee8</groupId>
+            <artifactId>jetty-ee8-bom</artifactId>
+            <version>${jetty.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+            <!-- License: (Joint): Apache 2.0 or EPL 2.0 -->
+         </dependency>
+         <dependency>
             <groupId>org.eclipse.jetty.toolchain</groupId>
             <artifactId>jetty-servlet-api</artifactId>
             <version>${jetty-servlet-api.version}</version>

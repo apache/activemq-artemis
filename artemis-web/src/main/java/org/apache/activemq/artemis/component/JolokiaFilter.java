@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.component;
 
-import org.apache.activemq.artemis.logs.AuditLogger;
-import org.eclipse.jetty.server.Request;
-
 import javax.security.auth.Subject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -26,8 +23,11 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
+
+import org.apache.activemq.artemis.logs.AuditLogger;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Session;
 
 /*
 * This intercepts all calls made via jolokia
@@ -54,7 +54,7 @@ public class JolokiaFilter implements Filter {
       * */
       if (AuditLogger.isAnyLoggingEnabled()) {
          try {
-            HttpSession session = ((Request) servletRequest).getSession();
+            Session session = ((Request) servletRequest).getSession(true);
             Subject subject = (Subject) session.getAttribute("subject");
             AuditLogger.setCurrentCaller(subject);
          } catch (Throwable e) {

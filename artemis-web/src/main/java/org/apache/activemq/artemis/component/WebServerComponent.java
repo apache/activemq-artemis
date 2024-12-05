@@ -32,6 +32,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -49,9 +50,12 @@ import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.marker.WebServerComponentMarker;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.PemConfigUtil;
-import org.eclipse.jetty.security.DefaultAuthenticatorFactory;
+import org.eclipse.jetty.ee8.security.DefaultAuthenticatorFactory;
+import org.eclipse.jetty.ee8.servlet.FilterHolder;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.CustomRequestLog;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.RequestLog;
@@ -61,14 +65,11 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.util.Scanner;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +78,6 @@ import static org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport.chec
 public class WebServerComponent implements ExternalComponent, WebServerComponentMarker {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-   public static final String DIR_ALLOWED = "org.eclipse.jetty.servlet.Default.dirAllowed";
 
    // this should match the value of <display-name> in the console war's WEB-INF/web.xml
    public static final String WEB_CONSOLE_DISPLAY_NAME = System.getProperty("org.apache.activemq.artemis.webConsoleDisplayName", "hawtio");
@@ -91,7 +91,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
    public static final int DEFAULT_SCAN_PERIOD_VALUE = 5;
 
    private Server server;
-   private HandlerList handlers;
+   private Handler.Sequence handlers;
    private WebServerDTO webServerConfig;
    private final List<String> consoleUrls = new ArrayList<>();
    private final List<String> jolokiaUrls = new ArrayList<>();
@@ -134,7 +134,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       ActiveMQWebLogger.LOGGER.startingEmbeddedWebServer();
 
       server = new Server(new QueuedThreadPool(webServerConfig.maxThreads, webServerConfig.minThreads, webServerConfig.idleThreadTimeout));
-      handlers = new HandlerList();
+      handlers = new Handler.Sequence();
 
       HttpConfiguration httpConfiguration = new HttpConfiguration();
 
@@ -179,7 +179,6 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
                }
                WebAppContext webContext = createWebAppContext(app.url, app.war, dirToUse, virtualHosts[i]);
                handlers.addHandler(webContext);
-               webContext.setInitParameter(DIR_ALLOWED, "false");
                webContext.getSessionHandler().getSessionCookieConfig().setComment("__SAME_SITE_STRICT__");
                webContext.addEventListener(new ServletContextListener() {
                   @Override
@@ -202,31 +201,29 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       server.setConnectors(connectors);
 
       ResourceHandler homeResourceHandler = new ResourceHandler();
-      homeResourceHandler.setResourceBase(homeWarDir.toString());
-      homeResourceHandler.setDirectoriesListed(false);
-      homeResourceHandler.setWelcomeFiles(new String[]{"index.html"});
+      homeResourceHandler.setBaseResourceAsString(homeWarDir.toString());
+      homeResourceHandler.setDirAllowed(false);
+      homeResourceHandler.setWelcomeFiles("index.html");
 
       ContextHandler homeContext = new ContextHandler();
       homeContext.setContextPath("/");
-      homeContext.setResourceBase(homeWarDir.toString());
+      homeContext.setBaseResourceAsString(homeWarDir.toString());
       homeContext.setHandler(homeResourceHandler);
-      homeContext.setVirtualHosts(virtualHosts);
-      homeContext.setInitParameter(DIR_ALLOWED, "false");
+      homeContext.setVirtualHosts(Arrays.asList(virtualHosts));
 
       ResourceHandler instanceResourceHandler = new ResourceHandler();
-      instanceResourceHandler.setResourceBase(instanceWarDir.toString());
-      instanceResourceHandler.setDirectoriesListed(false);
-      instanceResourceHandler.setWelcomeFiles(new String[]{"index.html"});
+      instanceResourceHandler.setBaseResourceAsString(instanceWarDir.toString());
+      instanceResourceHandler.setDirAllowed(false);
+      instanceResourceHandler.setWelcomeFiles("index.html");
 
       ContextHandler instanceContext = new ContextHandler();
       instanceContext.setContextPath("/");
-      instanceContext.setResourceBase(instanceWarDir.toString());
+      instanceContext.setBaseResourceAsString(instanceWarDir.toString());
       instanceContext.setHandler(instanceResourceHandler);
-      instanceContext.setVirtualHosts(virtualHosts);
-      homeContext.setInitParameter(DIR_ALLOWED, "false");
+      instanceContext.setVirtualHosts(Arrays.asList(virtualHosts));
 
       DefaultHandler defaultHandler = new DefaultHandler();
-      defaultHandler.setServeIcon(false);
+      defaultHandler.setServeFavIcon(false);
       defaultHandler.setRootRedirectLocation(this.webServerConfig.rootRedirectLocation);
 
       if (this.webServerConfig.requestLog != null &&
