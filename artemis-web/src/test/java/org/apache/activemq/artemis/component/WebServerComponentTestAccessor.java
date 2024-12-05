@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.component;
 
 import java.nio.file.Path;
 
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 
 public class WebServerComponentTestAccessor {
 

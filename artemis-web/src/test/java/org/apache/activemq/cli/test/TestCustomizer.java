@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.cli.test;
 
-import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Request;
 
@@ -27,7 +27,8 @@ public class TestCustomizer implements HttpConfiguration.Customizer {
    }
 
    @Override
-   public void customize(Connector connector, HttpConfiguration httpConfiguration, Request request) {
+   public Request customize(Request request, HttpFields.Mutable responseHeaders) {
       count++;
+      return request;
    }
 }

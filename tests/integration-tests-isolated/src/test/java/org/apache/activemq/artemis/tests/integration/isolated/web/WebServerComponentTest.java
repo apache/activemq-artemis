@@ -102,7 +102,7 @@ public class WebServerComponentTest {
       webServerDTO.setRequestLog(requestLogDTO);
       WebServerComponent webServerComponent = new WebServerComponent();
       assertFalse(webServerComponent.isStarted());
-      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      webServerComponent.configure(webServerDTO, "src/test/resources/", "src/test/resources/");
       testedComponents.add(webServerComponent);
       webServerComponent.start();
 
