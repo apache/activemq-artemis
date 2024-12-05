@@ -200,7 +200,7 @@ public class PageCounterRebuildManager implements Runnable {
       logger.debug("Rebuilding page counter for address {}", pgStore.getAddress());
 
       for (long pgid = pgStore.getFirstPage(); pgid <= limitPageId; pgid++) {
-         if (logger.isDebugEnabled()) {
+         if (logger.isTraceEnabled()) {
             logger.trace("Rebuilding counter on messages from page {} on rebuildCounters for address {}", pgid, pgStore.getAddress());
          }
          logger.debug("{} reading paging {} of {}", pgStore.getAddress(), pgid, limitPageId);
