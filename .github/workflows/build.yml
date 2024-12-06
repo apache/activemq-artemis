@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ 11, 17, 21, 22 ]
+        java: [ 17, 21, 22 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -78,7 +78,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ 11, 17, 21, 22 ]
+        java: [ 17, 21, 22 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -108,14 +108,14 @@ jobs:
           ref: ${{ env.EXAMPLES_BRANCH }}
           path: activemq-artemis-examples
 
-      - name: Build Main (JDK11 / -Prelease)
-        if: matrix.java == '11'
+      - name: Build Main (JDK17 / -Prelease)
+        if: matrix.java == '17'
         run: |
           cd activemq-artemis
           mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Pdev -Prelease -Dgpg.skip install
 
-      - name: Build Main (JDK >11)
-        if: matrix.java != '11'
+      - name: Build Main (JDK >17)
+        if: matrix.java != '17'
         run: |
           cd activemq-artemis
           mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Pdev -Pjmh install
@@ -128,32 +128,32 @@ jobs:
           cd ../activemq-artemis-examples
           ./scripts/update-examples-version.sh ${CURRENT_ARTEMIS_BUILD_VERSION}
 
-      - name: Build Examples (JDK11 / -Prelease)
-        if: matrix.java == '11'
+      - name: Build Examples (JDK17 / -Prelease)
+        if: matrix.java == '17'
         run: |
           cd activemq-artemis-examples
           mvn -s ../activemq-artemis/.github/maven-settings.xml install -Prelease
 
-      - name: Build Examples (JDK >11 / -Pexamples,noRun)
-        if: matrix.java != '11'
+      - name: Build Examples (JDK >17 / -Pexamples,noRun)
+        if: matrix.java != '17'
         run: |
           cd activemq-artemis-examples
           mvn -s ../activemq-artemis/.github/maven-settings.xml install -Pexamples,noRun
 
-      - name: Javadoc Check (JDK11 / -Prelease)
-        if: matrix.java == '11'
+      - name: Javadoc Check (JDK17 / -Prelease)
+        if: matrix.java == '17'
         run: |
           cd activemq-artemis
           mvn -s .github/maven-settings.xml javadoc:javadoc -Prelease -DskipWebsiteDocGeneration=true -DskipWebsiteJavadocGeneration=true
 
-      - name: Javadoc Check (JDK >11)
-        if: matrix.java != '11'
+      - name: Javadoc Check (JDK >17)
+        if: matrix.java != '17'
         run: |
           cd activemq-artemis
           mvn -s .github/maven-settings.xml javadoc:javadoc
 
-      - name: Website Content Check (JDK11 only / -Prelease)
-        if: matrix.java == '11'
+      - name: Website Content Check (JDK17 only / -Prelease)
+        if: matrix.java == '17'
         run: |
           cd activemq-artemis
           mvn -s .github/maven-settings.xml clean install -DskipTests -Prelease -am -pl "artemis-website"

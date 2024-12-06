@@ -123,7 +123,7 @@
                         <descriptor>file:${project.build.directory}/classes/features.xml</descriptor>
                      </descriptors>
                      <distribution>org.apache.karaf.features:framework</distribution>
-                     <javase>11</javase>
+                     <javase>${maven.compiler.target}</javase>
                      <framework>
                         <feature>framework</feature>
                      </framework>
