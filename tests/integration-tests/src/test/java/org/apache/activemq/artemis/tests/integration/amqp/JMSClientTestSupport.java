@@ -174,13 +174,7 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
       try {
          int port = AMQP_PORT;
 
-         String uri = null;
-
-         if (isUseSSL()) {
-            uri = "tcp://127.0.0.1:" + port;
-         } else {
-            uri = "tcp://127.0.0.1:" + port;
-         }
+         String uri = "tcp://127.0.0.1:" + port;
 
          if (!getJmsConnectionURIOptions().isEmpty()) {
             uri = uri + "?" + getJmsConnectionURIOptions();
@@ -223,13 +217,7 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
       try {
          int port = AMQP_PORT;
 
-         String uri = null;
-
-         if (isUseSSL()) {
-            uri = "tcp://127.0.0.1:" + port;
-         } else {
-            uri = "tcp://127.0.0.1:" + port;
-         }
+         String uri = "tcp://127.0.0.1:" + port;
 
          if (!getJmsConnectionURIOptions().isEmpty()) {
             uri = uri + "?" + getJmsConnectionURIOptions();

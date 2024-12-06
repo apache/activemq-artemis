@@ -211,7 +211,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
       consumer = session.createConsumer(ADDRESS);
       msg = consumer.receive(1000);
       assertNotNull(msg);
-      assertEquals(strictUpdate ? 2 : 2, msg.getDeliveryCount());
+      assertEquals(2, msg.getDeliveryCount());
       session.close();
    }
 
