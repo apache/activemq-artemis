@@ -70,6 +70,10 @@ public class Run extends LockAbstract {
       Run.embedded = true;
    }
 
+   public static boolean getEmbedded() {
+      return Run.embedded;
+   }
+
    private Broker server;
 
    @Override

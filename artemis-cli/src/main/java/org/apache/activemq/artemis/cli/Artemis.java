@@ -111,7 +111,10 @@ public class Artemis implements Runnable {
 
       verifyManagementDTO(fileBrokerETC);
 
-      execute(true, true, true, fileHome, fileInstance, fileBrokerETC, args);
+      Object result = execute(true, true, true, fileHome, fileInstance, fileBrokerETC, args);
+      if (!Run.getEmbedded() && result instanceof Exception) {
+         System.exit(1);
+      }
    }
 
 
