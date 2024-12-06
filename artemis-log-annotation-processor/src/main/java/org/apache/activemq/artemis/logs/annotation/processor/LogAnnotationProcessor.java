@@ -47,7 +47,7 @@ import org.apache.activemq.artemis.logs.annotation.LogMessage;
 import org.apache.activemq.artemis.logs.annotation.Message;
 
 @SupportedAnnotationTypes({"org.apache.activemq.artemis.logs.annotation.LogBundle"})
-@SupportedSourceVersion(SourceVersion.RELEASE_11)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class LogAnnotationProcessor extends AbstractProcessor {
    private static final boolean DEBUG;
 

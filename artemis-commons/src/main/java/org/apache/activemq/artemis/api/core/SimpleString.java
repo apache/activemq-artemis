@@ -195,6 +195,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       data[1] = high;
    }
 
+   @Override
    public boolean isEmpty() {
       return data.length == 0;
    }

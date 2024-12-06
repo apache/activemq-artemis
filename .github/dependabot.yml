@@ -20,13 +20,9 @@ updates:
     schedule:
       interval: "daily"
     ignore:
-      # Ignore all these until we move to JDK >= 17
+      # Ignore all these until we move to JDK >= 21
       - dependency-name: 'org.apache.derby:*'
         versions: '>= 10.16'
-      - dependency-name: 'com.google.errorprone:error_prone_core'
-        versions: '>= 2.32'
-      - dependency-name: 'org.apache.felix:maven-bundle-plugin'
-        versions: '>= 6'
 
       # Ignore all these until we move to Jakarta
       - dependency-name: 'org.springframework:*'
@@ -66,7 +62,7 @@ updates:
       - dependency-name: 'com.sun.xml.bind:*'
         versions: '>= 3'
       - dependency-name: 'jakarta.resource:jakarta.resource-api'
-        versions: '>= 2'        
+        versions: '>= 2'
 
       # Ignore until JGRP-2794 is resolved
       - dependency-name: 'org.jgroups:jgroups'
