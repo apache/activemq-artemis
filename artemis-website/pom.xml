@@ -91,7 +91,6 @@
                         </goals>
                         <configuration>
                            <doctitle>ActiveMQ Artemis ${project.version} API</doctitle>
-                           <source>11</source>
                            <minmemory>128m</minmemory>
                            <maxmemory>512m</maxmemory>
                            <noindex>true</noindex>
