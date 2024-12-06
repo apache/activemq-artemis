@@ -79,8 +79,8 @@
 
    <properties>
       <maven.compiler.source>11</maven.compiler.source>
-      <maven.compiler.target>11</maven.compiler.target>
-      <maven.compiler.release>11</maven.compiler.release>
+      <maven.compiler.target>17</maven.compiler.target>
+      <maven.compiler.release>17</maven.compiler.release>
 
       <retryTests>false</retryTests>
       <logging.config>log4j2-tests-config.properties</logging.config>
@@ -304,40 +304,8 @@
 
    <profiles>
       <profile>
-         <id>jdk11to15-errorprone</id>
+         <id>errorprone</id>
          <activation>
-            <jdk>[11,16)</jdk>
-            <property>
-               <name>errorprone</name>
-            </property>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-compiler-plugin</artifactId>
-                  <configuration>
-                     <compilerArgs>
-                        <arg>-Xdiags:verbose</arg>
-                        <arg>-XDcompilePolicy=simple</arg>
-                        <arg>-Xplugin:ErrorProne -Xep:ThreadLocalUsage:ERROR -Xep:MissingOverride:ERROR -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:StaticQualifiedUsingExpression:ERROR -Xep:WaitNotInLoop:ERROR -Xep:BanJNDI:OFF -XepExcludedPaths:.*/generated-sources/.*</arg>
-                     </compilerArgs>
-                     <annotationProcessorPaths combine.children="append">
-                        <path>
-                           <groupId>com.google.errorprone</groupId>
-                           <artifactId>error_prone_core</artifactId>
-                           <version>${errorprone.version}</version>
-                        </path>
-                     </annotationProcessorPaths>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-      <profile>
-         <id>jdk16on-errorprone</id>
-         <activation>
-            <jdk>[16,)</jdk>
             <property>
                <name>errorprone</name>
             </property>
@@ -454,8 +422,8 @@
                         <configuration>
                            <rules>
                               <requireJavaVersion>
-                                 <version>[11, 12)</version>
-                                 <message>JDK 11 is required when building the release</message>
+                                 <version>[17, 18)</version>
+                                 <message>JDK 17 is required when building the release</message>
                               </requireJavaVersion>
                            </rules>
                         </configuration>
@@ -1046,8 +1014,8 @@
                   <configuration>
                      <rules>
                         <requireJavaVersion>
-                           <version>[11,)</version>
-                           <message>You must use JDK 11+ when building</message>
+                           <version>[17,)</version>
+                           <message>You must use JDK 17+ when building</message>
                         </requireJavaVersion>
                      </rules>
                   </configuration>
