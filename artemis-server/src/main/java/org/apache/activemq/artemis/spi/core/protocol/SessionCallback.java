@@ -98,4 +98,8 @@ public interface SessionCallback {
    default Transaction getCurrentTransaction() {
       return null;
    }
+
+   default boolean filterRef(MessageReference ref, ServerConsumer consumer) {
+      return false;
+   }
 }
