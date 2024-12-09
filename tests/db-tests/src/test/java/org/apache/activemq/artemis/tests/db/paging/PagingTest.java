@@ -172,8 +172,8 @@ public class PagingTest extends ParameterDBTestBase {
       if (loggerHandler != null) {
          try {
             // These are the message errors for the negative size address size
-            assertFalse(loggerHandler.findText("222214"));
-            assertFalse(loggerHandler.findText("222215"));
+            assertFalse(loggerHandler.findText("AMQ222214"));
+            assertFalse(loggerHandler.findText("AMQ222215"));
          } finally {
             loggerHandler.close();
          }
