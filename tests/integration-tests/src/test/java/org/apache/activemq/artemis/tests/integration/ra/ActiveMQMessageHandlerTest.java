@@ -32,6 +32,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.resource.ResourceException;
 import javax.resource.spi.InvalidPropertyException;
+import java.io.ObjectInputFilter;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
@@ -213,9 +214,70 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
    }
 
    private void testDeserialization(String denyList, String allowList, boolean shouldSucceed) throws Exception {
+      testDeserialization(denyList, allowList, null, null, shouldSucceed);
+   }
+
+   @Test
+   public void testObjectMessageReceiveSerializationControlSF() throws Exception {
+      String serialFilter = "!org.apache.activemq.artemis.tests.integration.ra.**;*";
+      testDeserializationSerialFilter(serialFilter, false);
+   }
+
+   @Test
+   public void testObjectMessageReceiveSerializationControl1SF() throws Exception {
+      String serialFilter = "!some.other.pkg.**;org.apache.activemq.artemis.tests.integration.ra.*";
+      testDeserializationSerialFilter(serialFilter, true);
+   }
+
+   @Test
+   public void testObjectMessageReceiveSerializationControl2SF() throws Exception {
+      String serialFilter = "!*;org.apache.activemq.artemis.tests.integration.ra.**";
+      testDeserializationSerialFilter(serialFilter, false);
+   }
+
+   @Test
+   public void testObjectMessageReceiveSerializationControl3SF() throws Exception {
+      String serialFilter = "!org.apache.activemq.artemis.tests.**;" +
+                            "org.apache.activemq.artemis.tests.integration.ra.**";
+      testDeserializationSerialFilter(serialFilter, false);
+   }
+
+   @Test
+   public void testObjectMessageReceiveSerializationControl4SF() throws Exception {
+      String serialFilter = "some.other.pkg.**;!*";
+      testDeserializationSerialFilter(serialFilter, false);
+   }
+
+   @Test
+   public void testObjectMessageReceiveSerializationControl5SF() throws Exception {
+      String serialFilter = null;
+      testDeserializationSerialFilter(serialFilter, true);
+   }
+
+   private void testDeserializationSerialFilter(String serialFilter, boolean shouldSucceed) throws Exception {
+      testDeserialization(null, null, serialFilter, null, shouldSucceed);
+   }
+
+   @Test
+   public void testObjectMessageReceiveSerializationControlSFC1() throws Exception {
+      testDeserializationSerialFilterClassName(AlwaysRejectObjectInputFilter.class.getName(), false);
+   }
+
+   @Test
+   public void testObjectMessageReceiveSerializationControlSFC2() throws Exception {
+      testDeserializationSerialFilterClassName(AlwaysAcceptObjectInputFilter.class.getName(), true);
+   }
+
+   private void testDeserializationSerialFilterClassName(String serialFilterClassName, boolean shouldSucceed) throws Exception {
+      testDeserialization(null, null, null, serialFilterClassName, shouldSucceed);
+   }
+
+   private void testDeserialization(String denyList, String allowList, String serialFilter, String serialFilterClassName, boolean shouldSucceed) throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
       qResourceAdapter.setDeserializationDenyList(denyList);
       qResourceAdapter.setDeserializationAllowList(allowList);
+      qResourceAdapter.setSerialFilter(serialFilter);
+      qResourceAdapter.setSerialFilterClassName(serialFilterClassName);
 
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);
@@ -1048,5 +1110,19 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
 
    static class DummySerializable implements Serializable {
 
+   }
+
+   public static class AlwaysRejectObjectInputFilter implements ObjectInputFilter {
+      @Override
+      public Status checkInput(FilterInfo filterInfo) {
+         return Status.REJECTED;
+      }
+   }
+
+   public static class AlwaysAcceptObjectInputFilter implements ObjectInputFilter {
+      @Override
+      public Status checkInput(FilterInfo filterInfo) {
+         return Status.ALLOWED;
+      }
    }
 }
