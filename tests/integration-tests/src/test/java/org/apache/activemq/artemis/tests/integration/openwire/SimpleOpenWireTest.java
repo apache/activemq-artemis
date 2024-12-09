@@ -76,6 +76,7 @@ import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.SessionInfo;
@@ -822,6 +823,8 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       try {
          QueueSession newQueueSession = newConn.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
          QueueSender queueSender = newQueueSession.createSender(tempQueue);
+         // The advisory consumer is sending the notification to the client about the temporary destinations asynchronously
+         Wait.assertFalse(() -> newConn.isDeleted((ActiveMQDestination) tempQueue), 5000, 100);
 
          Message msg = queueSession.createMessage();
          queueSender.send(msg);
@@ -835,12 +838,19 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
          connection.close();
 
+         Wait.assertTrue(() -> newConn.isDeleted((ActiveMQDestination) tempQueue), 5000, 100);
+
+         boolean failed = false;
+
          try {
             Message newMsg = newQueueSession.createMessage();
             queueSender.send(newMsg);
          } catch (JMSException e) {
+            failed = true;
             //ok
          }
+
+         assertTrue(failed);
 
       } finally {
          newConn.close();
