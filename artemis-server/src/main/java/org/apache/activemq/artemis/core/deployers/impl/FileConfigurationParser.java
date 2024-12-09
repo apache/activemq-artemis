@@ -980,7 +980,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          NodeList list = node.getElementsByTagName(BROKER_PLUGIN_ELEMENT_NAME);
          for (int i = 0; i < list.getLength(); i++) {
             ActiveMQServerPlugin plugin = parseActiveMQServerPlugin(list.item(i));
-            config.registerBrokerPlugin(plugin);
+            config.registerConfiguredBrokerPlugin(plugin);
          }
       }
    }
