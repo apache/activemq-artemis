@@ -67,8 +67,8 @@ If `expiry-delay` is _not set_ then minimum and maximum expiry delay values can 
 Semantics are as follows:
 
 * Messages _without_ an expiration will be set to `max-expiry-delay`.
-If `max-expiry-delay` is not defined then the message will be set to `min-expiry-delay`.
-If `min-expiry-delay` is not defined then the message will not be changed.
+** If `max-expiry-delay` is not defined then the message will be set to `min-expiry-delay`.
+** If `min-expiry-delay` is not defined then the message will not be changed.
 * Messages with an expiration _above_ `max-expiry-delay` will be set to `max-expiry-delay`
 * Messages with an expiration _below_ `min-expiry-delay` will be set to `min-expiry-delay`
 * Messages with an expiration _within_ `min-expiry-delay` and `max-expiry-delay` range will not be changed
