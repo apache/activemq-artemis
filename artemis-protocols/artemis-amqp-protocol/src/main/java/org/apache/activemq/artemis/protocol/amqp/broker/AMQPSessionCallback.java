@@ -759,6 +759,12 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    @Override
+   public boolean filterRef(MessageReference ref, ServerConsumer consumer) {
+      ProtonServerSenderContext plugSender = (ProtonServerSenderContext) consumer.getProtocolContext();
+      return plugSender.filterRef(ref);
+   }
+
+   @Override
    public int sendLargeMessage(MessageReference ref,
                                ServerConsumer consumer,
                                long bodySize,
