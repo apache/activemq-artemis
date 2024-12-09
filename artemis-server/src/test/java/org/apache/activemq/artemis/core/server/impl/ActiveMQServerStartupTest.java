@@ -59,7 +59,7 @@ public class ActiveMQServerStartupTest extends ServerTestBase {
          // this will be faking a condition
          server.setState(ActiveMQServer.SERVER_STATE.STARTING);
          CriticalAnalyzerAccessor.fireActions(server.getCriticalAnalyzer(), new CriticalComponentImpl(server.getCriticalAnalyzer(), 2));
-         assertTrue(loggerHandler.findText("224116"));
+         assertTrue(loggerHandler.findText("AMQ224116"));
          assertEquals(ActiveMQServer.SERVER_STATE.STARTING, server.getState()); // should not be changed
          server.stop();
       }
