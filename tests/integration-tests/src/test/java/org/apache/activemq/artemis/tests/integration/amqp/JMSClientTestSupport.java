@@ -177,7 +177,7 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
          String uri = null;
 
          if (isUseSSL()) {
-            uri = "tcp://127.0.0.1:" + port;
+            throw new UnsupportedOperationException("SSL not supported here");
          } else {
             uri = "tcp://127.0.0.1:" + port;
          }
@@ -226,7 +226,7 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
          String uri = null;
 
          if (isUseSSL()) {
-            uri = "tcp://127.0.0.1:" + port;
+            throw new UnsupportedOperationException("SSL not supported here");
          } else {
             uri = "tcp://127.0.0.1:" + port;
          }

@@ -126,6 +126,21 @@
          <scope>test</scope>
       </dependency>
    </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+               <forkCount>1</forkCount>
+               <reuseForks>false</reuseForks>
+               <argLine>--add-opens java.base/java.lang=ALL-UNNAMED ${activemq-surefire-argline}</argLine>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
    <profiles>
       <profile>
          <id>Weld</id>
@@ -167,24 +182,6 @@
                <artifactId>jakarta.annotation-api</artifactId>
             </dependency>
          </dependencies>
-      </profile>
-      <profile>
-         <!-- TODO: Changes so these tests can work? -->
-         <id>jdk16on</id>
-         <activation>
-            <jdk>[16,)</jdk>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-surefire-plugin</artifactId>
-                  <configuration>
-                     <skip>true</skip>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
       </profile>
    </profiles>
 </project>

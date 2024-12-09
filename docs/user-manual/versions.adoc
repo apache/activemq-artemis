@@ -12,6 +12,24 @@ NOTE: If the upgrade spans multiple versions then the steps from *each* version 
 
 NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#upgrading-the-broker[Upgrading the Broker]  chapter in addition to any version-specific upgrade instructions outlined here.
 
+== 2.39.0
+
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12355167[Full release notes]
+
+=== Highlights
+
+* *Java 17 is now required.*
+
+=== Upgrading from 2.38.0
+
+* Due to https://issues.apache.org/jira/browse/ARTEMIS-5202[ARTEMIS-5202] *support for Java 11 has been dropped*.
++
+The main reason for this change is that the version of Jetty we were embedding in previous versions (i.e. 10) https://github.com/jetty/jetty.project/issues/10485[will officially reach its end-of-life on January 1, 2025] and will therefore no longer be receiving _any_ fixes - including security fixes.
+Security is critical for us and most of our users so we therefore need to upgrade to Jetty 12 - the only version of Jetty now supported.
+Jetty 12 requires Java 17 so we must also move to Java 17 and drop support for Java 11.
++
+Please note that after upgrading the broker to Java 17 it will be backwards compatible with all previous clients.
+
 == 2.38.0
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12355013[Full release notes]
