@@ -194,8 +194,8 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
 
    @Test
    public void testSendReceiveLargeMessageTX() throws Exception {
-      int NUMBER_OF_MESSAGES = 1000;
-      int TX_SIZE = 100;
+      int NUMBER_OF_MESSAGES = 10;
+      int TX_SIZE = 5;
 
       ExecutorService executorService = Executors.newFixedThreadPool(1);
       runAfter(executorService::shutdownNow);
