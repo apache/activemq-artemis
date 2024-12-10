@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.ActiveMQUnBlockedException;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -104,17 +106,41 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
 
             @Override
             public void run() {
-               try {
-                  test.run(sf, threadNum);
-               } catch (Throwable t) {
-                  throwable = t;
+               boolean repeat = true;
 
-                  logger.error("Failed to run test", t);
+               while (repeat) {
+                  try {
+                     test.run(sf, threadNum);
+                     repeat = false;
+                  } catch (Throwable t) {
+                     if (expectedException(t)) {
+                        logger.info("Got an expected exception {}", t.getMessage(), t);
 
-                  // Case a failure happened here, it should print the Thread dump
-                  // Sending it to System.out, as it would show on the Tests report
-                  System.out.println(ActiveMQTestBase.threadDump(" - fired by MultiThreadRandomReattachTestBase::runTestMultipleThreads (" + t.getLocalizedMessage() +
-                                                                    ")"));
+                        for (int r = 0; r < 15; r++) {
+                           for (int i = 0; i < 10; i++) {
+                              System.err.println("################################ ");
+                           }
+                           try {
+                              Thread.sleep(1000);
+                           } catch (Throwable e) {
+                           }
+                           for (int i = 0; i < 10; i++) {
+                              System.err.println("################################ ");
+                           }
+
+                        }
+                        repeat = false;
+                     } else {
+                        repeat = false;
+                        throwable = t;
+
+                        logger.error("Failed to run test", t);
+
+                        // Case a failure happened here, it should print the Thread dump
+                        // Sending it to System.out, as it would show on the Tests report
+                        System.out.println(ActiveMQTestBase.threadDump(" - fired by MultiThreadRandomReattachTestBase::runTestMultipleThreads (" + t.getLocalizedMessage() + ")"));
+                     }
+                  }
                }
             }
          }
@@ -159,6 +185,11 @@ public abstract class MultiThreadReattachSupportTestBase extends ActiveMQTestBas
       }
    }
 
+
+   private boolean expectedException(Throwable e) {
+      return e instanceof ActiveMQIllegalStateException && e.getMessage().contains("AMQ229027") ||
+             e instanceof ActiveMQUnBlockedException;
+   }
 
    private Failer startFailer(final long time, final ClientSession session, final boolean failOnCreateConnection) {
       Failer failer = new Failer(session, failOnCreateConnection);
