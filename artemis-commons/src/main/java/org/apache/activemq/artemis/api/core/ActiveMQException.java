@@ -60,6 +60,7 @@ public class ActiveMQException extends Exception {
    }
 
    public ActiveMQException(ActiveMQExceptionType type) {
+      super("");
       this.type = type;
    }
 
