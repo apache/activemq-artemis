@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedT
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -394,9 +395,9 @@ public class RedirectTest extends RoutingTestBase {
 
       startServers(failedNode);
 
-      assertEquals(0, queueControl0.countMessages(), "Unexpected message count for node 0");
-      assertEquals(1, queueControl1.countMessages(), "Unexpected message count for node 1");
-      assertEquals(1, queueControl2.countMessages(), "Unexpected message count for node 2");
+      Wait.assertEquals(0L, () -> queueControl0.countMessages(), 5000, 100);
+      Wait.assertEquals(1L, () -> queueControl1.countMessages(), 5000, 100);
+      Wait.assertEquals(1L, () -> queueControl2.countMessages(), 5000, 100);
 
       try (Connection connection = connectionFactory.createConnection()) {
          connection.start();
