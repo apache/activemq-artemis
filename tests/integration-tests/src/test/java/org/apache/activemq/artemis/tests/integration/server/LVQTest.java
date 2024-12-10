@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -170,6 +171,9 @@ public class LVQTest extends ActiveMQTestBase {
       producer.send(m2);
       producer.send(m3);
       producer.send(m4);
+      SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", null, null);
+      Wait.assertEquals(2L, () -> simpleManagement.getMessageCountOnQueue(qName1.toString()), 5000, 100);
+      Wait.assertEquals(4L, () -> simpleManagement.getMessagesAddedOnQueue(qName1.toString()), 5000, 100);
       clientSession.start();
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
@@ -179,6 +183,7 @@ public class LVQTest extends ActiveMQTestBase {
       assertNotNull(m);
       m.acknowledge();
       assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertNull(consumer.receiveImmediate());
    }
 
    @Test
