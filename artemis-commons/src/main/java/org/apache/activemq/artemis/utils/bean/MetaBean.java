@@ -123,10 +123,6 @@ public class MetaBean<T> {
                }
             } else if (type == Boolean.class) {
                builder.add(name, (Boolean) value);
-            } else if (Enum.class.isAssignableFrom(type)) {
-               // I know this is the same as the default else clause further down
-               // but i wanted to have a separate branch in case we have to deal with it later
-               builder.add(name, String.valueOf(value));
             } else {
                builder.add(name, String.valueOf(value));
             }

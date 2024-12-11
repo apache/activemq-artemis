@@ -1952,9 +1952,9 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       journal.processBackup();
       List<String> files10 = fileFactory.listFiles(fileExtension);
 
-      assertEquals(journal.getAlignment() == 1 ? 5 : 5, files10.size());
+      assertEquals(5, files10.size());
 
-      assertEquals(journal.getAlignment() == 1 ? 3 : 3, journal.getDataFilesCount());
+      assertEquals(3, journal.getDataFilesCount());
       assertEquals(0, journal.getFreeFilesCount());
       assertEquals(2, journal.getIDMapSize());
 
