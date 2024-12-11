@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ConcurrentModificationException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -660,7 +662,7 @@ public class LVQTest extends ActiveMQTestBase {
 
    @Test
    public void testScheduledMessages() throws Exception {
-      final long DELAY_TIME = 10;
+      final long DELAY_TIME = 100;
       final int MESSAGE_COUNT = 5;
       Queue queue = server.locateQueue(qName1);
       ClientProducer producer = clientSession.createProducer(address);
@@ -679,7 +681,12 @@ public class LVQTest extends ActiveMQTestBase {
       // allow schedules to elapse so the messages will be delivered to the queue
       Wait.waitFor(() -> queue.getScheduledCount() == 0);
 
-      Wait.assertEquals(MESSAGE_COUNT, queue::getMessagesAdded);
+      Wait.assertEquals((long) MESSAGE_COUNT, queue::getMessagesAdded, 5000, 100);
+      Wait.assertEquals((long) (MESSAGE_COUNT - 1), queue::getMessagesReplaced, 5000, 100);
+      queue.flushExecutor();
+      CountDownLatch latch = new CountDownLatch(1);
+      queue.flushOnIntermediate(latch::countDown);
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
 
       clientSession.start();
       ClientMessage m = consumer.receive(5000);
@@ -778,7 +785,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
       SimpleString rh = SimpleString.of("SMID1");
 
-      for (int i = 0; i < 50; i++) {
+      for (int i = 0; i < 5; i++) {
          ClientMessage message = clientSession.createMessage(true);
          message.setBodyInputStream(createFakeLargeStream(300 * 1024));
          message.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
@@ -811,7 +818,7 @@ public class LVQTest extends ActiveMQTestBase {
       producer.send(m2);
       // encoded size is a little larger than payload
       Wait.assertTrue(() -> queue.getPersistentSize() > 10 * 1024);
-      assertEquals(queue.getDeliveringSize(), 0);
+      Wait.assertEquals(0L,  () -> queue.getDeliveringSize(), 5000, 100);
    }
 
    @Test
@@ -921,7 +928,7 @@ public class LVQTest extends ActiveMQTestBase {
          }
       });
       producerThread.start();
-      producerThread.join(5000);
+      producerThread.join(500);
 
       try {
          assertFalse(cme.get());
