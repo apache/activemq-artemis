@@ -40,21 +40,18 @@ public class AMQPLargeMessagesTestUtil {
 
    public static void validateTemporaryBuffers(Queue serverQueue) {
       LinkedListIterator<MessageReference> totalIterator = serverQueue.browserIterator();
-      while (totalIterator.hasNext()) {
-         MessageReference ref;
-         try {
-            ref = totalIterator.next();
-         } catch (NoSuchElementException e) {
-            // that's fine, it means the iterator got to the end of the list
-            // and something else removed it
-            break;
+      try {
+         while (totalIterator.hasNext()) {
+            MessageReference ref = totalIterator.next();
+            if (ref.getMessage() instanceof AMQPLargeMessage) {
+               AMQPLargeMessage amqpLargeMessage = (AMQPLargeMessage) ref.getMessage();
+               // Using a Wait.waitFor here as we may have something working with the buffer in parallel
+               Wait.waitFor(() -> amqpLargeMessage.inspectTemporaryBuffer() == null, 1000, 10);
+               assertNull(amqpLargeMessage.inspectTemporaryBuffer(), "Temporary buffers are being retained");
+            }
          }
-         if (ref.getMessage() instanceof AMQPLargeMessage) {
-            AMQPLargeMessage amqpLargeMessage = (AMQPLargeMessage) ref.getMessage();
-            // Using a Wait.waitFor here as we may have something working with the buffer in parallel
-            Wait.waitFor(() -> amqpLargeMessage.inspectTemporaryBuffer() == null, 1000, 10);
-            assertNull(amqpLargeMessage.inspectTemporaryBuffer(), "Temporary buffers are being retained");
-         }
+      } catch (NoSuchElementException e) {
+         // that's ok
       }
       totalIterator.close();
    }
