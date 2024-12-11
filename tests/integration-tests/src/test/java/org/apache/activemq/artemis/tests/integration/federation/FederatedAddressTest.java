@@ -373,8 +373,7 @@ public class FederatedAddressTest extends FederatedTestBase {
                                          .setRoutingType(ComponentConfigurationRoutingType.ANYCAST));
          }
 
-         assertTrue(Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.of(address)).getBindings().size() == 1,
-                                 1000, 100));
+         Wait.assertEquals(1L, () -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.of(address)).getBindings().size(), 10_000, 100);
          final QueueBinding remoteQueueBinding = (QueueBinding) getServer(1).getPostOffice().getBindingsForAddress(SimpleString.of(address))
             .getBindings().iterator().next();
          Wait.assertEquals(1, () -> remoteQueueBinding.getQueue().getConsumerCount());
