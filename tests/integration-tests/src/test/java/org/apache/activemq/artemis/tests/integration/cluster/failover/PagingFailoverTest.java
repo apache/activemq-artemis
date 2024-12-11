@@ -183,6 +183,8 @@ public class PagingFailoverTest extends FailoverTestBase {
 
       session.close();
 
+      Wait.assertTrue(() -> backupServer.getServer().locateQueue(ADDRESS) != null, 15_000, 100);
+
       Queue queue = backupServer.getServer().locateQueue(ADDRESS);
 
       Wait.assertFalse( () -> {
