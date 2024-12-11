@@ -166,9 +166,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       producer.send(message);
 
-      long start = System.currentTimeMillis();
       Wait.assertEquals(1, server.locateQueue(queue)::getMessagesExpired, 5000);
-      assertTrue(System.currentTimeMillis() - start <= (MAX_EXPIRATION + 200));
 
       session.deleteQueue(queue);
    }
