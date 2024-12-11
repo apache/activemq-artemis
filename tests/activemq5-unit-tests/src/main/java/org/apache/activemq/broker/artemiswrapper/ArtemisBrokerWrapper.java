@@ -276,12 +276,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
          throw new IllegalArgumentException("Method only accept queue type parameter.");
       }
       long count = 0;
-      String qname = null;
-      if (amq5Dest.isTemporary()) {
-         qname = amq5Dest.getPhysicalName();
-      } else {
-         qname = amq5Dest.getPhysicalName();
-      }
+      String qname = amq5Dest.getPhysicalName();
       Binding binding = server.getPostOffice().getBinding(SimpleString.of(qname));
       if (binding != null) {
          QueueImpl q = (QueueImpl) binding.getBindable();

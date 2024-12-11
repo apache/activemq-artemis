@@ -205,7 +205,7 @@ public class FlowControlPagingTest extends SoakTestBase {
       } else if (protocol.equals("OPENWIRE")) {
          factoryClient = CFUtil.createConnectionFactory("OPENWIRE", "tcp://localhost:61616");  // no flow control on openwire by default
       } else {
-         factoryClient = CFUtil.createConnectionFactory("OPENWIRE", "tcp://localhost:61616");  // no flow control on openwire by default
+         throw new IllegalStateException("protocol not defined!");
       }
 
       Connection connectionConsumer = factoryClient.createConnection();
