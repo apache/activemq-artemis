@@ -159,7 +159,11 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
 
       CountDownLatch failoverHappened = new CountDownLatch(1);
 
-      session0.addFailoverListener((FailoverEventType type) -> failoverHappened.countDown());
+      session0.addFailoverListener((FailoverEventType type) -> {
+         if (type == FailoverEventType.FAILOVER_COMPLETED) {
+            failoverHappened.countDown();
+         }
+      });
 
       for (TestableServer testableServer : toCrash) {
          testableServer.crash().await(10, TimeUnit.SECONDS);
