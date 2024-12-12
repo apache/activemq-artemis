@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -160,6 +161,7 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
       CountDownLatch failoverHappened = new CountDownLatch(1);
 
       session0.addFailoverListener((FailoverEventType type) -> {
+         new Exception("Type::" + type).printStackTrace();
          if (type == FailoverEventType.FAILOVER_COMPLETED) {
             failoverHappened.countDown();
          }
@@ -172,6 +174,9 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
       }
 
       assertTrue(failoverHappened.await(10, TimeUnit.SECONDS));
+
+      ((ClientSessionFactoryImpl)session0.getSessionFactory()).flushCloseExecutor(10, TimeUnit.SECONDS);
+      ((ClientSessionFactoryImpl)session1.getSessionFactory()).flushCloseExecutor(10, TimeUnit.SECONDS);
 
       ClientConsumer consumer0 = session0.createConsumer(ADDRESS);
       ClientConsumer consumer1 = session1.createConsumer(ADDRESS);
