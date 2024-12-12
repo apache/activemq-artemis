@@ -54,8 +54,7 @@ public class RollingUpgradeTest extends RealServerTestBase {
 
    private static final String TWO_THIRTY = "./target/old-releases/apache-artemis-2.30.0";
 
-   // TODO: Upgrade this towards 2.37 as soon as we release it
-   private static final String TWO_THIRTY_SIX = "./target/old-releases/apache-artemis-2.36.0";
+   private static final String TWO_THIRTY_SEVEN = "./target/old-releases/apache-artemis-2.37.0";
 
    private static final String QUEUE_NAME = "RollQueue";
 
@@ -188,8 +187,8 @@ public class RollingUpgradeTest extends RealServerTestBase {
    }
 
    @Test
-   public void testRollUpgrade_2_36() throws Exception {
-      testRollUpgrade(new File(TWO_THIRTY_SIX), HelperBase.getHome(ARTEMIS_HOME_PROPERTY));
+   public void testRollUpgrade_2_37() throws Exception {
+      testRollUpgrade(new File(TWO_THIRTY_SEVEN), HelperBase.getHome(ARTEMIS_HOME_PROPERTY));
    }
 
    // Define a System Property TEST_ROLLED_DISTRIBUTION towards the Artemis Home of your choice and this will
