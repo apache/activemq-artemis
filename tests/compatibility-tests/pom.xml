@@ -298,10 +298,8 @@
                            </artifactItems>
                         </configuration>
                      </execution>
-                     <!-- TODO: Switch this to 2.37.0 as soon as we release it.
-                          It will be important to test the switch at the current and previous version. -->
                      <execution>
-                        <id>unpack-2.36.0</id>
+                        <id>unpack-2.37.0</id>
                         <phase>compile</phase>
                         <goals>
                            <goal>unpack</goal>
@@ -311,7 +309,7 @@
                               <artifactItem>
                                  <groupId>org.apache.activemq</groupId>
                                  <artifactId>apache-artemis</artifactId>
-                                 <version>2.36.0</version>
+                                 <version>2.37.0</version>
                                  <classifier>bin</classifier>
                                  <type>zip</type>
                                  <outputDirectory>${basedir}/target/old-releases</outputDirectory>
