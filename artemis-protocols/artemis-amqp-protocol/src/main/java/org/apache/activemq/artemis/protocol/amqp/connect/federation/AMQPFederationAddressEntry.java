@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.protocol.amqp.federation.internal;
+package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
 /**
- * An entry type class used to hold a {@link FederationConsumerInternal} and
+ * An entry type class used to hold a {@link AMQPFederationConsumer} and
  * any other state data needed by the manager that is creating them based on the
  * policy configuration for the federation instance. The entry can be extended
  * by federation implementation to hold additional state data for the federation
@@ -35,12 +35,12 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
  * on a federation resource such that it is not torn down until all demand has been
  * removed from the local resource.
  */
-public class FederationAddressEntry {
+public class AMQPFederationAddressEntry {
 
    private final AddressInfo addressInfo;
    private final Set<Binding> demandBindings = new HashSet<>();
 
-   private FederationConsumerInternal consumer;
+   private AMQPFederationConsumer consumer;
 
    /**
     * Creates a new address entry for tracking demand on a federated address
@@ -48,7 +48,7 @@ public class FederationAddressEntry {
     * @param addressInfo
     *    The address information object that this entry hold demand state for.
     */
-   public FederationAddressEntry(AddressInfo addressInfo) {
+   public AMQPFederationAddressEntry(AddressInfo addressInfo) {
       this.addressInfo = addressInfo;
    }
 
@@ -76,7 +76,7 @@ public class FederationAddressEntry {
    /**
     * @return the consumer managed by this entry
     */
-   public FederationConsumerInternal getConsumer() {
+   public AMQPFederationConsumer getConsumer() {
       return consumer;
    }
 
@@ -88,7 +88,7 @@ public class FederationAddressEntry {
     *
     * @return this federation address consumer entry.
     */
-   public FederationAddressEntry setConsumer(FederationConsumerInternal consumer) {
+   public AMQPFederationAddressEntry setConsumer(AMQPFederationConsumer consumer) {
       Objects.requireNonNull(consumer, "Cannot assign a null consumer to this entry, call clear to unset");
       this.consumer = consumer;
       return this;
@@ -97,11 +97,14 @@ public class FederationAddressEntry {
    /**
     * Clears the currently assigned consumer from this entry.
     *
-    * @return this federation address consumer entry.
+    * @return the consumer that was stored here previously or null if none was set
     */
-   public FederationAddressEntry clearConsumer() {
+   public AMQPFederationConsumer clearConsumer() {
+      final AMQPFederationConsumer taken = consumer;
+
       this.consumer = null;
-      return this;
+
+      return taken;
    }
 
    /**
@@ -116,7 +119,7 @@ public class FederationAddressEntry {
     *
     * @return this federation address consumer entry.
     */
-   public FederationAddressEntry addDemand(Binding binding) {
+   public AMQPFederationAddressEntry addDemand(Binding binding) {
       demandBindings.add(binding);
       return this;
    }
@@ -126,8 +129,18 @@ public class FederationAddressEntry {
     *
     * @return this federation address consumer entry.
     */
-   public FederationAddressEntry removeDemand(Binding binding) {
+   public AMQPFederationAddressEntry removeDemand(Binding binding) {
       demandBindings.remove(binding);
+      return this;
+   }
+
+   /**
+    * Remove demand on this federation address consumer from all previous bindings.
+    *
+    * @return this federation address consumer entry.
+    */
+   public AMQPFederationAddressEntry removeAllDemand() {
+      demandBindings.clear();
       return this;
    }
 }

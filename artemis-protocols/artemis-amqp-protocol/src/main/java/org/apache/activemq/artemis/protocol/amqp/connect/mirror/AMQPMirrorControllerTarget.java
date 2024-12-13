@@ -256,7 +256,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    }
 
    @Override
-   public void flow() {
+   protected void doCreditTopUpRun() {
       creditRunnable.run();
    }
 
@@ -352,10 +352,10 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       // Match the settlement mode of the remote instead of relying on the default of MIXED.
       receiver.setSenderSettleMode(receiver.getRemoteSenderSettleMode());
 
-      // We don't currently support SECOND so enforce that the answer is anlways FIRST
+      // We don't currently support SECOND so enforce that the answer is always FIRST
       receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
 
-      flow();
+      topUpCreditIfNeeded();
    }
 
    @Override
@@ -528,7 +528,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
       if (duplicateIDCache.contains(duplicateIDBytes)) {
          message.usageDown(); // large messages would be removed here
-         flow();
+         topUpCreditIfNeeded();
          return false;
       }
 
@@ -557,7 +557,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       // We use this as part of a transaction because of the duplicate detection cache that needs to be done atomically
       transaction.commit();
       server.getStorageManager().afterCompleteOperations(messageCompletionAck, OperationConsistencyLevel.FULL);
-      flow();
+      topUpCreditIfNeeded();
 
       // return true here will instruct the caller to ignore any references to messageCompletionAck
       return true;
@@ -590,4 +590,9 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       // Do nothing
    }
 
+   @Override
+   protected SimpleString getAddressInUse() {
+      // We are not using server session level flow control here so this is unused.
+      return null;
+   }
 }

@@ -17,27 +17,31 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
+import static org.apache.activemq.artemis.protocol.amqp.federation.FederationConstants.FEDERATION_NAME;
+
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BiConsumer;
+import java.util.function.Predicate;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.QueueBinding;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumer;
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.federation.Federation;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugin;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConsumerPlugin;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromQueuePolicy;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo.Role;
-import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromResourcePolicy;
-import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationConsumerInternal;
-import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationGenericConsumerInfo;
-import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationQueuePolicyManager;
-import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,44 +49,353 @@ import org.slf4j.LoggerFactory;
 /**
  * The AMQP Federation implementation of an federation queue policy manager.
  */
-public class AMQPFederationQueuePolicyManager extends FederationQueuePolicyManager {
+public final class AMQPFederationQueuePolicyManager extends AMQPFederationPolicyManager implements ActiveMQServerConsumerPlugin, ActiveMQServerBindingPlugin {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   protected final AtomicLong messageCount = new AtomicLong();
-   protected final BiConsumer<FederationConsumerInfo, Message> messageObserver = (i, m) -> messageCount.incrementAndGet();
-   protected final AMQPFederation federation;
-
-   protected volatile AMQPFederationConsumerConfiguration configuration;
-   protected volatile AMQPSessionContext session;
+   protected final Predicate<ServerConsumer> federationConsumerMatcher;
+   protected final FederationReceiveFromQueuePolicy policy;
+   protected final Map<FederationConsumerInfo, AMQPFederationQueueEntry> demandTracking = new HashMap<>();
 
    public AMQPFederationQueuePolicyManager(AMQPFederation federation, FederationReceiveFromQueuePolicy queuePolicy) throws ActiveMQException {
-      super(federation, queuePolicy);
+      super(federation);
 
-      this.federation = federation;
-   }
+      Objects.requireNonNull(queuePolicy, "The Queue match policy cannot be null");
 
-   @Override
-   public AMQPFederation getFederation() {
-      return federation;
+      this.policy = queuePolicy;
+      this.federationConsumerMatcher = createFederationConsumerMatcher(server, queuePolicy);
    }
 
    /**
-    * @return the number of messages that all federation consumer of this policy have received from the remote.
+    * @return the receive from address policy that backs the address policy manager.
     */
-   public long getMessagesReceived() {
-      return messageCount.get();
+   @Override
+   public FederationReceiveFromQueuePolicy getPolicy() {
+      return policy;
+   }
+
+   /**
+    * Stops the queue policy manager which will close any open remote receivers that are
+    * active for local queue demand. Stop should generally be called whenever the parent
+    * {@link Federation} loses its connection to the remote.
+    */
+   public synchronized void stop() {
+      if (started) {
+         // Ensures that on shutdown of a federation broker connection we don't leak
+         // broker plugin instances.
+         server.unRegisterBrokerPlugin(this);
+         started = false;
+         demandTracking.values().forEach((entry) -> {
+            if (entry != null) {
+               tryCloseFederationConsumer(entry.removeAllDemand().clearConsumer());
+            }
+         });
+         demandTracking.clear();
+      }
    }
 
    @Override
-   protected void handlePolicyManagerStarted(FederationReceiveFromResourcePolicy policy) {
-      // Capture state for the current connection on each start of the policy manager.
-      configuration = new AMQPFederationConsumerConfiguration(federation.getConfiguration(), policy.getProperties());
-      session = federation.getSessionContext();
+   public synchronized void afterCreateConsumer(ServerConsumer consumer) {
+      if (started) {
+         reactIfConsumerMatchesPolicy(consumer);
+      }
    }
 
    @Override
-   protected FederationConsumerInfo createConsumerInfo(ServerConsumer consumer) {
+   public synchronized void afterCloseConsumer(ServerConsumer consumer, boolean failed) {
+      if (started) {
+         final String queueName = consumer.getQueue().getName().toString();
+         final FederationConsumerInfo consumerInfo = createConsumerInfo(consumer);
+         final AMQPFederationQueueEntry entry = demandTracking.get(consumerInfo);
+
+         if (entry == null) {
+            return;
+         }
+
+         entry.removeDemand(consumer);
+
+         logger.trace("Reducing demand on federated queue {}, remaining demand? {}", queueName, entry.hasDemand());
+
+         if (!entry.hasDemand() && entry.hasConsumer()) {
+            // A started consumer should be allowed to stop before possible close either because demand
+            // is still not present or the remote did not respond before the configured stop timeout elapsed.
+            // A successfully stopped receiver can be restarted but if the stop times out the receiver should
+            // be closed and a new receiver created if demand is present.
+            entry.getConsumer().stopAsync(new AMQPFederationAsyncCompletion<AMQPFederationConsumer>() {
+
+               @Override
+               public void onComplete(AMQPFederationConsumer context) {
+                  handleFederationConsumerStopped(consumer.getQueue(), entry, true);
+               }
+
+               @Override
+               public void onException(AMQPFederationConsumer context, Exception error) {
+                  logger.trace("Stop of federation consumer {} failed, closing consumer: ", context, error);
+                  handleFederationConsumerStopped(consumer.getQueue(), entry, false);
+               }
+            });
+         }
+      }
+   }
+
+   @Override
+   public synchronized void afterRemoveBinding(Binding binding, Transaction tx, boolean deleteData) throws ActiveMQException {
+      if (binding instanceof QueueBinding) {
+         final QueueBinding queueBinding = (QueueBinding) binding;
+         final String queueName = queueBinding.getQueue().getName().toString();
+
+         demandTracking.values().removeIf((entry) -> {
+            if (entry.getConsumerInfo().getQueueName().equals(queueName) && entry.removeAllDemand().hasConsumer()) {
+               logger.trace("Federated queue {} was removed, closing federation consumer", queueName);
+
+               // Demand is gone because the Queue binding is gone and any in-flight messages
+               // can be allowed to be released back to the remote as they will not be processed.
+               // We removed the consumer information from demand tracking to prevent build up
+               // of data for entries that may never return and to prevent interference from the
+               // next set of events which will be the close of all local consumers for this now
+               // removed Queue.
+               tryCloseFederationConsumer(entry.clearConsumer());
+
+               return true;
+            } else {
+               return false;
+            }
+         });
+      }
+   }
+
+   private synchronized void handleFederationConsumerStopped(Queue queue, AMQPFederationQueueEntry entry, boolean didStop) {
+      final AMQPFederationConsumer federationConsuner = entry.getConsumer();
+
+      // Remote close or local queue remove could have beaten us here and already cleaned up the consumer.
+      if (federationConsuner != null) {
+         // If the consumer has no demand or it didn't stop in time or some other error occurred we
+         // assume the worst and close it here, the follow on code will recreate or cleanup as needed.
+         if (!didStop || !entry.hasDemand()) {
+            tryCloseFederationConsumer(entry.clearConsumer());
+         }
+
+         // Demand may have returned while the consumer was stopping in which case
+         // we either restart an existing stopped consumer or recreate if the stop
+         // timed out and we closed it above. If there's still no demand then we
+         // should remove it from demand tracking to reduce resource consumption.
+         if (started && entry.hasDemand()) {
+            tryRestartFederationConsumerForQueue(entry, queue);
+         } else {
+            demandTracking.remove(entry.getConsumerInfo());
+         }
+      }
+   }
+
+   @Override
+   protected void scanAllBindings() {
+      server.getPostOffice()
+            .getAllBindings()
+            .filter(b -> b instanceof QueueBinding)
+            .map(b -> (QueueBinding) b)
+            .forEach(b -> checkQueueForMatch(b.getQueue()));
+   }
+
+   protected void checkQueueForMatch(Queue queue) {
+      queue.getConsumers()
+           .stream()
+           .filter(consumer -> consumer instanceof ServerConsumer)
+           .map(c -> (ServerConsumer) c)
+           .forEach(this::reactIfConsumerMatchesPolicy);
+   }
+
+   protected void reactIfConsumerMatchesPolicy(ServerConsumer consumer) {
+      final String queueName = consumer.getQueue().getName().toString();
+
+      if (testIfQueueMatchesPolicy(consumer.getQueueAddress().toString(), queueName)) {
+         // We should ignore federation consumers from remote peers but configuration does allow
+         // these to be federated again for some very specific use cases so we check before then
+         // moving onto any server plugin checks kick in.
+         if (federationConsumerMatcher.test(consumer)) {
+            return;
+         }
+
+         logger.trace("Federation Policy matched on consumer for binding: {}", consumer.getBinding());
+
+         final AMQPFederationQueueEntry entry;
+         final FederationConsumerInfo consumerInfo = createConsumerInfo(consumer);
+
+         // Check for existing consumer add demand from a additional local consumer to ensure
+         // the remote consumer remains active until all local demand is withdrawn.
+         if (demandTracking.containsKey(consumerInfo)) {
+            logger.trace("Federation Queue Policy manager found existing demand for queue: {}, adding demand", queueName);
+            entry = demandTracking.get(consumerInfo);
+         } else {
+            demandTracking.put(consumerInfo, entry = new AMQPFederationQueueEntry(consumerInfo));
+         }
+
+         // Demand passed all binding plugin blocking checks so we track it, plugin can still
+         // stop federation of the queue based on some external criteria but once it does
+         // (if ever) allow it we will have tracked all allowed demand.
+         entry.addDemand(consumer);
+
+         // This will create a new consumer only if there isn't one currently assigned to the entry
+         // and any configured federation plugins don't block it from doing so.
+         tryCreateFederationConsumerForQueue(entry, consumer.getQueue());
+      }
+   }
+
+   private void tryCreateFederationConsumerForQueue(AMQPFederationQueueEntry queueEntry, Queue queue) {
+      if (queueEntry.hasDemand()) {
+         if (!queueEntry.hasConsumer() && !isPluginBlockingFederationConsumerCreate(queue)) {
+            logger.trace("Federation Queue Policy manager creating remote consumer for queue: {}", queueEntry.getQueueName());
+
+            signalPluginBeforeCreateFederationConsumer(queueEntry.getConsumerInfo());
+
+            final AMQPFederationConsumer queueConsumer = createFederationConsumer(queueEntry.getConsumerInfo());
+
+            // Handle remote close with remove of consumer which means that future demand will
+            // attempt to create a new consumer for that demand. Ensure that thread safety is
+            // accounted for here as the notification can be asynchronous.
+            queueConsumer.setRemoteClosedHandler((closedConsumer) -> {
+               synchronized (AMQPFederationQueuePolicyManager.this) {
+                  try {
+                     final AMQPFederationQueueEntry tracked = demandTracking.get(closedConsumer.getConsumerInfo());
+
+                     if (tracked != null) {
+                        tracked.clearConsumer();
+                     }
+                  } finally {
+                     tryCloseFederationConsumer(closedConsumer);
+                  }
+               }
+            });
+
+            queueEntry.setConsumer(queueConsumer);
+
+            // Now that we are tracking it we can initialize it which will start it once
+            // the link has fully attached.
+            queueConsumer.initialize();
+
+            signalPluginAfterCreateFederationConsumer(queueConsumer);
+         }
+      }
+   }
+
+   private void tryRestartFederationConsumerForQueue(AMQPFederationQueueEntry entry, Queue queue) {
+      // There might be a consumer that was previously stopped due to demand having been
+      // removed in which case we can attempt to recover it with a simple restart but if
+      // that fails ensure the old consumer is closed and then attempt to recreate as we
+      // know there is demand currently.
+      if (entry.hasConsumer()) {
+         final AMQPFederationConsumer federationConsuner = entry.getConsumer();
+
+         try {
+            federationConsuner.startAsync(new AMQPFederationAsyncCompletion<AMQPFederationConsumer>() {
+
+               @Override
+               public void onComplete(AMQPFederationConsumer context) {
+                  logger.trace("Restarted federation consumer after new demand added." );
+               }
+
+               @Override
+               public void onException(AMQPFederationConsumer context, Exception error) {
+                  if (error instanceof IllegalStateException) {
+                     // The receiver might be stopping or it could be closed, either of which
+                     // was initiated from this manager so we can ignore and let those complete.
+                     return;
+                  } else {
+                     // This is unexpected and our reaction is to close the consumer since we
+                     // have no idea what its state is now. Later new demand or remote events
+                     // will trigger a new consumer to get added.
+                     logger.trace("Start of federation consumer {} threw unexpected error, closing consumer: ", context, error);
+                     tryCloseFederationConsumer(entry.clearConsumer());
+                  }
+               }
+            });
+         } catch (Exception ex) {
+            // The consumer might have been remotely closed, we can't be certain but since we
+            // are responding to demand having been added we will close it and clear the entry
+            // so that the follow on code can try and create a new one.
+            logger.trace("Caught error on attempted restart of existing federation consumer", ex);
+            tryCloseFederationConsumer(entry.clearConsumer());
+            tryCreateFederationConsumerForQueue(entry, queue);
+         }
+      } else {
+         tryCreateFederationConsumerForQueue(entry, queue);
+      }
+   }
+
+   /**
+    * Checks if the remote queue added falls within the set of queues that match the
+    * configured queue policy and if so scans for local demand on that queue to see
+    * if a new attempt to federate the queue is needed.
+    *
+    * @param addressName
+    *    The address that was added on the remote.
+    * @param queueName
+    *    The queue that was added on the remote.
+    *
+    * @throws Exception if an error occurs while processing the queue added event.
+    */
+   public synchronized void afterRemoteQueueAdded(String addressName, String queueName) throws Exception {
+      // We ignore the remote address as locally the policy can be a wild card match and we can
+      // try to federate based on the Queue only, if the remote rejects the federation consumer
+      // binding again the request will once more be recorded and we will get another event if
+      // the queue were recreated such that a match could be made. We retain all the current
+      // demand and don't need to re-check the server state before trying to create the
+      // remote queue consumer.
+      if (started && testIfQueueMatchesPolicy(queueName)) {
+         final Queue queue = server.locateQueue(queueName);
+
+         if (queue != null) {
+            demandTracking.forEach((k, v) -> {
+               if (k.getQueueName().equals(queueName)) {
+                  tryCreateFederationConsumerForQueue(v, queue);
+               }
+            });
+         }
+      }
+   }
+
+   /**
+    * Performs the test against the configured queue policy to check if the target
+    * queue and its associated address is a match or not. A subclass can override
+    * this method and provide its own match tests in combination with the configured
+    * matching policy.
+    *
+    * @param address
+    *    The address that is being tested for a policy match.
+    * @param queueName
+    *    The name of the queue that is being tested for a policy match.
+    *
+    * @return <code>true</code> if the address given is a match against the policy.
+    */
+   private boolean testIfQueueMatchesPolicy(String address, String queueName) {
+      return policy.test(address, queueName);
+   }
+
+   /**
+    * Performs the test against the configured queue policy to check if the target
+    * queue minus its associated address is a match or not. A subclass can override
+    * this method and provide its own match tests in combination with the configured
+    * matching policy.
+    *
+    * @param queueName
+    *    The name of the queue that is being tested for a policy match.
+    *
+    * @return <code>true</code> if the address given is a match against the policy.
+    */
+   private boolean testIfQueueMatchesPolicy(String queueName) {
+      return policy.testQueue(queueName);
+   }
+
+   /**
+    * Create a new {@link FederationConsumerInfo} based on the given {@link ServerConsumer}
+    * and the configured {@link FederationReceiveFromQueuePolicy}. A subclass must override this
+    * method to return a consumer information object with additional data used be that implementation.
+    *
+    * @param consumer
+    *    The {@link ServerConsumer} to use as a basis for the consumer information object.
+    *
+    * @return a new {@link FederationConsumerInfo} instance based on the server consumer
+    */
+   private FederationConsumerInfo createConsumerInfo(ServerConsumer consumer) {
       final Queue queue = consumer.getQueue();
       final String queueName = queue.getName().toString();
       final String address = queue.getAddress().toString();
@@ -94,7 +407,7 @@ public class AMQPFederationQueuePolicyManager extends FederationQueuePolicyManag
       final String filterString =
          selectFilter(queue.getFilter(), configuration.isIgnoreSubscriptionFilters() ? null : consumer.getFilter());
 
-      return new FederationGenericConsumerInfo(Role.QUEUE_CONSUMER,
+      return new AMQPFederationGenericConsumerInfo(Role.QUEUE_CONSUMER,
                                                address,
                                                queueName,
                                                queue.getRoutingType(),
@@ -104,7 +417,7 @@ public class AMQPFederationQueuePolicyManager extends FederationQueuePolicyManag
    }
 
    @Override
-   protected FederationConsumerInternal createFederationConsumer(FederationConsumerInfo consumerInfo) {
+   protected AMQPFederationConsumer createFederationConsumer(FederationConsumerInfo consumerInfo) {
       Objects.requireNonNull(consumerInfo, "Federation Queue consumer information object was null");
 
       if (logger.isTraceEnabled()) {
@@ -116,75 +429,41 @@ public class AMQPFederationQueuePolicyManager extends FederationQueuePolicyManag
       return new AMQPFederationQueueConsumer(this, configuration, session, consumerInfo, messageObserver);
    }
 
-   @Override
-   protected void signalBeforeCreateFederationConsumer(FederationConsumerInfo info) {
-      try {
-         server.callBrokerAMQPFederationPlugins((plugin) -> {
-            if (plugin instanceof ActiveMQServerAMQPFederationPlugin) {
-               ((ActiveMQServerAMQPFederationPlugin) plugin).beforeCreateFederationConsumer(info);
+   /**
+    * Creates a {@link Predicate} that should return true if the given consumer is a federation
+    * created consumer which should not be further federated.
+    *
+    * @param server
+    *    The server instance for use in creating the filtering {@link Predicate}.
+    * @param policy
+    *    The configured Queue matching policy that can provide additional match criteria.
+    *
+    * @return a {@link Predicate} that will return true if the consumer should be filtered.
+    *
+    * @throws ActiveMQException if an error occurs while creating the new consumer filter.
+    */
+   private Predicate<ServerConsumer> createFederationConsumerMatcher(ActiveMQServer server, FederationReceiveFromQueuePolicy policy) throws ActiveMQException {
+      if (policy.isIncludeFederated()) {
+         return (consumer) -> false; // Configuration says to federate these
+      } else {
+         // This filter matches on the same criteria as the original Core client based
+         // Federation code which allows this implementation to see those consumers as
+         // well as its own which in this methods implementation must also use this same
+         // mechanism to mark federation resources.
+
+         final Filter metaDataMatcher =
+            FilterImpl.createFilter("\"" + FEDERATION_NAME + "\" IS NOT NULL");
+
+         return (consumer) -> {
+            final ServerSession serverSession = server.getSessionByID(consumer.getSessionID());
+
+            if (serverSession != null && serverSession.getMetaData() != null) {
+               return metaDataMatcher.match(serverSession.getMetaData());
+            } else {
+               return false;
             }
-         });
-      } catch (ActiveMQException t) {
-         ActiveMQServerLogger.LOGGER.federationPluginExecutionError("beforeCreateFederationConsumer", t);
+         };
       }
-   }
-
-   @Override
-   protected void signalAfterCreateFederationConsumer(FederationConsumer consumer) {
-      try {
-         server.callBrokerAMQPFederationPlugins((plugin) -> {
-            if (plugin instanceof ActiveMQServerAMQPFederationPlugin) {
-               ((ActiveMQServerAMQPFederationPlugin) plugin).afterCreateFederationConsumer(consumer);
-            }
-         });
-      } catch (ActiveMQException t) {
-         ActiveMQServerLogger.LOGGER.federationPluginExecutionError("afterCreateFederationConsumer", t);
-      }
-   }
-
-   @Override
-   protected void signalBeforeCloseFederationConsumer(FederationConsumer consumer) {
-      try {
-         server.callBrokerAMQPFederationPlugins((plugin) -> {
-            if (plugin instanceof ActiveMQServerAMQPFederationPlugin) {
-               ((ActiveMQServerAMQPFederationPlugin) plugin).beforeCloseFederationConsumer(consumer);
-            }
-         });
-      } catch (ActiveMQException t) {
-         ActiveMQServerLogger.LOGGER.federationPluginExecutionError("beforeCloseFederationConsumer", t);
-      }
-   }
-
-   @Override
-   protected void signalAfterCloseFederationConsumer(FederationConsumer consumer) {
-      try {
-         server.callBrokerAMQPFederationPlugins((plugin) -> {
-            if (plugin instanceof ActiveMQServerAMQPFederationPlugin) {
-               ((ActiveMQServerAMQPFederationPlugin) plugin).afterCloseFederationConsumer(consumer);
-            }
-         });
-      } catch (ActiveMQException t) {
-         ActiveMQServerLogger.LOGGER.federationPluginExecutionError("afterCloseFederationConsumer", t);
-      }
-   }
-
-   @Override
-   protected final boolean isPluginBlockingFederationConsumerCreate(Queue queue) {
-      final AtomicBoolean canCreate = new AtomicBoolean(true);
-
-      try {
-         server.callBrokerAMQPFederationPlugins((plugin) -> {
-            if (plugin instanceof ActiveMQServerAMQPFederationPlugin) {
-               if (canCreate.get()) {
-                  canCreate.set(((ActiveMQServerAMQPFederationPlugin) plugin).shouldCreateFederationConsumerForQueue(queue));
-               }
-            }
-         });
-      } catch (ActiveMQException t) {
-         ActiveMQServerLogger.LOGGER.federationPluginExecutionError("shouldCreateFederationConsumerForQueue", t);
-      }
-
-      return !canCreate.get();
    }
 
    private static String selectFilter(Filter queueFilter, Filter consumerFilter) {

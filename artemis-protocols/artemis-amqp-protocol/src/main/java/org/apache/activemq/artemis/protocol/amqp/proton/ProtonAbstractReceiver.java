@@ -17,8 +17,13 @@
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Objects;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -40,39 +45,32 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   protected enum ReceiverState {
+      STARTED,
+      STOPPING,
+      STOPPED,
+      CLOSED
+   }
+
    protected final AMQPConnectionContext connection;
-
    protected final AMQPSessionContext protonSession;
-
    protected final Receiver receiver;
-
    protected final int minLargeMessageSize;
-
    protected final RoutingContext routingContext;
-
    protected final AMQPSessionCallback sessionSPI;
-
    // Cached instances used for this receiver which will be swapped as message of varying types
    // are sent to this receiver from the remote peer.
    protected final MessageReader standardMessageReader = new AMQPMessageReader(this);
-
    protected final MessageReader largeMessageReader = new AMQPLargeMessageReader(this);
+   protected final Runnable creditRunnable;
+   protected final boolean useModified;
+   protected final Runnable creditTopUpRunner = this::doCreditTopUpRun;
 
    protected volatile MessageReader messageReader;
-
-   protected final Runnable creditRunnable;
-
-   protected final boolean useModified;
-
    protected int pendingSettles = 0;
-
-   public static boolean isBellowThreshold(int credit, int pending, int threshold) {
-      return credit <= threshold - pending;
-   }
-
-   public static int calculatedUpdateRefill(int refill, int credits, int pending) {
-      return refill - credits - pending;
-   }
+   protected volatile ReceiverState state = ReceiverState.STARTED;
+   protected BiConsumer<ProtonAbstractReceiver, Boolean> pendingStop;
+   protected ScheduledFuture<?> pendingStopTimeout;
 
    public ProtonAbstractReceiver(AMQPSessionCallback sessionSPI,
                                  AMQPConnectionContext connection,
@@ -84,12 +82,114 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       this.receiver = receiver;
       this.minLargeMessageSize = getConfiguredMinLargeMessageSize(connection);
       this.creditRunnable = createCreditRunnable(connection);
-      useModified = this.connection.getProtocolManager().isUseModifiedForTransientDeliveryErrors();
+      this.useModified = this.connection.getProtocolManager().isUseModifiedForTransientDeliveryErrors();
       this.routingContext = new RoutingContextImpl(null).setDuplicateDetection(connection.getProtocolManager().isAmqpDuplicateDetection());
    }
 
    public AMQPSessionContext getSessionContext() {
       return protonSession;
+   }
+
+   /**
+    * Starts the receiver if not already started which triggers a flow of credit
+    * to the remote to begin the processing of incoming messages.  This must be
+    * called on the connection thread and will throw and exception if not.
+    *
+    * @throws IllegalStateException if not called from the connection thread or is closed or stopping.
+    */
+   public void start() {
+      connection.requireInHandler();
+
+      if (state == ReceiverState.CLOSED) {
+         throw new IllegalStateException("Cannot start a closed receiver");
+      }
+
+      if (state == ReceiverState.STOPPING) {
+         throw new IllegalStateException("Cannot start a receiver that is not yet stopped");
+      }
+
+      if (state == ReceiverState.STOPPED)  {
+         state = ReceiverState.STARTED;
+         topUpCreditIfNeeded();
+      }
+   }
+
+   /**
+    * Stop the receiver from granting additional credit and drains any granted credit
+    * from the link already. If any pending settles or queued message remain in the work
+    * queue then the stop occurs asynchronously and the stop callback is signaled later
+    * otherwise it will be triggered on the current thread to avoid state changes from
+    * making an asynchronous call invalid. The stop call allows a timeout to be specified
+    * which will signal the stopped consumer if the timeout elapses and leaves the receiver
+    * in the stopping state which does not allow for a restart.
+    *
+    * @param stopTimeout
+    *    A time in milliseconds to wait for the stop to complete before considering it as having failed.
+    * @param onStopped
+    *    A consumer that is signaled once the receiver has stopped or the timeout elapsed.
+    *
+    * @throws IllegalStateException if the receiver is currently in the stopping state.
+    */
+   public void stop(int stopTimeout, BiConsumer<ProtonAbstractReceiver, Boolean> onStopped) {
+      Objects.requireNonNull(onStopped, "The stopped callback must not be null");
+      connection.requireInHandler();
+
+      if (isStarted()) {
+         state = ReceiverState.STOPPING;
+         pendingStop = onStopped;
+         if (!checkIfPendingStopCanComplete()) {
+            if (receiver.getCredit() != 0) {
+               receiver.drain(0);
+            }
+
+            if (stopTimeout > 0) {
+               pendingStopTimeout = protonSession.getServer().getScheduledPool().schedule(() -> {
+                  connection.runNow(() -> signalStoppedCallback(false));
+               }, stopTimeout, TimeUnit.MILLISECONDS);
+            }
+         }
+      } else if (isStopped() || isClosed()) {
+         pendingStop = onStopped;
+         signalStoppedCallback(true);
+      } else {
+         throw new IllegalStateException("Receiver is currently in the process of stopping");
+      }
+   }
+
+   @Override
+   public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
+      state = ReceiverState.CLOSED;
+      protonSession.removeReceiver(receiver);
+      closeCurrentReader();
+      connection.runNow(() -> {
+         signalStoppedCallback(true);
+      });
+   }
+
+   @Override
+   public void close(ErrorCondition condition) throws ActiveMQAMQPException {
+      receiver.setCondition(condition);
+      close(false);
+   }
+
+   public AMQPConnectionContext getConnection() {
+      return connection;
+   }
+
+   public boolean isStarted() {
+      return state == ReceiverState.STARTED;
+   }
+
+   public boolean isStopping() {
+      return state == ReceiverState.STOPPING;
+   }
+
+   public boolean isStopped() {
+      return state == ReceiverState.STOPPED;
+   }
+
+   public boolean isClosed() {
+      return state == ReceiverState.CLOSED;
    }
 
    /** Set the proper operation context in the Thread Local.
@@ -158,36 +258,11 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    }
 
    /**
-    * This Credit Runnable can be used to manage the credit replenishment of a target AMQP receiver.
-    * <p>
-    * This method is generally used for tests as it does not account for the receiver context that is
-    * assigned to the given receiver instance which does not allow for tracking pending settles.
-    *
-    * @param refill
-    *       The number of credit to top off the receiver to
-    * @param threshold
-    *       The low water mark for credit before refill is done
-    * @param receiver
-    *       The proton receiver that will have its credit refilled
-    * @param connection
-    *       The connection that own the receiver
-    *
-    * @return A new Runnable that can be used to keep receiver credit replenished.
+    * This servers as the default credit runnable which grants credit in batches based on a
+    * low water mark and a configured credit size to top the credit up to once the low water
+    * mark has been reached.
     */
-   public static Runnable createCreditRunnable(int refill,
-                                               int threshold,
-                                               Receiver receiver,
-                                               AMQPConnectionContext connection) {
-      return new FlowControlRunner(refill, threshold, receiver, connection, null);
-   }
-
-   /**
-    * The reason why we use the AtomicRunnable here
-    * is because PagingManager will call Runnable in case it was blocked.
-    * however it could call many Runnable
-    *  and this serves as a control to avoid duplicated calls
-    * */
-   static class FlowControlRunner implements Runnable {
+   protected static class FlowControlRunner implements Runnable {
 
       /*
        * The number of credits sent to the remote when the runnable decides that a top off is needed.
@@ -204,6 +279,10 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       final ProtonAbstractReceiver context;
 
       FlowControlRunner(int refill, int threshold, Receiver receiver, AMQPConnectionContext connection, ProtonAbstractReceiver context) {
+         Objects.requireNonNull(receiver, "Given proton receiver cannot be null");
+         Objects.requireNonNull(connection, "Given connection context cannot be null");
+         Objects.requireNonNull(context, "Given receiver context cannot be null");
+
          this.refill = refill;
          this.threshold = threshold;
          this.receiver = receiver;
@@ -213,21 +292,23 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
 
       @Override
       public void run() {
-         if (!connection.isHandler()) {
-            // for the case where the paging manager is resuming flow due to blockage
-            // this should then move back to the connection thread.
-            connection.runLater(this);
-            return;
-         }
+         if (connection.isHandler()) {
+            connection.requireInHandler();
 
-         connection.requireInHandler();
-         int pending = context != null ? context.pendingSettles : 0;
-         if (isBellowThreshold(receiver.getCredit(), pending, threshold)) {
-            int topUp = calculatedUpdateRefill(refill, receiver.getCredit(), pending);
-            if (topUp > 0) {
-               receiver.flow(topUp);
-               connection.instantFlush();
+            if (context.isStarted()) {
+               final int pending = context.pendingSettles;
+
+               if (isBellowThreshold(receiver.getCredit(), pending, threshold)) {
+                  int topUp = calculatedUpdateRefill(refill, receiver.getCredit(), pending);
+                  if (topUp > 0) {
+                     receiver.flow(topUp);
+                     connection.instantFlush();
+                  }
+               }
             }
+         } else {
+            // This must run on the connection thread as it interacts with proton
+            connection.runLater(this);
          }
       }
    }
@@ -243,12 +324,31 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       pendingSettles--;
       assert pendingSettles >= 0;
       settlement.settle();
-      flow();
+      if (isStarted()) {
+         topUpCreditIfNeeded();
+      } else {
+         checkIfPendingStopCanComplete();
+      }
+   }
+
+   private boolean checkIfPendingStopCanComplete() {
+      if (isStopping() && pendingSettles == 0 && receiver.getQueued() == 0 && receiver.getCredit() == 0) {
+         state = ReceiverState.STOPPED;
+         signalStoppedCallback(true);
+
+         return true;
+      }
+
+      return false;
    }
 
    @Override
    public void onFlow(int credits, boolean drain) {
-      flow();
+      if (isStopping()) {
+         checkIfPendingStopCanComplete();
+      } else {
+         topUpCreditIfNeeded();
+      }
    }
 
    private void handleAbortedDelivery(Delivery delivery) {
@@ -261,9 +361,12 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       receiver.advance();
       delivery.settle();
 
-      // Replenish the credit if not doing a drain
-      if (!receiver.getDrain()) {
+      // Replenish the credit if not doing a drain and the receiver is still
+      // started and has not initiated a stop request or has been closed
+      if (!receiver.getDrain() && isStarted()) {
          receiver.flow(1);
+      } else {
+         checkIfPendingStopCanComplete();
       }
    }
 
@@ -341,8 +444,7 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       }
    }
 
-   public void onMessageComplete(Delivery delivery,
-                          Message message, DeliveryAnnotations deliveryAnnotations) {
+   public void onMessageComplete(Delivery delivery, Message message, DeliveryAnnotations deliveryAnnotations) {
       connection.requireInHandler();
 
       try {
@@ -366,12 +468,6 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       }
    }
 
-   @Override
-   public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
-      protonSession.removeReceiver(receiver);
-      closeCurrentReader();
-   }
-
    public void onExceptionWhileReading(Throwable e) {
       logger.warn(e.getMessage(), e);
       connection.runNow(() -> {
@@ -383,19 +479,81 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       });
    }
 
-   @Override
-   public void close(ErrorCondition condition) throws ActiveMQAMQPException {
-      receiver.setCondition(condition);
-      close(false);
-   }
+   /**
+    * Returns either the fixed address assigned to this sender, or the last address used by
+    * an anonymous relay sender. If this is an anonymous relay and no send has occurred then
+    * this method returns null.
+    *
+    * @return the assigned address or the last used address if any for anonymous relay senders.
+    */
+   protected abstract SimpleString getAddressInUse();
 
-   public AMQPConnectionContext getConnection() {
-      return connection;
-   }
-
+   /**
+    * Perform the actual message processing for an inbound message. The subclass either consumes and settles
+    * the message in place or hands it off to another intermediary who is responsible for eventually settling
+    * the newly read message.
+    *
+    * @param message
+    *    The message as provided from the remote or after local transformation by subclass.
+    * @param delivery
+    *    The proton delivery where the message bytes where read from
+    * @param deliveryAnnotations
+    *    The delivery annotations if present that accompanied the incoming message.
+    * @param receiver
+    *    The proton receiver that represents the link over which the message was sent.
+    * @param tx
+    *    The transaction under which the incoming message was sent.
+    */
    protected abstract void actualDelivery(Message message, Delivery delivery, DeliveryAnnotations deliveryAnnotations, Receiver receiver, Transaction tx);
 
-   // TODO: how to implement flow here?
-   public abstract void flow();
+   /**
+    * Final credit top up request API that will trigger a credit top up if the receiver is in
+    * a state where a grant of additional receiver credit is allowable.
+    */
+   protected final void topUpCreditIfNeeded() {
+      connection.requireInHandler();
+      // this will configure a flow control event to happen once after the event loop has completed
+      if (isStarted()) {
+         connection.afterFlush(creditTopUpRunner);
+      }
+   }
 
+   private void signalStoppedCallback(boolean stopped) {
+      if (pendingStopTimeout != null) {
+         pendingStopTimeout.cancel(false);
+         pendingStopTimeout = null;
+      }
+
+      if (pendingStop != null) {
+         try {
+            pendingStop.accept(this, stopped);
+         } catch (Exception e) {
+            logger.trace("Suppressed error from pending stop callback: ", e);
+         } finally {
+            pendingStop = null;
+         }
+      }
+   }
+
+   /**
+    * Performs the actual credit top up logic for the receiver.
+    *
+    * This can be overridden in the subclass to run its own logic for credit top
+    * up instead of using the default logic used in this abstract base.
+    */
+   protected void doCreditTopUpRun() {
+      connection.requireInHandler();
+      if (isStarted()) {
+         // Use the SessionSPI to allocate producer credits, or default, always allocate credit.
+         sessionSPI.flow(getAddressInUse(), creditRunnable);
+      }
+   }
+
+   public static boolean isBellowThreshold(int credit, int pending, int threshold) {
+      return credit <= threshold - pending;
+   }
+
+   public static int calculatedUpdateRefill(int refill, int credits, int pending) {
+      return refill - credits - pending;
+   }
 }

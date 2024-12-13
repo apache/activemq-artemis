@@ -29,17 +29,12 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.config.TransformerConfiguration;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
@@ -81,31 +76,17 @@ public class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
    public static final int DEFAULT_PENDING_MSG_CHECK_BACKOFF_MULTIPLIER = 2;
    public static final int DEFAULT_PENDING_MSG_CHECK_MAX_DELAY = 30;
 
-   // Sequence ID value used to keep links that would otherwise have the same name from overlapping
-   // this generally occurs when consumers on the same queue have differing filters.
-   private static final AtomicLong LINK_SEQUENCE_ID = new AtomicLong();
-
    private final AMQPFederationQueuePolicyManager manager;
    private final FederationReceiveFromQueuePolicy policy;
-   private final Transformer transformer;
-
-   private AMQPFederatedQueueDeliveryReceiver receiver;
 
    public AMQPFederationQueueConsumer(AMQPFederationQueuePolicyManager manager,
                                       AMQPFederationConsumerConfiguration configuration,
                                       AMQPSessionContext session, FederationConsumerInfo consumerInfo,
                                       BiConsumer<FederationConsumerInfo, Message> messageObserver) {
-      super(manager.getFederation(), configuration, session, consumerInfo, messageObserver);
+      super(manager.getFederation(), configuration, session, consumerInfo, manager.getPolicy(), messageObserver);
 
       this.manager = manager;
       this.policy = manager.getPolicy();
-
-      final TransformerConfiguration transformerConfiguration = policy.getTransformerConfiguration();
-      if (transformerConfiguration != null) {
-         this.transformer = federation.getServer().getServiceRegistry().getFederationTransformer(policy.getPolicyName(), transformerConfiguration);
-      } else {
-         this.transformer = (m) -> m;
-      }
    }
 
    /**
@@ -113,30 +94,6 @@ public class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
     */
    public FederationReceiveFromQueuePolicy getPolicy() {
       return policy;
-   }
-
-   private void signalBeforeFederationConsumerMessageHandled(Message message) throws ActiveMQException {
-      try {
-         federation.getServer().callBrokerAMQPFederationPlugins((plugin) -> {
-            if (plugin instanceof ActiveMQServerAMQPFederationPlugin) {
-               ((ActiveMQServerAMQPFederationPlugin) plugin).beforeFederationConsumerMessageHandled(this, message);
-            }
-         });
-      } catch (ActiveMQException t) {
-         ActiveMQServerLogger.LOGGER.federationPluginExecutionError("beforeFederationConsumerMessageHandled", t);
-      }
-   }
-
-   private void signalAfterFederationConsumerMessageHandled(Message message) throws ActiveMQException {
-      try {
-         federation.getServer().callBrokerAMQPFederationPlugins((plugin) -> {
-            if (plugin instanceof ActiveMQServerAMQPFederationPlugin) {
-               ((ActiveMQServerAMQPFederationPlugin) plugin).afterFederationConsumerMessageHandled(this, message);
-            }
-         });
-      } catch (ActiveMQException t) {
-         ActiveMQServerLogger.LOGGER.federationPluginExecutionError("afterFederationConsumerMessageHandled", t);
-      }
    }
 
    private String generateLinkName() {
@@ -147,147 +104,112 @@ public class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
    }
 
    @Override
-   protected void asyncCreateReceiver() {
-      connection.runLater(() -> {
-         if (closed) {
-            return;
+   protected void doCreateReceiver() {
+      try {
+         final Receiver protonReceiver = session.getSession().receiver(generateLinkName());
+         final Target target = new Target();
+         final Source source = new Source();
+         final String address = consumerInfo.getFqqn();
+         final Queue localQueue = federation.getServer().locateQueue(consumerInfo.getQueueName());
+
+         if (RoutingType.ANYCAST.equals(consumerInfo.getRoutingType())) {
+            source.setCapabilities(AmqpSupport.QUEUE_CAPABILITY);
+         } else {
+            source.setCapabilities(AmqpSupport.TOPIC_CAPABILITY);
          }
 
-         try {
-            final Receiver protonReceiver = session.getSession().receiver(generateLinkName());
-            final Target target = new Target();
-            final Source source = new Source();
-            final String address = consumerInfo.getFqqn();
-            final Queue localQueue = federation.getServer().locateQueue(consumerInfo.getQueueName());
+         source.setOutcomes(Arrays.copyOf(OUTCOMES, OUTCOMES.length));
+         source.setDefaultOutcome(DEFAULT_OUTCOME);
+         source.setDurable(TerminusDurability.NONE);
+         source.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
+         source.setAddress(address);
 
-            if (RoutingType.ANYCAST.equals(consumerInfo.getRoutingType())) {
-               source.setCapabilities(AmqpSupport.QUEUE_CAPABILITY);
-            } else {
-               source.setCapabilities(AmqpSupport.TOPIC_CAPABILITY);
-            }
+         if (consumerInfo.getFilterString() != null && !consumerInfo.getFilterString().isEmpty()) {
+            final AmqpJmsSelectorFilter jmsFilter = new AmqpJmsSelectorFilter(consumerInfo.getFilterString());
+            final Map<Symbol, Object> filtersMap = new HashMap<>();
+            filtersMap.put(AmqpSupport.JMS_SELECTOR_KEY, jmsFilter);
 
-            source.setOutcomes(Arrays.copyOf(OUTCOMES, OUTCOMES.length));
-            source.setDefaultOutcome(DEFAULT_OUTCOME);
-            source.setDurable(TerminusDurability.NONE);
-            source.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
-            source.setAddress(address);
+            source.setFilter(filtersMap);
+         }
 
-            if (consumerInfo.getFilterString() != null && !consumerInfo.getFilterString().isEmpty()) {
-               final AmqpJmsSelectorFilter jmsFilter = new AmqpJmsSelectorFilter(consumerInfo.getFilterString());
-               final Map<Symbol, Object> filtersMap = new HashMap<>();
-               filtersMap.put(AmqpSupport.JMS_SELECTOR_KEY, jmsFilter);
+         target.setAddress(address);
 
-               source.setFilter(filtersMap);
-            }
+         final Map<Symbol, Object> receiverProperties = new HashMap<>();
+         receiverProperties.put(FEDERATION_RECEIVER_PRIORITY, consumerInfo.getPriority());
 
-            target.setAddress(address);
+         protonReceiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
+         protonReceiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
+         protonReceiver.setDesiredCapabilities(new Symbol[] {FEDERATION_QUEUE_RECEIVER});
+         // If enabled offer core tunneling which we prefer to AMQP conversions of core as
+         // the large ones will be converted to standard AMQP messages in memory. When not
+         // offered the remote must not use core tunneling and AMQP conversion will be the
+         // fallback.
+         if (configuration.isCoreMessageTunnelingEnabled()) {
+            protonReceiver.setOfferedCapabilities(new Symbol[] {AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT});
+         }
+         protonReceiver.setProperties(receiverProperties);
+         protonReceiver.setTarget(target);
+         protonReceiver.setSource(source);
+         protonReceiver.open();
 
-            final Map<Symbol, Object> receiverProperties = new HashMap<>();
-            receiverProperties.put(FEDERATION_RECEIVER_PRIORITY, consumerInfo.getPriority());
+         final ScheduledFuture<?> openTimeoutTask;
+         final AtomicBoolean openTimedOut = new AtomicBoolean(false);
 
-            protonReceiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
-            protonReceiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
-            protonReceiver.setDesiredCapabilities(new Symbol[] {FEDERATION_QUEUE_RECEIVER});
-            // If enabled offer core tunneling which we prefer to AMQP conversions of core as
-            // the large ones will be converted to standard AMQP messages in memory. When not
-            // offered the remote must not use core tunneling and AMQP conversion will be the
-            // fallback.
-            if (configuration.isCoreMessageTunnelingEnabled()) {
-               protonReceiver.setOfferedCapabilities(new Symbol[] {AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT});
-            }
-            protonReceiver.setProperties(receiverProperties);
-            protonReceiver.setTarget(target);
-            protonReceiver.setSource(source);
-            protonReceiver.open();
+         if (configuration.getLinkAttachTimeout() > 0) {
+            openTimeoutTask = federation.getServer().getScheduledPool().schedule(() -> {
+               openTimedOut.set(true);
+               federation.signalResourceCreateError(ActiveMQAMQPProtocolMessageBundle.BUNDLE.brokerConnectionTimeout());
+            }, configuration.getLinkAttachTimeout(), TimeUnit.SECONDS);
+         } else {
+            openTimeoutTask = null;
+         }
 
-            final ScheduledFuture<?> openTimeoutTask;
-            final AtomicBoolean openTimedOut = new AtomicBoolean(false);
+         this.protonReceiver = protonReceiver;
 
-            if (configuration.getLinkAttachTimeout() > 0) {
-               openTimeoutTask = federation.getServer().getScheduledPool().schedule(() -> {
-                  openTimedOut.set(true);
-                  federation.signalResourceCreateError(ActiveMQAMQPProtocolMessageBundle.BUNDLE.brokerConnectionTimeout());
-               }, configuration.getLinkAttachTimeout(), TimeUnit.SECONDS);
-            } else {
-               openTimeoutTask = null;
-            }
-
-            this.protonReceiver = protonReceiver;
-
-            protonReceiver.attachments().set(AMQP_LINK_INITIALIZER_KEY, Runnable.class, () -> {
-               try {
-                  if (openTimeoutTask != null) {
-                     openTimeoutTask.cancel(false);
-                  }
-
-                  if (openTimedOut.get()) {
-                     return;
-                  }
-
-                  // Remote must support federation receivers otherwise we fail the connection unless the
-                  // Attach indicates that a detach is incoming in which case we just allow the normal handling
-                  // to occur.
-                  if (protonReceiver.getRemoteSource() != null && !AmqpSupport.verifyOfferedCapabilities(protonReceiver, FEDERATION_QUEUE_RECEIVER)) {
-                     federation.signalResourceCreateError(
-                        ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingOfferedCapability(FEDERATION_QUEUE_RECEIVER.toString()));
-                     return;
-                  }
-
-                  // Intercept remote close and check for valid reasons for remote closure such as
-                  // the remote peer not having a matching queue for this subscription or from an
-                  // operator manually closing the link.
-                  federation.addLinkClosedInterceptor(consumerInfo.getId(), remoteCloseInterceptor);
-
-                  receiver = new AMQPFederatedQueueDeliveryReceiver(localQueue, protonReceiver);
-
-                  if (protonReceiver.getRemoteSource() != null) {
-                     logger.debug("AMQP Federation {} queue consumer {} completed open", federation.getName(), consumerInfo);
-                  } else {
-                     logger.debug("AMQP Federation {} queue consumer {} rejected by remote", federation.getName(), consumerInfo);
-                  }
-
-                  session.addReceiver(protonReceiver, (session, protonRcvr) -> {
-                     return this.receiver;
-                  });
-               } catch (Exception e) {
-                  federation.signalError(e);
+         protonReceiver.attachments().set(AMQP_LINK_INITIALIZER_KEY, Runnable.class, () -> {
+            try {
+               if (openTimeoutTask != null) {
+                  openTimeoutTask.cancel(false);
                }
-            });
-         } catch (Exception e) {
-            federation.signalError(e);
-         }
 
-         connection.flush();
-      });
-   }
+               if (openTimedOut.get()) {
+                  return;
+               }
 
-   @Override
-   protected final void asyncCloseReceiver() {
-      connection.runLater(() -> {
-         federation.removeLinkClosedInterceptor(consumerInfo.getId());
+               // Remote must support federation receivers otherwise we fail the connection unless the
+               // Attach indicates that a detach is incoming in which case we just allow the normal handling
+               // to occur.
+               if (protonReceiver.getRemoteSource() != null && !AmqpSupport.verifyOfferedCapabilities(protonReceiver, FEDERATION_QUEUE_RECEIVER)) {
+                  federation.signalResourceCreateError(
+                     ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingOfferedCapability(FEDERATION_QUEUE_RECEIVER.toString()));
+                  return;
+               }
 
-         if (receiver != null) {
-            try {
-               receiver.close(false);
-            } catch (ActiveMQAMQPException e) {
-            } finally {
-               receiver = null;
+               // Intercept remote close and check for valid reasons for remote closure such as
+               // the remote peer not having a matching queue for this subscription or from an
+               // operator manually closing the link.
+               federation.addLinkClosedInterceptor(consumerInfo.getId(), remoteCloseInterceptor);
+
+               receiver = new AMQPFederatedQueueDeliveryReceiver(localQueue, protonReceiver);
+
+               if (protonReceiver.getRemoteSource() != null) {
+                  logger.debug("AMQP Federation {} queue consumer {} completed open", federation.getName(), consumerInfo);
+               } else {
+                  logger.debug("AMQP Federation {} queue consumer {} rejected by remote", federation.getName(), consumerInfo);
+               }
+
+               session.addReceiver(protonReceiver, (session, protonRcvr) -> {
+                  return this.receiver;
+               });
+            } catch (Exception e) {
+               federation.signalError(e);
             }
-         }
+         });
+      } catch (Exception e) {
+         federation.signalError(e);
+      }
 
-         // Need to track the proton receiver and close it here as the default
-         // context implementation doesn't do that and could result in no detach
-         // being sent in some cases and possible resources leaks.
-         if (protonReceiver != null) {
-            try {
-               protonReceiver.close();
-            } finally {
-               protonReceiver = null;
-            }
-         }
-
-         connection.flush();
-      });
+      connection.flush();
    }
 
    private static int caclulateNextDelay(int lastDelay, int backoffMultiplier, int maxDelay) {
@@ -401,7 +323,7 @@ public class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
             logger.debug("Error caught when trying to add federation queue consumer to management", e);
          }
 
-         flow();
+         topUpCreditIfNeeded();
       }
 
       @Override
@@ -432,9 +354,9 @@ public class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
                             transformer, message, theMessage);
             }
 
-            signalBeforeFederationConsumerMessageHandled(theMessage);
+            signalPluginBeforeFederationConsumerMessageHandled(theMessage);
             sessionSPI.serverSend(this, tx, receiver, delivery, cachedFqqn, routingContext, theMessage);
-            signalAfterFederationConsumerMessageHandled(theMessage);
+            signalPluginAfterFederationConsumerMessageHandled(theMessage);
          } catch (Exception e) {
             logger.warn("Inbound delivery for {} encountered an error: {}", consumerInfo, e.getMessage(), e);
             deliveryFailed(delivery, receiver, e);
@@ -509,8 +431,8 @@ public class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
       private void performCreditTopUp() {
          connection.requireInHandler();
 
-         if (receiver.getLocalState() != EndpointState.ACTIVE) {
-            return; // Closed before this was triggered.
+         if (!isStarted() || receiver.getLocalState() != EndpointState.ACTIVE) {
+            return; // Closed or stopped before this was triggered.
          }
 
          receiver.flow(configuration.getPullReceiverBatchSize());

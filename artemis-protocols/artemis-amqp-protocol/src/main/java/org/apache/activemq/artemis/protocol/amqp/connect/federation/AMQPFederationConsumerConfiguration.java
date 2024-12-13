@@ -24,6 +24,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.PULL_RECEIVER_BATCH_SIZE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -76,6 +77,17 @@ public final class AMQPFederationConsumerConfiguration {
          return Integer.parseInt((String) property);
       } else {
          return configuration.getReceiverCreditsLow();
+      }
+   }
+
+   public int getReceiverQuiesceTimeout() {
+      final Object property = properties.get(RECEIVER_QUIESCE_TIMEOUT);
+      if (property instanceof Number) {
+         return ((Number) property).intValue();
+      } else if (property instanceof String) {
+         return Integer.parseInt((String) property);
+      } else {
+         return configuration.getReceiverQuiesceTimeout();
       }
    }
 

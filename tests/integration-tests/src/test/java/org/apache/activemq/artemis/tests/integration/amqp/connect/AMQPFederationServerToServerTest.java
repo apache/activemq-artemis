@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.PULL_RECEIVER_BATCH_SIZE;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -24,7 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import javax.jms.BytesMessage;
@@ -54,7 +58,9 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
@@ -1383,5 +1389,102 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          assertNull(consumerR.receiveNoWait());
       }
    }
-}
 
+   @RepeatedTest(1)
+   @Timeout(20)
+   public void testQueueConsumerPullsMessagesAndRemovesDemandLeavingSomeOnRemoteAMQP() throws Exception {
+      doTestQueueConsumerPullsMessagesAndRemovesDemandLeavingSomeOnRemote("AMQP", 0);
+   }
+
+   @RepeatedTest(1)
+   @Timeout(20)
+   public void testQueueConsumerPullsMessagesAndRemovesDemandLeavingSomeOnRemoteAMQPWithPrefetch() throws Exception {
+      doTestQueueConsumerPullsMessagesAndRemovesDemandLeavingSomeOnRemote("AMQP", 1);
+   }
+
+   private void doTestQueueConsumerPullsMessagesAndRemovesDemandLeavingSomeOnRemote(String clientProtocol, int prefetch) throws Exception {
+      logger.info("Test started: {}", getTestName());
+
+      final AMQPFederationQueuePolicyElement localQueuePolicy = new AMQPFederationQueuePolicyElement();
+      localQueuePolicy.setName("test-policy");
+      localQueuePolicy.addToIncludes(getTestName(), getTestName());
+      localQueuePolicy.addProperty(RECEIVER_CREDITS, 0);         // Enable Pull mode
+      localQueuePolicy.addProperty(PULL_RECEIVER_BATCH_SIZE, 1); // Pull mode batch is one
+
+      final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+      element.setName(getTestName());
+      element.addLocalQueuePolicy(localQueuePolicy);
+
+      final AMQPBrokerConnectConfiguration amqpConnection =
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
+      amqpConnection.setReconnectAttempts(10);// Limit reconnects
+      amqpConnection.addElement(element);
+
+      server.getConfiguration().addAMQPConnection(amqpConnection);
+      remoteServer.start();
+      remoteServer.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.ANYCAST)
+                                                                   .setAddress(getTestName())
+                                                                   .setAutoCreated(false));
+      server.start();
+
+      final int MESSAGE_COUNT = 20;
+      final int REMAINING_COUNT = MESSAGE_COUNT / 2;
+      final List<Message> messages = new ArrayList<>();
+
+      final JmsConnectionFactory factoryRemote = new JmsConnectionFactory("amqp://localhost:" + SERVER_PORT_REMOTE);
+
+      try (Connection connectionR = factoryRemote.createConnection();
+           Session sessionR = connectionR.createSession(Session.AUTO_ACKNOWLEDGE)) {
+
+         final Queue queue = sessionR.createQueue(getTestName());
+         final MessageProducer producer = sessionR.createProducer(queue);
+
+         for (int i = 0; i < MESSAGE_COUNT; ++i) {
+            TextMessage message = sessionR.createTextMessage("test-message:" + i);
+
+            message.setIntProperty("messageNo", i);
+
+            producer.send(message);
+         }
+      }
+
+      // Consume half the messages on the
+      final JmsConnectionFactory factoryLocal = new JmsConnectionFactory(
+         "amqp://localhost:" + SERVER_PORT + "?jms.prefetchPolicy.all=" + prefetch);
+
+      try (Connection connectionL = factoryLocal.createConnection();
+           Session sessionL = connectionL.createSession(Session.AUTO_ACKNOWLEDGE)) {
+
+         connectionL.start();
+
+         final Queue queue = sessionL.createQueue(getTestName());
+         final MessageConsumer consumer = sessionL.createConsumer(queue);
+
+         for (int i = 0; i < REMAINING_COUNT; ++i) {
+            Message received = consumer.receive(5_000);
+            assertNotNull(received);
+            messages.add(received);
+
+            logger.info("Read new message #{} federated from remote: ", i);
+         }
+
+         consumer.close();
+      }
+
+      assertEquals(REMAINING_COUNT, messages.size());
+
+      Wait.assertTrue(() -> server.queueQuery(SimpleString.of(getTestName())).isExists(), 10_000);
+      Wait.assertTrue(() -> remoteServer.queueQuery(SimpleString.of(getTestName())).isExists(), 10_000);
+
+      final org.apache.activemq.artemis.core.server.Queue queueL = server.locateQueue(getTestName());
+      final org.apache.activemq.artemis.core.server.Queue queueR = remoteServer.locateQueue(getTestName());
+
+      assertNotNull(queueL);
+      assertNotNull(queueR);
+
+      // Will tell you counts are off which indicates a message was left on the remote meaning it
+      // is now a duplicate and will be federated in error if this consumer attached again.
+      final long pendingMessages = queueL.getMessageCount() + queueR.getMessageCount();
+      assertEquals(REMAINING_COUNT, pendingMessages);
+   }
+}

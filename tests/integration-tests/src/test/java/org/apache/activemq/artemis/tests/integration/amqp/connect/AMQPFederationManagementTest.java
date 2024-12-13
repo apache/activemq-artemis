@@ -358,6 +358,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
             assertEquals(1, addressPolicyControl.getMessagesReceived());
             assertEquals(1, consumerControl.getMessagesReceived());
 
+            peer.expectFlow().withLinkCredit(999).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             peer.expectDetach().respond(); // demand will be gone and receiver link should close.
          }
 
@@ -410,6 +413,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
             assertEquals(2, addressPolicyControl.getMessagesReceived());
             assertEquals(1, consumerControl.getMessagesReceived());
 
+            peer.expectFlow().withLinkCredit(999).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             peer.expectDetach().respond(); // demand will be gone and receiver link should close.
          }
 
@@ -497,6 +503,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
             assertEquals(1, queuePolicyControl.getMessagesReceived());
             assertEquals(1, consumerControl.getMessagesReceived());
 
+            peer.expectFlow().withLinkCredit(999).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             peer.expectDetach().respond(); // demand will be gone and receiver link should close.
          }
 
@@ -549,6 +558,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
             assertEquals(2, queuePolicyControl.getMessagesReceived());
             assertEquals(1, consumerControl.getMessagesReceived());
 
+            peer.expectFlow().withLinkCredit(999).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             peer.expectDetach().respond(); // demand will be gone and receiver link should close.
          }
 

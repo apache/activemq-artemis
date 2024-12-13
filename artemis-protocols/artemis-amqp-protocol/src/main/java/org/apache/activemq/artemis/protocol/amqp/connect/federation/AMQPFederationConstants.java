@@ -294,4 +294,11 @@ public final class AMQPFederationConstants {
     */
    public static final String REQUESTED_ADDRESS_NAME = "REQUESTED_ADDRESS_NAME";
 
+   /**
+    * When a federation receiver link is being closed due to removal of local demand this timeout
+    * value enforces a maximum wait for drain and processing of in-flight messages before the link
+    * is forcibly terminated with the assumption that the remote is no longer responding.
+    */
+   public static final String RECEIVER_QUIESCE_TIMEOUT = "receiverQuiesceTimeout";
+
 }

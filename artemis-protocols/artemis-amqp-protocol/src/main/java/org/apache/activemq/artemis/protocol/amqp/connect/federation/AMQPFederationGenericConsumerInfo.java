@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.protocol.amqp.federation.internal;
+package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
  * queues and addresses. Instances of this class should be usable in Collections
  * classes where equality and hashing support is needed.
  */
-public class FederationGenericConsumerInfo implements FederationConsumerInfo {
+public class AMQPFederationGenericConsumerInfo implements FederationConsumerInfo {
 
    public static final String FEDERATED_QUEUE_PREFIX = "federated";
    public static final String QUEUE_NAME_FORMAT_STRING = "${address}::${routeType}";
@@ -46,7 +46,7 @@ public class FederationGenericConsumerInfo implements FederationConsumerInfo {
    private final int priority;
    private final String id;
 
-   public FederationGenericConsumerInfo(Role role, String address, String queueName, RoutingType routingType,
+   public AMQPFederationGenericConsumerInfo(Role role, String address, String queueName, RoutingType routingType,
                                         String filterString, String fqqn, int priority) {
       this.role = role;
       this.address = address;
@@ -76,8 +76,8 @@ public class FederationGenericConsumerInfo implements FederationConsumerInfo {
     *
     * @return a newly created and configured {@link FederationConsumerInfo} instance.
     */
-   public static FederationGenericConsumerInfo build(String address, String queueName, RoutingType routingType, String filterString, Federation federation, FederationReceiveFromAddressPolicy policy) {
-      return new FederationGenericConsumerInfo(Role.ADDRESS_CONSUMER,
+   public static AMQPFederationGenericConsumerInfo build(String address, String queueName, RoutingType routingType, String filterString, Federation federation, FederationReceiveFromAddressPolicy policy) {
+      return new AMQPFederationGenericConsumerInfo(Role.ADDRESS_CONSUMER,
                                                address,
                                                queueName,
                                                routingType,
@@ -132,11 +132,11 @@ public class FederationGenericConsumerInfo implements FederationConsumerInfo {
          return true;
       }
 
-      if (!(o instanceof FederationGenericConsumerInfo)) {
+      if (!(o instanceof AMQPFederationGenericConsumerInfo)) {
          return false;
       }
 
-      final FederationGenericConsumerInfo that = (FederationGenericConsumerInfo) o;
+      final AMQPFederationGenericConsumerInfo that = (AMQPFederationGenericConsumerInfo) o;
 
       return role == that.role &&
              priority == that.priority &&

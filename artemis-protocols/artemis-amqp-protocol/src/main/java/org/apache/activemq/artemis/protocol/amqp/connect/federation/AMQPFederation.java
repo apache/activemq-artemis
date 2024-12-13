@@ -32,9 +32,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.protocol.amqp.federation.Federation;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromAddressPolicy;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromQueuePolicy;
-import org.apache.activemq.artemis.protocol.amqp.federation.internal.FederationInternal;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.qpid.proton.engine.Link;
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * used on a remote peer to control the reverse case of when the remote configures the
  * target side of the connection.
  */
-public abstract class AMQPFederation implements FederationInternal {
+public abstract class AMQPFederation implements Federation {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -139,7 +139,11 @@ public abstract class AMQPFederation implements FederationInternal {
     */
    public abstract AMQPFederationConfiguration getConfiguration();
 
-   @Override
+   /**
+    * Starts this federation instance if not already started.
+    *
+    * @throws ActiveMQException if an error occurs during the start process.
+    */
    public final synchronized void start() throws ActiveMQException {
       if (!started) {
          handleFederationStarted();
@@ -148,7 +152,12 @@ public abstract class AMQPFederation implements FederationInternal {
       }
    }
 
-   @Override
+   /**
+    * Stops this federation instance and shuts down all remote resources that
+    * the federation currently has open and active.
+    *
+    * @throws ActiveMQException if an error occurs during the stop process.
+    */
    public final synchronized void stop() throws ActiveMQException {
       if (started) {
          handleFederationStopped();
