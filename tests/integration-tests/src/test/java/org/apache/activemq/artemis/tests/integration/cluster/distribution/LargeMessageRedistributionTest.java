@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class LargeMessageRedistributionTest extends MessageRedistributionTest {
@@ -99,5 +100,13 @@ public class LargeMessageRedistributionTest extends MessageRedistributionTest {
 
       Wait.assertEquals(5, () -> getServer(0).getConfiguration().getLargeMessagesLocation().listFiles().length);
       Wait.assertEquals(numMessages, () -> getServer(0).getConfiguration().getLargeMessagesLocation().listFiles().length);
+   }
+
+
+   @Test
+   @Disabled
+   @Override
+   public void testRedistributionWhenConsumerIsClosedConsumersWithFilters() {
+      // this test wasn't designed for large messages
    }
 }
