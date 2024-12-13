@@ -28,6 +28,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
@@ -109,7 +110,7 @@ public class AMQPFederationEventProcessor extends ProtonAbstractReceiver {
       // Inform the federation that there is an event processor in play.
       federation.registerEventReceiver(this);
 
-      flow();
+      topUpCreditIfNeeded();
    }
 
    @Override
@@ -148,7 +149,7 @@ public class AMQPFederationEventProcessor extends ProtonAbstractReceiver {
          delivery.disposition(Accepted.getInstance());
          delivery.settle();
 
-         flow();
+         topUpCreditIfNeeded();
 
          connection.flush();
       } catch (Throwable e) {
@@ -167,7 +168,12 @@ public class AMQPFederationEventProcessor extends ProtonAbstractReceiver {
    }
 
    @Override
-   public void flow() {
+   protected void doCreditTopUpRun() {
       creditRunnable.run();
+   }
+
+   @Override
+   protected SimpleString getAddressInUse() {
+      return SimpleString.of(receiver.getName());
    }
 }

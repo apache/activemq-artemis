@@ -22,6 +22,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.PULL_RECEIVER_BATCH_SIZE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_FILTERS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
 
@@ -65,14 +66,21 @@ public final class AMQPFederationConfiguration {
     * the filter specified by a consumer subscription is used or if the higher level queue
     * filter only is applied when creating a federation queue consumer.
     */
-   private static final boolean DEFAULT_IGNNORE_QUEUE_CONSUMER_FILTERS = false;
+   public static final boolean DEFAULT_IGNNORE_QUEUE_CONSUMER_FILTERS = false;
 
    /**
     * Default value for the priority applied to federation queue consumers that controls if
     * the priority specified by a consumer subscription is used or if the policy priority
     * offset value is simply applied to the default consumer priority value.
     */
-   private static final boolean DEFAULT_IGNNORE_QUEUE_CONSUMER_PRIORITIES = false;
+   public static final boolean DEFAULT_IGNNORE_QUEUE_CONSUMER_PRIORITIES = false;
+
+   /**
+    * Default timeout (milliseconds) applied to federation receivers that are being closed due to removal
+    * of local demand and need to drain link credit and process any in-flight deliveries before closure.
+    * If the timeout elapses before the link has quiesced the link is forcibly closed.
+    */
+   public static final int DEFAULT_RECEIVER_QUIESCE_TIMEOUT = 60_000;
 
    private final Map<String, Object> properties;
    private final AMQPConnectionContext connection;
@@ -147,7 +155,7 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
-    * @return the size in bytes of an incoming message after which the {@link Receiver} treats it as large.
+    * @return the timeout value to use when waiting for a corresponding link attach from the remote.
     */
    public int getLinkAttachTimeout() {
       final Object property = properties.get(LINK_ATTACH_TIMEOUT);
@@ -203,6 +211,20 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
+    * @return the receive quiesce timeout when shutting down a {@link Receiver} when local demand is removed.
+    */
+   public int getReceiverQuiesceTimeout() {
+      final Object property = properties.get(RECEIVER_QUIESCE_TIMEOUT);
+      if (property instanceof Number) {
+         return ((Number) property).intValue();
+      } else if (property instanceof String) {
+         return Integer.parseInt((String) property);
+      } else {
+         return DEFAULT_RECEIVER_QUIESCE_TIMEOUT;
+      }
+   }
+
+   /**
     * Enumerate the configuration options in this configuration object and return a {@link Map} that
     * contains the values which can be sent to a remote peer
     *
@@ -213,6 +235,7 @@ public final class AMQPFederationConfiguration {
 
       configMap.put(RECEIVER_CREDITS, getReceiverCredits());
       configMap.put(RECEIVER_CREDITS_LOW, getReceiverCreditsLow());
+      configMap.put(RECEIVER_QUIESCE_TIMEOUT, getReceiverQuiesceTimeout());
       configMap.put(PULL_RECEIVER_BATCH_SIZE, getPullReceiverBatchSize());
       configMap.put(LARGE_MESSAGE_THRESHOLD, getLargeMessageThreshold());
       configMap.put(LINK_ATTACH_TIMEOUT, getLinkAttachTimeout());

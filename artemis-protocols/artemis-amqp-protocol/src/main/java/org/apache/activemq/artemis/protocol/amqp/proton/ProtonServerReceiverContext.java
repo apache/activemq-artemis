@@ -66,9 +66,6 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
    protected SimpleString lastAddress;
    protected AddressFullMessagePolicy lastAddressPolicy;
    protected boolean addressAlreadyClashed = false;
-
-   protected final Runnable spiFlow = this::sessionSPIFlow;
-
    protected RoutingType defRoutingType;
 
    public ProtonServerReceiverContext(AMQPSessionCallback sessionSPI,
@@ -150,7 +147,12 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
          }
       }
 
-      flow();
+      topUpCreditIfNeeded();
+   }
+
+   @Override
+   protected SimpleString getAddressInUse() {
+      return address != null ? address : lastAddress;
    }
 
    public RoutingType getDefRoutingType() {
@@ -162,7 +164,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
       return target != null ? getRoutingType(target.getCapabilities(), address) : getRoutingType((Symbol[]) null, address);
    }
 
-   protected RoutingType getRoutingType(Symbol[] symbols, SimpleString address) {
+   protected final RoutingType getRoutingType(Symbol[] symbols, SimpleString address) {
       RoutingType explicitRoutingType = getExplicitRoutingType(symbols);
       if (explicitRoutingType != null) {
          return explicitRoutingType;
@@ -176,27 +178,9 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
          if (addressInfo != null && addressInfo.getRoutingTypes().size() == 1) {
             return addressInfo.getRoutingType();
          } else {
-            return getDefaultRoutingType(address);
+            return getDefaultRoutingType(sessionSPI, address);
          }
       }
-   }
-
-   private RoutingType getDefaultRoutingType(SimpleString address) {
-      RoutingType defaultRoutingType = sessionSPI.getRoutingTypeFromPrefix(address, sessionSPI.getDefaultRoutingType(address));
-      return defaultRoutingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : defaultRoutingType;
-   }
-
-   private RoutingType getExplicitRoutingType(Symbol[] symbols) {
-      if (symbols != null) {
-         for (Symbol symbol : symbols) {
-            if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
-               return RoutingType.MULTICAST;
-            } else if (AmqpSupport.TEMP_QUEUE_CAPABILITY.equals(symbol) || AmqpSupport.QUEUE_CAPABILITY.equals(symbol)) {
-               return RoutingType.ANYCAST;
-            }
-         }
-      }
-      return null;
    }
 
    @Override
@@ -235,16 +219,32 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
 
    public void deliveryFailed(Delivery delivery, Receiver receiver, Exception e) {
       connection.runNow(() -> {
-         DeliveryState deliveryState = determineDeliveryState(((Source) receiver.getSource()),
-                                                              useModified,
-                                                              e);
-         delivery.disposition(deliveryState);
+         delivery.disposition(determineDeliveryState(((Source) receiver.getSource()), useModified, e));
          settle(delivery);
          connection.flush();
       });
    }
 
-   private DeliveryState determineDeliveryState(final Source source, final boolean useModified, final Exception e) {
+   @Override
+   public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
+      super.close(remoteLinkClose);
+      sessionSPI.removeProducer(receiver.getName());
+      org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
+      if (target != null && target.getDynamic() && (target.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || target.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
+         try {
+            sessionSPI.removeTemporaryQueue(SimpleString.of(target.getAddress()));
+         } catch (Exception e) {
+            // Ignored as the temporary resource will be auto removed later.
+         }
+      }
+   }
+
+   private static RoutingType getDefaultRoutingType(AMQPSessionCallback sessionSPI, SimpleString address) {
+      RoutingType defaultRoutingType = sessionSPI.getRoutingTypeFromPrefix(address, sessionSPI.getDefaultRoutingType(address));
+      return defaultRoutingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : defaultRoutingType;
+   }
+
+   private static DeliveryState determineDeliveryState(final Source source, final boolean useModified, final Exception e) {
       Outcome defaultOutcome = getEffectiveDefaultOutcome(source);
 
       if (isAddressFull(e) && useModified &&
@@ -266,14 +266,22 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
       }
    }
 
-   private boolean isAddressFull(final Exception e) {
-      return e instanceof ActiveMQException && ActiveMQExceptionType.ADDRESS_FULL.equals(((ActiveMQException) e).getType());
+   private static RoutingType getExplicitRoutingType(Symbol[] symbols) {
+      if (symbols != null) {
+         for (Symbol symbol : symbols) {
+            if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
+               return RoutingType.MULTICAST;
+            } else if (AmqpSupport.TEMP_QUEUE_CAPABILITY.equals(symbol) || AmqpSupport.QUEUE_CAPABILITY.equals(symbol)) {
+               return RoutingType.ANYCAST;
+            }
+         }
+      }
+      return null;
    }
 
-   private Rejected createRejected(final Exception e) {
+   private static Rejected createRejected(final Exception e) {
       ErrorCondition condition = new ErrorCondition();
 
-      // Set condition
       if (e instanceof ActiveMQSecurityException) {
          condition.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
       } else if (isAddressFull(e)) {
@@ -285,62 +293,22 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
 
       Rejected rejected = new Rejected();
       rejected.setError(condition);
+
       return rejected;
    }
 
-   @Override
-   public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
-      super.close(remoteLinkClose);
-      sessionSPI.removeProducer(receiver.getName());
-      org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
-      if (target != null && target.getDynamic() && (target.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || target.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
-         try {
-            sessionSPI.removeTemporaryQueue(SimpleString.of(target.getAddress()));
-         } catch (Exception e) {
-            //ignore on close, its temp anyway and will be removed later
-         }
-      }
+   private static boolean isAddressFull(final Exception e) {
+      return e instanceof ActiveMQException && ActiveMQExceptionType.ADDRESS_FULL.equals(((ActiveMQException) e).getType());
    }
 
-   @Override
-   public void flow() {
-      // this will mark flow control to happen once after the event loop
-      connection.afterFlush(spiFlow);
-   }
-
-   protected void sessionSPIFlow() {
-      connection.requireInHandler();
-      // Use the SessionSPI to allocate producer credits, or default, always allocate credit.
-      if (sessionSPI != null) {
-         sessionSPI.flow(address != null ? address : lastAddress, creditRunnable);
-      } else {
-         creditRunnable.run();
-      }
-   }
-
-   public void drain(int credits) {
-      connection.runNow(() -> {
-         receiver.drain(credits);
-         connection.flush();
-      });
-   }
-
-   public int drained() {
-      return receiver.drained();
-   }
-
-   public boolean isDraining() {
-      return receiver.draining();
-   }
-
-   private boolean outcomeSupported(final Source source, final Symbol outcome) {
+   private static boolean outcomeSupported(final Source source, final Symbol outcome) {
       if (source != null && source.getOutcomes() != null) {
          return Arrays.asList(( source).getOutcomes()).contains(outcome);
       }
       return false;
    }
 
-   private Outcome getEffectiveDefaultOutcome(final Source source) {
+   private static Outcome getEffectiveDefaultOutcome(final Source source) {
       return (source.getOutcomes() == null || source.getOutcomes().length == 0) ? source.getDefaultOutcome() : null;
    }
 }

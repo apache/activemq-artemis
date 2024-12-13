@@ -751,7 +751,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
                            }
 
-                           flow();
+                           topUpCreditIfNeeded();
                         }
                      };
                   });
@@ -1018,15 +1018,18 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    }
 
    private void redoConnection() {
-
       // avoiding retro-feeding an error call from the close after anything else that happened.
-      if (protonRemotingConnection != null) {
-         protonRemotingConnection.getAmqpConnection().clearLinkRemoteCloseListeners();
+      final ActiveMQProtonRemotingConnection remotingConnection = this.protonRemotingConnection;
+
+      if (remotingConnection != null) {
+         remotingConnection.getAmqpConnection().clearLinkRemoteCloseListeners();
       }
 
-      if (brokerFederation != null) {
+      final AMQPFederationSource federation = this.brokerFederation;
+
+      if (federation != null) {
          try {
-            brokerFederation.handleConnectionDropped();
+            federation.handleConnectionDropped();
          } catch (ActiveMQException e) {
             logger.debug("Broker Federation on connection {} threw an error on stop before connection attempt", getName());
          }

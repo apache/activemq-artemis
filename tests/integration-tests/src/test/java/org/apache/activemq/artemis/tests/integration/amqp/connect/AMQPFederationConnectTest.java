@@ -43,6 +43,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_PRIORITY_ADJUSTMENT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_FILTERS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -234,6 +235,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       final int AMQP_MIN_LARGE_MESSAGE_SIZE = 10_000;
       final int AMQP_CREDITS = 100;
       final int AMQP_CREDITS_LOW = 50;
+      final int AMQP_RECEIVER_QUIESCE_TIMEOUT = 10_000;
       final int AMQP_PULL_CREDITS_BATCH = 50;
       final int AMQP_LINK_ATTACH_TIMEOUT = 60;
       final boolean AMQP_TUNNEL_CORE_MESSAGES = false;
@@ -243,6 +245,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       final Map<String, Object> federationConfiguration = new HashMap<>();
       federationConfiguration.put(RECEIVER_CREDITS, AMQP_CREDITS);
       federationConfiguration.put(RECEIVER_CREDITS_LOW, AMQP_CREDITS_LOW);
+      federationConfiguration.put(RECEIVER_QUIESCE_TIMEOUT, AMQP_RECEIVER_QUIESCE_TIMEOUT);
       federationConfiguration.put(PULL_RECEIVER_BATCH_SIZE, AMQP_PULL_CREDITS_BATCH);
       federationConfiguration.put(LARGE_MESSAGE_THRESHOLD, AMQP_MIN_LARGE_MESSAGE_SIZE);
       federationConfiguration.put(LINK_ATTACH_TIMEOUT, AMQP_LINK_ATTACH_TIMEOUT);
@@ -281,6 +284,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          federation.addProperty(LINK_ATTACH_TIMEOUT, AMQP_LINK_ATTACH_TIMEOUT);
          federation.addProperty(AmqpSupport.TUNNEL_CORE_MESSAGES, Boolean.toString(AMQP_TUNNEL_CORE_MESSAGES));
          federation.addProperty(PULL_RECEIVER_BATCH_SIZE, AMQP_PULL_CREDITS_BATCH);
+         federation.addProperty(RECEIVER_QUIESCE_TIMEOUT, AMQP_RECEIVER_QUIESCE_TIMEOUT);
          amqpConnection.addElement(federation);
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();

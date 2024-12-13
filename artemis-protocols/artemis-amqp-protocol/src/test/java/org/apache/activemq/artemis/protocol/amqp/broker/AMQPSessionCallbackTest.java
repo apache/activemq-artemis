@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
+import org.apache.activemq.artemis.protocol.amqp.proton.ProtonAbstractReceiver;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.qpid.proton.engine.Receiver;
@@ -86,11 +87,13 @@ public class AMQPSessionCallbackTest {
       // Capture credit runnable and invoke to trigger credit top off
       ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
       AMQPSessionCallback session = new AMQPSessionCallback(protonSPI, manager, connection, transportConnection, executor, operationContext);
+      ProtonAbstractReceiver context = Mockito.mock(ProtonAbstractReceiver.class);
 
       // Credit is above threshold
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT + 1);
+      Mockito.when(context.isStarted()).thenReturn(true);
 
-      session.flow(null, ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
+      session.flow(null, ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection, context));
 
       // Run the credit refill code.
       Mockito.verify(pagingManager).checkMemory(argument.capture());
@@ -116,11 +119,13 @@ public class AMQPSessionCallbackTest {
       // Capture credit runnable and invoke to trigger credit top off
       ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
       AMQPSessionCallback session = new AMQPSessionCallback(protonSPI, manager, connection, transportConnection, executor, operationContext);
+      ProtonAbstractReceiver context = Mockito.mock(ProtonAbstractReceiver.class);
 
       // Credit is at threshold
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT);
+      Mockito.when(context.isStarted()).thenReturn(true);
 
-      session.flow(null, ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
+      session.flow(null, ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection, context));
 
       // Run the credit refill code.
       Mockito.verify(pagingManager).checkMemory(argument.capture());
@@ -147,11 +152,13 @@ public class AMQPSessionCallbackTest {
       // Capture credit runnable and invoke to trigger credit top off
       ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
       AMQPSessionCallback session = new AMQPSessionCallback(protonSPI, manager, connection, transportConnection, executor, operationContext);
+      ProtonAbstractReceiver context = Mockito.mock(ProtonAbstractReceiver.class);
 
       // Credit is above threshold
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT + 1);
+      Mockito.when(context.isStarted()).thenReturn(true);
 
-      session.flow(SimpleString.of("test"), ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
+      session.flow(SimpleString.of("test"), ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection, context));
 
       // Run the credit refill code.
       Mockito.verify(pagingStore).checkMemory(argument.capture(), Mockito.isA(Consumer.class));
@@ -178,11 +185,13 @@ public class AMQPSessionCallbackTest {
       // Capture credit runnable and invoke to trigger credit top off
       ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
       AMQPSessionCallback session = new AMQPSessionCallback(protonSPI, manager, connection, transportConnection, executor, operationContext);
+      ProtonAbstractReceiver context = Mockito.mock(ProtonAbstractReceiver.class);
 
       // Credit is at threshold
+      Mockito.when(context.isStarted()).thenReturn(true);
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT);
 
-      session.flow(SimpleString.of("test"), ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
+      session.flow(SimpleString.of("test"), ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection, context));
 
       // Run the credit refill code.
       Mockito.verify(pagingStore).checkMemory(argument.capture(), Mockito.isA(Consumer.class));
@@ -208,11 +217,13 @@ public class AMQPSessionCallbackTest {
       // Capture credit runnable and invoke to trigger credit top off
       ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
       AMQPSessionCallback session = new AMQPSessionCallback(protonSPI, manager, connection, transportConnection, executor, operationContext);
+      ProtonAbstractReceiver context = Mockito.mock(ProtonAbstractReceiver.class);
 
       // Credit is at threshold
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT);
+      Mockito.when(context.isStarted()).thenReturn(true);
 
-      session.flow(null, ProtonServerReceiverContext.createCreditRunnable(1, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
+      session.flow(null, ProtonServerReceiverContext.createCreditRunnable(1, AMQP_LOW_CREDITS_DEFAULT, receiver, connection, context));
 
       // Run the credit refill code.
       Mockito.verify(pagingManager).checkMemory(argument.capture());
@@ -239,11 +250,13 @@ public class AMQPSessionCallbackTest {
       // Capture credit runnable and invoke to trigger credit top off
       ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
       AMQPSessionCallback session = new AMQPSessionCallback(protonSPI, manager, connection, transportConnection, executor, operationContext);
+      ProtonAbstractReceiver context = Mockito.mock(ProtonAbstractReceiver.class);
 
       // Credit is at threshold
       Mockito.when(receiver.getCredit()).thenReturn(AMQP_LOW_CREDITS_DEFAULT);
+      Mockito.when(context.isStarted()).thenReturn(true);
 
-      session.flow(SimpleString.of("test"), ProtonServerReceiverContext.createCreditRunnable(1, AMQP_LOW_CREDITS_DEFAULT, receiver, connection));
+      session.flow(SimpleString.of("test"), ProtonServerReceiverContext.createCreditRunnable(1, AMQP_LOW_CREDITS_DEFAULT, receiver, connection, context));
 
       // Run the credit refill code.
       Mockito.verify(pagingStore).checkMemory(argument.capture(), Mockito.isA(Consumer.class));
@@ -271,5 +284,37 @@ public class AMQPSessionCallbackTest {
       session.close(false);
 
       Mockito.verify(protonSession).close();
+   }
+
+   /**
+    * Test that a producer that is not started will not offer credit to top off current.
+    */
+   @Test
+   public void testProducerThatIsNotStartedDoesNotTopOffCredit() throws Exception {
+      // Mock returns to get at the runnable that grants credit.
+      Mockito.when(manager.getServer()).thenReturn(server);
+      Mockito.when(server.getPagingManager()).thenReturn(pagingManager);
+      Mockito.when(pagingManager.getPageStore(any(SimpleString.class))).thenReturn(pagingStore);
+
+      // Capture credit runnable and invoke to trigger credit top off
+      ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
+      AMQPSessionCallback session = new AMQPSessionCallback(protonSPI, manager, connection, transportConnection, executor, operationContext);
+      ProtonAbstractReceiver context = Mockito.mock(ProtonAbstractReceiver.class);
+
+      // Credit is at threshold
+      Mockito.when(context.isStarted()).thenReturn(false);
+
+      session.flow(SimpleString.of("test"), ProtonServerReceiverContext.createCreditRunnable(AMQP_CREDITS_DEFAULT, AMQP_LOW_CREDITS_DEFAULT, receiver, connection, context));
+
+      // Run the credit refill code.
+      Mockito.verify(pagingStore).checkMemory(argument.capture(), Mockito.isA(Consumer.class));
+      assertNotNull(argument.getValue());
+      argument.getValue().run();
+
+      // Ensure we aren't looking at remote credit as that gives us the wrong view of what credit is at the broker
+      Mockito.verify(receiver, never()).getRemoteCredit();
+
+      // Credit runnable should not top off credit to configured value
+      Mockito.verifyNoInteractions(receiver);
    }
 }

@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
@@ -109,7 +110,7 @@ public class AMQPFederationCommandProcessor extends ProtonAbstractReceiver {
       // opening its sender link.
       receiver.setOfferedCapabilities(OFFERED_LINK_CAPABILITIES);
 
-      flow();
+      topUpCreditIfNeeded();
    }
 
    @Override
@@ -141,7 +142,7 @@ public class AMQPFederationCommandProcessor extends ProtonAbstractReceiver {
          delivery.disposition(Accepted.getInstance());
          delivery.settle();
 
-         flow();
+         topUpCreditIfNeeded();
 
          connection.flush();
       } catch (Throwable e) {
@@ -160,7 +161,12 @@ public class AMQPFederationCommandProcessor extends ProtonAbstractReceiver {
    }
 
    @Override
-   public void flow() {
+   protected void doCreditTopUpRun() {
       creditRunnable.run();
+   }
+
+   @Override
+   protected SimpleString getAddressInUse() {
+      return SimpleString.of(receiver.getName());
    }
 }

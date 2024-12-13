@@ -35,6 +35,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_PRIORITY_ADJUSTMENT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.REQUESTED_ADDRESS_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.REQUESTED_QUEUE_ADDED;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.REQUESTED_QUEUE_NAME;
@@ -44,6 +45,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.PULL_RECEIVER_BATCH_SIZE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConfiguration.DEFAULT_PULL_CREDIT_BATCH_SIZE;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.allOf;
@@ -598,6 +600,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             connection.start();
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             peer.expectDetach().respond();
          }
 
@@ -687,6 +692,10 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
             connection.start();
 
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             peer.expectDetach().respond();
          }
 
@@ -753,6 +762,10 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             connection.start();
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+
             peer.expectDetach().respond();
          }
 
@@ -834,6 +847,12 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             connection.start();
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true).afterDelay(2);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true).afterDelay(2);
             peer.expectDetach().respond();
             peer.expectDetach().respond();
          }
@@ -900,6 +919,10 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             connection.start();
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+
             peer.expectDetach().respond();
          }
 
@@ -1053,6 +1076,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             session.createConsumer(session.createQueue("test.queue"));
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             peer.expectDetach().respond();
          }
 
@@ -1146,6 +1172,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             session.createConsumer(session.createQueue("test.queue"));
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             peer.expectDetach().respond();
          }
 
@@ -1242,6 +1271,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             peer.remoteDetach().withErrorCondition("amqp:internal-error", "the resource suffered an internal error").afterDelay(15).now();
 
             peer.waitForScriptToComplete(50, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             peer.expectDetach(); // demand will be gone and receiver link should close.
          }
 
@@ -1319,6 +1351,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             assertEquals("test-message", ((TextMessage) message).getText());
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(999).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             peer.expectDetach(); // demand will be gone and receiver link should close.
          }
 
@@ -1586,6 +1621,15 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             connection.start();
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true).afterDelay(2);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true).afterDelay(2);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true).afterDelay(2);
             peer.expectDetach().respond();
             peer.expectDetach().respond();
             peer.expectDetach().respond();
@@ -1726,6 +1770,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             assertEquals("test-message", ((TextMessage) message).getText());
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(999).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             peer.expectDetach(); // demand will be gone and receiver link should close.
          }
 
@@ -1790,6 +1837,10 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             assertEquals("test-message", ((TextMessage) message).getText());
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(10).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(11).withDrain(true);
+
             peer.expectDetach(); // demand will be gone and receiver link should close.
          }
 
@@ -1859,6 +1910,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             assertEquals("test-message", ((TextMessage) message).getText());
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(40).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(41).withDrain(true);
             peer.expectDetach(); // demand will be gone and receiver link should close.
          }
 
@@ -1933,6 +1987,10 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             assertEquals("value2", message.getStringProperty("key2"));
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(999).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true).afterDelay(2);
+
             peer.expectDetach(); // demand will be gone and receiver link should close.
          }
 
@@ -2512,6 +2570,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             // should normally never be deleted by user management but if it is the state needs to be
             // rebuilt in order for proper demand tracking.
             target.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            target.expectFlow().withLinkCredit(1000).withDrain(true)
+                               .respond()
+                               .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             target.expectDetach().respond();
 
             client.expectDetach();
@@ -2603,6 +2664,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             assertEquals("two", message.getStringProperty("appProperty2"));
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(999).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true).afterDelay(2);
             peer.expectDetach(); // demand will be gone and receiver link should close.
          }
 
@@ -2901,7 +2965,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             // which should leave the queue with a pending message so no credit
             // should be offered.
             for (int i = 0; i < expected - 1; ++i) {
-               assertNotNull(consumer.receiveNoWait());
+               assertNotNull(consumer.receive(100));
             }
 
             // We should not get a new batch yet as there is still one pending
@@ -2913,6 +2977,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             assertNotNull(consumer.receiveNoWait());
 
             peer.waitForScriptToComplete(20, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(expected).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(expected + expected).withDrain(true).afterDelay(2);
             peer.expectDetach().respond();
 
             consumer.close(); // Remove local demand and federation consumer is torn down.
@@ -3019,15 +3086,15 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
    private void doTestCoreLargeMessageHandlingBasedOnTunnelingState(boolean tunneling) throws Exception {
       server.start();
       server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
-                                                       .setAddress("test")
-                                                       .setAutoCreated(false));
+                                                      .setAddress("test")
+                                                      .setAutoCreated(false));
 
       final String[] receiverOfferedCapabilities;
       final int messageFormat;
 
       if (tunneling) {
          receiverOfferedCapabilities = new String[] {AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString()};
-         messageFormat = AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
+         messageFormat = AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
       } else {
          receiverOfferedCapabilities = null;
          messageFormat = 0;
@@ -3064,7 +3131,8 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          peer.expectTransfer().withNonNullPayload()
                               .withMessageFormat(messageFormat).accept();
 
-         final ConnectionFactory factory = CFUtil.createConnectionFactory("CORE", "tcp://localhost:" + AMQP_PORT);
+         final ConnectionFactory factory = CFUtil.createConnectionFactory(
+            "CORE", "tcp://localhost:" + AMQP_PORT + "?minLargeMessageSize=512");
 
          try (Connection connection = factory.createConnection()) {
             final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
@@ -3170,6 +3238,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
                             .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString());
          peer.expectFlow().withLinkCredit(1000);
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                          .respond()
+                          .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
          peer.expectDetach().respond();
 
          // Add more demand after the broker connection starts
@@ -3742,6 +3813,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             consumer2.close();
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             peer.expectDetach().respond();
 
             // Demand should be gone now
@@ -3833,6 +3907,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
             consumer2.close();
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             peer.expectDetach().respond();
 
             // Demand should be gone now
@@ -4044,6 +4121,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
                             .respond()
                             .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString());
          peer.expectFlow().withLinkCredit(1000);
+         peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                          .respond()
+                          .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
          peer.expectDetach().respond().afterDelay(40); // Defer the detach response for a bit
 
          server.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.ANYCAST)
@@ -4072,6 +4152,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
                             .respond()
                             .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString());
          peer.expectFlow().withLinkCredit(1000);
+         peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                          .respond()
+                          .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
          peer.expectDetach().respond();
 
          try (Connection connection = factory.createConnection()) {
@@ -4086,6 +4169,338 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectClose();
          peer.remoteClose().now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationLinksRestartedBeforeRemoteFinishesDraining() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respondInKind();
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue.setName("queue-policy");
+         receiveFromQueue.addToIncludes(getTestName(), getTestName());
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalQueuePolicy(receiveFromQueue);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.ANYCAST)
+                                                                .setAddress(getTestName())
+                                                                .setAutoCreated(false));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("queue-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(1000);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            session.createConsumer(session.createQueue(getTestName()));
+
+            connection.start();
+
+            peer.expectFlow().withLinkCredit(1000).withDrain(true);  // Don't answer drained
+         }
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            session.createConsumer(session.createQueue(getTestName()));
+
+            connection.start();
+
+            // This should result from the answer to the next flow that drains the link.
+            peer.expectFlow().withLinkCredit(1000);
+
+            // Now answer the drained and expect that the queue policy manager will then
+            // restart flow of credit based on new demand as expected above.
+            peer.remoteFlow().withLinkCredit(0).withDeliveryCount(1000).withDrain(true).now();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(2000).withDrain(true);
+            peer.expectDetach().respond();
+         }
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationLinksDetachesAfterLinkQuiesceTimeout() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respondInKind();
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue.setName("queue-policy");
+         receiveFromQueue.addToIncludes(getTestName(), getTestName());
+         receiveFromQueue.addProperty(RECEIVER_QUIESCE_TIMEOUT, 20);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalQueuePolicy(receiveFromQueue);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("queue-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(1000);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            session.createConsumer(session.createQueue(getTestName()));
+
+            connection.start();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true);  // Don't answer drained then wait for the
+            peer.expectDetach().respond();                           // timeout to see the link is detached.
+         }
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("queue-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(1000);
+
+         // New demand should create a new federation consumer after the last drain timed out and closed the link
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            session.createConsumer(session.createQueue(getTestName()));
+
+            connection.start();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(2000).withDrain(true);
+            peer.expectDetach().respond();
+         }
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationLinksRecoveredAfterLinkQuiesceTimeoutWithRenewedDemand() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respondInKind();
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue.setName("queue-policy");
+         receiveFromQueue.addToIncludes(getTestName(), getTestName());
+         receiveFromQueue.addProperty(RECEIVER_QUIESCE_TIMEOUT, 300);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalQueuePolicy(receiveFromQueue);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.ANYCAST)
+                                                                .setAddress(getTestName())
+                                                                .setAutoCreated(false));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("queue-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(1000);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageConsumer consumer = session.createConsumer(session.createQueue(getTestName()));
+
+            connection.start();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            // Demand is removed so expect a drain, don't respond then add new consumer to add
+            // demand that must wait on drain to timeout and recover.
+            peer.expectFlow().withLinkCredit(1000).withDrain(true);
+
+            consumer.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectAttach().ofReceiver()
+                               .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                               .withName(allOf(containsString(getTestName()),
+                                               containsString("queue-receiver"),
+                                               containsString(server.getNodeID().toString())))
+                               .respondInKind();
+            peer.expectDetach().respond();
+            peer.expectFlow().withLinkCredit(1000);
+
+            session.createConsumer(session.createQueue(getTestName()));
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Demand goes away and the federation link is closed.
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(2000).withDrain(true);
+            peer.expectDetach().respond();
+         }
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationResourceDeletedBeforeLinkQuiesceCompletes() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respondInKind();
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue.setName("queue-policy");
+         receiveFromQueue.addToIncludes(getTestName(), getTestName());
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalQueuePolicy(receiveFromQueue);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.ANYCAST)
+                                                                .setAddress(getTestName())
+                                                                .setAutoCreated(false));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("queue-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(1000);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            session.createConsumer(session.createQueue(getTestName()));
+
+            connection.start();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true); // No answer to allow for race of answer plus delete
+         }
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectDetach().respond();
+
+         // Now answer the drain request and then immediately remove the resource.
+         peer.remoteFlow().withLinkCredit(0).withDeliveryCount(1000).withDrain(true).now();
+
+         server.destroyQueue(SimpleString.of(getTestName()));
+
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.close();
       }

@@ -182,6 +182,9 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
             connection.start();
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
             peer.expectDetach().respond();
 
             consumer.close();

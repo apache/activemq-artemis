@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.protocol.amqp.federation.internal;
+package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 
 /**
- * An entry type class used to hold a {@link FederationConsumerInternal} and
+ * An entry type class used to hold a {@link AMQPFederationConsumer} and
  * any other state data needed by the manager that is creating them based on the
  * policy configuration for the federation instance.  The entry can be extended
  * by federation implementation to hold additional state data for the federation
@@ -35,12 +35,12 @@ import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerIn
  * on a federation resource such that it is not torn down until all demand has been
  * removed from the local resource.
  */
-public class FederationQueueEntry {
+public class AMQPFederationQueueEntry {
 
    private final FederationConsumerInfo consumerInfo;
    private final Set<String> consumerDemand = new HashSet<>();
 
-   private FederationConsumerInternal consumer;
+   private AMQPFederationConsumer consumer;
 
    /**
     * Creates a new queue entry with a single reference
@@ -48,7 +48,7 @@ public class FederationQueueEntry {
     * @param consumerInfo
     *       Consumer information object used to define the federation queue consumer
     */
-   public FederationQueueEntry(FederationConsumerInfo consumerInfo) {
+   public AMQPFederationQueueEntry(FederationConsumerInfo consumerInfo) {
       this.consumerInfo = consumerInfo;
    }
 
@@ -76,7 +76,7 @@ public class FederationQueueEntry {
    /**
     * @return the consumer managed by this entry
     */
-   public FederationConsumerInternal getConsumer() {
+   public AMQPFederationConsumer getConsumer() {
       return consumer;
    }
 
@@ -88,7 +88,7 @@ public class FederationQueueEntry {
     *
     * @return this federation queue consumer entry.
     */
-   public FederationQueueEntry setConsumer(FederationConsumerInternal consumer) {
+   public AMQPFederationQueueEntry setConsumer(AMQPFederationConsumer consumer) {
       Objects.requireNonNull(consumer, "Cannot assign a null consumer to this entry, call clear to unset");
       this.consumer = consumer;
       return this;
@@ -97,11 +97,14 @@ public class FederationQueueEntry {
    /**
     * Clears the currently assigned consumer from this entry.
     *
-    * @return this federation queue consumer entry.
+    * @return the consumer that was stored here previously or null if none was set
     */
-   public FederationQueueEntry clearConsumer() {
+   public AMQPFederationConsumer clearConsumer() {
+      final AMQPFederationConsumer taken = consumer;
+
       this.consumer = null;
-      return this;
+
+      return taken;
    }
 
    /**
@@ -119,7 +122,7 @@ public class FederationQueueEntry {
     *
     * @return this federation queue entry instance.
     */
-   public FederationQueueEntry addDemand(ServerConsumer consumer) {
+   public AMQPFederationQueueEntry addDemand(ServerConsumer consumer) {
       consumerDemand.add(identifyConsumer(consumer));
       return this;
    }
@@ -132,8 +135,18 @@ public class FederationQueueEntry {
     *
     * @return this federation queue entry instance.
     */
-   public FederationQueueEntry removeDemand(ServerConsumer consumer) {
+   public AMQPFederationQueueEntry removeDemand(ServerConsumer consumer) {
       consumerDemand.remove(identifyConsumer(consumer));
+      return this;
+   }
+
+   /**
+    * Remove all known demand on the resource from any previously added {@link ServerConsumer}s.
+    *
+    * @return this federation queue entry instance.
+    */
+   public AMQPFederationQueueEntry removeAllDemand() {
+      consumerDemand.clear();
       return this;
    }
 

@@ -14,29 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.activemq.artemis.protocol.amqp.federation.internal;
-
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.protocol.amqp.federation.Federation;
+package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
 /**
- * Internal federated server API that is subject to change without notice.
+ * AMQPFederationAsyncCompletion type used to implement the handlers for asynchronous calls in AMQP
+ * federation types.
+ *
+ * @param <E>
+ *    The type that defines the context provided to the completion events
  */
-public interface FederationInternal extends Federation {
+public interface AMQPFederationAsyncCompletion<E> {
 
    /**
-    * Start the federation instance if not already started.
+    * Called when the asynchronous operation has succeeded.
     *
-    * @throws ActiveMQException if an error occurs during the start.
+    * @param context
+    *    The context object provided for this asynchronous event.
     */
-   void start() throws ActiveMQException;
+   void onComplete(E context);
 
    /**
-    * Stop the federation instance if not already stopped.
+    * Called when the asynchronous operation has failed due to an error.
     *
-    * @throws ActiveMQException if an error occurs during the stop.
+    * @param context
+    *    The context object provided for this asynchronous event.
+    * @param error
+    *    The error that describes the failure that occurred.
     */
-   void stop() throws ActiveMQException;
+   void onException(E context, Exception error);
 
 }
