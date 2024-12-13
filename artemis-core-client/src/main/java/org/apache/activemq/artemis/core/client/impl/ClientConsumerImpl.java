@@ -651,9 +651,9 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    private File createLargeMessageCache(long messageId) throws IOException {
       File largeMessageCache = File.createTempFile("tmp-large-message-" + messageId + "-", ".tmp");
-      largeMessageCache.setReadable(false);
-      largeMessageCache.setExecutable(false);
-      largeMessageCache.setWritable(false);
+      largeMessageCache.setReadable(false, false);
+      largeMessageCache.setExecutable(false, false);
+      largeMessageCache.setWritable(false, false);
       largeMessageCache.setReadable(true, true);
       largeMessageCache.setWritable(true, true);
       largeMessageCache.deleteOnExit();
