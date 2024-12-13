@@ -19,6 +19,12 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 === Highlights
 
 * *Java 17 is now required.*
+* AMQP federation and broker connections have new management controls.
+* The Core client (including the Core JMS client) supports a configurable timeout for `onMessage` invocations when closing/stopping a connection.
+* Datasource configuration is now available when configuring the broker via xref:configuration-index.adoc#broker-properties[properties].
+* Failure conditions for xref:using-cli.adoc#command-line-interface[CLI commands] (e.g. `artemis check`) now specifically return an exit code of `1` which means they can be more reliably incorporated into other scripts, etc.
+* The binary distribution is almost 8MB smaller than 2.38.0 due to reduced dependencies.
+* Lots of fixes for various flaky tests. This reduces spurious test failures improving the experience for developers building the broker and running the test-suite.
 
 === Upgrading from 2.38.0
 
@@ -29,6 +35,7 @@ Security is critical for us and most of our users so we therefore need to upgrad
 Jetty 12 requires Java 17 so we must also move to Java 17 and drop support for Java 11.
 +
 Please note that after upgrading the broker to Java 17 it will be backwards compatible with all previous clients.
+* Due to https://issues.apache.org/jira/browse/ARTEMIS-5153[ARTEMIS-5153] the queues related to AMQP federation events and and controls are now marked as _internal_.
 
 == 2.38.0
 
