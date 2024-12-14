@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.jms.Connection;
+import java.io.ObjectInputFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -605,6 +606,70 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testActivationDeserializationParameters2() throws Exception {
+      ActiveMQServer server = createServer(false);
+
+      try {
+
+         server.start();
+
+         ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
+
+         ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+         ra.setUserName("userGlobal");
+         ra.setPassword("passwordGlobal");
+         ra.setSerialFilter("a.b.c.d.e.**;!f.g.h.i.j.**");
+         ra.start(new BootstrapContext());
+
+         ActiveMQConnectionFactory factory = ra.getDefaultActiveMQConnectionFactory();
+         assertEquals("a.b.c.d.e.**;!f.g.h.i.j.**", factory.getSerialFilter());
+
+         ConnectionFactoryProperties overrides = new ConnectionFactoryProperties();
+         overrides.setSerialFilter("k.l.m.n.**;!o.p.q.r.**");
+
+         factory = ra.newConnectionFactory(overrides);
+         assertEquals("k.l.m.n.**;!o.p.q.r.**", factory.getSerialFilter());
+
+         ra.stop();
+
+      } finally {
+         server.stop();
+      }
+   }
+
+   @Test
+   public void testActivationDeserializationParameters3() throws Exception {
+      ActiveMQServer server = createServer(false);
+
+      try {
+
+         server.start();
+
+         ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
+
+         ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+         ra.setUserName("userGlobal");
+         ra.setPassword("passwordGlobal");
+         ra.setSerialFilterClassName(AlwaysRejectObjectInputFilter.class.getName());
+         ra.start(new BootstrapContext());
+
+         ActiveMQConnectionFactory factory = ra.getDefaultActiveMQConnectionFactory();
+         assertEquals(AlwaysRejectObjectInputFilter.class.getName(), factory.getSerialFilterClassName());
+
+         ConnectionFactoryProperties overrides = new ConnectionFactoryProperties();
+         overrides.setSerialFilterClassName(AlwaysAcceptObjectInputFilter.class.getName());
+
+         factory = ra.newConnectionFactory(overrides);
+         assertEquals(AlwaysAcceptObjectInputFilter.class.getName(), factory.getSerialFilterClassName());
+
+         ra.stop();
+
+      } finally {
+         server.stop();
+      }
+   }
+
+   @Test
    public void testForConnectionLeakDuringActivationWhenSessionCreationFails() throws Exception {
       ActiveMQServer server = createServer(false);
       ActiveMQResourceAdapter ra = null;
@@ -652,6 +717,20 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
          if (ra != null)
             ra.stop();
          server.stop();
+      }
+   }
+
+   public static class AlwaysRejectObjectInputFilter implements ObjectInputFilter {
+      @Override
+      public Status checkInput(FilterInfo filterInfo) {
+         return Status.REJECTED;
+      }
+   }
+
+   public static class AlwaysAcceptObjectInputFilter implements ObjectInputFilter {
+      @Override
+      public Status checkInput(FilterInfo filterInfo) {
+         return Status.ALLOWED;
       }
    }
 }
