@@ -519,4 +519,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229256, value = "{} must be a positive power of 2 (actual value: {})")
    IllegalArgumentException positivePowerOfTwo(String name, Number val);
+
+   @Message(id = 229257, value = "Missing header {}")
+   String messageMissingHeader(SimpleString idsHeaderName);
 }
