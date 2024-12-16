@@ -78,7 +78,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
       clusterSpecs = new InstanceSpec[zkNodes];
       for (int i = 0; i < zkNodes; i++) {
-         clusterSpecs[i] = new InstanceSpec(newFolder(tmpFolder, "node" + i), BASE_SERVER_PORT + i, -1, -1, true, -1, SERVER_TICK_MS, -1);
+         clusterSpecs[i] = new InstanceSpec(newFolder(tmpFolder, "node" + i), BASE_SERVER_PORT + i, -1, -1, true, i, SERVER_TICK_MS, -1);
       }
       testingServer = new TestingCluster(clusterSpecs);
       testingServer.start();
@@ -90,6 +90,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
    @Override
    public void tearDownEnv() throws Throwable {
       super.tearDownEnv();
+      testingServer.stop();
       testingServer.close();
    }
 
