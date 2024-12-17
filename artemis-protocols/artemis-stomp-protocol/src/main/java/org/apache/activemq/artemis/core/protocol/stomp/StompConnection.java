@@ -566,7 +566,7 @@ public final class StompConnection extends AbstractRemotingConnection {
          if (selector == null) {
             selector = noLocalFilter;
          } else {
-            selector += " AND " + noLocalFilter;
+            selector = "(" + selector + ") AND " + noLocalFilter;
          }
       }
 

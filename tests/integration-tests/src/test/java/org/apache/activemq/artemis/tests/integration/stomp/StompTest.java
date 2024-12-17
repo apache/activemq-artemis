@@ -1502,6 +1502,28 @@ public class StompTest extends StompTestBase {
    }
 
    @Test
+   public void testSubscribeToTopicWithNoLocalAndSelector() throws Exception {
+      conn.connect(defUser, defPass);
+      subscribeTopic(conn, null, null, null, true, true, "a=foo OR b=bar");
+
+      // send a message on the same connection => it should not be received as noLocal = true on subscribe
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND).addHeader(Stomp.Headers.Send.DESTINATION, getTopicPrefix() + getTopicName()).addHeader("b", "bar").setBody("Hello World");
+      conn.sendFrame(frame);
+
+      frame = conn.receiveFrame(100);
+      assertNull(frame, "No message should have been received since noLocal=true");
+
+      // send message on another JMS connection => it should be received
+      sendJmsMessage(getName().getBytes(StandardCharsets.UTF_8), "b", "bar", topic);
+      frame = conn.receiveFrame(10000);
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      assertEquals(getTopicPrefix() + getTopicName(), frame.getHeader(Stomp.Headers.Send.DESTINATION));
+      assertEquals(getName(), frame.getBody());
+
+      conn.disconnect();
+   }
+
+   @Test
    public void testTopicExistsAfterNoUnsubscribeDisconnect() throws Exception {
       conn.connect(defUser, defPass);
       subscribeTopic(conn, null, null, null, true);
