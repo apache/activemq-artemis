@@ -130,7 +130,13 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       if (wicked) {
          buffer = frame.toByteBufferWithExtra("\n");
       } else {
-         buffer = frame.toByteBuffer();
+         if (frame.isPing()) {
+            buffer = ByteBuffer.allocateDirect(1);
+            buffer.put((byte) 10);
+            buffer.rewind();
+         } else {
+            buffer = frame.toByteBuffer();
+         }
       }
 
       ByteBuf buf = Unpooled.copiedBuffer(buffer);
@@ -361,7 +367,6 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       Pinger(long interval) {
          this.pingInterval = interval;
          pingFrame = createFrame(Stomp.Commands.STOMP);
-         pingFrame.setBody("\n");
          pingFrame.setForceOneway();
          pingFrame.setPing(true);
       }
