@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -47,6 +48,8 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.selector.filter.FilterException;
+import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
@@ -57,7 +60,6 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 import static org.apache.activemq.artemis.reader.MessageUtil.CONNECTION_ID_PROPERTY_NAME_STRING;
@@ -558,6 +560,7 @@ public final class StompConnection extends AbstractRemotingConnection {
                                       boolean noLocal,
                                       RoutingType subscriptionType,
                                       Integer consumerWindowSize) throws ActiveMQStompException {
+      validateSelector(selector);
       autoCreateDestinationIfPossible(destination, subscriptionType);
       checkDestination(destination);
       checkRoutingSemantics(destination, subscriptionType);
@@ -566,7 +569,7 @@ public final class StompConnection extends AbstractRemotingConnection {
          if (selector == null) {
             selector = noLocalFilter;
          } else {
-            selector += " AND " + noLocalFilter;
+            selector = "(" + selector + ") AND " + noLocalFilter;
          }
       }
 
@@ -590,6 +593,21 @@ public final class StompConnection extends AbstractRemotingConnection {
          throw e;
       } catch (Exception e) {
          throw BUNDLE.errorCreatingSubscription(subscriptionID, e).setHandler(frameHandler);
+      }
+   }
+
+   private void validateSelector(String selector) throws ActiveMQStompException {
+      // user may not specify a selector; that's ok
+      if (selector == null) {
+         return;
+      }
+      if (selector.isEmpty()) {
+         throw new ActiveMQStompException("Selector cannot be empty").setHandler(frameHandler);
+      }
+      try {
+         SelectorParser.parse(selector);
+      } catch (FilterException e) {
+         throw new ActiveMQStompException("Invalid selector \"" + selector + "\"", e).setHandler(frameHandler);
       }
    }
 
