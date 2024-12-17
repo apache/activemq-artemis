@@ -328,10 +328,10 @@ public class SSLSupport {
       }
    }
 
-   private static KeyStore loadKeystore(final String keystoreProvider,
-                                        final String keystoreType,
-                                        final String keystorePath,
-                                        final String keystorePassword) throws Exception {
+   public static KeyStore loadKeystore(final String keystoreProvider,
+                                       final String keystoreType,
+                                       final String keystorePath,
+                                       final String keystorePassword) throws Exception {
       checkPemProviderLoaded(keystoreType);
       KeyStore ks = keystoreProvider == null ? KeyStore.getInstance(keystoreType) : KeyStore.getInstance(keystoreType, keystoreProvider);
       InputStream in = null;

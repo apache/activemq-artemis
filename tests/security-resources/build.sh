@@ -175,6 +175,9 @@ openssl pkcs12 -in client-keystore.p12 -out client-key-cert.pem -nodes -password
 keytool -storetype pkcs12 -keystore server-ca-keystore.p12 -storepass $STORE_PASS -alias server-ca -exportcert -rfc > server-ca-cert.pem
 keytool -storetype pkcs12 -keystore client-ca-keystore.p12 -storepass $STORE_PASS -alias client-ca -exportcert -rfc > client-ca-cert.pem
 
+## Combined ca-certs pem to verify loading of multiple certs
+cat client-ca-cert.pem server-ca-cert.pem > client-and-server-ca-certs.pem
+
 # Clean up working files
 # -----------------------
 rm -f *.crt *.csr openssl-*

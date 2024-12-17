@@ -303,6 +303,37 @@
       </dependency>
    </dependencies>
 
+<build>
+   <resources>
+      <resource>
+         <directory>src/main/resources</directory>
+         <filtering>false</filtering>
+      </resource>
+   </resources>
+   <plugins>
+   <plugin>
+      <artifactId>maven-resources-plugin</artifactId>
+      <executions>
+         <execution>
+            <id>copy-security-resources</id>
+            <phase>validate</phase>
+            <goals>
+               <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+               <outputDirectory>${basedir}/target/test-classes</outputDirectory>
+               <resources>
+                  <resource>
+                     <directory>../tests/security-resources</directory>
+                  </resource>
+               </resources>
+            </configuration>
+         </execution>
+      </executions>
+   </plugin>
+   </plugins>
+</build>
+
    <profiles>
       <profile>
          <id>release</id>
