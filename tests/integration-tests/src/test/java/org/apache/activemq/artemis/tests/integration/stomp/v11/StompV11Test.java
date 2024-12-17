@@ -2255,6 +2255,8 @@ public class StompV11Test extends StompTestBase {
       subFrame.addHeader("destination", getTopicPrefix() + getTopicName());
       subFrame.addHeader("id", "0");
 
+      Wait.assertTrue(() -> "HeartBeater is not running!! -> " + System.identityHashCode(stompFrameHandler.getHeartBeater()), () -> stompFrameHandler.getHeartBeater().isStarted(), 5000, 100);
+
       ClientStompFrame f = conn.sendFrame(subFrame);
       f = conn.sendFrame(subFrame);
 
@@ -2269,7 +2271,7 @@ public class StompV11Test extends StompTestBase {
 
       Wait.assertEquals(0, () -> server.getRemotingService().getConnections().size());
 
-      Wait.assertFalse("HeartBeater is still running!!", () -> stompFrameHandler.getHeartBeater().isStarted());
+      Wait.assertFalse(() -> "HeartBeater is still running!! -> " + System.identityHashCode(stompFrameHandler.getHeartBeater()), () -> stompFrameHandler.getHeartBeater().isStarted(), 5000, 100);
    }
 
 
