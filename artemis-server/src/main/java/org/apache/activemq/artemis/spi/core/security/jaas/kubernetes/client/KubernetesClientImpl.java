@@ -19,9 +19,7 @@ package org.apache.activemq.artemis.spi.core.security.jaas.kubernetes.client;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -30,13 +28,12 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.SecureRandom;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.util.Scanner;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.spi.core.security.jaas.kubernetes.model.TokenReview;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.slf4j.Logger;
@@ -157,18 +154,12 @@ public class KubernetesClientImpl implements KubernetesClient {
          logger.debug("Kubernetes CA certificate not found at: {}. Truststore not configured", caPath);
          return ctx;
       }
-      try (InputStream fis = new FileInputStream(certFile)) {
-         KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-         CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-         X509Certificate certificate = (X509Certificate) certFactory.generateCertificate(fis);
-         trustStore.load(null, null);
-         trustStore.setCertificateEntry(certFile.getName(), certificate);
-         TrustManagerFactory tmFactory = TrustManagerFactory
-               .getInstance(TrustManagerFactory.getDefaultAlgorithm());
-         tmFactory.init(trustStore);
+      KeyStore trustStore = SSLSupport.loadKeystore(null, "PEMCA", caPath, null);
+      TrustManagerFactory tmFactory = TrustManagerFactory
+            .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+      tmFactory.init(trustStore);
 
-         ctx.init(null, tmFactory.getTrustManagers(), new SecureRandom());
-      }
+      ctx.init(null, tmFactory.getTrustManagers(), new SecureRandom());
       return ctx;
    }
 }

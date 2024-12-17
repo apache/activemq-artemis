@@ -66,8 +66,8 @@ public class KubernetesClientImplTest {
 
    @BeforeAll
    public static void startServer() {
-      ConfigurationProperties.dynamicallyCreateCertificateAuthorityCertificate(true);
-      ConfigurationProperties.directoryToSaveDynamicSSLCertificate("target/test-classes");
+      ConfigurationProperties.certificateAuthorityPrivateKey(KubernetesClientImplTest.class.getClassLoader().getResource("server-ca.pem").getPath());
+      ConfigurationProperties.certificateAuthorityCertificate(KubernetesClientImplTest.class.getClassLoader().getResource("server-ca-cert.pem").getPath());
       ConfigurationProperties.preventCertificateDynamicUpdate(false);
       ConfigurationProperties.proactivelyInitialiseTLS(true);
 
@@ -84,7 +84,8 @@ public class KubernetesClientImplTest {
             KubernetesClientImplTest.class.getClassLoader().getResource("client_token").getPath());
 
       URL caPath = KubernetesClientImplTest.class.getClassLoader()
-         .getResource("CertificateAuthorityCertificate.pem");
+         .getResource("client-and-server-ca-certs.pem");
+
       assertNotNull(caPath);
       logger.info("Setting KUBERNETES_CA_PATH {}", caPath.getPath());
       System.setProperty("KUBERNETES_CA_PATH", caPath.getPath());
