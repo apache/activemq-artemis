@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -136,6 +137,9 @@ public class JMXManagementTest extends JMSClientTestSupport {
          sender.send(message);
          session.commit();
 
+         Queue serverQueue = server.locateQueue(getQueueName());
+         Wait.assertEquals(1L, serverQueue::getMessageCount, 100, 5000);
+
          SimpleString queue = SimpleString.of(getQueueName());
          QueueControl queueControl = createManagementControl(queue, queue);
          String firstMessageAsJSON = queueControl.getFirstMessageAsJSON();
@@ -180,6 +184,10 @@ public class JMXManagementTest extends JMSClientTestSupport {
          session.commit();
 
          SimpleString queue = SimpleString.of(getQueueName());
+
+         Queue serverQueue = server.locateQueue(getQueueName());
+         Wait.assertEquals(1L, serverQueue::getMessageCount, 100, 5000);
+
          QueueControl queueControl = createManagementControl(queue, queue);
          String firstMessageAsJSON = queueControl.getFirstMessageAsJSON();
          assertNotNull(firstMessageAsJSON);
@@ -272,8 +280,8 @@ public class JMXManagementTest extends JMSClientTestSupport {
             senderB.send(message);
          }
 
-         assertEquals(MESSAGE_COUNT, queueAControl.countMessages());
-         assertEquals(MESSAGE_COUNT, queueBControl.countMessages());
+         Wait.assertEquals((long)MESSAGE_COUNT, () -> queueAControl.countMessages(), 5000, 100);
+         Wait.assertEquals((long)MESSAGE_COUNT, () -> queueBControl.countMessages(), 5000, 100);
          assertEquals(0, queueCControl.countMessages());
 
          queueAControl.moveMessages(null, queueC);
