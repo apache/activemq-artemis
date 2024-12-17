@@ -266,6 +266,8 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
       private static final int MIN_SERVER_PING = 500;
 
+      private boolean previouslyStopped = false;
+
       long serverPingPeriod = 0;
       long clientPingResponse;
       AtomicLong lastPingTimestamp = new AtomicLong(0);
@@ -321,7 +323,14 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
       public void shutdown() {
          this.stop();
+         previouslyStopped = true;
+      }
 
+      @Override
+      public void start() {
+         if (!previouslyStopped) {
+            super.start();
+         }
       }
 
       public void pinged() {

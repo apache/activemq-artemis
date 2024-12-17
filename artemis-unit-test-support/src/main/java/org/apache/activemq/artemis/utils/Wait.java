@@ -152,6 +152,10 @@ public class Wait {
       assertTrue(failureMessage, () -> !condition.isSatisfied(), duration, SLEEP_MILLIS);
    }
 
+   public static void assertFalse(Supplier<String> failureMessage, Condition condition, final long duration, final long sleep) {
+      assertTrue(failureMessage, () -> !condition.isSatisfied(), duration, sleep);
+   }
+
    public static void assertFalse(Condition condition, final long duration, final long sleep) {
       assertTrue(DEFAULT_FAILURE_MESSAGE, () -> !condition.isSatisfied(), duration, sleep);
    }
