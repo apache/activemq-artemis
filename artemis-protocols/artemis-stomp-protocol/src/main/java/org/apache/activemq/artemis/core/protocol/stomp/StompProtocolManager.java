@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.stomp;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -362,13 +363,12 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
                                              boolean noLocal,
                                              Integer consumerWindowSize) throws Exception {
       StompSession stompSession = getSession(connection);
-      stompSession.setNoLocal(noLocal);
       if (stompSession.containsSubscription(subscriptionID)) {
          throw new ActiveMQStompException(connection, "There already is a subscription for: " + subscriptionID +
             ". Either use unique subscription IDs or do not create multiple subscriptions for the same destination");
       }
       long consumerID = server.getStorageManager().generateID();
-      return stompSession.addSubscription(consumerID, subscriptionID, connection.getClientID(), durableSubscriptionName, destination, selector, ack, consumerWindowSize);
+      return stompSession.addSubscription(consumerID, subscriptionID, connection.getClientID(), durableSubscriptionName, destination, selector, ack, noLocal, consumerWindowSize);
    }
 
    public void unsubscribe(StompConnection connection,
@@ -406,5 +406,9 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
 
    public ActiveMQServer getServer() {
       return server;
+   }
+
+   public Collection<StompSession> getSessions() {
+      return sessions.values();
    }
 }
