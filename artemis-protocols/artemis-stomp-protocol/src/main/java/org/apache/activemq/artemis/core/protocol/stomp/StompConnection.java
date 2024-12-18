@@ -565,7 +565,7 @@ public final class StompConnection extends AbstractRemotingConnection {
       checkDestination(destination);
       checkRoutingSemantics(destination, subscriptionType);
       if (noLocal) {
-         String noLocalFilter = CONNECTION_ID_PROPERTY_NAME_STRING + " <> '" + getID().toString() + "'";
+         String noLocalFilter = "(" + CONNECTION_ID_PROPERTY_NAME_STRING + " <> '" + getID().toString() + "' OR " + CONNECTION_ID_PROPERTY_NAME_STRING + " IS NULL)";
          if (selector == null) {
             selector = noLocalFilter;
          } else {
