@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.compatibility;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class OldAddressSpaceTest extends VersionedBase {
    @Parameters(name = "server={0}, producer={1}, consumer={2}")
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();
-      combinations.addAll(combinatory(new Object[]{SNAPSHOT}, new Object[]{ONE_FIVE, SNAPSHOT}, new Object[]{ONE_FIVE, SNAPSHOT}));
+      combinations.addAll(combinatory(new Object[]{SNAPSHOT}, new Object[]{TWO_FOUR, SNAPSHOT}, new Object[]{TWO_FOUR, SNAPSHOT}));
       return combinations;
    }
 

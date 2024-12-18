@@ -18,7 +18,7 @@
 package org.apache.activemq.artemis.tests.compatibility;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_247;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FOUR;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
 
@@ -38,7 +38,7 @@ public class PrefixSendAckTest extends ServerBase {
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();
 
-      combinations.addAll(combinatory(new Object[]{SNAPSHOT}, new Object[]{ONE_FIVE, HORNETQ_247, TWO_FOUR, SNAPSHOT}, new Object[]{ONE_FIVE, HORNETQ_247, TWO_FOUR, SNAPSHOT}));
+      combinations.addAll(combinatory(new Object[]{SNAPSHOT}, new Object[]{ONE_FOUR, HORNETQ_247, TWO_FOUR, SNAPSHOT}, new Object[]{ONE_FOUR, HORNETQ_247, TWO_FOUR, SNAPSHOT}));
       return combinations;
    }
 

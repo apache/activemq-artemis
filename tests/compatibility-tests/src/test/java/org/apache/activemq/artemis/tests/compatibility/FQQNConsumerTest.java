@@ -22,7 +22,6 @@ import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_ONE;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_SEVEN_ZERO;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_SIX_THREE;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_ZERO;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,7 +44,7 @@ public class FQQNConsumerTest extends ServerBase {
       List<Object[]> combinations = new ArrayList<>();
 
       // FQQN was added into 2.7.0, hence we only test the server as SNAPSHOT or TWO_SEVEN_ZERO
-      List testsList = combinatory(new Object[]{SNAPSHOT}, new Object[]{SNAPSHOT, TWO_ZERO, TWO_FOUR, TWO_ONE, TWO_SIX_THREE, TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_ZERO, TWO_FOUR, TWO_ONE, TWO_SIX_THREE, TWO_SEVEN_ZERO});
+      List testsList = combinatory(new Object[]{SNAPSHOT}, new Object[]{SNAPSHOT, TWO_FOUR, TWO_ONE, TWO_SIX_THREE, TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_FOUR, TWO_ONE, TWO_SIX_THREE, TWO_SEVEN_ZERO});
       addCombinations(testsList, null, new Object[] {TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_SEVEN_ZERO});
       return testsList;
    }

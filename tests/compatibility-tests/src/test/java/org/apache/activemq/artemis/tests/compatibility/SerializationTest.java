@@ -17,7 +17,6 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_TEN_ZERO;
 
@@ -53,7 +52,6 @@ public class SerializationTest extends VersionedBase {
       //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
       //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
 
-      combinations.addAll(combinatory(new Object[]{null}, new Object[]{ONE_FIVE, SNAPSHOT}, new Object[]{ONE_FIVE, SNAPSHOT}));
       combinations.add(new Object[] {null, TWO_TEN_ZERO, SNAPSHOT});
       combinations.add(new Object[] {null, SNAPSHOT, TWO_TEN_ZERO});
       return combinations;

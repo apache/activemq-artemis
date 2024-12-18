@@ -18,7 +18,6 @@
 package org.apache.activemq.artemis.tests.compatibility;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_235;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 
 import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
@@ -46,7 +45,6 @@ public class HQClientTopologyTest extends VersionedBase {
       List<Object[]> combinations = new ArrayList<>();
 
       combinations.add(new Object[]{SNAPSHOT, HORNETQ_235, HORNETQ_235});
-      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
       return combinations;
    }
 

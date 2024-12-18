@@ -18,7 +18,7 @@
 package org.apache.activemq.artemis.tests.compatibility;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.HORNETQ_235;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FOUR;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -43,7 +43,7 @@ public class HornetQSoakTest extends ClasspathBase {
    public void setUp() throws Throwable {
 
       this.artemisClassLoader = getClasspath(SNAPSHOT);
-      this.artemis1XClassLoader = getClasspath(ONE_FIVE);
+      this.artemis1XClassLoader = getClasspath(ONE_FOUR);
       this.hornetqClassLoader = getClasspath(HORNETQ_235);
 
       FileUtil.deleteDirectory(serverFolder);

@@ -31,9 +31,7 @@ public class GroovyRun {
 
    public static final String SNAPSHOT = "ARTEMIS-SNAPSHOT";
    public static final String JAKARTAEE = "ARTEMIS-JAKARTAEE";
-   public static final String ONE_FIVE = "ARTEMIS-155";
    public static final String ONE_FOUR = "ARTEMIS-140";
-   public static final String TWO_ZERO = "ARTEMIS-200";
    public static final String TWO_ONE = "ARTEMIS-210";
    public static final String TWO_FOUR = "ARTEMIS-240";
    public static final String TWO_SIX_THREE = "ARTEMIS-263";
@@ -48,13 +46,42 @@ public class GroovyRun {
    public static final String HORNETQ_247 = "HORNETQ-247";
    public static final String AMQ_5_11 = "AMQ_5_11";
 
-   public static Binding binding = new Binding();
-   public static GroovyShell shell = new GroovyShell(binding);
+   private static Binding theBinding;
+   private static GroovyShell theShell;
+
 
    public static void clear() {
-      List<String> variablesToRemove = new ArrayList<>();
-      variablesToRemove.addAll(binding.getVariables().keySet());
-      variablesToRemove.forEach(v -> binding.removeVariable(v));
+      try {
+         if (theBinding != null) {
+            List<String> variablesToRemove = new ArrayList<>(theBinding.getVariables().keySet());
+            variablesToRemove.forEach(theBinding::removeVariable);
+            theBinding.setMetaClass(null);
+         }
+      } finally {
+         theBinding = null;
+         theShell = null;
+      }
+   }
+
+   private static GroovyShell getShell() {
+      initShell();
+
+      return theShell;
+
+   }
+
+   private static Binding getBinding() {
+      initShell();
+
+      return theBinding;
+
+   }
+
+   private static void initShell() {
+      if (theShell == null || theBinding == null) {
+         theBinding = new Binding();
+         theShell = new GroovyShell(theBinding);
+      }
    }
 
    /**
@@ -83,21 +110,21 @@ public class GroovyRun {
 
       setVariable(argVariableName, arg);
 
-      return shell.evaluate(scriptURI);
+      return getShell().evaluate(scriptURI);
    }
 
 
    public static void setVariable(String name, Object arg) {
-      binding.setVariable(name, arg);
+      getBinding().setVariable(name, arg);
    }
 
    public static Object getVariable(String name) {
-      return binding.getVariable(name);
+      return getBinding().getVariable(name);
    }
 
    // Called with reflection
    public static Object execute(String script) throws Throwable {
-      return shell.evaluate(script);
+      return getShell().evaluate(script);
    }
 
    public static void assertNotNull(Object value) {

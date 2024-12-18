@@ -17,7 +17,7 @@
 
 package org.apache.activemq.artemis.tests.compatibility;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FOUR;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
@@ -54,7 +54,7 @@ public class ExportImportTest extends VersionedBase {
       //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
       //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
 
-      combinations.add(new Object[]{null, ONE_FIVE, SNAPSHOT});
+      combinations.add(new Object[]{null, ONE_FOUR, SNAPSHOT});
       combinations.add(new Object[]{null, SNAPSHOT, SNAPSHOT});
       return combinations;
    }

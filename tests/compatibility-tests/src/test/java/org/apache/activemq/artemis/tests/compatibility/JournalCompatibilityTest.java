@@ -20,7 +20,6 @@ package org.apache.activemq.artemis.tests.compatibility;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_ONE;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_ZERO;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +52,6 @@ public class JournalCompatibilityTest extends VersionedBase {
       //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
       //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
 
-      combinations.add(new Object[]{null, TWO_ZERO, SNAPSHOT});
       combinations.add(new Object[]{null, TWO_ONE, SNAPSHOT});
       combinations.add(new Object[]{null, TWO_FOUR, SNAPSHOT});
       // the purpose on this one is just to validate the test itself.

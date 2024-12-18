@@ -18,7 +18,6 @@
 package org.apache.activemq.artemis.tests.compatibility;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -54,6 +53,8 @@ public class ActiveMQJMSClientCompatibilityTest extends ClasspathBase {
          System.clearProperty(ActiveMQJMSClient.class.getName() + ".enable1xPrefixes");
       }
 
+      clearClassLoader(loader);
+
    }
 
    @Test
@@ -83,13 +84,4 @@ public class ActiveMQJMSClientCompatibilityTest extends ClasspathBase {
 
    }
 
-   @Test
-
-   // The purpose here is just to validate the test itself. Nothing to be fixed here
-   public void testActiveMQJMSCompatibility_1XPrefix_ONE_FIVE() throws Exception {
-      ClassLoader loader = getClasspath(ONE_FIVE, false);
-
-      evaluate(loader, "ActiveMQJMSClientCompatibilityTest/validateClient.groovy");
-
-   }
 }

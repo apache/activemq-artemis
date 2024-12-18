@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.compatibility.base;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -45,9 +44,10 @@ public class ClasspathBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @AfterAll
-   public static void cleanup() {
-      loaderMap.values().forEach((cl -> clearClassLoader(cl)));
+   public static void cleanup() throws Exception {
+      loaderMap.values().forEach((ClasspathBase::clearClassLoader));
       clearClassLoader(VersionedBase.class.getClassLoader());
+      loaderMap.clear();
    }
 
    public static void clearClassLoader(ClassLoader loader) {
@@ -132,10 +132,6 @@ public class ClasspathBase {
    }
 
    protected ClassLoader getClasspath(String name, boolean forceNew) throws Exception {
-
-      if (name.equals(GroovyRun.ONE_FIVE) || name.equals(GroovyRun.TWO_ZERO)) {
-         assumeTrue(getJavaVersion() < 16, "This version of artemis cannot be ran against JDK16+");
-      }
 
       if (!forceNew) {
          if (name.equals(SNAPSHOT)) {
