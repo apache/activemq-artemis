@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManager;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
+import org.apache.activemq.artemis.core.protocol.stomp.StompSession;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -65,7 +66,6 @@ import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.reader.MessageUtil;
-import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.tests.integration.mqtt.FuseMQTTClientProvider;
 import org.apache.activemq.artemis.tests.integration.mqtt.MQTTClientProvider;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
@@ -754,9 +754,7 @@ public class StompTest extends StompTestBase {
 
       Wait.assertEquals(0, () -> server.getSessions().size(), 1000, 100);
 
-      Acceptor stompAcceptor = server.getRemotingService().getAcceptors().get("stomp");
-      StompProtocolManager stompProtocolManager = (StompProtocolManager) stompAcceptor.getProtocolHandler().getProtocolMap().get("STOMP");
-      assertNotNull(stompProtocolManager);
+      StompProtocolManager stompProtocolManager = getStompProtocolManager();
 
       assertEquals(0, stompProtocolManager.getTransactedSessions().size());
    }
@@ -1528,6 +1526,71 @@ public class StompTest extends StompTestBase {
          conn.disconnect();
          conn2.disconnect();
       }
+   }
+
+   @Test
+   public void testSubscribeToTopicWithNoLocalAndNormal() throws Exception {
+      conn.connect(defUser, defPass);
+      String noLocalSubscriptionId = RandomUtil.randomString();
+      String normalSubscriptionId = RandomUtil.randomString();
+      subscribeTopic(conn, noLocalSubscriptionId, null, null, true, true);
+      subscribeTopic(conn, normalSubscriptionId, null, null, true, false);
+
+      StompProtocolManager stompProtocolManager = getStompProtocolManager();
+      int totalSubCount = 0;
+      int noLocalSubCount = 0;
+      for (StompSession session : stompProtocolManager.getSessions()) {
+         totalSubCount += session.getSubscriptionCount();
+         noLocalSubCount += session.getNoLocalSubscriptionCount();
+      }
+      assertEquals(1, noLocalSubCount);
+      assertEquals(2, totalSubCount);
+
+      { // Send a message on the same connection. It should be received by the normal subscription and not by the noLocal one.
+         send(conn, getTopicPrefix() + getTopicName(), null, "Hello World");
+
+         ClientStompFrame frame = conn.receiveFrame(100);
+         assertNotNull(frame);
+         assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+         assertEquals(normalSubscriptionId, frame.getHeader(Stomp.Headers.Message.SUBSCRIPTION));
+         assertNotNull(frame.getHeader("__AMQ_CID"));
+         frame = conn.receiveFrame(100);
+         assertNull(frame);
+      }
+
+      unsubscribe(conn, noLocalSubscriptionId, true);
+
+      totalSubCount = 0;
+      noLocalSubCount = 0;
+      for (StompSession session : stompProtocolManager.getSessions()) {
+         totalSubCount += session.getSubscriptionCount();
+         noLocalSubCount += session.getNoLocalSubscriptionCount();
+      }
+      assertEquals(0, noLocalSubCount);
+      assertEquals(1, totalSubCount);
+
+      { // Send another message on the same connection. It should be received by the normal subscription.
+         send(conn, getTopicPrefix() + getTopicName(), null, "Hello World");
+
+         ClientStompFrame frame = conn.receiveFrame(100);
+         assertNotNull(frame);
+         assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+         assertEquals(normalSubscriptionId, frame.getHeader(Stomp.Headers.Message.SUBSCRIPTION));
+         assertNull(frame.getHeader("__AMQ_CID"));
+      }
+
+      unsubscribe(conn, normalSubscriptionId, true);
+
+      totalSubCount = 0;
+      noLocalSubCount = 0;
+      for (StompSession session : stompProtocolManager.getSessions()) {
+         totalSubCount += session.getSubscriptionCount();
+         noLocalSubCount += session.getNoLocalSubscriptionCount();
+      }
+      assertEquals(0, noLocalSubCount);
+      assertEquals(0, totalSubCount);
+
+      conn.disconnect();
    }
 
    @Test

@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -82,7 +83,7 @@ public class StompSession implements SessionCallback {
    // key = consumer ID and message ID, value = frame length
    private final Map<Pair<Long, Long>, Integer> messagesToAck = new ConcurrentHashMap<>();
 
-   private volatile boolean noLocal = false;
+   private AtomicInteger noLocalSubscriptionCount = new AtomicInteger(0);
 
    private boolean txPending = false;
 
@@ -231,6 +232,9 @@ public class StompSession implements SessionCallback {
    public void disconnect(ServerConsumer consumerId, String errorDescription) {
       StompSubscription stompSubscription = subscriptions.remove(consumerId.getID());
       if (stompSubscription != null) {
+         if (stompSubscription.isNoLocal()) {
+            noLocalSubscriptionCount.decrementAndGet();
+         }
          StompFrame frame = connection.getFrameHandler().createStompFrame(Stomp.Responses.ERROR);
          frame.addHeader(Stomp.Headers.CONTENT_TYPE, "text/plain");
          frame.setBody("consumer with ID " + consumerId + " disconnected by server");
@@ -306,6 +310,7 @@ public class StompSession implements SessionCallback {
                                                    String destination,
                                                    String selector,
                                                    String ack,
+                                                   boolean noLocal,
                                                    Integer consumerWindowSize) throws Exception {
       SimpleString address = SimpleString.of(destination);
       SimpleString queueName = SimpleString.of(destination);
@@ -342,8 +347,11 @@ public class StompSession implements SessionCallback {
             session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setFilterString(selectorSimple).setDurable(false).setTemporary(true));
          }
       }
+      if (noLocal) {
+         noLocalSubscriptionCount.incrementAndGet();
+      }
       final ServerConsumer consumer = session.createConsumer(consumerID, queueName, multicast ? null : selectorSimple, false, false, 0);
-      StompSubscription subscription = new StompSubscription(subscriptionID, ack, queueName, multicast, finalConsumerWindowSize);
+      StompSubscription subscription = new StompSubscription(subscriptionID, ack, queueName, multicast, noLocal, finalConsumerWindowSize);
       subscriptions.put(consumerID, subscription);
       session.start();
       /*
@@ -363,6 +371,9 @@ public class StompSession implements SessionCallback {
          StompSubscription sub = entry.getValue();
          if (id != null && id.equals(sub.getID())) {
             iterator.remove();
+            if (sub.isNoLocal()) {
+               noLocalSubscriptionCount.decrementAndGet();
+            }
             SimpleString queueName = sub.getQueueName();
             session.closeConsumer(consumerID);
             Queue queue = manager.getServer().locateQueue(queueName);
@@ -402,12 +413,12 @@ public class StompSession implements SessionCallback {
       return sessionContext;
    }
 
-   public boolean isNoLocal() {
-      return noLocal;
+   public int getNoLocalSubscriptionCount() {
+      return noLocalSubscriptionCount.get();
    }
 
-   public void setNoLocal(boolean noLocal) {
-      this.noLocal = noLocal;
+   public int getSubscriptionCount() {
+      return subscriptions.size();
    }
 
    public void sendInternal(Message message, boolean direct) throws Exception {
