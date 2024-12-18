@@ -1480,7 +1480,7 @@ public class StompTest extends StompTestBase {
    }
 
    @Test
-   public void testSubscribeToTopicWithNoLocal() throws Exception {
+   public void testSubscribeToTopicWithNoLocalSendWithJMS() throws Exception {
       conn.connect(defUser, defPass);
       subscribeTopic(conn, null, null, null, true, true);
 
@@ -1488,10 +1488,10 @@ public class StompTest extends StompTestBase {
       send(conn, getTopicPrefix() + getTopicName(), null, "Hello World");
 
       ClientStompFrame frame = conn.receiveFrame(100);
-      logger.debug("Received frame: {}", frame);
       assertNull(frame, "No message should have been received since subscription was removed");
 
       // send message on another JMS connection => it should be received
+      // a JMS message automatically gets a property named __AMQ_CID
       sendJmsMessage(getName(), topic);
       frame = conn.receiveFrame(10000);
       assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
@@ -1499,6 +1499,35 @@ public class StompTest extends StompTestBase {
       assertEquals(getName(), frame.getBody());
 
       conn.disconnect();
+   }
+
+   @Test
+   public void testSubscribeToTopicWithNoLocalSendWithStomp() throws Exception {
+      conn.connect(defUser, defPass);
+      StompClientConnection conn2 = StompClientConnectionFactory.createClientConnection(uri);
+      conn2.connect(defUser, defPass);
+
+      try {
+         subscribeTopic(conn, null, null, null, true, true);
+
+         // send a message on the same connection => it should not be received as noLocal = true on subscribe
+         send(conn, getTopicPrefix() + getTopicName(), null, "Hello World");
+
+         ClientStompFrame frame = conn.receiveFrame(100);
+         assertNull(frame, "No message should have been received since subscription specified noLocal");
+
+         // send message on another STOMP connection => it should be received
+         // a STOMP message does *not* automatically get a property named __AMQ_CID if there aren't any noLocal subscriptions on the connection
+         send(conn2, getTopicPrefix() + getTopicName(), null, getName());
+         frame = conn.receiveFrame(10000);
+         assertNotNull(frame);
+         assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+         assertEquals(getTopicPrefix() + getTopicName(), frame.getHeader(Stomp.Headers.Send.DESTINATION));
+         assertEquals(getName(), frame.getBody());
+      } finally {
+         conn.disconnect();
+         conn2.disconnect();
+      }
    }
 
    @Test
