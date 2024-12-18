@@ -498,7 +498,8 @@ public final class StompConnection extends AbstractRemotingConnection {
       try {
          StompSession stompSession = getSession(txID);
 
-         if (stompSession.isNoLocal()) {
+         // only set the connection ID property if we have a noLocal subscription
+         if (stompSession.getNoLocalSubscriptionCount() > 0) {
             message.putStringProperty(CONNECTION_ID_PROPERTY_NAME_STRING, getID().toString());
          }
          if (isEnableMessageID()) {
