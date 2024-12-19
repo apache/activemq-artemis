@@ -428,6 +428,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
          return HandleStatus.NO_MATCH;
       }
+      if (callback != null && callback.filterRef(ref, ServerConsumerImpl.this)) {
+         if (logger.isDebugEnabled()) {
+            logger.trace("Reference {} is not allowed to be consumed by {} due to message filtering.", ref, this);
+         }
+         return HandleStatus.NO_MATCH;
+      }
 
       synchronized (lock) {
          // If the consumer is stopped then we don't accept the message, it
