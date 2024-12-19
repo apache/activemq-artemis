@@ -682,6 +682,10 @@ public interface ActiveMQServer extends ServiceComponent {
       return locateQueue(SimpleString.of(queueName));
    }
 
+   default Queue locateQueue(String address, String queue) throws Exception {
+      return null;
+   }
+
    default BindingQueryResult bindingQuery(SimpleString address) throws Exception {
       return bindingQuery(address, true);
    }
