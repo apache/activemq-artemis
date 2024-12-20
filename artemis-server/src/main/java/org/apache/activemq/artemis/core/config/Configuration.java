@@ -1368,12 +1368,22 @@ public interface Configuration {
    /**
     * @param plugin
     */
+   void registerConfiguredBrokerPlugin(ActiveMQServerBasePlugin plugin);
+
+   /**
+    * @param plugin
+    */
    void unRegisterBrokerPlugin(ActiveMQServerBasePlugin plugin);
 
    /**
     * @return
     */
    List<ActiveMQServerBasePlugin> getBrokerPlugins();
+
+   /**
+    * @return
+    */
+   List<ActiveMQServerBasePlugin> getConfiguredBrokerPlugins();
 
    /**
     * @return

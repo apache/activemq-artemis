@@ -61,6 +61,8 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.cluster.impl.RemoteQueueBindingImpl;
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin;
+import org.apache.activemq.artemis.core.server.plugin.impl.NotificationActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -228,6 +230,67 @@ public class RedeployTest extends ActiveMQTestBase {
          assertEquals("61617", embeddedActiveMQ.getActiveMQServer().getConfiguration().getConnectorConfigurations().get("artemis").getParams().get(TransportConstants.PORT_PROP_NAME));
          assertEquals("127.0.0.3", embeddedActiveMQ.getActiveMQServer().getConfiguration().getConnectorConfigurations().get("artemis2").getParams().get(TransportConstants.HOST_PROP_NAME));
          assertEquals("61618", embeddedActiveMQ.getActiveMQServer().getConfiguration().getConnectorConfigurations().get("artemis2").getParams().get(TransportConstants.PORT_PROP_NAME));
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
+   @Test
+   public void testRedeployPlugin() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-plugin.xml");
+      URL url2 = RedeployTest.class.getClassLoader().getResource("reload-plugin-updated.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      Runnable tick = latch::countDown;
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+
+         //No plugins registered at start
+         assertEquals(0, embeddedActiveMQ.getActiveMQServer().getBrokerPlugins().size());
+
+         //register plugin programmatically
+         embeddedActiveMQ.getActiveMQServer().registerBrokerPlugin(new NotificationActiveMQServerPlugin());
+         assertEquals(1, embeddedActiveMQ.getActiveMQServer().getBrokerPlugins().size());
+         assertTrue(embeddedActiveMQ.getActiveMQServer().getBrokerPlugins().stream()
+            .anyMatch(plugin ->
+                         plugin instanceof NotificationActiveMQServerPlugin));
+
+         Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         //plugin added on configuration reload, programmatically added plugin stays registered
+         assertEquals(2, embeddedActiveMQ.getActiveMQServer().getBrokerPlugins().size());
+         assertTrue(embeddedActiveMQ.getActiveMQServer().getBrokerPlugins().stream()
+                       .anyMatch(plugin ->
+                                    plugin instanceof NotificationActiveMQServerPlugin));
+         assertTrue(embeddedActiveMQ.getActiveMQServer().getBrokerPlugins().stream()
+                       .anyMatch(plugin ->
+                                    plugin instanceof LoggingActiveMQServerPlugin));
+
+         Files.copy(url1.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         //removing plugin in config, programmatically added plugin stays registered
+         assertEquals(1, embeddedActiveMQ.getActiveMQServer().getBrokerPlugins().size());
+         assertTrue(embeddedActiveMQ.getActiveMQServer().getBrokerPlugins().stream()
+                       .anyMatch(plugin ->
+                                    plugin instanceof NotificationActiveMQServerPlugin));
       } finally {
          embeddedActiveMQ.stop();
       }
