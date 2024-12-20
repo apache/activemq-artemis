@@ -1502,6 +1502,26 @@ public class StompTest extends StompTestBase {
    }
 
    @Test
+   public void testSubscribeToTopicWithNoLocalAndNormal() throws Exception {
+      conn.connect(defUser, defPass);
+      subscribeTopic(conn, RandomUtil.randomString(), null, null, true, true);
+      subscribeTopic(conn, RandomUtil.randomString(), null, null, true, false);
+      int normalCount = 0;
+      int noLocalCount = 0;
+      for (Binding binding : server.getPostOffice().getBindingsForAddress(SimpleString.of(getTopicPrefix() + getTopicName())).getBindings()) {
+         if (binding.getFilter() != null && binding.getFilter().getFilterString().toString().contains("__AMQ_CID")) {
+            noLocalCount++;
+         } else {
+            normalCount++;
+         }
+      }
+      assertEquals(1, noLocalCount);
+      assertEquals(1, normalCount);
+
+      conn.disconnect();
+   }
+
+   @Test
    public void testSubscribeToTopicWithNoLocalAndSelector() throws Exception {
       conn.connect(defUser, defPass);
       subscribeTopic(conn, null, null, null, true, true, "a=foo OR b=bar");
