@@ -201,24 +201,22 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       server.setConnectors(connectors);
 
       ResourceHandler homeResourceHandler = new ResourceHandler();
-      homeResourceHandler.setBaseResourceAsString(homeWarDir.toString());
       homeResourceHandler.setDirAllowed(false);
       homeResourceHandler.setWelcomeFiles("index.html");
 
       ContextHandler homeContext = new ContextHandler();
       homeContext.setContextPath("/");
-      homeContext.setBaseResourceAsString(homeWarDir.toString());
+      homeContext.setBaseResourceAsPath(homeWarDir);
       homeContext.setHandler(homeResourceHandler);
       homeContext.setVirtualHosts(Arrays.asList(virtualHosts));
 
       ResourceHandler instanceResourceHandler = new ResourceHandler();
-      instanceResourceHandler.setBaseResourceAsString(instanceWarDir.toString());
       instanceResourceHandler.setDirAllowed(false);
       instanceResourceHandler.setWelcomeFiles("index.html");
 
       ContextHandler instanceContext = new ContextHandler();
       instanceContext.setContextPath("/");
-      instanceContext.setBaseResourceAsString(instanceWarDir.toString());
+      instanceContext.setBaseResourceAsPath(instanceWarDir);
       instanceContext.setHandler(instanceResourceHandler);
       instanceContext.setVirtualHosts(Arrays.asList(virtualHosts));
 
