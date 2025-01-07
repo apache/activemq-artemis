@@ -647,6 +647,123 @@ public class SecurityTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testJAASSecurityManagerCreateQueueWithDifferentRoutingTypeAsAddressNegative() throws Exception {
+      final SimpleString ADDRESS = SimpleString.of("address");
+      final SimpleString DURABLE_QUEUE = SimpleString.of("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = SimpleString.of("nonDurableQueue");
+      final SimpleString JMS = SimpleString.of("jms");
+
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      Set<Role> roles = new HashSet<>();
+      roles.add(new Role("programmers", false, false, true, false, true, false, false, false, false, false, false, false));
+      server.getConfiguration().putSecurityRoles("#", roles);
+      server.start();
+      server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+      server.addAddressInfo(new AddressInfo(JMS, RoutingType.ANYCAST));
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = addClientSession(cf.createSession("first", "secret", false, true, true, false, 0));
+
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://0");
+
+      // Explicit attempt to modify address routing type with a durable queue
+      try {
+         session.createQueue(QueueConfiguration.of(DURABLE_QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.MULTICAST));
+         fail("should throw exception here");
+      } catch (ActiveMQException e) {
+         assertTrue(e.getMessage().contains("User: first"));
+         assertTrue(e.getMessage().contains("does not have permission='CREATE_ADDRESS' for queue durableQueue on address address"));
+      }
+
+      // Implicit attempt to modify address routing type with a durable queue using auto-create via JMS
+      try (Connection c = connectionFactory.createConnection("first", "secret")) {
+         c.setClientID("myClientID");
+         Session s = c.createSession();
+         s.createDurableSubscriber(s.createTopic(JMS.toString()), "foo");
+         fail("should throw exception here");
+      } catch (JMSException e) {
+         assertTrue(e.getMessage().contains("User: first"));
+         assertTrue(e.getMessage().contains("does not have permission='CREATE_ADDRESS' for queue myClientID.foo on address jms"));
+      }
+
+      // Explicit attempt to modify address routing type with a non-durable queue
+      try {
+         session.createQueue(QueueConfiguration.of(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false).setRoutingType(RoutingType.MULTICAST));
+         fail("should throw exception here");
+      } catch (ActiveMQException e) {
+         assertTrue(e.getMessage().contains("User: first"));
+         assertTrue(e.getMessage().contains("does not have permission='CREATE_ADDRESS' for queue nonDurableQueue on address address"));
+      }
+
+      // Implicit attempt to modify address routing type with a non-durable queue using auto-create via JMS
+      try (Connection c = connectionFactory.createConnection("first", "secret")) {
+         Session s = c.createSession();
+         s.createConsumer(s.createTopic(JMS.toString()));
+         fail("should throw exception here");
+      } catch (JMSException e) {
+         assertTrue(e.getMessage().contains("User: first"));
+         assertTrue(e.getMessage().contains("does not have permission='CREATE_ADDRESS'"));
+      }
+   }
+
+   @Test
+   public void testJAASSecurityManagerCreateQueueWithDifferentRoutingTypeAsAddress() throws Exception {
+      final SimpleString ADDRESS = SimpleString.of("address");
+      final SimpleString DURABLE_QUEUE = SimpleString.of("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = SimpleString.of("nonDurableQueue");
+      final SimpleString JMS = SimpleString.of("jms");
+
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      Set<Role> roles = new HashSet<>();
+      roles.add(new Role("programmers", false, true, true, false, true, false, false, false, true, false, false, false));
+      server.getConfiguration().putSecurityRoles("#", roles);
+      server.start();
+      server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
+
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = addClientSession(cf.createSession("first", "secret", false, true, true, false, 0));
+
+      ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://0");
+
+      // Explicit attempt to modify address routing type with a durable queue
+      try {
+         session.createQueue(QueueConfiguration.of(DURABLE_QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.MULTICAST));
+      } catch (ActiveMQException e) {
+         e.printStackTrace();
+         fail("should not throw exception here");
+      }
+
+      // Implicit attempt to modify address routing type with a durable queue using auto-create via JMS
+      try (Connection c = connectionFactory.createConnection("first", "secret")) {
+         c.setClientID("myClientID");
+         Session s = c.createSession();
+         s.createDurableSubscriber(s.createTopic(JMS.toString()), "foo");
+      } catch (JMSException e) {
+         e.printStackTrace();
+         fail("should not throw exception here");
+      }
+
+      // Explicit attempt to modify address routing type with a non-durable queue
+      try {
+         session.createQueue(QueueConfiguration.of(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false).setRoutingType(RoutingType.MULTICAST));
+      } catch (ActiveMQException e) {
+         e.printStackTrace();
+         fail("should not throw exception here");
+      }
+
+      // Implicit attempt to modify address routing type with a non-durable queue using auto-create via JMS
+      try (Connection c = connectionFactory.createConnection("first", "secret")) {
+         Session s = c.createSession();
+         s.createConsumer(s.createTopic(JMS.toString()));
+      } catch (JMSException e) {
+         e.printStackTrace();
+         fail("should not throw exception here");
+      }
+   }
+
+   @Test
    // this is for backwards compatibility with the pre-FQQN syntax from ARTEMIS-592
    public void testJAASSecurityManagerAuthorizationSameAddressDifferentQueuesDotSyntax() throws Exception {
       internalJAASSecurityManagerAuthorizationSameAddressDifferentQueues(false);
