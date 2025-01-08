@@ -229,7 +229,7 @@ public class SecurityTest extends ActiveMQTestBase {
       ClientSessionFactory cf = createSessionFactory(locator);
 
       try {
-         ClientSession session = cf.createSession("test","password", false, true, true, false, 0);
+         ClientSession session = cf.createSession("test", "password", false, true, true, false, 0);
          session.close();
       } catch (ActiveMQException e) {
          e.printStackTrace();

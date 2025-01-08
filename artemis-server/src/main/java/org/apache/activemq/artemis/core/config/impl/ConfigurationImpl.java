@@ -971,7 +971,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return property.substring(0, property.length() - PROPERTY_CLASS_SUFFIX.length());
    }
 
-   private void trackError(HashMap<String, String> errors, Map.Entry<String,?> entry, Throwable oops) {
+   private void trackError(HashMap<String, String> errors, Map.Entry<String, ?> entry, Throwable oops) {
       logger.debug("failed to populate property entry({}), reason: {}", entry, oops);
       errors.put(entry.toString(), oops.toString());
    }

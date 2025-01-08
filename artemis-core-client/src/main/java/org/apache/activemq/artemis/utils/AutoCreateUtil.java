@@ -52,7 +52,7 @@ public class AutoCreateUtil {
                QueueConfiguration queueConfiguration = QueueConfiguration.of(queueName)
                      .setAutoCreated(true)
                      .setAddress(destAddress);
-               setRequiredQueueConfigurationIfNotSet(queueConfiguration,response, RoutingType.ANYCAST, selectorString, true);
+               setRequiredQueueConfigurationIfNotSet(queueConfiguration, response, RoutingType.ANYCAST, selectorString, true);
                session.createQueue(queueConfiguration);
                logger.debug("The queue {} was created automatically", destAddress);
             } catch (ActiveMQQueueExistsException e) {

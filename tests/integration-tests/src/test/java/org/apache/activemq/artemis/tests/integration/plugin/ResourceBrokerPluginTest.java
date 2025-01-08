@@ -142,7 +142,7 @@ public class ResourceBrokerPluginTest extends ActiveMQTestBase {
                                          RemotingConnection remotingConnection) throws ActiveMQException {
             if (xid.getFormatId() == JTA_FORMAT_ID) {
                // https://github.com/jbosstm/narayana/blob/5.10.5.Final/ArjunaJTA/jta/classes/com/arjuna/ats/jta/xa/XATxConverter.java#L188
-               String nodeName = new String(Arrays.copyOfRange(xid.getGlobalTransactionId(),28, xid.getGlobalTransactionId().length), StandardCharsets.UTF_8);
+               String nodeName = new String(Arrays.copyOfRange(xid.getGlobalTransactionId(), 28, xid.getGlobalTransactionId().length), StandardCharsets.UTF_8);
 
                String clientAddress = clients.putIfAbsent(nodeName, remotingConnection.getRemoteAddress());
 

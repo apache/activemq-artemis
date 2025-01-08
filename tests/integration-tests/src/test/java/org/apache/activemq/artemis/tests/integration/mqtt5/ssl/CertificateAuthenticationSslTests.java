@@ -116,7 +116,7 @@ public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
       Wait.assertTrue(() -> getSubscriptionQueue(topic, clientId) != null, 2000, 100);
       Wait.assertEquals(1, () -> getSubscriptionQueue(topic, clientId).getConsumerCount(), 2000, 100);
 
-      MqttClient producer = createPahoClient(protocol,"producer");
+      MqttClient producer = createPahoClient(protocol, "producer");
       producer.connect(getSslMqttConnectOptions());
       producer.publish(topic, body, 1, false);
       assertTrue(latch.await(500, TimeUnit.MILLISECONDS));

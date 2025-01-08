@@ -201,6 +201,6 @@ public class KubernetesLoginModuleTest {
 
    private Map<String, ?> getDefaultOptions() {
       String baseDirValue = new File(KubernetesLoginModuleTest.class.getClassLoader().getResource("k8s-roles.properties").getPath()).getParentFile().getAbsolutePath();
-      return Map.of(K8S_ROLE_FILE_PROP_NAME, "k8s-roles.properties", "baseDir",baseDirValue);
+      return Map.of(K8S_ROLE_FILE_PROP_NAME, "k8s-roles.properties", "baseDir", baseDirValue);
    }
 }

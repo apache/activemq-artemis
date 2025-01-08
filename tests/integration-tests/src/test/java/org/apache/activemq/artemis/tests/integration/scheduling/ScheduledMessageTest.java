@@ -570,7 +570,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
    @Test
    public void testManagementDeliveryByFilter() throws Exception {
       final String propertyValue = RandomUtil.randomString();
-      final String propertyName = "X" + RandomUtil.randomString().replace("-","");
+      final String propertyName = "X" + RandomUtil.randomString().replace("-", "");
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
       session.createQueue(QueueConfiguration.of(atestq));

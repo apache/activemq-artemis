@@ -41,7 +41,7 @@ public final class ActiveMQBuffers {
    }
 
    public static ActiveMQBuffer pooledBuffer(final int size) {
-      return new ChannelBufferWrapper(ALLOCATOR.heapBuffer(size),true, true);
+      return new ChannelBufferWrapper(ALLOCATOR.heapBuffer(size), true, true);
    }
 
    /**

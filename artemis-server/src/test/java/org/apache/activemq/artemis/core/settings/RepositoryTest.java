@@ -417,7 +417,7 @@ public class RepositoryTest extends ServerTestBase {
 
    static class DummyMergeable implements Mergeable<DummyMergeable> {
       private final int id;
-      private final Map<String,String> settings;
+      private final Map<String, String> settings;
       private final List<DummyMergeable> mergedItems;
 
       public int getId() {
@@ -438,7 +438,7 @@ public class RepositoryTest extends ServerTestBase {
          this.mergedItems = new ArrayList<>();
       }
 
-      DummyMergeable(final int id, final Map<String,String> settings) {
+      DummyMergeable(final int id, final Map<String, String> settings) {
          this.id = id;
          this.settings = settings;
          this.mergedItems = new ArrayList<>();

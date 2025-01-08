@@ -58,7 +58,7 @@ public class ProgrammaticRedeployTest extends ActiveMQTestBase {
 
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
       try (JMSContext jmsContext = connectionFactory.createContext()) {
-         jmsContext.createSharedDurableConsumer(jmsContext.createTopic("config_test_consumer_created_queues"),"mySub").receive(100);
+         jmsContext.createSharedDurableConsumer(jmsContext.createTopic("config_test_consumer_created_queues"), "mySub").receive(100);
       }
 
       try {

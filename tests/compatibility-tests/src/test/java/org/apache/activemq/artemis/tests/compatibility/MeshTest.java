@@ -95,7 +95,7 @@ public class MeshTest extends ServerBase {
 
       t.start();
       assertTrue(latch.await(10, TimeUnit.SECONDS));
-      evaluate(senderClassloader,"meshTest/sendMessages.groovy", server, sender, "sendTopic");
+      evaluate(senderClassloader, "meshTest/sendMessages.groovy", server, sender, "sendTopic");
 
       t.join();
 

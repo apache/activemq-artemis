@@ -747,10 +747,10 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       MessageConsumer topicConsumer = session.createDurableSubscriber(topic, "tp1");
 
       // Send the messages
-      send(session, producer, queue,"1st");
-      send(session, producer, queue,"2nd");
-      send(session, producer, topic,"1st");
-      send(session, producer, topic,"2nd");
+      send(session, producer, queue, "1st");
+      send(session, producer, queue, "2nd");
+      send(session, producer, topic, "1st");
+      send(session, producer, topic, "2nd");
 
       session.commit();
 

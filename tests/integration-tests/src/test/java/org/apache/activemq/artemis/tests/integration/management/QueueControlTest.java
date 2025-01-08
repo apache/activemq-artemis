@@ -637,7 +637,7 @@ public class QueueControlTest extends ManagementTestBase {
       currentTime = System.currentTimeMillis();
 
       //now make sure they fall between the test time window
-      assertTrue(currentTime >= lastAcked,"currentTime = " + currentTime + " lastAcked = " + lastAcked);
+      assertTrue(currentTime >= lastAcked, "currentTime = " + currentTime + " lastAcked = " + lastAcked);
 
       consumer.close();
 
@@ -703,7 +703,7 @@ public class QueueControlTest extends ManagementTestBase {
 
          for (int i = 0; i < 100; i++) {
             message = consumer.receive(5000);
-            assertNotNull(message,"message " + i + " not received");
+            assertNotNull(message, "message " + i + " not received");
          }
 
          JsonArray obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
@@ -783,7 +783,7 @@ public class QueueControlTest extends ManagementTestBase {
 
          for (int i = 0; i < 100; i++) {
             message = consumer.receive(5000);
-            assertNotNull(message,"message " + i + " not received");
+            assertNotNull(message, "message " + i + " not received");
             message.acknowledge();
          }
 
@@ -864,7 +864,7 @@ public class QueueControlTest extends ManagementTestBase {
 
          for (int i = 0; i < 100; i++) {
             message = consumer.receive(5000);
-            assertNotNull(message,"message " + i + " not received");
+            assertNotNull(message, "message " + i + " not received");
          }
 
          session.commit();
@@ -941,7 +941,7 @@ public class QueueControlTest extends ManagementTestBase {
          session.getXAResource().start(xid, XAResource.TMNOFLAGS);
          for (int i = 0; i < 100; i++) {
             message = consumer.receive(5000);
-            assertNotNull(message,"message " + i + " not received");
+            assertNotNull(message, "message " + i + " not received");
          }
          session.getXAResource().end(xid, XAResource.TMSUCCESS);
 
@@ -3702,7 +3702,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       QueueControl queueControl = createManagementControl(address, queue);
       assertEquals(100, getMessageCount(queueControl));
-      String result = queueControl.countMessages(null,null);
+      String result = queueControl.countMessages(null, null);
       JsonObject jsonObject = JsonUtil.readJsonObject(result);
       assertEquals(100, jsonObject.getInt("null"));
       session.deleteQueue(queue);

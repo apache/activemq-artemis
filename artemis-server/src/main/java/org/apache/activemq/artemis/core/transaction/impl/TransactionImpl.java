@@ -103,7 +103,7 @@ public class TransactionImpl implements Transaction {
    }
 
    public TransactionImpl(final StorageManager storageManager) {
-      this(storageManager.generateID(), null, storageManager,-1);
+      this(storageManager.generateID(), null, storageManager, -1);
    }
 
 

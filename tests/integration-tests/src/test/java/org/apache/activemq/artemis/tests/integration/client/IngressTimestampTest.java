@@ -177,7 +177,7 @@ public class IngressTimestampTest extends ActiveMQTestBase {
                assertNotNull(ingressTimestampHeader);
                assertTrue(ingressTimestampHeader instanceof Long);
                long ingressTimestamp = (Long) ingressTimestampHeader;
-               assertTrue(ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend,"Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend);
+               assertTrue(ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend, "Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend);
             }
          }
       }

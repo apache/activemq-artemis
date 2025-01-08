@@ -77,7 +77,7 @@ public class ConfigurationTest extends ActiveMQTestBase {
    @Test
    public void testPropertiesConfigReload() throws Exception {
 
-      File propsFile = new File(getTestDirfile(),"some.props");
+      File propsFile = new File(getTestDirfile(), "some.props");
       propsFile.createNewFile();
 
       ConfigurationImpl.InsertionOrderedProperties config = new ConfigurationImpl.InsertionOrderedProperties();
@@ -90,7 +90,7 @@ public class ConfigurationTest extends ActiveMQTestBase {
 
       config.put("addressConfigurations.mytopic_3.queueConfigs.\"queue.B3\".address", "mytopic_3");
       config.put("addressConfigurations.mytopic_3.queueConfigs.\"queue.B3\".routingType", "MULTICAST");
-      config.put("status","{\"generation\": \"1\"}");
+      config.put("status", "{\"generation\": \"1\"}");
 
       try (FileOutputStream outStream = new FileOutputStream(propsFile)) {
          config.store(outStream, null);
@@ -114,7 +114,7 @@ public class ConfigurationTest extends ActiveMQTestBase {
 
          // add new binding from props update
          config.put("addressConfigurations.mytopic_3.queueConfigs.\"queue.C3\".address", "mytopic_3");
-         config.put("status","{\"generation\": \"2\"}");
+         config.put("status", "{\"generation\": \"2\"}");
 
          try (FileOutputStream outStream = new FileOutputStream(propsFile)) {
             config.store(outStream, null);

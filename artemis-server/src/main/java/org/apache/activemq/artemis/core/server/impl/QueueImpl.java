@@ -1512,7 +1512,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             ConsumerHolder<Consumer> newConsumerHolder = new ConsumerHolder<>(consumer, this);
             if (consumers.add(newConsumerHolder)) {
                if (delayBeforeDispatch >= 0) {
-                  dispatchStartTimeUpdater.compareAndSet(this,-1, delayBeforeDispatch + System.currentTimeMillis());
+                  dispatchStartTimeUpdater.compareAndSet(this, -1, delayBeforeDispatch + System.currentTimeMillis());
                }
                refCountForConsumers.increment();
             }

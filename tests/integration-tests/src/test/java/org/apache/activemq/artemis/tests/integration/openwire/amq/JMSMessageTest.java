@@ -55,7 +55,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
 
    @Parameters(name = "deliveryMode={0} destinationType={1}")
    public static Collection<Object[]> getParams() {
-      return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.QUEUE_TYPE},});
+      return Arrays.asList(new Object[][]{{DeliveryMode.NON_PERSISTENT, ActiveMQDestination.QUEUE_TYPE}, {DeliveryMode.PERSISTENT, ActiveMQDestination.QUEUE_TYPE}});
    }
 
    public int deliveryMode = DeliveryMode.NON_PERSISTENT;

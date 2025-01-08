@@ -75,7 +75,7 @@ public class ClusterConnectionImplMockTest extends ServerTestBase {
                 null, //final MessageLoadBalancingType messageLoadBalancingType,
                 0, //final int confirmationWindowSize,
                 0, //final int producerWindowSize,
-         () -> executor,//final ExecutorFactory executorFactory,
+         () -> executor, //final ExecutorFactory executorFactory,
                 new MockServer(), //final ActiveMQServer server,
                 null, //final PostOffice postOffice,
                 null, //final ManagementService managementService,

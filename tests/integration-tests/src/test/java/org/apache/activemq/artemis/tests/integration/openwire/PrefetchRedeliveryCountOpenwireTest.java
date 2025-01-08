@@ -761,7 +761,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
                }
             }
          };
-         PrintData.printData(server.getConfiguration().getBindingsLocation(),server.getConfiguration().getJournalLocation(),server.getConfiguration().getPagingLocation(), out, true, true, true, false, -1);
+         PrintData.printData(server.getConfiguration().getBindingsLocation(), server.getConfiguration().getJournalLocation(), server.getConfiguration().getPagingLocation(), out, true, true, true, false, -1);
 
          throw e;
       }

@@ -283,7 +283,7 @@ public class RollingUpgradeTest extends RealServerTestBase {
    private void sendMessage(String uri, String protocol) throws Exception {
       ConnectionFactory cf = CFUtil.createConnectionFactory(protocol, uri);
       try (Connection connection = cf.createConnection();
-           Session session = connection.createSession(false,Session.AUTO_ACKNOWLEDGE)) {
+           Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
          MessageProducer producer = session.createProducer(session.createQueue(QUEUE_NAME));
          TextMessage message = session.createTextMessage("hello from protocol " + protocol);
          message.setStringProperty("protocolUsed", protocol);
@@ -296,7 +296,7 @@ public class RollingUpgradeTest extends RealServerTestBase {
    private void consumeMessage(String uri, String protocol) throws Exception {
       ConnectionFactory cf = CFUtil.createConnectionFactory(protocol, uri);
       try (Connection connection = cf.createConnection();
-           Session session = connection.createSession(false,Session.AUTO_ACKNOWLEDGE)) {
+           Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
          MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
          connection.start();
          TextMessage message = (TextMessage) consumer.receive(5_000);
@@ -310,7 +310,7 @@ public class RollingUpgradeTest extends RealServerTestBase {
    private void checkNoMessages(String uri) throws Exception {
       ConnectionFactory cf = CFUtil.createConnectionFactory("CORE", uri);
       try (Connection connection = cf.createConnection();
-           Session session = connection.createSession(false,Session.AUTO_ACKNOWLEDGE)) {
+           Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
          MessageConsumer consumer = session.createConsumer(session.createQueue(QUEUE_NAME));
          connection.start();
          assertNull(consumer.receiveNoWait());

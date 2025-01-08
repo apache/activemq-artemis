@@ -474,7 +474,7 @@ public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport
       // The publish method will create a second shared consumer
       Session s = connection.createSession();
       MessageConsumer c = s.createSharedDurableConsumer(s.createTopic(defaultTopicName), "sub1");
-      publishTestMessagesDurable(connection, new String[] {"sub1",}, 200, publishedMessageSize,
+      publishTestMessagesDurable(connection, new String[] {"sub1"}, 200, publishedMessageSize,
             DeliveryMode.PERSISTENT, true);
 
       // verify the count and size - double because two durables so two queue

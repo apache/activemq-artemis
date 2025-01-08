@@ -67,7 +67,7 @@ public class JMSTransformationSpeedComparisonTest {
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
+         encode(AMQPConverter.getInstance().fromCore(intermediate, null));
       }
 
       long totalDuration = 0;
@@ -75,7 +75,7 @@ public class JMSTransformationSpeedComparisonTest {
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
+         encode(AMQPConverter.getInstance().fromCore(intermediate, null));
       }
       totalDuration += System.nanoTime() - startTime;
 
@@ -97,7 +97,7 @@ public class JMSTransformationSpeedComparisonTest {
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
+         encode(AMQPConverter.getInstance().fromCore(intermediate, null));
       }
 
       long totalDuration = 0;
@@ -105,7 +105,7 @@ public class JMSTransformationSpeedComparisonTest {
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
+         encode(AMQPConverter.getInstance().fromCore(intermediate, null));
       }
       totalDuration += System.nanoTime() - startTime;
 
@@ -119,7 +119,7 @@ public class JMSTransformationSpeedComparisonTest {
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
+         encode(AMQPConverter.getInstance().fromCore(intermediate, null));
       }
 
       long totalDuration = 0;
@@ -127,7 +127,7 @@ public class JMSTransformationSpeedComparisonTest {
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
+         encode(AMQPConverter.getInstance().fromCore(intermediate, null));
       }
       totalDuration += System.nanoTime() - startTime;
 
@@ -142,7 +142,7 @@ public class JMSTransformationSpeedComparisonTest {
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
+         encode(AMQPConverter.getInstance().fromCore(intermediate, null));
       }
 
       long totalDuration = 0;
@@ -150,7 +150,7 @@ public class JMSTransformationSpeedComparisonTest {
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
+         encode(AMQPConverter.getInstance().fromCore(intermediate, null));
       }
       totalDuration += System.nanoTime() - startTime;
 
@@ -165,7 +165,7 @@ public class JMSTransformationSpeedComparisonTest {
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
+         encode(AMQPConverter.getInstance().fromCore(intermediate, null));
       }
 
       long totalDuration = 0;
@@ -173,7 +173,7 @@ public class JMSTransformationSpeedComparisonTest {
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
+         encode(AMQPConverter.getInstance().fromCore(intermediate, null));
       }
 
       totalDuration += System.nanoTime() - startTime;
@@ -188,7 +188,7 @@ public class JMSTransformationSpeedComparisonTest {
       // Warm up
       for (int i = 0; i < WARM_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
+         encode(AMQPConverter.getInstance().fromCore(intermediate, null));
       }
 
       long totalDuration = 0;
@@ -196,7 +196,7 @@ public class JMSTransformationSpeedComparisonTest {
       long startTime = System.nanoTime();
       for (int i = 0; i < PROFILE_CYCLES; ++i) {
          ICoreMessage intermediate = encoded.toCore();
-         encode(AMQPConverter.getInstance().fromCore(intermediate,null));
+         encode(AMQPConverter.getInstance().fromCore(intermediate, null));
       }
 
       totalDuration += System.nanoTime() - startTime;

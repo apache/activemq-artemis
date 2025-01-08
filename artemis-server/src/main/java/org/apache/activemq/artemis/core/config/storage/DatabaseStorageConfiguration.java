@@ -247,7 +247,7 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
       }
    }
 
-   public Map<String,Object> getDataSourceProperties() {
+   public Map<String, Object> getDataSourceProperties() {
       return dataSourceProperties;
    }
 

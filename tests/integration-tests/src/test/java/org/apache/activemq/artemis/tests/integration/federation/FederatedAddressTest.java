@@ -190,7 +190,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy divert at end
    @Test
    public void testDownstreamDivertAddressFirstAndDivertFirstDestroyDivert() throws Exception {
-      testFederatedAddressDivert(true,true, true, true);
+      testFederatedAddressDivert(true, true, true, true);
    }
 
    //Test creating address first followed by divert
@@ -198,7 +198,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy queue at end
    @Test
    public void testDownstreamDivertAddressFirstAndDivertFirstDestroyQueue() throws Exception {
-      testFederatedAddressDivert(true,true, true, false);
+      testFederatedAddressDivert(true, true, true, false);
    }
 
    //Test creating divert first followed by address
@@ -206,7 +206,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy divert at end
    @Test
    public void testDownstreamDivertAddressSecondDivertFirstDestroyDivert() throws Exception {
-      testFederatedAddressDivert(true,false, true, true);
+      testFederatedAddressDivert(true, false, true, true);
    }
 
    //Test creating divert first followed by address
@@ -214,7 +214,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy divert at end
    @Test
    public void testDownstreamDivertAddressSecondDivertFirstDestroyQueue() throws Exception {
-      testFederatedAddressDivert(true,false, true, false);
+      testFederatedAddressDivert(true, false, true, false);
    }
 
    //Test creating address first followed by divert
@@ -222,7 +222,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy divert at end
    @Test
    public void testDownstreamDivertAddressFirstDivertSecondDestroyDivert() throws Exception {
-      testFederatedAddressDivert(true,true, false, true);
+      testFederatedAddressDivert(true, true, false, true);
    }
 
    //Test creating address first followed by divert
@@ -230,7 +230,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy queue at end
    @Test
    public void testDownstreamDivertAddressFirstDivertSecondDestroyQueue() throws Exception {
-      testFederatedAddressDivert(true,true, false, false);
+      testFederatedAddressDivert(true, true, false, false);
    }
 
    //Test creating divert first followed by address
@@ -238,7 +238,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy divert at end
    @Test
    public void testDownstreamDivertAddressAndDivertSecondDestroyDivert() throws Exception {
-      testFederatedAddressDivert(true,false, false, true);
+      testFederatedAddressDivert(true, false, false, true);
    }
 
    //Test creating divert first followed by address
@@ -246,7 +246,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy queue at end
    @Test
    public void testDownstreamDivertAddressAndDivertSecondDestroyQueue() throws Exception {
-      testFederatedAddressDivert(true,false, false, false);
+      testFederatedAddressDivert(true, false, false, false);
    }
 
    /**
@@ -257,7 +257,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy divert at end
    @Test
    public void testUpstreamDivertAddressAndDivertFirstDestroyDivert() throws Exception {
-      testFederatedAddressDivert(false,true, true, true);
+      testFederatedAddressDivert(false, true, true, true);
    }
 
    //Test creating address first followed by divert
@@ -265,7 +265,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy queue at end
    @Test
    public void testUpstreamDivertAddressAndDivertFirstDestroyQueue() throws Exception {
-      testFederatedAddressDivert(false,true, true, false);
+      testFederatedAddressDivert(false, true, true, false);
    }
 
    //Test creating divert first followed by address
@@ -273,7 +273,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy divert at end
    @Test
    public void testUpstreamDivertAddressSecondDivertFirstDestroyDivert() throws Exception {
-      testFederatedAddressDivert(false,false, true, true);
+      testFederatedAddressDivert(false, false, true, true);
    }
 
    //Test creating divert first followed by address
@@ -281,7 +281,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy queue at end
    @Test
    public void testUpstreamDivertAddressSecondDivertFirstDestroyQueue() throws Exception {
-      testFederatedAddressDivert(false,false, true, false);
+      testFederatedAddressDivert(false, false, true, false);
    }
 
    //Test creating address first followed by divert
@@ -289,7 +289,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy divert at end
    @Test
    public void testUpstreamDivertAddressFirstDivertSecondDestroyDivert() throws Exception {
-      testFederatedAddressDivert(false,true, false, true);
+      testFederatedAddressDivert(false, true, false, true);
    }
 
    //Test creating address first followed by divert
@@ -297,7 +297,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy queue at end
    @Test
    public void testUpstreamDivertAddressFirstDivertSecondDestroyQueue() throws Exception {
-      testFederatedAddressDivert(false,true, false, false);
+      testFederatedAddressDivert(false, true, false, false);
    }
 
    //Test creating divert first followed by address
@@ -305,7 +305,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy divert at end
    @Test
    public void testUpstreamsDivertAddressAndDivertSecondDestroyDivert() throws Exception {
-      testFederatedAddressDivert(false,false, false, true);
+      testFederatedAddressDivert(false, false, false, true);
    }
 
    //Test creating divert first followed by address
@@ -313,7 +313,7 @@ public class FederatedAddressTest extends FederatedTestBase {
    //Test destroy queue at end
    @Test
    public void testUpstreamDivertAddressAndDivertSecondDestroyQueue() throws Exception {
-      testFederatedAddressDivert(false,false, false, false);
+      testFederatedAddressDivert(false, false, false, false);
    }
 
    protected void testFederatedAddressDivert(boolean downstream, boolean addressFirst, boolean divertBeforeConsumer,

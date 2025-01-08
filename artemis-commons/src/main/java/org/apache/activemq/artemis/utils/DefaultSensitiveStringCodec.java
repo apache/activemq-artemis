@@ -229,7 +229,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
    }
 
    public static String envVarNameFromSystemPropertyName(final String systemPropertyName) {
-      return systemPropertyName.replace(".","_").toUpperCase(Locale.getDefault());
+      return systemPropertyName.replace(".", "_").toUpperCase(Locale.getDefault());
    }
 
    private static class PBKDF2Algorithm extends CodecAlgorithm {

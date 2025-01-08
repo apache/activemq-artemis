@@ -777,7 +777,7 @@ public class StompTest extends StompTestBase {
       String ingressTimestampHeader = frame.getHeader(Stomp.Headers.Message.INGRESS_TIMESTAMP);
       assertNotNull(ingressTimestampHeader);
       long ingressTimestamp = Long.parseLong(ingressTimestampHeader);
-      assertTrue(ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend,"Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend);
+      assertTrue(ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend, "Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend);
 
       conn.disconnect();
    }

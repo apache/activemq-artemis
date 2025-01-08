@@ -207,7 +207,7 @@ public class CompareUpgradeTest {
       Map<String, String> brokerProfileResult = checkExpectedValues(windowsETC + "/artemis.profile.cmd",
                                    "set ARTEMIS_HOME=", null, // no expected value for this, we will check on the output
                                    "set ARTEMIS_INSTANCE=", "\"" + windows + "\"",
-                                   "set ARTEMIS_DATA_DIR=","\"" + windowsData + "\"",
+                                   "set ARTEMIS_DATA_DIR=", "\"" + windowsData + "\"",
                                    "set ARTEMIS_ETC_DIR=", "\"" + windowsETC + "\"",
                                    "set ARTEMIS_OOME_DUMP=", "\"" + windows + "/log/oom_dump.hprof\"",
                                    "set ARTEMIS_INSTANCE_URI=", "\"file:" + windows + "/\"",
@@ -233,7 +233,7 @@ public class CompareUpgradeTest {
       Map<String, String> utilityProfileResult = checkExpectedValues(utilityProfilePath,
             "set ARTEMIS_HOME=", null, // no expected value for this, we will check on the output
             "set ARTEMIS_INSTANCE=", "\"" + windows + "\"",
-            "set ARTEMIS_DATA_DIR=","\"" + windowsData + "\"",
+            "set ARTEMIS_DATA_DIR=", "\"" + windowsData + "\"",
             "set ARTEMIS_ETC_DIR=", "\"" + windowsETC + "\"",
             "set ARTEMIS_OOME_DUMP=", "\"" + windows + "/log/oom_dump.hprof\"",
             "set ARTEMIS_INSTANCE_URI=", "\"file:" + windows + "/\"",

@@ -94,7 +94,7 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
       Wait.waitFor(() -> addressControl.getMessageCount() == 1);
       assertEquals(1, addressControl.getMessageCount());
 
-      assertTrue(findLogRecord(getAuditLog(),"sending a message", uniqueStr));
+      assertTrue(findLogRecord(getAuditLog(), "sending a message", uniqueStr));
 
       //failure log
       address = RandomUtil.randomSimpleString();
@@ -117,9 +117,9 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
          //ignore
       }
 
-      assertTrue(findLogRecord(getAuditLog(),"AMQ601264: User guest", "gets security check failure, reason = AMQ229213: User: guest does not have permission='DELETE_NON_DURABLE_QUEUE'"));
+      assertTrue(findLogRecord(getAuditLog(), "AMQ601264: User guest", "gets security check failure, reason = AMQ229213: User: guest does not have permission='DELETE_NON_DURABLE_QUEUE'"));
       //hot patch not in log
-      assertTrue(findLogRecord(getAuditLog(),"is sending a message"));
+      assertTrue(findLogRecord(getAuditLog(), "is sending a message"));
    }
 
    @Test

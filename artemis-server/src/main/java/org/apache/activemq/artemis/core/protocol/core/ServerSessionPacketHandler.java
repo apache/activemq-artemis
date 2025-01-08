@@ -666,7 +666,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                      producers.put(message.getId(), senderName);
                      session.addProducer(senderName, ActiveMQClient.DEFAULT_CORE_PROTOCOL, message.getAddress() != null ? message.getAddress().toString() : null);
                   } else {
-                     ActiveMQServerLogger.LOGGER.producerAlreadyExists(message.getId(),session.getName(), remotingConnection.getRemoteAddress());
+                     ActiveMQServerLogger.LOGGER.producerAlreadyExists(message.getId(), session.getName(), remotingConnection.getRemoteAddress());
                   }
                   break;
                }

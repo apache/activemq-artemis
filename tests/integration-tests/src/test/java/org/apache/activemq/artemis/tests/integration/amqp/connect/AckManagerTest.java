@@ -284,8 +284,8 @@ public class AckManagerTest extends ActiveMQTestBase {
       Queue c1s1AfterRestart = server1.locateQueue("c1.s1");
       assertNotNull(c1s1AfterRestart);
 
-      ackManager.addRetry(referenceIDSupplier.getDefaultNodeID(), c1s1, 10_000_000L,AckReason.NORMAL);
-      ackManager.addRetry(referenceIDSupplier.getDefaultNodeID(), c1s1, 10_000_001L,AckReason.NORMAL);
+      ackManager.addRetry(referenceIDSupplier.getDefaultNodeID(), c1s1, 10_000_000L, AckReason.NORMAL);
+      ackManager.addRetry(referenceIDSupplier.getDefaultNodeID(), c1s1, 10_000_001L, AckReason.NORMAL);
 
       Wait.assertTrue(() -> ackManager.sortRetries().isEmpty(), 5000);
 

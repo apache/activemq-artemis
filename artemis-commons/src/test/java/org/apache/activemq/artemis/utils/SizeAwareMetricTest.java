@@ -231,7 +231,7 @@ public class SizeAwareMetricTest {
 
    @Test
    public void testMaxElements() {
-      SizeAwareMetric metric = new SizeAwareMetric(10000, 500, 10,10);
+      SizeAwareMetric metric = new SizeAwareMetric(10000, 500, 10, 10);
 
       AtomicBoolean over = new AtomicBoolean(false);
       metric.setOverCallback(() -> over.set(true));
@@ -255,8 +255,8 @@ public class SizeAwareMetricTest {
    }
    @Test
    public void testMaxElementsReleaseNonSizeParentMetric() {
-      SizeAwareMetric metricMain = new SizeAwareMetric(10000, 500, 10,10);
-      SizeAwareMetric metric = new SizeAwareMetric(10000, 500, 1000,1000);
+      SizeAwareMetric metricMain = new SizeAwareMetric(10000, 500, 10, 10);
+      SizeAwareMetric metric = new SizeAwareMetric(10000, 500, 1000, 1000);
 
       metric.setOnSizeCallback(metricMain::addSize);
 
@@ -303,7 +303,7 @@ public class SizeAwareMetricTest {
 
    @Test
    public void testMaxElementsReleaseNonSize() {
-      SizeAwareMetric metric = new SizeAwareMetric(10000, 500, 10,10);
+      SizeAwareMetric metric = new SizeAwareMetric(10000, 500, 10, 10);
 
       AtomicBoolean over = new AtomicBoolean(false);
       metric.setOverCallback(() -> over.set(true));

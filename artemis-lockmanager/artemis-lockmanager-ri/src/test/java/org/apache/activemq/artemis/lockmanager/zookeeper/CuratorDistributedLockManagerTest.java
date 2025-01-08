@@ -131,7 +131,7 @@ public class CuratorDistributedLockManagerTest extends ArtemisTestCase {
    }
 
    private void dumpZK(ZooKeeper zooKeeper, String path, List<String> entries) throws InterruptedException, KeeperException {
-      List<String> children = ZKPaths.getSortedChildren(zooKeeper,path);
+      List<String> children = ZKPaths.getSortedChildren(zooKeeper, path);
       for (String s: children) {
          if (!s.equals("zookeeper")) {
             String qualifiedPath = (path.endsWith("/") ? path : path + "/") + s;

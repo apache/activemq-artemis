@@ -129,7 +129,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
       return count;
    }
 
-   private static boolean validateNetworkTopology(String networkTopologyJson,Predicate<Map<String, Pair<String, String>>> checkTopology) {
+   private static boolean validateNetworkTopology(String networkTopologyJson, Predicate<Map<String, Pair<String, String>>> checkTopology) {
       final Map<String, Pair<String, String>> networkTopology = decodeNetworkTopologyJson(networkTopologyJson);
       return checkTopology.test(networkTopology);
    }

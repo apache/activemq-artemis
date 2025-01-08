@@ -280,7 +280,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
    private void readConsumer(String consumerName, ClientConsumer consumer) throws Exception {
       ClientMessage message = consumer.receive(5000);
       assertNotNull(message);
-      logger.debug("consumer = {} message, color={}, msg = {}",consumerName, message.getStringProperty("color"), message.getStringProperty("value"));
+      logger.debug("consumer = {} message, color={}, msg = {}", consumerName, message.getStringProperty("color"), message.getStringProperty("value"));
       message.acknowledge();
    }
 
