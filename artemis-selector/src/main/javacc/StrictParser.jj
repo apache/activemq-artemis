@@ -65,7 +65,7 @@ public class StrictParser {
             return (BooleanExpression) value;
         }
         if (value instanceof PropertyExpression) {
-            return UnaryExpression.createBooleanCast( value );
+            return UnaryExpression.createBooleanCast(value);
         }
         throw new ParseException("Expression will not result in a boolean value: " + value);
     }
@@ -125,13 +125,13 @@ TOKEN [IGNORE_CASE] :
         | (["0"-"9"])+ <EXPONENT>                     // matches: 5E10
     >
   | < #EXPONENT: "E" (["+","-"])? (["0"-"9"])+ >
-  | < STRING_LITERAL: "'" ( ("''") | ~["'"] )*  "'" >
+  | < STRING_LITERAL: "'" (("''") | ~["'"])*  "'" >
 }
 
 TOKEN [IGNORE_CASE] :
 {
     < ID : ["a"-"z", "_", "$"] (["a"-"z","0"-"9","_", "$"])* >
-    | < QUOTED_ID : "\"" ( ("\"\"") | ~["\""] )*  "\""  >
+    | < QUOTED_ID : "\"" (("\"\"") | ~["\""])*  "\""  >
 }
 
 // ----------------------------------------------------------------------------
@@ -299,13 +299,13 @@ Expression comparisonExpression() :
 		            t = stringLitteral()
 		            {
 			            list = new ArrayList();
-			            list.add( t );
+			            list.add(t);
 		            }
 			        (
 			        	","
 			            t = stringLitteral()
 			            {
-				            list.add( t );
+				            list.add(t);
 			            }
 
 			        )*
@@ -320,13 +320,13 @@ Expression comparisonExpression() :
 		            t = stringLitteral()
 		            {
 			            list = new ArrayList();
-			            list.add( t );
+			            list.add(t);
 		            }
 			        (
 			        	","
 			            t = stringLitteral()
 			            {
-				            list.add( t );
+				            list.add(t);
 			            }
 
 			        )*
@@ -350,7 +350,7 @@ Expression addExpression() :
 {
     left = multExpr()
     (
-	    LOOKAHEAD( ("+"|"-") multExpr())
+	    LOOKAHEAD(("+"|"-") multExpr())
 	    (
 	        "+" right = multExpr()
 	        {
@@ -406,7 +406,7 @@ Expression unaryExpr() :
 }
 {
 	(
-		LOOKAHEAD( "+" unaryExpr() )
+		LOOKAHEAD("+" unaryExpr())
 	    "+" left=unaryExpr()
 	    |
 	    "-" left=unaryExpr()
@@ -416,17 +416,17 @@ Expression unaryExpr() :
 	    |
 	    <NOT> left=unaryExpr()
 	    {
-		    left = UnaryExpression.createNOT( asBooleanExpression(left) );
+		    left = UnaryExpression.createNOT(asBooleanExpression(left));
 	    }
 	    |
 	    <XPATH> s=stringLitteral()
 	    {
-		    left = UnaryExpression.createXPath( s );
+		    left = UnaryExpression.createXPath(s);
 	    }
 	    |
 	    <XQUERY> s=stringLitteral()
 	    {
-		    left = UnaryExpression.createXQuery( s );
+		    left = UnaryExpression.createXQuery(s);
 	    }
 	    |
 	    left = primaryExpr()
@@ -536,9 +536,9 @@ String stringLitteral() :
     {
     	// Decode the sting value.
     	String image = t.image;
-    	for( int i=1; i < image.length()-1; i++ ) {
+    	for(int i=1; i < image.length()-1; i++) {
     		char c = image.charAt(i);
-    		if( c == '\'' )
+    		if(c == '\'')
     			i++;
    			rc.append(c);
     	}
@@ -563,9 +563,9 @@ PropertyExpression variable() :
             // Decode the string value.
             StringBuffer rc = new StringBuffer();
             String image = t.image;
-            for( int i=1; i < image.length()-1; i++ ) {
+            for(int i=1; i < image.length()-1; i++) {
                 char c = image.charAt(i);
-                if( c == '"' )
+                if(c == '"')
                     i++;
                 rc.append(c);
             }

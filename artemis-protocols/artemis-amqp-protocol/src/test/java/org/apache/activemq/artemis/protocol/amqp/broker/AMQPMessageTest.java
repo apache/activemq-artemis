@@ -346,7 +346,7 @@ public class AMQPMessageTest {
    @Test
    public void testDecodeMultiThreaded() throws Exception {
       MessageImpl protonMessage = (MessageImpl) Message.Factory.create();
-      protonMessage.setHeader( new Header());
+      protonMessage.setHeader(new Header());
       Properties properties = new Properties();
       properties.setTo("someNiceLocal");
       protonMessage.setProperties(properties);

@@ -566,8 +566,8 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       final byte highd = (byte) (d >> 8 & 0xFF); // high byte
 
       for (int i = 0; i + 1 < data.length; i += 2) {
-         if ( data[i] == lowc && data[i + 1] == highc ||
-            data[i] == lowd && data[i + 1] == highd ) {
+         if (data[i] == lowc && data[i + 1] == highc ||
+            data[i] == lowd && data[i + 1] == highd) {
             return true;
          }
       }

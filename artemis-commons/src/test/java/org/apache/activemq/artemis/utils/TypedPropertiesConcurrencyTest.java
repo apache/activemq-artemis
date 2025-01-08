@@ -57,7 +57,7 @@ public class TypedPropertiesConcurrencyTest {
          });
       }
       for (int i = 0; i < 10; i++) {
-         executorService.submit( () -> {
+         executorService.submit(() -> {
             try {
                countDownLatch.await();
                for (int k = 0; k < 1000; k++) {
@@ -107,7 +107,7 @@ public class TypedPropertiesConcurrencyTest {
          });
       }
       for (int i = 0; i < 10; i++) {
-         executorService.submit( () -> {
+         executorService.submit(() -> {
             try {
                countDownLatch.await();
                for (int k = 0; k < 1000; k++) {

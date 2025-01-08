@@ -458,7 +458,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationPoli
 
                @Override
                public void onComplete(AMQPFederationConsumer context) {
-                  logger.trace("Restarted federation consumer after new demand added." );
+                  logger.trace("Restarted federation consumer after new demand added.");
                }
 
                @Override

@@ -85,7 +85,7 @@ public class JMSOrderTest extends JMSTestBase {
    protected void sendToAmqQueue(int count) throws Exception {
       Connection activemqConnection = protocolCF.createConnection();
       Session amqSession = activemqConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Queue amqTestQueue = amqSession.createQueue( name);
+      Queue amqTestQueue = amqSession.createQueue(name);
       sendMessages(activemqConnection, amqTestQueue, count);
       activemqConnection.close();
    }
@@ -118,7 +118,7 @@ public class JMSOrderTest extends JMSTestBase {
          sendToAmqQueue(totalCount);
 
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-         Queue queue = session.createQueue( name);
+         Queue queue = session.createQueue(name);
          MessageConsumer consumer = session.createConsumer(queue);
 
          for (int i = 1; i <= consumeBeforeRollback; i++) {
@@ -164,7 +164,7 @@ public class JMSOrderTest extends JMSTestBase {
          sendToAmqQueue(totalCount);
 
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-         Queue queue = session.createQueue( name);
+         Queue queue = session.createQueue(name);
          MessageConsumer consumer = session.createConsumer(queue);
 
          for (int i = 1; i <= consumeBeforeRollback; i++) {
@@ -176,7 +176,7 @@ public class JMSOrderTest extends JMSTestBase {
          session.close();
 
          session = connection.createSession(true, Session.SESSION_TRANSACTED);
-         queue = session.createQueue( name);
+         queue = session.createQueue(name);
          consumer = session.createConsumer(queue);
 
          // Consume again.. the previously consumed messages should get delivered
@@ -204,7 +204,7 @@ public class JMSOrderTest extends JMSTestBase {
    protected void sendToAmqQueueOutOfOrder(int totalCount) throws Exception {
       Connection activemqConnection = protocolCF.createConnection();
       Session amqSession = activemqConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      Queue amqTestQueue = amqSession.createQueue( name);
+      Queue amqTestQueue = amqSession.createQueue(name);
 
       for (int i = 1; i <= totalCount; i += 2) {
          Session sessionA = activemqConnection.createSession(true, Session.SESSION_TRANSACTED);
@@ -247,7 +247,7 @@ public class JMSOrderTest extends JMSTestBase {
          sendToAmqQueueOutOfOrder(totalCount);
 
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-         Queue queue = session.createQueue( name);
+         Queue queue = session.createQueue(name);
          MessageConsumer consumer = session.createConsumer(queue);
 
          List<Integer> messageNumbers = new ArrayList<>();
@@ -265,7 +265,7 @@ public class JMSOrderTest extends JMSTestBase {
          session.close();
 
          session = connection.createSession(true, Session.SESSION_TRANSACTED);
-         queue = session.createQueue( name);
+         queue = session.createQueue(name);
          consumer = session.createConsumer(queue);
 
          // Consume again.. the previously consumed messages should get delivered

@@ -132,7 +132,7 @@ public class ProtocolHandler {
          nettySNIHostnameHandler = ctx.pipeline().get(NettySNIHostnameHandler.class);
 
          if (handshakeTimeout > 0) {
-            timeoutFuture = scheduledThreadPool.schedule( () -> {
+            timeoutFuture = scheduledThreadPool.schedule(() -> {
                ActiveMQServerLogger.LOGGER.handshakeTimeout(handshakeTimeout, nettyAcceptor.getName(), ctx.channel().remoteAddress().toString());
                ctx.channel().close();
             }, handshakeTimeout, TimeUnit.SECONDS);

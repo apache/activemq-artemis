@@ -175,9 +175,9 @@ public class InVMConnection implements Connection {
    @Override
    public ActiveMQBuffer createTransportBuffer(final int size) {
       if (bufferPoolingEnabled) {
-         return ActiveMQBuffers.pooledBuffer( size );
+         return ActiveMQBuffers.pooledBuffer(size);
       }
-      return ActiveMQBuffers.dynamicBuffer( size );
+      return ActiveMQBuffers.dynamicBuffer(size);
    }
 
    @Override

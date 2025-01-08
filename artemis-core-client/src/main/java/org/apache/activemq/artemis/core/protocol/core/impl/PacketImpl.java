@@ -399,8 +399,8 @@ public class PacketImpl implements Packet {
       buffer.readerIndex(PACKET_HEADERS_SIZE);
 
       newNettyBuffer.writeBytes(buffer, buffer.readableBytes() - skipBytes);
-      buffer.setIndex( read, writ );
-      newNettyBuffer.setIndex( 0, writ - PACKET_HEADERS_SIZE - skipBytes);
+      buffer.setIndex(read, writ);
+      newNettyBuffer.setIndex(0, writ - PACKET_HEADERS_SIZE - skipBytes);
 
       return newNettyBuffer;
    }

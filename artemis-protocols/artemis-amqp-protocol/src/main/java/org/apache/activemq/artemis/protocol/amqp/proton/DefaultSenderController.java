@@ -436,7 +436,7 @@ public class DefaultSenderController implements SenderController {
    }
 
    private static Number extractConsumerPriority(Map<String, String> addressParameters) {
-      if (addressParameters != null && !addressParameters.isEmpty() ) {
+      if (addressParameters != null && !addressParameters.isEmpty()) {
          final String priorityString = addressParameters.remove(QueueConfiguration.CONSUMER_PRIORITY);
          if (priorityString != null) {
             return Integer.valueOf(priorityString);

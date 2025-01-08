@@ -338,7 +338,7 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
          connectionURL.append(",");
       }
       connectionURL.replace(connectionURL.length() - 1, connectionURL.length(), ")");
-      connectionURL.append( "?ha=true&reconnectAttempts=-1");
+      connectionURL.append("?ha=true&reconnectAttempts=-1");
 
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(connectionURL.toString());
 

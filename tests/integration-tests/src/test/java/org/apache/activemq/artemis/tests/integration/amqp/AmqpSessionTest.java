@@ -105,7 +105,7 @@ public class AmqpSessionTest extends AmqpClientTestSupport {
 
       assertEquals(1, server.getSessions().size());
       for (ServerSession serverSession : server.getSessions()) {
-         assertNull( ((ServerSessionImpl) serverSession).getCloseables());
+         assertNull(((ServerSessionImpl) serverSession).getCloseables());
       }
 
       connection.close();

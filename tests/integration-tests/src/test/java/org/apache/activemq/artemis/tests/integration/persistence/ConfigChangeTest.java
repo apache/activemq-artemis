@@ -98,7 +98,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       final String filter1 = "x = 'x'";
       final String filter2 = "x = 'y'";
 
-      Configuration configuration = createDefaultInVMConfig(  );
+      Configuration configuration = createDefaultInVMConfig();
       configuration.addAddressSetting("#", new AddressSettings());
 
       List addressConfigurations = new ArrayList();

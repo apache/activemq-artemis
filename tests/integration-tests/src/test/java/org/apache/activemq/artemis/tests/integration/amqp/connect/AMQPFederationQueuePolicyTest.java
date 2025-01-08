@@ -4610,7 +4610,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
       scriptFederationConnectToRemote(peer, federationName, AmqpSupport.AMQP_CREDITS_DEFAULT, AmqpSupport.AMQP_LOW_CREDITS_DEFAULT, eventsSender, eventsReceiver);
    }
 
-   private void scriptFederationConnectToRemote(ProtonTestClient peer, String federationName, int amqpCredits, int amqpLowCredits, boolean eventsSender, boolean eventsReceiver ) {
+   private void scriptFederationConnectToRemote(ProtonTestClient peer, String federationName, int amqpCredits, int amqpLowCredits, boolean eventsSender, boolean eventsReceiver) {
       final String federationControlLinkName = "Federation:control:" + UUID.randomUUID().toString();
 
       final Map<String, Object> federationConfiguration = new HashMap<>();

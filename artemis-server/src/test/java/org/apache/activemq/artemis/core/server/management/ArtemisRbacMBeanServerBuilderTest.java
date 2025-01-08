@@ -166,7 +166,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       handler.brokerDomain = ActiveMQDefaultConfiguration.getDefaultJmxDomain();
       handler.rbacPrefix = SimpleString.of(ActiveMQDefaultConfiguration.getManagementRbacPrefix());
 
-      for (Method m : ObjectNameBuilder.class.getDeclaredMethods() ) {
+      for (Method m : ObjectNameBuilder.class.getDeclaredMethods()) {
          if (Modifier.isPublic(m.getModifiers()) && ObjectName.class == m.getReturnType()) {
             Object[] args = new Object[m.getParameterCount()];
             for (int i = 0; i < args.length; i++) {

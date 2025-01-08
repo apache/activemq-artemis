@@ -812,7 +812,7 @@ public class ScaleDownTest extends ClusterTestBase {
       AddressSettings addressSettings = new AddressSettings().setDeadLetterAddress(dla).setAutoCreateDeadLetterResources(true).setDeadLetterQueuePrefix(dla);
       AddressSettings dlaAddressSettings = new AddressSettings().setDeadLetterAddress(dla).setMaxSizeBytes(200L).setAutoCreateQueues(true);
 
-      servers[0].getAddressSettingsRepository().addMatch( "#", addressSettings);
+      servers[0].getAddressSettingsRepository().addMatch("#", addressSettings);
       servers[0].getAddressSettingsRepository().addMatch(dla.toString(), dlaAddressSettings);
 
       ClientSessionFactory sf = sfs[0];

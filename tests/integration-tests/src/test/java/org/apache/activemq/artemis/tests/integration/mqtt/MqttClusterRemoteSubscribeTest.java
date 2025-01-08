@@ -224,9 +224,9 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
          String message11String = new String(message11.getPayload());
          String message21String = new String(message21.getPayload());
          String message31String = new String(message31.getPayload());
-         assertTrue(payload1.equals(message11String) || payload1.equals(message21String) || payload1.equals(message31String) );
-         assertTrue(payload2.equals(message11String) || payload2.equals(message21String) || payload2.equals(message31String) );
-         assertTrue(payload3.equals(message11String) || payload3.equals(message21String) || payload3.equals(message31String) );
+         assertTrue(payload1.equals(message11String) || payload1.equals(message21String) || payload1.equals(message31String));
+         assertTrue(payload2.equals(message11String) || payload2.equals(message21String) || payload2.equals(message31String));
+         assertTrue(payload3.equals(message11String) || payload3.equals(message21String) || payload3.equals(message31String));
 
       } finally {
          String[] topics = new String[]{ANYCAST_TOPIC};

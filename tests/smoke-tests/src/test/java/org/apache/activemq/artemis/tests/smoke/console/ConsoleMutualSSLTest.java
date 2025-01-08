@@ -44,7 +44,7 @@ public class ConsoleMutualSSLTest extends SmokeTestBase {
       deleteDirectory(server0Location);
       HelperCreate cliCreateServer = helperCreate();
       cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(false).setConfiguration("./src/main/resources/servers/console-mutual-ssl").
-         setNoWeb(false).setArtemisInstance(server0Location).setArgs( "--http-host",
+         setNoWeb(false).setArtemisInstance(server0Location).setArgs("--http-host",
                      "localhost",
                      "--http-port",
                      "8443",

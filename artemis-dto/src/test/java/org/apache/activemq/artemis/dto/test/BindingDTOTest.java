@@ -44,10 +44,10 @@ public class BindingDTOTest {
       binding.setExcludedTLSProtocols("TLSv1,TLSv1.1");
       assertArrayEquals(new String[] {"TLSv1", "TLSv1.1"}, binding.getExcludedTLSProtocols());
 
-      binding.setIncludedCipherSuites( "^SSL_.*$");
+      binding.setIncludedCipherSuites("^SSL_.*$");
       assertArrayEquals(new String[] {"^SSL_.*$"}, binding.getIncludedCipherSuites());
 
-      binding.setExcludedCipherSuites( "^.*_(MD5|SHA|SHA1)$,^TLS_RSA_.*$,^.*_NULL_.*$,^.*_anon_.*$");
+      binding.setExcludedCipherSuites("^.*_(MD5|SHA|SHA1)$,^TLS_RSA_.*$,^.*_NULL_.*$,^.*_anon_.*$");
       assertArrayEquals(new String[] {"^.*_(MD5|SHA|SHA1)$", "^TLS_RSA_.*$", "^.*_NULL_.*$", "^.*_anon_.*$"}, binding.getExcludedCipherSuites());
    }
 

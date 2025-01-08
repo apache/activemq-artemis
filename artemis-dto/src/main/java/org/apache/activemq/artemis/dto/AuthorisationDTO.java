@@ -26,11 +26,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AuthorisationDTO {
 
-   @XmlElementRef( required = false)
+   @XmlElementRef(required = false)
    @Deprecated(forRemoval = true)
    WhiteListDTO whitelist;
 
-   @XmlElementRef( required = false )
+   @XmlElementRef(required = false)
    AllowListDTO allowList;
 
    @XmlElementRef

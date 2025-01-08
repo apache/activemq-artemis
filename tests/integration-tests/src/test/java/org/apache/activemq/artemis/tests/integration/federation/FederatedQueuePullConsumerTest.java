@@ -219,7 +219,7 @@ public class FederatedQueuePullConsumerTest extends FederatedTestBase {
 
          // verify batch end
          final int mumMessages = 150;
-         for (int i = 0; i < mumMessages; i++ ) {
+         for (int i = 0; i < mumMessages; i++) {
             producer.send(session1.createTextMessage("1-" + i));
          }
 
@@ -232,7 +232,7 @@ public class FederatedQueuePullConsumerTest extends FederatedTestBase {
          Wait.assertTrue(() -> getMessageCount(getServer(0), queueName) < 100, 2000, 100);
 
          // verify all available
-         for (int i = 0; i < mumMessages; i++ ) {
+         for (int i = 0; i < mumMessages; i++) {
             assertNotNull(consumer0.receive(4000));
          }
 

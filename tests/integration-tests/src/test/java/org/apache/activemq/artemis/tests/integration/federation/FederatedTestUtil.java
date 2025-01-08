@@ -31,7 +31,7 @@ public class FederatedTestUtil {
 
    public static FederationConfiguration createAddressFederationConfiguration(String address, int hops) {
       FederationAddressPolicyConfiguration addressPolicyConfiguration = new FederationAddressPolicyConfiguration();
-      addressPolicyConfiguration.setName( "AddressPolicy" + address);
+      addressPolicyConfiguration.setName("AddressPolicy" + address);
       addressPolicyConfiguration.addInclude(new FederationAddressPolicyConfiguration.Matcher().setAddressMatch(address));
       addressPolicyConfiguration.setMaxHops(hops);
 
@@ -156,7 +156,7 @@ public class FederatedTestUtil {
    public static FederationConfiguration createQueueFederationConfiguration(String connector, String queueName, Boolean includeFederated) {
 
       FederationQueuePolicyConfiguration queuePolicyConfiguration = new FederationQueuePolicyConfiguration();
-      queuePolicyConfiguration.setName( "QueuePolicy" + queueName);
+      queuePolicyConfiguration.setName("QueuePolicy" + queueName);
       queuePolicyConfiguration.addInclude(new FederationQueuePolicyConfiguration.Matcher()
                                              .setQueueMatch(queueName).setAddressMatch("#"));
       if (includeFederated != null) {

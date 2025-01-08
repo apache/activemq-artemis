@@ -105,7 +105,7 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
       } else if (len % 2 != 0) {
          // must be even for conversion to uuid, extend to next even
          this.coordinationId = newCoordinationId + "+";
-      } else if (len > 0 ) {
+      } else if (len > 0) {
          // run with it
          this.coordinationId = newCoordinationId;
       }

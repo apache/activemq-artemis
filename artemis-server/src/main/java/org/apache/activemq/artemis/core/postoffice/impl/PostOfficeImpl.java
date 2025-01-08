@@ -1236,7 +1236,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       final RoutingStatus finalStatus;
       try {
-         if ( status == RoutingStatus.NO_BINDINGS) {
+         if (status == RoutingStatus.NO_BINDINGS) {
             finalStatus = maybeSendToDLA(message, context, address, sendToDLA);
          } else {
             finalStatus = status;

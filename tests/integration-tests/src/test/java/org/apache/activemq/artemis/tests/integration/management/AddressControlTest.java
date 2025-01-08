@@ -793,14 +793,14 @@ public class AddressControlTest extends ManagementTestBase {
       session.commit();
 
       AddressControl addressControl = createManagementControl(address);
-      assertTrue(addressControl.getAddressSize() > numMessages * payLoadSize );
+      assertTrue(addressControl.getAddressSize() > numMessages * payLoadSize);
 
       // restart to reload journal
       server.stop();
       server.start();
 
       addressControl = createManagementControl(address);
-      assertTrue(addressControl.getAddressSize() > numMessages * payLoadSize );
+      assertTrue(addressControl.getAddressSize() > numMessages * payLoadSize);
    }
 
 
@@ -836,7 +836,7 @@ public class AddressControlTest extends ManagementTestBase {
       session.commit();
 
       AddressControl addressControl = createManagementControl(address);
-      assertTrue(addressControl.getAddressSize() > pageLimitNumberOfMessages * payLoadSize );
+      assertTrue(addressControl.getAddressSize() > pageLimitNumberOfMessages * payLoadSize);
 
       final long exactSizeValueBeforeRestart = addressControl.getAddressSize();
       final int exactPercentBeforeRestart = addressControl.getAddressLimitPercent();
@@ -846,7 +846,7 @@ public class AddressControlTest extends ManagementTestBase {
       server.start();
 
       addressControl = createManagementControl(address);
-      assertTrue(addressControl.getAddressSize() > pageLimitNumberOfMessages * payLoadSize );
+      assertTrue(addressControl.getAddressSize() > pageLimitNumberOfMessages * payLoadSize);
       assertEquals(exactSizeValueBeforeRestart, addressControl.getAddressSize());
       assertEquals(exactPercentBeforeRestart, addressControl.getAddressLimitPercent());
    }

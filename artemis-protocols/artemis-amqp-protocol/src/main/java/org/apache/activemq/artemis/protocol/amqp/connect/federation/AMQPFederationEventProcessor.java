@@ -155,7 +155,7 @@ public class AMQPFederationEventProcessor extends ProtonAbstractReceiver {
       } catch (Throwable e) {
          logger.warn(e.getMessage(), e);
          federation.signalError(
-            new ActiveMQAMQPInternalErrorException("Error while processing incoming event message: " + e.getMessage() ));
+            new ActiveMQAMQPInternalErrorException("Error while processing incoming event message: " + e.getMessage()));
       }
    }
 

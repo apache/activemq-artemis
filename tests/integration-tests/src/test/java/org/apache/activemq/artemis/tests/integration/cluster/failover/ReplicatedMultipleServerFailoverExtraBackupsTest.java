@@ -119,11 +119,11 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
    protected void sendCrashBackupReceive() throws Exception {
 
       //make sure bindings are ready before sending messages b/c we verify strict load balancing in waitForDistribution
-      this.waitForBindings( backupServers.get(0).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
-      this.waitForBindings( backupServers.get(0).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
+      this.waitForBindings(backupServers.get(0).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
+      this.waitForBindings(backupServers.get(0).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
 
-      this.waitForBindings( backupServers.get(1).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
-      this.waitForBindings( backupServers.get(1).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
+      this.waitForBindings(backupServers.get(1).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
+      this.waitForBindings(backupServers.get(1).getServer(), ADDRESS.toString(), false, 1, 0, 2000);
 
       ServerLocator locator0 = getBackupServerLocator(0);
       ServerLocator locator1 = getBackupServerLocator(1);
