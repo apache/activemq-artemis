@@ -78,7 +78,7 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
                  sqlProviderFactory.create(dbConf.getBindingsTableName(), SQLProvider.DatabaseStoreType.BINDINGS_JOURNAL),
                  scheduledExecutorService,
                  executorFactory.getExecutor(),
-                 criticalErrorListener,dbConf.getJdbcJournalSyncPeriodMillis());
+                 criticalErrorListener, dbConf.getJdbcJournalSyncPeriodMillis());
          messageJournal = new JDBCJournalImpl(
                  connectionProvider,
                  sqlProviderFactory.create(dbConf.getMessageTableName(), SQLProvider.DatabaseStoreType.MESSAGE_JOURNAL),

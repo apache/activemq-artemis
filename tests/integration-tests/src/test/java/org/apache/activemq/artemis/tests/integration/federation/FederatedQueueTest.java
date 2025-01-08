@@ -319,7 +319,7 @@ public class FederatedQueueTest extends FederatedTestBase {
 
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      final String payload = new String(new byte[1 * 1024 * 1024]).replace('\0','+');
+      final String payload = new String(new byte[1 * 1024 * 1024]).replace('\0', '+');
       try (Connection connection1 = cf1.createConnection();
            Connection connection0 = cf0.createConnection()) {
          connection1.start();

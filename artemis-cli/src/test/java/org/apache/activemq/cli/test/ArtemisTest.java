@@ -2288,7 +2288,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    private boolean checkPassword(String user, String password, File userFile) throws Exception {
-      return checkPassword(user, password, userFile,false);
+      return checkPassword(user, password, userFile, false);
    }
 
    private boolean checkPassword(String user, String password, File userFile, boolean basicSecurityManager) throws Exception {

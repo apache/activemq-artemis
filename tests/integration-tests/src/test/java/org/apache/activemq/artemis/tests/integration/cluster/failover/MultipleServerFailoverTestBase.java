@@ -157,7 +157,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
 
          String[] input = new String[connectors.size()];
          connectors.toArray(input);
-         configuration.addClusterConfiguration(basicClusterConnectionConfig(livetc.getName(),input));
+         configuration.addClusterConfiguration(basicClusterConnectionConfig(livetc.getName(), input));
          primaryConfigs.add(configuration);
          ActiveMQServer server = createServer(true, configuration);
          TestableServer activeMQServer = new SameProcessActiveMQServer(server);

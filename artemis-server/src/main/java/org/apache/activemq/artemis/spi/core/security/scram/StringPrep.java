@@ -927,7 +927,7 @@ public class StringPrep {
                                                                0xE0002,
                                                                0xE001F,
                                                                0xE0080,
-                                                               0xEFFFD,});
+                                                               0xEFFFD});
 
    /** B.1 Commonly mapped to nothing */
    static final CharClass B1 = CharClass.fromList(new int[] {0x00AD,
@@ -956,7 +956,7 @@ public class StringPrep {
                                                              0xFE0D,
                                                              0xFE0E,
                                                              0xFE0F,
-                                                             0xFEFF,});
+                                                             0xFEFF});
 
    /** C.1.1 ASCII space characters */
    static final CharClass C11 = CharClass.fromList(new int[] {0x0020});
@@ -978,7 +978,7 @@ public class StringPrep {
                                                               0x200B,
                                                               0x202F,
                                                               0x205F,
-                                                              0x3000,});
+                                                              0x3000});
 
    /** C.2.1 ASCII control characters */
    static final CharClass C21 = CharClass.fromList(new int[] {0x0000,
@@ -1077,10 +1077,10 @@ public class StringPrep {
                                                               0x1D177,
                                                               0x1D178,
                                                               0x1D179,
-                                                              0x1D17A,});
+                                                              0x1D17A});
 
    /** C.3 Private use */
-   static final CharClass C3 = CharClass.fromRanges(new int[] {0xE000, 0xF8FF, 0xF0000, 0xFFFFD, 0x100000, 0x10FFFD,});
+   static final CharClass C3 = CharClass.fromRanges(new int[] {0xE000, 0xF8FF, 0xF0000, 0xFFFFD, 0x100000, 0x10FFFD});
 
    /** C.4 Non-character code points */
    static final CharClass C4 = CharClass.fromRanges(new int[] {0xFDD0,
@@ -1118,13 +1118,13 @@ public class StringPrep {
                                                                0xFFFFE,
                                                                0xFFFFF,
                                                                0x10FFFE,
-                                                               0x10FFFF,});
+                                                               0x10FFFF});
 
    /** C.5 Surrogate codes */
-   static final CharClass C5 = CharClass.fromRanges(new int[] {0xD800, 0xDFFF,});
+   static final CharClass C5 = CharClass.fromRanges(new int[] {0xD800, 0xDFFF});
 
    /** C.6 Inappropriate for plain text */
-   static final CharClass C6 = CharClass.fromList(new int[] {0xFFF9, 0xFFFA, 0xFFFB, 0xFFFC, 0xFFFD,});
+   static final CharClass C6 = CharClass.fromList(new int[] {0xFFF9, 0xFFFA, 0xFFFB, 0xFFFC, 0xFFFD});
 
    /** C.7 Inappropriate for canonical representation */
    static final CharClass C7 = CharClass.fromList(new int[] {0x2FF0,
@@ -1138,7 +1138,7 @@ public class StringPrep {
                                                              0x2FF8,
                                                              0x2FF9,
                                                              0x2FFA,
-                                                             0x2FFB,});
+                                                             0x2FFB});
 
    /** C.8 Change display properties or are deprecated */
    static final CharClass C8 = CharClass.fromList(new int[] {0x0340,
@@ -1155,10 +1155,10 @@ public class StringPrep {
                                                              0x206C,
                                                              0x206D,
                                                              0x206E,
-                                                             0x206F,});
+                                                             0x206F});
 
    /** C.9 Tagging characters (tuples) */
-   static final CharClass C9 = CharClass.fromRanges(new int[] {0xE0001, 0xE0001, 0xE0020, 0xE007F,});
+   static final CharClass C9 = CharClass.fromRanges(new int[] {0xE0001, 0xE0001, 0xE0020, 0xE007F});
 
    /** D.1 Characters with bidirectional property "R" or "AL" */
    static final CharClass D1 = CharClass.fromRanges(new int[] {0x05BE,
@@ -1228,7 +1228,7 @@ public class StringPrep {
                                                                0xFE70,
                                                                0xFE74,
                                                                0xFE76,
-                                                               0xFEFC,});
+                                                               0xFEFC});
 
    /** D.2 Characters with bidirectional property "L" */
    static final CharClass D2 = CharClass.fromRanges(new int[] {0x0041,
@@ -1950,7 +1950,7 @@ public class StringPrep {
                                                                0xF0000,
                                                                0xFFFFD,
                                                                0x100000,
-                                                               0x10FFFD,});
+                                                               0x10FFFD});
 
    /** rfc4013 2.3. Prohibited Output */
    static final CharClass saslProhibited = CharClass.fromClasses(C12, C21, C22, C3, C4, C5, C6, C7, C8, C9);

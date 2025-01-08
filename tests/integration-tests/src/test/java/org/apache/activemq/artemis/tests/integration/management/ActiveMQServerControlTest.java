@@ -2882,7 +2882,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = createSessionFactory(locator);
-      ClientSession session = factory.createSession(true,false, 1);
+      ClientSession session = factory.createSession(true, false, 1);
       addClientSession(session);
 
       serverControl.createAddress(queueName.toString(), RoutingType.ANYCAST.name());
@@ -2971,7 +2971,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = createSessionFactory(locator);
-      ClientSession session = factory.createSession(true,false, 1);
+      ClientSession session = factory.createSession(true, false, 1);
       addClientSession(session);
 
       serverControl.createAddress(queueName.toString(), RoutingType.ANYCAST.name());
@@ -3040,7 +3040,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = createSessionFactory(locator);
-      ClientSession session = factory.createSession(true,false, 1);
+      ClientSession session = factory.createSession(true, false, 1);
       addClientSession(session);
 
       serverControl.createAddress(queueName.toString(), RoutingType.ANYCAST.name());
@@ -3160,7 +3160,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory factory = createSessionFactory(locator);
-      ClientSession session = factory.createSession(true,false, 1);
+      ClientSession session = factory.createSession(true, false, 1);
       addClientSession(session);
 
       serverControl.createAddress(queueName.toString(), RoutingType.ANYCAST.name());
@@ -3203,7 +3203,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       //close the consumer to cancel messages and recreate
       consumer.close();
       session.close();
-      session = factory.createSession(true,false, 1);
+      session = factory.createSession(true, false, 1);
       addClientSession(session);
 
       consumer = session.createConsumer(queueName, null, 100, -1, false);
@@ -3675,24 +3675,24 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       server.addAddressInfo(new AddressInfo(queueName1, RoutingType.ANYCAST));
       if (legacyCreateQueue) {
-         server.createQueue(queueName1, RoutingType.ANYCAST, queueName1, SimpleString.of("filter1"),null,true,
-                            false, false,20,false,false);
+         server.createQueue(queueName1, RoutingType.ANYCAST, queueName1, SimpleString.of("filter1"), null, true,
+                            false, false, 20, false, false);
       } else {
          server.createQueue(QueueConfiguration.of(queueName1).setRoutingType(RoutingType.ANYCAST).setFilterString("filter1").setMaxConsumers(20).setAutoCreateAddress(false));
       }
       Thread.sleep(500);
       server.addAddressInfo(new AddressInfo(queueName2, RoutingType.ANYCAST));
       if (legacyCreateQueue) {
-         server.createQueue(queueName2, RoutingType.ANYCAST, queueName2, SimpleString.of("filter3"), null,true,
-                            false, true,40,false,false);
+         server.createQueue(queueName2, RoutingType.ANYCAST, queueName2, SimpleString.of("filter3"), null, true,
+                            false, true, 40, false, false);
       } else {
          server.createQueue(QueueConfiguration.of(queueName2).setRoutingType(RoutingType.ANYCAST).setFilterString("filter3").setAutoCreated(true).setMaxConsumers(40).setAutoCreateAddress(false));
       }
       Thread.sleep(500);
       server.addAddressInfo(new AddressInfo(queueName3, RoutingType.ANYCAST));
       if (legacyCreateQueue) {
-         server.createQueue(queueName3, RoutingType.ANYCAST, queueName3,  SimpleString.of("filter0"),null,true,
-                            false, false,10,false,false);
+         server.createQueue(queueName3, RoutingType.ANYCAST, queueName3,  SimpleString.of("filter0"), null, true,
+                            false, false, 10, false, false);
       } else {
          server.createQueue(QueueConfiguration.of(queueName3).setRoutingType(RoutingType.ANYCAST).setFilterString("filter0").setMaxConsumers(10).setAutoCreateAddress(false));
       }
@@ -6002,7 +6002,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    public void testResetUser() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       try {
-         serverControl.resetUser("x","x","x");
+         serverControl.resetUser("x", "x", "x");
          fail();
       } catch (Exception expected) {
       }

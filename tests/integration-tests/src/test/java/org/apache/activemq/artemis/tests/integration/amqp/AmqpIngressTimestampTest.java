@@ -126,7 +126,7 @@ public class AmqpIngressTimestampTest extends AmqpClientTestSupport {
       assertNotNull(ingressTimestampHeader);
       assertTrue(ingressTimestampHeader instanceof Long);
       long ingressTimestamp = (Long) ingressTimestampHeader;
-      assertTrue(ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend,"Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend);
+      assertTrue(ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend, "Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend);
       receiver.close();
 
       assertEquals(1, queueView.getMessageCount());

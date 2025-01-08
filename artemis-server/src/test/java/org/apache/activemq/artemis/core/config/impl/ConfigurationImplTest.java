@@ -389,7 +389,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals("admin", connectConfiguration.getUser());
       assertEquals("password", connectConfiguration.getPassword());
       assertFalse(connectConfiguration.isAutostart());
-      assertEquals(1,connectConfiguration.getConnectionElements().size());
+      assertEquals(1, connectConfiguration.getConnectionElements().size());
       AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
       assertTrue(amqpBrokerConnectionElement instanceof AMQPMirrorBrokerConnectionElement);
       AMQPMirrorBrokerConnectionElement amqpMirrorBrokerConnectionElement = (AMQPMirrorBrokerConnectionElement) amqpBrokerConnectionElement;
@@ -451,7 +451,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals("admin", connectConfiguration.getUser());
       assertEquals("password", connectConfiguration.getPassword());
       assertFalse(connectConfiguration.isAutostart());
-      assertEquals(1,connectConfiguration.getFederations().size());
+      assertEquals(1, connectConfiguration.getFederations().size());
       AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
       assertTrue(amqpBrokerConnectionElement instanceof AMQPFederatedBrokerConnectionElement);
       AMQPFederatedBrokerConnectionElement amqpFederationBrokerConnectionElement = (AMQPFederatedBrokerConnectionElement) amqpBrokerConnectionElement;
@@ -576,7 +576,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals("admin", connectConfiguration.getUser());
       assertEquals("password", connectConfiguration.getPassword());
       assertFalse(connectConfiguration.isAutostart());
-      assertEquals(1,connectConfiguration.getFederations().size());
+      assertEquals(1, connectConfiguration.getFederations().size());
       AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
       assertTrue(amqpBrokerConnectionElement instanceof AMQPFederatedBrokerConnectionElement);
       AMQPFederatedBrokerConnectionElement amqpFederationBrokerConnectionElement = (AMQPFederatedBrokerConnectionElement) amqpBrokerConnectionElement;
@@ -662,7 +662,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
       insertionOrderedProperties.put("AMQPConnections.target.uri", "tcp://amq-dc1-tls-amqp-${STATEFUL_SET_ORDINAL}-svc.dc1.svc.cluster.local:5673?clientFailureCheckPeriod=30000&connectionTTL=60000&sslEnabled=true&verifyHost=false&trustStorePath=/remote-cluster-truststore/client.ts");
-      insertionOrderedProperties.put("AMQPConnections.target.transportConfigurations.target.params.trustStorePassword","ENC(2a7c211d21c295cdbcde3589c205decb)");
+      insertionOrderedProperties.put("AMQPConnections.target.transportConfigurations.target.params.trustStorePassword", "ENC(2a7c211d21c295cdbcde3589c205decb)");
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
       AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
@@ -689,7 +689,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       properties.put("bridgeConfigurations.b1.transformerConfiguration.className", AddHeadersTransformer.class.getName());
       properties.put("bridgeConfigurations.b1.transformerConfiguration.properties", "header1=a,header2=b");
-      properties.put("bridgeConfigurations.b1.transformerConfiguration.properties.header3","c");
+      properties.put("bridgeConfigurations.b1.transformerConfiguration.properties.header3", "c");
 
       configuration.parsePrefixedProperties(properties, null);
       assertTrue(configuration.getStatus().contains("\"errors\":[]"));
@@ -2370,7 +2370,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       final ConfigurationImpl configuration = new ConfigurationImpl();
 
       Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
-      insertionOrderedProperties.put("metricsConfiguration.plugin","org.apache.activemq.artemis.core.config.impl.FileConfigurationTest.FakeMetricPlugin.class");
+      insertionOrderedProperties.put("metricsConfiguration.plugin", "org.apache.activemq.artemis.core.config.impl.FileConfigurationTest.FakeMetricPlugin.class");
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
       assertFalse(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
@@ -2378,8 +2378,8 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertTrue(configuration.getStatus().contains("FakeMetricPlugin"));
 
       // fix the typo error
-      insertionOrderedProperties.put("metricsConfiguration.plugin","org.apache.activemq.artemis.core.config.impl.FileConfigurationTest$FakeMetricPlugin.class");
-      insertionOrderedProperties.put("metricsConfiguration.plugin.init","");
+      insertionOrderedProperties.put("metricsConfiguration.plugin", "org.apache.activemq.artemis.core.config.impl.FileConfigurationTest$FakeMetricPlugin.class");
+      insertionOrderedProperties.put("metricsConfiguration.plugin.init", "");
       insertionOrderedProperties.put("metricsConfiguration.jvmMemory", "false");
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);

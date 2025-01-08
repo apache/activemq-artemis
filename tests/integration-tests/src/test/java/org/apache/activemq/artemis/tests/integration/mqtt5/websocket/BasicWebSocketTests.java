@@ -37,7 +37,7 @@ public class BasicWebSocketTests extends MQTT5TestSupport {
       byte[] body = RandomUtil.randomBytes(32);
 
       CountDownLatch latch = new CountDownLatch(1);
-      MqttClient subscriber = createPahoClient(WS,"subscriber");
+      MqttClient subscriber = createPahoClient(WS, "subscriber");
       subscriber.connect();
       subscriber.setCallback(new DefaultMqttCallback() {
          @Override
@@ -48,7 +48,7 @@ public class BasicWebSocketTests extends MQTT5TestSupport {
       });
       subscriber.subscribe(topic, AT_LEAST_ONCE);
 
-      MqttClient producer = createPahoClient(WS,"producer");
+      MqttClient producer = createPahoClient(WS, "producer");
       producer.connect();
       producer.publish(topic, body, 1, false);
       assertTrue(latch.await(500, TimeUnit.MILLISECONDS));

@@ -176,7 +176,7 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       assertTrue(result instanceof ClassNotFoundException);
 
       denyList = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg2";
-      result = readSerializedObject(null, denyList,serailizeFile);
+      result = readSerializedObject(null, denyList, serailizeFile);
       assertNull(result);
 
       denyList = "some.other.package";

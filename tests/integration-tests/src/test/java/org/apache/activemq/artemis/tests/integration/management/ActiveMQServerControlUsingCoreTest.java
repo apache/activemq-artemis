@@ -316,7 +316,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
-         public void createQueue(String address,String name, String filter, boolean durable, String routingType) throws Exception {
+         public void createQueue(String address, String name, String filter, boolean durable, String routingType) throws Exception {
             proxy.invokeOperation("createQueue", address, name, filter, durable, routingType);
          }
 

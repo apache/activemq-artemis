@@ -155,7 +155,7 @@ public class BridgeRoutingTest extends ActiveMQTestBase {
          producer.send(session.createMessage(true).setRoutingType(sourceRoutingType));
       }
       Wait.waitFor(() -> server0.locateQueue(source).getMessageCount() == 0, 2000, 100);
-      Wait.waitFor(() -> server0.getClusterManager().getBridges().get("bridge-0").getMetrics().getMessagesAcknowledged() == 1,2000, 100);
+      Wait.waitFor(() -> server0.getClusterManager().getBridges().get("bridge-0").getMetrics().getMessagesAcknowledged() == 1, 2000, 100);
       Thread.sleep(sleepTime);
       assertTrue(Wait.waitFor(() -> server1.locateQueue(destination).getMessageCount() == destinationMessageCount, 2000, 100));
       assertTrue(Wait.waitFor(() -> server0.locateQueue(source).getConsumerCount() == concurrency, 2000, 100));

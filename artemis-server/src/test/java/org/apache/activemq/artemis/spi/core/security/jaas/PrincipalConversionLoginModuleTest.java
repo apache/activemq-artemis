@@ -33,7 +33,7 @@ public class PrincipalConversionLoginModuleTest {
       PrincipalConversionLoginModule underTest = new PrincipalConversionLoginModule();
 
       final Subject subject = new Subject();
-      underTest.initialize(subject,null, null, new HashMap<>());
+      underTest.initialize(subject, null, null, new HashMap<>());
 
       assertTrue(underTest.login());
       assertFalse(underTest.commit());
@@ -44,7 +44,7 @@ public class PrincipalConversionLoginModuleTest {
    public void loginOkOnNullSubject() throws Exception {
       PrincipalConversionLoginModule underTest = new PrincipalConversionLoginModule();
 
-      underTest.initialize(null,null, null, new HashMap<>());
+      underTest.initialize(null, null, null, new HashMap<>());
 
       assertTrue(underTest.login());
       assertFalse(underTest.commit());

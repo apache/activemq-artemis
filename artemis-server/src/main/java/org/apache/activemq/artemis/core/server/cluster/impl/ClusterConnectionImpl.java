@@ -932,7 +932,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          bridge.start();
       }
 
-      if ( !ConfigurationImpl.checkoutDupCacheSize(serverLocator.getConfirmationWindowSize(),server.getConfiguration().getIDCacheSize())) {
+      if ( !ConfigurationImpl.checkoutDupCacheSize(serverLocator.getConfirmationWindowSize(), server.getConfiguration().getIDCacheSize())) {
          ActiveMQServerLogger.LOGGER.duplicateCacheSizeWarning(server.getConfiguration().getIDCacheSize(), serverLocator.getConfirmationWindowSize());
       }
    }

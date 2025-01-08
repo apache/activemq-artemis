@@ -790,7 +790,7 @@ public class Create extends InstallAbstract {
       if (noMqttAcceptor) {
          filters.put("${mqtt-acceptor}", "");
       } else {
-         filters.put("${mqtt-acceptor}",readTextFile(ETC_MQTT_ACCEPTOR_TXT, filters));
+         filters.put("${mqtt-acceptor}", readTextFile(ETC_MQTT_ACCEPTOR_TXT, filters));
       }
 
       if (noStompAcceptor) {

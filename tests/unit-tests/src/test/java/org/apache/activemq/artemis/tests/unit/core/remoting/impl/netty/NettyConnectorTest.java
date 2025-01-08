@@ -244,7 +244,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME,  "client-keystore.jks");
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
-      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME,"server-ca-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
 
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
@@ -306,7 +306,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       params.put(TransportConstants.FORCE_SSL_PARAMETERS, true);
       params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME,  "client-keystore.jks");
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
-      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME,"server-ca-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
 
       NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));

@@ -103,7 +103,7 @@ final class TimedSequentialFile implements SequentialFile {
    }
 
    @Override
-   public void blockingWriteDirect(ByteBuffer bytes,boolean sync, boolean releaseBuffer) throws Exception {
+   public void blockingWriteDirect(ByteBuffer bytes, boolean sync, boolean releaseBuffer) throws Exception {
       this.sequentialFile.blockingWriteDirect(bytes, sync, releaseBuffer);
    }
 

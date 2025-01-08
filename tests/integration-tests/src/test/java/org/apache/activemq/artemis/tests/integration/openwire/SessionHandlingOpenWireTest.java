@@ -44,7 +44,7 @@ public class SessionHandlingOpenWireTest extends BasicOpenWireTest {
          AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          conn.start();
          try (Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
-            Destination dest = createDestination(session,ActiveMQDestination.QUEUE_TYPE);
+            Destination dest = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
             sendMessages(session, dest, 1);
             MessageConsumer consumer = session.createConsumer(dest);
             Message m = consumer.receive(2000);
@@ -62,7 +62,7 @@ public class SessionHandlingOpenWireTest extends BasicOpenWireTest {
          conn.start();
          for (int i = 0; i < 100; i++) {
             Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Destination dest = createDestination(session,ActiveMQDestination.QUEUE_TYPE);
+            Destination dest = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
             sendMessages(session, dest, 1);
             MessageConsumer consumer = session.createConsumer(dest);
             Message m = consumer.receive(2000);

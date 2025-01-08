@@ -2194,7 +2194,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
             if (nodeType == AMQPBrokerConnectionAddressType.MIRROR) {
                boolean messageAcks = getBooleanAttribute(e2, "message-acknowledgements", true);
-               boolean queueCreation = getBooleanAttribute(e2,"queue-creation", true);
+               boolean queueCreation = getBooleanAttribute(e2, "queue-creation", true);
                boolean durable = getBooleanAttribute(e2, "durable", true);
                boolean queueRemoval = getBooleanAttribute(e2, "queue-removal", true);
                boolean sync = getBooleanAttribute(e2, "sync", false);
@@ -2813,7 +2813,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       final FederationDownstreamConfiguration downstreamConfiguration =
           getFederationStream(new FederationDownstreamConfiguration(), downstreamNode, mainConfig);
 
-      final String upstreamRef = getString(downstreamNode,"upstream-connector-ref", null, NOT_NULL_OR_EMPTY);
+      final String upstreamRef = getString(downstreamNode, "upstream-connector-ref", null, NOT_NULL_OR_EMPTY);
       downstreamConfiguration.setUpstreamConfigurationRef(upstreamRef);
 
       return downstreamConfiguration;

@@ -104,7 +104,7 @@ public final class ConfigurationUtils {
             HAPolicy primaryPolicy;
             //if null default to colocated
             if (primaryConfig == null) {
-               primaryPolicy = new ReplicatedPolicy(server.getNetworkHealthCheck(),ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait());
+               primaryPolicy = new ReplicatedPolicy(server.getNetworkHealthCheck(), ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait());
             } else {
                primaryPolicy = getHAPolicy(primaryConfig, server);
             }
@@ -112,7 +112,7 @@ public final class ConfigurationUtils {
             BackupPolicy backupPolicy;
             if (backupConf == null) {
                if (primaryPolicy instanceof ReplicatedPolicy) {
-                  backupPolicy = new ReplicaPolicy(server.getNetworkHealthCheck(),ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait());
+                  backupPolicy = new ReplicaPolicy(server.getNetworkHealthCheck(), ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait());
                } else if (primaryPolicy instanceof SharedStorePrimaryPolicy) {
                   backupPolicy = new SharedStoreBackupPolicy();
                } else {

@@ -40,7 +40,7 @@ import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.NodeStoreFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 
-public interface Queue extends Bindable,CriticalComponent {
+public interface Queue extends Bindable, CriticalComponent {
 
    int MAX_CONSUMERS_UNLIMITED = -1;
 

@@ -628,7 +628,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       initialize();
 
-      ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(this, transportConfiguration, config, reconnectAttempts, threadPool, scheduledThreadPool, flowControlThreadPool,incomingInterceptors, outgoingInterceptors);
+      ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(this, transportConfiguration, config, reconnectAttempts, threadPool, scheduledThreadPool, flowControlThreadPool, incomingInterceptors, outgoingInterceptors);
 
       addToConnecting(factory);
       try {
@@ -1855,7 +1855,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          connectors = new ArrayList<>();
          if (initialConnectors != null) {
             for (TransportConfiguration initialConnector : initialConnectors) {
-               ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(ServerLocatorImpl.this, initialConnector, config, config.reconnectAttempts, threadPool, scheduledThreadPool,flowControlThreadPool, incomingInterceptors, outgoingInterceptors);
+               ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(ServerLocatorImpl.this, initialConnector, config, config.reconnectAttempts, threadPool, scheduledThreadPool, flowControlThreadPool, incomingInterceptors, outgoingInterceptors);
 
                connectors.add(new Connector(initialConnector, factory));
             }

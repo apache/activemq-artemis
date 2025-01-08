@@ -73,7 +73,7 @@ public class OpenWireConnectionTest {
       Mockito.doReturn(serverSession).when(server).createSession(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean(),
                                                                  Mockito.anyBoolean(), Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyBoolean());
 
-      OpenWireProtocolManager openWireProtocolManager = new OpenWireProtocolManager(null, server,null, null);
+      OpenWireProtocolManager openWireProtocolManager = new OpenWireProtocolManager(null, server, null, null);
       openWireProtocolManager.setSecurityDomain("securityDomain");
       openWireProtocolManager.setSupportAdvisory(false);
 

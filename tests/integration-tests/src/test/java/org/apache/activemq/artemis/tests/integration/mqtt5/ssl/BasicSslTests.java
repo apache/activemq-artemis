@@ -62,7 +62,7 @@ public class BasicSslTests extends MQTT5TestSupport {
       byte[] body = RandomUtil.randomBytes(32);
 
       CountDownLatch latch = new CountDownLatch(1);
-      MqttClient subscriber = createPahoClient(protocol,"subscriber");
+      MqttClient subscriber = createPahoClient(protocol, "subscriber");
       subscriber.connect(getSslMqttConnectOptions());
       subscriber.setCallback(new DefaultMqttCallback() {
          @Override
@@ -73,7 +73,7 @@ public class BasicSslTests extends MQTT5TestSupport {
       });
       subscriber.subscribe(topic, AT_LEAST_ONCE);
 
-      MqttClient producer = createPahoClient(protocol,"producer");
+      MqttClient producer = createPahoClient(protocol, "producer");
       producer.connect(getSslMqttConnectOptions());
       producer.publish(topic, body, 1, false);
       assertTrue(latch.await(500, TimeUnit.MILLISECONDS));

@@ -214,7 +214,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
    }
 
    @Override
-   public void blockingWriteDirect(ByteBuffer bytes,boolean sync, boolean releaseBuffer) throws Exception {
+   public void blockingWriteDirect(ByteBuffer bytes, boolean sync, boolean releaseBuffer) throws Exception {
       logger.trace("Write Direct, Sync: true File: {}", getFileName());
 
       final SimpleWaitIOCallback completion = new SimpleWaitIOCallback();

@@ -475,7 +475,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          int usage = addressControl0.getAddressLimitPercent();
          System.out.println("Want 100% on Head&Tail, usage % " + usage);
          return usage == 100;
-      },10000, 500));
+      }, 10000, 500));
 
       // stop producer on Node0, only accept consumers
       ConnectionRouterControl routerControl0 = (ConnectionRouterControl) ManagementControlHelper.createProxy(node0NameBuilder.getConnectionRouterObjectName(roleNameSharder), ConnectionRouterControl.class, mBeanServer);
@@ -495,7 +495,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          } catch (javax.management.InstanceNotFoundException notYetReadyExpected) {
          }
          return false;
-      },5000, 200), "Producer is on Head, Node1");
+      }, 5000, 200), "Producer is on Head, Node1");
 
       // wait for Node0 to drain
       eqConsumer.delayMillis.set(0); // fast
@@ -503,7 +503,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          int usage = addressControl0.getAddressLimitPercent();
          System.out.println("Want 0, Node0 (tail) usage % " + usage);
          return usage == 0;
-      },20000, 500));
+      }, 20000, 500));
       routerControl0.setLocalTargetFilter(""); // Node0 is out of service, Node1 (new head&tail) is where it is all at going forward!
 
       ConnectionRouterControl routerControl0Control1 = (ConnectionRouterControl) ManagementControlHelper.createProxy(node1NameBuilder.getConnectionRouterObjectName(roleNameSharder), ConnectionRouterControl.class, mBeanServer);
@@ -518,7 +518,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          int usage = addressControl1.getAddressLimitPercent();
          System.out.println("Node1 usage % " + usage);
          return usage == 100;
-      },10000, 200), "New head&tail, Node1 full");
+      }, 10000, 200), "New head&tail, Node1 full");
 
       // stop the producer
       eqProducer.done.set(true);
@@ -563,7 +563,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          } catch (javax.management.InstanceNotFoundException notYetReadyExpected) {
          }
          return false;
-      },10000, 200));
+      }, 10000, 200));
 
       assertTrue(Wait.waitFor(() -> eqProducerConsumer.connectionCount.get() > 2), "producer got full error and reconnected");
 
@@ -586,7 +586,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          } catch (javax.management.InstanceNotFoundException notYetReadyExpected) {
          }
          return false;
-      },10000, 200));
+      }, 10000, 200));
 
       // need another connection to drain tail
       EQConsumer eqConsumer = new EQConsumer(urlForNodes(nodes), 0);
@@ -597,12 +597,12 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          int usage = addressControl0.getAddressLimitPercent();
          System.out.println("Tail usage % " + usage);
          return usage == 0;
-      },10000, 200));
+      }, 10000, 200));
 
       assertTrue(Wait.waitFor(() -> {
          System.out.println("drain tail, lastProduced: " + lastProducedToHeadTail + ", consumed: " + eqConsumer.getLastConsumed());
          return lastProducedToHeadTail == eqConsumer.getLastConsumed();
-      },5000, 100));
+      }, 5000, 100));
 
       eqConsumer.done.set(true);
 
@@ -619,7 +619,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          int usage = addressControl1.getAddressLimitPercent();
          System.out.println("Head&Tail usage % " + usage);
          return usage == 100;
-      },10000, 200));
+      }, 10000, 200));
 
       eqProducerConsumer.producerDone.set(true);
 
@@ -628,11 +628,11 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          int usage = addressControl1.getAddressLimitPercent();
          System.out.println("Node1 usage % " + usage + ", eqProducerConsumer: " + eqProducerConsumer);
          return usage == 0;
-      },10000, 500));
+      }, 10000, 500));
 
       assertTrue(Wait.waitFor(() -> {
          return pidInRange("head&tail", eqProducerConsumer.getLastProduced(), eqProducerConsumer.getLastConsumed());
-      },5000, 100));
+      }, 5000, 100));
 
       eqProducerConsumer.done.set(true);
 
@@ -662,7 +662,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          } catch (javax.management.InstanceNotFoundException notYetReadyExpected) {
          }
          return false;
-      },20000, 200));
+      }, 20000, 200));
 
       assertTrue(Wait.waitFor(() -> eqProducerConsumer.connectionCount.get() > 0), "producer got full error and reconnected");
 

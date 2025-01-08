@@ -109,7 +109,7 @@ public class MirrorControllerBasicTest extends ActiveMQTestBase {
 
       AmqpValue value = (AmqpValue)amqpMessage.getWrappedMessage().getBody();
       assertEquals("body-test", (String)value.getValue());
-      assertEquals("ad1",amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.ADDRESS.toString()));
+      assertEquals("ad1", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.ADDRESS.toString()));
       assertEquals("qu1", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.QUEUE.toString()));
       assertEquals("someUID", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.BROKER_ID.toString()));
       assertEquals("test", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.EVENT_TYPE.toString()));

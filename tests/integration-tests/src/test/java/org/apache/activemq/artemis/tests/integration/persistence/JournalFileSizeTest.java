@@ -73,7 +73,7 @@ public class JournalFileSizeTest extends ActiveMQTestBase {
       ConfigurationImpl config = createBasicConfig();
       int origFileSize = config.getJournalFileSize();
       config.setJournalFileSize(origFileSize + (align / 2));
-      JournalStorageManager manager = new JournalStorageManager(config,EmptyCriticalAnalyzer.getInstance(), new OrderedExecutorFactory(null), new OrderedExecutorFactory(null));
+      JournalStorageManager manager = new JournalStorageManager(config, EmptyCriticalAnalyzer.getInstance(), new OrderedExecutorFactory(null), new OrderedExecutorFactory(null));
       int fileSize = manager.getMessageJournal().getFileSize();
       assertEquals(origFileSize + align, fileSize);
    }
