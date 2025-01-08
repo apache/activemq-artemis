@@ -1310,7 +1310,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                                final byte recordType,
                                                final Persister persister,
                                                final Object record) throws Exception {
-      if ( logger.isTraceEnabled() ) {
+      if (logger.isTraceEnabled()) {
          logger.trace("scheduling appendUpdateRecordTransactional::txID={}, id={}, userRecordType={}, record = {}",
                       txID, id, recordType, record);
       }
@@ -1326,18 +1326,18 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          try {
             tx.checkErrorCondition();
 
-            JournalInternalRecord updateRecordTX = new JournalAddRecordTX( false, txID, id, recordType, persister, record );
-            JournalFile usedFile = appendRecord( updateRecordTX, false, false, tx, null );
+            JournalInternalRecord updateRecordTX = new JournalAddRecordTX(false, txID, id, recordType, persister, record);
+            JournalFile usedFile = appendRecord(updateRecordTX, false, false, tx, null);
 
             if (logger.isTraceEnabled()) {
                logger.trace("appendUpdateRecordTransactional::txID={}, id={}, userRecordType={}, record = {}, usedFile = {}",
-                            txID, id, recordType, record, usedFile );
+                            txID, id, recordType, record, usedFile);
             }
 
-            tx.addPositive( usedFile, id, updateRecordTX.getEncodeSize(), false);
-         } catch (Throwable e ) {
-            logger.error("Exception during appendUpdateRecordTransactional:", e );
-            setErrorCondition(null, tx, e );
+            tx.addPositive(usedFile, id, updateRecordTX.getEncodeSize(), false);
+         } catch (Throwable e) {
+            logger.error("Exception during appendUpdateRecordTransactional:", e);
+            setErrorCondition(null, tx, e);
          } finally {
             journalLock.readLock().unlock();
          }
@@ -2729,7 +2729,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          try {
             executor.execute(latch::countDown);
             latch.await(10, TimeUnit.SECONDS);
-         } catch (RejectedExecutionException ignored ) {
+         } catch (RejectedExecutionException ignored) {
             // this is fine
          }
       }

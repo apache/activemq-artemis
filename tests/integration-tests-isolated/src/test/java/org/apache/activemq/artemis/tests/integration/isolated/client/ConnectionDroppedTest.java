@@ -414,7 +414,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
                connectionFactory = CFUtil.createConnectionFactory(protocol, "failover:(amqp://localhost:61616)?failover.maxReconnectAttempts=20");
                break;
             case "OPENWIRE":
-               connectionFactory = new org.apache.activemq.ActiveMQConnectionFactory( "failover:(tcp://localhost:61616)?maxReconnectAttempts=20");
+               connectionFactory = new org.apache.activemq.ActiveMQConnectionFactory("failover:(tcp://localhost:61616)?maxReconnectAttempts=20");
                break;
             case "CORE":
                connectionFactory = new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory("tcp://localhost:61616?ha=true;reconnectAttempts=20;callTimeout=1000");

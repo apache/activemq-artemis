@@ -780,7 +780,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
                }
                fqqn.append(paths[i]);
             }
-            mappedDestination = new ActiveMQQueue(fqqn.toString() + ( virtualTopicConfig.selectorAware ? "?" + SELECTOR_AWARE_OPTION + "=true" : "" ));
+            mappedDestination = new ActiveMQQueue(fqqn.toString() + (virtualTopicConfig.selectorAware ? "?" + SELECTOR_AWARE_OPTION + "=true" : ""));
             break;
          }
       }

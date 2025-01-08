@@ -345,7 +345,7 @@ public class LocalTestServer implements Server, Runnable {
       Object[] subInfos = topic.getQueueNames();
       List<String> subs = new ArrayList<>();
       for (Object o : subInfos) {
-         subs.add( ((String) o).split("\\.")[1]);
+         subs.add(((String) o).split("\\.")[1]);
       }
       return subs;
    }

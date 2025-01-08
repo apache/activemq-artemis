@@ -98,7 +98,7 @@ public class AutoClientIDShardClusterTest extends RoutingTestBase {
                try (Connection connection = connectionFactory.createConnection()) {
                   connection.start();
                   try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
-                     javax.jms.Topic topic = session.createTopic( name);
+                     javax.jms.Topic topic = session.createTopic(name);
                      try (MessageProducer producer = session.createProducer(topic)) {
                         for (int i = 0; i < 10 && toSend.get() > 0; i++) {
                            Message message = session.createTextMessage();
@@ -141,7 +141,7 @@ public class AutoClientIDShardClusterTest extends RoutingTestBase {
                   connection = connectionFactory.createConnection();
                   connection.start();
                   try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
-                     javax.jms.Topic topic = session.createTopic( name);
+                     javax.jms.Topic topic = session.createTopic(name);
                      try (TopicSubscriber durableSubscriber = session.createDurableSubscriber(topic, "Sub-" + id)) {
                         registered.countDown();
                         for (int i = 0; i < 5; i++) {

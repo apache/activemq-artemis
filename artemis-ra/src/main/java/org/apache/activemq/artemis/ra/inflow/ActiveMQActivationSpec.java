@@ -382,7 +382,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
       try {
          this.acknowledgeMode = ActiveMQActivationValidationUtils.validateAcknowledgeMode(value);
-      } catch ( IllegalArgumentException e ) {
+      } catch (IllegalArgumentException e) {
          ActiveMQRALogger.LOGGER.invalidAcknowledgementMode(value);
          throw e;
       }
@@ -583,7 +583,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    public void setMaxSession(final Integer value) {
       logger.trace("setMaxSession({})", value);
 
-      if ( value < 1 ) {
+      if (value < 1) {
          maxSession = 1;
          ActiveMQRALogger.LOGGER.invalidNumberOfMaxSession(value, maxSession);
       } else

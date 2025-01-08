@@ -356,7 +356,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       int numThreads = 2;
       ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
 
-      for (int i = 0; i < numSubs; i++ ) {
+      for (int i = 0; i < numSubs; i++) {
          final int id = i;
 
          executorService.submit(() -> {
@@ -368,7 +368,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
                   ad.addBinding(new BindingFake(SimpleString.of("Topic1.>"), SimpleString.of("" + id)));
                }
 
-               SimpleString pubAddr = SimpleString.of("Topic1." + id );
+               SimpleString pubAddr = SimpleString.of("Topic1." + id);
                // publish to new address, will create
                ad.getBindingsForRoutingAddress(pubAddr);
 

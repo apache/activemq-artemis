@@ -177,7 +177,7 @@ public class AMQPTunneledCoreLargeMessageReader implements MessageReader {
                // Advance mark so read bytes can be discarded and we can start from this
                // location next time.
                pendingRecvBuffer.markReaderIndex();
-            } catch (ActiveMQException ex ) {
+            } catch (ActiveMQException ex) {
                throw ex;
             } catch (Exception e) {
                // We expect exceptions from proton when only partial section are received within

@@ -42,7 +42,7 @@ public class BasicMirrorController<T extends Link> {
    }
 
    public static String getRemoteMirrorID(Link link) {
-      if ( link != null && link.getRemoteProperties() != null && link.getRemoteProperties().containsKey(AMQPMirrorControllerSource.BROKER_ID)) {
+      if (link != null && link.getRemoteProperties() != null && link.getRemoteProperties().containsKey(AMQPMirrorControllerSource.BROKER_ID)) {
          return (String)link.getRemoteProperties().get(AMQPMirrorControllerSource.BROKER_ID);
       } else {
          return null;

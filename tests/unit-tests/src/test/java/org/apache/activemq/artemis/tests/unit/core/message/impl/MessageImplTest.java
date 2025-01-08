@@ -375,7 +375,7 @@ public class MessageImplTest extends ActiveMQTestBase {
                   e.printStackTrace();
                   errors.incrementAndGet();
                } finally {
-                  if ( buf != null ) {
+                  if (buf != null) {
                      buf.release();
                   }
                }

@@ -224,7 +224,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private void checkIDSupplier(NodeStoreFactory<MessageReference> nodeStoreFactory) {
       if (this.nodeStoreFactory == null) {
          this.nodeStoreFactory = nodeStoreFactory;
-         messageReferences.setNodeStore( () -> nodeStoreFactory.newNodeStore().setName(String.valueOf(name)));
+         messageReferences.setNodeStore(() -> nodeStoreFactory.newNodeStore().setName(String.valueOf(name)));
       }
    }
 

@@ -290,7 +290,7 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationPolicy
 
                @Override
                public void onComplete(AMQPFederationConsumer context) {
-                  logger.trace("Restarted federation consumer after new demand added." );
+                  logger.trace("Restarted federation consumer after new demand added.");
                }
 
                @Override

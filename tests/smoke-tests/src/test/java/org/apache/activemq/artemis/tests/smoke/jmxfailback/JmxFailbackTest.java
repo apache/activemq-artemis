@@ -56,14 +56,14 @@ public class JmxFailbackTest extends SmokeTestBase {
       {
          HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).
-            setConfiguration("./src/main/resources/servers/jmx-failback1").setArgs( "--java-options", "-Djava.rmi.server.hostname=localhost");
+            setConfiguration("./src/main/resources/servers/jmx-failback1").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
          cliCreateServer.createServer();
       }
 
       {
          HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server1Location).
-            setConfiguration("./src/main/resources/servers/jmx-failback2").setArgs( "--java-options", "-Djava.rmi.server.hostname=localhost");
+            setConfiguration("./src/main/resources/servers/jmx-failback2").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
          cliCreateServer.createServer();
       }
    }

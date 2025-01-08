@@ -47,7 +47,7 @@ public class ConnectionRouterTest {
       Policy policy = null;
       underTest  = new ConnectionRouter("test", KeyType.CLIENT_ID, "^.{3}",
                                       localTarget, "^FOO.*", null, null, policy);
-      assertEquals( localTarget, underTest.getTarget("FOO_EE").getTarget());
+      assertEquals(localTarget, underTest.getTarget("FOO_EE").getTarget());
       assertEquals(TargetResult.REFUSED_USE_ANOTHER_RESULT, underTest.getTarget("BAR_EE"));
    }
 
@@ -62,7 +62,7 @@ public class ConnectionRouterTest {
 
       underTest  = new ConnectionRouter("test", KeyType.CLIENT_ID, "^.{3}",
                                       localTarget, "^FOO.*", null, null, policy);
-      assertEquals( localTarget, underTest.getTarget("TRANSFORM_TO_FOO_EE").getTarget());
+      assertEquals(localTarget, underTest.getTarget("TRANSFORM_TO_FOO_EE").getTarget());
    }
 
 }

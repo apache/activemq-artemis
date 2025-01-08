@@ -209,7 +209,7 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
             } catch (Exception e) {
                logger.warn("error on send of address added event: {}", e.getMessage());
                federation.signalError(
-                  new ActiveMQAMQPInternalErrorException("Error while processing address added: " + e.getMessage() ));
+                  new ActiveMQAMQPInternalErrorException("Error while processing address added: " + e.getMessage()));
             }
          }
       });
@@ -232,7 +232,7 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
                   // Likely the connection failed if we get here.
                   logger.warn("Error on send of queue added event: {}", e.getMessage());
                   federation.signalError(
-                     new ActiveMQAMQPInternalErrorException("Error while processing queue added: " + e.getMessage() ));
+                     new ActiveMQAMQPInternalErrorException("Error while processing queue added: " + e.getMessage()));
                }
             }
          });

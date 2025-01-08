@@ -59,7 +59,7 @@ public class WildcardAddressManagerPerfTest {
       final int partitions = 2;
       ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
 
-      for (int i = 0; i < numSubs; i++ ) {
+      for (int i = 0; i < numSubs; i++) {
          final int id = i;
 
          executorService.submit(() -> {
@@ -73,11 +73,11 @@ public class WildcardAddressManagerPerfTest {
                // subscribe as wildcard
                ad.addBinding(new BindingFake(SimpleString.of("Topic1." +  id % partitions +  ".>"), SimpleString.of("" + id), id));
 
-               SimpleString pubAddr = SimpleString.of("Topic1." +  id % partitions + "." + id );
+               SimpleString pubAddr = SimpleString.of("Topic1." +  id % partitions + "." + id);
 
 
                if (id != 0 && id % 1000 == 0) {
-                  System.err.println("0. pub for: " + id );
+                  System.err.println("0. pub for: " + id);
                }
 
                // publish

@@ -61,8 +61,8 @@ public class MessageProducerTest extends JMSTestBase {
    public void testHasDefaultDestination() throws Exception {
       Session session = conn.createSession();
       try {
-         Queue queue = createQueue( name);
-         Queue queue2 = createQueue( name + "2");
+         Queue queue = createQueue(name);
+         Queue queue2 = createQueue(name + "2");
          MessageProducer producer = session.createProducer(queue);
          Message m = session.createMessage();
          try {

@@ -115,7 +115,7 @@ public class ClientCrashTest extends ClientTestBase {
       assertNotNull(messageFromClient, "no message received");
       assertEquals(ClientCrashTest.MESSAGE_TEXT_FROM_CLIENT, messageFromClient.getBodyBuffer().readString());
 
-      assertActiveConnections( 1); // One local and one from the other vm
+      assertActiveConnections(1); // One local and one from the other vm
       assertActiveSession(1);
 
       ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);

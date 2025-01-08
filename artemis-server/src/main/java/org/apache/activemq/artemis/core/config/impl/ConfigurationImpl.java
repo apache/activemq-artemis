@@ -3244,7 +3244,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
          int r = idCacheSize / msgNumInFlight;
 
          // This setting is here to accomodate the current default setting.
-         if ( (r >= RANGE_SIZE_MIN) && (r <= RANGE_SZIE_MAX)) {
+         if ((r >= RANGE_SIZE_MIN) && (r <= RANGE_SZIE_MAX)) {
             sizeGood = true;
          }
       }

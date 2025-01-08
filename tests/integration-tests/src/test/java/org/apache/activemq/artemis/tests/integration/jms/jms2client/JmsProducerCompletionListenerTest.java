@@ -78,7 +78,7 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase {
       super.setUp();
       context = createContext();
       producer = context.createProducer();
-      queue = createQueue( name + "Queue");
+      queue = createQueue(name + "Queue");
    }
 
    @TestTemplate

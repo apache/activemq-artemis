@@ -133,7 +133,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
                writerOutput.println("   }");
                writerOutput.println();
 
-               writerOutput.println("   public " + simpleClassName + "(Logger logger ) {");
+               writerOutput.println("   public " + simpleClassName + "(Logger logger) {");
                writerOutput.println("      this.logger = logger;");
                writerOutput.println("   }");
                writerOutput.println();
@@ -533,7 +533,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
          }
 
          Integer nextId = Collections.max(activeIDs) + 1;
-         while (isRetiredID(bundleAnnotation, nextId) ) {
+         while (isRetiredID(bundleAnnotation, nextId)) {
             nextId++;
          }
 

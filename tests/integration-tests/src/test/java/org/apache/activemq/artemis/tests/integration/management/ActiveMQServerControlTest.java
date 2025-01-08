@@ -5224,7 +5224,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          Session session1 = conn.createSession();
 
          MessageProducer producer1 = session1.createProducer(null);
-         for ( int i = 0; i < 110; i++) {
+         for (int i = 0; i < 110; i++) {
             javax.jms.Queue queue = session1.createQueue(queueName + i);
             producer1.send(queue, session1.createMessage());
          }
