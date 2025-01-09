@@ -35,7 +35,6 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -65,30 +64,6 @@ public class FileLockNodeManagerTest extends FailoverTestBase {
 
    public enum NodeManagerType {
       InVM, Jdbc, File
-   }
-
-   protected ClientSession createSession(ClientSessionFactory sf1,
-                                         boolean autoCommitSends,
-                                         boolean autoCommitAcks,
-                                         int ackBatchSize) throws Exception {
-      return addClientSession(sf1.createSession(autoCommitSends, autoCommitAcks, ackBatchSize));
-   }
-
-   protected ClientSession createSession(ClientSessionFactory sf1,
-                                         boolean autoCommitSends,
-                                         boolean autoCommitAcks) throws Exception {
-      return addClientSession(sf1.createSession(autoCommitSends, autoCommitAcks));
-   }
-
-   protected ClientSession createSession(ClientSessionFactory sf1) throws Exception {
-      return addClientSession(sf1.createSession());
-   }
-
-   protected ClientSession createSession(ClientSessionFactory sf1,
-                                         boolean xa,
-                                         boolean autoCommitSends,
-                                         boolean autoCommitAcks) throws Exception {
-      return addClientSession(sf1.createSession(xa, autoCommitSends, autoCommitAcks));
    }
 
    @Parameters(name = "{0} Node Manager, Use Separate Lock Folder = {1}")

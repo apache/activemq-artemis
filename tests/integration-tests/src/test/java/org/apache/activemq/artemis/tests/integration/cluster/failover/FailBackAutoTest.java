@@ -19,15 +19,12 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.QueueConfiguration;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -41,7 +38,6 @@ import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfigu
 import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreBackupPolicy;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
-import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -276,46 +272,5 @@ public class FailBackAutoTest extends FailoverTestBase {
    @Override
    protected TransportConfiguration getConnectorTransportConfiguration(final boolean primary) {
       return TransportConfigurationUtils.getInVMConnector(primary);
-   }
-
-   private ClientSession sendAndConsume(final ClientSessionFactory sf, final boolean createQueue) throws Exception {
-      ClientSession session = sf.createSession(false, true, true);
-
-      if (createQueue) {
-         session.createQueue(QueueConfiguration.of(ADDRESS));
-      }
-
-      ClientProducer producer = session.createProducer(ADDRESS);
-
-      final int numMessages = 1000;
-
-      for (int i = 0; i < numMessages; i++) {
-         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         message.putIntProperty(SimpleString.of("count"), i);
-         message.getBodyBuffer().writeString("aardvarks");
-         producer.send(message);
-      }
-
-      ClientConsumer consumer = session.createConsumer(ADDRESS);
-
-      session.start();
-
-      for (int i = 0; i < numMessages; i++) {
-         ClientMessage message2 = consumer.receive();
-
-         assertEquals("aardvarks", message2.getBodyBuffer().readString());
-
-         assertEquals(i, message2.getObjectProperty(SimpleString.of("count")));
-
-         message2.acknowledge();
-      }
-
-      ClientMessage message3 = consumer.receiveImmediate();
-
-      consumer.close();
-
-      assertNull(message3);
-
-      return session;
    }
 }

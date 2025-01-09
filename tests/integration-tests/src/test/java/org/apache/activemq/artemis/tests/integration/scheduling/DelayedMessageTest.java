@@ -78,8 +78,6 @@ public class DelayedMessageTest extends ActiveMQTestBase {
 
       final int NUM_MESSAGES = 5;
 
-      ActiveMQTestBase.forceGC();
-
       for (int i = 0; i < NUM_MESSAGES; i++) {
          ClientMessage tm = createDurableMessage(session1, "message" + i);
          producer.send(tm);

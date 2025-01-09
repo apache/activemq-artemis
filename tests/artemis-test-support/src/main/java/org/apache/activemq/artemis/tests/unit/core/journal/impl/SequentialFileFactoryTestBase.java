@@ -56,8 +56,6 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
 
       factory = null;
 
-      ActiveMQTestBase.forceGC();
-
       assertEquals(0, LibaioContext.getTotalMaxIO());
 
       super.tearDown();

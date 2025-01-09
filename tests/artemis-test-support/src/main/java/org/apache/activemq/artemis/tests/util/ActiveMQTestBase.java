@@ -545,7 +545,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
          setName("cluster1").setAddress("jms").setConnectorName(connectorName).
          setRetryInterval(100).setDuplicateDetection(false).setMaxHops(1).
          setConfirmationWindowSize(1).setMessageLoadBalancingType(MessageLoadBalancingType.STRICT).
-         setStaticConnectors(connectors0);
+         setStaticConnectors(connectors0).setCallTimeout(1000).setCallFailoverTimeout(1000);
 
       return clusterConnectionConfiguration;
    }

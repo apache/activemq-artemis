@@ -1396,7 +1396,7 @@ public class SymmetricClusterTest extends ClusterTestBase {
 
    @Test
    public void testStartStopServers() throws Exception {
-      doTestStartStopServers(1, 3000);
+      doTestStartStopServers();
    }
 
    protected void validateTopologSize(int expectedSize, int... serverParameters) throws Exception {
@@ -1411,7 +1411,7 @@ public class SymmetricClusterTest extends ClusterTestBase {
       }
    }
 
-   public void doTestStartStopServers(long pauseBeforeServerRestarts, long pauseAfterServerRestarts) throws Exception {
+   public void doTestStartStopServers() throws Exception {
       setupCluster();
 
       startServers();
@@ -1535,13 +1535,9 @@ public class SymmetricClusterTest extends ClusterTestBase {
 
       stopServers(0, 3);
 
-      Thread.sleep(pauseBeforeServerRestarts);
-
       validateTopologSize(3, 1, 2, 4);
 
       startServers(3, 0);
-
-      Thread.sleep(pauseAfterServerRestarts);
 
       validateTopologSize(5, 0, 1, 2, 3, 4);
 

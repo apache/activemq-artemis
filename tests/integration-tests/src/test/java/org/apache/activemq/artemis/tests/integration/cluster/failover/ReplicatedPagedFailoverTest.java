@@ -50,12 +50,6 @@ public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
       return createInVMFailoverServer(realFiles, configuration, PAGE_SIZE, PAGE_MAX, new HashMap<>(), nodeManager, id);
    }
 
-   @Override
-   @Test
-   public void testFailWithBrowser() throws Exception {
-      internalBrowser(0);
-   }
-
    @Test
    public void testFailWithBrowserWithClose() throws Exception {
       internalBrowser(1);
@@ -71,13 +65,6 @@ public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
    @Timeout(120)
    public void testReplicatedFailback() throws Exception {
       super.testReplicatedFailback();
-   }
-
-   @Override
-   @Test
-   @Timeout(120)
-   public void testFailoverOnInitialConnection() throws Exception {
-      super.testFailoverOnInitialConnection();
    }
 
    //

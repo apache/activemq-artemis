@@ -41,10 +41,9 @@ import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-public class PrimaryToPrimaryFailoverTest extends FailoverTest {
+public class PrimaryToPrimaryFailoverTest extends FailoverTestBase {
 
    private InVMNodeManager nodeManager0;
    private InVMNodeManager nodeManager1;
@@ -54,6 +53,7 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
    @Override
    public void setUp() throws Exception {
       super.setUp();
+      locator = getServerLocator();
    }
 
    @Override
@@ -170,7 +170,6 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
       }
    }
 
-   @Override
    protected void createSessionFactory() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setRetryInterval(100);
 
@@ -196,6 +195,7 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
     * TODO: https://issues.apache.org/jira/browse/ARTEMIS-2709
     *       this test has been intermittently failing since its day one.
     *       Ignoring the test for now until we can fix it.
+    *
     * @throws Exception
     */
    @Test
@@ -234,7 +234,6 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
    }
 
    // https://jira.jboss.org/jira/browse/HORNETQ-285
-   @Override
    @Test
    public void testFailoverOnInitialConnection() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setRetryInterval(100);
@@ -261,7 +260,6 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
       session.close();
    }
 
-   @Override
    @Test
    public void testCreateNewFactoryAfterFailover() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true);
@@ -286,124 +284,6 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTest {
       }
 
       session = sendAndConsume(sf, false);
-   }
-
-   @Override
-   @Test
-   public void testTimeoutOnFailoverTransactionCommitTimeoutCommunication() throws Exception {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testFailBothRestartPrimary() throws Exception {
-   }
-
-   //invalid tests for primary to primary failover
-   //all the timeout ones aren't as we don't migrate timeouts, any failback or server restart
-   //or replicating tests aren't either
-   @Override
-   @Test
-   @Disabled
-   public void testPrimaryAndBackupBackupComesBackNewFactory() throws Exception {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testPrimaryAndBackupPrimaryComesBackNewFactory() {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testTimeoutOnFailoverConsumeBlocked() throws Exception {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testFailoverMultipleSessionsWithConsumers() throws Exception {
-      //
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testTimeoutOnFailover() throws Exception {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testTimeoutOnFailoverTransactionRollback() throws Exception {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testTimeoutOnFailoverConsume() throws Exception {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testTimeoutOnFailoverTransactionCommit() throws Exception {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testFailBack() throws Exception {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testFailBackPrimaryRestartsBackupIsGone() throws Exception {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testPrimaryAndBackupPrimaryComesBack() throws Exception {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testSimpleFailover() throws Exception {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testFailThenReceiveMoreMessagesAfterFailover2() throws Exception {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testWithoutUsingTheBackup() throws Exception {
-   }
-
-   //todo check to see which failing tests are valid,
-   @Override
-   @Test
-   @Disabled
-   public void testSimpleSendAfterFailoverDurableNonTemporary() throws Exception {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testCommitOccurredUnblockedAndResendNoDuplicates() throws Exception {
-   }
-
-   @Override
-   @Test
-   @Disabled
-   public void testFailPrimaryTooSoon() throws Exception {
    }
 }
 

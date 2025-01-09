@@ -35,7 +35,7 @@ public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest {
    @Test
    public void testStartStopServers() throws Exception {
       // When using discovery starting and stopping it too fast could have a race condition with UDP
-      doTestStartStopServers(3000, 3000);
+      doTestStartStopServers();
    }
 
    @Override
@@ -71,6 +71,6 @@ public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest {
     */
    @Test
    public void testStartStopServersWithPauseBeforeRestarting() throws Exception {
-      doTestStartStopServers(10000, 3000);
+      doTestStartStopServers();
    }
 }

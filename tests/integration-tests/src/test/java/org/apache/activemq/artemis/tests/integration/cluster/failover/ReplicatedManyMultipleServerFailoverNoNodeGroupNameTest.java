@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedT
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(ParameterizedTestExtension.class)
-public class ReplicatedManyMultipleServerFailoverNoNodeGroupNameTest extends ReplicatedManyMultipleServerFailoverTest {
+public class ReplicatedManyMultipleServerFailoverNoNodeGroupNameTest extends ReplicatedMultipleServerFailoverTest {
 
    @Override
    public String getNodeGroupName() {

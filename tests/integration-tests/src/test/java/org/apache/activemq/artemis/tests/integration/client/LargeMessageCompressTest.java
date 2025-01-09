@@ -54,8 +54,8 @@ import org.apache.activemq.artemis.core.management.impl.QueueControlImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -70,7 +70,7 @@ import javax.management.openmbean.CompositeData;
 
 //Parameters set in superclass
 @ExtendWith(ParameterizedTestExtension.class)
-public class LargeMessageCompressTest extends LargeMessageTest {
+public class LargeMessageCompressTest extends LargeMessageTestBase {
 
 
    public LargeMessageCompressTest(StoreConfiguration.StoreType storeType) {
@@ -90,13 +90,6 @@ public class LargeMessageCompressTest extends LargeMessageTest {
    @Override
    protected ServerLocator createFactory(final boolean isNetty) throws Exception {
       return super.createFactory(isNetty).setCompressLargeMessage(true);
-   }
-
-   @Override
-   @TestTemplate
-   @Disabled
-   public void testDeleteUnreferencedMessage() {
-      // this test makes no sense as it needs to delete a large message and its record
    }
 
    @TestTemplate
@@ -641,14 +634,6 @@ public class LargeMessageCompressTest extends LargeMessageTest {
       locator3.close();
 
    }
-
-   @Disabled
-   @Override
-   @TestTemplate
-   public void testSendServerMessage() throws Exception {
-      // doesn't make sense as compressed
-   }
-
 
    // https://issues.apache.org/jira/projects/ARTEMIS/issues/ARTEMIS-3751
    @TestTemplate

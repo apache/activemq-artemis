@@ -35,8 +35,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -123,9 +121,9 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       return false;
    }
 
-   private static final long TIMEOUT_START_SERVER = 1000;
+   private static final long TIMEOUT_START_SERVER = 10;
 
-   private static final SimpleString COUNT_PROP = SimpleString.of("count_prop");
+   protected static final SimpleString COUNT_PROP = SimpleString.of("count_prop");
 
    protected static final SimpleString FILTER_PROP = SimpleString.of("animal");
 
@@ -168,8 +166,6 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
-
-      forceGC();
 
       consumers = new ConsumerHolder[ClusterTestBase.MAX_CONSUMERS];
 
@@ -1254,91 +1250,10 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       }
    }
 
-   protected void verifyReceiveRoundRobinInSomeOrderWithCounts(final boolean ack,
-                                                               final int[] messageCounts,
-                                                               final int... consumerIDs) throws Exception {
-      List<LinkedList<Integer>> receivedCounts = new ArrayList<>();
-
-      Set<Integer> counts = new HashSet<>();
-
-      for (int consumerID : consumerIDs) {
-         ConsumerHolder holder = consumers[consumerID];
-
-         if (holder == null) {
-            throw new IllegalArgumentException("No consumer at " + consumerID);
-         }
-
-         LinkedList<Integer> list = new LinkedList<>();
-
-         receivedCounts.add(list);
-
-         ClientMessage message;
-         do {
-            message = holder.consumer.receive(1000);
-
-            if (message != null) {
-               int count = (Integer) message.getObjectProperty(ClusterTestBase.COUNT_PROP);
-
-               checkMessageBody(message);
-
-               // logger.debug("consumer {} received message {}", consumerIDs[i], count);
-
-               assertFalse(counts.contains(count));
-
-               counts.add(count);
-
-               list.add(count);
-
-               if (ack) {
-                  message.acknowledge();
-               }
-            }
-         }
-         while (message != null);
-      }
-
-      for (int messageCount : messageCounts) {
-         assertTrue(counts.contains(messageCount));
-      }
-
-      @SuppressWarnings("unchecked")
-      LinkedList<Integer>[] lists = new LinkedList[consumerIDs.length];
-
-      for (int i = 0; i < messageCounts.length; i++) {
-         for (LinkedList<Integer> list : receivedCounts) {
-            int elem = list.get(0);
-
-            if (elem == messageCounts[i]) {
-               lists[i] = list;
-
-               break;
-            }
-         }
-      }
-      int index = 0;
-
-      for (int messageCount : messageCounts) {
-         LinkedList<Integer> list = lists[index];
-
-         assertNotNull(list);
-
-         int elem = list.poll();
-
-         assertEquals(messageCount, elem);
-
-         index++;
-
-         if (index == consumerIDs.length) {
-            index = 0;
-         }
-      }
-
-   }
-
    /**
     * @param message
     */
-   private void checkMessageBody(ClientMessage message) {
+   protected void checkMessageBody(ClientMessage message) {
       if (isLargeMessage()) {
          for (int posMsg = 0; posMsg < getLargeMessageSize(); posMsg++) {
             assertEquals(getSamplebyte(posMsg), message.getBodyBuffer().readByte());
@@ -1790,7 +1705,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       }
       Configuration config = serverFrom.getConfiguration();
 
-      ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration().setName(name).setAddress(address).setConnectorName(name).setRetryInterval(100).setMessageLoadBalancingType(messageLoadBalancingType).setMaxHops(maxHops).setConfirmationWindowSize(1024).setStaticConnectors(pairs).setAllowDirectConnectionsOnly(allowDirectConnectionsOnly);
+      ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration().setName(name).setAddress(address).setConnectorName(name).setRetryInterval(100).setMessageLoadBalancingType(messageLoadBalancingType).setMaxHops(maxHops).setConfirmationWindowSize(1024).setStaticConnectors(pairs).setAllowDirectConnectionsOnly(allowDirectConnectionsOnly).setCallTimeout(100);
 
       config.getClusterConfigurations().add(clusterConf);
    }
@@ -1956,7 +1871,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          .setName(name)
          .setAddress(address)
          .setConnectorName(connectorFrom.getName())
-         .setRetryInterval(250)
+         .setRetryInterval(250).setCallFailoverTimeout(100).setCallTimeout(100)
          .setMessageLoadBalancingType(messageLoadBalancingType)
          .setMaxHops(maxHops)
          .setConfirmationWindowSize(1024)

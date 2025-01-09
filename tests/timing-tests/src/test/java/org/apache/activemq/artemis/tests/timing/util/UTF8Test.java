@@ -62,7 +62,6 @@ public class UTF8Test extends ActiveMQTestBase {
       buffer.writeUTF(str);
 
       for (int c = 0; c < TIMES; c++) {
-         forceGC();
          final long start = System.currentTimeMillis();
          for (long i = 0; i < numberOfIteractions; i++) {
             buffer.resetReaderIndex();
