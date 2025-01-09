@@ -30,7 +30,7 @@ public class LargeMessageRedistributionTest extends MessageRedistributionTest {
 
    @Test
    public void testRedistributionLargeMessageDirCleanup() throws Exception {
-      final long delay = 1000;
+      final long delay = 100;
       final int numMessages = 5;
 
       setRedistributionDelay(delay);

@@ -1998,7 +1998,6 @@ public class MessageConsumerTest extends JMSTestCase {
 
          // This is a really weird test - the received object is always going to be null since no message is sent!!
 
-         ActiveMQServerTestCase.forceGC(); // / If A GC need to be executed, it' s better to be executed now
          logger.trace("testTimeoutReceiveOnClose");
 
          Object monitor = new Object();

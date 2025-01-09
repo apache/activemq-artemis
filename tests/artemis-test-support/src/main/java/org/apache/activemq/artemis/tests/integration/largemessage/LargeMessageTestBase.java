@@ -50,13 +50,18 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.DeflaterReader;
+import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,20 +70,46 @@ import java.lang.invoke.MethodHandles;
 @ExtendWith(ParameterizedTestExtension.class)
 public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
-
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected final SimpleString ADDRESS = SimpleString.of("SimpleAddress");
 
-
-
-
-
+   protected ServerLocator locator;
 
    protected StoreConfiguration.StoreType storeType;
 
+   protected boolean isCompressedTest = false;
+
    public LargeMessageTestBase(StoreConfiguration.StoreType storeType) {
       this.storeType = storeType;
+   }
+
+   protected void validateLargeMessageComplete(ActiveMQServer server) throws Exception {
+      Queue queue = server.locateQueue(ADDRESS);
+
+      Wait.assertEquals(1, queue::getMessageCount);
+
+      LinkedListIterator<MessageReference> browserIterator = queue.browserIterator();
+
+      while (browserIterator.hasNext()) {
+         MessageReference ref = browserIterator.next();
+         Message message = ref.getMessage();
+
+         assertNotNull(message);
+         assertTrue(message instanceof LargeServerMessage);
+      }
+      browserIterator.close();
+   }
+
+   protected boolean isNetty() {
+      return false;
+   }
+
+   @Override
+   @BeforeEach
+   public void setUp() throws Exception {
+      super.setUp();
+      locator = createFactory(isNetty());
    }
 
    @AfterEach

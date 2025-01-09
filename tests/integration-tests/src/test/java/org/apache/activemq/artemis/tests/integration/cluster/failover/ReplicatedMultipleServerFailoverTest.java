@@ -144,12 +144,12 @@ public class ReplicatedMultipleServerFailoverTest extends MultipleServerFailover
 
    @Override
    public int getPrimaryServerCount() {
-      return 2;
+      return 6;
    }
 
    @Override
    public int getBackupServerCount() {
-      return 2;
+      return 6;
    }
 
    @Override

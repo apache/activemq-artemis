@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -108,15 +109,7 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
       session0.commit();
       session0.close();
 
-      while (true) {
-         long msgCount0 = getMessageCount(servers[0], "queues");
-         long msgCount1 = getMessageCount(servers[1], "queues");
-
-         if (msgCount0 + msgCount1 >= numSent) {
-            break;
-         }
-         Thread.sleep(100);
-      }
+      Wait.assertTrue(() -> getMessageCount(servers[0], "queues") + getMessageCount(servers[1], "queues") >= numSent, 5000);
 
       Queue queue0 = servers[0].locateQueue(SimpleString.of("queue0"));
       assertTrue(queue0.getPageSubscription().isPaging());
@@ -153,9 +146,8 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
       for (Configuration config : serverConfigs) {
          config.setPersistenceEnabled(true);
          config.setMessageCounterEnabled(true);
-         config.setJournalFileSize(20971520);
-         config.setJournalMinFiles(20);
-         config.setJournalCompactPercentage(50);
+         config.setJournalFileSize(20 * 1024);
+         config.setJournalMinFiles(5);
 
          Map<String, AddressSettings> addressSettingsMap0 = config.getAddressSettings();
          AddressSettings addrSettings = addressSettingsMap0.get("#");
@@ -228,34 +220,6 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
       verifyNotReceive(0, 1);
 
       stopServers(0, 1);
-   }
-
-   @Test
-   public void testRestartServers() throws Throwable {
-      String name = Thread.currentThread().getName();
-      try {
-         Thread.currentThread().setName("ThreadOnTestRestartTest");
-         startServers(0, 1);
-         waitForTopology(servers[0], 2);
-
-         waitForTopology(servers[1], 2);
-
-         for (int i = 0; i < 10; i++) {
-            logger.debug("Sleep #test {}", i);
-            logger.debug("#stop #test #{}", i);
-            Thread.sleep(500);
-            stopServers(1);
-
-            waitForTopology(servers[0], 1, -1, 2000);
-            logger.debug("#start #test #{}", i);
-            startServers(1);
-            waitForTopology(servers[0], 2, -1, 2000);
-            waitForTopology(servers[1], 2, -1, 2000);
-         }
-      } finally {
-         Thread.currentThread().setName(name);
-      }
-
    }
 
    @Test

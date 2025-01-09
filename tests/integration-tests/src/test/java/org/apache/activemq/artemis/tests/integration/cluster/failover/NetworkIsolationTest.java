@@ -61,13 +61,6 @@ public class NetworkIsolationTest extends FailoverTestBase {
       return TransportConfigurationUtils.getNettyConnector(live, 1);
    }
 
-   protected ClientSession createSession(ClientSessionFactory sf1,
-                                         boolean xa,
-                                         boolean autoCommitSends,
-                                         boolean autoCommitAcks) throws Exception {
-      return addClientSession(sf1.createSession(xa, autoCommitSends, autoCommitAcks));
-   }
-
    @Test
    public void testReactivate() throws Exception {
       primaryServer.getServer().getConfiguration().setNetworkCheckPeriod(100).setNetworkCheckTimeout(200);

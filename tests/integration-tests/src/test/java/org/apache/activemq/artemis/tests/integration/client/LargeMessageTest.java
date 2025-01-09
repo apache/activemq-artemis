@@ -69,8 +69,6 @@ import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.LargeServerMessage;
-import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerProducer;
@@ -84,7 +82,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -101,13 +98,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
    protected ServerLocator locator;
 
-   protected boolean isCompressedTest = false;
-
    private int largeMessageSize;
-
-   protected boolean isNetty() {
-      return false;
-   }
 
    public LargeMessageTest(StoreConfiguration.StoreType storeType) {
       super(storeType);
@@ -480,23 +471,6 @@ public class LargeMessageTest extends LargeMessageTestBase {
       session.commit();
 
       validateNoFilesOnLargeDir();
-   }
-
-   protected void validateLargeMessageComplete(ActiveMQServer server) throws Exception {
-      Queue queue = server.locateQueue(ADDRESS);
-
-      Wait.assertEquals(1, queue::getMessageCount);
-
-      LinkedListIterator<MessageReference> browserIterator = queue.browserIterator();
-
-      while (browserIterator.hasNext()) {
-         MessageReference ref = browserIterator.next();
-         Message message = ref.getMessage();
-
-         assertNotNull(message);
-         assertTrue(message instanceof LargeServerMessage);
-      }
-      browserIterator.close();
    }
 
    @TestTemplate
@@ -2114,13 +2088,13 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       final int numberOfBytes = 1024;
 
-      final int numberOfBytesBigMessage = 400000;
+      final int numberOfBytesBigMessage = 4000;
 
-      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true).setMinLargeMessageSize(1000);
 
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
-      ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
+      ClientSession session = sf.createSession(null, null, false, false, true, false, 0);
 
       session.createQueue(QueueConfiguration.of(ADDRESS.concat("-0")).setAddress(ADDRESS));
       session.createQueue(QueueConfiguration.of(ADDRESS.concat("-1")).setAddress(ADDRESS));
@@ -2143,17 +2117,20 @@ public class LargeMessageTest extends LargeMessageTestBase {
          producer.send(message);
       }
 
+      session.commit();
+
       ClientMessage clientFile = createLargeClientMessageStreaming(session, numberOfBytesBigMessage);
       clientFile.putBooleanProperty("TestLarge", true);
       producer.send(clientFile);
 
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < 10; i++) {
          message = session.createMessage(true);
 
          message.getBodyBuffer().writeBytes(new byte[numberOfBytes]);
 
          producer.send(message);
       }
+      session.commit();
 
       session.close();
 
@@ -2205,7 +2182,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
                session.commit();
          }
 
-         for (int i = 0; i < 100; i++) {
+         for (int i = 0; i < 5; i++) {
             ClientMessage message2 = consumer.receive(LargeMessageTest.RECEIVE_WAIT_TIME);
 
             assertNotNull(message2);

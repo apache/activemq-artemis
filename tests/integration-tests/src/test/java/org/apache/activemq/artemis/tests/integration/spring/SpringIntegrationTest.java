@@ -23,22 +23,12 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 public class SpringIntegrationTest extends ActiveMQTestBase {
-
-   @Override
-   @BeforeEach
-   public void setUp() throws Exception {
-      super.setUp();
-      // Need to force GC as the connection on the spring needs to be cleared
-      // otherwise the sprint thread may leak here
-      forceGC();
-   }
 
    @Test
    public void testSpring() throws Exception {

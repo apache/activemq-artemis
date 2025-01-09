@@ -35,8 +35,6 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 @RunWith(BlockJUnit4ClassRunner.class)
 public class ExpiryHogTest extends JmsMultipleClientsTestSupport {
 
-   boolean sleep = false;
-
    int numMessages = 4;
 
    @Test(timeout = 2 * 60 * 1000)
@@ -44,7 +42,6 @@ public class ExpiryHogTest extends JmsMultipleClientsTestSupport {
       ConnectionFactory f = createConnectionFactory();
       destination = createDestination();
       startConsumers(f, destination);
-      sleep = true;
       this.startProducers(f, destination, numMessages);
       allMessagesList.assertMessagesReceived(numMessages);
    }
@@ -55,7 +52,7 @@ public class ExpiryHogTest extends JmsMultipleClientsTestSupport {
       bs.setDeleteAllMessagesOnStartup(true);
       PolicyMap policyMap = new PolicyMap();
       PolicyEntry defaultEntry = new PolicyEntry();
-      defaultEntry.setExpireMessagesPeriod(5000);
+      defaultEntry.setExpireMessagesPeriod(500);
       defaultEntry.setUseCache(false);
       policyMap.setDefaultEntry(defaultEntry);
       bs.setDestinationPolicy(policyMap);
@@ -65,11 +62,8 @@ public class ExpiryHogTest extends JmsMultipleClientsTestSupport {
 
    @Override
    protected TextMessage createTextMessage(Session session, String initText) throws Exception {
-      if (sleep) {
-         TimeUnit.SECONDS.sleep(10);
-      }
       TextMessage msg = super.createTextMessage(session, initText);
-      msg.setJMSExpiration(4000);
+      msg.setJMSExpiration(500);
       return msg;
    }
 

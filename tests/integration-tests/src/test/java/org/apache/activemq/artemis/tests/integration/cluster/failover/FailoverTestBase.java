@@ -17,7 +17,9 @@
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -30,11 +32,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
@@ -53,17 +60,21 @@ import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
+import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.lockmanager.file.FileBasedLockManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
+import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 public abstract class FailoverTestBase extends ActiveMQTestBase {
 
    protected static final SimpleString ADDRESS = SimpleString.of("FailoverTestAddress");
+
+   protected static final int NUM_MESSAGES = 100;
 
    /*
     * Used only by tests of large messages.
@@ -74,6 +85,8 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
    protected static final int PAGE_MAX = 2 * 1024;
    protected static final int PAGE_SIZE = 1024;
 
+   protected ServerLocator locator;
+   protected ClientSessionFactoryInternal sf;
 
    protected TestableServer primaryServer;
 
@@ -108,6 +121,121 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
             waitForBackup();
          }
       }
+   }
+
+   protected ClientSession sendAndConsume(final ClientSessionFactory sf, final boolean createQueue) throws Exception {
+      ClientSession session = sf.createSession(false, true, true);
+
+      if (createQueue) {
+         session.createQueue(QueueConfiguration.of(ADDRESS));
+      }
+
+      ClientProducer producer = session.createProducer(ADDRESS);
+
+
+      for (int i = 0; i < NUM_MESSAGES; i++) {
+         ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
+         message.putIntProperty(SimpleString.of("count"), i);
+         message.getBodyBuffer().writeString("aardvarks");
+         producer.send(message);
+      }
+
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
+
+      session.start();
+
+      for (int i = 0; i < NUM_MESSAGES; i++) {
+         ClientMessage message2 = consumer.receive();
+
+         assertEquals("aardvarks", message2.getBodyBuffer().readString());
+
+         assertEquals(i, message2.getObjectProperty(SimpleString.of("count")));
+
+         message2.acknowledge();
+      }
+
+      ClientMessage message3 = consumer.receiveImmediate();
+
+      consumer.close();
+
+      assertNull(message3);
+
+      return session;
+   }
+
+   protected void receiveDurableMessages(ClientConsumer consumer) throws ActiveMQException {
+      // During failover non-persistent messages may disappear but in certain cases they may survive.
+      // For that reason the test is validating all the messages but being permissive with non-persistent messages
+      // The test will just ack any non-persistent message, however when arriving it must be in order
+      ClientMessage repeatMessage = null;
+      for (int i = 0; i < NUM_MESSAGES; i++) {
+         ClientMessage message;
+
+         if (repeatMessage != null) {
+            message = repeatMessage;
+            repeatMessage = null;
+         } else {
+            message = consumer.receive(50);
+         }
+
+         if (message != null) {
+            int msgInternalCounter = message.getIntProperty("counter").intValue();
+
+            if (msgInternalCounter == i + 1) {
+               // The test can only jump to the next message if the current iteration is meant for non-durable
+               assertFalse(isDurable(i), "a message on counter=" + i + " was expected");
+               // message belongs to the next iteration.. let's just ignore it
+               repeatMessage = message;
+               continue;
+            }
+         }
+
+         if (isDurable(i)) {
+            assertNotNull(message);
+         }
+
+         if (message != null) {
+            assertMessageBody(i, message);
+            assertEquals(i, message.getIntProperty("counter").intValue());
+            message.acknowledge();
+         }
+      }
+   }
+
+   protected boolean isDurable(int i) {
+      return i % 2 == 0;
+   }
+
+   protected void receiveMessages(ClientConsumer consumer) throws ActiveMQException {
+      receiveMessages(consumer, 0, NUM_MESSAGES, true);
+   }
+
+   protected ClientSession createSession(ClientSessionFactory sf1,
+                                         boolean autoCommitSends,
+                                         boolean autoCommitAcks,
+                                         int ackBatchSize) throws Exception {
+      return addClientSession(sf1.createSession(autoCommitSends, autoCommitAcks, ackBatchSize));
+   }
+
+   protected ClientSession createSession(ClientSessionFactory sf1,
+                                         boolean autoCommitSends,
+                                         boolean autoCommitAcks) throws Exception {
+      return addClientSession(sf1.createSession(autoCommitSends, autoCommitAcks));
+   }
+
+   protected ClientSession createSession(ClientSessionFactory sf1) throws Exception {
+      return addClientSession(sf1.createSession());
+   }
+
+   protected ClientSession createSession(ClientSessionFactory sf1,
+                                         boolean xa,
+                                         boolean autoCommitSends,
+                                         boolean autoCommitAcks) throws Exception {
+      return addClientSession(sf1.createSession(xa, autoCommitSends, autoCommitAcks));
+   }
+
+   protected void createClientSessionFactory() throws Exception {
+      sf = (ClientSessionFactoryInternal) createSessionFactory(locator);
    }
 
    protected void waitForBackup() {
@@ -343,9 +471,13 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       }
    }
 
-   protected abstract TransportConfiguration getAcceptorTransportConfiguration(boolean live);
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean primary) {
+      return TransportConfigurationUtils.getInVMAcceptor(primary);
+   }
 
-   protected abstract TransportConfiguration getConnectorTransportConfiguration(boolean live);
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean primary) {
+      return TransportConfigurationUtils.getInVMConnector(primary);
+   }
 
    protected ServerLocatorInternal getServerLocator() throws Exception {
       return (ServerLocatorInternal) addServerLocator(ActiveMQClient.createServerLocatorWithHA(getConnectorTransportConfiguration(true), getConnectorTransportConfiguration(false))).setRetryInterval(50).setInitialConnectAttempts(50);

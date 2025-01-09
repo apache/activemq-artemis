@@ -29,7 +29,6 @@ import javax.jms.Topic;
 import javax.jms.TopicConnectionFactory;
 import javax.jms.XAConnectionFactory;
 import javax.naming.InitialContext;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -72,21 +71,6 @@ public abstract class ActiveMQServerTestCase {
    public static final int MIN_TIMEOUT = 1000 * 1 /* seconds */;
 
    private static final int DRAIN_WAIT_TIME = 250;
-
-   /**
-    * Some testcases are time sensitive, and we need to make sure a GC would happen before certain scenarios
-    */
-   public static void forceGC() {
-      WeakReference<Object> dumbReference = new WeakReference<>(new Object());
-      // A loop that will wait GC, using the minimal time as possible
-      while (dumbReference.get() != null) {
-         System.gc();
-         try {
-            Thread.sleep(500);
-         } catch (InterruptedException e) {
-         }
-      }
-   }
 
    protected static List<Server> servers = new ArrayList<>();
 

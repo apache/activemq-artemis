@@ -34,7 +34,6 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
@@ -101,30 +100,6 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
    @Override
    protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
       return getNettyConnectorTransportConfiguration(live);
-   }
-
-   protected ClientSession createSession(ClientSessionFactory sf1,
-                                         boolean autoCommitSends,
-                                         boolean autoCommitAcks,
-                                         int ackBatchSize) throws Exception {
-      return addClientSession(sf1.createSession(autoCommitSends, autoCommitAcks, ackBatchSize));
-   }
-
-   protected ClientSession createSession(ClientSessionFactory sf1,
-                                         boolean autoCommitSends,
-                                         boolean autoCommitAcks) throws Exception {
-      return addClientSession(sf1.createSession(autoCommitSends, autoCommitAcks));
-   }
-
-   protected ClientSession createSession(ClientSessionFactory sf1) throws Exception {
-      return addClientSession(sf1.createSession());
-   }
-
-   protected ClientSession createSession(ClientSessionFactory sf1,
-                                         boolean xa,
-                                         boolean autoCommitSends,
-                                         boolean autoCommitAcks) throws Exception {
-      return addClientSession(sf1.createSession(xa, autoCommitSends, autoCommitAcks));
    }
 
    @Override

@@ -86,7 +86,6 @@ public class MultipliedDelayedMessageTest extends ActiveMQTestBase {
       // Session for sending the message
       session = sessionFactory.createSession(false, true, true);
       ClientProducer producer = session.createProducer(queueName);
-      ActiveMQTestBase.forceGC();
       ClientMessage tm = createDurableMessage(session, "message");
       producer.send(tm);
       session.close();

@@ -33,19 +33,13 @@ import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-/**
- * The test extends the LargeMessageTest and tests
- * the functionality of option avoid-large-messages
- *
- * Parameters set in superclass
- */
 @ExtendWith(ParameterizedTestExtension.class)
-public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
+public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTestBase {
 
    public LargeMessageAvoidLargeMessagesTest(StoreConfiguration.StoreType storeType) {
       super(storeType);
@@ -66,12 +60,6 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
       return super.createFactory(isNetty).setMinLargeMessageSize(10240).setCompressLargeMessage(true);
    }
 
-   @Disabled
-   @Override
-   @TestTemplate
-   public void testDeleteUnreferencedMessage() {
-      // this test makes no sense as it needs to delete a large message and its record
-   }
 
    @TestTemplate
    public void testSimpleSendOnAvoid() throws Exception {
@@ -286,7 +274,6 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
 
    //this test won't leave any large messages in the large-messages dir
    //because after compression, the messages are regulars at server.
-   @Override
    @TestTemplate
    public void testDLALargeMessage() throws Exception {
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
@@ -386,13 +373,6 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
       session.close();
 
       validateNoFilesOnLargeDir();
-   }
-
-   @Disabled
-   @Override
-   @TestTemplate
-   public void testSendServerMessage() throws Exception {
-      // doesn't make sense as compressed
    }
 
 }

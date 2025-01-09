@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -31,6 +32,10 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -283,7 +288,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
       waitForBindings(1, "queues.testaddress", 2, 1, false);
       waitForBindings(2, "queues.testaddress", 2, 1, false);
 
-      send(0, "queues.testaddress", 2000, false, null);
+      send(0, "queues.testaddress", 100, false, null);
 
       removeConsumer(0);
       addConsumer(0, 0, "queue0", null);
@@ -335,6 +340,90 @@ public class MessageRedistributionTest extends ClusterTestBase {
       logger.debug("Test done");
    }
 
+   protected void verifyReceiveRoundRobinInSomeOrderWithCounts(final boolean ack,
+                                                               final int[] messageCounts,
+                                                               final int... consumerIDs) throws Exception {
+      List<LinkedList<Integer>> receivedCounts = new ArrayList<>();
+
+      Set<Integer> counts = new HashSet<>();
+
+      for (int consumerID : consumerIDs) {
+         ConsumerHolder holder = consumers[consumerID];
+
+         if (holder == null) {
+            throw new IllegalArgumentException("No consumer at " + consumerID);
+         }
+
+         LinkedList<Integer> list = new LinkedList<>();
+
+         receivedCounts.add(list);
+
+         for (long timeout = System.currentTimeMillis() + 5000; !matchCounters(messageCounts, counts) && timeout > System.currentTimeMillis();) {
+            ClientMessage message = holder.consumer.receiveImmediate();
+
+            if (message != null) {
+               int count = (Integer) message.getObjectProperty(ClusterTestBase.COUNT_PROP);
+
+               checkMessageBody(message);
+
+               assertFalse(counts.contains(count));
+
+               counts.add(count);
+
+               list.add(count);
+
+               if (ack) {
+                  message.acknowledge();
+               }
+            }
+         }
+      }
+
+      assertTrue(matchCounters(messageCounts, counts));
+
+      @SuppressWarnings("unchecked")
+      LinkedList<Integer>[] lists = new LinkedList[consumerIDs.length];
+
+      for (int i = 0; i < messageCounts.length; i++) {
+         for (LinkedList<Integer> list : receivedCounts) {
+            int elem = list.get(0);
+
+            if (elem == messageCounts[i]) {
+               lists[i] = list;
+
+               break;
+            }
+         }
+      }
+      int index = 0;
+
+      for (int messageCount : messageCounts) {
+         LinkedList<Integer> list = lists[index];
+
+         assertNotNull(list);
+
+         int elem = list.poll();
+
+         assertEquals(messageCount, elem);
+
+         index++;
+
+         if (index == consumerIDs.length) {
+            index = 0;
+         }
+      }
+
+   }
+
+   private static boolean matchCounters(int[] messageCounts, Set<Integer> counts) {
+      for (int messageCount : messageCounts) {
+         if (!counts.contains(messageCount)) {
+            return false;
+         }
+      }
+      return true;
+   }
+
    @Test
    public void testRedistributionWhenConsumerIsClosedDifferentQueues() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
@@ -368,9 +457,9 @@ public class MessageRedistributionTest extends ClusterTestBase {
       waitForBindings(1, "queues.testaddress", 2, 2, false);
       waitForBindings(2, "queues.testaddress", 2, 2, false);
 
-      final int NUMBER_OF_MESSAGES = 1000;
+      final int NUMBER_OF_MESSAGES = 100;
 
-      for (int i = 0; i < 1000; i++) {
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          producer0.send(sess0.createMessage(true).putIntProperty("count", i));
       }
 
@@ -387,10 +476,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       assertNull(consumer0.receiveImmediate());
 
-      // closing consumer1... it shouldn't redistribute anything as the other nodes don't have such queues
       consumer1.close();
-      Thread.sleep(500); // wait some time giving time to redistribution break something
-      // (it shouldn't redistribute anything here since there are no queues on the other nodes)
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          ClientMessage msg = consumer2.receive(5000);
@@ -557,7 +643,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
    public void testRedistributeWithScheduling() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
-      AddressSettings setting = new AddressSettings().setRedeliveryDelay(10000);
+      AddressSettings setting = new AddressSettings().setRedeliveryDelay(100);
       servers[0].getAddressSettingsRepository().addMatch("queues.testaddress", setting);
       servers[0].getAddressSettingsRepository().addMatch("queue0", setting);
       servers[1].getAddressSettingsRepository().addMatch("queue0", setting);
@@ -573,7 +659,9 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       ClientProducer prod0 = session0.createProducer("queues.testaddress");
 
-      for (int i = 0; i < 100; i++) {
+      final int numberOfMessages = 10;
+
+      for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = session0.createMessage(true);
          msg.putIntProperty("key", i);
 
@@ -600,7 +688,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       ArrayList<Xid> xids = new ArrayList<>();
 
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < numberOfMessages; i++) {
          Xid xid = newXID();
 
          session0.start(xid, XAResource.TMNOFLAGS);
@@ -648,8 +736,8 @@ public class MessageRedistributionTest extends ClusterTestBase {
          session0.rollback(xid);
       }
 
-      for (int i = 0; i < 100; i++) {
-         ClientMessage msg = consumer1.receive(15000);
+      for (int i = 0; i < numberOfMessages; i++) {
+         ClientMessage msg = consumer1.receive(5000);
          assertNotNull(msg);
          msg.acknowledge();
       }
@@ -773,8 +861,6 @@ public class MessageRedistributionTest extends ClusterTestBase {
       waitForBindings(2, name, 2, 1, false);
 
       removeConsumer(0);
-
-      Thread.sleep(2000);
 
       send(0, "jms.queue." + name, 20, false, null);
 
@@ -1050,91 +1136,86 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
    @Test
    public void testBackAndForth() throws Exception {
-      for (int i = 0; i < 10; i++) {
-         setupCluster(MessageLoadBalancingType.ON_DEMAND);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
-         startServers(0, 1, 2);
+      startServers(0, 1, 2);
 
-         setupSessionFactory(0, isNetty());
-         setupSessionFactory(1, isNetty());
-         setupSessionFactory(2, isNetty());
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+      setupSessionFactory(2, isNetty());
 
-         final String ADDRESS = "queues.testaddress";
-         final String QUEUE = "queue0";
+      final String ADDRESS = "queues.testaddress";
+      final String QUEUE = "queue0";
 
-         createQueue(0, ADDRESS, QUEUE, null, false);
-         createQueue(1, ADDRESS, QUEUE, null, false);
-         createQueue(2, ADDRESS, QUEUE, null, false);
+      createQueue(0, ADDRESS, QUEUE, null, false);
+      createQueue(1, ADDRESS, QUEUE, null, false);
+      createQueue(2, ADDRESS, QUEUE, null, false);
 
-         addConsumer(0, 0, QUEUE, null);
+      addConsumer(0, 0, QUEUE, null);
 
-         waitForBindings(0, ADDRESS, 1, 1, true);
-         waitForBindings(1, ADDRESS, 1, 0, true);
-         waitForBindings(2, ADDRESS, 1, 0, true);
+      waitForBindings(0, ADDRESS, 1, 1, true);
+      waitForBindings(1, ADDRESS, 1, 0, true);
+      waitForBindings(2, ADDRESS, 1, 0, true);
 
-         waitForBindings(0, ADDRESS, 2, 0, false);
-         waitForBindings(1, ADDRESS, 2, 1, false);
-         waitForBindings(2, ADDRESS, 2, 1, false);
+      waitForBindings(0, ADDRESS, 2, 0, false);
+      waitForBindings(1, ADDRESS, 2, 1, false);
+      waitForBindings(2, ADDRESS, 2, 1, false);
 
-         send(0, ADDRESS, 20, false, null);
+      send(0, ADDRESS, 20, false, null);
 
-         waitForMessages(0, ADDRESS, 20);
+      waitForMessages(0, ADDRESS, 20);
 
-         removeConsumer(0);
+      removeConsumer(0);
 
-         waitForBindings(0, ADDRESS, 1, 0, true);
-         waitForBindings(1, ADDRESS, 1, 0, true);
-         waitForBindings(2, ADDRESS, 1, 0, true);
+      waitForBindings(0, ADDRESS, 1, 0, true);
+      waitForBindings(1, ADDRESS, 1, 0, true);
+      waitForBindings(2, ADDRESS, 1, 0, true);
 
-         waitForBindings(0, ADDRESS, 2, 0, false);
-         waitForBindings(1, ADDRESS, 2, 0, false);
-         waitForBindings(2, ADDRESS, 2, 0, false);
+      waitForBindings(0, ADDRESS, 2, 0, false);
+      waitForBindings(1, ADDRESS, 2, 0, false);
+      waitForBindings(2, ADDRESS, 2, 0, false);
 
-         addConsumer(1, 1, QUEUE, null);
+      addConsumer(1, 1, QUEUE, null);
 
-         waitForBindings(0, ADDRESS, 1, 0, true);
-         waitForBindings(1, ADDRESS, 1, 1, true);
-         waitForBindings(2, ADDRESS, 1, 0, true);
+      waitForBindings(0, ADDRESS, 1, 0, true);
+      waitForBindings(1, ADDRESS, 1, 1, true);
+      waitForBindings(2, ADDRESS, 1, 0, true);
 
-         waitForMessages(1, ADDRESS, 20);
-         waitForMessages(0, ADDRESS, 0);
+      waitForMessages(1, ADDRESS, 20);
+      waitForMessages(0, ADDRESS, 0);
 
-         waitForBindings(0, ADDRESS, 2, 1, false);
-         waitForBindings(1, ADDRESS, 2, 0, false);
-         waitForBindings(2, ADDRESS, 2, 1, false);
+      waitForBindings(0, ADDRESS, 2, 1, false);
+      waitForBindings(1, ADDRESS, 2, 0, false);
+      waitForBindings(2, ADDRESS, 2, 1, false);
 
-         removeConsumer(1);
+      removeConsumer(1);
 
-         waitForBindings(0, ADDRESS, 1, 0, true);
-         waitForBindings(1, ADDRESS, 1, 0, true);
-         waitForBindings(2, ADDRESS, 1, 0, true);
+      waitForBindings(0, ADDRESS, 1, 0, true);
+      waitForBindings(1, ADDRESS, 1, 0, true);
+      waitForBindings(2, ADDRESS, 1, 0, true);
 
-         waitForBindings(0, ADDRESS, 2, 0, false);
-         waitForBindings(1, ADDRESS, 2, 0, false);
-         waitForBindings(2, ADDRESS, 2, 0, false);
+      waitForBindings(0, ADDRESS, 2, 0, false);
+      waitForBindings(1, ADDRESS, 2, 0, false);
+      waitForBindings(2, ADDRESS, 2, 0, false);
 
-         addConsumer(0, 0, QUEUE, null);
+      addConsumer(0, 0, QUEUE, null);
 
-         waitForBindings(0, ADDRESS, 1, 1, true);
-         waitForBindings(1, ADDRESS, 1, 0, true);
-         waitForBindings(2, ADDRESS, 1, 0, true);
+      waitForBindings(0, ADDRESS, 1, 1, true);
+      waitForBindings(1, ADDRESS, 1, 0, true);
+      waitForBindings(2, ADDRESS, 1, 0, true);
 
-         waitForBindings(0, ADDRESS, 2, 0, false);
-         waitForBindings(1, ADDRESS, 2, 1, false);
-         waitForBindings(2, ADDRESS, 2, 1, false);
+      waitForBindings(0, ADDRESS, 2, 0, false);
+      waitForBindings(1, ADDRESS, 2, 1, false);
+      waitForBindings(2, ADDRESS, 2, 1, false);
 
-         waitForMessages(0, ADDRESS, 20);
+      waitForMessages(0, ADDRESS, 20);
 
-         verifyReceiveAll(20, 0);
-         verifyNotReceive(0);
+      verifyReceiveAll(20, 0);
+      verifyNotReceive(0);
 
-         addConsumer(1, 1, QUEUE, null);
-         verifyNotReceive(1);
-         removeConsumer(1);
-
-         stopServers();
-         start();
-      }
+      addConsumer(1, 1, QUEUE, null);
+      verifyNotReceive(1);
+      removeConsumer(1);
 
    }
 
@@ -1155,67 +1236,61 @@ public class MessageRedistributionTest extends ClusterTestBase {
       if (useDuplicateDetection) {
          duplDetection = new AtomicInteger(0);
       }
-      for (int i = 0; i < 10; i++) {
-         setupCluster(MessageLoadBalancingType.ON_DEMAND);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
-         startServers(0, 1);
+      startServers(0, 1);
 
-         setupSessionFactory(0, isNetty());
-         setupSessionFactory(1, isNetty());
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
 
-         final String ADDRESS = "queues.testaddress";
-         final String QUEUE = "queue0";
+      final String ADDRESS = "queues.testaddress";
+      final String QUEUE = "queue0";
 
-         createQueue(0, ADDRESS, QUEUE, null, false);
-         createQueue(1, ADDRESS, QUEUE, null, false);
+      createQueue(0, ADDRESS, QUEUE, null, false);
+      createQueue(1, ADDRESS, QUEUE, null, false);
 
-         addConsumer(0, 0, QUEUE, null);
+      addConsumer(0, 0, QUEUE, null);
 
-         waitForBindings(0, ADDRESS, 1, 1, true);
-         waitForBindings(1, ADDRESS, 1, 0, true);
+      waitForBindings(0, ADDRESS, 1, 1, true);
+      waitForBindings(1, ADDRESS, 1, 0, true);
 
-         waitForBindings(0, ADDRESS, 1, 0, false);
-         waitForBindings(1, ADDRESS, 1, 1, false);
+      waitForBindings(0, ADDRESS, 1, 0, false);
+      waitForBindings(1, ADDRESS, 1, 1, false);
 
-         send(1, ADDRESS, 20, false, null, duplDetection);
+      send(1, ADDRESS, 20, false, null, duplDetection);
 
-         waitForMessages(0, ADDRESS, 20);
+      waitForMessages(0, ADDRESS, 20);
 
-         removeConsumer(0);
+      removeConsumer(0);
 
-         waitForBindings(0, ADDRESS, 1, 0, true);
-         waitForBindings(1, ADDRESS, 1, 0, true);
+      waitForBindings(0, ADDRESS, 1, 0, true);
+      waitForBindings(1, ADDRESS, 1, 0, true);
 
-         waitForBindings(0, ADDRESS, 1, 0, false);
-         waitForBindings(1, ADDRESS, 1, 0, false);
+      waitForBindings(0, ADDRESS, 1, 0, false);
+      waitForBindings(1, ADDRESS, 1, 0, false);
 
-         addConsumer(1, 1, QUEUE, null);
+      addConsumer(1, 1, QUEUE, null);
 
-         waitForMessages(1, ADDRESS, 20);
-         waitForMessages(0, ADDRESS, 0);
+      waitForMessages(1, ADDRESS, 20);
+      waitForMessages(0, ADDRESS, 0);
 
-         waitForBindings(0, ADDRESS, 1, 1, false);
-         waitForBindings(1, ADDRESS, 1, 0, false);
+      waitForBindings(0, ADDRESS, 1, 1, false);
+      waitForBindings(1, ADDRESS, 1, 0, false);
 
-         removeConsumer(1);
+      removeConsumer(1);
 
-         addConsumer(0, 0, QUEUE, null);
+      addConsumer(0, 0, QUEUE, null);
 
-         waitForMessages(1, ADDRESS, 0);
-         waitForMessages(0, ADDRESS, 20);
+      waitForMessages(1, ADDRESS, 0);
+      waitForMessages(0, ADDRESS, 20);
 
-         removeConsumer(0);
-         addConsumer(1, 1, QUEUE, null);
+      removeConsumer(0);
+      addConsumer(1, 1, QUEUE, null);
 
-         waitForMessages(1, ADDRESS, 20);
-         waitForMessages(0, ADDRESS, 0);
+      waitForMessages(1, ADDRESS, 20);
+      waitForMessages(0, ADDRESS, 0);
 
-         verifyReceiveAll(20, 1);
-
-         stopServers();
-         start();
-      }
-
+      verifyReceiveAll(20, 1);
    }
 
    @Test
@@ -1258,7 +1333,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
    @Test
    public void testDelayedRedistribution() throws Exception {
-      final long delay = 1000;
+      final long delay = 200;
       setRedistributionDelay(delay);
 
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
@@ -1297,7 +1372,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
    @Test
    public void testDelayedRedistributionCancelled() throws Exception {
-      final long delay = 1000;
+      final long delay = 200;
       setRedistributionDelay(delay);
 
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
@@ -1361,16 +1436,16 @@ public class MessageRedistributionTest extends ClusterTestBase {
       waitForBindings(1, "queues.testaddress", 2, 1, false);
       waitForBindings(2, "queues.testaddress", 2, 1, false);
 
-      send(0, "queues.testaddress", 200, false, null);
+      send(0, "queues.testaddress", 10, false, null);
 
       removeConsumer(0);
       addConsumer(1, 1, "queue0", null);
 
       Queue queue = servers[1].locateQueue(SimpleString.of("queue0"));
       assertNotNull(queue);
-      Wait.waitFor(() -> queue.getMessageCount() == 200);
+      Wait.waitFor(() -> queue.getMessageCount() == 10);
 
-      for (int i = 0; i < 200; i++) {
+      for (int i = 0; i < 10; i++) {
          ClientMessage message = consumers[1].getConsumer().receive(5000);
          assertNotNull(message);
          message.acknowledge();

@@ -359,8 +359,6 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest {
 
       startServers(0, 3, 5, 8);
 
-      Thread.sleep(2000);
-
       setupSessionFactory(0, isNetty());
       setupSessionFactory(3, isNetty());
 

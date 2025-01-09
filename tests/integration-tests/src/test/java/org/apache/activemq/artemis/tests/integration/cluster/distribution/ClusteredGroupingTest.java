@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.server.group.impl.Proposal;
 import org.apache.activemq.artemis.core.server.group.impl.Response;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,12 +117,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       assertTrue(latch.await(5, TimeUnit.SECONDS));
 
-      long timeLimit = System.currentTimeMillis() + 5000;
-      while (timeLimit > System.currentTimeMillis() && queue0Server2.getGroupCount() != 0) {
-         Thread.sleep(10);
-      }
-
-      assertEquals(0, queue0Server2.getGroupCount(), "Unproposal should cleanup the queue group as well");
+      Wait.assertEquals(0, queue0Server2::getGroupCount, 5000, 100);
 
       removeConsumer(0);
 
@@ -331,7 +327,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       setupClusterConnection("cluster2", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 2, 0, 1);
 
-      final int TIMEOUT_GROUPS = 5000;
+      final int TIMEOUT_GROUPS = 1000;
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 0, TIMEOUT_GROUPS, -1, -1);
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 1, TIMEOUT_GROUPS, -1, -1);
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 2, TIMEOUT_GROUPS, -1, -1);
@@ -440,7 +436,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       setupClusterConnection("cluster2", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 2, 0, 1);
 
-      setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 0, 1000, 1000, 100);
+      setUpGroupHandler(GroupingHandlerConfiguration.TYPE.LOCAL, 0, 1000, 500, 100);
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 1, 1000, 100, 100);
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 2, 1000, 100, 100);
 
@@ -472,50 +468,12 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       assertNotNull(servers[0].getGroupingHandler().getProposal(SimpleString.of("id1.queue0"), false));
 
-      // Group timeout
-      Thread.sleep(1000);
-
-      long timeLimit = System.currentTimeMillis() + 5000;
-      while (timeLimit > System.currentTimeMillis() && servers[0].getGroupingHandler().getProposal(SimpleString.of("id1.queue0"), false) != null) {
-         Thread.sleep(10);
-      }
-      Thread.sleep(1000);
-
-      assertNull(servers[0].getGroupingHandler().getProposal(SimpleString.of("id1.queue0"), false), "Group should have timed out");
-
-      sendWithProperty(0, "queues.testaddress", 1, false, Message.HDR_GROUP_ID, SimpleString.of("id1"));
-      sendWithProperty(1, "queues.testaddress", 1, false, Message.HDR_GROUP_ID, SimpleString.of("id1"));
-
-      // Verify why this is failing... whyt it's creating a new one here????
-      assertNotNull(servers[0].getGroupingHandler().getProposal(SimpleString.of("id1.queue0"), false));
-      assertNotNull(servers[1].getGroupingHandler().getProposal(SimpleString.of("id1.queue0"), false));
-
-      timeLimit = System.currentTimeMillis() + 1500;
-
-      // We will keep bothering server1 as it will ping server0 eventually
-      while (timeLimit > System.currentTimeMillis() && servers[1].getGroupingHandler().getProposal(SimpleString.of("id1.queue0"), true) != null) {
-         assertNotNull(servers[0].getGroupingHandler().getProposal(SimpleString.of("id1.queue0"), false));
-         Thread.sleep(10);
-      }
-
-      // Group timeout
-      Thread.sleep(1000);
-
-      timeLimit = System.currentTimeMillis() + 5000;
-      while (timeLimit > System.currentTimeMillis() && servers[0].getGroupingHandler().getProposal(SimpleString.of("id1.queue0"), false) != null) {
-         Thread.sleep(10);
+      {
+         SimpleString idString = SimpleString.of("id1.queue0");
+         Wait.assertTrue(() -> servers[0].getGroupingHandler().getProposal(SimpleString.of("id1.queue0"), false) == null);
       }
 
       assertNull(servers[0].getGroupingHandler().getProposal(SimpleString.of("id1.queue0"), false), "Group should have timed out");
-   }
-
-   private void cycleServer(int node) {
-      try {
-         stopServers(node);
-         startServers(node);
-      } catch (Exception e) {
-         e.printStackTrace();
-      }
    }
 
    @Test

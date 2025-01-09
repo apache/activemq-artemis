@@ -109,8 +109,6 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
       assertEquals(1, lookupPageStore(ADDRESS).getNumberOfPages());
 
-      forceGC();
-
       server.stop();
       createServer();
       waitCleanup();
@@ -211,10 +209,6 @@ public class PageCursorStressTest extends ActiveMQTestBase {
          cursorOdd.confirmPosition(msg.getPagedMessage().newPositionObject());
       }
       assertEquals(NUM_MESSAGES + 1, key);
-
-      forceGC();
-
-      // assertTrue(lookupCursorProvider().getCacheSize() < numberOfPages);
 
       server.stop();
       createServer();

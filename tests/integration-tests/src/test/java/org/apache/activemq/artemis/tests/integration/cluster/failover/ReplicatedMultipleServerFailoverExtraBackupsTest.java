@@ -198,4 +198,11 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
    public int getBackupServerCount() {
       return 4;
    }
+
+
+   @Override
+   public int getPrimaryServerCount() {
+      return 2;
+   }
+
 }

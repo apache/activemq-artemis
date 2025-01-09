@@ -902,8 +902,6 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
 
    private void scheduledDelivery(final boolean tx) throws Exception {
-      ActiveMQTestBase.forceGC();
-
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
 
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
