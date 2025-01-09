@@ -79,3 +79,9 @@ If you wish to generate a report for dependency CVEs you may build with the `-Po
 $ mvn -Powasp verify -DskipTests
 ----
 The output for every module will be aggregated in `./target/dependency-check-report.html`.
+
+== Snapshot Builds
+
+Snapshot builds are available at https://repository.apache.org/content/repositories/snapshots/org/apache/activemq/apache-artemis/.
+
+These are built by https://ci-builds.apache.org/job/ActiveMQ/job/ActiveMQ-Artemis-SNAPSHOT-Deploy/[this Apache CI job].
