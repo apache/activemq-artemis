@@ -337,6 +337,10 @@ public class Transfer extends InputAbstract {
 
       context.out.println("Connection brokerURL = " + sourceURL);
 
+      return doTransfer(context);
+   }
+
+   private int doTransfer(ActionContext context) throws Exception {
       ConnectionFactory sourceConnectionFactory = createConnectionFactory("source", sourceProtocol, sourceURL, sourceUser, sourcePassword, sourceClientID);
       Connection sourceConnection = sourceConnectionFactory.createConnection();
 
