@@ -53,8 +53,6 @@ public class RoutingTestBase extends ClusterTestBase {
 
    protected static final int GROUP_PORT = ActiveMQTestBase.getUDPDiscoveryPort();
 
-   protected static final int MULTIPLE_TARGETS = 3;
-
 
    protected TransportConfiguration getDefaultServerAcceptor(final int node) {
       return getServer(node).getConfiguration().getAcceptorConfigurations().stream().findFirst().get();
