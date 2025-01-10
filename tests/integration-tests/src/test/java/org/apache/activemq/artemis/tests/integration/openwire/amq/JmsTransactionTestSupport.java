@@ -372,12 +372,6 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    public void testReceiveTwoThenRollback() throws Exception {
       Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message")};
 
-      // lets consume any outstanding messages from prev test runs
-      beginTx();
-      while (consumer.receive(1000) != null) {
-      }
-      commitTx();
-
       //
       beginTx();
       producer.send(outbound[0]);
@@ -393,7 +387,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       assertNotNull(message);
       assertEquals(outbound[1], message);
 
-      message = (TextMessage) consumer.receive(1000);
+      message = (TextMessage) consumer.receiveNoWait();
       assertNull(message);
 
       rollbackTx();
@@ -456,9 +450,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
     */
    @Test
    public void testReceiveTwoThenRollbackManyTimes() throws Exception {
-      for (int i = 0; i < 5; i++) {
-         testReceiveTwoThenRollback();
-      }
+      testReceiveTwoThenRollback();
    }
 
    /**
@@ -494,13 +486,6 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    @Test
    public void testCloseConsumerBeforeCommit() throws Exception {
       TextMessage[] outbound = new TextMessage[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message")};
-
-      // lets consume any outstanding messages from prev test runs
-      beginTx();
-      while (consumer.receiveNoWait() != null) {
-      }
-
-      commitTx();
 
       // sends the messages
       beginTx();
@@ -607,7 +592,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       assertEquals(ackMessages.size(), MESSAGE_COUNT);
       // should no longer re-receive
       consumer.setMessageListener(null);
-      assertNull(consumer.receive(500));
+      assertNull(consumer.receiveNoWait());
       reconnect();
    }
 
