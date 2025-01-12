@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.lang.invoke.MethodHandles;
 import java.util.UUID;
 
 import io.netty.buffer.EmptyByteBuf;
@@ -32,7 +33,6 @@ import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class MQTTSession {
 
@@ -288,6 +288,7 @@ public class MQTTSession {
             getMqttPublishManager().sendToQueue(publishMessage, true);
             state.setWillStatus(MQTTSessionState.WillStatus.SENT);
             state.setWillMessage(null);
+            state.setWillIdentity(null);
          } catch (ActiveMQSecurityException e) {
             state.setWillStatus(MQTTSessionState.WillStatus.NOT_SENT);
             MQTTLogger.LOGGER.authorizationFailureSendingWillMessage(e.getMessage());

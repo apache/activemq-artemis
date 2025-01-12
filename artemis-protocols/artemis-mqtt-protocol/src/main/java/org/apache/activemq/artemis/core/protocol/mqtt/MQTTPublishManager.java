@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,7 +51,6 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CONTENT_TYPE;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CORRELATION_DATA;
@@ -83,7 +83,7 @@ public class MQTTPublishManager {
 
    private ServerConsumer managementConsumer;
 
-   private MQTTSession session;
+   private final MQTTSession session;
 
    private final Object lock = new Object();
 
@@ -91,7 +91,7 @@ public class MQTTPublishManager {
 
    private MQTTSessionState.OutboundStore outboundStore;
 
-   private boolean closeMqttConnectionOnPublishAuthorizationFailure;
+   private final boolean closeMqttConnectionOnPublishAuthorizationFailure;
 
    public MQTTPublishManager(MQTTSession session, boolean closeMqttConnectionOnPublishAuthorizationFailure) {
       this.session = session;
@@ -116,8 +116,8 @@ public class MQTTPublishManager {
    }
 
    void clean() throws Exception {
-      SimpleString managementAddress = createManagementAddress();
-      Queue queue = session.getServer().locateQueue(managementAddress);
+      SimpleString localManagementAddress = createManagementAddress();
+      Queue queue = session.getServer().locateQueue(localManagementAddress);
       if (queue != null) {
          queue.deleteQueue();
       }
@@ -186,36 +186,7 @@ public class MQTTPublishManager {
             session.getServerSession().addProducer(senderName, MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME, ServerProducer.ANONYMOUS);
             createProducer = false;
          }
-         String topic = message.variableHeader().topicName();
-         if (session.getVersion() == MQTTVersion.MQTT_5) {
-            Integer alias = MQTTUtil.getProperty(Integer.class, message.variableHeader().properties(), TOPIC_ALIAS);
-            if (alias != null) {
-               Integer topicAliasMax = session.getProtocolManager().getTopicAliasMaximum();
-               if (alias == 0) {
-                  // [MQTT-3.3.2-8]
-                  throw new DisconnectException(MQTTReasonCodes.TOPIC_ALIAS_INVALID);
-               } else if (topicAliasMax != null && alias > topicAliasMax) {
-                  // [MQTT-3.3.2-9]
-                  throw new DisconnectException(MQTTReasonCodes.TOPIC_ALIAS_INVALID);
-               }
-
-               String existingTopicMapping = session.getState().getClientTopicAlias(alias);
-               if (existingTopicMapping == null) {
-                  if (topic == null || topic.length() == 0) {
-                     // using a topic alias with no matching topic in the state; potentially [MQTT-3.3.2-7]
-                     throw new DisconnectException(MQTTReasonCodes.TOPIC_ALIAS_INVALID);
-                  }
-                  logger.debug("Adding new alias {} for topic {}", alias, topic);
-                  session.getState().putClientTopicAlias(alias, topic);
-               } else if (topic != null && topic.length() > 0) {
-                  logger.debug("Modifying existing alias {}. New value: {}; old value: {}", alias, topic, existingTopicMapping);
-                  session.getState().putClientTopicAlias(alias, topic);
-               } else {
-                  logger.debug("Applying topic {} for alias {}", existingTopicMapping, alias);
-                  topic = existingTopicMapping;
-               }
-            }
-         }
+         String topic = getTopicFromHeaderConsideringAlias(message);
          String coreAddress = MQTTUtil.getCoreAddressFromMqttTopic(topic, session.getWildcardConfiguration());
          SimpleString address = SimpleString.of(coreAddress, session.getCoreMessageObjectPools().getAddressStringSimpleStringPool());
          Message serverMessage = MQTTUtil.createServerMessageFromByteBuf(session, address, message);
@@ -225,9 +196,14 @@ public class MQTTPublishManager {
          }
          int packetId = message.variableHeader().packetId();
          boolean qos2PublishAlreadyReceived = state.getPubRec().contains(packetId);
-         if (qos < 2 || !qos2PublishAlreadyReceived) {
-            if (qos == 2 && !internal)
+
+         if (qos == 2 && qos2PublishAlreadyReceived) {
+            MQTTLogger.LOGGER.ignoringQoS2Publish(state.getClientId(), packetId);
+         } else {
+
+            if (qos == 2 && !internal) {
                state.getPubRec().add(packetId);
+            }
 
             Transaction tx = session.getServerSession().newTransaction();
             try {
@@ -239,7 +215,12 @@ public class MQTTPublishManager {
                if (addressInfo != null) {
                   serverMessage.setRoutingType(addressInfo.getRoutingType());
                }
-               session.getServerSession().send(tx, serverMessage, true, senderName, false);
+
+               if (internal && state.getWillIdentity() != null) {
+                  // TODO: send will message
+               } else {
+                  session.getServerSession().send(tx, serverMessage, true, senderName, false);
+               }
 
                if (message.fixedHeader().isRetain()) {
                   ByteBuf payload = message.payload();
@@ -288,12 +269,40 @@ public class MQTTPublishManager {
                tx.rollback();
                throw t;
             }
-         } else if (qos2PublishAlreadyReceived) {
-            MQTTLogger.LOGGER.ignoringQoS2Publish(state.getClientId(), packetId);
          }
-
          createMessageAck(packetId, qos, internal);
       }
+   }
+
+   private String getTopicFromHeaderConsideringAlias(MqttPublishMessage message) throws DisconnectException {
+      String topic = message.variableHeader().topicName();
+      return session.getVersion() == MQTTVersion.MQTT_5 ? getTopicConsideringAlias(message, topic) : topic;
+   }
+
+   private String getTopicConsideringAlias(MqttPublishMessage message, String topic) throws DisconnectException {
+      Integer alias = MQTTUtil.getProperty(Integer.class, message.variableHeader().properties(), TOPIC_ALIAS);
+      if (alias != null) {
+         if (alias == 0 || alias > session.getProtocolManager().getTopicAliasMaximum()) {
+            throw new DisconnectException(MQTTReasonCodes.TOPIC_ALIAS_INVALID);
+         }
+
+         String existingTopicMapping = session.getState().getClientTopicAlias(alias);
+         if (existingTopicMapping == null) {
+            if (topic == null || topic.isEmpty()) {
+               // using a topic alias with no matching topic in the state; potentially [MQTT-3.3.2-7]
+               throw new DisconnectException(MQTTReasonCodes.TOPIC_ALIAS_INVALID);
+            }
+            logger.debug("Adding new alias {} for topic {}", alias, topic);
+            session.getState().putClientTopicAlias(alias, topic);
+         } else if (topic != null && !topic.isEmpty()) {
+            logger.debug("Modifying existing alias {}. New value: {}; old value: {}", alias, topic, existingTopicMapping);
+            session.getState().putClientTopicAlias(alias, topic);
+         } else {
+            logger.debug("Applying topic {} for alias {}", existingTopicMapping, alias);
+            topic = existingTopicMapping;
+         }
+      }
+      return topic;
    }
 
    private void sendMessageAck(boolean internal, int qos, int messageId, byte reasonCode) {
@@ -395,23 +404,20 @@ public class MQTTPublishManager {
       String topic = MQTTUtil.getMqttTopicFromCoreAddress(message.getAddress() == null ? "" : message.getAddress(), session.getWildcardConfiguration());
 
       ByteBuf payload;
-      switch (message.getType()) {
-         case Message.TEXT_TYPE:
-            SimpleString text = message.getDataBuffer().readNullableSimpleString();
-            final int utf8Bytes = ByteBufUtil.utf8Bytes(text);
-            payload = ByteBufAllocator.DEFAULT.directBuffer(utf8Bytes);
-            // IMPORTANT: this one won't enlarge ByteBuf by ByteBufUtil.maxUtf8Bytes(text), but just utf8Bytes
-            ByteBufUtil.reserveAndWriteUtf8(payload, text, utf8Bytes);
-            break;
-         default:
-            ActiveMQBuffer bodyBuffer = message.getDataBuffer();
-            payload = ByteBufAllocator.DEFAULT.directBuffer(bodyBuffer.writerIndex());
-            payload.writeBytes(bodyBuffer.byteBuf());
-            break;
+      if (message.getType() == Message.TEXT_TYPE) {
+         SimpleString text = message.getDataBuffer().readNullableSimpleString();
+         final int utf8Bytes = ByteBufUtil.utf8Bytes(text);
+         payload = ByteBufAllocator.DEFAULT.directBuffer(utf8Bytes);
+         // IMPORTANT: this one won't enlarge ByteBuf by ByteBufUtil.maxUtf8Bytes(text), but just utf8Bytes
+         ByteBufUtil.reserveAndWriteUtf8(payload, text, utf8Bytes);
+      } else {
+         ActiveMQBuffer bodyBuffer = message.getDataBuffer();
+         payload = ByteBufAllocator.DEFAULT.directBuffer(bodyBuffer.writerIndex());
+         payload.writeBytes(bodyBuffer.byteBuf());
       }
 
       // [MQTT-3.3.1-2] The DUP flag MUST be set to 0 for all QoS 0 messages.
-      boolean redelivery = qos == 0 ? false : (deliveryCount > 1);
+      boolean redelivery = qos != 0 && (deliveryCount > 1);
 
       boolean isRetain = message.containsProperty(MQTT_MESSAGE_RETAIN_INITIAL_DISTRIBUTION_KEY);
       MqttProperties mqttProperties = getPublishProperties(message);
@@ -528,8 +534,8 @@ public class MQTTPublishManager {
 
       /*
        * Subscription QoS is the maximum QoS the client is willing to receive for this subscription.  If the message QoS
-       * is less than the subscription QoS then use it, otherwise use the subscription qos).
+       * is less than the subscription QoS then use it, otherwise use the subscription qos.
        */
-      return subscriptionQoS < qos ? subscriptionQoS : qos;
+      return Math.min(subscriptionQoS, qos);
    }
 }

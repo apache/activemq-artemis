@@ -481,7 +481,8 @@ public class MQTTSessionState {
                      currentId = 0;
                   }
                   ++currentId;
-               } while (mqttToServerIds.containsKey(currentId));
+               }
+               while (mqttToServerIds.containsKey(currentId));
                id = currentId;
             }
             return id;
