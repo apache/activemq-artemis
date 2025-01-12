@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import javax.security.auth.Subject;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 import java.lang.invoke.MethodHandles;
@@ -201,7 +202,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    private boolean prefixEnabled = false;
 
-   private Map<SimpleString, RoutingType> prefixes;
+   private final Map<SimpleString, RoutingType> prefixes;
 
    private Set<Closeable> closeables;
 
@@ -380,8 +381,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public void markTXFailed(Throwable e) {
       Transaction currentTX = this.tx;
       if (currentTX != null) {
-         if (e instanceof ActiveMQException) {
-            currentTX.markAsRollbackOnly((ActiveMQException) e);
+         if (e instanceof ActiveMQException activeMQException) {
+            currentTX.markAsRollbackOnly(activeMQException);
          } else {
             ActiveMQException exception = new ActiveMQException(e.getMessage());
             exception.initCause(e);
@@ -409,18 +410,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          if (failed) {
 
             Transaction txToRollback = tx;
-            if (txToRollback != null) {
-               if (txToRollback.tryRollback() && txToRollback.getXid() != null) {
-                  resourceManager.removeTransaction(txToRollback.getXid(), remotingConnection);
-               }
+            if (txToRollback != null && txToRollback.tryRollback() && txToRollback.getXid() != null) {
+               resourceManager.removeTransaction(txToRollback.getXid(), remotingConnection);
             }
 
             txToRollback = pendingTX;
 
-            if (txToRollback != null) {
-               if (txToRollback.tryRollback() && txToRollback.getXid() != null) {
-                  resourceManager.removeTransaction(txToRollback.getXid(), remotingConnection);
-               }
+            if (txToRollback != null && txToRollback.tryRollback() && txToRollback.getXid() != null) {
+               resourceManager.removeTransaction(txToRollback.getXid(), remotingConnection);
             }
 
          } else {
@@ -428,7 +425,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                // We only rollback local txs on close, not XA tx branches
 
                try {
-                  rollback(failed, false);
+                  rollback(false);
                } catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.unableToRollbackOnClose(e);
                }
@@ -454,16 +451,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       try {
-         if (consumers != null) {
-            consumers.clear();
-         }
+         consumers.clear();
          if (serverProducers != null) {
             serverProducers.clear();
          }
       } catch (Throwable e) {
          logger.warn(e.getMessage(), e);
       }
-
 
       if (closeables != null) {
          for (Closeable closeable : closeables) {
@@ -773,8 +767,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          // It is up to the user to delete the queue when finished with it
 
          TempQueueCleanerUpper cleaner = new TempQueueCleanerUpper(server, queueConfiguration.getName());
-         if (remotingConnection instanceof TempQueueObserver) {
-            cleaner.setObserver((TempQueueObserver) remotingConnection);
+         if (remotingConnection instanceof TempQueueObserver tempQueueObserver) {
+            cleaner.setObserver(tempQueueObserver);
          }
 
          remotingConnection.addCloseListener(cleaner);
@@ -1105,22 +1099,20 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       synchronized (this) {
          // Remove failure listeners from old connection
          remotingConnection.removeFailureListener(this);
-         tempQueueCleannerUppers.values()
-                 .forEach(cleanerUpper -> {
-                    remotingConnection.removeCloseListener(cleanerUpper);
-                    remotingConnection.removeFailureListener(cleanerUpper);
-                 });
+         tempQueueCleannerUppers.values().forEach(cleanerUpper -> {
+            remotingConnection.removeCloseListener(cleanerUpper);
+            remotingConnection.removeFailureListener(cleanerUpper);
+         });
 
          // Set the new connection
          remotingConnection = newConnection;
 
          // Add failure listeners to new connection
          newConnection.addFailureListener(this);
-         tempQueueCleannerUppers.values()
-                 .forEach(cleanerUpper -> {
-                    newConnection.addCloseListener(cleanerUpper);
-                    newConnection.addFailureListener(cleanerUpper);
-                 });
+         tempQueueCleannerUppers.values().forEach(cleanerUpper -> {
+            newConnection.addCloseListener(cleanerUpper);
+            newConnection.addFailureListener(cleanerUpper);
+         });
       }
    }
 
@@ -1237,8 +1229,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       // remotingConnection could be null on UnitTests
       // that's why I'm checking for null here, and it's best to do so
-      if (remotingConnection != null && remotingConnection instanceof CoreRemotingConnection) {
-         newFQQN = ((CoreRemotingConnection) remotingConnection).isVersionNewFQQN();
+      if (remotingConnection instanceof CoreRemotingConnection coreRemotingConnection) {
+         newFQQN = coreRemotingConnection.isVersionNewFQQN();
       }
 
       return server.bindingQuery(removePrefix(address), newFQQN);
@@ -1355,24 +1347,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public void rollback(final boolean considerLastMessageAsDelivered) throws Exception {
-      rollback(false, considerLastMessageAsDelivered);
-   }
-
-   /**
-    * @param clientFailed                   If the client has failed, we can't decrease the delivery-counts, and the close may issue a rollback
-    * @param considerLastMessageAsDelivered
-    * @throws Exception
-    */
-   private synchronized void rollback(final boolean clientFailed,
-                                      final boolean considerLastMessageAsDelivered) throws Exception {
+   public synchronized void rollback(final boolean considerLastMessageAsDelivered) throws Exception {
       if (tx == null) {
          // Might be null if XA
-
          tx = newTransaction();
       }
 
-      doRollback(clientFailed, considerLastMessageAsDelivered, tx);
+      doRollback(considerLastMessageAsDelivered, tx);
 
       if (xa) {
          tx = null;
@@ -1381,9 +1362,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
-   /**
-    * @return
-    */
    @Override
    public Transaction newTransaction() {
       return new TransactionImpl(null, storageManager, timeoutSeconds);
@@ -1472,7 +1450,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             if (theTx.getState() == State.ACTIVE) {
                // nothing to be done on this case, it's already active, we just ignore it and keep live as usual
                // TM 1.2 specs expects this as a regular scenario and it should just be ignored by TM Spec
-               return;
             } else if (theTx.getState() != Transaction.State.SUSPENDED) {
 
                final String msg = "Transaction is not suspended " + xid;
@@ -1585,7 +1562,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
                throw new ActiveMQXAException(XAException.XAER_PROTO, "Cannot rollback transaction, it is suspended " + xid);
             } else {
-               doRollback(false, false, theTx);
+               doRollback(false, theTx);
             }
          }
       }
@@ -1791,7 +1768,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       AutoCreateResult result;
       SimpleString unPrefixedAddress = removePrefix(queueConfig.getAddress());
       SimpleString unPrefixedQueue = removePrefix(queueConfig.getName());
-      AddressSettings addressSettings =  server.getAddressSettingsRepository().getMatch(unPrefixedAddress.toString());
+      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(unPrefixedAddress.toString());
 
       if (unPrefixedAddress.equals(server.getManagementService().getManagementAddress())) {
          return AutoCreateResult.EXISTED;
@@ -1879,7 +1856,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return result;
    }
 
-
    @Override
    public RoutingStatus send(final Message message, final boolean direct, final String senderName) throws Exception {
       return send(message, direct, senderName, false);
@@ -1904,103 +1880,167 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public synchronized RoutingStatus send(Transaction tx,
-                                          Message messageParameter,
+                                          Message msg,
                                           final boolean direct,
                                           final String senderName,
                                           boolean noAutoCreateQueue,
                                           RoutingContext routingContext) throws Exception {
-      final Message message = LargeServerMessageImpl.checkLargeMessage(messageParameter, storageManager);
 
+      final Message message = checkLargeMessageAndBrokerPluginBeforeSend(tx, msg, direct, noAutoCreateQueue);
+      final RoutingStatus result;
+
+      try {
+         SimpleString address = getAddressFromMessage(message);
+         if (message.getAddressSimpleString().equals(managementAddress)) {
+            result = handleManagementMessage(tx, message, direct);
+         } else {
+            result = handleMessage(tx, direct, senderName, noAutoCreateQueue, routingContext, message, address);
+         }
+         sendToAuditLoggerIfEnabled(tx, remotingConnection.getSubject(), message);
+      } catch (Exception e) {
+         callBrokerPluginsOnException(tx, direct, noAutoCreateQueue, message, e);
+         throw e;
+      }
+
+      callBrokerPluginsAfterSend(tx, message, direct, noAutoCreateQueue, result);
+      return result;
+   }
+
+   public synchronized void sendWithoutAuthCheck(Transaction tx,
+                                                 Message msg,
+                                                 final String senderName,
+                                                 Subject authData) throws Exception {
+
+      final Message message = checkLargeMessageAndBrokerPluginBeforeSend(tx, msg, true, false);
+      final RoutingStatus result;
+
+      try {
+         SimpleString address = getAddressFromMessage(message);
+         // TODO: use an appropriate handleMessage()-Method
+         result = handleMessage(tx, true, senderName, false, routingContext, message, address);
+         sendToAuditLoggerIfEnabled(tx, authData, message);
+      } catch (Exception e) {
+         callBrokerPluginsOnException(tx, true, false, message, e);
+         throw e;
+      }
+
+      callBrokerPluginsAfterSend(tx, message, true, false, result);
+   }
+
+
+
+   private Message checkLargeMessageAndBrokerPluginBeforeSend(Transaction tx,
+                                                              Message msg,
+                                                              boolean direct,
+                                                              boolean noAutoCreateQueue) throws Exception {
+      final Message message = LargeServerMessageImpl.checkLargeMessage(msg, storageManager);
       if (server.hasBrokerMessagePlugins()) {
          server.callBrokerMessagePlugins(plugin -> plugin.beforeSend(this, tx, message, direct, noAutoCreateQueue));
       }
+      return message;
+   }
 
+   private SimpleString getAddressFromMessage(Message message) throws ActiveMQIOErrorException, ActiveMQIllegalStateException {
+      // If the protocol doesn't support flow control, we have no choice other than fail the communication
+      if (!this.getRemotingConnection().isSupportsFlowControl() && pagingManager.isDiskFull()) {
+         long usableSpace = pagingManager.getDiskUsableSpace();
+         long totalSpace = pagingManager.getDiskTotalSpace();
+         ActiveMQIOErrorException exception = ActiveMQMessageBundle.BUNDLE.diskBeyondLimit(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
+         this.getRemotingConnection().fail(exception);
+         throw exception;
+      }
+
+      //large message may come from StompSession directly, in which
+      //case the id header already generated.
+      if (!message.isLargeMessage()) {
+         long id = storageManager.generateID();
+         // This will re-encode the message
+         message.setMessageID(id);
+      }
+
+      SimpleString address = message.getAddressSimpleString();
+
+      if (defaultAddress == null && address != null) {
+         defaultAddress = address;
+      }
+
+      if (address == null) {
+         // We don't want to force a re-encode when the message gets sent to the consumer
+         message.setAddress(defaultAddress);
+      }
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("send(message={}, direct={}) being called", message, true);
+      }
+
+      if (message.getAddress() == null) {
+         // This could happen with some tests that are ignoring messages
+         throw ActiveMQMessageBundle.BUNDLE.noAddress();
+      }
+      return address;
+   }
+
+   private RoutingStatus handleMessage(Transaction tx,
+                                       boolean direct,
+                                       String senderName,
+                                       boolean noAutoCreateQueue,
+                                       RoutingContext routingContext,
+                                       Message message,
+                                       SimpleString address) throws Exception {
       final RoutingStatus result;
       try {
-         // If the protocol doesn't support flow control, we have no choice other than fail the communication
-         if (!this.getRemotingConnection().isSupportsFlowControl() && pagingManager.isDiskFull()) {
-            long usableSpace = pagingManager.getDiskUsableSpace();
-            long totalSpace = pagingManager.getDiskTotalSpace();
-            ActiveMQIOErrorException exception = ActiveMQMessageBundle.BUNDLE.diskBeyondLimit(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
-            this.getRemotingConnection().fail(exception);
-            throw exception;
+         result = doSend(tx, message, address, direct, senderName, noAutoCreateQueue, routingContext);
+      } catch (ActiveMQIOErrorException e) {
+         if (tx != null) {
+            tx.markAsRollbackOnly(e);
          }
-
-         //large message may come from StompSession directly, in which
-         //case the id header already generated.
-         if (!message.isLargeMessage()) {
-            long id = storageManager.generateID();
-            // This will re-encode the message
-            message.setMessageID(id);
-         }
-
-         SimpleString address = message.getAddressSimpleString();
-
-         if (defaultAddress == null && address != null) {
-            defaultAddress = address;
-         }
-
-         if (address == null) {
-            // We don't want to force a re-encode when the message gets sent to the consumer
-            message.setAddress(defaultAddress);
-         }
-
-         if (logger.isTraceEnabled()) {
-            logger.trace("send(message={}, direct={}) being called", message, direct);
-         }
-
-         if (message.getAddress() == null) {
-            // This could happen with some tests that are ignoring messages
-            throw ActiveMQMessageBundle.BUNDLE.noAddress();
-         }
-
-         if (message.getAddressSimpleString().equals(managementAddress)) {
-            // It's a management message
-
-            result = handleManagementMessage(tx, message, direct);
-         } else {
-            try {
-               result = doSend(tx, message, address, direct, senderName, noAutoCreateQueue, routingContext);
-            } catch (ActiveMQIOErrorException e) {
-               if (tx != null) {
-                  tx.markAsRollbackOnly(e);
-               }
-               if (message.isLargeMessage()) {
-                  ((LargeServerMessage)message).deleteFile();
-               }
-               throw e;
-            }
-         }
-
-         if (AuditLogger.isMessageLoggingEnabled()) {
-            if (tx != null && !autoCommitSends) {
-               AuditLogger.addSendToTransaction(remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), message.toString(), tx.toString());
-               tx.addOperation(new TransactionOperationAbstract() {
-                  @Override
-                  public void afterCommit(Transaction tx) {
-                     auditLogSend(message, tx);
-                  }
-
-                  @Override
-                  public void afterRollback(Transaction tx) {
-                     AuditLogger.rolledBackTransaction(remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), tx.toString(), message.toString());
-                  }
-               });
-            } else {
-               auditLogSend(message, null);
-            }
-         }
-
-      } catch (Exception e) {
-         if (server.hasBrokerMessagePlugins()) {
-            server.callBrokerMessagePlugins(plugin -> plugin.onSendException(this, tx, message, direct, noAutoCreateQueue, e));
+         if (message.isLargeMessage()) {
+            ((LargeServerMessage) message).deleteFile();
          }
          throw e;
       }
+      return result;
+   }
+
+   private void sendToAuditLoggerIfEnabled(Transaction tx, Subject subject, Message message) {
+      if (AuditLogger.isMessageLoggingEnabled()) {
+         if (tx != null && !autoCommitSends) {
+            AuditLogger.addSendToTransaction(subject, remotingConnection.getRemoteAddress(), message.toString(), tx.toString());
+            tx.addOperation(new TransactionOperationAbstract() {
+               @Override
+               public void afterCommit(Transaction tx) {
+                  auditLogSend(message, tx);
+               }
+
+               @Override
+               public void afterRollback(Transaction tx) {
+                  AuditLogger.rolledBackTransaction(subject, remotingConnection.getRemoteAddress(), tx.toString(), message.toString());
+               }
+            });
+         } else {
+            auditLogSend(message, null);
+         }
+      }
+   }
+
+   private void callBrokerPluginsOnException(Transaction tx,
+                                             boolean direct,
+                                             boolean noAutoCreateQueue,
+                                             Message message,
+                                             Exception e) throws Exception {
+      if (server.hasBrokerMessagePlugins()) {
+         server.callBrokerMessagePlugins(plugin -> plugin.onSendException(this, tx, message, direct, noAutoCreateQueue, e));
+      }
+   }
+
+   private void callBrokerPluginsAfterSend(Transaction tx,
+                                           Message message,
+                                           boolean direct,
+                                           boolean noAutoCreateQueue,
+                                           RoutingStatus result) throws ActiveMQException {
       if (server.hasBrokerMessagePlugins()) {
          server.callBrokerMessagePlugins(plugin -> plugin.afterSend(this, autoCommitSends ? null : tx, message, direct, noAutoCreateQueue, result));
       }
-      return result;
    }
 
    private void auditLogSend(Message message, Transaction tx) {
@@ -2158,7 +2198,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       // This will actually appear on some management operations
       // so please don't clog this with debug objects
       // unless you provide a special way for management to translate sessions
-      return "ServerSessionImpl(" + buffer.toString() + ")";
+      return "ServerSessionImpl(" + buffer + ")";
    }
 
    // FailureListener implementation
@@ -2236,9 +2276,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return RoutingStatus.OK;
    }
 
-   private void doRollback(final boolean clientFailed,
-                           final boolean lastMessageAsDelived,
-                           final Transaction theTx) throws Exception {
+   private void doRollback(final boolean lastMessageAsDelivered, final Transaction theTx) throws Exception {
       boolean wasStarted = started;
 
       List<MessageReference> toCancel = new ArrayList<>();
@@ -2248,7 +2286,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             consumer.setStarted(false);
          }
 
-         toCancel.addAll(consumer.cancelRefs(clientFailed, lastMessageAsDelived, theTx));
+         toCancel.addAll(consumer.cancelRefs(false, lastMessageAsDelivered, theTx));
       }
 
       //we need to check this before we cancel the refs and add them to the tx, any delivering refs will have been delivered
@@ -2257,21 +2295,20 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       //we add them to a new tx and roll them back as the calling client will assume that this has happened.
       if (theTx.getState() == State.ROLLEDBACK) {
          Transaction newTX = newTransaction();
-         cancelAndRollback(clientFailed, newTX, wasStarted, toCancel);
+         cancelAndRollback(newTX, wasStarted, toCancel);
       } else {
-         cancelAndRollback(clientFailed, theTx, wasStarted, toCancel);
+         cancelAndRollback(theTx, wasStarted, toCancel);
       }
    }
 
-   private void cancelAndRollback(boolean clientFailed,
-                                  Transaction theTx,
+   private void cancelAndRollback(Transaction theTx,
                                   boolean wasStarted,
                                   List<MessageReference> toCancel) throws Exception {
       for (MessageReference ref : toCancel) {
          ref.getQueue().cancel(theTx, ref);
       }
       //if we failed don't restart as an attempt to deliver messages may be made before we actually close the consumer
-      if (wasStarted && !clientFailed) {
+      if (wasStarted) {
          theTx.addOperation(new TransactionOperationAbstract() {
 
             @Override
@@ -2287,7 +2324,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       theTx.rollback();
    }
 
-
    @Override
    public synchronized RoutingStatus doSend(final Transaction tx,
                                             final Message msg,
@@ -2297,7 +2333,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                             final boolean noAutoCreateQueue) throws Exception {
       return doSend(tx, msg, originalAddress, direct, senderName, noAutoCreateQueue, routingContext);
    }
-
 
    @Override
    public synchronized RoutingStatus doSend(final Transaction tx,
@@ -2363,7 +2398,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          // Retrieve message size for metrics update before routing,
          // since large message backing files may be closed once routing completes
-         int mSize = msg instanceof LargeServerMessageImpl ? ((LargeServerMessageImpl)msg).getBodyBufferSize() : msg.getEncodeSize();
+         int mSize = msg instanceof LargeServerMessageImpl largeServerMessage ? largeServerMessage.getBodyBufferSize() : msg.getEncodeSize();
 
          result = postOffice.route(msg, routingContext, direct);
 
@@ -2477,7 +2512,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public Pair<SimpleString, EnumSet<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
-                                                                         EnumSet<RoutingType> defaultRoutingTypes) {
+                                                                             EnumSet<RoutingType> defaultRoutingTypes) {
       if (prefixEnabled) {
          return PrefixUtil.getAddressAndRoutingTypes(address, defaultRoutingTypes, prefixes);
       }
@@ -2498,7 +2533,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public Collection<ServerProducer>   getServerProducers() {
+   public Collection<ServerProducer> getServerProducers() {
       return serverProducers.getServerProducers();
    }
 
@@ -2534,6 +2569,5 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          serverProducer.updateMetrics(msg.getUserID(), mSize);
       }
    }
-
 
 }

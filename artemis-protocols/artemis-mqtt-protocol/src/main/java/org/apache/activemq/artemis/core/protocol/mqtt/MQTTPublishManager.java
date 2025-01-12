@@ -217,7 +217,7 @@ public class MQTTPublishManager {
                }
 
                if (internal && state.getWillIdentity() != null) {
-                  // TODO: send will message
+                  session.getServerSession().sendWithoutAuthCheck(tx, serverMessage, senderName, state.getWillIdentity());
                } else {
                   session.getServerSession().send(tx, serverMessage, true, senderName, false);
                }
@@ -400,7 +400,11 @@ public class MQTTPublishManager {
       }
    }
 
-   private boolean publishToClient(int messageId, ICoreMessage message, int deliveryCount, int qos, long consumerId) throws Exception {
+   private boolean publishToClient(int messageId,
+                                   ICoreMessage message,
+                                   int deliveryCount,
+                                   int qos,
+                                   long consumerId) throws Exception {
       String topic = MQTTUtil.getMqttTopicFromCoreAddress(message.getAddress() == null ? "" : message.getAddress(), session.getWildcardConfiguration());
 
       ByteBuf payload;
