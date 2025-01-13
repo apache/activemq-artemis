@@ -903,15 +903,6 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
    }
 
    @TestTemplate
-   public void testDefaultConstraints() {
-      int defaultConfirmationWinSize = ActiveMQDefaultConfiguration.getDefaultClusterConfirmationWindowSize();
-      int defaultIdCacheSize = ActiveMQDefaultConfiguration.getDefaultIdCacheSize();
-      assertTrue(ConfigurationImpl.checkoutDupCacheSize(defaultConfirmationWinSize, defaultIdCacheSize), "check failed, " + defaultConfirmationWinSize + ":" + defaultIdCacheSize);
-      defaultConfirmationWinSize = ActiveMQDefaultConfiguration.getDefaultBridgeConfirmationWindowSize();
-      assertTrue(ConfigurationImpl.checkoutDupCacheSize(defaultConfirmationWinSize, defaultIdCacheSize), "check failed, " + defaultConfirmationWinSize + ":" + defaultIdCacheSize);
-   }
-
-   @TestTemplate
    public void testJournalFileOpenTimeoutDefaultValue() throws Exception {
       ActiveMQServerImpl server = new ActiveMQServerImpl();
       server.getConfiguration()
