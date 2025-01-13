@@ -48,7 +48,6 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.client.impl.TopologyManager;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
-import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -930,10 +929,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       if (start) {
          bridge.start();
-      }
-
-      if (!ConfigurationImpl.checkoutDupCacheSize(serverLocator.getConfirmationWindowSize(), server.getConfiguration().getIDCacheSize())) {
-         ActiveMQServerLogger.LOGGER.duplicateCacheSizeWarning(server.getConfiguration().getIDCacheSize(), serverLocator.getConfirmationWindowSize());
       }
    }
 
