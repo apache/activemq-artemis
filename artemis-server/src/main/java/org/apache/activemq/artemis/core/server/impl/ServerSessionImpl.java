@@ -513,6 +513,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
+   private void securityCheck(SimpleString address, SimpleString queue, Subject subject) throws Exception {
+      if (securityEnabled) {
+         // TODO: add an appropriate security store check method
+//         securityStore.check(address, queue, CheckType.SEND, subject);
+      }
+   }
+
    @Override
    public ServerConsumer createConsumer(final long consumerID,
                                         final SimpleString queueName,
@@ -1885,12 +1892,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                           final String senderName,
                                           boolean noAutoCreateQueue,
                                           RoutingContext routingContext) throws Exception {
-
       final Message message = checkLargeMessageAndBrokerPluginBeforeSend(tx, msg, direct, noAutoCreateQueue);
       final RoutingStatus result;
-
       try {
-         SimpleString address = getAddressFromMessage(message);
+         SimpleString address = prepareMessage(message);
          if (message.getAddressSimpleString().equals(managementAddress)) {
             result = handleManagementMessage(tx, message, direct);
          } else {
@@ -1901,33 +1906,26 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          callBrokerPluginsOnException(tx, direct, noAutoCreateQueue, message, e);
          throw e;
       }
-
       callBrokerPluginsAfterSend(tx, message, direct, noAutoCreateQueue, result);
       return result;
    }
 
-   public synchronized void sendWithoutAuthCheck(Transaction tx,
-                                                 Message msg,
-                                                 final String senderName,
-                                                 Subject authData) throws Exception {
-
+   public synchronized void sendWithoutReAuthentication(Transaction tx,
+                                                        Message msg,
+                                                        final String senderName,
+                                                        Subject authData) throws Exception {
       final Message message = checkLargeMessageAndBrokerPluginBeforeSend(tx, msg, true, false);
       final RoutingStatus result;
-
       try {
-         SimpleString address = getAddressFromMessage(message);
-         // TODO: use an appropriate handleMessage()-Method
-         result = handleMessage(tx, true, senderName, false, routingContext, message, address);
+         prepareMessage(message);
+         result = handleMessageWithoutReAuthentication(tx, senderName, routingContext, message, authData);
          sendToAuditLoggerIfEnabled(tx, authData, message);
       } catch (Exception e) {
          callBrokerPluginsOnException(tx, true, false, message, e);
          throw e;
       }
-
       callBrokerPluginsAfterSend(tx, message, true, false, result);
    }
-
-
 
    private Message checkLargeMessageAndBrokerPluginBeforeSend(Transaction tx,
                                                               Message msg,
@@ -1940,7 +1938,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return message;
    }
 
-   private SimpleString getAddressFromMessage(Message message) throws ActiveMQIOErrorException, ActiveMQIllegalStateException {
+   private SimpleString prepareMessage(Message message) throws ActiveMQIOErrorException, ActiveMQIllegalStateException {
       // If the protocol doesn't support flow control, we have no choice other than fail the communication
       if (!this.getRemotingConnection().isSupportsFlowControl() && pagingManager.isDiskFull()) {
          long usableSpace = pagingManager.getDiskUsableSpace();
@@ -1991,15 +1989,36 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       try {
          result = doSend(tx, message, address, direct, senderName, noAutoCreateQueue, routingContext);
       } catch (ActiveMQIOErrorException e) {
-         if (tx != null) {
-            tx.markAsRollbackOnly(e);
-         }
-         if (message.isLargeMessage()) {
-            ((LargeServerMessage) message).deleteFile();
-         }
+         handleActiveMQIOErrorException(tx, message, e);
          throw e;
       }
       return result;
+   }
+
+   private RoutingStatus handleMessageWithoutReAuthentication(Transaction tx,
+                                                              String senderName,
+                                                              RoutingContext routingContext,
+                                                              Message message,
+                                                              Subject subject) throws Exception {
+      final RoutingStatus result;
+      try {
+         result = doSendWithoutReAuthentication(tx, message, senderName, routingContext, subject);
+      } catch (ActiveMQIOErrorException e) {
+         handleActiveMQIOErrorException(tx, message, e);
+         throw e;
+      }
+      return result;
+   }
+
+   private void handleActiveMQIOErrorException(Transaction tx,
+                                               Message message,
+                                               ActiveMQIOErrorException e) throws Exception {
+      if (tx != null) {
+         tx.markAsRollbackOnly(e);
+      }
+      if (message.isLargeMessage()) {
+         ((LargeServerMessage) message).deleteFile();
+      }
    }
 
    private void sendToAuditLoggerIfEnabled(Transaction tx, Subject subject, Message message) {
@@ -2027,7 +2046,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                              boolean direct,
                                              boolean noAutoCreateQueue,
                                              Message message,
-                                             Exception e) throws Exception {
+                                             Exception e) throws ActiveMQException {
       if (server.hasBrokerMessagePlugins()) {
          server.callBrokerMessagePlugins(plugin -> plugin.onSendException(this, tx, message, direct, noAutoCreateQueue, e));
       }
@@ -2343,10 +2362,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                             final boolean noAutoCreateQueue,
                                             final RoutingContext routingContext) throws Exception {
 
-      RoutingStatus result = RoutingStatus.OK;
-
-      RoutingType routingType = msg.getRoutingType();
-
          /* TODO-now: How to address here with AMQP?
          if (originalAddress != null) {
             if (originalAddress.toString().startsWith("anycast:")) {
@@ -2356,20 +2371,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             }
          } */
 
-      final AddressInfo targetFromMessage = new AddressInfo(msg.getAddressSimpleString(), routingType);
-      AddressInfo art = getAddressAndRoutingType(targetFromMessage);
-      if (art != targetFromMessage) {
-         // remove the prefix from the message, with the address model change, only non prefixed addresses exist on the broker
-         msg.setAddress(art.getName());
-      }
-
-      // check the user has write access to this address (and potentially queue).
+      AddressInfo art = useAddressInfoToSpecifyAddress(msg);
       try {
+         // check the user has write access to this address (and potentially queue).
          securityCheck(CompositeAddress.extractAddressName(msg.getAddressSimpleString()), CompositeAddress.isFullyQualified(msg.getAddressSimpleString()) ? CompositeAddress.extractQueueName(msg.getAddressSimpleString()) : null, CheckType.SEND, this);
       } catch (ActiveMQException e) {
-         if (!autoCommitSends && tx != null) {
-            tx.markAsRollbackOnly(e);
-         }
+         handleSecurityCheckException(tx, e);
          throw e;
       }
 
@@ -2386,12 +2393,56 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          msg.reencode();
       }
 
+      defineTransactionForRoutingContext(tx, routingContext);
+      return doRoute(msg, direct, senderName, routingContext, art);
+   }
+
+   private synchronized RoutingStatus doSendWithoutReAuthentication(final Transaction tx,
+                                                                    final Message msg,
+                                                                    final String senderName,
+                                                                    final RoutingContext routingContext,
+                                                                    final Subject subject) throws Exception {
+      AddressInfo art = useAddressInfoToSpecifyAddress(msg);
+      try {
+         securityCheck(CompositeAddress.extractAddressName(msg.getAddressSimpleString()), CompositeAddress.isFullyQualified(msg.getAddressSimpleString()) ? CompositeAddress.extractQueueName(msg.getAddressSimpleString()) : null, subject);
+      } catch (ActiveMQException e) {
+         handleSecurityCheckException(tx, e);
+         throw e;
+      }
+      defineTransactionForRoutingContext(tx, routingContext);
+      return doRoute(msg, true, senderName, routingContext, art);
+   }
+
+   private AddressInfo useAddressInfoToSpecifyAddress(Message msg) {
+      final AddressInfo targetFromMessage = new AddressInfo(msg.getAddressSimpleString(), msg.getRoutingType());
+      AddressInfo art = getAddressAndRoutingType(targetFromMessage);
+      if (art != targetFromMessage) {
+         // remove the prefix from the message, with the address model change, only non prefixed addresses exist on the broker
+         msg.setAddress(art.getName());
+      }
+      return art;
+   }
+
+   private void handleSecurityCheckException(Transaction tx, ActiveMQException e) {
+      if (!autoCommitSends && tx != null) {
+         tx.markAsRollbackOnly(e);
+      }
+   }
+
+   private void defineTransactionForRoutingContext(Transaction tx, RoutingContext routingContext) {
       if (tx == null || autoCommitSends) {
          routingContext.setTransaction(null);
       } else {
          routingContext.setTransaction(tx);
       }
+   }
 
+   private RoutingStatus doRoute(Message msg,
+                                 boolean direct,
+                                 String senderName,
+                                 RoutingContext routingContext,
+                                 AddressInfo art) throws Exception {
+      RoutingStatus result;
       try {
          routingContext.setAddress(art.getName());
          routingContext.setRoutingType(art.getRoutingType());
@@ -2410,7 +2461,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             routingContext.clear();
          }
       }
-
       return result;
    }
 

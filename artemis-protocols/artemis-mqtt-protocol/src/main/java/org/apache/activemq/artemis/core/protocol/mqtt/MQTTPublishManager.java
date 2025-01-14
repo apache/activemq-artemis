@@ -217,7 +217,7 @@ public class MQTTPublishManager {
                }
 
                if (internal && state.getWillIdentity() != null) {
-                  session.getServerSession().sendWithoutAuthCheck(tx, serverMessage, senderName, state.getWillIdentity());
+                  session.getServerSession().sendWithoutReAuthentication(tx, serverMessage, senderName, state.getWillIdentity());
                } else {
                   session.getServerSession().send(tx, serverMessage, true, senderName, false);
                }
