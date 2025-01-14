@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -1128,6 +1129,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    @Override
    public String getSecurityDomain() {
       return securityDomain;
+   }
+
+   public Optional<SecurityStore> getSecurityStore() {
+      return Optional.ofNullable(securityStore);
    }
 
    public static class TempQueueCleanerUpper implements CloseListener, FailureListener {

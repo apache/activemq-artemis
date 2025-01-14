@@ -132,7 +132,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                                          .build();
             logger.trace("Created authz cache: {}; maxSize: {}; invalidationInterval: {}", authorizationCache, authorizationCacheSize, invalidationInterval);
          }
-         this.securityRepository.registerListener(this);
+         addToSecurityRepository(this);
       } else {
          authenticationCache = null;
          authorizationCache = null;
@@ -153,7 +153,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
    @Override
    public void stop() {
-      securityRepository.unRegisterListener(this);
+      removeFromSecurityRepository(this);
    }
 
    @Override
@@ -621,5 +621,19 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    @Override
    public long getAuthorizationFailureCount() {
       return authorizationFailureCount;
+   }
+
+   @Override
+   public void addToSecurityRepository(HierarchicalRepositoryChangeListener listener) {
+      if (isSecurityEnabled()) {
+         securityRepository.registerListener(listener);
+      }
+   }
+
+   @Override
+   public void removeFromSecurityRepository(HierarchicalRepositoryChangeListener listener) {
+      if (isSecurityEnabled()) {
+         securityRepository.unRegisterListener(listener);
+      }
    }
 }

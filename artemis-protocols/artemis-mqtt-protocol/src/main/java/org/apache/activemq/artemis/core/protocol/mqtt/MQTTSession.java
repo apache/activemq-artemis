@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import javax.security.auth.Subject;
 import java.lang.invoke.MethodHandles;
 import java.util.UUID;
 
@@ -30,7 +31,11 @@ import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
+import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,41 +45,43 @@ public class MQTTSession {
 
    private final String id = UUID.randomUUID().toString();
 
-   private MQTTProtocolHandler protocolHandler;
+   private final MQTTProtocolHandler protocolHandler;
 
-   private MQTTSubscriptionManager subscriptionManager;
+   private final MQTTSubscriptionManager subscriptionManager;
 
-   private MQTTSessionCallback sessionCallback;
+   private final MQTTSessionCallback sessionCallback;
 
    private ServerSessionImpl serverSession;
 
    private ServerSessionImpl internalServerSession;
 
-   private MQTTPublishManager mqttPublishManager;
+   private final MQTTPublishManager mqttPublishManager;
 
-   private MQTTConnectionManager mqttConnectionManager;
+   private final MQTTConnectionManager mqttConnectionManager;
 
-   private MQTTRetainMessageManager retainMessageManager;
+   private final MQTTRetainMessageManager retainMessageManager;
 
-   private MQTTConnection connection;
+   private final MQTTConnection connection;
 
    protected MQTTSessionState state;
 
    private boolean stopped = false;
 
-   private MQTTProtocolManager protocolManager;
+   private final MQTTProtocolManager protocolManager;
 
-   private MQTTStateManager stateManager;
+   private final MQTTStateManager stateManager;
 
    private boolean clean;
 
    private WildcardConfiguration wildcardConfiguration;
 
-   private CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
+   private final CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
 
    private MQTTVersion version = null;
 
    private boolean usingServerKeepAlive = false;
+
+   private HierarchicalRepositoryChangeListener willIdentityUpdateListener;
 
    public MQTTSession(MQTTProtocolHandler protocolHandler,
                       MQTTConnection connection,
@@ -270,6 +277,25 @@ public class MQTTSession {
       this.usingServerKeepAlive = usingServerKeepAlive;
    }
 
+   void registerWillIdentityUpdateInSecurityRepository(String username, String password) {
+      willIdentityUpdateListener = () -> updateWillIdentity(username, password);
+      serverSession.getSecurityStore()
+         .ifPresent(securityStore -> securityStore.addToSecurityRepository(willIdentityUpdateListener));
+   }
+
+   void updateWillIdentity(String username, String password) {
+      ActiveMQSecurityManager securityManager = protocolHandler.getServer().getSecurityManager();
+      if (securityManager instanceof ActiveMQSecurityManager5 activeMQSecurityManager5) {
+         try {
+            Subject subject = activeMQSecurityManager5.authenticate(username, password, serverSession.getRemotingConnection(), serverSession.getSecurityDomain());
+            state.setWillIdentity(subject);
+         } catch (NoCacheLoginException e) {
+            logger.debug("Unable to store LWT authorization data due to exception: {}", e.getMessage());
+            state.setWillIdentity(null);
+         }
+      }
+   }
+
    public void sendWillMessage() {
       if (state.getWillStatus() == MQTTSessionState.WillStatus.NOT_SENT) {
          try {
@@ -289,6 +315,8 @@ public class MQTTSession {
             state.setWillStatus(MQTTSessionState.WillStatus.SENT);
             state.setWillMessage(null);
             state.setWillIdentity(null);
+            serverSession.getSecurityStore()
+               .ifPresent(securityStore -> securityStore.removeFromSecurityRepository(willIdentityUpdateListener));
          } catch (ActiveMQSecurityException e) {
             state.setWillStatus(MQTTSessionState.WillStatus.NOT_SENT);
             MQTTLogger.LOGGER.authorizationFailureSendingWillMessage(e.getMessage());

@@ -17,7 +17,9 @@
 package org.apache.activemq.artemis.core.security;
 
 import javax.security.auth.Subject;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public interface SecurityStore {
@@ -47,4 +49,8 @@ public interface SecurityStore {
    long getAuthorizationSuccessCount();
 
    long getAuthorizationFailureCount();
+
+   void addToSecurityRepository(HierarchicalRepositoryChangeListener listener);
+
+   void removeFromSecurityRepository(HierarchicalRepositoryChangeListener listener);
 }
