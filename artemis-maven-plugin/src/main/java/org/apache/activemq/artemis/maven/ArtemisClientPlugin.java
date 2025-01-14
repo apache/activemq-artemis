@@ -20,7 +20,6 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -47,11 +46,6 @@ public class ArtemisClientPlugin extends ArtemisAbstractPlugin {
    @Parameter(defaultValue = "${noClient}")
    boolean ignore;
 
-   /**
-    * @parameter
-    */
-   private Properties systemProperties;
-
    @Override
    protected boolean isIgnore() {
       return ignore;
@@ -71,10 +65,6 @@ public class ArtemisClientPlugin extends ArtemisAbstractPlugin {
    @Override
    protected void doExecute() throws MojoExecutionException, MojoFailureException {
       try {
-         if (systemProperties != null && !systemProperties.isEmpty()) {
-            System.getProperties().putAll(systemProperties);
-         }
-
          Class aClass;
          if (classPath != null) {
             ClassLoader loader = defineClassLoader(classPath);
