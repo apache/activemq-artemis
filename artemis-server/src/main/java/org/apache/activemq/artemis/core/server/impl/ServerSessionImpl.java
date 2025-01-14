@@ -515,8 +515,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    private void securityCheck(SimpleString address, SimpleString queue, Subject subject) throws Exception {
       if (securityEnabled) {
-         // TODO: add an appropriate security store check method
-//         securityStore.check(address, queue, CheckType.SEND, subject);
+         securityStore.checkWithoutReAuthentication(CompositeAddress.extractAddressName(address),
+                                                    CompositeAddress.extractQueueName(queue),
+                                                    CheckType.SEND,
+                                                    subject);
       }
    }
 
