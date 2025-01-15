@@ -156,7 +156,7 @@ public class URISupport {
    /**
     * Given a URI parse and extract any URI query options and return them as a Key / Value mapping.
     *
-    * This method differs from the {@link parseQuery} method in that it handles composite URI types and
+    * This method differs from the {@link URISupport#parseQuery(String)} method in that it handles composite URI types and
     * will extract the URI options from the outermost composite URI.
     *
     * @param uri The URI whose query should be extracted and processed.
@@ -165,7 +165,13 @@ public class URISupport {
     */
    public static Map<String, String> parseParameters(URI uri) throws URISyntaxException {
       if (!isCompositeURI(uri)) {
-         return uri.getQuery() == null ? emptyMap() : parseQuery(stripPrefix(uri.getQuery(), "?"));
+         try {
+            return uri.getQuery() == null ? emptyMap() : parseQuery(stripPrefix(uri.getQuery(), "?"));
+         } catch (IllegalArgumentException e) {
+            URISyntaxException uriSyntaxException = new URISyntaxException(uri.toString(), e.getMessage());
+            uriSyntaxException.initCause(e);
+            throw uriSyntaxException;
+         }
       } else {
          CompositeData data = URISupport.parseComposite(uri);
          Map<String, String> parameters = new HashMap<>();
