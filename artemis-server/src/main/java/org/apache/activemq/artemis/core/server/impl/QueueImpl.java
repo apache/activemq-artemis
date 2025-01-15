@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server.impl;
 import javax.security.auth.Subject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -119,11 +120,9 @@ import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
-import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
+import org.jctools.queues.MpscUnboundedArrayQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import org.jctools.queues.MpscUnboundedArrayQueue;
 
 import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 
@@ -656,7 +655,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final ArtemisExecutor executor,
                     final ActiveMQServer server,
                     final QueueFactory factory) {
-      super(server == null ? EmptyCriticalAnalyzer.getInstance() : server.getCriticalAnalyzer(), CRITICAL_PATHS);
+      super(server.getCriticalAnalyzer(), CRITICAL_PATHS);
 
       this.createdTimestamp = System.currentTimeMillis();
 
@@ -2044,7 +2043,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                auditLogAck(subject, remoteAddress, ref, tx);
             }
          }
-         if (server != null && server.hasBrokerMessagePlugins()) {
+         if (server.hasBrokerMessagePlugins()) {
             server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(tx, ref, reason, consumer));
          }
       }
@@ -2176,7 +2175,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       // potentially auto-delete this queue if this expired the last message
       refCountForConsumers.check();
 
-      if (server != null && server.hasBrokerMessagePlugins()) {
+      if (server.hasBrokerMessagePlugins()) {
          if (tx == null) {
             server.callBrokerMessagePlugins(plugin -> plugin.messageExpired(ref, settingsToUse.getExpiryAddress(), consumer));
          } else {
