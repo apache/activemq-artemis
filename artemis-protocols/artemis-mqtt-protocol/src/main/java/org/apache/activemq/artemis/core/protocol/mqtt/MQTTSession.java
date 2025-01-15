@@ -128,6 +128,7 @@ public class MQTTSession {
          mqttPublishManager.stop();
 
          if (serverSession != null) {
+            unregisterWillIdentityUpdateFromSecurityRepository();
             serverSession.stop();
             serverSession.close(false);
          }
@@ -283,6 +284,13 @@ public class MQTTSession {
          .ifPresent(securityStore -> securityStore.addToSecurityRepository(willIdentityUpdateListener));
    }
 
+   void unregisterWillIdentityUpdateFromSecurityRepository() {
+      if (willIdentityUpdateListener != null) {
+         serverSession.getSecurityStore()
+            .ifPresent(securityStore -> securityStore.removeFromSecurityRepository(willIdentityUpdateListener));
+      }
+   }
+
    void updateWillIdentity(String username, String password) {
       ActiveMQSecurityManager securityManager = protocolHandler.getServer().getSecurityManager();
       if (securityManager instanceof ActiveMQSecurityManager5 activeMQSecurityManager5) {
@@ -315,8 +323,7 @@ public class MQTTSession {
             state.setWillStatus(MQTTSessionState.WillStatus.SENT);
             state.setWillMessage(null);
             state.setWillIdentity(null);
-            serverSession.getSecurityStore()
-               .ifPresent(securityStore -> securityStore.removeFromSecurityRepository(willIdentityUpdateListener));
+            unregisterWillIdentityUpdateFromSecurityRepository();
          } catch (ActiveMQSecurityException e) {
             state.setWillStatus(MQTTSessionState.WillStatus.NOT_SENT);
             MQTTLogger.LOGGER.authorizationFailureSendingWillMessage(e.getMessage());
