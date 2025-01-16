@@ -208,15 +208,21 @@ public class MQTTPublishManager {
             Transaction tx = session.getServerSession().newTransaction();
             try {
                AddressInfo addressInfo = session.getServer().getAddressInfo(address);
+
                if (addressInfo == null && session.getServer().getAddressSettingsRepository().getMatch(coreAddress).isAutoCreateAddresses()) {
-                  session.getServerSession().createAddress(address, RoutingType.MULTICAST, true);
+                  if (publishLWT(internal)) {
+                     session.getServerSession().createAddress(address, state.getWillIdentity());
+                  } else {
+                     session.getServerSession().createAddress(address, RoutingType.MULTICAST, true);
+                  }
                   serverMessage.setRoutingType(RoutingType.MULTICAST);
                }
+
                if (addressInfo != null) {
                   serverMessage.setRoutingType(addressInfo.getRoutingType());
                }
 
-               if (internal && state.getWillIdentity() != null) {
+               if (publishLWT(internal)) {
                   session.getServerSession().sendWithoutReAuthentication(tx, serverMessage, senderName, state.getWillIdentity());
                } else {
                   session.getServerSession().send(tx, serverMessage, true, senderName, false);
@@ -272,6 +278,10 @@ public class MQTTPublishManager {
          }
          createMessageAck(packetId, qos, internal);
       }
+   }
+
+   private boolean publishLWT(boolean internal) {
+      return internal && state.getWillIdentity() != null;
    }
 
    private String getTopicFromHeaderConsideringAlias(MqttPublishMessage message) throws DisconnectException {

@@ -514,11 +514,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
-   private void securityCheck(SimpleString address, SimpleString queue, Subject subject) throws Exception {
+   private void securityCheck(SimpleString address, SimpleString queue, CheckType checkType, Subject subject) throws Exception {
       if (securityEnabled) {
          securityStore.checkWithoutReAuthentication(CompositeAddress.extractAddressName(address),
                                                     CompositeAddress.extractQueueName(queue),
-                                                    CheckType.SEND,
+                                                    checkType,
                                                     subject);
       }
    }
@@ -985,6 +985,16 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       securityCheck(art.getName(), CheckType.CREATE_ADDRESS, this);
       server.addOrUpdateAddressInfo(art.setAutoCreated(autoCreated));
       return server.getAddressInfo(art.getName());
+   }
+
+   public void createAddress(final SimpleString address, final Subject subject) throws Exception {
+      AddressInfo addressInfo = new AddressInfo(address, RoutingType.MULTICAST);
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.serverSessionCreateAddress(name, subject, remotingConnection.getRemoteAddress(), addressInfo, true);
+      }
+      AddressInfo art = getAddressAndRoutingType(addressInfo);
+      securityCheck(art.getName(), null, CheckType.CREATE_ADDRESS, subject);
+      server.addOrUpdateAddressInfo(art.setAutoCreated(true));
    }
 
    @Deprecated
@@ -2411,7 +2421,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                                                     final Subject subject) throws Exception {
       AddressInfo art = useAddressInfoToSpecifyAddress(msg);
       try {
-         securityCheck(CompositeAddress.extractAddressName(msg.getAddressSimpleString()), CompositeAddress.isFullyQualified(msg.getAddressSimpleString()) ? CompositeAddress.extractQueueName(msg.getAddressSimpleString()) : null, subject);
+         securityCheck(CompositeAddress.extractAddressName(msg.getAddressSimpleString()), CompositeAddress.isFullyQualified(msg.getAddressSimpleString()) ? CompositeAddress.extractQueueName(msg.getAddressSimpleString()) : null, CheckType.SEND, subject);
       } catch (ActiveMQException e) {
          handleSecurityCheckException(tx, e);
          throw e;
