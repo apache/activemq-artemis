@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.ref.WeakReference;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -31,6 +32,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiPredicate;
 
 import org.apache.activemq.artemis.api.config.ServerLocatorConfig;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -75,8 +77,6 @@ import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import java.util.function.BiPredicate;
 
 public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, ClientConnectionLifeCycleListener {
 
@@ -1290,13 +1290,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          // Sanity catch for badly behaved remoting plugins
 
          ActiveMQClientLogger.LOGGER.createConnectorException(cause);
-
-         if (transportConnection != null) {
-            try {
-               transportConnection.close();
-            } catch (Throwable t) {
-            }
-         }
 
          if (connector != null) {
             try {
