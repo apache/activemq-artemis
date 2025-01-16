@@ -76,11 +76,11 @@ public class AuditLoggerAMQPMutualSSLTest extends AuditLoggerTestBase {
          assertNotNull(m);
       }
 
-      assertTrue(findLogRecord(getAuditLog(), "AMQ601715: User myUser(producers)@", "successfully authenticated"));
-      assertTrue(findLogRecord(getAuditLog(), "AMQ601267: User myUser(producers)@", "is creating a core session"));
-      assertTrue(findLogRecord(getAuditLog(), "AMQ601500: User myUser(producers)@", "sent a message AMQPStandardMessage"));
-      assertTrue(findLogRecord(getAuditLog(), "AMQ601265: User myUser(producers)@", "is creating a core consumer"));
-      assertTrue(findLogRecord(getAuditLog(), "AMQ601501: User myUser(producers)@", "is consuming a message from exampleQueue"));
-      assertTrue(findLogRecord(getAuditLog(), "AMQ601502: User myUser(producers)@", "acknowledged message from exampleQueue: AMQPStandardMessage"));
+      assertTrue(findLogRecord(getAuditLog(), "AMQ601715: User myUser(consumers,producers)@", "successfully authenticated"));
+      assertTrue(findLogRecord(getAuditLog(), "AMQ601267: User myUser(consumers,producers)@", "is creating a core session"));
+      assertTrue(findLogRecord(getAuditLog(), "AMQ601500: User myUser(consumers,producers)@", "sent a message AMQPStandardMessage"));
+      assertTrue(findLogRecord(getAuditLog(), "AMQ601265: User myUser(consumers,producers)@", "is creating a core consumer"));
+      assertTrue(findLogRecord(getAuditLog(), "AMQ601501: User myUser(consumers,producers)@", "is consuming a message from exampleQueue"));
+      assertTrue(findLogRecord(getAuditLog(), "AMQ601502: User myUser(consumers,producers)@", "acknowledged message from exampleQueue: AMQPStandardMessage"));
    }
 }
