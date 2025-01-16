@@ -25,7 +25,9 @@ import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import java.security.AccessController;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -80,6 +82,7 @@ public interface AuditLogger {
    static String getCaller(Subject subject, String remoteAddress) {
       String user = "anonymous";
       String roles = "";
+      ArrayList<String> principalRoles = new ArrayList<>();
       String url = remoteAddress == null ? (AuditLogger.remoteAddress.get() == null ? "@unknown" : AuditLogger.remoteAddress.get()) : formatRemoteAddress(remoteAddress);
       if (subject != null) {
          Set<Principal> principals = subject.getPrincipals();
@@ -87,9 +90,13 @@ public interface AuditLogger {
             if (principal.getClass().getName().endsWith("UserPrincipal")) {
                user = principal.getName();
             } else if (principal.getClass().getName().endsWith("RolePrincipal")) {
-               roles = "(" + principal.getName() + ")";
+               principalRoles.add(principal.getName());
             }
          }
+      }
+      if (!principalRoles.isEmpty()) {
+         Collections.sort(principalRoles);
+         roles = "(" + String.join(",", principalRoles) + ")";
       }
       return user + roles + url;
    }
