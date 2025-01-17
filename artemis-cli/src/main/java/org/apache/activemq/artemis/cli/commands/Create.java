@@ -298,6 +298,9 @@ public class Create extends InstallAbstract {
    @Option(names = "--security-manager", description = "Which security manager to use - jaas or basic. Default: jaas.")
    private String securityManager = "jaas";
 
+   @Option(names = "--journal-max-io", description = "The journal-max-io value to use when also using the ASYNCIO journal-type. When using NIO or MAPPED this value is always '1'. Default: 4096")
+   private int journalMaxIo = ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio();
+
    @Option(names = "--jdbc-bindings-table-name", description = "Name of the jdbc bindings table.")
    private String jdbcBindings = ActiveMQDefaultConfiguration.getDefaultBindingsTableName();
 
@@ -500,6 +503,30 @@ public class Create extends InstallAbstract {
 
    public void setRole(String role) {
       this.role = role;
+   }
+
+   public int getJournalMaxIo() {
+      return journalMaxIo;
+   }
+
+   public void setJournalMaxIo(int journalMaxIo) {
+      this.journalMaxIo = journalMaxIo;
+   }
+
+   public boolean isAio() {
+      return aio;
+   }
+
+   public void setAio(boolean aio) {
+      this.aio = aio;
+   }
+
+   public boolean isNio() {
+      return nio;
+   }
+
+   public void setNio(boolean nio) {
+      this.nio = nio;
    }
 
    private boolean isBackup() {
@@ -862,7 +889,7 @@ public class Create extends InstallAbstract {
       context.out.println(String.format("   \"%s\" run", path(new File(directory, "bin/artemis"))));
 
       File service = new File(directory, BIN_ARTEMIS_SERVICE);
-      context.out.println("");
+      context.out.println();
 
       if (IS_NIX) {
          context.out.println("Or you can run the broker in the background using:");
@@ -1049,7 +1076,7 @@ public class Create extends InstallAbstract {
                Map<String, String> syncFilter = new HashMap<>();
                syncFilter.put("${nanoseconds}", "0");
                syncFilter.put("${writesPerMillisecond}", "0");
-               syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : "1");
+               syncFilter.put("${maxaio}", "1");
 
                getActionContext().out.println("...Since you disabled sync and are using MAPPED journal, we are diabling buffer times");
 
@@ -1066,7 +1093,7 @@ public class Create extends InstallAbstract {
                Map<String, String> syncFilter = new HashMap<>();
                syncFilter.put("${nanoseconds}", Long.toString(nanoseconds));
                syncFilter.put("${writesPerMillisecond}", writesPerMillisecondStr);
-               syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : "1");
+               syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + journalMaxIo : "1");
 
                getActionContext().out.println("done! Your system can make " + writesPerMillisecondStr +
                                                  " writes per millisecond, your journal-buffer-timeout will be " + nanoseconds);
