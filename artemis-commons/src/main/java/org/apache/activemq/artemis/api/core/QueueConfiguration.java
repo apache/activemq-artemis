@@ -825,7 +825,7 @@ public class QueueConfiguration implements Serializable {
       JsonObject json = JsonLoader.readObject(new StringReader(jsonString));
 
       // name is the only required value
-      if (!json.keySet().contains(NAME)) {
+      if (!json.containsKey(NAME)) {
          return null;
       }
       QueueConfiguration result = QueueConfiguration.of(json.getString(NAME));

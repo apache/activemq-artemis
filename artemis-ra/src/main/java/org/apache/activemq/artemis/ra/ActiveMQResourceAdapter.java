@@ -1578,7 +1578,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       ActiveMQConnectionFactory cf;
       boolean known = false;
 
-      if (!knownConnectionFactories.keySet().contains(overrideProperties)) {
+      if (!knownConnectionFactories.containsKey(overrideProperties)) {
          cf = newConnectionFactory(overrideProperties);
          knownConnectionFactories.put(overrideProperties, new Pair<>(cf, new AtomicInteger(1)));
       } else {

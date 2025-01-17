@@ -113,7 +113,7 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
             }
          }
          assertEquals(1, sessionStates.size());
-         assertTrue(sessionStates.keySet().contains(clientID));
+         assertTrue(sessionStates.containsKey(clientID));
          for (MQTTSessionState state : sessionStates.values()) {
             assertEquals(clientID, state.getClientId());
          }
@@ -146,7 +146,7 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
             }
          }
          assertEquals(1, sessionStates.size());
-         assertTrue(sessionStates.keySet().contains(clientID));
+         assertTrue(sessionStates.containsKey(clientID));
          for (MQTTSessionState state : sessionStates.values()) {
             assertEquals(clientID, state.getClientId());
          }
@@ -157,7 +157,7 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
          assertTrue(Wait.waitFor(() -> finalConnection2.isConnected(), 5000, 100), "Should be connected");
          Wait.assertFalse(() -> finalConnection.isConnected(), 5000, 100);
          assertEquals(1, sessionStates.size());
-         assertTrue(sessionStates.keySet().contains(clientID));
+         assertTrue(sessionStates.containsKey(clientID));
          for (MQTTSessionState state : sessionStates.values()) {
             assertEquals(clientID, state.getClientId());
          }
