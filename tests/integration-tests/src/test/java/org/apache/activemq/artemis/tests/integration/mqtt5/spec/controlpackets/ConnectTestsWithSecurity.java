@@ -18,18 +18,26 @@ package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import javax.security.auth.Subject;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
+import java.util.Optional;
+import java.util.Set;
 
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
+import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.common.MqttException;
+import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -96,5 +104,42 @@ public class ConnectTestsWithSecurity extends MQTT5TestSupport {
       }
       assertTrue(client.isConnected());
       client.disconnect();
+   }
+
+   /*
+    * With security the will identity MUST not be null.
+    */
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   void testWillIdentityDefined() throws Exception {
+      final String CLIENT_ID = RandomUtil.randomString();
+      final byte[] WILL = RandomUtil.randomBytes();
+
+      MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
+         .username(fullUser)
+         .password(fullPass.getBytes(StandardCharsets.UTF_8))
+         .will("/topic/foo", new MqttMessage(WILL))
+         .build();
+      MqttClient client = createPahoClient(CLIENT_ID);
+      client.connect(options);
+
+      Subject willIdentity = getSessionStates().get(CLIENT_ID).getWillIdentity();
+      assertNotNull(willIdentity);
+      Set<Principal> principals = willIdentity.getPrincipals();
+      assertEquals(2, principals.size());
+
+      Optional<UserPrincipal> user = getFrom(principals, UserPrincipal.class);
+      assertTrue(user.isPresent());
+      assertEquals(fullUser, user.get().getName());
+
+      Optional<RolePrincipal> role = getFrom(principals, RolePrincipal.class);
+      assertTrue(role.isPresent());
+      assertEquals("full", role.get().getName());
+
+      client.disconnect();
+   }
+
+   private <T> Optional<T> getFrom(Set<Principal> principals, Class<T> clazz) {
+      return principals.stream().filter(clazz::isInstance).map(clazz::cast).findFirst();
    }
 }

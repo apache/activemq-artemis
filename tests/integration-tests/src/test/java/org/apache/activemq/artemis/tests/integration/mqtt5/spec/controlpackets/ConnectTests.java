@@ -440,6 +440,27 @@ public class ConnectTests extends MQTT5TestSupport {
    }
 
    /*
+    * Without security the will identity MUST be null.
+    */
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   void testWillIdentityNotDefined() throws Exception {
+      final String CLIENT_ID = RandomUtil.randomString();
+      final byte[] WILL = RandomUtil.randomBytes();
+
+      MqttClient client = createPahoClient(CLIENT_ID);
+      MqttConnectionOptions options = new MqttConnectionOptions();
+      options.setWill("/topic/foo", new MqttMessage(WILL));
+      MqttProperties willProperties = new MqttProperties();
+      options.setWillMessageProperties(willProperties);
+      client.connect(options);
+
+      assertNull(getSessionStates().get(CLIENT_ID).getWillIdentity());
+
+      client.disconnect();
+   }
+
+   /*
     * [MQTT-3.1.2-22] If the Keep Alive value is non-zero and the Server does not receive an MQTT Control Packet from
     * the Client within one and a half times the Keep Alive time period, it MUST close the Network Connection to the
     * Client as if the network had failed.
