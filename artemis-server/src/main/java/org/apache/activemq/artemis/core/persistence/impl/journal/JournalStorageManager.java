@@ -354,12 +354,18 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       largeMessage.setStorageManager(this);
 
       if (largeMessage.toMessage().containsProperty(Message.HDR_ORIG_MESSAGE_ID)) {
-         // for compatibility: couple with old behaviour, copying the old file to avoid message loss
-         long originalMessageID = largeMessage.toMessage().getLongProperty(Message.HDR_ORIG_MESSAGE_ID);
-
          SequentialFile currentFile = createFileForLargeMessage(largeMessage.toMessage().getMessageID(), true);
 
          if (!currentFile.exists()) {
+            // for compatibility: couple with old behaviour, copying the old file to avoid message loss
+            String originalMessageIDString = largeMessage.toMessage().getStringProperty(Message.HDR_ORIG_MESSAGE_ID);
+            // could have a leading "ID:", like ID:c6e2e367-d77e-11e9-9471-005056b7cdce
+            long originalMessageID;
+            if (originalMessageIDString != null && originalMessageIDString.startsWith("ID:")) {
+               originalMessageID = Long.parseLong(originalMessageIDString.substring("ID:".length()));
+            } else {
+               originalMessageID = largeMessage.toMessage().getLongProperty(Message.HDR_ORIG_MESSAGE_ID);
+            }
             SequentialFile linkedFile = createFileForLargeMessage(originalMessageID, true);
             if (linkedFile.exists()) {
                linkedFile.copyTo(currentFile);
