@@ -31,6 +31,7 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
@@ -55,6 +56,8 @@ import javax.jms.Topic;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.BrokerConnectionControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederatedBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationAddressPolicyElement;
@@ -188,6 +191,12 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
             peer.expectDetach().respond();
 
             consumer.close();
+
+            final BrokerConnectionControl brokerConnection = (BrokerConnectionControl)
+               server.getManagementService().getResource(ResourceNames.BROKER_CONNECTION + getTestName());
+
+            assertNotNull(brokerConnection);
+            assertTrue(brokerConnection.isConnected());
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
             peer.close();
@@ -380,6 +389,12 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
                             .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
          peer.expectFlow().withLinkCredit(1000);
 
+         final BrokerConnectionControl brokerConnection = (BrokerConnectionControl)
+            server.getManagementService().getResource(ResourceNames.BROKER_CONNECTION + getTestName());
+
+         assertNotNull(brokerConnection);
+         assertTrue(brokerConnection.isConnected());
+
          final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
 
          try (Connection connection = factory.createConnection()) {
@@ -407,6 +422,11 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
             session.createConsumer(session.createTopic("test"));
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            assertNull(server.getManagementService().getResource(ResourceNames.BROKER_CONNECTION + getTestName()));
+
+            assertNotNull(brokerConnection);
+
             peer.close();
          }
       }
@@ -415,23 +435,28 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
    @Test
    @Timeout(20)
    public void testFederationUpdatesPolicyAndFederatesQueueInsteadOfAddress() throws Exception {
-      try (ProtonTestServer peer = new ProtonTestServer()) {
+      try (ProtonTestServer peer1 = new ProtonTestServer();
+           ProtonTestServer peer2 = new ProtonTestServer()) {
 
-         peer.expectSASLAnonymousConnect();
-         peer.expectOpen().respond();
-         peer.expectBegin().respond();
-         peer.expectAttach().ofSender()
-                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
-                            .respond()
-                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
-         peer.expectAttach().ofReceiver()
-                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
-                            .respondInKind();
-         peer.expectFlow().withLinkCredit(10);
-         peer.start();
+         peer1.expectSASLAnonymousConnect();
+         peer1.expectOpen().respond();
+         peer1.expectBegin().respond();
+         peer1.expectAttach().ofSender()
+                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                             .respond()
+                             .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer1.expectAttach().ofReceiver()
+                             .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                             .respondInKind();
+         peer1.expectFlow().withLinkCredit(10);
+         peer1.start();
+         peer2.start();
 
-         final URI remoteURI = peer.getServerURI();
-         logger.info("Test started, peer listening on: {}", remoteURI);
+         final URI remoteURI_1 = peer1.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI_1);
+
+         final URI remoteURI_2 = peer2.getServerURI();
+         logger.info("Test reconnect, peer two listening on: {}", remoteURI_2);
 
          final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
          receiveFromAddress.setName("address-policy");
@@ -445,7 +470,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
          element.addLocalAddressPolicy(receiveFromAddress);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
-            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI_1.getHost() + ":" + remoteURI_1.getPort());
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
@@ -458,17 +483,17 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE_DELAY, 10_000L);
          expectedSourceProperties.put(ADDRESS_AUTO_DELETE_MSG_COUNT, -1L);
 
-         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
-         peer.expectAttach().ofReceiver()
-                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
-                            .withName(allOf(containsString(getTestName()),
-                                            containsString("test"),
-                                            containsString("address-receiver"),
-                                            containsString(server.getNodeID().toString())))
-                            .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), expectedSourceProperties)
-                            .respond()
-                            .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
-         peer.expectFlow().withLinkCredit(1000);
+         peer1.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer1.expectAttach().ofReceiver()
+                             .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                             .withName(allOf(containsString(getTestName()),
+                                             containsString("test"),
+                                             containsString("address-receiver"),
+                                             containsString(server.getNodeID().toString())))
+                             .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), expectedSourceProperties)
+                             .respond()
+                             .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+         peer1.expectFlow().withLinkCredit(1000);
 
          final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
 
@@ -479,31 +504,33 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
 
             connection.start();
 
-            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
-            peer.expectDetach().optional();
-            peer.expectClose().optional();
-            peer.expectConnectionToDrop();
-            peer.expectSASLAnonymousConnect();
-            peer.expectOpen().respond();
-            peer.expectBegin().respond();
-            peer.expectAttach().ofSender()
-                               .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
-                               .respond()
-                               .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
-            peer.expectAttach().ofReceiver()
+            peer1.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer1.expectDetach().optional();
+            peer1.expectClose().optional();
+            peer1.expectConnectionToDrop();
+
+            // Reconnect should use new URI and federation policy.
+            peer2.expectSASLAnonymousConnect();
+            peer2.expectOpen().respond();
+            peer2.expectBegin().respond();
+            peer2.expectAttach().ofSender()
+                                .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                                .respond()
+                                .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+            peer2.expectAttach().ofReceiver()
                                .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
                                .respondInKind();
-            peer.expectFlow().withLinkCredit(10);
-            peer.expectAttach().ofReceiver()
-                               .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
-                               .withName(allOf(containsString(getTestName()),
-                                               containsString("queue::queue"),
-                                               containsString("queue-receiver"),
-                                               containsString(server.getNodeID().toString())))
-                               .withProperty(FEDERATION_RECEIVER_PRIORITY.toString(), DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT)
-                               .respond()
-                               .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString());
-            peer.expectFlow().withLinkCredit(1000);
+            peer2.expectFlow().withLinkCredit(10);
+            peer2.expectAttach().ofReceiver()
+                                .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                                .withName(allOf(containsString(getTestName()),
+                                                containsString("queue::queue"),
+                                                containsString("queue-receiver"),
+                                                containsString(server.getNodeID().toString())))
+                                .withProperty(FEDERATION_RECEIVER_PRIORITY.toString(), DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT)
+                                .respond()
+                                .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString());
+            peer2.expectFlow().withLinkCredit(1000);
 
             final ProtonProtocolManagerFactory protocolFactory = (ProtonProtocolManagerFactory)
                server.getRemotingService().getProtocolFactoryMap().get("AMQP");
@@ -525,7 +552,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
             updatedElement.addLocalQueuePolicy(updatedReceiveFromQueue);
 
             final AMQPBrokerConnectConfiguration updatedAmqpConnection =
-               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI_2.getHost() + ":" + remoteURI_2.getPort());
             updatedAmqpConnection.setReconnectAttempts(0);// No reconnects
             updatedAmqpConnection.addElement(updatedElement);
 
@@ -534,8 +561,10 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
 
             protocolFactory.updateProtocolServices(server, Collections.emptyList());
 
-            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
-            peer.close();
+            peer1.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer1.close();
+            peer2.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer2.close();
          }
       }
    }

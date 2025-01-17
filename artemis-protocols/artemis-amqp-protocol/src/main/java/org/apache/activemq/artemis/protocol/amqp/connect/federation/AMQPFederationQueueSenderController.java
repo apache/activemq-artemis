@@ -17,24 +17,19 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.QUEUE_CAPABILITY;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TOPIC_CAPABILITY;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyOfferedCapabilities;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_QUEUE_RECEIVER;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationMetrics.ProducerMetrics;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
-import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
-import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotImplementedException;
-import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.SenderController;
@@ -55,26 +50,23 @@ import org.apache.qpid.proton.engine.Sender;
  * link should be closed with an error indicating that the matching resource is not
  * present on this peer.
  */
-public final class AMQPFederationQueueSenderController extends AMQPFederationBaseSenderController {
+public final class AMQPFederationQueueSenderController extends AMQPFederationSenderController {
 
-   public AMQPFederationQueueSenderController(AMQPSessionContext session) throws ActiveMQAMQPException {
-      super(session);
+   public AMQPFederationQueueSenderController(AMQPFederationRemoteQueuePolicyManager manager, ProducerMetrics metrics, Consumer<AMQPFederationSenderController> closedListener) throws ActiveMQAMQPException {
+      super(manager, metrics,  closedListener);
+   }
+
+   @Override
+   public Role getRole() {
+      return Role.QUEUE_PRODUCER;
    }
 
    @SuppressWarnings("unchecked")
    @Override
-   public Consumer init(ProtonServerSenderContext senderContext) throws Exception {
+   public ServerConsumer createServerConsumer(ProtonServerSenderContext senderContext) throws Exception {
       final Sender sender = senderContext.getSender();
       final Source source = (Source) sender.getRemoteSource();
       final String selector;
-
-      if (federation == null) {
-         throw new ActiveMQAMQPIllegalStateException("Cannot create a federation link from non-federation connection");
-      }
-
-      if (source == null) {
-         throw new ActiveMQAMQPNotImplementedException("Null source lookup not supported on federation links.");
-      }
 
       // Match the settlement mode of the remote instead of relying on the default of MIXED.
       sender.setSenderSettleMode(sender.getRemoteSenderSettleMode());
@@ -132,33 +124,11 @@ public final class AMQPFederationQueueSenderController extends AMQPFederationBas
          selector = null;
       }
 
-      // We need to check that the remote offers its ability to read tunneled core messages and
-      // if not we must not send them but instead convert all messages to AMQP messages first.
-      tunnelCoreMessages = verifyOfferedCapabilities(sender, AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT);
-
       // Configure an action to register a watcher for this federated queue to be created if it is
       // removed during the lifetime of the federation receiver, if restored an event will be sent
       // to the remote to prompt it to create a new receiver.
       resourceDeletedAction = (e) -> federation.registerMissingQueue(targetQueue.toString());
 
-      registerRemoteLinkClosedInterceptor(sender);
-
-      return (Consumer) sessionSPI.createSender(senderContext, targetQueue, selector, false);
-   }
-
-   private static RoutingType getRoutingType(Source source) {
-      if (source != null) {
-         if (source.getCapabilities() != null) {
-            for (Symbol capability : source.getCapabilities()) {
-               if (TOPIC_CAPABILITY.equals(capability)) {
-                  return RoutingType.MULTICAST;
-               } else if (QUEUE_CAPABILITY.equals(capability)) {
-                  return RoutingType.ANYCAST;
-               }
-            }
-         }
-      }
-
-      return ActiveMQDefaultConfiguration.getDefaultRoutingType();
+      return sessionSPI.createSender(senderContext, targetQueue, selector, false);
    }
 }

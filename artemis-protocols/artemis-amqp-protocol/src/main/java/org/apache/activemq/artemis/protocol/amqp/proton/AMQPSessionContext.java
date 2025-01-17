@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation.FEDERATION_INSTANCE_RECORD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONFIGURATION;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_POLICY_NAME;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +35,8 @@ import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederati
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConfiguration;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationEventDispatcher;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationEventProcessor;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationRemoteAddressPolicyManager;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationRemoteQueuePolicyManager;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationTarget;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget;
@@ -229,6 +232,82 @@ public class AMQPSessionContext extends ProtonInitializable {
       });
    }
 
+   public void addFederationAddressSender(Sender sender) throws Exception {
+      addSender(sender, (c, s) -> {
+         final Connection protonConnection = sender.getSession().getConnection();
+         final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
+         final AMQPFederation federation = attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class);
+
+         try {
+            if (federation == null) {
+               throw new ActiveMQAMQPIllegalStateException(
+                  "Unexpected federation Address sender opened on connection without a federation instance active");
+            }
+
+            final String policyName;
+
+            if (sender.getRemoteProperties() != null &&
+                sender.getRemoteProperties().get(FEDERATION_POLICY_NAME) != null) {
+               policyName = sender.getRemoteProperties().get(FEDERATION_POLICY_NAME).toString();
+            } else {
+               policyName = AMQPFederationRemoteAddressPolicyManager.DEFAULT_REMOTE_ADDRESS_POLICY_NAME;
+            }
+
+            final AMQPFederationRemoteAddressPolicyManager policyManager = federation.getRemoteAddressPolicyManager(policyName);
+
+            return new ProtonServerSenderContext(connection, sender, this, this.getSessionSPI(), policyManager.newSenderController());
+         } catch (ActiveMQException e) {
+            final ActiveMQAMQPException cause;
+
+            if (e instanceof ActiveMQAMQPException) {
+               cause = (ActiveMQAMQPException) e;
+            } else {
+               cause = new ActiveMQAMQPInternalErrorException(e.getMessage());
+            }
+
+            throw new RuntimeException(e.getMessage(), cause);
+         }
+      });
+   }
+
+   public void addFederationQueueSender(Sender sender) throws Exception {
+      addSender(sender, (c, s) -> {
+         final Connection protonConnection = sender.getSession().getConnection();
+         final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
+         final AMQPFederation federation = attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class);
+
+         try {
+            if (federation == null) {
+               throw new ActiveMQAMQPIllegalStateException(
+                  "Unexpected federation Queue sender opened on connection without a federation instance active");
+            }
+
+            final String policyName;
+
+            if (sender.getRemoteProperties() != null &&
+                sender.getRemoteProperties().get(FEDERATION_POLICY_NAME) != null) {
+               policyName = sender.getRemoteProperties().get(FEDERATION_POLICY_NAME).toString();
+            } else {
+               policyName = AMQPFederationRemoteQueuePolicyManager.DEFAULT_REMOTE_QUEUE_POLICY_NAME;
+            }
+
+            final AMQPFederationRemoteQueuePolicyManager policyManager = federation.getRemoteQueuePolicyManager(policyName);
+
+            return new ProtonServerSenderContext(connection, sender, this, this.getSessionSPI(), policyManager.newSenderController());
+         } catch (ActiveMQException e) {
+            final ActiveMQAMQPException cause;
+
+            if (e instanceof ActiveMQAMQPException) {
+               cause = (ActiveMQAMQPException) e;
+            } else {
+               cause = new ActiveMQAMQPInternalErrorException(e.getMessage());
+            }
+
+            throw new RuntimeException(e.getMessage(), cause);
+         }
+      });
+   }
+
    public void addSender(Sender sender) throws Exception {
       addSender(sender, (c, s) -> {
          return new ProtonServerSenderContext(connection, sender, this, sessionSPI, null);
@@ -375,6 +454,7 @@ public class AMQPSessionContext extends ProtonInitializable {
             final AMQPFederationConfiguration configuration = new AMQPFederationConfiguration(connection, federationConfigurationMap);
             final AMQPFederationTarget federation = new AMQPFederationTarget(receiver.getName(), configuration, this, server);
 
+            federation.initialize();
             federation.start();
 
             final AMQPFederationCommandProcessor commandProcessor =

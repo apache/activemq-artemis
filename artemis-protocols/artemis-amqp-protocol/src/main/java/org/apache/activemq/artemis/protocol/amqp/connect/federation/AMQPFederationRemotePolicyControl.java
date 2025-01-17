@@ -19,9 +19,11 @@ package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 import org.apache.activemq.artemis.api.core.management.Attribute;
 
 /**
- * Management service control interface for an AMQPFederation policy manager instance.
+ * Management service control interface for an AMQPFederation policy manager instance that
+ * originates from the remote broker. This control type appears to track the sending side
+ * of a federation policy and its producer instances.
  */
-public interface AMQPFederationPolicyControl {
+public interface AMQPFederationRemotePolicyControl {
 
    /**
     * Returns the type of the AMQP federation policy manager being controlled
@@ -38,7 +40,7 @@ public interface AMQPFederationPolicyControl {
    /**
     * Returns the number of messages this federation policy has received from the remote.
     */
-   @Attribute(desc = "returns the number of messages this federation policy has received from the remote")
-   long getMessagesReceived();
+   @Attribute(desc = "returns the number of messages this federation policy has sent to the remote")
+   long getMessagesSent();
 
 }

@@ -22,6 +22,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENTS_LINK_PREFIX;
 
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,6 +30,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Predicate;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -50,6 +52,13 @@ public abstract class AMQPFederation implements Federation {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   private enum State {
+      UNITIALIZED,
+      STOPPED,
+      STARTED,
+      SHUTDOWN
+   }
+
    /**
     * Value used to store the federation instance used by an AMQP connection that
     * is performing remote command and control operations or is the target of said
@@ -61,9 +70,14 @@ public abstract class AMQPFederation implements Federation {
    private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
 
    // Local policies that should be matched against demand on local addresses and queues.
-   protected final Map<String, AMQPFederationQueuePolicyManager> queueMatchPolicies = new ConcurrentHashMap<>();
-   protected final Map<String, AMQPFederationAddressPolicyManager> addressMatchPolicies = new ConcurrentHashMap<>();
+   protected final Map<String, AMQPFederationQueuePolicyManager> localQueuePolicyManagers = new ConcurrentHashMap<>();
+   protected final Map<String, AMQPFederationAddressPolicyManager> localAddressPolicyManagers = new ConcurrentHashMap<>();
    protected final Map<String, Predicate<Link>> linkClosedinterceptors = new ConcurrentHashMap<>();
+
+   // Remote policies that map to senders on this side of the connection performing federation
+   // of messages to remote federation receivers created on the remote peer.
+   protected final Map<String, AMQPFederationRemoteAddressPolicyManager> remoteAddressPolicyManagers = new HashMap<>();
+   protected final Map<String, AMQPFederationRemoteQueuePolicyManager> remoteQueuePolicyManagers = new HashMap<>();
 
    protected final WildcardConfiguration wildcardConfiguration;
    protected final ScheduledExecutorService scheduler;
@@ -71,6 +85,7 @@ public abstract class AMQPFederation implements Federation {
    protected final String brokerConnectionName;
    protected final String name;
    protected final ActiveMQServer server;
+   protected final AMQPFederationMetrics metrics = new AMQPFederationMetrics();
 
    protected AMQPFederationEventDispatcher eventDispatcher;
    protected AMQPFederationEventProcessor eventProcessor;
@@ -79,7 +94,7 @@ public abstract class AMQPFederation implements Federation {
    protected volatile AMQPConnectionContext connection;
    protected volatile AMQPSessionContext session;
 
-   protected boolean started;
+   protected volatile State state = State.UNITIALIZED;
    protected volatile boolean connected;
 
    public AMQPFederation(String brokerConnectionName, String name, ActiveMQServer server) {
@@ -114,14 +129,28 @@ public abstract class AMQPFederation implements Federation {
       return server;
    }
 
+   /**
+    * @return the metrics instance tied to this federation instance.
+    */
+   public AMQPFederationMetrics getMetrics() {
+      return metrics;
+   }
+
    @Override
    public String getName() {
       return name;
    }
 
    @Override
-   public synchronized boolean isStarted() {
-      return started;
+   public boolean isStarted() {
+      return state == State.STARTED;
+   }
+
+   /**
+    * @return <code>true</code> if the federation has been marked as connected.
+    */
+   public boolean isConnected() {
+      return connected;
    }
 
    /**
@@ -140,15 +169,42 @@ public abstract class AMQPFederation implements Federation {
    public abstract AMQPFederationConfiguration getConfiguration();
 
    /**
+    * Initialize this federation instance if not already initialized.
+    *
+    * @throws ActiveMQException if an error occurs during the initialization process.
+    */
+   public final synchronized void initialize() throws ActiveMQException {
+      failIfShutdown();
+
+      if (state == State.UNITIALIZED) {
+         state = State.STOPPED;
+         handleFederationInitialized();
+
+         try {
+            registerFederationManagement();
+         } catch (Exception e) {
+            logger.warn("Ignoring error while attempting to register federation with management services");
+         }
+      }
+   }
+
+   /**
     * Starts this federation instance if not already started.
     *
     * @throws ActiveMQException if an error occurs during the start process.
     */
    public final synchronized void start() throws ActiveMQException {
-      if (!started) {
+      failIfShutdown();
+
+      if (state.ordinal() < State.STOPPED.ordinal()) {
+         throw new ActiveMQIllegalStateException("The federation has not been initialized and cannot be started.");
+      }
+
+      if (state == State.STOPPED) {
+         state = State.STARTED;
+         startAllPolicyManagers();
          handleFederationStarted();
          signalFederationStarted();
-         started = true;
       }
    }
 
@@ -159,14 +215,38 @@ public abstract class AMQPFederation implements Federation {
     * @throws ActiveMQException if an error occurs during the stop process.
     */
    public final synchronized void stop() throws ActiveMQException {
-      if (started) {
+      if (state.ordinal() < State.STOPPED.ordinal()) {
+         throw new ActiveMQIllegalStateException("The federation has not been initialized and cannot be stopped.");
+      }
+
+      if (state == State.STARTED) {
+         state = State.STOPPED;
+         stopAllPolicyManagers();
          handleFederationStopped();
          signalFederationStopped();
-         started = false;
+      }
+   }
+
+   /**
+    * Shutdown this federation instance if not already shutdown (this is a terminal operation).
+    *
+    * @throws ActiveMQException if an error occurs during the shutdown process.
+    */
+   public final synchronized void shutdown() throws ActiveMQException {
+      if (state.ordinal() < State.SHUTDOWN.ordinal()) {
+         state = State.SHUTDOWN;
+         shutdownAllPolicyManagers();
+         handleFederationShutdown();
+
+         try {
+            unregisterFederationManagement();
+         } catch (Exception e) {
+            logger.warn("Ignoring error while attempting to unregister federation with management services");
+         }
 
          try {
             if (eventDispatcher != null) {
-               eventDispatcher.close();
+               eventDispatcher.close(false);
             }
 
             if (eventProcessor != null) {
@@ -269,11 +349,17 @@ public abstract class AMQPFederation implements Federation {
     * @throws ActiveMQException if an error occurs processing the added policy
     */
    public synchronized AMQPFederation addQueueMatchPolicy(FederationReceiveFromQueuePolicy queuePolicy) throws ActiveMQException {
-      final AMQPFederationQueuePolicyManager manager = new AMQPFederationQueuePolicyManager(this, queuePolicy);
+      final AMQPFederationQueuePolicyManager manager = new AMQPFederationQueuePolicyManager(this, metrics.newPolicyMetrics(), queuePolicy);
 
-      queueMatchPolicies.put(queuePolicy.getPolicyName(), manager);
+      localQueuePolicyManagers.put(queuePolicy.getPolicyName(), manager);
 
       logger.debug("AMQP Federation {} adding queue match policy: {}", getName(), queuePolicy.getPolicyName());
+
+      manager.initialize();
+
+      if (isConnected()) {
+         manager.connectionRestored();
+      }
 
       if (isStarted()) {
          // This is a heavy operation in some cases so move off the IO thread
@@ -295,11 +381,17 @@ public abstract class AMQPFederation implements Federation {
     * @throws ActiveMQException if an error occurs processing the added policy
     */
    public synchronized AMQPFederation addAddressMatchPolicy(FederationReceiveFromAddressPolicy addressPolicy) throws ActiveMQException {
-      final AMQPFederationAddressPolicyManager manager = new AMQPFederationAddressPolicyManager(this, addressPolicy);
+      final AMQPFederationAddressPolicyManager manager = new AMQPFederationAddressPolicyManager(this, metrics.newPolicyMetrics(), addressPolicy);
 
-      addressMatchPolicies.put(addressPolicy.getPolicyName(), manager);
+      localAddressPolicyManagers.put(addressPolicy.getPolicyName(), manager);
 
       logger.debug("AMQP Federation {} adding address match policy: {}", getName(), addressPolicy.getPolicyName());
+
+      manager.initialize();
+
+      if (isConnected()) {
+         manager.connectionRestored();
+      }
 
       if (isStarted()) {
          // This is a heavy operation in some cases so move off the IO thread
@@ -307,6 +399,68 @@ public abstract class AMQPFederation implements Federation {
       }
 
       return this;
+   }
+
+   /**
+    * Gets the remote federation address policy manager assigned to the given name, if none is yet
+    * managed by this federation instance a new manager is created and added to this managers tracking
+    * state for remote policy managers.
+    *
+    * @param policyName
+    *    The name of the policy whose manager is being queried for.
+    *
+    * @return an {@link AMQPFederationRemoteAddressPolicyManager} that matches the given name and type.
+    */
+   public synchronized AMQPFederationRemoteAddressPolicyManager getRemoteAddressPolicyManager(String policyName) {
+      if (!remoteAddressPolicyManagers.containsKey(policyName)) {
+         final AMQPFederationRemoteAddressPolicyManager manager =
+            new AMQPFederationRemoteAddressPolicyManager(this, metrics.newPolicyMetrics(), policyName);
+
+         manager.initialize();
+
+         if (isConnected()) {
+            manager.connectionRestored();
+         }
+
+         if (isStarted()) {
+            manager.start();
+         }
+
+         remoteAddressPolicyManagers.put(policyName, manager);
+      }
+
+      return remoteAddressPolicyManagers.get(policyName);
+   }
+
+   /**
+    * Gets the remote federation queue policy manager assigned to the given name, if none is yet
+    * managed by this federation instance a new manager is created and added to this managers tracking
+    * state for remote policy managers.
+    *
+    * @param policyName
+    *    The name of the policy whose manager is being queried for.
+    *
+    * @return an {@link AMQPFederationRemoteQueuePolicyManager} that matches the given name and type.
+    */
+   public synchronized AMQPFederationRemoteQueuePolicyManager getRemoteQueuePolicyManager(String policyName) {
+      if (!remoteQueuePolicyManagers.containsKey(policyName)) {
+         final AMQPFederationRemoteQueuePolicyManager manager =
+            new AMQPFederationRemoteQueuePolicyManager(this, metrics.newPolicyMetrics(), policyName);
+
+         manager.initialize();
+
+         if (isConnected()) {
+            manager.connectionRestored();
+         }
+
+         if (isStarted()) {
+            manager.start();
+         }
+
+         remoteQueuePolicyManagers.put(policyName, manager);
+      }
+
+      return remoteQueuePolicyManagers.get(policyName);
    }
 
    /**
@@ -318,7 +472,7 @@ public abstract class AMQPFederation implements Federation {
     */
    synchronized void registerEventSender(AMQPFederationEventDispatcher dispatcher) {
       if (eventDispatcher != null) {
-         throw new IllegalStateException("Federation event dipsatcher already registered on this federation instance.");
+         throw new IllegalStateException("Federation event dispatcher already registered on this federation instance.");
       }
 
       eventDispatcher = dispatcher;
@@ -381,7 +535,7 @@ public abstract class AMQPFederation implements Federation {
     *       The address that has been added on the remote peer.
     */
    synchronized void processRemoteAddressAdded(String addressName) {
-      addressMatchPolicies.values().forEach(policy -> {
+      localAddressPolicyManagers.values().forEach(policy -> {
          try {
             policy.afterRemoteAddressAdded(addressName);
          } catch (Exception e) {
@@ -402,7 +556,7 @@ public abstract class AMQPFederation implements Federation {
     *       The queue that has been added on the remote peer.
     */
    synchronized void processRemoteQueueAdded(String addressName, String queueName) {
-      queueMatchPolicies.values().forEach(policy -> {
+      localQueuePolicyManagers.values().forEach(policy -> {
          try {
             policy.afterRemoteQueueAdded(addressName, queueName);
          } catch (Exception e) {
@@ -432,29 +586,73 @@ public abstract class AMQPFederation implements Federation {
 
    /**
     * Provides an entry point for the concrete federation implementation to respond
+    * to being initialized.
+    *
+    * @throws ActiveMQException if an error is thrown during initialization handling.
+    */
+   protected void handleFederationInitialized() throws ActiveMQException {
+      // Subclass can override to perform any additional handling.
+   }
+
+   /**
+    * Provides an entry point for the concrete federation implementation to respond
     * to being started.
     *
-    * @throws ActiveMQException if an error is thrown during policy start.
+    * @throws ActiveMQException if an error is thrown during start handling.
     */
    protected void handleFederationStarted() throws ActiveMQException {
-      if (connected) {
-         queueMatchPolicies.forEach((k, v) -> v.start());
-         addressMatchPolicies.forEach((k, v) -> v.start());
-      }
+      // Subclass can override to perform any additional handling.
    }
 
    /**
     * Provides an entry point for the concrete federation implementation to respond
     * to being stopped.
     *
-    * @throws ActiveMQException if an error is thrown during policy stop.
+    * @throws ActiveMQException if an error is thrown during stop handling.
     */
    protected void handleFederationStopped() throws ActiveMQException {
-      queueMatchPolicies.forEach((k, v) -> v.stop());
-      addressMatchPolicies.forEach((k, v) -> v.stop());
+      // Subclass can override to perform any additional handling.
    }
 
-   protected boolean invokeLinkClosedInterceptors(Link link) {
+   /**
+    * Provides an entry point for the concrete federation implementation to respond
+    * to being shutdown.
+    *
+    * @throws ActiveMQException if an error is thrown during initialization handling.
+    */
+   protected void handleFederationShutdown() throws ActiveMQException {
+      // Subclass can override to perform any additional cleanup.
+   }
+
+   private void startAllPolicyManagers() throws ActiveMQException {
+      localAddressPolicyManagers.forEach((nname, manager) -> manager.start());
+      localQueuePolicyManagers.forEach((nname, manager) -> manager.start());
+      remoteAddressPolicyManagers.forEach((name, manager) -> manager.start());
+      remoteQueuePolicyManagers.forEach((name, manager) -> manager.start());
+   }
+
+   private void stopAllPolicyManagers() throws ActiveMQException {
+      localAddressPolicyManagers.forEach((nname, manager) -> manager.stop());
+      localQueuePolicyManagers.forEach((nname, manager) -> manager.stop());
+      remoteAddressPolicyManagers.forEach((name, manager) -> manager.stop());
+      remoteQueuePolicyManagers.forEach((name, manager) -> manager.stop());
+   }
+
+   private void shutdownAllPolicyManagers() throws ActiveMQException {
+      try {
+         localAddressPolicyManagers.forEach((nname, manager) -> manager.shutdown());
+         localQueuePolicyManagers.forEach((nname, manager) -> manager.shutdown());
+         remoteAddressPolicyManagers.forEach((nname, manager) -> manager.shutdown());
+         remoteQueuePolicyManagers.forEach((nname, manager) -> manager.shutdown());
+      } finally {
+         localQueuePolicyManagers.clear();
+         localAddressPolicyManagers.clear();
+         remoteQueuePolicyManagers.clear();
+         remoteAddressPolicyManagers.clear();
+      }
+   }
+
+   protected final boolean invokeLinkClosedInterceptors(Link link) {
       for (Map.Entry<String, Predicate<Link>> interceptor : linkClosedinterceptors.entrySet()) {
          if (interceptor.getValue().test(link)) {
             logger.trace("Remote link[{}] close intercepted and handled by interceptor: {}", link.getName(), interceptor.getKey());
@@ -465,7 +663,7 @@ public abstract class AMQPFederation implements Federation {
       return false;
    }
 
-   protected void signalFederationStarted() {
+   protected final void signalFederationStarted() {
       try {
          server.callBrokerAMQPFederationPlugins((plugin) -> {
             if (plugin instanceof ActiveMQServerAMQPFederationPlugin) {
@@ -477,7 +675,7 @@ public abstract class AMQPFederation implements Federation {
       }
    }
 
-   protected void signalFederationStopped() {
+   protected final void signalFederationStopped() {
       try {
          server.callBrokerAMQPFederationPlugins((plugin) -> {
             if (plugin instanceof ActiveMQServerAMQPFederationPlugin) {
@@ -489,63 +687,38 @@ public abstract class AMQPFederation implements Federation {
       }
    }
 
+   private void failIfShutdown() throws ActiveMQIllegalStateException {
+      if (state == State.SHUTDOWN) {
+         throw new ActiveMQIllegalStateException("The federation instance has been shutdown");
+      }
+   }
+
    /*
     * This section contains internal management support APIs for resources managed by this
     * Federation instance. The resources that are managed by a federation source or target
     * call into this batch of API to add and remove themselves into management which allows
     * the given federation source or target the control over how the resources are represented
     * in the management hierarchy.
-    *
-    * NOTE: Currently the fact that broker connection name is null indicates that the resource
-    * is from a remote broker connection and no management types are registered. This should
-    * be improved upon when remote broker connection management registration is implemented.
     */
 
-   void registerAddressPolicyManagement(AMQPFederationAddressPolicyManager manager) throws Exception {
-      if (brokerConnectionName != null) {
-         AMQPFederationManagementSupport.registerAddressPolicyControl(brokerConnectionName, manager);
-      }
-   }
+   abstract void registerFederationManagement() throws Exception;
 
-   void unregisterAddressPolicyManagement(AMQPFederationAddressPolicyManager manager) throws Exception {
-      if (brokerConnectionName != null) {
-         AMQPFederationManagementSupport.unregisterAddressPolicyControl(brokerConnectionName, manager);
-      }
-   }
+   abstract void unregisterFederationManagement() throws Exception;
 
-   void registerAddressConsumerManagement(AMQPFederationAddressPolicyManager manager, AMQPFederationAddressConsumer consumer) throws Exception {
-      if (brokerConnectionName != null) {
-         AMQPFederationManagementSupport.registerAddressConsumerControl(brokerConnectionName, manager, consumer);
-      }
-   }
+   abstract void registerLocalPolicyManagement(AMQPFederationLocalPolicyManager manager) throws Exception;
 
-   void unregisterAddressConsumerManagement(AMQPFederationAddressPolicyManager manager, AMQPFederationAddressConsumer consumer) throws Exception {
-      if (brokerConnectionName != null) {
-         AMQPFederationManagementSupport.unregisterAddressConsumerControl(brokerConnectionName, manager, consumer);
-      }
-   }
+   abstract void unregisterLocalPolicyManagement(AMQPFederationLocalPolicyManager manager) throws Exception;
 
-   void registerQueuePolicyManagement(AMQPFederationQueuePolicyManager manager) throws Exception {
-      if (brokerConnectionName != null) {
-         AMQPFederationManagementSupport.registerQueuePolicyControl(brokerConnectionName, manager);
-      }
-   }
+   abstract void registerRemotePolicyManagement(AMQPFederationRemotePolicyManager manager) throws Exception;
 
-   void unregisterQueuePolicyManagement(AMQPFederationQueuePolicyManager manager) throws Exception {
-      if (brokerConnectionName != null) {
-         AMQPFederationManagementSupport.unregisterQueuePolicyControl(brokerConnectionName, manager);
-      }
-   }
+   abstract void unregisterRemotePolicyManagement(AMQPFederationRemotePolicyManager manager) throws Exception;
 
-   void registerQueueConsumerManagement(AMQPFederationQueuePolicyManager manager, AMQPFederationQueueConsumer consumer) throws Exception {
-      if (brokerConnectionName != null) {
-         AMQPFederationManagementSupport.registerQueueConsumerControl(brokerConnectionName, manager, consumer);
-      }
-   }
+   abstract void registerFederationConsumerManagement(AMQPFederationConsumer consumer) throws Exception;
 
-   void unregisterQueueConsumerManagement(AMQPFederationQueuePolicyManager manager, AMQPFederationQueueConsumer consumer) throws Exception {
-      if (brokerConnectionName != null) {
-         AMQPFederationManagementSupport.unregisterQueueConsumerControl(brokerConnectionName, manager, consumer);
-      }
-   }
+   abstract void unregisterFederationConsumerManagement(AMQPFederationConsumer consumer) throws Exception;
+
+   abstract void registerFederationProducerManagement(AMQPFederationSenderController sender) throws Exception;
+
+   abstract void unregisterFederationProdcerManagement(AMQPFederationSenderController sender) throws Exception;
+
 }

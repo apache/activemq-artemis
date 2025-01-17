@@ -134,7 +134,7 @@ public class AMQPFederationCommandDispatcher implements SenderController {
    }
 
    @Override
-   public void close() throws Exception {
+   public void close(boolean remoteClose) throws Exception {
       // Make a best effort to remove the temporary queue used for control commands on close.
 
       try {

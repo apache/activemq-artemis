@@ -22,29 +22,33 @@ import javax.management.NotCompliantMBeanException;
 
 import org.apache.activemq.artemis.core.management.impl.AbstractControl;
 import org.apache.activemq.artemis.core.management.impl.MBeanInfoHelper;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AuditLogger;
 
 /**
- * Management service control for an AMQP Federation address policy manager instance.
+ * Management service control instance for an AMQPFederation policy manager instance that
+ * federates messages from this broker to the opposing side of the broker connection. These
+ * can be created either for a local broker connection that has bi-directional federation
+ * configured, or as a view of a remote broker connection pulling messages from the target.
  */
-public class AMQPFederationAddressPolicyControl extends AbstractControl implements AMQPFederationPolicyControl {
+public class AMQPFederationRemotePolicyControlType extends AbstractControl implements AMQPFederationRemotePolicyControl {
 
-   private final AMQPFederationAddressPolicyManager policyManager;
+   private final AMQPFederationRemotePolicyManager manager;
 
-   public AMQPFederationAddressPolicyControl(AMQPFederationAddressPolicyManager policyManager) throws NotCompliantMBeanException {
-      super(AMQPFederationPolicyControl.class, policyManager.getFederation().getServer().getStorageManager());
+   public AMQPFederationRemotePolicyControlType(ActiveMQServer server, AMQPFederationRemotePolicyManager manager) throws NotCompliantMBeanException {
+      super(AMQPFederationRemotePolicyControl.class, server.getStorageManager());
 
-      this.policyManager = policyManager;
+      this.manager = manager;
    }
 
    @Override
    public String getType() {
       if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.getType(this.policyManager);
+         AuditLogger.getType(manager);
       }
       clearIO();
       try {
-         return policyManager.getPolicyType().toString();
+         return manager.getPolicyType().toString();
       } finally {
          blockOnIO();
       }
@@ -53,24 +57,24 @@ public class AMQPFederationAddressPolicyControl extends AbstractControl implemen
    @Override
    public String getName() {
       if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.getName(this.policyManager);
+         AuditLogger.getName(manager);
       }
       clearIO();
       try {
-         return policyManager.getPolicyName();
+         return manager.getPolicyName();
       } finally {
          blockOnIO();
       }
    }
 
    @Override
-   public long getMessagesReceived() {
+   public long getMessagesSent() {
       if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.getMessagesReceived(this.policyManager);
+         AuditLogger.getMessagesSent(manager);
       }
       clearIO();
       try {
-         return policyManager.getMessagesReceived();
+         return manager.getMetrics().getMessagesSent();
       } finally {
          blockOnIO();
       }
@@ -78,11 +82,11 @@ public class AMQPFederationAddressPolicyControl extends AbstractControl implemen
 
    @Override
    protected MBeanOperationInfo[] fillMBeanOperationInfo() {
-      return MBeanInfoHelper.getMBeanOperationsInfo(AMQPFederationPolicyControl.class);
+      return MBeanInfoHelper.getMBeanOperationsInfo(AMQPFederationRemotePolicyControl.class);
    }
 
    @Override
    protected MBeanAttributeInfo[] fillMBeanAttributeInfo() {
-      return MBeanInfoHelper.getMBeanAttributesInfo(AMQPFederationPolicyControl.class);
+      return MBeanInfoHelper.getMBeanAttributesInfo(AMQPFederationRemotePolicyControl.class);
    }
 }

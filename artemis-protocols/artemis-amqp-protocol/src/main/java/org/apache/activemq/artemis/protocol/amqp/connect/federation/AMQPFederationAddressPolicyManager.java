@@ -36,7 +36,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.protocol.amqp.federation.Federation;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromAddressPolicy;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo.Role;
@@ -47,7 +46,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The AMQP Federation implementation of an federation address policy manager.
  */
-public final class AMQPFederationAddressPolicyManager extends AMQPFederationPolicyManager implements ActiveMQServerAddressPlugin {
+public final class AMQPFederationAddressPolicyManager extends AMQPFederationLocalPolicyManager implements ActiveMQServerAddressPlugin {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -56,8 +55,8 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationPoli
    protected final Map<String, AMQPFederationAddressEntry> demandTracking = new HashMap<>();
    protected final Map<DivertBinding, Set<QueueBinding>> divertsTracking = new HashMap<>();
 
-   public AMQPFederationAddressPolicyManager(AMQPFederation federation, FederationReceiveFromAddressPolicy addressPolicy) throws ActiveMQException {
-      super(federation);
+   public AMQPFederationAddressPolicyManager(AMQPFederation federation, AMQPFederationMetrics metrics, FederationReceiveFromAddressPolicy addressPolicy) throws ActiveMQException {
+      super(federation, metrics, addressPolicy);
 
       Objects.requireNonNull(addressPolicy, "The Address match policy cannot be null");
 
@@ -73,22 +72,19 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationPoli
       return policy;
    }
 
-   /**
-    * Stops the address policy manager which will close any open remote receivers that are
-    * active for local queue demand. Stop should generally be called whenever the parent
-    * {@link Federation} loses its connection to the remote.
-    */
-   public synchronized void stop() {
-      if (started) {
-         // Ensures that on shutdown of a federation broker connection we don't leak
-         // broker plugin instances.
-         server.unRegisterBrokerPlugin(this);
-         started = false;
+   @Override
+   protected void safeCleanupConsumerDemandTracking(boolean force) {
+      try {
          demandTracking.values().forEach((entry) -> {
             if (entry != null) {
-               tryCloseFederationConsumer(entry.removeAllDemand().clearConsumer());
+               if (isConnected() && !force) {
+                  tryStopFederationConsumer(entry.removeAllDemand());
+               } else {
+                  tryCloseFederationConsumer(entry.removeAllDemand().clearConsumer());
+               }
             }
          });
+      } finally {
          demandTracking.clear();
          divertsTracking.clear();
       }
@@ -96,7 +92,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationPoli
 
    @Override
    public synchronized void afterRemoveAddress(SimpleString address, AddressInfo addressInfo) throws ActiveMQException {
-      if (started) {
+      if (isActive()) {
          final AMQPFederationAddressEntry entry = demandTracking.remove(address.toString());
 
          if (entry != null && entry.removeAllDemand().hasConsumer()) {
@@ -115,7 +111,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationPoli
 
    @Override
    public synchronized void afterRemoveBinding(Binding binding, Transaction tx, boolean deleteData) throws ActiveMQException {
-      if (started) {
+      if (isActive()) {
          if (binding instanceof QueueBinding) {
             final AMQPFederationAddressEntry entry = demandTracking.get(binding.getAddress().toString());
 
@@ -178,20 +174,26 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationPoli
             // A successfully stopped receiver can be restarted but if the stop times out the receiver should
             // be closed and a new receiver created if demand is present. The completions occur on the connection
             // thread which requires the handler method to use synchronized to ensure thread safety.
-            entry.getConsumer().stopAsync(new AMQPFederationAsyncCompletion<AMQPFederationConsumer>() {
-
-               @Override
-               public void onComplete(AMQPFederationConsumer context) {
-                  handleFederationConsumerStopped(entry, true);
-               }
-
-               @Override
-               public void onException(AMQPFederationConsumer context, Exception error) {
-                  logger.trace("Stop of federation consumer {} failed, closing consumer: ", context, error);
-                  handleFederationConsumerStopped(entry, false);
-               }
-            });
+            tryStopFederationConsumer(entry);
          }
+      }
+   }
+
+   private void tryStopFederationConsumer(AMQPFederationAddressEntry entry) {
+      if (entry.hasConsumer()) {
+         entry.getConsumer().stopAsync(new AMQPFederationAsyncCompletion<AMQPFederationConsumer>() {
+
+            @Override
+            public void onComplete(AMQPFederationConsumer context) {
+               handleFederationConsumerStopped(entry, true);
+            }
+
+            @Override
+            public void onException(AMQPFederationConsumer context, Exception error) {
+               logger.trace("Stop of federation consumer {} failed, closing consumer: ", context, error);
+               handleFederationConsumerStopped(entry, false);
+            }
+         });
       }
    }
 
@@ -210,7 +212,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationPoli
          // we either restart an existing stopped consumer or recreate if the stop
          // timed out and we closed it above. If there's still no demand then we
          // should remove it from demand tracking to reduce resource consumption.
-         if (started && entry.hasDemand()) {
+         if (isActive() && entry.hasDemand()) {
             tryRestartFederationConsumerForAddress(entry);
          } else {
             demandTracking.remove(entry.getAddress());
@@ -218,12 +220,6 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationPoli
       }
    }
 
-   /**
-    * Scans all bindings and push them through the normal bindings checks that
-    * would be done on an add. We filter here based on whether diverts are enabled
-    * just to reduce the result set but the check call should also filter as
-    * during normal operations divert bindings could be added.
-    */
    @Override
    protected void scanAllBindings() {
       server.getPostOffice()
@@ -234,7 +230,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationPoli
 
    @Override
    public synchronized void afterAddAddress(AddressInfo addressInfo, boolean reload) {
-      if (started && policy.isEnableDivertBindings() && policy.test(addressInfo)) {
+      if (isActive() && policy.isEnableDivertBindings() && policy.test(addressInfo)) {
          try {
             // A Divert can exist in configuration prior to the address having been auto created
             // etc so upon address add this check needs to be run to capture addresses that now
@@ -252,7 +248,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationPoli
 
    @Override
    public synchronized void afterAddBinding(Binding binding) {
-      if (started) {
+      if (isActive()) {
          checkBindingForMatch(binding);
       }
    }
@@ -508,7 +504,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationPoli
       // and adds the address again (hopefully with the correct routing type). We retrain all the
       // current demand and don't need to re-check the server state before trying to create the
       // remote address consumer.
-      if (started && testIfAddressMatchesPolicy(addressName, RoutingType.MULTICAST) && demandTracking.containsKey(addressName)) {
+      if (isActive() && testIfAddressMatchesPolicy(addressName, RoutingType.MULTICAST) && demandTracking.containsKey(addressName)) {
          tryCreateFederationConsumerForAddress(demandTracking.get(addressName));
       }
    }
@@ -587,7 +583,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationPoli
 
       // Don't initiate anything yet as the caller might need to register error handlers etc
       // before the attach is sent otherwise they could miss the failure case.
-      return new AMQPFederationAddressConsumer(this, configuration, session, consumerInfo, messageObserver);
+      return new AMQPFederationAddressConsumer(this, configuration, session, consumerInfo, metrics.newConsumerMetrics());
    }
 
    private String generateQueueName(AddressInfo address) {

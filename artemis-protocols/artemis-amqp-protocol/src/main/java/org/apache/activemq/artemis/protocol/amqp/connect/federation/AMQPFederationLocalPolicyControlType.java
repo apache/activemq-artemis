@@ -25,14 +25,14 @@ import org.apache.activemq.artemis.core.management.impl.MBeanInfoHelper;
 import org.apache.activemq.artemis.logs.AuditLogger;
 
 /**
- * Management service control for an AMQP Federation queue policy manager instance.
+ * Management service control for an AMQP Federation local policy manager instance.
  */
-public class AMQPFederationQueuePolicyControl extends AbstractControl implements AMQPFederationPolicyControl {
+public class AMQPFederationLocalPolicyControlType extends AbstractControl implements AMQPFederationLocalPolicyControl {
 
-   private final AMQPFederationQueuePolicyManager policyManager;
+   private final AMQPFederationLocalPolicyManager policyManager;
 
-   public AMQPFederationQueuePolicyControl(AMQPFederationQueuePolicyManager policyManager) throws NotCompliantMBeanException {
-      super(AMQPFederationPolicyControl.class, policyManager.getFederation().getServer().getStorageManager());
+   public AMQPFederationLocalPolicyControlType(AMQPFederationLocalPolicyManager policyManager) throws NotCompliantMBeanException {
+      super(AMQPFederationLocalPolicyControl.class, policyManager.getFederation().getServer().getStorageManager());
 
       this.policyManager = policyManager;
    }
@@ -70,7 +70,7 @@ public class AMQPFederationQueuePolicyControl extends AbstractControl implements
       }
       clearIO();
       try {
-         return policyManager.getMessagesReceived();
+         return policyManager.getMetrics().getMessagesReceived();
       } finally {
          blockOnIO();
       }
@@ -78,11 +78,11 @@ public class AMQPFederationQueuePolicyControl extends AbstractControl implements
 
    @Override
    protected MBeanOperationInfo[] fillMBeanOperationInfo() {
-      return MBeanInfoHelper.getMBeanOperationsInfo(AMQPFederationPolicyControl.class);
+      return MBeanInfoHelper.getMBeanOperationsInfo(AMQPFederationLocalPolicyControl.class);
    }
 
    @Override
    protected MBeanAttributeInfo[] fillMBeanAttributeInfo() {
-      return MBeanInfoHelper.getMBeanAttributesInfo(AMQPFederationPolicyControl.class);
+      return MBeanInfoHelper.getMBeanAttributesInfo(AMQPFederationLocalPolicyControl.class);
    }
 }

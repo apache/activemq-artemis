@@ -88,8 +88,8 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
    private void createBrokerConnection(AMQPBrokerConnectConfiguration configuration, boolean start) throws Exception {
       AMQPBrokerConnection amqpBrokerConnection = new AMQPBrokerConnection(this, configuration, protonProtocolManagerFactory, server);
       amqpBrokerConnections.put(configuration.getName(), amqpBrokerConnection);
-      server.registerBrokerConnection(amqpBrokerConnection);
-      server.getManagementService().registerBrokerConnection(amqpBrokerConnection);
+
+      amqpBrokerConnection.initialize();
 
       if (start) {
          amqpBrokerConnection.start();
@@ -110,9 +110,13 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
       final List<AMQPBrokerConnectConfiguration> updatedConfigurations =
          configurations != null ? configurations : Collections.EMPTY_LIST;
 
+      // We want to shutdown all broker connections before starting any new ones just to ensure
+      // we do not have any overlapping connections to the same broker from old to new configurations.
+      final Map<AMQPBrokerConnectConfiguration, Boolean> newConnections = new HashMap<>();
+
       // Find any updated configurations and stop / and recreate as needed.
       for (AMQPBrokerConnectConfiguration configuration : updatedConfigurations) {
-         final AMQPBrokerConnectConfiguration previous = amqpConnectionsConfig.put(configuration.getName(), configuration);
+         final AMQPBrokerConnectConfiguration previous = amqpConnectionsConfig.get(configuration.getName());
 
          if (previous == null || !configuration.equals(previous)) {
             // We don't currently allow updating broker connections with mirror configurations
@@ -127,6 +131,8 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
                logger.info("Skipping update of broker connection {} which contains a mirror " +
                            "configuration which are not reloadable.", previous.getName());
                continue;
+            } else {
+               amqpConnectionsConfig.put(configuration.getName(), configuration);
             }
 
             // If this was an update and the connection is active meaning the manager is
@@ -139,16 +145,11 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
                configuration.isAutostart() : connection.isStarted() || configuration.isAutostart();
 
             if (connection != null) {
-               try {
-                  connection.stop();
-               } finally {
-                  server.unregisterBrokerConnection(connection);
-                  server.getManagementService().unregisterBrokerConnection(connection.getName());
-               }
+               connection.shutdown();
             }
 
             if (started) {
-               createBrokerConnection(configuration, autoStart);
+               newConnections.put(configuration, autoStart);
             }
          }
       }
@@ -181,13 +182,13 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
          final AMQPBrokerConnection connection = amqpBrokerConnections.remove(toRemove.getName());
 
          if (connection != null) {
-            try {
-               connection.stop();
-            } finally {
-               server.unregisterBrokerConnection(connection);
-               server.getManagementService().unregisterBrokerConnection(connection.getName());
-            }
+            connection.shutdown();
          }
+      }
+
+      // Start all new or updated broker connections now that all old connection have been shutdown.
+      for (Map.Entry<AMQPBrokerConnectConfiguration, Boolean> entry : newConnections.entrySet()) {
+         createBrokerConnection(entry.getKey(), entry.getValue());
       }
    }
 
@@ -210,12 +211,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
          started = false;
          try {
             for (AMQPBrokerConnection connection : amqpBrokerConnections.values()) {
-               try {
-                  connection.stop();
-               } finally {
-                  server.unregisterBrokerConnection(connection);
-                  server.getManagementService().unregisterBrokerConnection(connection.getName());
-               }
+               connection.shutdown();
             }
          } finally {
             amqpBrokerConnections.clear();

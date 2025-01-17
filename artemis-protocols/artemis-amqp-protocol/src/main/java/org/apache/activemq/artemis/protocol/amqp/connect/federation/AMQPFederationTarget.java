@@ -54,6 +54,7 @@ public class AMQPFederationTarget extends AMQPFederation {
       this.connection = session.getAMQPConnectionContext();
       this.connection.addLinkRemoteCloseListener(getName(), this::handleLinkRemoteClose);
       this.configuration = configuration;
+      this.connected = true;
    }
 
    @Override
@@ -72,7 +73,7 @@ public class AMQPFederationTarget extends AMQPFederation {
    }
 
    @Override
-   protected void handleFederationStarted() throws ActiveMQException {
+   protected void handleFederationInitialized() throws ActiveMQException {
       // Tag the session with Federation metadata which will allow local federation policies sent by
       // the remote to apply checks when seeing local demand to determine if a federation consumer
       // should cause remote receivers to be created.
@@ -88,10 +89,10 @@ public class AMQPFederationTarget extends AMQPFederation {
       } catch (ActiveMQAMQPException e) {
          throw e;
       } catch (Exception e) {
-         throw new ActiveMQAMQPInternalErrorException("Error while configuring interal session metadata");
+         throw new ActiveMQAMQPInternalErrorException("Error while configuring internal session metadata");
       }
 
-      super.handleFederationStarted();
+      super.handleFederationInitialized();
    }
 
    private void handleLinkRemoteClose(Link link) {
@@ -130,6 +131,57 @@ public class AMQPFederationTarget extends AMQPFederation {
          condition = AmqpError.INTERNAL_ERROR;
       }
 
+      connected = false;
       connection.close(new ErrorCondition(condition, description));
+   }
+
+   @Override
+   void registerFederationManagement() throws Exception {
+      // Not yet implemented for the target side of the federation connection
+   }
+
+   @Override
+   void unregisterFederationManagement() throws Exception {
+      // Not yet implemented for the target side of the federation connection
+   }
+
+   @Override
+   void registerLocalPolicyManagement(AMQPFederationLocalPolicyManager manager) throws Exception {
+      // Not yet implemented for the target side of the federation connection
+   }
+
+   @Override
+   void unregisterLocalPolicyManagement(AMQPFederationLocalPolicyManager manager) throws Exception {
+      // Not yet implemented for the target side of the federation connection
+   }
+
+   @Override
+   void registerRemotePolicyManagement(AMQPFederationRemotePolicyManager manager) throws Exception {
+      // Not yet implemented for the target side of the federation connection
+   }
+
+   @Override
+   void unregisterRemotePolicyManagement(AMQPFederationRemotePolicyManager manager) throws Exception {
+      // Not yet implemented for the target side of the federation connection
+   }
+
+   @Override
+   void registerFederationConsumerManagement(AMQPFederationConsumer consumer) throws Exception {
+      // Not yet implemented for the target side of the federation connection
+   }
+
+   @Override
+   void unregisterFederationConsumerManagement(AMQPFederationConsumer consumer) throws Exception {
+      // Not yet implemented for the target side of the federation connection
+   }
+
+   @Override
+   void registerFederationProducerManagement(AMQPFederationSenderController sender) throws Exception {
+      // Not yet implemented for the target side of the federation connection
+   }
+
+   @Override
+   void unregisterFederationProdcerManagement(AMQPFederationSenderController sender) throws Exception {
+      // Not yet implemented for the target side of the federation connection
    }
 }
