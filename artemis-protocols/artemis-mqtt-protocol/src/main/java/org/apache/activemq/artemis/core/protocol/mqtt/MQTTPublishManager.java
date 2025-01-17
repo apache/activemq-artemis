@@ -207,21 +207,7 @@ public class MQTTPublishManager {
 
             Transaction tx = session.getServerSession().newTransaction();
             try {
-               AddressInfo addressInfo = session.getServer().getAddressInfo(address);
-
-               if (addressInfo == null && session.getServer().getAddressSettingsRepository().getMatch(coreAddress).isAutoCreateAddresses()) {
-                  if (publishLWT(internal)) {
-                     session.getServerSession().createAddress(address, state.getWillIdentity());
-                  } else {
-                     session.getServerSession().createAddress(address, RoutingType.MULTICAST, true);
-                  }
-                  serverMessage.setRoutingType(RoutingType.MULTICAST);
-               }
-
-               if (addressInfo != null) {
-                  serverMessage.setRoutingType(addressInfo.getRoutingType());
-               }
-
+               createAddressInfoAndDefineRoutingType(internal, address, coreAddress, serverMessage);
                if (publishLWT(internal)) {
                   session.getServerSession().sendWithoutReAuthentication(tx, serverMessage, senderName, state.getWillIdentity());
                } else {
@@ -280,10 +266,6 @@ public class MQTTPublishManager {
       }
    }
 
-   private boolean publishLWT(boolean internal) {
-      return internal && state.getWillIdentity() != null;
-   }
-
    private String getTopicFromHeaderConsideringAlias(MqttPublishMessage message) throws DisconnectException {
       String topic = message.variableHeader().topicName();
       return session.getVersion() == MQTTVersion.MQTT_5 ? getTopicConsideringAlias(message, topic) : topic;
@@ -313,6 +295,30 @@ public class MQTTPublishManager {
          }
       }
       return topic;
+   }
+
+   private void createAddressInfoAndDefineRoutingType(boolean internal,
+                                                      SimpleString address,
+                                                      String coreAddress,
+                                                      Message serverMessage) throws Exception {
+      AddressInfo addressInfo = session.getServer().getAddressInfo(address);
+
+      if (addressInfo == null && session.getServer().getAddressSettingsRepository().getMatch(coreAddress).isAutoCreateAddresses()) {
+         if (publishLWT(internal)) {
+            session.getServerSession().createAddressWithoutReAuthentication(address, state.getWillIdentity());
+         } else {
+            session.getServerSession().createAddress(address, RoutingType.MULTICAST, true);
+         }
+         serverMessage.setRoutingType(RoutingType.MULTICAST);
+      }
+
+      if (addressInfo != null) {
+         serverMessage.setRoutingType(addressInfo.getRoutingType());
+      }
+   }
+
+   private boolean publishLWT(boolean internal) {
+      return internal && state.getWillIdentity() != null;
    }
 
    private void sendMessageAck(boolean internal, int qos, int messageId, byte reasonCode) {

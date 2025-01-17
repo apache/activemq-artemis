@@ -987,7 +987,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return server.getAddressInfo(art.getName());
    }
 
-   public void createAddress(final SimpleString address, final Subject subject) throws Exception {
+   public void createAddressWithoutReAuthentication(SimpleString address, Subject subject) throws Exception {
       AddressInfo addressInfo = new AddressInfo(address, RoutingType.MULTICAST);
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.serverSessionCreateAddress(name, subject, remotingConnection.getRemoteAddress(), addressInfo, true);
