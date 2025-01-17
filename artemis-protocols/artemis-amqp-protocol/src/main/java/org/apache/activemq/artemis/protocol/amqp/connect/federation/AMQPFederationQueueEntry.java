@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 
@@ -37,6 +38,7 @@ import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerIn
  */
 public class AMQPFederationQueueEntry {
 
+   private final Queue queue;
    private final FederationConsumerInfo consumerInfo;
    private final Set<String> consumerDemand = new HashSet<>();
 
@@ -46,10 +48,20 @@ public class AMQPFederationQueueEntry {
     * Creates a new queue entry with a single reference
     *
     * @param consumerInfo
-    *       Consumer information object used to define the federation queue consumer
+    *       Consumer information object used to define the federation queue consumer.
+    * @param queue
+    *       The {@link Queue} on the server where that the federation is tracking.
     */
-   public AMQPFederationQueueEntry(FederationConsumerInfo consumerInfo) {
+   public AMQPFederationQueueEntry(Queue queue, FederationConsumerInfo consumerInfo) {
       this.consumerInfo = consumerInfo;
+      this.queue = queue;
+   }
+
+   /**
+    * @return the {@link Queue} on the server this federation entry is tracking a consumer for.
+    */
+   public Queue getQueue() {
+      return queue;
    }
 
    /**

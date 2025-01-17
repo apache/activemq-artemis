@@ -14,38 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.server;
+package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
-import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
+import org.apache.activemq.artemis.api.core.management.Attribute;
 
-public interface BrokerConnection extends ActiveMQComponent {
-
-   default void initialize() throws Exception {
-      // Subclass should override and perform needed initialization.
-   }
-
-   default void shutdown() throws Exception {
-      // Subclass should override and perform needed cleanup.
-   }
+/**
+ * Management service control interface for an AMQPFederation instance.
+ */
+public interface AMQPFederationControl {
 
    /**
-    * @return the unique name of the broker connection
+    * Returns the configured name the AMQP federation being controlled
     */
+   @Attribute(desc = "The configured AMQP federation name that backs this control instance.")
    String getName();
 
    /**
-    * @return the protocol that underlies the broker connection implementation.
+    * Returns the number of messages this federation has received from the remote.
     */
-   String getProtocol();
+   @Attribute(desc = "returns the number of messages this federation has received from the remote")
+   long getMessagesReceived();
 
    /**
-    * @return <code>true</code> if the broker connection is currently connected to the remote.
+    * Returns the number of messages this federation has sent to the remote.
     */
-   boolean isConnected();
-
-   /**
-    * @return the configuration that was used to create this broker connection.
-    */
-   BrokerConnectConfiguration getConfiguration();
+   @Attribute(desc = "returns the number of messages this federation has sent to the remote")
+   long getMessagesSent();
 
 }

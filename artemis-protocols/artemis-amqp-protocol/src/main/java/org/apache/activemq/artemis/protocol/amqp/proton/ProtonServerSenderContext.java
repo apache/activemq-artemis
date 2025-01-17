@@ -294,9 +294,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                sessionSPI.closeSender(brokerConsumer);
                // if this is a link close rather than a connection close or detach, we need to delete
                // any durable resources for say pub subs
-               if (remoteLinkClose) {
-                  controller.close();
-               }
+               controller.close(remoteLinkClose);
             } catch (Exception e) {
                logger.warn(e.getMessage(), e);
             } finally {

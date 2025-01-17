@@ -447,36 +447,39 @@ public class DefaultSenderController implements SenderController {
    }
 
    @Override
-   public void close() throws Exception {
-      Source source = (Source) protonSender.getSource();
-      String sourceAddress = getSourceAddress(source);
+   public void close(boolean remoteClose) throws Exception {
+      // Only delete temporary resources when the remote has triggered the close with a Detach
+      if (remoteClose) {
+         final Source source = (Source) protonSender.getSource();
+         final String sourceAddress = getSourceAddress(source);
 
-      if (source != null && sourceAddress != null && multicast) {
-         SimpleString queueName = SimpleString.of(sourceAddress);
-         QueueQueryResult result = sessionSPI.queueQuery(queueName, routingTypeToUse, false);
-         if (result.isExists() && source.getDynamic()) {
-            sessionSPI.deleteQueue(queueName);
-         } else {
-            if (source.getDurable() == TerminusDurability.NONE && tempQueueName != null && (source.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || source.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
-               sessionSPI.removeTemporaryQueue(tempQueueName);
+         if (source != null && sourceAddress != null && multicast) {
+            SimpleString queueName = SimpleString.of(sourceAddress);
+            QueueQueryResult result = sessionSPI.queueQuery(queueName, routingTypeToUse, false);
+            if (result.isExists() && source.getDynamic()) {
+               sessionSPI.deleteQueue(queueName);
             } else {
-               String pubId = protonSender.getName();
-               if (pubId.contains("|")) {
-                  pubId = pubId.split("\\|")[0];
-               }
-               SimpleString queue = createQueueName(connection.isUseCoreSubscriptionNaming(), clientId, pubId, shared, global, isVolatile);
-               result = sessionSPI.queueQuery(queue, multicast ? RoutingType.MULTICAST : RoutingType.ANYCAST, false);
-               //only delete if it isn't volatile and has no consumers
-               if (result.isExists() && !isVolatile && result.getConsumerCount() == 0) {
-                  sessionSPI.deleteQueue(queue);
+               if (source.getDurable() == TerminusDurability.NONE && tempQueueName != null && (source.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || source.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
+                  sessionSPI.removeTemporaryQueue(tempQueueName);
+               } else {
+                  String pubId = protonSender.getName();
+                  if (pubId.contains("|")) {
+                     pubId = pubId.split("\\|")[0];
+                  }
+                  SimpleString queue = createQueueName(connection.isUseCoreSubscriptionNaming(), clientId, pubId, shared, global, isVolatile);
+                  result = sessionSPI.queueQuery(queue, multicast ? RoutingType.MULTICAST : RoutingType.ANYCAST, false);
+                  //only delete if it isn't volatile and has no consumers
+                  if (result.isExists() && !isVolatile && result.getConsumerCount() == 0) {
+                     sessionSPI.deleteQueue(queue);
+                  }
                }
             }
-         }
-      } else if (source != null && source.getDynamic() && (source.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || source.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
-         try {
-            sessionSPI.removeTemporaryQueue(SimpleString.of(sourceAddress));
-         } catch (Exception e) {
-            // Ignore on close, its temporary anyway and will be removed later
+         } else if (source != null && source.getDynamic() && (source.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || source.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
+            try {
+               sessionSPI.removeTemporaryQueue(SimpleString.of(sourceAddress));
+            } catch (Exception e) {
+               // Ignore on close, its temporary anyway and will be removed later
+            }
          }
       }
    }

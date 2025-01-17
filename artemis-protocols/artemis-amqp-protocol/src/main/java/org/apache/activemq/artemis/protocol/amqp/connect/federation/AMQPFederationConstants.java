@@ -301,4 +301,13 @@ public final class AMQPFederationConstants {
     */
    public static final String RECEIVER_QUIESCE_TIMEOUT = "receiverQuiesceTimeout";
 
+   /**
+    * Property name used to carry the name of the federation policy that triggered creation of the
+    * remote resource. This value is intended to be added to AMQP link properties to provide the
+    * remote peer with the name of the federation policy that triggered the creation of the link
+    * and allow for lookup of metrics or other data associated with a remote policy as links or
+    * connections are torn down and re-estabilished.
+    */
+   public static final Symbol FEDERATION_POLICY_NAME = Symbol.valueOf("federationPolicyName");
+
 }

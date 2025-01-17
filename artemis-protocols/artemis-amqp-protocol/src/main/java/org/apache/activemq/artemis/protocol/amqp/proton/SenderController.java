@@ -51,11 +51,15 @@ public interface SenderController {
    Consumer init(ProtonServerSenderContext senderContext) throws Exception;
 
    /**
-    * Handle close of the sever sender AMQP resources.
+    * Handle close of the sever sender AMQP resources either from remote link
+    * detach or local close usually due to connection drop.
+    *
+    * @param remoteClose
+    *    Indicates if the remote link detached the sender or local action closed it.
     *
     * @throws Exception if an error occurs during close.
     */
-   void close() throws Exception;
+   void close(boolean remoteClose) throws Exception;
 
    /**
     * Called when the sender is being locally closed due to some error or forced

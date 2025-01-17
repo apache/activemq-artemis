@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_POLICY_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_QUEUE_RECEIVER;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_RECEIVER_PRIORITY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
@@ -29,13 +30,13 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationMetrics.ConsumerMetrics;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
@@ -69,31 +70,22 @@ import org.slf4j.LoggerFactory;
  * AMQP peer and forwards those messages onto the internal broker Queue for
  * consumption by an attached resource.
  */
-public class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
+public final class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final int DEFAULT_PENDING_MSG_CHECK_BACKOFF_MULTIPLIER = 2;
    public static final int DEFAULT_PENDING_MSG_CHECK_MAX_DELAY = 30;
 
-   private final AMQPFederationQueuePolicyManager manager;
    private final FederationReceiveFromQueuePolicy policy;
 
    public AMQPFederationQueueConsumer(AMQPFederationQueuePolicyManager manager,
                                       AMQPFederationConsumerConfiguration configuration,
                                       AMQPSessionContext session, FederationConsumerInfo consumerInfo,
-                                      BiConsumer<FederationConsumerInfo, Message> messageObserver) {
-      super(manager.getFederation(), configuration, session, consumerInfo, manager.getPolicy(), messageObserver);
+                                      ConsumerMetrics metrics) {
+      super(manager, configuration, session, consumerInfo, manager.getPolicy(), metrics);
 
-      this.manager = manager;
       this.policy = manager.getPolicy();
-   }
-
-   /**
-    * @return the {@link FederationReceiveFromQueuePolicy} that initiated this consumer.
-    */
-   public FederationReceiveFromQueuePolicy getPolicy() {
-      return policy;
    }
 
    private String generateLinkName() {
@@ -136,6 +128,7 @@ public class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
 
          final Map<Symbol, Object> receiverProperties = new HashMap<>();
          receiverProperties.put(FEDERATION_RECEIVER_PRIORITY, consumerInfo.getPriority());
+         receiverProperties.put(FEDERATION_POLICY_NAME, policy.getPolicyName());
 
          protonReceiver.setSenderSettleMode(SenderSettleMode.UNSETTLED);
          protonReceiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
@@ -264,7 +257,7 @@ public class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
             super.close(remoteLinkClose);
 
             try {
-               federation.unregisterQueueConsumerManagement(manager, AMQPFederationQueueConsumer.this);
+               federation.unregisterFederationConsumerManagement(AMQPFederationQueueConsumer.this);
             } catch (Exception e) {
                logger.trace("Error thrown when unregistering federation queue consumer from management", e);
             }
@@ -318,7 +311,7 @@ public class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
          }
 
          try {
-            federation.registerQueueConsumerManagement(manager, AMQPFederationQueueConsumer.this);
+            federation.registerFederationConsumerManagement(AMQPFederationQueueConsumer.this);
          } catch (Exception e) {
             logger.debug("Error caught when trying to add federation queue consumer to management", e);
          }

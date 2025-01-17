@@ -41,8 +41,6 @@ import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPConnectionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
-import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationAddressSenderController;
-import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationQueueSenderController;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
@@ -426,9 +424,9 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       } else {
          final Sender sender = (Sender) link;
          if (isFederationAddressReceiver(sender)) {
-            protonSession.addSender(sender, new AMQPFederationAddressSenderController(protonSession));
+            protonSession.addFederationAddressSender(sender);
          } else if (isFederationQueueReceiver(sender)) {
-            protonSession.addSender(sender, new AMQPFederationQueueSenderController(protonSession));
+            protonSession.addFederationQueueSender(sender);
          } else if (isFederationEventLink(sender)) {
             protonSession.addFederationEventDispatcher(sender);
          } else {

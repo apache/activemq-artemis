@@ -150,7 +150,7 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
    }
 
    @Override
-   public void close() {
+   public void close(boolean remoteClose) {
       // Make a best effort to remove the temporary queue used for event messages on close.
       server.unRegisterBrokerPlugin(this);
 
@@ -164,7 +164,7 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
    @Override
    public void close(ErrorCondition error) {
       // Ensure cleanup on force close using default close API
-      close();
+      close(false);
    }
 
    /**

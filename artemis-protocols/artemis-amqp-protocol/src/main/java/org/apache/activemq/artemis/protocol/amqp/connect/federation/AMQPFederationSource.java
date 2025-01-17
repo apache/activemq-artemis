@@ -162,6 +162,7 @@ public class AMQPFederationSource extends AMQPFederation {
     */
    public synchronized AMQPFederationSource addRemoteQueueMatchPolicy(FederationReceiveFromQueuePolicy queuePolicy) {
       remoteQueueMatchPolicies.putIfAbsent(queuePolicy.getPolicyName(), queuePolicy);
+
       return this;
    }
 
@@ -177,6 +178,7 @@ public class AMQPFederationSource extends AMQPFederation {
     */
    public synchronized AMQPFederationSource addRemoteAddressMatchPolicy(FederationReceiveFromAddressPolicy addressPolicy) {
       remoteAddressMatchPolicies.putIfAbsent(addressPolicy.getPolicyName(), addressPolicy);
+
       return this;
    }
 
@@ -184,31 +186,47 @@ public class AMQPFederationSource extends AMQPFederation {
     * Called by the parent broker connection when the connection has failed and this federation
     * should tear down any active resources and await a reconnect if one is allowed.
     *
-    * @throws ActiveMQException if an error occurs processing the connection dropped event
+    * @throws ActiveMQException if an error occurs processing the connection interrupted event
     */
-   public synchronized void handleConnectionDropped() throws ActiveMQException {
+   public final synchronized void connectionInterrupted() throws ActiveMQException {
       connected = false;
 
       final AtomicReference<Exception> errorCaught = new AtomicReference<>();
 
-      queueMatchPolicies.forEach((k, v) -> {
+      localQueuePolicyManagers.forEach((k, v) -> {
          try {
-            v.stop();
+            v.connectionInterrupted();
          } catch (Exception ex) {
             errorCaught.compareAndExchange(null, ex);
          }
       });
 
-      addressMatchPolicies.forEach((k, v) -> {
+      localAddressPolicyManagers.forEach((k, v) -> {
          try {
-            v.stop();
+            v.connectionInterrupted();
+         } catch (Exception ex) {
+            errorCaught.compareAndExchange(null, ex);
+         }
+      });
+
+      remoteQueuePolicyManagers.forEach((k, v) -> {
+         try {
+            v.connectionInterrupted();
+         } catch (Exception ex) {
+            errorCaught.compareAndExchange(null, ex);
+         }
+      });
+
+      remoteAddressPolicyManagers.forEach((k, v) -> {
+         try {
+            v.connectionInterrupted();
          } catch (Exception ex) {
             errorCaught.compareAndExchange(null, ex);
          }
       });
 
       try {
-         eventDispatcher.close();
+         eventDispatcher.close(false);
       } catch (Exception ex) {
          errorCaught.compareAndExchange(null, ex);
       } finally {
@@ -247,7 +265,7 @@ public class AMQPFederationSource extends AMQPFederation {
     *
     * @throws ActiveMQException if an error occurs processing the connection restored event
     */
-   public synchronized void handleConnectionRestored(AMQPConnectionContext connection, AMQPSessionContext session) throws ActiveMQException {
+   public final synchronized void connectionRestored(AMQPConnectionContext connection, AMQPSessionContext session) throws ActiveMQException {
       final Connection protonConnection = session.getSession().getConnection();
       final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
 
@@ -269,54 +287,6 @@ public class AMQPFederationSource extends AMQPFederation {
    }
 
    @Override
-   protected void handleFederationStarted() throws ActiveMQException {
-      // These should move to the policy manager themselves eventually once
-      // a better lifetime management is worked out for these, right now the
-      // managers are started and stopped on connect and disconnect
-      addressMatchPolicies.forEach((nname, policy) -> {
-         try {
-            registerAddressPolicyManagement(policy);
-         } catch (Exception e) {
-            logger.warn("Error while attempting to add address policy control to management", e);
-         }
-      });
-
-      queueMatchPolicies.forEach((nname, policy) -> {
-         try {
-            registerQueuePolicyManagement(policy);
-         } catch (Exception e) {
-            logger.warn("Error while attempting to add queue policy control to management", e);
-         }
-      });
-
-      super.handleFederationStarted();
-   }
-
-   @Override
-   protected void handleFederationStopped() throws ActiveMQException {
-      // These should move to the policy manager themselves eventually once
-      // a better lifetime management is worked out for these, right now the
-      // managers are started and stopped on connect and disconnect
-      addressMatchPolicies.forEach((nname, policy) -> {
-         try {
-            unregisterAddressPolicyManagement(policy);
-         } catch (Exception e) {
-            logger.warn("Error while attempting to remote address policy control to management", e);
-         }
-      });
-
-      queueMatchPolicies.forEach((nname, policy) -> {
-         try {
-            unregisterQueuePolicyManagement(policy);
-         } catch (Exception e) {
-            logger.warn("Error while attempting to remote queue policy control to management", e);
-         }
-      });
-
-      super.handleFederationStopped();
-   }
-
-   @Override
    protected void signalResourceCreateError(Exception cause) {
       brokerConnection.connectError(cause);
    }
@@ -324,6 +294,56 @@ public class AMQPFederationSource extends AMQPFederation {
    @Override
    protected void signalError(Exception cause) {
       brokerConnection.runtimeError(cause);
+   }
+
+   @Override
+   void registerFederationManagement() throws Exception {
+      AMQPFederationManagementSupport.registerFederationManagement(this);
+   }
+
+   @Override
+   void unregisterFederationManagement() throws Exception {
+      AMQPFederationManagementSupport.unregisterFederationManagement(this);
+   }
+
+   @Override
+   void registerLocalPolicyManagement(AMQPFederationLocalPolicyManager manager) throws Exception {
+      AMQPFederationManagementSupport.registerLocalPolicyManagement(brokerConnectionName, manager);
+   }
+
+   @Override
+   void unregisterLocalPolicyManagement(AMQPFederationLocalPolicyManager manager) throws Exception {
+      AMQPFederationManagementSupport.unregisterLocalPolicyManagement(brokerConnectionName, manager);
+   }
+
+   @Override
+   void registerRemotePolicyManagement(AMQPFederationRemotePolicyManager manager) throws Exception {
+      AMQPFederationManagementSupport.registerRemotePolicyManagement(brokerConnectionName, manager);
+   }
+
+   @Override
+   void unregisterRemotePolicyManagement(AMQPFederationRemotePolicyManager manager) throws Exception {
+      AMQPFederationManagementSupport.unregisterRemotePolicyManagement(brokerConnectionName, manager);
+   }
+
+   @Override
+   void registerFederationConsumerManagement(AMQPFederationConsumer consumer) throws Exception {
+      AMQPFederationManagementSupport.registerFederationConsumerManagement(brokerConnectionName, consumer);
+   }
+
+   @Override
+   void unregisterFederationConsumerManagement(AMQPFederationConsumer consumer) throws Exception {
+      AMQPFederationManagementSupport.unregisterFederationConsumerManagement(brokerConnectionName, consumer);
+   }
+
+   @Override
+   void registerFederationProducerManagement(AMQPFederationSenderController sender) throws Exception {
+      AMQPFederationManagementSupport.registerFederationProducerManagement(brokerConnectionName, sender);
+   }
+
+   @Override
+   void unregisterFederationProdcerManagement(AMQPFederationSenderController sender) throws Exception {
+      AMQPFederationManagementSupport.unregisterFederationProducerManagement(brokerConnectionName, sender);
    }
 
    private void asyncCreateTargetEventsSender(AMQPFederationCommandDispatcher commandLink) {
@@ -406,6 +426,25 @@ public class AMQPFederationSource extends AMQPFederation {
                      session.addFederationEventDispatcher(sender);
                   }
 
+                  // Prepare any remote policy managers for new connection operations as we
+                  // are about to transmit remote policies to the peer which can result in new
+                  // federation links immediately forming.
+
+                  remoteQueuePolicyManagers.forEach((k, v) -> {
+                     try {
+                        v.connectionRestored();
+                     } catch (Exception e) {
+                        brokerConnection.error(e);
+                     }
+                  });
+                  remoteAddressPolicyManagers.forEach((k, v) -> {
+                     try {
+                        v.connectionRestored();
+                     } catch (Exception e) {
+                        brokerConnection.error(e);
+                     }
+                  });
+
                   // Once we know whether the events support is active or not we can send
                   // the remote federation policies and allow the remote federation links
                   // to start forming.
@@ -442,7 +481,7 @@ public class AMQPFederationSource extends AMQPFederation {
       // If no local policies configured then we don't need an events receiver link
       // currently, if some other use is added for this link this code must be
       // removed and tests updated to expect this link to always be created.
-      if (addressMatchPolicies.isEmpty() && queueMatchPolicies.isEmpty()) {
+      if (localAddressPolicyManagers.isEmpty() && localQueuePolicyManagers.isEmpty()) {
          return;
       }
 
@@ -528,8 +567,8 @@ public class AMQPFederationSource extends AMQPFederation {
                      // Sync action with federation start / stop otherwise we could get out of sync
                      synchronized (AMQPFederationSource.this) {
                         if (isStarted()) {
-                           queueMatchPolicies.forEach((k, v) -> v.start());
-                           addressMatchPolicies.forEach((k, v) -> v.start());
+                           localQueuePolicyManagers.forEach((k, v) -> v.connectionRestored());
+                           localAddressPolicyManagers.forEach((k, v) -> v.connectionRestored());
                         }
                      }
                   });

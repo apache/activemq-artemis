@@ -219,9 +219,65 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    }
 
    @Override
+   public synchronized void initialize() throws Exception {
+      try {
+         server.registerBrokerConnection(this);
+         server.getManagementService().registerBrokerConnection(this);
+
+         if (brokerConnectConfiguration != null && brokerConnectConfiguration.getConnectionElements() != null) {
+            for (AMQPBrokerConnectionElement connectionElement : brokerConnectConfiguration.getConnectionElements()) {
+               final AMQPBrokerConnectionAddressType elementType = connectionElement.getType();
+
+               if (elementType == AMQPBrokerConnectionAddressType.FEDERATION) {
+                  installFederation((AMQPFederatedBrokerConnectionElement) connectionElement, server);
+               }
+            }
+         }
+      } catch (Throwable e) {
+         logger.warn(e.getMessage(), e);
+      }
+   }
+
+   @Override
+   public synchronized void start() throws Exception {
+      if (!started) {
+         started = true;
+         server.getConfiguration().registerBrokerPlugin(this);
+
+         try {
+            if (brokerConnectConfiguration != null && brokerConnectConfiguration.getConnectionElements() != null) {
+               for (AMQPBrokerConnectionElement connectionElement : brokerConnectConfiguration.getConnectionElements()) {
+                  final AMQPBrokerConnectionAddressType elementType = connectionElement.getType();
+
+                  // Preserve old behavior where mirror controller wasn't installed until the first time
+                  // the broker connection was started. This won't add a new controller if stopped and then
+                  // restarted, once added a controller cannot currently be rmoved.
+                  if (elementType == AMQPBrokerConnectionAddressType.MIRROR) {
+                     installMirrorController((AMQPMirrorBrokerConnectionElement) connectionElement, server);
+                  }
+               }
+            }
+         } catch (Throwable e) {
+            logger.warn(e.getMessage(), e);
+         }
+
+         if (brokerFederation != null) {
+            try {
+               brokerFederation.start();
+            } catch (ActiveMQException e) {
+               logger.warn("Error caught while starting federation instance.", e);
+            }
+         }
+
+         connectExecutor.execute(() -> doConnect());
+      }
+   }
+
+   @Override
    public synchronized void stop() {
       if (started) {
          started = false;
+         server.getConfiguration().unRegisterBrokerPlugin(this);
 
          if (protonRemotingConnection != null) {
             protonRemotingConnection.fail(new ActiveMQException("Stopping Broker Connection"));
@@ -240,36 +296,28 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                brokerFederation.stop();
             } catch (ActiveMQException e) {
                logger.debug("Error caught while stopping federation instance.", e);
-            } finally {
-               brokerFederation = null;
             }
          }
       }
    }
 
    @Override
-   public synchronized void start() throws Exception {
-      if (!started) {
-         started = true;
-
-         server.getConfiguration().registerBrokerPlugin(this);
-         try {
-            if (brokerConnectConfiguration != null && brokerConnectConfiguration.getConnectionElements() != null) {
-               for (AMQPBrokerConnectionElement connectionElement : brokerConnectConfiguration.getConnectionElements()) {
-                  final AMQPBrokerConnectionAddressType elementType = connectionElement.getType();
-
-                  if (elementType == AMQPBrokerConnectionAddressType.MIRROR) {
-                     installMirrorController((AMQPMirrorBrokerConnectionElement) connectionElement, server);
-                  } else if (elementType == AMQPBrokerConnectionAddressType.FEDERATION) {
-                     installFederation((AMQPFederatedBrokerConnectionElement) connectionElement, server);
-                  }
-               }
+   public synchronized void shutdown() throws Exception {
+      try {
+         stop();
+      } finally {
+         if (brokerFederation != null) {
+            try {
+               brokerFederation.shutdown();
+            } catch (ActiveMQException e) {
+               logger.debug("Error caught while shutting down federation instance.", e);
+            } finally {
+               brokerFederation = null;
             }
-         } catch (Throwable e) {
-            logger.warn(e.getMessage(), e);
-            return;
          }
-         connectExecutor.execute(() -> doConnect());
+
+         server.unregisterBrokerConnection(this);
+         server.getManagementService().unregisterBrokerConnection(getName());
       }
    }
 
@@ -470,9 +518,9 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                                 null,
                                 requiredOfferedCapabilities);
                } else if (connectionElement.getType() == AMQPBrokerConnectionAddressType.FEDERATION) {
-                  // Starting the Federation triggers rebuild of federation links
+                  // Signal the Federation instance to start a rebuild of federation links
                   // based on current broker state.
-                  brokerFederation.handleConnectionRestored(protonRemotingConnection.getAmqpConnection(), sessionContext);
+                  brokerFederation.connectionRestored(protonRemotingConnection.getAmqpConnection(), sessionContext);
                }
             }
          }
@@ -614,6 +662,9 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    private void installFederation(AMQPFederatedBrokerConnectionElement connectionElement, ActiveMQServer server) throws Exception {
       final AMQPFederationSource federation = new AMQPFederationSource(connectionElement.getName(), connectionElement.getProperties(), this);
 
+      // Ensure basic federation resources are initialized before adding policies and moving on
+      federation.initialize();
+
       // Broker federation configuration for local resources that should be receiving from remote resources
       // when there is local demand.
       final Set<AMQPFederationAddressPolicyElement> localAddressPolicies = connectionElement.getLocalAddressPolicies();
@@ -649,7 +700,6 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       }
 
       this.brokerFederation = federation;
-      this.brokerFederation.start();
    }
 
    private void connectReceiver(ActiveMQProtonRemotingConnection protonRemotingConnection,
@@ -953,7 +1003,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       }
 
       @Override
-      public void close() throws Exception {
+      public void close(boolean remoteClose) throws Exception {
 
       }
 
@@ -1029,7 +1079,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
       if (federation != null) {
          try {
-            federation.handleConnectionDropped();
+            federation.connectionInterrupted();
          } catch (ActiveMQException e) {
             logger.debug("Broker Federation on connection {} threw an error on stop before connection attempt", getName());
          }
