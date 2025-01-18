@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5.ssl;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,6 +23,7 @@ import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSessionState;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
@@ -34,13 +33,21 @@ import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
+import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
+import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
+import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @ExtendWith(ParameterizedTestExtension.class)
-public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
+class CertificateAuthenticationSslTests extends MQTT5TestSupport {
 
    static {
       String path = System.getProperty("java.security.auth.login.config");
@@ -55,7 +62,7 @@ public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
 
    protected String protocol;
 
-   public CertificateAuthenticationSslTests(String protocol) {
+   CertificateAuthenticationSslTests(String protocol) {
       this.protocol = protocol;
    }
 
@@ -96,7 +103,7 @@ public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
     */
    @TestTemplate
    @Timeout(DEFAULT_TIMEOUT_SEC)
-   public void testSimpleSendReceive() throws Exception {
+   void testSimpleSendReceive() throws Exception {
       final String topic = RandomUtil.randomString();
       final String clientId = "subscriber";
       byte[] body = RandomUtil.randomBytes(32);
@@ -120,5 +127,84 @@ public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
       producer.connect(getSslMqttConnectOptions());
       producer.publish(topic, body, 1, false);
       assertTrue(latch.await(500, TimeUnit.MILLISECONDS));
+   }
+
+   /*
+    * Send will message test using mutual TLS with certificate-based authentication
+    */
+   @TestTemplate
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   void testSendWillMessage() throws Exception {
+      final String willSenderId = RandomUtil.randomString();
+      final String willTopic = RandomUtil.randomString();
+      final byte[] willBody = RandomUtil.randomBytes(32);
+
+      CountDownLatch latch = new CountDownLatch(1);
+      MqttClient willSender = createConnectedWillSender(willSenderId, willTopic, willBody);
+      MqttClient willConsumer = createConnectedWillConsumer(latch, willTopic, willBody);
+
+      MQTTSessionState state = getSessionStates().get(willSenderId);
+      assertNotNull(state);
+      assertNotNull(state.getWillIdentity());
+      willSender.disconnectForcibly(0, 0, false);
+
+      assertTrue(latch.await(2, TimeUnit.SECONDS));
+      assertNull(state.getWillIdentity());
+
+      willConsumer.disconnect();
+   }
+
+   /*
+    * Send will message fails if willIdentity is missing.
+    */
+   @TestTemplate
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   void testSendWillMessageFailsWithoutWillIdentity() throws Exception {
+      final String willSenderId = RandomUtil.randomString();
+      final String willTopic = RandomUtil.randomString();
+      final byte[] willBody = RandomUtil.randomBytes(32);
+
+      CountDownLatch latch = new CountDownLatch(1);
+      MqttClient willSender = createConnectedWillSender(willSenderId, willTopic, willBody);
+      MqttClient willConsumer = createConnectedWillConsumer(latch, willTopic, willBody);
+
+      MQTTSessionState state = getSessionStates().get(willSenderId);
+      assertNotNull(state);
+
+      state.setWillIdentity(null);
+      assertNull(state.getWillIdentity());
+      willSender.disconnectForcibly(0, 0, false);
+
+      assertFalse(latch.await(2, TimeUnit.SECONDS));
+
+      willConsumer.disconnect();
+   }
+
+   private MqttClient createConnectedWillSender(String clientId, String topic, byte[] body) throws MqttException {
+      MqttClient willSender = createPahoClient(protocol, clientId);
+      MqttConnectionOptions options = getSslMqttConnectOptions();
+      options.setSessionExpiryInterval(5L);
+      options.setWill(topic, new MqttMessage(body));
+      MqttProperties willMessageProperties = new MqttProperties();
+      willMessageProperties.setWillDelayInterval(1L);
+      options.setWillMessageProperties(willMessageProperties);
+      willSender.connect(options);
+      return willSender;
+   }
+
+   private MqttClient createConnectedWillConsumer(CountDownLatch latch,
+                                                  String topic,
+                                                  byte[] body) throws MqttException {
+      MqttClient willConsumer = createPahoClient(protocol, RandomUtil.randomString());
+      willConsumer.connect(getSslMqttConnectOptions());
+      willConsumer.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) {
+            assertEqualsByteArrays(body, message.getPayload());
+            latch.countDown();
+         }
+      });
+      willConsumer.subscribe(topic, AT_LEAST_ONCE);
+      return willConsumer;
    }
 }
