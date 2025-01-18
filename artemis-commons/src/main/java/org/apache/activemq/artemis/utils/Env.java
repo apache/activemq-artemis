@@ -34,7 +34,7 @@ public final class Env {
       try {
          Field field = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
          field.setAccessible(true);
-         instance = (sun.misc.Unsafe) field.get((Object) null);
+         instance = (sun.misc.Unsafe) field.get(null);
       } catch (Throwable t) {
          try {
             Constructor<sun.misc.Unsafe> c = sun.misc.Unsafe.class.getDeclaredConstructor(new Class[0]);

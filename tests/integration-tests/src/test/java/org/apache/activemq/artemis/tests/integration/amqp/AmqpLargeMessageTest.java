@@ -220,7 +220,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          AmqpSender sender = session.createSender(testQueueName);
          AmqpMessage message = createAmqpMessage((byte) 'A', payload);
 
-         message.setApplicationProperty("IntProperty", (Integer) 42);
+         message.setApplicationProperty("IntProperty", 42);
          message.setDurable(true);
          message.setMessageAnnotation(annotation, embeddedMap);
          sender.send(message);
@@ -277,7 +277,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
       for (int i = 0; i < nMsgs; ++i) {
          AmqpMessage message = createAmqpMessage((byte) 'A', payload);
-         message.setApplicationProperty("i", (Integer) i);
+         message.setApplicationProperty("i", i);
          message.setDurable(true);
          sender.send(message);
       }
@@ -361,7 +361,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          AmqpSender sender = session.createSender(testQueueName);
          AmqpMessage message = createAmqpMessage((byte) 'A', payload);
 
-         message.setApplicationProperty("IntProperty", (Integer) 42);
+         message.setApplicationProperty("IntProperty", 42);
          message.setDurable(true);
          message.setMessageAnnotation(annotation.toString(), embeddedMap);
          sender.send(message);
@@ -960,7 +960,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          assertTrue(wrapped.getBody() instanceof Data);
          Data body = (Data) wrapped.getBody();
          assertTrue(body.getValue() instanceof Binary);
-         Binary payload = (Binary) body.getValue();
+         Binary payload = body.getValue();
          assertEquals(0, payload.getLength());
 
          received.accept();
@@ -1002,7 +1002,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          assertTrue(wrapped.getBody() instanceof Data);
          Data body = (Data) wrapped.getBody();
          assertTrue(body.getValue() instanceof Binary);
-         Binary payload = (Binary) body.getValue();
+         Binary payload = body.getValue();
          String reconstitutedString = new String(
             payload.getArray(), payload.getArrayOffset(), payload.getLength(), StandardCharsets.UTF_8);
 

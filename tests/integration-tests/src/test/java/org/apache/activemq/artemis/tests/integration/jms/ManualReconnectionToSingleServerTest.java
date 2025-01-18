@@ -84,7 +84,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
       ConnectionFactory cf = new ActiveMQConnectionFactory(BROKER_URL);
 
-      Destination dest = (Destination) ActiveMQJMSClient.createQueue(QUEUE_NAME);
+      Destination dest = ActiveMQJMSClient.createQueue(QUEUE_NAME);
       Connection conn = cf.createConnection();
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer prod = sess.createProducer(dest);

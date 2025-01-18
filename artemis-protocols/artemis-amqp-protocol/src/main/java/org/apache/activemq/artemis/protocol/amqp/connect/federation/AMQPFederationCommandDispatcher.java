@@ -130,7 +130,7 @@ public class AMQPFederationCommandDispatcher implements SenderController {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
       }
 
-      return (Consumer) session.createSender(senderContext, SimpleString.of(getControlLinkAddress()), null, false);
+      return session.createSender(senderContext, SimpleString.of(getControlLinkAddress()), null, false);
    }
 
    @Override

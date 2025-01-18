@@ -999,7 +999,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          tunnelCoreMessages = verifyCapabilities(sender.getDesiredCapabilities(), AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT) &&
                               verifyOfferedCapabilities(sender, AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT);
 
-         return (Consumer) sessionSPI.createSender(senderContext, queueName, null, false);
+         return sessionSPI.createSender(senderContext, queueName, null, false);
       }
 
       @Override

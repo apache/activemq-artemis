@@ -121,7 +121,7 @@ public class OsgiBroker {
          String filter = "(&(objectClass=javax.sql.DataSource)(osgi.jndi.service.name=" + dataSourceName + "))";
          DataSourceTracker trackerCust =
                   new DataSourceTracker(name, context, DatabaseStorageConfiguration.class.cast(storeConfiguration),
-                                        (ServerTrackerCallBack) callback);
+                                        callback);
          dataSourceTracker = new ServiceTracker(context, context.createFilter(filter), trackerCust);
          dataSourceTracker.open();
       }

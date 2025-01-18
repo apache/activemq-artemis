@@ -42,9 +42,9 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
    public void testEquals() throws Exception {
       String destinationName = RandomUtil.randomString();
       String address = QUEUE_QUALIFIED_PREFIX + destinationName;
-      ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
-      ActiveMQDestination sameDestination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
-      ActiveMQDestination differentDestination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address + RandomUtil.randomString());
+      ActiveMQDestination destination = ActiveMQDestination.fromPrefixedName(address);
+      ActiveMQDestination sameDestination = ActiveMQDestination.fromPrefixedName(address);
+      ActiveMQDestination differentDestination = ActiveMQDestination.fromPrefixedName(address + RandomUtil.randomString());
 
       assertFalse(destination.equals(null));
       assertTrue(destination.equals(destination));
@@ -56,7 +56,7 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
    public void testFromAddressWithQueueAddressPrefix() throws Exception {
       String destinationName = RandomUtil.randomString();
       String address = QUEUE_QUALIFIED_PREFIX + destinationName;
-      ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
+      ActiveMQDestination destination = ActiveMQDestination.fromPrefixedName(address);
       assertTrue(destination instanceof Queue);
       assertEquals(destinationName, ((Queue) destination).getQueueName());
    }
@@ -65,7 +65,7 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
    public void testFromAddressWithTopicAddressPrefix() throws Exception {
       String destinationName = RandomUtil.randomString();
       String address = TOPIC_QUALIFIED_PREFIX + destinationName;
-      ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
+      ActiveMQDestination destination = ActiveMQDestination.fromPrefixedName(address);
       assertTrue(destination instanceof Topic);
       assertEquals(destinationName, ((Topic) destination).getTopicName());
    }
@@ -75,7 +75,7 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       String invalidPrefix = "junk";
       String destinationName = RandomUtil.randomString();
       String address = invalidPrefix + destinationName;
-      ActiveMQDestination destination = (ActiveMQDestination) ActiveMQDestination.fromPrefixedName(address);
+      ActiveMQDestination destination = ActiveMQDestination.fromPrefixedName(address);
       assertTrue(destination instanceof Destination);
    }
 

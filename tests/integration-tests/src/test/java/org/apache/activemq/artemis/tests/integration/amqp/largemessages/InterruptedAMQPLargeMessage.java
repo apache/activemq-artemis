@@ -147,7 +147,7 @@ public class InterruptedAMQPLargeMessage extends AmqpClientTestSupport {
       AmqpReceiver receiver = session.createReceiver(getQueueName());
 
       int received = 0;
-      receiver.flow((int) (messageCount + 10));
+      receiver.flow(messageCount + 10);
       for (int m = 0; m < messageCount; m++) {
          receiver.flow(1);
          AmqpMessage message = receiver.receive(10, TimeUnit.SECONDS);

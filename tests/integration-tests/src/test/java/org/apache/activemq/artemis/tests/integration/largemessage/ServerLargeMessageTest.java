@@ -103,7 +103,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
       ClientSession session = sf.createSession(false, false);
 
       try {
-         LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
+         LargeServerMessageImpl fileMessage = new LargeServerMessageImpl(server.getStorageManager());
 
          fileMessage.setMessageID(1005);
 
@@ -346,7 +346,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
       server.start();
 
       try {
-         LargeServerMessageImpl largeMessage = new LargeServerMessageImpl((JournalStorageManager)server.getStorageManager());
+         LargeServerMessageImpl largeMessage = new LargeServerMessageImpl(server.getStorageManager());
          largeMessage.setMessageID(23456);
 
          for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {

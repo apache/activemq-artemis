@@ -104,7 +104,7 @@ public class MessageBufferTest extends ActiveMQTestBase {
       ClientProducer producer = session.createProducer(addressName);
 
       {
-         ClientMessage message = (ClientMessageImpl) session.createMessage(true);
+         ClientMessage message = session.createMessage(true);
          assertEquals(1024, buf.readableBytes());
          message.getBodyBuffer().writeBytes(buf, 0, buf.readableBytes());
          producer.send(message);

@@ -330,7 +330,7 @@ public class PagingTest extends ParameterDBTestBase {
          PageCursorProvider provider = store.getCursorProvider();
 
          PageSubscription cursorSubscription = provider.getSubscription(queue.getID());
-         PageIterator iterator = (PageIterator) cursorSubscription.iterator();
+         PageIterator iterator = cursorSubscription.iterator();
 
          for (int i = 0; i < 5; i++) {
             assertFalse(iterator.hasNext());

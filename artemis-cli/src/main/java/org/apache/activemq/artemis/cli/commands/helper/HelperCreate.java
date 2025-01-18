@@ -341,7 +341,7 @@ public class HelperCreate extends HelperBase {
       logger.debug("server created at {} with home = {}", artemisInstance, artemisHome);
       artemisInstance.mkdirs();
 
-      Artemis.execute(false, true, false, artemisHome, null, null, (String[]) listCommands.toArray(new String[listCommands.size()]));
+      Artemis.execute(false, true, false, artemisHome, null, null, listCommands.toArray(new String[listCommands.size()]));
 
       if (configuration != null) {
          String[] list = configuration.list();
