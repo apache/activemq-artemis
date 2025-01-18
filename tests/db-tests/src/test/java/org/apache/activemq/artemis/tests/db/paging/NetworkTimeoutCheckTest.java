@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.db.paging;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -37,15 +34,13 @@ import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class NetworkTimeoutCheckTest extends ParameterDBTestBase {
 
    private static final int TIMEOUT = 33_333;
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Parameters(name = "db={0}")
    public static Collection<Object[]> parameters() {

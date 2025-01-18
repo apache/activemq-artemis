@@ -17,14 +17,11 @@
 
 package org.apache.activemq.artemis.tests.soak.interrupt;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.io.File;
-import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -38,8 +35,8 @@ import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JournalFlushInterruptTest extends SoakTestBase {
    public static final String SERVER_NAME_0 = "interruptjf";
@@ -61,7 +58,6 @@ public class JournalFlushInterruptTest extends SoakTestBase {
 
    private static final String JMX_SERVER_HOSTNAME = "localhost";
    private static final int JMX_SERVER_PORT_0 = 1099;
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    static String liveURI = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT_0 + "/jmxrmi";
    static ObjectNameBuilder nameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "jfinterrupt", true);
    Process serverProcess;

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.impl.jdbc;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Executors;
@@ -30,13 +29,9 @@ import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class JdbcNodeManagerTest extends ServerTestBase {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Parameter(index = 0)
    public boolean useAuthentication;

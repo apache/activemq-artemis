@@ -85,8 +85,6 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
 
    private static final String handshake = "ARTEMIS";
 
-   private final int versionID = VersionLoader.getVersion().getIncrementingVersion();
-
    private ClientSessionFactoryInternal factoryInternal;
 
    private Executor executor;

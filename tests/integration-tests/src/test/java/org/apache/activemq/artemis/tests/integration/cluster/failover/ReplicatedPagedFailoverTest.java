@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -33,14 +32,10 @@ import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    protected ActiveMQServer createInVMFailoverServer(final boolean realFiles,

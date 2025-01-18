@@ -40,8 +40,6 @@ import org.junit.Before;
  */
 public abstract class PubSubTestCase extends JMSTestCase {
 
-   private Context ctx;
-
    private static final String TCF_NAME = "testTCF";
 
    private static final String TOPIC_NAME = "testJoramTopic";

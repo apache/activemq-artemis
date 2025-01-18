@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.paging.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.BiConsumer;
 
 import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -52,9 +54,6 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
-import java.util.function.BiConsumer;
 
 import static org.apache.activemq.artemis.core.server.files.FileStoreMonitor.FileStoreMonitorType;
 import static org.apache.activemq.artemis.core.server.files.FileStoreMonitor.FileStoreMonitorType.MaxDiskUsage;

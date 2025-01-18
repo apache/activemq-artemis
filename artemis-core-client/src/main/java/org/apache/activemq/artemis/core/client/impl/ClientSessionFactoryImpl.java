@@ -166,8 +166,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    // We need to cache this value here since some listeners may be registered after connectionReadyForWrites was called.
    private boolean connectionReadyForWrites;
 
-   private final Object connectionReadyLock = new Object();
-
    private final TransportConfiguration[] connectorConfigs;
 
    public ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,

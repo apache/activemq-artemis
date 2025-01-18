@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -44,9 +46,6 @@ import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.apache.activemq.artemis.utils.collections.LongHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 
 public class PageCursorProviderImpl implements PageCursorProvider {
 
@@ -68,15 +67,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    protected final StorageManager storageManager;
 
    private final ConcurrentLongHashMap<PageSubscription> activeCursors = new ConcurrentLongHashMap<>();
-
-   private static final long PAGE_READ_TIMEOUT_NS = TimeUnit.SECONDS.toNanos(30);
-
-   //Any concurrent read page request will wait in a loop the original Page::read to complete while
-   //printing at intervals a warn message
-   private static final long CONCURRENT_PAGE_READ_TIMEOUT_NS = TimeUnit.SECONDS.toNanos(10);
-
-   //storageManager.beforePageRead will be attempted in a loop, printing at intervals a warn message
-   private static final long PAGE_READ_PERMISSION_TIMEOUT_NS = TimeUnit.SECONDS.toNanos(10);
 
    public PageCursorProviderImpl(final PagingStore pagingStore,
                                  final StorageManager storageManager) {

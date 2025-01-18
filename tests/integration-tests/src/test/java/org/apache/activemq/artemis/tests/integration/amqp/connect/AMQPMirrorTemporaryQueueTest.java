@@ -20,7 +20,6 @@ import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 import javax.jms.TemporaryQueue;
-import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -39,14 +38,10 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AMQPMirrorTemporaryQueueTest extends ActiveMQTestBase {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected TransportConfiguration newAcceptorConfig(int port, String name) {
       HashMap<String, Object> params = new HashMap<>();

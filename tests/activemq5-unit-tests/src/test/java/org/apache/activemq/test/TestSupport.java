@@ -40,8 +40,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class TestSupport extends TestCase {
 
-   private static final Logger LOG = LoggerFactory.getLogger(TestSupport.class);
-
    protected ActiveMQConnectionFactory connectionFactory;
    protected boolean topic = true;
 

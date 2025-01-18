@@ -76,8 +76,6 @@ public class BridgeTransferingTest extends SmokeTestBase {
    public static final String SERVER_NAME_0 = "bridgeTransfer/serverA";
    public static final String SERVER_NAME_1 = "bridgeTransfer/serverB";
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-   private static final String JMX_SERVER_HOSTNAME = "localhost";
-   private static final int JMX_SERVER_PORT = 11099;
 
    final String theprotocol;
    // As the produces sends messages, a client will be killed every X messages. This is it!

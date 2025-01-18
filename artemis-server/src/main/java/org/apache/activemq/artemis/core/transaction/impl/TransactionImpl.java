@@ -49,8 +49,6 @@ public class TransactionImpl implements Transaction {
 
    private List<TransactionOperation> storeOperations;
 
-   private static final int INITIAL_NUM_PROPERTIES = 11;
-
    private IntObjectHashMap properties = null;
 
    protected final StorageManager storageManager;

@@ -55,8 +55,6 @@ public class ActiveMQServerSideProtocolManagerFactory implements ClientProtocolM
       return instance;
    }
 
-   private static final long serialVersionUID = 1;
-
    @Override
    public TransportConfiguration adaptTransportConfiguration(TransportConfiguration tc) {
       return tc;

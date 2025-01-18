@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jdbc.store.journal;
 
-import java.lang.invoke.MethodHandles;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,8 +43,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -53,8 +50,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class JDBCJournalTest extends ActiveMQTestBase {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private JDBCJournalImpl journal;
 

@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactResult;
@@ -81,8 +80,6 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
 
    @Parameter
    private String file;
-
-   private MavenProject project;
 
    @Override
    protected boolean isIgnore() {

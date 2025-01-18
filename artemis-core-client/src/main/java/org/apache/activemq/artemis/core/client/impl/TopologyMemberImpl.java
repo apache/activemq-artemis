@@ -29,8 +29,6 @@ import org.apache.activemq.artemis.utils.ConfigurationHelper;
 
 public final class TopologyMemberImpl implements TopologyMember {
 
-   private static final long serialVersionUID = 1123652191795626133L;
-
    private final Pair<TransportConfiguration, TransportConfiguration> connector;
 
    private final String backupGroupName;

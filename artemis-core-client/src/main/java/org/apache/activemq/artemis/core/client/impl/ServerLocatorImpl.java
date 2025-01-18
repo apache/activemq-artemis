@@ -94,15 +94,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       FluentPropertyBeanIntrospectorWithIgnores.addIgnore(ServerLocatorImpl.class.getName(), "setThreadPools");
    }
 
-   private static final long serialVersionUID = -1615857864410205260L;
-
    // This is the default value
    private ClientProtocolManagerFactory protocolManagerFactory = new ActiveMQClientProtocolManagerFactory().setLocator(this);
 
    private final boolean ha;
-
-   // this is not used... I'm only keeping it here because of Serialization compatibility and Wildfly usage on JNDI.
-   private boolean finalizeCheck;
 
    private boolean clusterConnection;
 

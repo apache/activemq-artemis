@@ -21,17 +21,12 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.channel.kqueue.KQueue;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.utils.Env;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * This class will check for Epoll or KQueue is available, and return false in case of NoClassDefFoundError
  * it could be improved to check for other cases eventually.
  */
 public class CheckDependencies {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final boolean isEpollAvailable() {
       try {

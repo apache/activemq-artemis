@@ -30,9 +30,6 @@ import org.junit.jupiter.api.Test;
 public class QueueConfigRestartTest extends ActiveMQTestBase {
 
 
-   private static final String ADDRESS = "ADDRESS";
-
-
 
 
    @Test

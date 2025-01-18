@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -61,10 +60,6 @@ public class ReplayManager {
    private final ActiveMQServer server;
    private JournalImpl journal;
    private final File retentionFolder;
-
-   private final SimpleDateFormat dateFormat = newRetentionSimpleDateFormat();
-
-   private final AtomicBoolean running = new AtomicBoolean(false);
 
    public ReplayManager(ActiveMQServer server) {
       this.server = server;

@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.db.paging;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -25,7 +23,6 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -44,13 +41,11 @@ import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class GlobalPagingTest extends ParameterDBTestBase {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Parameters(name = "db={0}")
    public static Collection<Object[]> parameters() {

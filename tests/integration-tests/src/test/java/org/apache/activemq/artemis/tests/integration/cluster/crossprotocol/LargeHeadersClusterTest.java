@@ -62,10 +62,6 @@ public class LargeHeadersClusterTest extends ClusterTestBase {
 
    private static final SimpleString queueName = SimpleString.of("queues.0");
 
-   // I'm taking any number that /2 = Odd
-   // to avoid perfect roundings and making sure messages are evenly distributed
-   private static final int NUMBER_OF_MESSAGES = 77 * 2;
-
    @Parameters(name = "protocol={0}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{{"AMQP"}, {"CORE"}, {"OPENWIRE"}});

@@ -17,9 +17,6 @@
 
 package org.apache.activemq.artemis.tests.leak;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -30,12 +27,10 @@ import io.github.checkleak.core.CheckLeak;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HandlerBaseLeakTest extends AbstractLeakTest {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testHandlerLeak() throws Throwable {

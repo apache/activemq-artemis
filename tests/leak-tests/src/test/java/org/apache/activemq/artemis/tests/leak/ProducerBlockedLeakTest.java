@@ -52,8 +52,6 @@ import org.slf4j.LoggerFactory;
 
 public class ProducerBlockedLeakTest extends AbstractLeakTest {
 
-   private static final int OK = 100;
-
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private static final String QUEUE_NAME = "TEST_BLOCKED_QUEUE";
 

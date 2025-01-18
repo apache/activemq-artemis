@@ -73,8 +73,6 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
    // 192.0.2.0 is reserved for documentation (and testing on this case).
    private static final String LIVE_IP = "192.0.2.0";
 
-   private int beforeTime;
-
    @BeforeEach
    @Override
    public void setUp() throws Exception {
