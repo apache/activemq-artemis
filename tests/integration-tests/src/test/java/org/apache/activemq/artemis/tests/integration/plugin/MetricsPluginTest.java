@@ -87,7 +87,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
          public final List<Tag> tags;
 
          private Metric(String name, Double value) {
-            this(name, value, Collections.EMPTY_LIST);
+            this(name, value, Collections.emptyList());
          }
 
          private Metric(String name, Double value, List<Tag> tags) {

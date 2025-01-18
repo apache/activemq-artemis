@@ -125,7 +125,7 @@ public class ParameterisedAddress {
       final int index = address != null ? address.indexOf('?') : -1;
 
       if (index == -1) {
-         return Collections.EMPTY_MAP;
+         return Collections.emptyMap();
       } else {
          return parseQuery(address);
       }

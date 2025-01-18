@@ -84,8 +84,8 @@ public class ReadOnlyContext implements Context, Serializable {
       } else {
          this.environment = new Hashtable<>(env);
       }
-      this.bindings = Collections.EMPTY_MAP;
-      this.treeBindings = Collections.EMPTY_MAP;
+      this.bindings = Collections.emptyMap();
+      this.treeBindings = Collections.emptyMap();
    }
 
    public ReadOnlyContext(Hashtable environment, Map<String, Object> bindings) {

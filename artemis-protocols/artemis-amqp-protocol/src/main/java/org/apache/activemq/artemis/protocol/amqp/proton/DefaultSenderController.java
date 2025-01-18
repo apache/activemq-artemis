@@ -119,7 +119,7 @@ public class DefaultSenderController implements SenderController {
       this.standardMessageWriter = new AMQPMessageWriter(senderContext);
       this.largeMessageWriter = new AMQPLargeMessageWriter(senderContext);
 
-      Map<String, String> addressParameters = Collections.EMPTY_MAP;
+      Map<String, String> addressParameters = Collections.emptyMap();
       Source source = (Source) protonSender.getRemoteSource();
       final Map<Symbol, Object> supportedFilters = new HashMap<>();
 

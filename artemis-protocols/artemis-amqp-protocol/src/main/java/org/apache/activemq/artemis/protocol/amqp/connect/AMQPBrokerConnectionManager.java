@@ -108,7 +108,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
    @SuppressWarnings("unchecked")
    public void updateConfiguration(List<AMQPBrokerConnectConfiguration> configurations) throws Exception {
       final List<AMQPBrokerConnectConfiguration> updatedConfigurations =
-         configurations != null ? configurations : Collections.EMPTY_LIST;
+         configurations != null ? configurations : Collections.emptyList();
 
       // We want to shutdown all broker connections before starting any new ones just to ensure
       // we do not have any overlapping connections to the same broker from old to new configurations.

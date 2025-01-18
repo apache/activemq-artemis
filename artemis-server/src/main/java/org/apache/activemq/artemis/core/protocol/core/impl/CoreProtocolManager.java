@@ -79,7 +79,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final List<String> websocketRegistryNames = Collections.EMPTY_LIST;
+   private static final List<String> websocketRegistryNames = Collections.emptyList();
 
    protected final ActiveMQServer server;
 

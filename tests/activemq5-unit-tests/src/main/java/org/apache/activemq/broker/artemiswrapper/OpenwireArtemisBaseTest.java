@@ -88,7 +88,7 @@ public class OpenwireArtemisBaseTest {
    public String CLUSTER_PASSWORD = "OPENWIRECLUSTER";
 
    protected Configuration createConfig(final int serverID) throws Exception {
-      return createConfig("localhost", serverID, Collections.EMPTY_MAP);
+      return createConfig("localhost", serverID, Collections.emptyMap());
    }
 
    protected Configuration createConfig(final String hostAddress, final int serverID, final int port) throws Exception {
@@ -111,7 +111,7 @@ public class OpenwireArtemisBaseTest {
    }
 
    protected Configuration createConfig(final String hostAddress, final int serverID) throws Exception {
-      return createConfig(hostAddress, serverID, Collections.EMPTY_MAP);
+      return createConfig(hostAddress, serverID, Collections.emptyMap());
    }
 
    protected Configuration createConfig(final String hostAddress,
@@ -178,7 +178,7 @@ public class OpenwireArtemisBaseTest {
    }
 
    protected static String newURIwithPort(String localhostAddress, int port) throws Exception {
-      return newURIwithPort(localhostAddress, port, Collections.EMPTY_MAP);
+      return newURIwithPort(localhostAddress, port, Collections.emptyMap());
    }
 
    protected static String newURIwithPort(String localhostAddress,

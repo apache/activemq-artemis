@@ -2446,7 +2446,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    }
 
    private TransformerConfiguration getTransformerConfiguration(final String transformerClassName) {
-      return new TransformerConfiguration(transformerClassName).setProperties(Collections.EMPTY_MAP);
+      return new TransformerConfiguration(transformerClassName).setProperties(Collections.emptyMap());
    }
 
    private void parseBridgeConfiguration(final Element brNode, final Configuration mainConfig) throws Exception {

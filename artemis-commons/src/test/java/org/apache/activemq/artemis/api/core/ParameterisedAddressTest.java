@@ -30,9 +30,9 @@ public class ParameterisedAddressTest {
 
    @Test
    public void testExtractParameters() {
-      assertEquals(Collections.EMPTY_MAP, ParameterisedAddress.extractParameters(null));
-      assertEquals(Collections.EMPTY_MAP, ParameterisedAddress.extractParameters("noParams"));
-      assertNotEquals(Collections.EMPTY_MAP, ParameterisedAddress.extractParameters("noParams?param=X"));
+      assertEquals(Collections.emptyMap(), ParameterisedAddress.extractParameters(null));
+      assertEquals(Collections.emptyMap(), ParameterisedAddress.extractParameters("noParams"));
+      assertNotEquals(Collections.emptyMap(), ParameterisedAddress.extractParameters("noParams?param=X"));
 
       final Map<String, String> params = ParameterisedAddress.extractParameters("noParams?param1=X&param2=Y");
 

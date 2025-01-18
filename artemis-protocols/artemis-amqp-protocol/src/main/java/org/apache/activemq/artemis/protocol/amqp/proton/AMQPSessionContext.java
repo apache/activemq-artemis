@@ -446,7 +446,7 @@ public class AMQPSessionContext extends ProtonInitializable {
             final Map<String, Object> federationConfigurationMap;
 
             if (receiver.getRemoteProperties() == null || !receiver.getRemoteProperties().containsKey(FEDERATION_CONFIGURATION)) {
-               federationConfigurationMap = Collections.EMPTY_MAP;
+               federationConfigurationMap = Collections.emptyMap();
             } else {
                federationConfigurationMap = (Map<String, Object>) receiver.getRemoteProperties().get(FEDERATION_CONFIGURATION);
             }

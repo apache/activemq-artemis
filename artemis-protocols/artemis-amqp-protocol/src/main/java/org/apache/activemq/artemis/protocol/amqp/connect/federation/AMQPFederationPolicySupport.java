@@ -330,7 +330,7 @@ public final class AMQPFederationPolicySupport {
       final Object encodedObject = policyMap.get(target);
 
       if (encodedObject == null) {
-         return Collections.EMPTY_SET;
+         return Collections.emptySet();
       }
 
       if (!(encodedObject instanceof List)) {
@@ -344,7 +344,7 @@ public final class AMQPFederationPolicySupport {
          final List<String> flattenedEntrySet = (List<String>) encodedObject;
 
          if (flattenedEntrySet.isEmpty()) {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
          }
 
          if ((flattenedEntrySet.size() & 1) != 0) {
@@ -424,13 +424,13 @@ public final class AMQPFederationPolicySupport {
          if (policyMap.containsKey(ADDRESS_INCLUDES)) {
             includes = (Set<String>) new HashSet<>((List<String>)policyMap.get(ADDRESS_INCLUDES));
          } else {
-            includes = Collections.EMPTY_SET;
+            includes = Collections.emptySet();
          }
 
          if (policyMap.containsKey(ADDRESS_EXCLUDES)) {
             excludes = (Set<String>) new HashSet<>((List<String>)policyMap.get(ADDRESS_EXCLUDES));
          } else {
-            excludes = Collections.EMPTY_SET;
+            excludes = Collections.emptySet();
          }
 
          final TransformerConfiguration transformerConfig;
@@ -482,7 +482,7 @@ public final class AMQPFederationPolicySupport {
 
          element.getIncludes().forEach(addressMatch -> includes.add(addressMatch.getAddressMatch()));
       } else {
-         includes = Collections.EMPTY_SET;
+         includes = Collections.emptySet();
       }
 
       if (element.getExcludes() != null && !element.getExcludes().isEmpty()) {
@@ -490,7 +490,7 @@ public final class AMQPFederationPolicySupport {
 
          element.getExcludes().forEach(addressMatch -> excludes.add(addressMatch.getAddressMatch()));
       } else {
-         excludes = Collections.EMPTY_SET;
+         excludes = Collections.emptySet();
       }
 
       // We translate from broker configuration to actual implementation to avoid any coupling here
@@ -536,7 +536,7 @@ public final class AMQPFederationPolicySupport {
          element.getIncludes().forEach(queueMatch ->
             includes.add(new AbstractMap.SimpleImmutableEntry<String, String>(queueMatch.getAddressMatch(), queueMatch.getQueueMatch())));
       } else {
-         includes = Collections.EMPTY_SET;
+         includes = Collections.emptySet();
       }
 
       if (element.getExcludes() != null && !element.getExcludes().isEmpty()) {
@@ -545,7 +545,7 @@ public final class AMQPFederationPolicySupport {
          element.getExcludes().forEach(queueMatch ->
             excludes.add(new AbstractMap.SimpleImmutableEntry<String, String>(queueMatch.getAddressMatch(), queueMatch.getQueueMatch())));
       } else {
-         excludes = Collections.EMPTY_SET;
+         excludes = Collections.emptySet();
       }
 
       // We translate from broker configuration to actual implementation to avoid any coupling here
