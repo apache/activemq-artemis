@@ -170,7 +170,7 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       Role role = new Role(roleName, true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
       roles.add(role);
-      server.getSecurityRepository().addMatch(getQueueName().toString(), roles);
+      server.getSecurityRepository().addMatch(getQueueName(), roles);
 
       if (debug) {
          // The default produces so much log spam that debugging the exchanges becomes impossible.

@@ -848,7 +848,7 @@ public class StompTest extends StompTestBase {
       assertEquals("5", cl_matcher.group(1));
 
       assertFalse(Pattern.compile("type:\\s*null", Pattern.CASE_INSENSITIVE).matcher(frame.toString()).find());
-      assertTrue(frame.getBody().toString().indexOf(new String(payload)) > -1);
+      assertTrue(frame.getBody().indexOf(new String(payload)) > -1);
 
       conn.disconnect();
    }

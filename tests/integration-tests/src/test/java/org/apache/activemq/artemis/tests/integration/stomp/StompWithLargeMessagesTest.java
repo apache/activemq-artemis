@@ -461,8 +461,8 @@ public class StompWithLargeMessagesTest extends StompTestBase {
             logger.debug("part of frame: {}", frame.getBody().substring(0, 250));
             assertTrue(frame.getCommand().equals("MESSAGE"));
             assertTrue(frame.getHeader("destination").equals(getQueuePrefix() + getQueueName()));
-            int index = frame.getBody().toString().indexOf(leadingPart);
-            assertEquals(msg.length(), (frame.getBody().toString().length() - index));
+            int index = frame.getBody().indexOf(leadingPart);
+            assertEquals(msg.length(), (frame.getBody().length() - index));
          }
 
          ClientStompFrame unsubFrame = conn.createFrame("UNSUBSCRIBE");

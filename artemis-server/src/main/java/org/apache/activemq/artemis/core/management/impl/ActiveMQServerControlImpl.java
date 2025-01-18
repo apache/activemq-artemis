@@ -2407,7 +2407,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          try {
             List<ServerSession> sessions = server.getSessions(connectionID);
             for (ServerSession session : sessions) {
-               if (session.getName().equals(ID.toString())) {
+               if (session.getName().equals(ID)) {
                   session.close(true, force);
                   return true;
                }
@@ -2433,7 +2433,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          try {
             Set<ServerSession> sessions = server.getSessions();
             for (ServerSession session : sessions) {
-               if (session.getName().equals(sessionID.toString())) {
+               if (session.getName().equals(sessionID)) {
                   Set<ServerConsumer> serverConsumers = session.getServerConsumers();
                   for (ServerConsumer serverConsumer : serverConsumers) {
                      if (serverConsumer.sequentialID() == Long.parseLong(ID)) {

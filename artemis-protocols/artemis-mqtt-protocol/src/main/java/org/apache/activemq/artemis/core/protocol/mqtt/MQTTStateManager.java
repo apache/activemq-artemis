@@ -85,7 +85,7 @@ public class MQTTStateManager {
          while (iterator.hasNext()) {
             Message message = iterator.next().getMessage();
             if (!(message instanceof CoreMessage)) {
-               MQTTLogger.LOGGER.sessionStateMessageIncorrectType(message.getClass().getName().toString());
+               MQTTLogger.LOGGER.sessionStateMessageIncorrectType(message.getClass().getName());
                continue;
             }
             String clientId = message.getStringProperty(Message.HDR_LAST_VALUE_NAME);

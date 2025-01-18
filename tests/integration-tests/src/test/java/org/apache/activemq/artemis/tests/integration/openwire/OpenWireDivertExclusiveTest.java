@@ -160,7 +160,7 @@ public class OpenWireDivertExclusiveTest extends OpenWireDivertTestBase {
 
             assertNotNull(message);
 
-            assertEquals(i, message.getObjectProperty(propKey.toString()));
+            assertEquals(i, message.getObjectProperty(propKey));
 
             message.acknowledge();
          }

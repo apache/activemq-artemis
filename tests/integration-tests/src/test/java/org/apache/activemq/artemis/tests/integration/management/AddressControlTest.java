@@ -221,7 +221,7 @@ public class AddressControlTest extends ManagementTestBase {
 
       bindingNames = addressControl.getBindingNames();
       assertEquals(1, bindingNames.length);
-      assertEquals(divertName.toString(), bindingNames[0]);
+      assertEquals(divertName, bindingNames[0]);
    }
 
    @Test

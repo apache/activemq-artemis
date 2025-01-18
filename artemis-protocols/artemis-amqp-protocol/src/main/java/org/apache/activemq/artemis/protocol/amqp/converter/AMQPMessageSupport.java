@@ -298,7 +298,7 @@ public final class AMQPMessageSupport {
    }
 
    public static String toAnnotationName(String key) {
-      if (!key.startsWith(X_OPT_PREFIX.toString())) {
+      if (!key.startsWith(X_OPT_PREFIX)) {
          if (key.startsWith(AMQ_PROPERTY_PREFIX)) {
             return X_OPT_PREFIX.concat(key.substring(AMQ_PROPERTY_PREFIX.length()).replace('_', '-'));
          }
