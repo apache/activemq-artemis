@@ -84,7 +84,7 @@ public class RejectValidatedUserTest  extends ActiveMQTestBase {
       ActiveMQConnectionFactory connectionFactory = ActiveMQJMSClient.createConnectionFactory("vm://0", "0");
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession();
-      Queue queue = session.createQueue(ADDRESS.toString());
+      Queue queue = session.createQueue(ADDRESS);
       MessageProducer producer = session.createProducer(queue);
       Message message = session.createMessage();
       message.setStringProperty("JMSXUserID", "testuser");

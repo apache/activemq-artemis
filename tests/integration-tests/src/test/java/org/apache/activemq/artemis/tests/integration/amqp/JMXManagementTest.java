@@ -269,8 +269,8 @@ public class JMXManagementTest extends JMSClientTestSupport {
 
       try {
          AmqpSession session = connection.createSession();
-         AmqpSender senderA = session.createSender(queueA.toString());
-         AmqpSender senderB = session.createSender(queueB.toString());
+         AmqpSender senderA = session.createSender(queueA);
+         AmqpSender senderB = session.createSender(queueB);
 
          for (int i = 0; i < MESSAGE_COUNT; i++) {
             final AmqpMessage message = new AmqpMessage();

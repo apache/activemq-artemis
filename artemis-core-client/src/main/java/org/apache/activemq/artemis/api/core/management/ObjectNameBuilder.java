@@ -105,7 +105,7 @@ public final class ObjectNameBuilder {
     * @see DivertControl
     */
    public ObjectName getDivertObjectName(final String name, String address) throws Exception {
-      return ObjectName.getInstance(String.format("%s,component=addresses,address=%s,subcomponent=diverts,divert=%s", getActiveMQServerName(), ObjectName.quote(address.toString()), ObjectName.quote(name.toString())));
+      return ObjectName.getInstance(String.format("%s,component=addresses,address=%s,subcomponent=diverts,divert=%s", getActiveMQServerName(), ObjectName.quote(address), ObjectName.quote(name)));
    }
 
    /**

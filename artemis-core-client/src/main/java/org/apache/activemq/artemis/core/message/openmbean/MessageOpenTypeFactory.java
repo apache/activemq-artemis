@@ -132,7 +132,7 @@ public class MessageOpenTypeFactory<M extends Message> {
       } else {
          rc.put(CompositeDataConstants.USER_ID, "");
       }
-      rc.put(CompositeDataConstants.ADDRESS, m.getAddress() == null ? "" : m.getAddress().toString());
+      rc.put(CompositeDataConstants.ADDRESS, m.getAddress() == null ? "" : m.getAddress());
       rc.put(CompositeDataConstants.DURABLE, m.isDurable());
       rc.put(CompositeDataConstants.EXPIRATION, m.getExpiration());
       rc.put(CompositeDataConstants.TIMESTAMP, m.getTimestamp());

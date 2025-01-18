@@ -73,7 +73,7 @@ public class PrefixUtil {
    /** This will treat a prefix on the uri-type of queue://, topic://, temporaryTopic://, temporaryQueue.
     *  This is mostly used on conversions to treat JMSReplyTo or similar usages on core protocol */
    public static String getURIPrefix(String address) {
-      int index = address.toString().indexOf("://");
+      int index = address.indexOf("://");
       if (index > 0) {
          return address.substring(0, index + 3);
       } else {

@@ -165,7 +165,7 @@ public class OpenWireDivertNonExclusiveTest extends OpenWireDivertTestBase {
          for (int i = 0; i < numMessages; i++) {
             Message message = consumer1.receive(TIMEOUT);
             assertNotNull(message);
-            assertEquals(i, message.getObjectProperty(propKey.toString()));
+            assertEquals(i, message.getObjectProperty(propKey));
             message.acknowledge();
          }
 
@@ -174,7 +174,7 @@ public class OpenWireDivertNonExclusiveTest extends OpenWireDivertTestBase {
          for (int i = 0; i < numMessages; i++) {
             Message message = consumer2.receive(TIMEOUT);
             assertNotNull(message);
-            assertEquals(i, message.getObjectProperty(propKey.toString()));
+            assertEquals(i, message.getObjectProperty(propKey));
             message.acknowledge();
          }
 
