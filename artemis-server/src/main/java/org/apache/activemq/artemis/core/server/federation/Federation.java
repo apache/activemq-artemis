@@ -39,8 +39,6 @@ public class Federation {
    private final FederationConfiguration config;
    private FederationManager.State state;
 
-   private final Map<String, FederationConnection> connections = new HashMap<>();
-
    enum State {
       STOPPED,
       STOPPING,

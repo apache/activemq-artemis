@@ -51,7 +51,6 @@ public class PageReadWriter {
    //sizeOf(START_BYTE) + sizeOf(MESSAGE LENGTH) + sizeOf(END_BYTE)
    private static final int HEADER_AND_TRAILER_SIZE = DataConstants.SIZE_INT + 2;
    private static final int MINIMUM_MSG_PERSISTENT_SIZE = HEADER_AND_TRAILER_SIZE;
-   private static final int HEADER_SIZE = HEADER_AND_TRAILER_SIZE - 1;
    private static final int MIN_CHUNK_SIZE = Env.osPageSize();
 
    public interface SuspectFileCallback {

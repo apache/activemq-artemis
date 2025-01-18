@@ -45,8 +45,6 @@ public class ResourceLimitTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private TransportConfiguration liveTC;
-
    @Override
    @BeforeEach
    public void setUp() throws Exception {

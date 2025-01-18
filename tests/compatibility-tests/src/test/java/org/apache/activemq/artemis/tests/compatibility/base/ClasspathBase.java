@@ -17,15 +17,12 @@
 
 package org.apache.activemq.artemis.tests.compatibility.base;
 
-import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun;
@@ -36,7 +33,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(LogTestNameExtension.class)
 public class ClasspathBase {
@@ -96,8 +95,6 @@ public class ClasspathBase {
    }
 
    protected static Map<String, ClassLoader> loaderMap = new HashMap<>();
-
-   private static HashSet<String> printed = new HashSet<>();
 
    protected ClassLoader defineClassLoader(String classPath) throws Exception {
       String[] classPathArray = classPath.split(File.pathSeparator);

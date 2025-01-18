@@ -48,13 +48,6 @@ public class RecursiveNettySecurityTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /*
-    * create session tests
-    */
-   private static final String addressA = "addressA";
-
-   private static final String queueA = "queueA";
-
    @Override
    @BeforeEach
    public void setUp() throws Exception {

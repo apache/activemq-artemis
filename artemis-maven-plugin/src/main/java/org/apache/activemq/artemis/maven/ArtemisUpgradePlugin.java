@@ -25,7 +25,6 @@ import java.util.Set;
 import org.apache.activemq.artemis.boot.Artemis;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -36,11 +35,6 @@ public class ArtemisUpgradePlugin extends ArtemisAbstractPlugin {
 
    @Parameter
    String name;
-
-   /**
-    * The plugin descriptor
-    */
-   private PluginDescriptor descriptor;
 
    @Parameter(defaultValue = "${activemq.basedir}", required = true)
    private File home;

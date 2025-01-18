@@ -26,7 +26,6 @@ import javax.jms.JMSContext;
 import javax.jms.JMSProducer;
 import javax.jms.JMSRuntimeException;
 import javax.jms.Topic;
-import java.util.Random;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
@@ -39,7 +38,6 @@ import org.junit.jupiter.api.Test;
 public class SharedConsumerTest extends JMSTestBase {
 
    private JMSContext context;
-   private final Random random = new Random();
    private Topic topic1;
    private Topic topic2;
 

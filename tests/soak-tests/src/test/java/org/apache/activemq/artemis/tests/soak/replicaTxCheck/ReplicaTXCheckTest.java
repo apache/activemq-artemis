@@ -80,7 +80,6 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
    private static Process server2;
    private static Process server3;
    private static Process server4;
-   private static Process server5;
 
    int NUMBER_OF_MESSAGES = 1000;
    int KILL_AT = 100;

@@ -55,11 +55,7 @@ public class LegacyJMSConfiguration implements Deployable {
 
    private static final String TOPIC_NODE_NAME = "topic";
 
-   private static final String JMX_DOMAIN_NAME = "jmx-domain";
-
    private static final boolean DEFAULT_QUEUE_DURABILITY = true;
-
-   private URL configurationUrl;
 
    final Configuration configuration;
 

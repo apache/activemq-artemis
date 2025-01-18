@@ -55,8 +55,6 @@ import java.lang.invoke.MethodHandles;
 public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   private static final String BROKER_NAME = "localhost";
    private static final String PRODUCT_NAME = "apache-activemq-artemis";
 
    @Test

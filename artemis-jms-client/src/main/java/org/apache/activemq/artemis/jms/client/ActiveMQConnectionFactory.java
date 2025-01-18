@@ -86,8 +86,6 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
 
    private String password;
 
-   private String passwordCodec;
-
    private String protocolManagerFactoryStr;
 
    private String deserializationDenyList;
@@ -95,9 +93,6 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
    private String deserializationAllowList;
 
    private boolean cacheDestinations;
-
-   // keeping this field for serialization compatibility only. do not use it
-   private boolean finalizeChecks;
 
    private boolean ignoreJTA;
 

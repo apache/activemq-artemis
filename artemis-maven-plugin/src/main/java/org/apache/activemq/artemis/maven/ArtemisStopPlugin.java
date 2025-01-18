@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -31,8 +30,6 @@ import org.apache.maven.project.MavenProject;
 public class ArtemisStopPlugin extends ArtemisAbstractPlugin {
 
    private static final String STOP = "stop";
-
-   private PluginDescriptor descriptor;
 
    @Parameter(defaultValue = "${noServer}")
    boolean ignore;

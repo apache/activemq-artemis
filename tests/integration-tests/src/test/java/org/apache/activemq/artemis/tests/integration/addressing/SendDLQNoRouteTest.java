@@ -34,8 +34,6 @@ public class SendDLQNoRouteTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
 
-   private ClientSessionFactory sessionFactory;
-
    @BeforeEach
    public void setup() throws Exception {
       server = createServer(true);

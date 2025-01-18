@@ -47,8 +47,6 @@ public class LargeBody {
 
    long NO_PENDING_ID = -1;
 
-   private long pendingRecordID = NO_PENDING_ID;
-
    StorageManager storageManager;
 
    private long messageID = -1;

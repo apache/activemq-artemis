@@ -17,7 +17,6 @@
 
 package org.apache.activemq.artemis.tests.leak;
 
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -25,12 +24,8 @@ import io.github.checkleak.core.CheckLeak;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LinkedListMemoryTest extends AbstractLeakTest {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    Random random = new Random();
 

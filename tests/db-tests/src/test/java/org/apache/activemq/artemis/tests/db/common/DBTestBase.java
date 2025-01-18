@@ -16,13 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.db.common;
 
-import java.lang.invoke.MethodHandles;
-
 import org.apache.activemq.artemis.utils.RealServerTestBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DBTestBase extends RealServerTestBase {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 }

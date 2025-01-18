@@ -34,8 +34,6 @@ public class ServerMessageImpl extends MessageInternalImpl implements ServerMess
 
    private CoreMessage message;
 
-   private boolean valid = false;
-
    public boolean isValid() {
       return false;
    }

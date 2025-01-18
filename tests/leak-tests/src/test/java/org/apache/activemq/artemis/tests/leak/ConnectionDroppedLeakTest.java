@@ -16,18 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.leak;
 
-import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
-import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.basicMemoryAsserts;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,8 +44,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
+import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.basicMemoryAsserts;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class ConnectionDroppedLeakTest extends AbstractLeakTest {
 
@@ -64,8 +61,6 @@ public class ConnectionDroppedLeakTest extends AbstractLeakTest {
    }
 
    private static final String QUEUE_NAME = "QUEUE_DROP";
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    ActiveMQServer server;
 

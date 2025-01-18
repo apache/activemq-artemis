@@ -77,12 +77,6 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
    private static final boolean REUSE_SERVERS = Boolean.parseBoolean(TestParameters.testProperty(TEST_NAME, "REUSE_SERVERS", "false"));
 
    private static final int SEND_COMMIT = TestParameters.testProperty(TEST_NAME, "SEND_COMMIT", 50);
-
-   /*
-    * Time each consumer takes to process a message received to allow some messages accumulating.
-    * This sleep happens right before the commit.
-    */
-   private static final String QUEUE_NAME_LIST = "queueTest,Div,Div.0,Div.1,Div.2";
    private static final String QUEUE_NAME = "queueTest";
 
    private static String body;

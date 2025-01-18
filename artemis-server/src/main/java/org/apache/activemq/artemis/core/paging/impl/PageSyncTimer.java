@@ -42,8 +42,6 @@ final class PageSyncTimer extends ActiveMQScheduledComponent {
 
    private final long timeSync;
 
-   private final Runnable runnable = this::tick;
-
    private final List<OperationContext> syncOperations = new LinkedList<>();
 
 

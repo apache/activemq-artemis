@@ -16,15 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -47,9 +40,12 @@ import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class PagingManagerImplTest extends ActiveMQTestBase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-   private final ReadLock lock = new ReentrantReadWriteLock().readLock();
+public class PagingManagerImplTest extends ActiveMQTestBase {
 
    @Test
    public void testPagingManager() throws Exception {

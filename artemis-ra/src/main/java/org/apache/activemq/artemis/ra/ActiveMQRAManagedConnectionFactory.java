@@ -74,11 +74,6 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    private XARecoveryConfig resourceRecovery;
 
    /**
-    * Used to configure whether the connection should be part of the JTA TX. This is when the RA doesn not have access to the Transaction manager to deduct whether this is the case.
-    */
-   private boolean inJtaTransaction;
-
-   /**
     * Constructor
     */
    public ActiveMQRAManagedConnectionFactory() {

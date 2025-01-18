@@ -102,8 +102,6 @@ public abstract class ServerTestBase extends ArtemisTestCase {
 
    private final Collection<ActiveMQServer> servers = new ArrayList<>();
 
-   private String testDir;
-
    // Temp folder at ./target/tmp/<TestClassName>/<generated>
    // Cleans itself, but ./target/tmp/ deleted below as well.
    @TempDir(factory = TargetTempDirFactory.class)

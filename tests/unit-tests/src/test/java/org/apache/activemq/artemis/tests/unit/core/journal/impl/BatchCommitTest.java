@@ -66,9 +66,6 @@ public class BatchCommitTest extends ActiveMQTestBase {
 
    private static final int MAX_AIO = 255;
 
-   private static final int OK = 100;
-   private static final int ERROR = 101;
-
    private static final int RECORDS = 10000;
 
    JournalImpl journal;

@@ -46,8 +46,6 @@ import org.slf4j.LoggerFactory;
  * @version
  */
 public class JmsTempDestinationTest {
-
-   private static final Logger LOG = LoggerFactory.getLogger(JmsTempDestinationTest.class);
    private Connection connection;
    private ActiveMQConnectionFactory factory;
    protected List<Connection> connections = Collections.synchronizedList(new ArrayList<>());

@@ -79,8 +79,6 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
    // Temp folder at ./target/tmp/<TestClassName>/<generated>
    @TempDir(factory = TargetTempDirFactory.class)
    public File brokersFolder;
-
-   private SlowMessagePersister slowMessagePersister;
    ExecutorService sendMessageExecutor;
 
    @BeforeEach
