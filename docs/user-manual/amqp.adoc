@@ -107,6 +107,12 @@ x-opt-delivery-delay::
 
 If both annotations are present in the same message then the broker will prefer the more specific `x-opt-delivery-time` value.
 
+== AMQP duplicate Message Detection
+
+An AMQP message can provide automatic duplicate message detection.
+The duplication id is provided by adding a application property given by the value of
+org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID, which is _AMQ_DUPL_ID
+
 == DLQ and Expiry transfer
 
 AMQP Messages will be copied before transferred to a DLQ or ExpiryQueue and will receive properties and annotations during this process.
