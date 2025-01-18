@@ -610,7 +610,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
       if (topologyMember.getPrimary() == null && topologyMember.getBackup() != null) {
          // This shouldn't happen, however I wanted this to consider all possible cases
-         return (ClientSessionFactoryInternal) createSessionFactory(topologyMember.getBackup());
+         return createSessionFactory(topologyMember.getBackup());
       }
       // it shouldn't happen
       return null;

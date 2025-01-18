@@ -47,7 +47,7 @@ public class ProtonTransactionRefsOperation extends RefsOperation {
 
       if (tx.getDeliveries().containsKey(ref)) {
          Delivery del = tx.getDeliveries().get(ref).getA();
-         ServerConsumer consumer = (ServerConsumer) tx.getDeliveries().get(ref).getB().getBrokerConsumer();
+         ServerConsumer consumer = tx.getDeliveries().get(ref).getB().getBrokerConsumer();
          // Rollback normally if the delivery is not settled or a forced TX rollback is done (e.g. connection drop).
          if (del.remotelySettled() || !tx.isDischarged()) {
             super.rollbackRedelivery(tx, ref, timeBase, queueMap);

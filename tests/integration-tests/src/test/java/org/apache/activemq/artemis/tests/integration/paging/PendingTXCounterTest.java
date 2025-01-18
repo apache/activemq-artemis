@@ -145,7 +145,7 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
 
       Xid xid = newXID();
 
-      try (XAConnection connection = (XAConnection) ((XAConnectionFactory)cf).createXAConnection();
+      try (XAConnection connection = ((XAConnectionFactory)cf).createXAConnection();
            XASession session = connection.createXASession()) {
          Queue queue = session.createQueue(ADDRESS);
          MessageProducer producer = session.createProducer(queue);
@@ -172,7 +172,7 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
 
       Wait.assertEquals(INITIAL_NUMBER_OF_MESSAGES, serverQueue::getMessageCount, 2000);
 
-      try (XAConnection connection = (XAConnection) ((XAConnectionFactory)cf).createXAConnection();
+      try (XAConnection connection = ((XAConnectionFactory)cf).createXAConnection();
            XASession session = connection.createXASession()) {
          if (rollback) {
             session.getXAResource().rollback(xid);
@@ -262,7 +262,7 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
          int startPosition = 5 * repeat;
          int endPosition = startPosition + 5;
 
-         try (XAConnection connection = (XAConnection) ((XAConnectionFactory) cf).createXAConnection(); XASession session = connection.createXASession()) {
+         try (XAConnection connection = ((XAConnectionFactory) cf).createXAConnection(); XASession session = connection.createXASession()) {
             Queue queue = session.createQueue(ADDRESS);
             MessageConsumer consumer = session.createConsumer(queue);
             connection.start();
@@ -315,7 +315,7 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
 
       logger.info("Before tx = {}", serverQueue.getMessageCount());
 
-      try (XAConnection connection = (XAConnection) ((XAConnectionFactory)cf).createXAConnection();
+      try (XAConnection connection = ((XAConnectionFactory)cf).createXAConnection();
            XASession session = connection.createXASession()) {
          if (rollback) {
             session.getXAResource().rollback(xid2);

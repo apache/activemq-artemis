@@ -119,7 +119,7 @@ public class AsyncOpenCloseTest extends ActiveMQTestBase {
             logger.debug("Closing");
             file.close(false, false);
             // even though the callback is blocked, the content of the file should already be good as written
-            validateFile(file, (byte) writtenByte);
+            validateFile(file, writtenByte);
             valve.countDown();
             Wait.assertEquals(0, submit::get, 5000, 10);
 

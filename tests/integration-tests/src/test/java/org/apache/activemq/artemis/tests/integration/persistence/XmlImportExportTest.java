@@ -476,7 +476,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, false);
 
-      LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
+      LargeServerMessageImpl fileMessage = new LargeServerMessageImpl(server.getStorageManager());
 
       fileMessage.setMessageID(1005);
       fileMessage.setDurable(true);
@@ -550,7 +550,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       factory = createSessionFactory(locator);
       ClientSession session = factory.createSession(false, false);
 
-      LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
+      LargeServerMessageImpl fileMessage = new LargeServerMessageImpl(server.getStorageManager());
 
       fileMessage.setMessageID(1005);
       fileMessage.setDurable(true);
@@ -904,7 +904,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          producer.send(message);
       }
 
-      LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
+      LargeServerMessageImpl fileMessage = new LargeServerMessageImpl(server.getStorageManager());
 
       fileMessage.setMessageID(1005);
       fileMessage.setDurable(true);

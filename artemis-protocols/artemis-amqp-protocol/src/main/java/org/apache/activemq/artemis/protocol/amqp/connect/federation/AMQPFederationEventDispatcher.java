@@ -146,7 +146,7 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
 
       server.registerBrokerPlugin(this); // Start listening for bindings and consumer events.
 
-      return (Consumer) session.createSender(senderContext, SimpleString.of(getEventsLinkAddress()), null, false);
+      return session.createSender(senderContext, SimpleString.of(getEventsLinkAddress()), null, false);
    }
 
    @Override

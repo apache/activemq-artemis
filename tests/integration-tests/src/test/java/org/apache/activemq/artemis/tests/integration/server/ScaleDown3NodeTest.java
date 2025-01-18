@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
-import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -139,7 +138,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       Message message;
 
       if (large) {
-         LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) servers[2].getStorageManager());
+         LargeServerMessageImpl fileMessage = new LargeServerMessageImpl(servers[2].getStorageManager());
 
          fileMessage.setMessageID(1005);
          fileMessage.setDurable(true);
