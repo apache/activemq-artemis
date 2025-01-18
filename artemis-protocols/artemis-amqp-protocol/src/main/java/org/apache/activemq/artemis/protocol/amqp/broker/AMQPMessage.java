@@ -589,7 +589,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
             map = new HashMap<>();
             this.applicationProperties = new ApplicationProperties(map);
          } else {
-            map = Collections.EMPTY_MAP;
+            map = Collections.emptyMap();
          }
       }
 
@@ -609,7 +609,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
             map = new HashMap<>();
             this.messageAnnotations = new MessageAnnotations(map);
          } else {
-            map = Collections.EMPTY_MAP;
+            map = Collections.emptyMap();
          }
       }
 
@@ -1902,7 +1902,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    public String toString() {
       MessageDataScanningStatus scanningStatus = getDataScanningStatus();
       Map<String, Object> applicationProperties = scanningStatus == MessageDataScanningStatus.SCANNED ?
-         getApplicationPropertiesMap(false) : Collections.EMPTY_MAP;
+         getApplicationPropertiesMap(false) : Collections.emptyMap();
 
       return this.getClass().getSimpleName() + "( [durable=" + isDurable() +
          ", messageID=" + getMessageID() +

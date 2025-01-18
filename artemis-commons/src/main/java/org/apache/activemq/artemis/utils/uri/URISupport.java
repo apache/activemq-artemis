@@ -228,7 +228,7 @@ public class URISupport {
    }
 
    private static Map<String, String> emptyMap() {
-      return Collections.EMPTY_MAP;
+      return Collections.emptyMap();
    }
 
    /**

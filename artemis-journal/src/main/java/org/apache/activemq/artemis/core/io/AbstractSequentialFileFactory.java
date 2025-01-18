@@ -249,7 +249,7 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
       String[] fileNames = journalDir.list(fnf);
 
       if (fileNames == null) {
-         return Collections.EMPTY_LIST;
+         return Collections.emptyList();
       }
 
       return Arrays.asList(fileNames);

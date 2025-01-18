@@ -100,7 +100,7 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationS
       final Map<String, Object> addressSourceProperties;
 
       if (sender.getRemoteProperties() == null || !sender.getRemoteProperties().containsKey(FEDERATED_ADDRESS_SOURCE_PROPERTIES)) {
-         addressSourceProperties = Collections.EMPTY_MAP;
+         addressSourceProperties = Collections.emptyMap();
       } else {
          addressSourceProperties = (Map<String, Object>) sender.getRemoteProperties().get(FEDERATED_ADDRESS_SOURCE_PROPERTIES);
       }

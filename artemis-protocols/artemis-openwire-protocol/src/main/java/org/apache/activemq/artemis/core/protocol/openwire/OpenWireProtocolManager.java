@@ -87,7 +87,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final List<String> websocketRegistryNames = Collections.EMPTY_LIST;
+   private static final List<String> websocketRegistryNames = Collections.emptyList();
 
    private static final IdGenerator BROKER_ID_GENERATOR = new IdGenerator();
    private static final IdGenerator ID_GENERATOR = new IdGenerator();

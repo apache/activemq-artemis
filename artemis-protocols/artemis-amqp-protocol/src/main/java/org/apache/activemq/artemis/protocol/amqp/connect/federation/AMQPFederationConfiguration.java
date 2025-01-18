@@ -94,7 +94,7 @@ public final class AMQPFederationConfiguration {
       if (properties != null && !properties.isEmpty()) {
          this.properties = new HashMap<>(properties);
       } else {
-         this.properties = Collections.EMPTY_MAP;
+         this.properties = Collections.emptyMap();
       }
    }
 
