@@ -263,7 +263,7 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
    @TestTemplate
    @Timeout(60)
    public void testDuplicateDetection() throws Exception {
-      final int MSG_COUNT = 10;
+      final int MSG_COUNT = 5;
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
@@ -276,14 +276,32 @@ public class AmqpSenderTest extends AmqpClientTestSupport {
       receiver.flow(10);
       assertNull(receiver.receiveNoWait(), "somehow the queue had messages from a previous test");
 
+      final String bodyValueA = "MessageA";
+      final String bodyValueB = "MessageB";
       for (int i = 1; i <= MSG_COUNT; ++i) {
-         AmqpMessage message = new AmqpMessage();
-         message.setApplicationProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(), "123");
-         sender.send(message);
+         AmqpMessage sentMessageA = new AmqpMessage();
+         sentMessageA.setText(bodyValueA);
+         sentMessageA.setApplicationProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(), "123");
+         sender.send(sentMessageA);
       }
 
       AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
-      assertNull(receiver.receiveNoWait());
+      assertNotNull(message, "A message should have been received");
+      assertEquals(bodyValueA, message.getText(), "Unexpected message body");
+      assertNull(receiver.receiveNoWait(), "No more messages should be received");
+
+      // Send another bunch with a different ID, again expect only one to arrive
+      for (int i = 1; i <= MSG_COUNT; ++i) {
+         AmqpMessage sentMessageB = new AmqpMessage();
+         sentMessageB.setText(bodyValueB);
+         sentMessageB.setApplicationProperty(Message.HDR_DUPLICATE_DETECTION_ID.toString(), "456");
+         sender.send(sentMessageB);
+      }
+
+      AmqpMessage message2 = receiver.receive(5, TimeUnit.SECONDS);
+      assertNotNull(message2, "A message should have been received");
+      assertEquals(bodyValueB, message2.getText(), "Unexpected message body");
+      assertNull(receiver.receiveNoWait(), "No more messages should be received");
 
       sender.close();
       connection.close();

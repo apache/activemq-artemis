@@ -40,24 +40,11 @@ If the server detects a duplicate message for any message in the transaction, th
 
 The name of the property that you set is given by the value of `org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID`, which is `_AMQ_DUPL_ID`
 
-The value of the property can be of type `byte[]` or `SimpleString` if you're using the core API.
-If you're using JMS it must be a `String`, and its value should be unique.
+When using JMS the value of the property must be a `String`, and similarly a string type would be used in other client APIs or protocols used with the broker.
+Its value should be unique.
 An easy way of generating a unique id is by generating a UUID.
 
-Here's an example of setting the property using the core API:
-
-[,java]
-----
-...
-
-ClientMessage message = session.createMessage(true);
-
-SimpleString myUniqueID = "This is my unique id";   // Could use a UUID for this
-
-message.setStringProperty(HDR_DUPLICATE_DETECTION_ID, myUniqueID);
-----
-
-And here's an example using the JMS API:
+Here's an example of setting the property using the JMS API:
 
 [,java]
 ----
@@ -70,6 +57,21 @@ String myUniqueID = "This is my unique id";   // Could use a UUID for this
 message.setStringProperty(HDR_DUPLICATE_DETECTION_ID.toString(), myUniqueID);
 
 ...
+----
+
+If using the Artemis Core client the value of the property can be of type `byte[]` or `SimpleString`.
+
+Here's an example of setting the property using using the Core API:
+
+[,java]
+----
+...
+
+ClientMessage message = session.createMessage(true);
+
+SimpleString myUniqueID = "This is my unique id";   // Could use a UUID for this
+
+message.setStringProperty(HDR_DUPLICATE_DETECTION_ID, myUniqueID);
 ----
 
 == Configuring the Duplicate ID Cache
