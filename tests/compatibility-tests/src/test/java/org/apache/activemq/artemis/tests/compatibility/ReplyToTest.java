@@ -69,7 +69,7 @@ public class ReplyToTest extends ServerBase {
       localClassLoaders.clear();
    }
 
-   private static final ArrayList<ClassLoader> localClassLoaders = new ArrayList<>();
+   private static final List<ClassLoader> localClassLoaders = new ArrayList<>();
 
    @Override
    public ClassLoader getClasspath(String name) throws Exception {

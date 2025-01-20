@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.jms.tests.tools;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -25,7 +26,6 @@ import org.apache.activemq.artemis.jms.tests.tools.container.LocalTestServer;
 import org.apache.activemq.artemis.jms.tests.tools.container.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * Collection of static methods to use to start/stop and interact with the in-memory JMS server. It

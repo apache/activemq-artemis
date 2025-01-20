@@ -24,6 +24,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -174,10 +175,10 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
    }
 
    protected TransportConfiguration addAcceptorConfiguration(ActiveMQServer server, int port) {
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, String.valueOf(port));
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, getConfiguredProtocols());
-      HashMap<String, Object> amqpParams = new HashMap<>();
+      Map<String, Object> amqpParams = new HashMap<>();
       TransportConfiguration tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, NETTY_ACCEPTOR, amqpParams);
       return tc;
    }
@@ -237,7 +238,7 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
 
       // Configure roles
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HashSet<Role> value = new HashSet<>();
+      Set<Role> value = new HashSet<>();
       value.add(new Role("nothing", false, false, false, false, false, false, false, false, false, false, false, false));
       value.add(new Role("browser", false, false, false, false, false, false, false, true, false, false, false, false));
       value.add(new Role("guest", false, true, false, false, false, false, false, true, false, false, false, false));

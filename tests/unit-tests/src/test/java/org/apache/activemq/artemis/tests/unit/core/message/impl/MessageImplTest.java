@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -383,7 +384,7 @@ public class MessageImplTest extends ActiveMQTestBase {
          }
       }
 
-      ArrayList<Thread> threads = new ArrayList<>();
+      List<Thread> threads = new ArrayList<>();
 
       for (int i = 0; i < T1_number; i++) {
          T1 t = new T1();

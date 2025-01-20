@@ -128,7 +128,7 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
    @Override
    protected void doExecute() {
 
-      HashMap<String, String> keys = new HashMap<>();
+      Map<String, String> keys = new HashMap<>();
 
       if (detailKey != null) {
          if (detailValue == null) {
@@ -181,7 +181,7 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
 
                ArtifactResult result = resolveArtifact(art);
 
-               HashMap<String, String> filter = new HashMap<>();
+               Map<String, String> filter = new HashMap<>();
                filter.put("X{detail}", detail);
                filter.put("X{group}", art.getGroupId());
                filter.put("X{artifact}", art.getArtifactId());

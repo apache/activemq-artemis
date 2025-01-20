@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -121,7 +122,7 @@ public class MessageGroupingConnectionFactoryTest extends ActiveMQTestBase {
 
    private static class DummyMessageHandler implements MessageHandler {
 
-      ArrayList<ClientMessage> list = new ArrayList<>();
+      List<ClientMessage> list = new ArrayList<>();
 
       private final CountDownLatch latch;
 

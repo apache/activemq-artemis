@@ -931,7 +931,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
       logger.trace("populate: bean: {} with {}", this, beanProperties);
 
-      HashMap<String, String> errors = new HashMap<>();
+      Map<String, String> errors = new HashMap<>();
       // Loop through the property name/value pairs to be set
       for (final Map.Entry<String, ? extends Object> entry : beanProperties.entrySet()) {
          // Identify the property name and value(s) to be assigned
@@ -965,12 +965,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return property.substring(0, property.length() - PROPERTY_CLASS_SUFFIX.length());
    }
 
-   private void trackError(HashMap<String, String> errors, Map.Entry<String, ?> entry, Throwable oops) {
+   private void trackError(Map<String, String> errors, Map.Entry<String, ?> entry, Throwable oops) {
       logger.debug("failed to populate property entry({}), reason: {}", entry, oops);
       errors.put(entry.toString(), oops.toString());
    }
 
-   private synchronized void updateApplyStatus(String propsId, HashMap<String, String> errors) {
+   private synchronized void updateApplyStatus(String propsId, Map<String, String> errors) {
       JsonArrayBuilder errorsObjectArrayBuilder = JsonLoader.createArrayBuilder();
       for (Map.Entry<String, String> entry : errors.entrySet()) {
          errorsObjectArrayBuilder.add(JsonLoader.createObjectBuilder().add("value", entry.getKey()).add("reason", entry.getValue()));

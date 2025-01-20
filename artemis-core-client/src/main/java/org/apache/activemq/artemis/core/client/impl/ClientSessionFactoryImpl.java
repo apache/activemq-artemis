@@ -492,7 +492,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
     * @param close
     */
    private void closeCleanSessions(boolean close) {
-      HashSet<ClientSessionInternal> sessionsToClose;
+      Set<ClientSessionInternal> sessionsToClose;
       synchronized (sessions) {
          sessionsToClose = new HashSet<>(sessions);
       }
@@ -677,7 +677,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
                connector = null;
 
-               HashSet<ClientSessionInternal> sessionsToFailover;
+               Set<ClientSessionInternal> sessionsToFailover;
                synchronized (sessions) {
                   sessionsToFailover = new HashSet<>(sessions);
                }

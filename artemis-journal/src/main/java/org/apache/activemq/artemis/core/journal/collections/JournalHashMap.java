@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -290,7 +291,7 @@ public class JournalHashMap<K, V, C> implements Map<K, V> {
    }
 
    public synchronized Collection<V> valuesCopy() {
-      ArrayList<V> values = new ArrayList<>(map.size());
+      List<V> values = new ArrayList<>(map.size());
       map.values().forEach(v -> values.add(v.value));
       return values;
    }

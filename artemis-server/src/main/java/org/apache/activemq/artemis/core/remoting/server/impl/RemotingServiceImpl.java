@@ -351,7 +351,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       if (!started)
          return;
       failureCheckAndFlushThread.close(false);
-      HashMap<Object, ConnectionEntry> connectionEntries = new HashMap<>(connections);
+      Map<Object, ConnectionEntry> connectionEntries = new HashMap<>(connections);
 
       // Now we ensure that no connections will process any more packets after this method is
       // complete then send a disconnect packet
@@ -398,7 +398,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       logger.debug("Sending disconnect on client connections");
 
-      HashSet<ConnectionEntry> connectionEntries = new HashSet<>(connections.values());
+      Set<ConnectionEntry> connectionEntries = new HashSet<>(connections.values());
 
       // Now we ensure that no connections will process any more packets after this method is complete
       // then send a disconnect packet

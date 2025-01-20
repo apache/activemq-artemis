@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.selector;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.selector.filter.FilterException;
@@ -24,7 +25,7 @@ import org.apache.activemq.artemis.selector.filter.Filterable;
 
 public class MockMessage implements Filterable {
 
-   HashMap<String, Object> properties = new HashMap<>();
+   Map<String, Object> properties = new HashMap<>();
    private String text;
    private Object destination;
    private String messageId;

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -62,7 +63,7 @@ public final class CoreStreamMessageWrapper extends CoreMessageWrapper {
    @Override
    public Section createAMQPSection(Map<Symbol, Object> maMap, Properties properties) throws ConversionException {
       maMap.put(AMQPMessageSupport.JMS_MSG_TYPE, AMQPMessageSupport.JMS_STREAM_MESSAGE);
-      ArrayList<Object> list = new ArrayList<>();
+      List<Object> list = new ArrayList<>();
       try {
          while (true) {
             list.add(readObject());

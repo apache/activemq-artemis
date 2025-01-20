@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.tests.leak;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import io.github.checkleak.core.CheckLeak;
@@ -45,7 +46,7 @@ public class LinkedListMemoryTest extends AbstractLeakTest {
       linkedList.addSorted("Test");
 
       int iterators = 100;
-      ArrayList<LinkedListIterator> listIerators = new ArrayList();
+      List<LinkedListIterator> listIerators = new ArrayList();
 
       for (int i = 0; i < iterators; i++) {
          listIerators.add(linkedList.iterator());

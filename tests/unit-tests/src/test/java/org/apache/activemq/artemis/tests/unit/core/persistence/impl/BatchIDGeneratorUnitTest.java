@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -116,8 +117,8 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
    }
 
    protected void loadIDs(final Journal journal, final BatchingIDGenerator batch) throws Exception {
-      ArrayList<RecordInfo> records = new ArrayList<>();
-      ArrayList<PreparedTransactionInfo> tx = new ArrayList<>();
+      List<RecordInfo> records = new ArrayList<>();
+      List<PreparedTransactionInfo> tx = new ArrayList<>();
 
       journal.start();
       journal.load(records, tx, null);

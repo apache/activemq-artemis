@@ -22,7 +22,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
@@ -163,7 +165,7 @@ public class LinkedListTest extends ActiveMQTestBase {
 
       int elements = 10_000;
 
-      HashSet<Integer> values = new HashSet<>();
+      Set<Integer> values = new HashSet<>();
       for (int i = 0; i < elements; i++) {
          for (;;) { // a retry loop, if a random give me the same value twice, I would retry
             int value = RandomUtil.randomInt();
@@ -186,7 +188,7 @@ public class LinkedListTest extends ActiveMQTestBase {
 
    }
 
-   private void validateOrder(HashSet<Integer> values) {
+   private void validateOrder(Set<Integer> values) {
       Integer previous = null;
       LinkedListIterator<Integer> integerIterator = list.iterator();
       while (integerIterator.hasNext()) {
@@ -228,7 +230,7 @@ public class LinkedListTest extends ActiveMQTestBase {
       // this is for serverID = null;
       LongObjectHashMap<LinkedListImpl.Node<ObservableNode>> nodeLongObjectHashMap = new LongObjectHashMap<>();
 
-      HashMap<Object, LongObjectHashMap<LinkedListImpl.Node<ObservableNode>>> mapList = new HashMap<>();
+      Map<Object, LongObjectHashMap<LinkedListImpl.Node<ObservableNode>>> mapList = new HashMap<>();
 
       @Override
       public void storeNode(ObservableNode element, LinkedListImpl.Node<ObservableNode> node) {

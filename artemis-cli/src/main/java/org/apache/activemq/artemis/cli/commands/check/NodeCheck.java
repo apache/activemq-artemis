@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.cli.commands.check;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.management.NodeInfo;
 import picocli.CommandLine.Command;
@@ -102,7 +103,7 @@ public class NodeCheck extends CheckAbstract {
 
    @Override
    protected CheckTask[] getCheckTasks() {
-      ArrayList<CheckTask> checkTasks = new ArrayList<>();
+      List<CheckTask> checkTasks = new ArrayList<>();
 
       if (primary || live) {
          checkTasks.add(new CheckTask("the node has a primary", this::checkNodePrimary));

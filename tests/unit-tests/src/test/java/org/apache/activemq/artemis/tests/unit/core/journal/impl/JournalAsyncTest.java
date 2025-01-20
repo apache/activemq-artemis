@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -42,9 +43,9 @@ public class JournalAsyncTest extends ActiveMQTestBase {
 
    private JournalImpl journalImpl = null;
 
-   private ArrayList<RecordInfo> records = null;
+   private List<RecordInfo> records = null;
 
-   private ArrayList<PreparedTransactionInfo> transactions = null;
+   private List<PreparedTransactionInfo> transactions = null;
 
 
 

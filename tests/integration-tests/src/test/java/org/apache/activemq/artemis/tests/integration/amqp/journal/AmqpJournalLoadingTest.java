@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
@@ -49,7 +50,7 @@ public class AmqpJournalLoadingTest extends AmqpClientTestSupport {
 
       Wait.assertTrue("All messages should arrive", () -> afterRestartQueueView.getMessageCount() == 1);
 
-      ArrayList<AMQPMessage> messageReference = new ArrayList<>(1);
+      List<AMQPMessage> messageReference = new ArrayList<>(1);
 
       afterRestartQueueView.forEach((next) -> {
          final AMQPMessage message = (AMQPMessage)next.getMessage();

@@ -56,7 +56,7 @@ final class PersistentDuplicateIDCache implements DuplicateIDCache {
 
    private final SimpleString address;
 
-   private final ArrayList<ObjLongPair<ByteArray>> ids;
+   private final List<ObjLongPair<ByteArray>> ids;
 
    private final IntFunction<Integer> cachedBoxedInts;
 

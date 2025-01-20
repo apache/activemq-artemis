@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
@@ -37,7 +38,7 @@ import org.junit.jupiter.api.Test;
 
 public class RepositoryTest extends ServerTestBase {
 
-   HierarchicalRepository<HashSet<Role>> securityRepository;
+   HierarchicalRepository<Set<Role>> securityRepository;
 
    @Override
    @BeforeEach
@@ -50,7 +51,7 @@ public class RepositoryTest extends ServerTestBase {
    @Test
    public void testDefault() {
       securityRepository.setDefault(new HashSet<>());
-      HashSet<Role> roles = securityRepository.getMatch("queues.something");
+      Set<Role> roles = securityRepository.getMatch("queues.something");
 
       assertEquals(roles.size(), 0);
    }
@@ -176,35 +177,35 @@ public class RepositoryTest extends ServerTestBase {
    @Test
    public void testSingleMatch() {
       securityRepository.addMatch("queues.*", new HashSet<>());
-      HashSet<Role> hashSet = securityRepository.getMatch("queues.something");
+      Set<Role> hashSet = securityRepository.getMatch("queues.something");
       assertEquals(hashSet.size(), 0);
    }
 
    @Test
    public void testSingletwo() {
       securityRepository.addMatch("queues.another.aq.*", new HashSet<>());
-      HashSet<Role> roles = new HashSet<>(2);
+      Set<Role> roles = new HashSet<>(2);
       roles.add(new Role("test1", true, true, true, true, true, true, true, true, true, true, false, false));
       roles.add(new Role("test2", true, true, true, true, true, true, true, true, true, true, false, false));
       securityRepository.addMatch("queues.aq", roles);
-      HashSet<Role> roles2 = new HashSet<>(2);
+      Set<Role> roles2 = new HashSet<>(2);
       roles2.add(new Role("test1", true, true, true, true, true, true, true, true, true, true, false, false));
       roles2.add(new Role("test2", true, true, true, true, true, true, true, true, true, true, false, false));
       roles2.add(new Role("test3", true, true, true, true, true, true, true, true, true, true, false, false));
       securityRepository.addMatch("queues.another.andanother", roles2);
 
-      HashSet<Role> hashSet = securityRepository.getMatch("queues.another.andanother");
+      Set<Role> hashSet = securityRepository.getMatch("queues.another.andanother");
       assertEquals(hashSet.size(), 3);
    }
 
    @Test
    public void testWithoutWildcard() {
       securityRepository.addMatch("queues.1.*", new HashSet<>());
-      HashSet<Role> roles = new HashSet<>(2);
+      Set<Role> roles = new HashSet<>(2);
       roles.add(new Role("test1", true, true, true, true, true, true, true, true, true, true, false, false));
       roles.add(new Role("test2", true, true, true, true, true, true, true, true, true, true, false, false));
       securityRepository.addMatch("queues.2.aq", roles);
-      HashSet<Role> hashSet = securityRepository.getMatch("queues.2.aq");
+      Set<Role> hashSet = securityRepository.getMatch("queues.2.aq");
       assertEquals(hashSet.size(), 2);
    }
 

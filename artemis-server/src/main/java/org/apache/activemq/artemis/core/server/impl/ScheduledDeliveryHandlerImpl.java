@@ -253,7 +253,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
       @Override
       public void run() {
-         HashMap<Queue, LinkedList<MessageReference>> refs = new HashMap<>();
+         Map<Queue, LinkedList<MessageReference>> refs = new HashMap<>();
 
          runnables.remove(deliveryTime);
 

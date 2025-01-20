@@ -33,10 +33,10 @@ public class AcceptorControlImplTest {
 
    @Test
    public void testParameters() throws Exception {
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put("param", RandomUtil.randomString());
 
-      HashMap<String, Object> extraProps = new HashMap<>();
+      Map<String, Object> extraProps = new HashMap<>();
       extraProps.put("extraProp", RandomUtil.randomString());
 
       Acceptor acceptor = Mockito.mock(Acceptor.class);

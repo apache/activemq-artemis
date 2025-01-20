@@ -158,7 +158,7 @@ public class MessageUtil {
    }
 
    public static Set<String> getPropertyNames(Message message) {
-      HashSet<String> set = new HashSet<>();
+      Set<String> set = new HashSet<>();
 
       for (SimpleString propName : message.getPropertyNames()) {
          if (propName.equals(Message.HDR_GROUP_ID)) {

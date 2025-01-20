@@ -34,6 +34,8 @@ import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -146,7 +148,7 @@ public class LargeMessageRetentionTest extends SoakTestBase {
 
       executor.execute(() -> {
          try (Connection consumerConnection = factory.createConnection()) {
-            HashMap<Integer, AtomicInteger> messageSequences = new HashMap<>();
+            Map<Integer, AtomicInteger> messageSequences = new HashMap<>();
             Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             Queue queue = consumerSession.createQueue(queueName);
             consumerConnection.start();
@@ -206,7 +208,7 @@ public class LargeMessageRetentionTest extends SoakTestBase {
       assertEquals(0, errors.get());
 
       try (Connection consumerConnection = factory.createConnection()) {
-         HashMap<Integer, AtomicInteger> messageSequences = new HashMap<>();
+         Map<Integer, AtomicInteger> messageSequences = new HashMap<>();
          Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue queue = consumerSession.createQueue(queueName);
          consumerConnection.start();
@@ -217,7 +219,7 @@ public class LargeMessageRetentionTest extends SoakTestBase {
          SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", null, null);
          Wait.assertEquals(10, () -> simpleManagement.getMessageCountOnQueue(queueName), 5000);
 
-         HashSet<Integer> receivedMessages = new HashSet<>();
+         Set<Integer> receivedMessages = new HashSet<>();
 
          for (int i = 0; i < 10; i++) {
             TextMessage message = (TextMessage) consumer.receive(300_000);

@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,7 +42,7 @@ public class ParseAppMultiThread {
 
       for (int rep = 0; rep < 500; rep++) {
          String randomStr = RandomUtil.randomString();
-         HashMap map = new HashMap();
+         Map map = new HashMap();
          map.put("color", randomStr);
          for (int i = 0; i < 10; i++) {
             map.put("stuff" + i, "value" + i); // just filling stuff

@@ -733,7 +733,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          AmqpReceiver receiver = session.createReceiver(testQueueName);
          receiver.flow(numMsgs);
 
-         ArrayList<AmqpMessage> messages = new ArrayList<>();
+         List<AmqpMessage> messages = new ArrayList<>();
          for (int i = 0; i < numMsgs; ++i) {
             AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
             assertNotNull(message, "failed at " + i);
@@ -823,8 +823,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          receiverA.flow(numMsgs / 2, true);
          receiverB.flow(numMsgs / 2);
 
-         ArrayList<AmqpMessage> messagesA = new ArrayList<>();
-         ArrayList<AmqpMessage> messagesB = new ArrayList<>();
+         List<AmqpMessage> messagesA = new ArrayList<>();
+         List<AmqpMessage> messagesB = new ArrayList<>();
 
          long timeout = 6000;
          long start = System.nanoTime();

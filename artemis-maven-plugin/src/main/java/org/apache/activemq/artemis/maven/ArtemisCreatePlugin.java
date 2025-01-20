@@ -122,7 +122,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
     * For extra stuff not covered by the properties
     */
    @Parameter
-   ArrayList<String> args = new ArrayList<>();
+   List<String> args = new ArrayList<>();
 
    /**
     * Deprecated, use dependencyList and individualList
@@ -180,7 +180,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
          }
       }
 
-      ArrayList<String> listCommands = new ArrayList<>();
+      List<String> listCommands = new ArrayList<>();
 
       add(listCommands, "create", "--silent", "--force", "--user", user, "--password", password, "--role", role, "--port-offset", "" + portOffset, "--data", dataFolder);
 
@@ -367,7 +367,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
       Files.write(target, content.getBytes(charset));
    }
 
-   private String getCommandline(ArrayList<String> listCommands) {
+   private String getCommandline(List<String> listCommands) {
       StringBuffer buffer = new StringBuffer();
       buffer.append(home.getAbsolutePath() + "/bin/artemis ");
       for (String string : listCommands) {

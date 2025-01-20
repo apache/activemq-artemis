@@ -1514,7 +1514,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
             }
          }
 
-         HashMap<String, String> metaDataToSend;
+         Map<String, String> metaDataToSend;
 
          synchronized (metadata) {
             metaDataToSend = new HashMap<>(metadata);

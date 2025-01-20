@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class LeastConnectionsPolicyTest extends PolicyTestBase {
@@ -41,7 +42,7 @@ public class LeastConnectionsPolicyTest extends PolicyTestBase {
       Set<Target> selectedTargets;
 
 
-      ArrayList<Target> targets = new ArrayList<>();
+      List<Target> targets = new ArrayList<>();
       for (int i = 0; i < MULTIPLE_TARGETS; i++) {
          targets.add(new MockTarget().setConnected(true).setReady(true));
       }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -264,7 +265,7 @@ public final class Topology {
     * @param memberToSend
     */
    private void sendMemberUp(final String nodeId, final TopologyMemberImpl memberToSend) {
-      final ArrayList<ClusterTopologyListener> copy = copyListeners();
+      final List<ClusterTopologyListener> copy = copyListeners();
 
       if (logger.isTraceEnabled()) {
          logger.trace("{}::prepare to send {} to {} elements", this, nodeId, copy.size());
@@ -290,8 +291,8 @@ public final class Topology {
    /**
     * @return
     */
-   private ArrayList<ClusterTopologyListener> copyListeners() {
-      ArrayList<ClusterTopologyListener> listenersCopy;
+   private List<ClusterTopologyListener> copyListeners() {
+      List<ClusterTopologyListener> listenersCopy;
       synchronized (topologyListeners) {
          listenersCopy = new ArrayList<>(topologyListeners);
       }
@@ -326,7 +327,7 @@ public final class Topology {
       }
 
       if (member != null) {
-         final ArrayList<ClusterTopologyListener> copy = copyListeners();
+         final List<ClusterTopologyListener> copy = copyListeners();
 
          executor.execute(new Runnable() {
             @Override
@@ -387,7 +388,7 @@ public final class Topology {
    }
 
    public Collection<TopologyMemberImpl> getMembers() {
-      ArrayList<TopologyMemberImpl> members;
+      List<TopologyMemberImpl> members;
       synchronized (this) {
          members = new ArrayList<>(topology.values());
       }

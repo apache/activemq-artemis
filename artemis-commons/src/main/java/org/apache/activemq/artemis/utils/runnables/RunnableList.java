@@ -18,11 +18,12 @@
 package org.apache.activemq.artemis.utils.runnables;
 
 import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class RunnableList {
 
-   private final HashSet<AtomicRunnable> list = new HashSet<>();
+   private final Set<AtomicRunnable> list = new HashSet<>();
 
    public RunnableList() {
    }

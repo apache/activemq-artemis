@@ -59,7 +59,7 @@ public class TCPTransportConfigurationSchema extends AbstractTransportConfigurat
                                                                          Set<String> allowableProperties,
                                                                          String name,
                                                                          String factoryName) throws URISyntaxException {
-      HashMap<String, Object> props = new HashMap<>();
+      Map<String, Object> props = new HashMap<>();
 
       Map<String, Object> extraProps = new HashMap<>();
       BeanSupport.setData(uri, props, allowableProperties, query, extraProps);
@@ -78,7 +78,7 @@ public class TCPTransportConfigurationSchema extends AbstractTransportConfigurat
          String[] split = connectors.split(",");
          for (String s : split) {
             URI extraUri = new URI(s);
-            HashMap<String, Object> newProps = new HashMap<>();
+            Map<String, Object> newProps = new HashMap<>();
             extraProps = new HashMap<>();
             BeanSupport.setData(extraUri, newProps, allowableProperties, query, extraProps);
             Map<String, String> extraUriQuery = parseQuery(extraUri.getQuery(), null);

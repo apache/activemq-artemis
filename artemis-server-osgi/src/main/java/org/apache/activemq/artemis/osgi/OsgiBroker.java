@@ -140,7 +140,7 @@ public class OsgiBroker {
    }
 
    private String[] getRequiredProtocols(Set<TransportConfiguration> acceptors) {
-      ArrayList<String> protocols = new ArrayList<>();
+      List<String> protocols = new ArrayList<>();
       for (TransportConfiguration acceptor : acceptors) {
          Object protocolsFromAcceptor = acceptor.getParams().get(TransportConstants.PROTOCOLS_PROP_NAME);
          if (protocolsFromAcceptor != null) {
@@ -172,8 +172,8 @@ public class OsgiBroker {
     * simple at the mo as e only have core and jms but will need impproving if
     * we get more.
     */
-   public ArrayList<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components) {
-      ArrayList<ActiveMQComponent> activeMQComponents = new ArrayList<>();
+   public List<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components) {
+      List<ActiveMQComponent> activeMQComponents = new ArrayList<>();
       ActiveMQComponent jmsComponent = components.get("jms");
       if (jmsComponent != null) {
          activeMQComponents.add(jmsComponent);

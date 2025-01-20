@@ -127,11 +127,11 @@ public class JournalHashMapTest extends ActiveMQTestBase {
       journal.start();
 
 
-      ArrayList<RecordInfo> recordInfos = new ArrayList<>();
+      List<RecordInfo> recordInfos = new ArrayList<>();
       List<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
       journal.load(recordInfos, preparedTransactions, (a, b, c) -> { }, true);
 
-      ArrayList<JournalHashMap.MapRecord<Long, Long>> records = new ArrayList<>();
+      List<JournalHashMap.MapRecord<Long, Long>> records = new ArrayList<>();
       recordInfos.forEach(r -> {
          assertEquals((byte)3, r.userRecordType);
          journalHashMapProvider.reload(r);

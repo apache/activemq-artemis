@@ -33,6 +33,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -104,7 +105,7 @@ public class OWLeakTest extends SoakTestBase {
    public static Collection<Object[]> parameters() {
       String[] protocols = PROTOCOL_LIST.split(",");
 
-      ArrayList<Object[]> parameters = new ArrayList<>();
+      List<Object[]> parameters = new ArrayList<>();
       for (String str : protocols) {
          logger.debug("Adding {} to the list for the test", str);
          parameters.add(new Object[]{str});

@@ -608,7 +608,7 @@ public abstract class ServerTestBase extends ArtemisTestCase {
    private List<Exception> checkCsfStopped() throws Exception {
       if (!Wait.waitFor(ClientSessionFactoryImpl.CLOSE_RUNNABLES::isEmpty, 5_000)) {
          List<ClientSessionFactoryImpl.CloseRunnable> closeRunnables = new ArrayList<>(ClientSessionFactoryImpl.CLOSE_RUNNABLES);
-         ArrayList<Exception> exceptions = new ArrayList<>();
+         List<Exception> exceptions = new ArrayList<>();
 
          if (!closeRunnables.isEmpty()) {
             for (ClientSessionFactoryImpl.CloseRunnable closeRunnable : closeRunnables) {

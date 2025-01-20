@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.core.server.routing.targets.Target;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class FirstElementPolicyTest extends PolicyTestBase {
 
@@ -35,7 +36,7 @@ public class FirstElementPolicyTest extends PolicyTestBase {
    public void testPolicyWithMultipleTargets() {
       AbstractPolicy policy = createPolicy();
 
-      ArrayList<Target> targets = new ArrayList<>();
+      List<Target> targets = new ArrayList<>();
       for (int i = 0; i < MULTIPLE_TARGETS; i++) {
          targets.add(new MockTarget());
       }

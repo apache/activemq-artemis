@@ -99,7 +99,7 @@ public class IsolatedTopologyTest extends ActiveMQTestBase {
 
       ClusterConnectionConfiguration server1CC1 = new ClusterConnectionConfiguration().setName("cc1").setAddress("jms").setConnectorName("local-cc1").setRetryInterval(250).setConfirmationWindowSize(1024).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(connectTo);
 
-      ArrayList<String> connectTo2 = new ArrayList<>();
+      List<String> connectTo2 = new ArrayList<>();
       connectTo2.add("other-cc2");
 
       ClusterConnectionConfiguration server1CC2 = new ClusterConnectionConfiguration().setName("cc2").setAddress("jms").setConnectorName("local-cc2").setRetryInterval(250).setConfirmationWindowSize(1024).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(connectTo2);

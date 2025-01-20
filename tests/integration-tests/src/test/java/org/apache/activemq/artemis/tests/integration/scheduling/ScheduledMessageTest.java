@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -831,7 +832,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
       ClientConsumer consumer = session.createConsumer(atestq);
 
-      ArrayList<Xid> xids = new ArrayList<>();
+      List<Xid> xids = new ArrayList<>();
 
       session.start();
 

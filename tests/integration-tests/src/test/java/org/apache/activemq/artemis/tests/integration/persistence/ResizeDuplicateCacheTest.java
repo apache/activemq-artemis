@@ -17,7 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.persistence;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -89,7 +89,7 @@ public class ResizeDuplicateCacheTest extends ActiveMQTestBase {
       Assertions.assertEquals(duplicateSize, duplicateIDCache.getSize());
 
       server.getStorageManager().getMessageJournal().scheduleCompactAndBlock(10_000);
-      HashMap<Integer, AtomicInteger> records = countJournal(server.getConfiguration());
+      Map<Integer, AtomicInteger> records = countJournal(server.getConfiguration());
 
       AtomicInteger duplicateRecordsCount = records.get((int) JournalRecordIds.DUPLICATE_ID);
       Assertions.assertNotNull(duplicateRecordsCount);

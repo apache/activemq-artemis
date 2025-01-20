@@ -1952,7 +1952,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
 
          Map<Xid, Long> xids = resourceManager.getPreparedTransactionsWithCreationTime();
-         ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<>(xids.entrySet());
+         List<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<>(xids.entrySet());
          Collections.sort(xidsSortedByCreationTime, Entry.comparingByValue());
          String[] s = new String[xidsSortedByCreationTime.size()];
          int i = 0;
@@ -1985,7 +1985,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             return "";
          }
 
-         ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<>(xids.entrySet());
+         List<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<>(xids.entrySet());
          Collections.sort(xidsSortedByCreationTime, Entry.comparingByValue());
 
          JsonArrayBuilder txDetailListJson = JsonLoader.createArrayBuilder();
@@ -2028,7 +2028,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             return "<h3>*** Prepared Transaction Details ***</h3><p>No entry.</p>";
          }
 
-         ArrayList<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<>(xids.entrySet());
+         List<Entry<Xid, Long>> xidsSortedByCreationTime = new ArrayList<>(xids.entrySet());
          Collections.sort(xidsSortedByCreationTime, new Comparator<Entry<Xid, Long>>() {
             @Override
             public int compare(final Entry<Xid, Long> entry1, final Entry<Xid, Long> entry2) {

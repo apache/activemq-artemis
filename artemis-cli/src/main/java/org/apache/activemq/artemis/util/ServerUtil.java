@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -96,7 +97,7 @@ public class ServerUtil {
       try {
          boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
 
-         ArrayList<String> command = new ArrayList<>();
+         List<String> command = new ArrayList<>();
 
          ProcessBuilder builder = null;
          if (IS_WINDOWS) {

@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.jms.server.config.impl;
 import javax.management.MBeanServer;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -93,8 +94,8 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
     */
    public void parseConfiguration(final Node rootnode) throws Exception {
 
-      ArrayList<JMSQueueConfiguration> queues = new ArrayList<>();
-      ArrayList<TopicConfiguration> topics = new ArrayList<>();
+      List<JMSQueueConfiguration> queues = new ArrayList<>();
+      List<TopicConfiguration> topics = new ArrayList<>();
 
       Element e = (Element) rootnode;
 
@@ -190,8 +191,8 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
     * @param topics
     * @param domain
     */
-   protected void newConfig(final ArrayList<JMSQueueConfiguration> queues,
-                            final ArrayList<TopicConfiguration> topics,
+   protected void newConfig(final List<JMSQueueConfiguration> queues,
+                            final List<TopicConfiguration> topics,
                             String domain) {
       setQueueConfigurations(queues).setTopicConfigurations(topics).setDomain(domain);
    }

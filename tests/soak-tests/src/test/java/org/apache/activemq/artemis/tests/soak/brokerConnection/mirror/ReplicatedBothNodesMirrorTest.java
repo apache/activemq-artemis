@@ -34,6 +34,7 @@ import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -319,7 +320,7 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
       }
 
       // Mirror failover could challenge the order
-      HashSet<Integer> receivedIDs = new HashSet<>();
+      Set<Integer> receivedIDs = new HashSet<>();
 
       ConnectionFactory connectionFactoryDC2 = CFUtil.createConnectionFactory("amqp", uri(DC2_IP));
       try (Connection connection = connectionFactoryDC2.createConnection()) {

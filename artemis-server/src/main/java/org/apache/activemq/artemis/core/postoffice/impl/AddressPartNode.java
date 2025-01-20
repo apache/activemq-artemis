@@ -138,7 +138,7 @@ public final class AddressPartNode<T> {
       }
 
       // look for a path match after 0-N skips among immediate children
-      ArrayList<AddressPartNode> visitedSet = new ArrayList<>(paths.length);
+      List<AddressPartNode> visitedSet = new ArrayList<>(paths.length);
       for (int i = startIndex; i < paths.length; i++) {
          final AddressPartNode<T> match = getChild(paths[i]);
          if (match != null) {
@@ -156,7 +156,7 @@ public final class AddressPartNode<T> {
       }
    }
 
-   private boolean alreadyVisited(final AddressPartNode<T> child, final ArrayList<AddressPartNode> matches) {
+   private boolean alreadyVisited(final AddressPartNode<T> child, final List<AddressPartNode> matches) {
       if (!matches.isEmpty()) {
          for (AddressPartNode alreadyMatched : matches) {
             if (child == alreadyMatched) {

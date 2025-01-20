@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -107,9 +108,9 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
    private BrokerId brokerId;
    protected final ProducerId advisoryProducerId = new ProducerId();
 
-   private final CopyOnWriteArrayList<OpenWireConnection> connections = new CopyOnWriteArrayList<>();
+   private final List<OpenWireConnection> connections = new CopyOnWriteArrayList<>();
 
-   private final ConcurrentHashMap<String, OpenWireConnection> clientIdSet = new ConcurrentHashMap<>();
+   private final ConcurrentMap<String, OpenWireConnection> clientIdSet = new ConcurrentHashMap<>();
 
    private String brokerName;
 

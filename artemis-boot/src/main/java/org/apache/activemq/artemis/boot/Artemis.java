@@ -79,7 +79,7 @@ public class Artemis {
     * This is a good method for booting an embedded command
     */
    public static Object execute(File fileHome, File fileInstance, File fileBrokerETC, boolean useSystemOut, boolean enableShell, String... args) throws Throwable {
-      ArrayList<File> dirs = new ArrayList<>();
+      List<File> dirs = new ArrayList<>();
       if (fileHome != null) {
          dirs.add(new File(fileHome, "lib"));
       }
@@ -97,7 +97,7 @@ public class Artemis {
          }
       }
 
-      ArrayList<URL> urls = new ArrayList<>();
+      List<URL> urls = new ArrayList<>();
 
       // Without the etc on the config, things like JGroups configuration wouldn't be loaded
       if (fileBrokerETC == null && fileInstance != null) {
@@ -119,7 +119,7 @@ public class Artemis {
          if (bootdir.exists() && bootdir.isDirectory()) {
 
             // Find the jar files in the directory..
-            ArrayList<File> files = new ArrayList<>();
+            List<File> files = new ArrayList<>();
             for (File f : bootdir.listFiles()) {
                if (f.getName().endsWith(".jar") || f.getName().endsWith(".zip")) {
                   files.add(f);
@@ -158,7 +158,7 @@ public class Artemis {
 
    }
 
-   private static void add(ArrayList<URL> urls, File file) {
+   private static void add(List<URL> urls, File file) {
       try {
          urls.add(file.toURI().toURL());
       } catch (MalformedURLException e) {

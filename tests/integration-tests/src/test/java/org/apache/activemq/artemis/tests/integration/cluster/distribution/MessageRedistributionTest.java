@@ -686,7 +686,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       session0.start();
 
-      ArrayList<Xid> xids = new ArrayList<>();
+      List<Xid> xids = new ArrayList<>();
 
       for (int i = 0; i < numberOfMessages; i++) {
          Xid xid = newXID();

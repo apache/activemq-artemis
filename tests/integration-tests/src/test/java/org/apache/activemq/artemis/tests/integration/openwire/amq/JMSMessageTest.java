@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
@@ -266,7 +267,7 @@ public class JMSMessageTest extends BasicOpenWireTest {
       private long expiration;
       private int priority;
       private String text;
-      private final HashMap<String, Object> props = new HashMap<>();
+      private final Map<String, Object> props = new HashMap<>();
 
       @Override
       public String getJMSMessageID() throws JMSException {

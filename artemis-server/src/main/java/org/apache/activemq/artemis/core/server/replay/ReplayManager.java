@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -111,7 +113,7 @@ public class ReplayManager {
 
       RoutingContext context = new RoutingContextImpl(null);
 
-      HashMap<Long, LinkedHashSet<JournalFile>> largeMessageLocations = new HashMap<>();
+      Map<Long, Set<JournalFile>> largeMessageLocations = new HashMap<>();
 
       for (JournalFile file : files) {
          if (start != null || end != null) {
@@ -140,7 +142,7 @@ public class ReplayManager {
             public void onReadEventRecord(RecordInfo info) throws Exception {
                switch (info.getUserRecordType()) {
                   case JournalRecordIds.ADD_MESSAGE_BODY:
-                     LinkedHashSet<JournalFile> files = largeMessageLocations.get(info.id);
+                     Set<JournalFile> files = largeMessageLocations.get(info.id);
                      if (files == null) {
                         files = new LinkedHashSet<>();
                         largeMessageLocations.put(info.id, files);
@@ -207,7 +209,7 @@ public class ReplayManager {
    }
 
 
-   private void route(Filter filter, RoutingContext context, SequentialFileFactory messagesFF, Message message, String sourceAddress, String targetAddress, HashMap<Long, LinkedHashSet<JournalFile>> filesMap) throws Exception {
+   private void route(Filter filter, RoutingContext context, SequentialFileFactory messagesFF, Message message, String sourceAddress, String targetAddress, Map<Long, Set<JournalFile>> filesMap) throws Exception {
       if (messageMatch(filter, message, sourceAddress, targetAddress)) {
          final long originalMessageID = message.getMessageID();
          message.setMessageID(server.getStorageManager().generateID());
@@ -229,13 +231,13 @@ public class ReplayManager {
 
    private void readLargeMessageBody(SequentialFileFactory messagesFF,
                           Message message,
-                          HashMap<Long, LinkedHashSet<JournalFile>> filesMap,
+                          Map<Long, Set<JournalFile>> filesMap,
                           long originalMessageID) throws Exception {
       long newMessageID = message.getMessageID();
       SequentialFile largeMessageFile = server.getStorageManager().createFileForLargeMessage(newMessageID, true);
       largeMessageFile.open();
 
-      LinkedHashSet<JournalFile> files = filesMap.get(originalMessageID);
+      Set<JournalFile> files = filesMap.get(originalMessageID);
       if (files != null) {
          for (JournalFile file : files) {
             JournalImpl.readJournalFile(messagesFF, file, new JournalReaderCallback() {

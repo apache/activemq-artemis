@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -26,9 +23,10 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -56,7 +54,9 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class InfiniteRedeliveryTest extends ActiveMQTestBase {
@@ -196,11 +196,11 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
          CompactJournal.compactJournals(primaryServer.getServer().getConfiguration());
       }
 
-      HashMap<Integer, AtomicInteger> counts = countJournal(primaryServer.getServer().getConfiguration());
+      Map<Integer, AtomicInteger> counts = countJournal(primaryServer.getServer().getConfiguration());
       counts.forEach((k, v) -> logger.debug("{}={}", k, v));
       counts.forEach((k, v) -> assertTrue(v.intValue() < 20, "Record type " + k + " has a lot of records:" +  v));
 
-      HashMap<Integer, AtomicInteger> backupCounts = countJournal(backupServer.getServer().getConfiguration());
+      Map<Integer, AtomicInteger> backupCounts = countJournal(backupServer.getServer().getConfiguration());
       assertTrue(backupCounts.size() > 0);
       backupCounts.forEach((k, v) -> logger.debug("On Backup:{}={}", k, v));
       backupCounts.forEach((k, v) -> assertTrue(v.intValue() < 10, "Backup Record type " + k + " has a lot of records:" +  v));

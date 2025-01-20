@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.spi.core.security.scram;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -42,8 +43,8 @@ public class StringPrep {
       //
       // TreeMap would work well for this, but it was missing basic operations like lowerEntry
       // until JDK1.6, which we don't want to depend on.
-      private final ArrayList<Integer> tupleStart = new ArrayList<>();
-      private final ArrayList<Integer> tupleCount = new ArrayList<>();
+      private final List<Integer> tupleStart = new ArrayList<>();
+      private final List<Integer> tupleCount = new ArrayList<>();
 
       static CharClass fromList(int[] charMap) {
          SortedMap<Integer, Integer> mapping = new TreeMap<>();

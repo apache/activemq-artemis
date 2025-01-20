@@ -212,7 +212,7 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
       int size = ((Long) directoryList.size()).intValue();
       ActiveMQBuffer buffer = readActiveMQBuffer(directoryList, size);
 
-      ArrayList<PagingStore> storesReturn = new ArrayList<>();
+      List<PagingStore> storesReturn = new ArrayList<>();
 
       while (buffer.readableBytes() > 0) {
          SimpleString table = buffer.readSimpleString();

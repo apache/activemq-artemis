@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.activemq.artemis.api.core.Message;
@@ -238,7 +239,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
       String subscriptionQueueName;
 
       {
-         HashSet<String> subscriptionSet = new HashSet<>();
+         Set<String> subscriptionSet = new HashSet<>();
          // making sure the queues created on a1 are propagated into b1
          a1.getPostOffice().getBindingsForAddress(TOPIC_NAME_SIMPLE_STRING).forEach((n, b) -> {
             logger.debug("{} = {}", n, b);
@@ -479,7 +480,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
 
       message = new AmqpMessage();
       message.setAddress(TOPIC_NAME);
-      ArrayList<String> singleQueue = new ArrayList<>();
+      List<String> singleQueue = new ArrayList<>();
       singleQueue.add("my-topic-shared-subscription_3:global");
       singleQueue.add("IDONTEXIST");
       message.setDeliveryAnnotation(AMQPMirrorControllerSource.TARGET_QUEUES.toString(), singleQueue);

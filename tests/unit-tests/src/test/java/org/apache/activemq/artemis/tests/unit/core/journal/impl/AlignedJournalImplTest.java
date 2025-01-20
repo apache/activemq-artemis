@@ -82,11 +82,11 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
    JournalImpl journalImpl = null;
 
-   private ArrayList<RecordInfo> records = null;
+   private List<RecordInfo> records = null;
 
-   private ArrayList<Long> incompleteTransactions = null;
+   private List<Long> incompleteTransactions = null;
 
-   private ArrayList<PreparedTransactionInfo> transactions = null;
+   private List<PreparedTransactionInfo> transactions = null;
 
 
 
@@ -1246,8 +1246,8 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       addActiveMQComponent(journalImpl);
       journalImpl.start();
 
-      ArrayList<RecordInfo> info = new ArrayList<>();
-      ArrayList<PreparedTransactionInfo> trans = new ArrayList<>();
+      List<RecordInfo> info = new ArrayList<>();
+      List<PreparedTransactionInfo> trans = new ArrayList<>();
 
       journalImpl.load(info, trans, null);
 

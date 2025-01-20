@@ -38,6 +38,7 @@ import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -366,7 +367,7 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
    private CountDownLatch startConsumer(Executor executor, ConnectionFactory factory, String queue, AtomicBoolean running, AtomicInteger errorCount, AtomicInteger receivedCount) {
       CountDownLatch done = new CountDownLatch(1);
 
-      HashSet<Integer> receivedMessages = new HashSet<>();
+      Set<Integer> receivedMessages = new HashSet<>();
 
       executor.execute(() -> {
          try {

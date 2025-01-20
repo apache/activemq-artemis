@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -167,7 +168,7 @@ public class ClusterNodeVerifier implements AutoCloseable {
    }
 
    protected Long[] fetchTopologyTime(Map<String, TopologyItem> topologyItemMap) {
-      ArrayList<Long> times = new ArrayList<>(topologyItemMap.size() * 2);
+      List<Long> times = new ArrayList<>(topologyItemMap.size() * 2);
       topologyItemMap.forEach((id, node) -> {
          if (node.primary != null) {
             try {

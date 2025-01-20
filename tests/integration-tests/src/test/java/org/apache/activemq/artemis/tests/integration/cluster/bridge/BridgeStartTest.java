@@ -98,7 +98,7 @@ public class BridgeStartTest extends ActiveMQTestBase {
 
          server0.getConfiguration().setConnectorConfigurations(connectors);
 
-         ArrayList<String> staticConnectors = new ArrayList<>();
+         List<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
 
          final String bridgeName = "bridge1";
@@ -242,7 +242,7 @@ public class BridgeStartTest extends ActiveMQTestBase {
 
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
-      ArrayList<String> staticConnectors = new ArrayList<>();
+      List<String> staticConnectors = new ArrayList<>();
       staticConnectors.add(server1tc.getName());
 
       final String bridgeName = "bridge1";
@@ -417,7 +417,7 @@ public class BridgeStartTest extends ActiveMQTestBase {
 
          server0.getConfiguration().setConnectorConfigurations(connectors);
 
-         ArrayList<String> staticConnectors = new ArrayList<>();
+         List<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
 
          final String bridgeName = "bridge1";
@@ -547,7 +547,7 @@ public class BridgeStartTest extends ActiveMQTestBase {
 
          server0.getConfiguration().setConnectorConfigurations(connectors);
 
-         ArrayList<String> staticConnectors = new ArrayList<>();
+         List<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
 
          final String bridgeName = "bridge1";

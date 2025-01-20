@@ -110,7 +110,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    /**
     * any registered listeners, these get fired on changes to the repository
     */
-   private final ArrayList<HierarchicalRepositoryChangeListener> listeners = new ArrayList<>();
+   private final List<HierarchicalRepositoryChangeListener> listeners = new ArrayList<>();
 
    public HierarchicalObjectRepository() {
       this(null);
@@ -160,7 +160,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    public List<T> values() {
       lock.readLock().lock();
       try {
-         ArrayList<T> values = new ArrayList<>(wildcardMatches.size() + exactMatches.size() + literalMatches.size());
+         List<T> values = new ArrayList<>(wildcardMatches.size() + exactMatches.size() + literalMatches.size());
 
          for (Match<T> matchValue : wildcardMatches.values()) {
             values.add(matchValue.getValue());

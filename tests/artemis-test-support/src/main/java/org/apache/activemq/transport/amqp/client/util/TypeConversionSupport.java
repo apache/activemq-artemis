@@ -18,6 +18,7 @@ package org.apache.activemq.transport.amqp.client.util;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 public final class TypeConversionSupport {
 
@@ -58,7 +59,7 @@ public final class TypeConversionSupport {
       Object convert(Object value);
    }
 
-   private static final HashMap<ConversionKey, Converter> CONVERSION_MAP = new HashMap<>();
+   private static final Map<ConversionKey, Converter> CONVERSION_MAP = new HashMap<>();
 
    static {
       Converter toStringConverter = value -> value.toString();

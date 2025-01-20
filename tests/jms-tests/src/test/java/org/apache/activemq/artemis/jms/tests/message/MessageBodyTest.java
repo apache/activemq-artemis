@@ -30,6 +30,7 @@ import javax.jms.TextMessage;
 import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.jupiter.api.AfterEach;
@@ -531,7 +532,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
 
       ProxyAssertSupport.assertFalse(m2.itemExists("sausages"));
 
-      HashSet<String> itemNames = new HashSet<>();
+      Set<String> itemNames = new HashSet<>();
       Enumeration<String> en = m2.getMapNames();
       while (en.hasMoreElements()) {
          String propName = en.nextElement();

@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.spi.core.remoting;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 import java.util.EnumSet;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -366,7 +366,7 @@ public abstract class SessionContext {
 
    public abstract void restartSession() throws ActiveMQException;
 
-   public abstract void resetMetadata(HashMap<String, String> metaDataToSend);
+   public abstract void resetMetadata(Map<String, String> metaDataToSend);
 
    public abstract int getDefaultConsumerWindowSize(SessionQueueQueryResponseMessage response) throws ActiveMQException;
 

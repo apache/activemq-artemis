@@ -34,6 +34,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.broker.BrokerFactory;
@@ -497,7 +498,7 @@ public class ActiveMQXAConnectionFactoryTest extends CombinationTestSupport {
                                                     ConnectionId connectionId,
                                                     Xid tid) throws Exception {
       BrokerService broker = BrokerRegistry.getInstance().lookup(brokerName);
-      CopyOnWriteArrayList<TransportConnection> connections = broker.getTransportConnectors().get(0).getConnections();
+      List<TransportConnection> connections = broker.getTransportConnectors().get(0).getConnections();
       for (TransportConnection connection : connections) {
          if (connection.getConnectionId().equals(clientId)) {
             try {

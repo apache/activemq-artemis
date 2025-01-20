@@ -1634,7 +1634,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.setPassword("admin");
          statQueue.setQueueName("Test1");
          statQueue.execute(context);
-         ArrayList<String> lines = getOutputLines(context, false);
+         List<String> lines = getOutputLines(context, false);
          // Header line + 3 queues
          assertEquals(5, lines.size(), "rows returned using queueName=Test1");
 
@@ -1917,7 +1917,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.setPassword("admin");
          statQueue.setQueueName(NAME);
          statQueue.execute(context);
-         ArrayList<String> lines = getOutputLines(context, false);
+         List<String> lines = getOutputLines(context, false);
          assertEquals(4, lines.size(), "rows returned");
          String[] split = lines.get(1).split("\\|");
          assertEquals(StatQueue.DEFAULT_MAX_COLUMN_SIZE, split[1].length());
@@ -1985,7 +1985,7 @@ public class ArtemisTest extends CliTestBase {
          statQueue.setOperationName("EQUALS");
          statQueue.setValue("5");
          statQueue.execute(context);
-         ArrayList<String> lines = getOutputLines(context, false);
+         List<String> lines = getOutputLines(context, false);
          // Header line + 0 queue
          assertEquals(0, lines.size(), "No stdout for wrong FIELD");
 
@@ -2084,7 +2084,7 @@ public class ArtemisTest extends CliTestBase {
 
          TestActionContext context;
          StatQueue statQueue;
-         ArrayList<String> lines;
+         List<String> lines;
 
          //set up some queues with messages and consumers
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -2197,7 +2197,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    //read individual lines from byteStream
-   public static ArrayList<String> getOutputLines(TestActionContext context, boolean errorOutput) throws IOException {
+   public static List<String> getOutputLines(TestActionContext context, boolean errorOutput) throws IOException {
       byte[] bytes;
 
       if (errorOutput) {
@@ -2206,7 +2206,7 @@ public class ArtemisTest extends CliTestBase {
          bytes = context.getStdoutBytes();
       }
       BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes)));
-      ArrayList<String> lines = new ArrayList<>();
+      List<String> lines = new ArrayList<>();
 
       String currentLine = bufferedReader.readLine();
       while (currentLine != null) {

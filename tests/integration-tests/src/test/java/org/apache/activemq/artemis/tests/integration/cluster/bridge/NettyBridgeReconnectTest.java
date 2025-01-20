@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -71,7 +72,7 @@ public class NettyBridgeReconnectTest extends BridgeTestBase {
    private TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params, "server1tc");
 
    private Map<String, TransportConfiguration> connectors;
-   private ArrayList<String> staticConnectors;
+   private List<String> staticConnectors;
 
    @AfterEach
    public void destroyServer() throws Exception {
@@ -225,7 +226,7 @@ public class NettyBridgeReconnectTest extends BridgeTestBase {
          Queue queue = session.createQueue(testAddress);
          MessageConsumer consumer = session.createConsumer(queue);
          connection.start();
-         HashSet<String> received = new HashSet<>();
+         Set<String> received = new HashSet<>();
          for (int j = 0; j < TRANSACTIONS * NUM_MESSAGES; j++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
             assertNotNull(message);

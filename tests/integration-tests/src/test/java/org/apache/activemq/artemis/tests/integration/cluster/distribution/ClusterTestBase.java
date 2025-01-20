@@ -919,7 +919,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                                                         final int msgStart,
                                                         final int msgEnd,
                                                         final int... consumerIDs) throws Exception {
-      HashMap<SimpleString, Integer> groupIdsReceived = new HashMap<>();
+      Map<SimpleString, Integer> groupIdsReceived = new HashMap<>();
       for (int i = 0; i < consumerIDs.length; i++) {
          ConsumerHolder holder = consumers[consumerIDs[i]];
 

@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -434,7 +435,7 @@ public final class ReplicationManager implements ActiveMQComponent {
     */
    public Set<OperationContext> getActiveTokens() {
 
-      LinkedHashSet<OperationContext> activeContexts = new LinkedHashSet<>();
+      Set<OperationContext> activeContexts = new LinkedHashSet<>();
 
       // The same context will be replicated on the pending tokens...
       // as the multiple operations will be replicated on the same context
@@ -862,7 +863,7 @@ public final class ReplicationManager implements ActiveMQComponent {
     * @param largeMessages
     */
    public void sendLargeMessageIdListMessage(Map<Long, Pair<String, Long>> largeMessages) {
-      ArrayList<Long> idsToSend;
+      List<Long> idsToSend;
       idsToSend = new ArrayList<>(largeMessages.keySet());
 
       if (started)

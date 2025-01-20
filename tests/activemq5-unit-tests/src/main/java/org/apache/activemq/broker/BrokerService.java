@@ -109,7 +109,7 @@ public class BrokerService implements Service {
 
    private TemporaryFolder tmpfolder;
 
-   public static WeakHashMap<Broker, Exception> map = new WeakHashMap<>();
+   public static Map<Broker, Exception> map = new WeakHashMap<>();
 
    static {
       InputStream in;

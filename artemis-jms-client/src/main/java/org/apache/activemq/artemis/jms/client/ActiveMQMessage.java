@@ -21,6 +21,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.IllegalStateException;
@@ -111,7 +113,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    }
 
 
-   private static final HashSet<String> reservedIdentifiers = new HashSet<>();
+   private static final Set<String> reservedIdentifiers = new HashSet<>();
 
    static {
       ActiveMQMessage.reservedIdentifiers.add("NULL");

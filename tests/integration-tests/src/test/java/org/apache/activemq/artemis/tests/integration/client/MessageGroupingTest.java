@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -548,7 +549,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
 
    private static class DummyMessageHandler implements MessageHandler {
 
-      ArrayList<ClientMessage> list = new ArrayList<>();
+      List<ClientMessage> list = new ArrayList<>();
 
       private CountDownLatch latch;
 

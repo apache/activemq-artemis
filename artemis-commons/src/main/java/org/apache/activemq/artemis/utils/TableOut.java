@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.utils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.List;
 
 public class TableOut {
 
@@ -45,7 +46,7 @@ public class TableOut {
    }
 
    public void print(PrintStream stream, String[] columns, boolean[] center) {
-      ArrayList<String>[] splitColumns = new ArrayList[columns.length];
+      List<String>[] splitColumns = new ArrayList[columns.length];
       for (int i = 0; i < columns.length; i++) {
          splitColumns[i] = splitLine(columns[i], columnSizes[i]);
       }
@@ -53,11 +54,11 @@ public class TableOut {
       print(stream, splitColumns, center);
    }
 
-   public void print(PrintStream stream, ArrayList<String>[] splitColumns) {
+   public void print(PrintStream stream, List<String>[] splitColumns) {
       print(stream, splitColumns, null);
    }
 
-   public void print(PrintStream stream, ArrayList<String>[] splitColumns, boolean[] centralize) {
+   public void print(PrintStream stream, List<String>[] splitColumns, boolean[] centralize) {
       boolean hasMoreLines;
       int lineNumber = 0;
       do {
@@ -98,8 +99,8 @@ public class TableOut {
       while (hasMoreLines);
    }
 
-   public ArrayList<String> splitLine(final String column, int size) {
-      ArrayList<String> cells = new ArrayList<>();
+   public List<String> splitLine(final String column, int size) {
+      List<String> cells = new ArrayList<>();
 
       for (int position = 0; position < column.length();) {
          int identationUsed;

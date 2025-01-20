@@ -86,7 +86,7 @@ public final class XmlDataImporter extends ConnectionConfigurationAbtract {
 
    final Map<String, Long> queueIDs = new HashMap<>();
 
-   HashMap<String, String> oldPrefixTranslation = new HashMap<>();
+   Map<String, String> oldPrefixTranslation = new HashMap<>();
 
    private ClientSession session;
    private ClientProducer producer;

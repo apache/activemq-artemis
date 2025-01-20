@@ -208,7 +208,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
     */
    @Override
    public void onPageModeCleared() {
-      ArrayList<PageSubscription> subscriptions = cloneSubscriptions();
+      List<PageSubscription> subscriptions = cloneSubscriptions();
 
       Transaction tx = new TransactionImpl(storageManager);
       for (PageSubscription sub : subscriptions) {
@@ -261,7 +261,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          return;
       }
 
-      ArrayList<Page> depagedPages = new ArrayList<>();
+      List<Page> depagedPages = new ArrayList<>();
       LongHashSet depagedPagesSet = new LongHashSet();
 
       // This read lock is required
@@ -296,7 +296,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                   return;
                }
 
-               ArrayList<PageSubscription> cursorList = cloneSubscriptions();
+               List<PageSubscription> cursorList = cloneSubscriptions();
 
                long minPage = checkMinPage(cursorList);
                final long firstPage = pagingStore.getFirstPage();
@@ -352,9 +352,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
     * @param firstPage
     * @throws Exception
     */
-   private void cleanupRegularStream(ArrayList<Page> depagedPages,
+   private void cleanupRegularStream(List<Page> depagedPages,
                           LongHashSet depagedPagesSet,
-                          ArrayList<PageSubscription> cursorList,
+                          List<PageSubscription> cursorList,
                           long minPage,
                           long firstPage) throws Exception {
       // if the current page is being written...
@@ -393,9 +393,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
     * So, this routing is to optimize removing pages when all the acks are made on every cursor.
     * We still need regular depaging on a streamed manner as it will check the min page for all the existent cursors.
     * */
-   private void cleanupMiddleStream(ArrayList<Page> depagedPages,
+   private void cleanupMiddleStream(List<Page> depagedPages,
                           LongHashSet depagedPagesSet,
-                          ArrayList<PageSubscription> cursorList,
+                          List<PageSubscription> cursorList,
                           long minPage,
                           long firstPage) {
 
@@ -443,7 +443,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    // Protected as a way to inject testing
-   protected void cleanupComplete(ArrayList<PageSubscription> cursorList) throws Exception {
+   protected void cleanupComplete(List<PageSubscription> cursorList) throws Exception {
       logger.debug("Address {} is leaving page mode as all messages are consumed and acknowledged from the page store", pagingStore.getAddress());
 
       pagingStore.forceAnotherPage();
@@ -456,7 +456,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    // Protected as a way to inject testing
-   protected void finishCleanup(ArrayList<Page> depagedPages) {
+   protected void finishCleanup(List<Page> depagedPages) {
       logger.trace("this({}) finishing cleanup on {}", this, depagedPages);
       try {
          for (Page depagedPage : depagedPages) {
@@ -480,7 +480,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    }
 
-   private boolean checkPageCompletion(ArrayList<PageSubscription> cursorList, long minPage) throws Exception {
+   private boolean checkPageCompletion(List<PageSubscription> cursorList, long minPage) throws Exception {
 
       logger.trace("checkPageCompletion({})", minPage);
 
@@ -511,8 +511,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    /**
     * @return
     */
-   private synchronized ArrayList<PageSubscription> cloneSubscriptions() {
-      ArrayList<PageSubscription> cursorList = new ArrayList<>(activeCursors.values());
+   private synchronized List<PageSubscription> cloneSubscriptions() {
+      List<PageSubscription> cursorList = new ArrayList<>(activeCursors.values());
       return cursorList;
    }
 
@@ -528,7 +528,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
     * @param currentPage
     * @throws Exception
     */
-   protected void storeBookmark(ArrayList<PageSubscription> cursorList, Page currentPage) throws Exception {
+   protected void storeBookmark(List<PageSubscription> cursorList, Page currentPage) throws Exception {
       try {
          // First step: Move every cursor to the next bookmarked page (that was just created)
          for (PageSubscription cursor : cursorList) {

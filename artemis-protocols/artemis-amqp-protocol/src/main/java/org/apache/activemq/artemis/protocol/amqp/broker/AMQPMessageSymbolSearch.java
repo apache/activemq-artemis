@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.qpid.proton.amqp.Symbol;
@@ -37,8 +38,8 @@ import org.apache.qpid.proton.codec.TypeConstructor;
 final class AMQPMessageSymbolSearch {
 
    // used to quick search for MessageAnnotations
-   private static final IdentityHashMap<Class<?>, Boolean> MSG_ANNOTATIONS_STOPSET;
-   private static final IdentityHashMap<Class<?>, Boolean> APPLICATION_PROPERTIES_STOPSET;
+   private static final Map<Class<?>, Boolean> MSG_ANNOTATIONS_STOPSET;
+   private static final Map<Class<?>, Boolean> APPLICATION_PROPERTIES_STOPSET;
 
    static {
       // we're including MessageAnnotations here because it will still cause termination
@@ -72,7 +73,7 @@ final class AMQPMessageSymbolSearch {
       return lookupOnSection(APPLICATION_PROPERTIES_STOPSET, ApplicationProperties.class, data, needles, startAt);
    }
 
-   private static boolean lookupOnSection(IdentityHashMap<Class<?>, Boolean> stopSet, final Class section, final ReadableBuffer data, final KMPNeedle[] needles, final int startAt) {
+   private static boolean lookupOnSection(Map<Class<?>, Boolean> stopSet, final Class section, final ReadableBuffer data, final KMPNeedle[] needles, final int startAt) {
       DecoderImpl decoder = TLSEncode.getDecoder();
       final int position = data.position();
       decoder.setBuffer(data.position(startAt));

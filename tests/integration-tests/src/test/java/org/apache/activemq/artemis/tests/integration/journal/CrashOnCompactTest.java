@@ -61,8 +61,8 @@ public class CrashOnCompactTest extends SpawnedTestBase {
 
    private void checkJournalSize() throws Exception {
       JournalImpl journal = createJournal(getTestDirfile(), false);
-      ArrayList<RecordInfo> info = new ArrayList<>();
-      ArrayList<PreparedTransactionInfo> txInfo = new ArrayList<>();
+      List<RecordInfo> info = new ArrayList<>();
+      List<PreparedTransactionInfo> txInfo = new ArrayList<>();
       journal.load(info, txInfo, (transactionID, records, recordsToDelete) -> { });
       assertEquals(900, info.size());
    }

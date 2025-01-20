@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.stress.paging;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -50,7 +51,7 @@ public class PageStressTest extends ActiveMQTestBase {
    public void testStopDuringDepage() throws Exception {
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setJournalSyncTransactional(false);
 
-      HashMap<String, AddressSettings> settings = new HashMap<>();
+      Map<String, AddressSettings> settings = new HashMap<>();
 
       AddressSettings setting = new AddressSettings().setMaxSizeBytes(20 * 1024 * 1024);
       settings.put("page-adr", setting);
@@ -135,7 +136,7 @@ public class PageStressTest extends ActiveMQTestBase {
 
    @Test
    public void testPageOnMultipleDestinations() throws Exception {
-      HashMap<String, AddressSettings> settings = new HashMap<>();
+      Map<String, AddressSettings> settings = new HashMap<>();
 
       AddressSettings setting = new AddressSettings().setMaxSizeBytes(20 * 1024 * 1024);
       settings.put("page-adr", setting);

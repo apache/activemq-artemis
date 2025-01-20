@@ -443,9 +443,9 @@ public class MQTTSessionState {
    }
 
    public class OutboundStore {
-      private HashMap<Pair<Long, Long>, Integer> artemisToMqttMessageMap = new HashMap<>();
+      private Map<Pair<Long, Long>, Integer> artemisToMqttMessageMap = new HashMap<>();
 
-      private HashMap<Integer, Pair<Long, Long>> mqttToServerIds = new HashMap<>();
+      private Map<Integer, Pair<Long, Long>> mqttToServerIds = new HashMap<>();
 
       private final Object dataStoreLock = new Object();
 

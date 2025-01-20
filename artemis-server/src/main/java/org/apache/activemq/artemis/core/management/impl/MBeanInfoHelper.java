@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.activemq.artemis.api.core.management.Attribute;
 import org.apache.activemq.artemis.api.core.management.Operation;
@@ -31,8 +32,8 @@ import org.apache.activemq.artemis.api.core.management.Parameter;
 
 public class MBeanInfoHelper {
 
-   private static ConcurrentHashMap<Class, MBeanAttributeInfo[]> attributesInfoCache = new ConcurrentHashMap<>();
-   private static ConcurrentHashMap<Class, MBeanOperationInfo[]> operationsInfoCache = new ConcurrentHashMap<>();
+   private static ConcurrentMap<Class, MBeanAttributeInfo[]> attributesInfoCache = new ConcurrentHashMap<>();
+   private static ConcurrentMap<Class, MBeanOperationInfo[]> operationsInfoCache = new ConcurrentHashMap<>();
 
    public static MBeanOperationInfo[] getMBeanOperationsInfo(final Class mbeanInterface) {
       if (operationsInfoCache.containsKey(mbeanInterface)) {

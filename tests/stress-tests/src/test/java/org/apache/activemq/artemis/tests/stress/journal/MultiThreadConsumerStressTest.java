@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -89,7 +90,7 @@ public class MultiThreadConsumerStressTest extends ActiveMQTestBase {
 
       CountDownLatch latchStart = new CountDownLatch(1);
 
-      ArrayList<BaseThread> threads = new ArrayList<>();
+      List<BaseThread> threads = new ArrayList<>();
 
       ProducerThread[] prod = new ProducerThread[numberOfProducers];
       for (int i = 0; i < numberOfProducers; i++) {

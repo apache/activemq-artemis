@@ -36,6 +36,7 @@ import javax.jms.Topic;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -1081,7 +1082,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       conn.start();
 
-      HashSet<Integer> idsReceived = new HashSet<>();
+      Set<Integer> idsReceived = new HashSet<>();
 
       MessageConsumer consumer = sess.createConsumer(sess.createQueue(getQueueName()));
       for (int i = START_ID; i <= LAST_ID; i++) {
@@ -1117,7 +1118,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
       conn.start();
 
-      HashSet<Integer> idsReceived = new HashSet<>();
+      Set<Integer> idsReceived = new HashSet<>();
 
       Topic topic = sess.createTopic(queueName);
 

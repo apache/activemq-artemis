@@ -17,11 +17,7 @@
 
 package org.apache.activemq.artemis.tests.integration.server;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
@@ -30,6 +26,10 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SimpleStartStopTest extends ActiveMQTestBase {
 
@@ -56,7 +56,7 @@ public class SimpleStartStopTest extends ActiveMQTestBase {
          assertFalse(loggerHandler.hasLevel(LogLevel.ERROR), "There shouldn't be any error for just starting / stopping the server");
          assertFalse(loggerHandler.findText("AMQ224008"));
 
-         HashMap<Integer, AtomicInteger> records = this.internalCountJournalLivingRecords(server.getConfiguration(), false);
+         Map<Integer, AtomicInteger> records = this.internalCountJournalLivingRecords(server.getConfiguration(), false);
 
          AtomicInteger recordCount = records.get((int) JournalRecordIds.ID_COUNTER_RECORD);
 

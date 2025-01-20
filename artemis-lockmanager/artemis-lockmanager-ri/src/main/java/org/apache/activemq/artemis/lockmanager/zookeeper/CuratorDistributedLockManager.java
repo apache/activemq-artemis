@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.lockmanager.zookeeper;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -142,7 +143,7 @@ public class CuratorDistributedLockManager implements DistributedLockManager, Co
 
    private CuratorFramework client;
    private final Map<PrimitiveId, CuratorDistributedPrimitive> primitives;
-   private CopyOnWriteArrayList<UnavailableManagerListener> listeners;
+   private List<UnavailableManagerListener> listeners;
    private boolean unavailable;
    private boolean handlingEvents;
    private final CuratorFrameworkFactory.Builder curatorBuilder;

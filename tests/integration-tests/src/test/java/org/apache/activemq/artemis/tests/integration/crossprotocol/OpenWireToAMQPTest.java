@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
@@ -114,7 +115,7 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
          connection.start();
          ObjectMessage receive = (ObjectMessage) consumer.receive(5000);
          assertNotNull(receive);
-         ArrayList<String> list = (ArrayList<String>) receive.getObject();
+         List<String> list = (ArrayList<String>) receive.getObject();
          assertEquals(list.get(0), "aString");
          connection.close();
       } catch (Exception e) {

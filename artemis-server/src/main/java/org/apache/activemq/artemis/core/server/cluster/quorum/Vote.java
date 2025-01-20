@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 public abstract class Vote<T> {
 
    public Map<String, Object> getVoteMap() {
-      HashMap<String, Object> map = new HashMap<>();
+      Map<String, Object> map = new HashMap<>();
       return map;
    }
 

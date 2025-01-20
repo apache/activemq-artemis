@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class DataFileGenerator extends org.junit.Assert {
 
@@ -49,9 +50,9 @@ public abstract class DataFileGenerator extends org.junit.Assert {
     * @throws InstantiationException
     * @throws IllegalAccessException
     */
-   public static ArrayList<DataFileGenerator> getAllDataFileGenerators() throws Exception {
+   public static List<DataFileGenerator> getAllDataFileGenerators() throws Exception {
       // System.out.println("Looking for generators in : "+classFileDir);
-      ArrayList<DataFileGenerator> l = new ArrayList<>();
+      List<DataFileGenerator> l = new ArrayList<>();
       File[] files = CLASS_FILE_DIR.listFiles();
       for (int i = 0; files != null && i < files.length; i++) {
          File file = files[i];
@@ -66,7 +67,7 @@ public abstract class DataFileGenerator extends org.junit.Assert {
    }
 
    private static void generateControlFiles() throws Exception {
-      ArrayList<DataFileGenerator> generators = getAllDataFileGenerators();
+      List<DataFileGenerator> generators = getAllDataFileGenerators();
       for (DataFileGenerator element : generators) {
          try {
             // System.out.println("Processing: "+object.getClass());
@@ -108,7 +109,7 @@ public abstract class DataFileGenerator extends org.junit.Assert {
    }
 
    public static void assertAllControlFileAreEqual() throws Exception {
-      ArrayList<DataFileGenerator> generators = getAllDataFileGenerators();
+      List<DataFileGenerator> generators = getAllDataFileGenerators();
       for (DataFileGenerator element : generators) {
          // System.out.println("Processing: "+object.getClass());
          element.assertControlFileIsEqual();

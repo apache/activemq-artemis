@@ -698,7 +698,7 @@ public class ClusterManager implements ActiveMQComponent {
    }
 
    private synchronized Collection<ClusterConnection> cloneClusterConnections() {
-      ArrayList<ClusterConnection> list = new ArrayList<>(clusterConnections.values());
+      List<ClusterConnection> list = new ArrayList<>(clusterConnections.values());
       return list;
    }
 

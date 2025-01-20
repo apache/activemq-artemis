@@ -32,6 +32,7 @@ import javax.jms.TextMessage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.RecoverMessages;
@@ -75,7 +76,7 @@ public class RecoverTest extends JMSTestBase {
    }
 
    protected static Collection<Object[]> combine(Object[] one, Object[] two, Object[] three, Object[] four, Object[] five) {
-      ArrayList<Object[]> combinations = new ArrayList<>();
+      List<Object[]> combinations = new ArrayList<>();
       for (Object o1 : one) {
          for (Object o2 : two) {
             for (Object o3 : three) {

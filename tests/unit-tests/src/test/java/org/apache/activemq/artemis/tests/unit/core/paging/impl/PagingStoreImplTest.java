@@ -523,7 +523,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       String fileName = storeImpl.createFileName(1);
 
-      ArrayList<PagedMessage> messages = new ArrayList<>();
+      List<PagedMessage> messages = new ArrayList<>();
 
       SequentialFile file = factory.createSequentialFile(storeImpl.createFileName(1));
 

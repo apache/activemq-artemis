@@ -36,6 +36,7 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -73,6 +74,7 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfi
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
+
 // uncomment this to be able to debug it
 // import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.debugConfiguration;
 
@@ -110,7 +112,7 @@ public class ArtemisFeatureTest extends Assert {
 
    public static Option[] configure(String... features) {
 
-      ArrayList<String> f = new ArrayList<>();
+      List<String> f = new ArrayList<>();
       f.addAll(Arrays.asList(features));
 
       Option[] options = new Option[]{karafDistributionConfiguration().frameworkUrl(maven().groupId("org.apache.karaf").artifactId("apache-karaf").type("tar.gz").versionAsInProject()).unpackDirectory(new File("target/paxexam/unpack/")),

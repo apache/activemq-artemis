@@ -24,6 +24,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -206,7 +207,7 @@ public class ConnectionExitTest extends AbstractLeakTest {
 
       }
 
-      ArrayList<ClientThread> clients = new ArrayList<>(numberOfConnections);
+      List<ClientThread> clients = new ArrayList<>(numberOfConnections);
 
       ConnectionFactory connectionFactory = createConnectionFactory(protocol);
 

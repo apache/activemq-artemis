@@ -17,7 +17,7 @@
 
 package org.apache.activemq.artemis.utils;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ public class TableOutTest {
    public void testSplitString() {
       String bigCell = "1234554321321";
       TableOut tableOut = new TableOut("|", 0, new int[] {10, 3, 3});
-      ArrayList<String> lines = tableOut.splitLine(bigCell, 5);
+      List<String> lines = tableOut.splitLine(bigCell, 5);
       Assertions.assertEquals(3, lines.size());
       Assertions.assertEquals("12345", lines.get(0));
       Assertions.assertEquals("54321", lines.get(1));
@@ -39,7 +39,7 @@ public class TableOutTest {
    public void testSplitStringIdented() {
       String bigCell = "1234532132";
       TableOut tableOut = new TableOut("|", 2, new int[] {10, 3, 3});
-      ArrayList<String> lines = tableOut.splitLine(bigCell, 5);
+      List<String> lines = tableOut.splitLine(bigCell, 5);
       Assertions.assertEquals(3, lines.size());
       Assertions.assertEquals("12345", lines.get(0));
       Assertions.assertEquals("  321", lines.get(1));

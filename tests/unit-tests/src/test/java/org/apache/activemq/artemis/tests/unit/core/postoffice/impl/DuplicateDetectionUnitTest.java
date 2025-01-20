@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -91,7 +92,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
          journal.start();
          journal.loadBindingJournal(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
-         HashMap<SimpleString, List<Pair<byte[], Long>>> mapDups = new HashMap<>();
+         Map<SimpleString, List<Pair<byte[], Long>>> mapDups = new HashMap<>();
 
          FakePagingManager pagingManager = new FakePagingManager();
          journal.loadMessageJournal(postOffice, pagingManager, new ResourceManagerImpl(null, 0, 0, scheduledThreadPool), null, mapDups, null, null, new PostOfficeJournalLoader(postOffice, pagingManager, null, null, null, null, null, null));

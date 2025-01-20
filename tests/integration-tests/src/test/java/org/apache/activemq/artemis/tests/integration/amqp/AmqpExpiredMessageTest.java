@@ -30,6 +30,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -849,7 +850,7 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
 
       Wait.assertEquals(2, queueView::getMessageCount);
       LinkedListIterator<MessageReference> linkedListIterator = queueView.iterator();
-      HashMap<String, Long> dataSet = new HashMap<>();
+      Map<String, Long> dataSet = new HashMap<>();
       int count = 0;
       while (linkedListIterator.hasNext()) {
          count++;

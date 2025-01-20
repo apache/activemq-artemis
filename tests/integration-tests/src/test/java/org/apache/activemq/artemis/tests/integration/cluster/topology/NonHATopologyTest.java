@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.topology;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -65,7 +66,7 @@ public class NonHATopologyTest extends ActiveMQTestBase {
             server.getConfiguration().getAcceptorConfigurations().add(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY));
             server.getConfiguration().getConnectorConfigurations().put("netty", new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
 
-            ArrayList<String> list = new ArrayList<>();
+            List<String> list = new ArrayList<>();
             list.add("netty");
             Configuration config = server.getConfiguration();
             config.getClusterConfigurations().add(new ClusterConnectionConfiguration().setName("tst").setAddress("jms").setConnectorName("netty").setRetryInterval(1000).setConfirmationWindowSize(1000).setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND).setStaticConnectors(list).setAllowDirectConnectionsOnly(true));

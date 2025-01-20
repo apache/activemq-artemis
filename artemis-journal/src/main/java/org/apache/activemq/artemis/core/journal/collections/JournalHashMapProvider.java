@@ -52,7 +52,7 @@ public class JournalHashMapProvider<K, V, C> {
    }
 
    public List<JournalHashMap<K, V, C>> getMaps() {
-      ArrayList<JournalHashMap<K, V, C>> maps = new ArrayList<>();
+      List<JournalHashMap<K, V, C>> maps = new ArrayList<>();
       journalMaps.values().forEach(maps::add);
       return maps;
    }

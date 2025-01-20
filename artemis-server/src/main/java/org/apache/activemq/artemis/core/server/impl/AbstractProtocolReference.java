@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
@@ -27,7 +28,7 @@ import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
  *  */
 public abstract class AbstractProtocolReference extends LinkedListImpl.Node<MessageReferenceImpl> implements MessageReference {
 
-   private HashMap<Class, Object> protocolDataMap;
+   private Map<Class, Object> protocolDataMap;
    protected volatile long sequence = 0;
 
    @Override

@@ -110,7 +110,7 @@ public class ClusteredResetMockTest extends ServerTestBase {
 
          assertTrue(latchSends.await(10, TimeUnit.SECONDS));
 
-         HashSet<SimpleString> codesAsked = new HashSet<>();
+         Set<SimpleString> codesAsked = new HashSet<>();
 
          for (Notification notification : fake.pendingNotifications) {
             codesAsked.add(notification.getProperties().getSimpleStringProperty(ManagementHelper.HDR_PROPOSAL_GROUP_ID));

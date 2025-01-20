@@ -40,9 +40,9 @@ public class TransportConfigurationTest {
       assertEquals(configuration, configuration2);
       assertEquals(configuration.hashCode(), configuration2.hashCode());
 
-      HashMap<String, Object> configMap1 = new HashMap<>();
+      Map<String, Object> configMap1 = new HashMap<>();
       configMap1.put("host", "localhost");
-      HashMap<String, Object> configMap2 = new HashMap<>();
+      Map<String, Object> configMap2 = new HashMap<>();
       configMap2.put("host", "localhost");
 
       configuration = new TransportConfiguration("SomeClass", configMap1, null);
@@ -89,7 +89,7 @@ public class TransportConfigurationTest {
 
    @Test
    public void testToStringObfuscatesPasswords() {
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "secret_password");
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "secret_password");
 

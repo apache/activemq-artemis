@@ -4633,7 +4633,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       LinkedListIterator<? extends MessageReference> lastIterator = null;
 
       MessageReference cachedNext = null;
-      HashSet<PagePosition> previouslyBrowsed = new HashSet<>();
+      Set<PagePosition> previouslyBrowsed = new HashSet<>();
 
       private QueueBrowserIterator() {
          messagesIterator = new SynchronizedIterator(messageReferences.iterator());

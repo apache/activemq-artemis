@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.utils.bean;
 
 import java.io.StringReader;
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -45,7 +46,7 @@ public class MetaBean<T> {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private CopyOnWriteArrayList<MetaData<T>> metaData = new CopyOnWriteArrayList<>();
+   private List<MetaData<T>> metaData = new CopyOnWriteArrayList<>();
 
    /**
     * Accepted types:

@@ -151,7 +151,7 @@ public final class ActiveMQRaUtils {
       String[] topElements = replaced.split(",");
 
       for (String topElement : topElements) {
-         HashMap<String, Object> map = new HashMap<>();
+         Map<String, Object> map = new HashMap<>();
          result.add(map);
 
          String[] elements = topElement.split(";");

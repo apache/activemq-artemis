@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -1336,7 +1337,7 @@ public final class RandomReattachIntegrationTest extends ActiveMQTestBase {
          }
       }
 
-      private final ArrayList<AssertionError> errors = new ArrayList<>();
+      private final List<AssertionError> errors = new ArrayList<>();
 
       /* (non-Javadoc)
        * @see MessageHandler#onMessage(ClientMessage)

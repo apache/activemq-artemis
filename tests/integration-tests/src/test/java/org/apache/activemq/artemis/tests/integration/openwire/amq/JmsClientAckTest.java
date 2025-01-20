@@ -27,6 +27,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
@@ -167,7 +168,7 @@ public class JmsClientAckTest extends BasicOpenWireTest {
       Wait.assertEquals(0L, () -> queueControl.getMessagesAcknowledged(), 3000, 100);
       Wait.assertEquals(prefetchSize, () -> queueControl.getDeliveringCount(), 3000, 100);
 
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       for (int i = 0; i < prefetchSize; i++) {
          msg = consumer.receive(1000);
          assertNotNull(msg);

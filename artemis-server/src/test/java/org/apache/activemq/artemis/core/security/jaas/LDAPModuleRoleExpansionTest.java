@@ -30,6 +30,7 @@ import javax.security.auth.login.LoginException;
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -78,7 +79,7 @@ public class LDAPModuleRoleExpansionTest extends AbstractLdapTestUnit {
       env.put(Context.SECURITY_CREDENTIALS, CREDENTIALS);
       DirContext ctx = new InitialDirContext(env);
 
-      HashSet<String> set = new HashSet<>();
+      Set<String> set = new HashSet<>();
 
       NamingEnumeration<NameClassPair> list = ctx.list("ou=system");
 

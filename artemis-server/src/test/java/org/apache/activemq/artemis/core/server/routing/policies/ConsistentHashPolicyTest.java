@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.server.routing.targets.Target;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ConsistentHashPolicyTest extends PolicyTestBase {
 
@@ -38,7 +39,7 @@ public class ConsistentHashPolicyTest extends PolicyTestBase {
       Target selectedTarget;
       Target previousTarget;
 
-      ArrayList<Target> targets = new ArrayList<>();
+      List<Target> targets = new ArrayList<>();
       for (int i = 0; i < MULTIPLE_TARGETS; i++) {
          targets.add(new MockTarget());
       }

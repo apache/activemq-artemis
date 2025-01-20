@@ -85,31 +85,31 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
    @Test
    public void testControlFile() throws Exception {
-      ArrayList<JournalFile> dataFiles = new ArrayList<>();
+      List<JournalFile> dataFiles = new ArrayList<>();
 
       for (int i = 0; i < 5; i++) {
          SequentialFile file = fileFactory.createSequentialFile("file-" + i + ".tst");
          dataFiles.add(new JournalFileImpl(file, 0, JournalImpl.FORMAT_VERSION));
       }
 
-      ArrayList<JournalFile> newFiles = new ArrayList<>();
+      List<JournalFile> newFiles = new ArrayList<>();
 
       for (int i = 0; i < 3; i++) {
          SequentialFile file = fileFactory.createSequentialFile("file-" + i + ".tst.new");
          newFiles.add(new JournalFileImpl(file, 0, JournalImpl.FORMAT_VERSION));
       }
 
-      ArrayList<Pair<String, String>> renames = new ArrayList<>();
+      List<Pair<String, String>> renames = new ArrayList<>();
       renames.add(new Pair<>("a", "b"));
       renames.add(new Pair<>("c", "d"));
 
       AbstractJournalUpdateTask.writeControlFile(fileFactory, dataFiles, newFiles, renames);
 
-      ArrayList<String> strDataFiles = new ArrayList<>();
+      List<String> strDataFiles = new ArrayList<>();
 
-      ArrayList<String> strNewFiles = new ArrayList<>();
+      List<String> strNewFiles = new ArrayList<>();
 
-      ArrayList<Pair<String, String>> renamesRead = new ArrayList<>();
+      List<Pair<String, String>> renamesRead = new ArrayList<>();
 
       assertNotNull(JournalCompactor.readControlFile(fileFactory, strDataFiles, strNewFiles, renamesRead));
 
@@ -687,9 +687,9 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       setup(2, 60 * 4096, true);
 
-      ArrayList<Long> liveIDs = new ArrayList<>();
+      List<Long> liveIDs = new ArrayList<>();
 
-      ArrayList<Pair<Long, Long>> transactedRecords = new ArrayList<>();
+      List<Pair<Long, Long>> transactedRecords = new ArrayList<>();
 
       final CountDownLatch latchDone = new CountDownLatch(1);
       final CountDownLatch latchWait = new CountDownLatch(1);
@@ -1378,7 +1378,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       // add and remove some data to force reclaiming
       {
-         ArrayList<Long> ids = new ArrayList<>();
+         List<Long> ids = new ArrayList<>();
          for (int i = 0; i < NUMBER_OF_RECORDS; i++) {
             long id = idGenerator.generateID();
             ids.add(id);
@@ -1462,7 +1462,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       // add and remove some data to force reclaiming
       {
-         ArrayList<Long> ids = new ArrayList<>();
+         List<Long> ids = new ArrayList<>();
          for (int i = 0; i < NUMBER_OF_RECORDS; i++) {
             long id = idGenerator.generateID();
             ids.add(id);
@@ -1489,7 +1489,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       // add and remove some data to force reclaiming
       {
-         ArrayList<Long> ids = new ArrayList<>();
+         List<Long> ids = new ArrayList<>();
          for (int i = 0; i < NUMBER_OF_RECORDS; i++) {
             long id = idGenerator.generateID();
             ids.add(id);
@@ -1524,9 +1524,9 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       startJournal();
       loadAndCheck();
 
-      ArrayList<Long> listToDelete = new ArrayList<>();
+      List<Long> listToDelete = new ArrayList<>();
 
-      ArrayList<Integer> expectedSizes = new ArrayList<>();
+      List<Integer> expectedSizes = new ArrayList<>();
 
       for (int i = 0; i < 10; i++) {
          long id = idGenerator.generateID();
@@ -1600,7 +1600,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       journal.forceMoveNextFile();
 
-      ArrayList<Long> listToDelete = new ArrayList<>();
+      List<Long> listToDelete = new ArrayList<>();
       for (int i = 0; i < 10; i++) {
          if (i == 5) {
             commit(tx);
@@ -1646,7 +1646,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       journal.forceMoveNextFile();
 
-      ArrayList<Long> listToDelete = new ArrayList<>();
+      List<Long> listToDelete = new ArrayList<>();
       for (int i = 0; i < 10; i++) {
          long id = idGenerator.generateID();
          listToDelete.add(id);
@@ -1689,7 +1689,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       journal.forceMoveNextFile();
 
-      ArrayList<Long> listToDelete = new ArrayList<>();
+      List<Long> listToDelete = new ArrayList<>();
       for (int i = 0; i < 10; i++) {
          long id = idGenerator.generateID();
          listToDelete.add(id);
@@ -1739,7 +1739,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       journal.forceMoveNextFile();
 
-      ArrayList<Long> listToDelete = new ArrayList<>();
+      List<Long> listToDelete = new ArrayList<>();
       for (int i = 0; i < 10; i++) {
          long id = idGenerator.generateID();
          listToDelete.add(id);
@@ -1795,7 +1795,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       journal.forceMoveNextFile();
 
-      ArrayList<Long> listToDelete = new ArrayList<>();
+      List<Long> listToDelete = new ArrayList<>();
       for (int i = 0; i < 10; i++) {
          long id = idGenerator.generateID();
          listToDelete.add(id);
@@ -1904,9 +1904,9 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       startJournal();
       loadAndCheck();
 
-      ArrayList<Long> listToDelete = new ArrayList<>();
+      List<Long> listToDelete = new ArrayList<>();
 
-      ArrayList<Integer> expectedSizes = new ArrayList<>();
+      List<Integer> expectedSizes = new ArrayList<>();
 
       for (int i = 0; i < 10; i++) {
          long tx = idGenerator.generateID();

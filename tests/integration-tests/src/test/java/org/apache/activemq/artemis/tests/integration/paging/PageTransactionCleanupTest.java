@@ -25,6 +25,7 @@ import javax.jms.TextMessage;
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -100,7 +101,7 @@ public class PageTransactionCleanupTest extends ActiveMQTestBase {
       }
 
 
-      HashMap<Integer, AtomicInteger> journalCount = countJournal(server.getConfiguration());
+      Map<Integer, AtomicInteger> journalCount = countJournal(server.getConfiguration());
       assertEquals(NUMBER_OF_MESSAGES * 2, journalCount.get((int)JournalRecordIds.PAGE_TRANSACTION).get());
 
       try (AssertionLoggerHandler handler = new AssertionLoggerHandler()) {

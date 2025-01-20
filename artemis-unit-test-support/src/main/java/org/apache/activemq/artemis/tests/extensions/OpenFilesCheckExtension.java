@@ -73,7 +73,7 @@ public class OpenFilesCheckExtension implements Extension, AfterAllCallback {
    }
 
    public static List<String> getOpenFiles(boolean filtered) {
-      ArrayList<String> openFiles = new ArrayList<>();
+      List<String> openFiles = new ArrayList<>();
 
       try {
          String outputLine;

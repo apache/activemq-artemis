@@ -32,6 +32,7 @@ import javax.jms.TextMessage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -102,7 +103,7 @@ public class HorizontalPagingTest extends SoakTestBase {
    public static Collection<Object[]> parameters() {
       String[] protocols = PROTOCOL_LIST.split(",");
 
-      ArrayList<Object[]> parameters = new ArrayList<>();
+      List<Object[]> parameters = new ArrayList<>();
       for (String str : protocols) {
          logger.info("Adding {} to the list for the test", str);
          parameters.add(new Object[]{str});

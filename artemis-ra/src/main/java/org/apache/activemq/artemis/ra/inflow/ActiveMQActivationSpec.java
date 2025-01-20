@@ -22,6 +22,7 @@ import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.InvalidPropertyException;
 import javax.resource.spi.ResourceAdapter;
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.Hashtable;
 
 import org.apache.activemq.artemis.ra.ActiveMQRALogger;
@@ -30,7 +31,6 @@ import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.ConnectionFactoryProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * The activation spec

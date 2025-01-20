@@ -67,7 +67,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(CombinationTestSupport.class);
 
-   private final HashMap<String, ComboOption> comboOptions = new HashMap<>();
+   private final Map<String, ComboOption> comboOptions = new HashMap<>();
    private boolean combosEvaluated;
    private Map<String, Object> options;
    protected File basedir;
@@ -196,7 +196,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
       }
 
       try {
-         ArrayList<HashMap<String, Object>> expandedOptions = new ArrayList<>();
+         List<Map<String, Object>> expandedOptions = new ArrayList<>();
          expandCombinations(new ArrayList<>(comboOptions.values()), expandedOptions);
 
          if (expandedOptions.isEmpty()) {
@@ -204,9 +204,9 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
             return new CombinationTestSupport[]{this};
          } else {
 
-            ArrayList<CombinationTestSupport> result = new ArrayList<>();
+            List<CombinationTestSupport> result = new ArrayList<>();
             // Run the test case for each possible combination
-            for (Iterator<HashMap<String, Object>> iter = expandedOptions.iterator(); iter.hasNext(); ) {
+            for (Iterator<Map<String, Object>> iter = expandedOptions.iterator(); iter.hasNext(); ) {
                CombinationTestSupport combo = (CombinationTestSupport) TestSuite.createTest(getClass(), name);
                combo.combosEvaluated = true;
                combo.setOptions(iter.next());
@@ -224,9 +224,9 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
 
    }
 
-   private void expandCombinations(List<ComboOption> optionsLeft, List<HashMap<String, Object>> expandedCombos) {
+   private void expandCombinations(List<ComboOption> optionsLeft, List<Map<String, Object>> expandedCombos) {
       if (!optionsLeft.isEmpty()) {
-         HashMap<String, Object> map;
+         Map<String, Object> map;
          if (comboOptions.size() == optionsLeft.size()) {
             map = new HashMap<>();
             expandedCombos.add(map);
@@ -257,7 +257,7 @@ public abstract class CombinationTestSupport extends AutoFailTestSupport {
    public static Test suite(Class<? extends CombinationTestSupport> clazz) {
       TestSuite suite = new TestSuite();
 
-      ArrayList<String> names = new ArrayList<>();
+      List<String> names = new ArrayList<>();
       Method[] methods = clazz.getMethods();
       for (int i = 0; i < methods.length; i++) {
          String name = methods[i].getName();

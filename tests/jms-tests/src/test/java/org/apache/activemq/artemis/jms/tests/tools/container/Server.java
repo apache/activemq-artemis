@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.jms.tests.tools.container;
 
 import javax.naming.InitialContext;
 import java.rmi.Remote;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -38,7 +38,7 @@ public interface Server extends Remote {
     * @param attrOverrides - server attribute overrides that will take precedence over values
     *                      read from configuration files.
     */
-   void start(HashMap<String, Object> configuration, boolean clearDatabase) throws Exception;
+   void start(Map<String, Object> configuration, boolean clearDatabase) throws Exception;
 
    /**
     * @return true if the server was stopped indeed, or false if the server was stopped already

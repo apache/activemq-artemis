@@ -501,7 +501,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       }
 
       if (routingContext != null && routingContext.isMirrorIndividualRoute()) {
-         ArrayList<String> queues = new ArrayList<>();
+         List<String> queues = new ArrayList<>();
          routingContext.forEachDurable(q -> queues.add(String.valueOf(q.getName())));
          daMap.put(TARGET_QUEUES, queues);
       }
@@ -750,7 +750,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       private final List<Queue> nonDurableQueues;
 
       PagedRouteContext(Queue snfQueue) {
-         ArrayList<Queue> queues = new ArrayList<>(1);
+         List<Queue> queues = new ArrayList<>(1);
          queues.add(snfQueue);
 
          if (snfQueue.isDurable()) {

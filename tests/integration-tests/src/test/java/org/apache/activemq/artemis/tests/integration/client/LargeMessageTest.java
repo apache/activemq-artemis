@@ -41,6 +41,7 @@ import java.lang.management.OperatingSystemMXBean;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -2079,7 +2080,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       final int PAGE_SIZE = 10 * 1024;
 
-      HashMap<String, AddressSettings> map = new HashMap<>();
+      Map<String, AddressSettings> map = new HashMap<>();
 
       AddressSettings value = new AddressSettings();
       map.put(ADDRESS.toString(), value);
@@ -2212,7 +2213,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       final int PAGE_SIZE = 10 * 1024;
 
-      HashMap<String, AddressSettings> map = new HashMap<>();
+      Map<String, AddressSettings> map = new HashMap<>();
 
       AddressSettings value = new AddressSettings();
       map.put(ADDRESS.toString(), value);
@@ -2749,7 +2750,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       final int PAGE_SIZE = 10 * 1024;
 
-      HashMap<String, AddressSettings> map = new HashMap<>();
+      Map<String, AddressSettings> map = new HashMap<>();
 
       AddressSettings value = new AddressSettings();
       map.put(ADDRESS.toString(), value);

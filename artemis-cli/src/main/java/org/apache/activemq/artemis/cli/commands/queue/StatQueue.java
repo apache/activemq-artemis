@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -315,14 +316,14 @@ public class StatQueue extends ConnectionAbstract {
       int[] columnSizes = new int[FIELD.values().length];
       boolean[] centralize = new boolean[columnSizes.length];
 
-      ArrayList<String>[] fieldTitles = new ArrayList[columnSizes.length];
+      List<String>[] fieldTitles = new ArrayList[columnSizes.length];
 
       FIELD[] fields = FIELD.values();
       for (int i = 0; i < fields.length; i++) {
          if (singleLineHeader) {
             columnSizes[i] = fields[i].toString().length();
          } else {
-            ArrayList<String> splitTitleArrayList = new ArrayList<>();
+            List<String> splitTitleArrayList = new ArrayList<>();
             String[] splitTitleStringArray = fields[i].toString().split("_");
             centralize[i] = fields[i].center;
 
@@ -447,7 +448,7 @@ public class StatQueue extends ConnectionAbstract {
    //creates filter used for listQueues()
    private String createFilter() {
 
-      HashMap<String, Object> filterMap = new HashMap<>();
+      Map<String, Object> filterMap = new HashMap<>();
 
       if (((fieldName != null) && (fieldName.trim().length() > 0)) && ((queueName != null && queueName.trim().length() > 0))) {
          getActionContext().err.println("'--field' and '--queueName' cannot be specified together.");

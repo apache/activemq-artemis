@@ -108,8 +108,8 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
 
       impl.start();
 
-      ArrayList<RecordInfo> info = new ArrayList<>();
-      ArrayList<PreparedTransactionInfo> trans = new ArrayList<>();
+      List<RecordInfo> info = new ArrayList<>();
+      List<PreparedTransactionInfo> trans = new ArrayList<>();
 
       impl.load(info, trans, null);
 
@@ -170,8 +170,8 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
 
       impl.start();
 
-      ArrayList<RecordInfo> info = new ArrayList<>();
-      ArrayList<PreparedTransactionInfo> trans = new ArrayList<>();
+      List<RecordInfo> info = new ArrayList<>();
+      List<PreparedTransactionInfo> trans = new ArrayList<>();
 
       impl.load(info, trans, null);
 

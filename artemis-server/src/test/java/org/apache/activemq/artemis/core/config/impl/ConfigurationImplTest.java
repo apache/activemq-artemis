@@ -287,7 +287,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       ConfigurationImpl configuration = new ConfigurationImpl();
       Properties properties = new Properties();
       Method[] declaredMethods = Configuration.class.getDeclaredMethods();
-      HashMap<String, Object> props = new HashMap<>();
+      Map<String, Object> props = new HashMap<>();
       int nextInt = 1;
       long nextLong = 1;
       // add random entries for all root primitive bean properties

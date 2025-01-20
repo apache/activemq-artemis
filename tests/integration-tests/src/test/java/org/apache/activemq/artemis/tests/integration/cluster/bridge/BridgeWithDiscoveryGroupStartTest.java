@@ -101,7 +101,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
          final String groupAddress = getUDPDiscoveryAddress();
          final int port = getUDPDiscoveryPort();
 
-         ArrayList<String> list = new ArrayList<>();
+         List<String> list = new ArrayList<>();
          list.add(server1tc.getName());
 
          UDPBroadcastEndpointFactory endpoint = new UDPBroadcastEndpointFactory().setGroupAddress(groupAddress).setGroupPort(port);
@@ -116,7 +116,7 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
 
          final String bridgeName = "bridge1";
 
-         ArrayList<String> staticConnectors = new ArrayList<>();
+         List<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
          BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName(bridgeName).setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttempts(0).setReconnectAttemptsOnSameNode(0).setConfirmationWindowSize(1024).setStaticConnectors(staticConnectors);
 

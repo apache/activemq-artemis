@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -398,7 +399,7 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
       objectMessage = (ObjectMessage) cons.receive(5000);
       assertNotNull(objectMessage);
       @SuppressWarnings("unchecked")
-      ArrayList<String> received = (ArrayList<String>) objectMessage.getObject();
+      List<String> received = (ArrayList<String>) objectMessage.getObject();
       assertEquals(received.get(0), "aString");
 
       consumerConnection.close();

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -73,7 +74,7 @@ final class CopyOnWriteBindings {
       }
    }
 
-   private final ConcurrentHashMap<SimpleString, BindingsAndPosition> map;
+   private final ConcurrentMap<SimpleString, BindingsAndPosition> map;
 
    CopyOnWriteBindings() {
       map = new ConcurrentHashMap<>();

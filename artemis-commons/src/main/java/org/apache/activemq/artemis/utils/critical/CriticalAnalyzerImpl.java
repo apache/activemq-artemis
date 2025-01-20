@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.utils.critical;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ConcurrentModificationException;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -75,7 +76,7 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
       components.clear();
    }
 
-   private CopyOnWriteArrayList<CriticalAction> actions = new CopyOnWriteArrayList<>();
+   private List<CriticalAction> actions = new CopyOnWriteArrayList<>();
 
    private final ConcurrentHashSet<CriticalComponent> components = new ConcurrentHashSet<>();
 

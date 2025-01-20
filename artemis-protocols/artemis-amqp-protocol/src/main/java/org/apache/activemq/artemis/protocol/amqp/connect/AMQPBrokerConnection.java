@@ -853,7 +853,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             source.setAddress(queue.getAddress().toString());
             sender.setSource(source);
             if (brokerID != null) {
-               HashMap<Symbol, Object> mapProperties = new HashMap<>(1, 1); // this map is expected to have a single element, so load factor = 1
+               Map<Symbol, Object> mapProperties = new HashMap<>(1, 1); // this map is expected to have a single element, so load factor = 1
                mapProperties.put(AMQPMirrorControllerSource.BROKER_ID, brokerID);
                sender.setProperties(mapProperties);
             }

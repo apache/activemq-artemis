@@ -66,7 +66,7 @@ class JDBCJournalLoaderCallback implements LoaderCallback {
       int index = committedRecords.size();
       committedRecords.add(index, info);
 
-      ArrayList<Integer> indexes = new ArrayList<>();
+      List<Integer> indexes = new ArrayList<>();
       indexes.add(index);
 
       deleteReferences.put(info.id, indexes);

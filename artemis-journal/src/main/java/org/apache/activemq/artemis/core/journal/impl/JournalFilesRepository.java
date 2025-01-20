@@ -25,6 +25,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collection;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -67,7 +68,7 @@ public class JournalFilesRepository {
 
    private final BlockingDeque<JournalFile> dataFiles = new LinkedBlockingDeque<>();
 
-   private final ConcurrentLinkedQueue<JournalFile> freeFiles = new ConcurrentLinkedQueue<>();
+   private final Queue<JournalFile> freeFiles = new ConcurrentLinkedQueue<>();
 
    private final BlockingQueue<JournalFile> openedFiles = new LinkedBlockingQueue<>();
 

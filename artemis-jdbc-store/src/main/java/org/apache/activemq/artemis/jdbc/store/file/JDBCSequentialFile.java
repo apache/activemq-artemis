@@ -22,6 +22,7 @@ import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -222,7 +223,7 @@ public class JDBCSequentialFile implements SequentialFile {
 
       logger.debug("polling {} elements on {}", writeQueue.size(), this.filename);
 
-      ArrayList<ScheduledWrite> writeList = new ArrayList<>(writeQueue.size()); // the size here is just an estimate
+      List<ScheduledWrite> writeList = new ArrayList<>(writeQueue.size()); // the size here is just an estimate
 
       byte[] bytes = extractBytes(writeList);
 
@@ -238,7 +239,7 @@ public class JDBCSequentialFile implements SequentialFile {
 
       Also Notice that our PagingManager will make sure that this size wouldn't go beyond our page-size limit
       which we also limit at the JDBC storage, which should be 100K. */
-   private byte[] extractBytes(ArrayList<ScheduledWrite> writeList) {
+   private byte[] extractBytes(List<ScheduledWrite> writeList) {
       int totalSize = 0;
       ScheduledWrite write;
       while ((write = writeQueue.poll()) != null) {

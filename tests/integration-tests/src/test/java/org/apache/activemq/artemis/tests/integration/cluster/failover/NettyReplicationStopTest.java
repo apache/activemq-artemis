@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -109,7 +110,7 @@ public class NettyReplicationStopTest extends FailoverTestBase {
 
       endpoint.pause();
 
-      ArrayList<Thread> threads = new ArrayList<>();
+      List<Thread> threads = new ArrayList<>();
       final ArrayList<Integer> codesSent = new ArrayList<>();
 
       CountDownLatch alignedOnSend = new CountDownLatch(10);

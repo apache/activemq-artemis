@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -108,7 +109,7 @@ public class Upgrade extends InstallAbstract {
          throw new IOException(etcFolder + " does not exist for etc");
       }
 
-      HashMap<String, String> filters = new HashMap<>();
+      Map<String, String> filters = new HashMap<>();
       Create.addScriptFilters(filters, getHome(), getInstance(), etcFolder, dataFolder, oomeDumpFile, javaMemory, getJavaOptions(), getJavaUtilityOptions(), "NA");
 
       if (IS_WINDOWS) {
@@ -321,7 +322,7 @@ public class Upgrade extends InstallAbstract {
    }
 
    private void upgrade(ActionContext context, File tmpFile, File targetFile, File bkpFile, String... keepingPrefixes) throws Exception {
-      HashMap<String, String> replaceMatrix = new HashMap<>();
+      Map<String, String> replaceMatrix = new HashMap<>();
 
       doUpgrade(context, tmpFile, targetFile, bkpFile,
               oldLine -> {

@@ -178,7 +178,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
 
       // receives the first message
       beginTx();
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       Message message = consumer.receive(1000);
       messages.add(message);
 
@@ -211,7 +211,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
 
       // receives the first message
       beginTx();
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       Message message = consumer.receive(1000);
       messages.add(message);
 
@@ -251,7 +251,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       commitTx();
 
       // receives the first message
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       beginTx();
       Message message = consumer.receive(1000);
       messages.add(message);
@@ -296,7 +296,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       commitTx();
 
       // receives the first message
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       beginTx();
       Message message = consumer.receive(1000);
       messages.add(message);
@@ -335,7 +335,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       commitTx();
 
 
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       beginTx();
       Message message = consumer.receive(1000);
       messages.add(message);
@@ -378,7 +378,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       producer.send(outbound[1]);
       commitTx();
 
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       beginTx();
       TextMessage message = (TextMessage) consumer.receive(1000);
       assertEquals(outbound[0], message);

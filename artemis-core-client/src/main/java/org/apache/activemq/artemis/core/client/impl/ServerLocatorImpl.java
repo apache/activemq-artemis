@@ -1564,7 +1564,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       TopologyMember actMember = topology.getMember(nodeID);
 
       if (actMember != null && actMember.getPrimary() != null && actMember.getBackup() != null) {
-         HashSet<ClientSessionFactory> clonedFactories = new HashSet<>();
+         Set<ClientSessionFactory> clonedFactories = new HashSet<>();
          synchronized (factories) {
             clonedFactories.addAll(factories);
          }

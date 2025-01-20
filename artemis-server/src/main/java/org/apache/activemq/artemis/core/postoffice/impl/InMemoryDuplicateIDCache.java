@@ -52,7 +52,7 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
 
    private final SimpleString address;
 
-   private final ArrayList<ByteArray> ids;
+   private final List<ByteArray> ids;
 
    private final IntFunction<Integer> cachedBoxedInts;
 

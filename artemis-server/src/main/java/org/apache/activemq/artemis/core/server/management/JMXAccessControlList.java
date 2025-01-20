@@ -20,20 +20,20 @@ import javax.management.ObjectName;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
 public class JMXAccessControlList {
    private static final String WILDCARD = "*";
 
    private Access defaultAccess = new Access(WILDCARD);
-   private ConcurrentHashMap<String, TreeMap<String, Access>> domainAccess = new ConcurrentHashMap<>();
-   private ConcurrentHashMap<String, TreeMap<String, Access>> allowList = new ConcurrentHashMap<>();
+   private ConcurrentMap<String, TreeMap<String, Access>> domainAccess = new ConcurrentHashMap<>();
+   private ConcurrentMap<String, TreeMap<String, Access>> allowList = new ConcurrentHashMap<>();
    private Comparator<String> keyComparator = (key1, key2) -> {
       boolean key1ContainsWildCard = key1.contains(WILDCARD);
       boolean key2ContainsWildcard = key2.contains(WILDCARD);
@@ -62,7 +62,7 @@ public class JMXAccessControlList {
    public List<String> getRolesForObject(ObjectName objectName, String methodName) {
       TreeMap<String, Access> domainMap = domainAccess.get(objectName.getDomain());
       if (domainMap != null) {
-         Hashtable<String, String> keyPropertyList = objectName.getKeyPropertyList();
+         Map<String, String> keyPropertyList = objectName.getKeyPropertyList();
          for (Map.Entry<String, String> keyEntry : keyPropertyList.entrySet()) {
             String key = normalizeKey(keyEntry.getKey() + "=" + keyEntry.getValue());
             for (Access accessEntry : domainMap.values()) {
@@ -93,7 +93,7 @@ public class JMXAccessControlList {
             return true;
          }
 
-         Hashtable<String, String> keyPropertyList = objectName.getKeyPropertyList();
+         Map<String, String> keyPropertyList = objectName.getKeyPropertyList();
          for (Map.Entry<String, String> keyEntry : keyPropertyList.entrySet()) {
             String key = normalizeKey(keyEntry.getKey() + "=" + keyEntry.getValue());
             for (Access accessEntry : domainMap.values()) {

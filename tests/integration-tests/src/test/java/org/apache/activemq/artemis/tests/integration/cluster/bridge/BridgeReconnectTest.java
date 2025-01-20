@@ -112,7 +112,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
    private TransportConfiguration server1tc;
    private Map<String, TransportConfiguration> connectors;
-   private ArrayList<String> staticConnectors;
+   private List<String> staticConnectors;
 
    final String bridgeName = "bridge1";
    final String testAddress = "testAddress";
@@ -560,7 +560,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       assertNoMoreConnections();
 
-      HashMap<Integer, AtomicInteger> counts = countJournal(server1.getConfiguration());
+      Map<Integer, AtomicInteger> counts = countJournal(server1.getConfiguration());
       if (persistCache) {
          // There should be one record per message
          assertEquals(numMessages, counts.get((int) JournalRecordIds.DUPLICATE_ID).intValue());
