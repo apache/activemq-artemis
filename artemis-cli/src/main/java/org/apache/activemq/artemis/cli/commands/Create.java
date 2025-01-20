@@ -24,6 +24,7 @@ import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -557,7 +558,7 @@ public class Create extends InstallAbstract {
 
       context.out.println(String.format("Creating ActiveMQ Artemis instance at: %s", directory.getCanonicalPath()));
 
-      HashMap<String, String> filters = new LinkedHashMap<>();
+      Map<String, String> filters = new LinkedHashMap<>();
 
       if (journalDeviceBlockSize % 512 != 0) {
          // This will generate a CLI error
@@ -880,7 +881,7 @@ public class Create extends InstallAbstract {
       return null;
    }
 
-   protected static void addScriptFilters(HashMap<String, String> filters,
+   protected static void addScriptFilters(Map<String, String> filters,
                                           File home,
                                           File directory,
                                           File etcFolder,
@@ -910,7 +911,7 @@ public class Create extends InstallAbstract {
       filters.put("${role}", role);
    }
 
-   private String getConnectors(HashMap<String, String> filters) throws IOException {
+   private String getConnectors(Map<String, String> filters) throws IOException {
       if (staticNode != null) {
          StringWriter stringWriter = new StringWriter();
          PrintWriter printer = new PrintWriter(stringWriter);
@@ -987,7 +988,7 @@ public class Create extends InstallAbstract {
    /**
     * It will create the address and queue configurations
     */
-   private void applyAddressesAndQueues(HashMap<String, String> filters) {
+   private void applyAddressesAndQueues(Map<String, String> filters) {
       StringWriter writer = new StringWriter();
       PrintWriter printWriter = new PrintWriter(writer);
       printWriter.println();
@@ -1027,7 +1028,7 @@ public class Create extends InstallAbstract {
       filters.put("${address-queue.settings}", writer.toString());
    }
 
-   private void performAutoTune(HashMap<String, String> filters, JournalType journalType, File dataFolder) {
+   private void performAutoTune(Map<String, String> filters, JournalType journalType, File dataFolder) {
       if (noAutoTune) {
          filters.put("${journal-buffer.settings}", "");
          filters.put("${page-sync.settings}", "");
@@ -1038,7 +1039,7 @@ public class Create extends InstallAbstract {
             getActionContext().out.println("Auto tuning journal ...");
 
             if (mapped && noJournalSync) {
-               HashMap<String, String> syncFilter = new HashMap<>();
+               Map<String, String> syncFilter = new HashMap<>();
                syncFilter.put("${nanoseconds}", "0");
                syncFilter.put("${writesPerMillisecond}", "0");
                syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : "1");
@@ -1055,7 +1056,7 @@ public class Create extends InstallAbstract {
 
                String writesPerMillisecondStr = new DecimalFormat("###.##").format(writesPerMillisecond);
 
-               HashMap<String, String> syncFilter = new HashMap<>();
+               Map<String, String> syncFilter = new HashMap<>();
                syncFilter.put("${nanoseconds}", Long.toString(nanoseconds));
                syncFilter.put("${writesPerMillisecond}", writesPerMillisecondStr);
                syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : "1");
@@ -1140,11 +1141,11 @@ public class Create extends InstallAbstract {
       return value.getCanonicalPath();
    }
 
-   private void write(String source, HashMap<String, String> filters, boolean unixTarget) throws Exception {
+   private void write(String source, Map<String, String> filters, boolean unixTarget) throws Exception {
       write(source, new File(directory, source), filters, unixTarget, force);
    }
 
-   private void writeEtc(String source, File etcFolder, HashMap<String, String> filters, boolean unixTarget) throws Exception {
+   private void writeEtc(String source, File etcFolder, Map<String, String> filters, boolean unixTarget) throws Exception {
       write("etc/" + source, new File(etcFolder, source), filters, unixTarget, force);
    }
 

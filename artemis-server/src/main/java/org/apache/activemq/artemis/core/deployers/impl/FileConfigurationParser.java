@@ -554,7 +554,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       NodeList interceptorNodes = e.getElementsByTagName("remoting-interceptors");
 
-      ArrayList<String> incomingInterceptorList = new ArrayList<>();
+      List<String> incomingInterceptorList = new ArrayList<>();
 
       if (interceptorNodes.getLength() > 0) {
          NodeList interceptors = interceptorNodes.item(0).getChildNodes();
@@ -586,7 +586,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       NodeList outgoingInterceptorNodes = e.getElementsByTagName("remoting-outgoing-interceptors");
 
-      ArrayList<String> outgoingInterceptorList = new ArrayList<>();
+      List<String> outgoingInterceptorList = new ArrayList<>();
 
       if (outgoingInterceptorNodes.getLength() > 0) {
          NodeList interceptors = outgoingInterceptorNodes.item(0).getChildNodes();
@@ -889,7 +889,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       NodeList connectorServiceConfigs = e.getElementsByTagName("connector-service");
 
-      ArrayList<ConnectorServiceConfiguration> configs = new ArrayList<>();
+      List<ConnectorServiceConfiguration> configs = new ArrayList<>();
 
       for (int i = 0; i < connectorServiceConfigs.getLength(); i++) {
          Element node = (Element) connectorServiceConfigs.item(i);
@@ -1167,19 +1167,19 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       Pair<String, Set<Role>> securityMatch = new Pair<>(match, securityRoles);
 
-      ArrayList<String> send = new ArrayList<>();
-      ArrayList<String> consume = new ArrayList<>();
-      ArrayList<String> createDurableQueue = new ArrayList<>();
-      ArrayList<String> deleteDurableQueue = new ArrayList<>();
-      ArrayList<String> createNonDurableQueue = new ArrayList<>();
-      ArrayList<String> deleteNonDurableQueue = new ArrayList<>();
-      ArrayList<String> manageRoles = new ArrayList<>();
-      ArrayList<String> browseRoles = new ArrayList<>();
-      ArrayList<String> createAddressRoles = new ArrayList<>();
-      ArrayList<String> deleteAddressRoles = new ArrayList<>();
-      ArrayList<String> viewRoles = new ArrayList<>();
-      ArrayList<String> editRoles = new ArrayList<>();
-      ArrayList<String> allRoles = new ArrayList<>();
+      List<String> send = new ArrayList<>();
+      List<String> consume = new ArrayList<>();
+      List<String> createDurableQueue = new ArrayList<>();
+      List<String> deleteDurableQueue = new ArrayList<>();
+      List<String> createNonDurableQueue = new ArrayList<>();
+      List<String> deleteNonDurableQueue = new ArrayList<>();
+      List<String> manageRoles = new ArrayList<>();
+      List<String> browseRoles = new ArrayList<>();
+      List<String> createAddressRoles = new ArrayList<>();
+      List<String> deleteAddressRoles = new ArrayList<>();
+      List<String> viewRoles = new ArrayList<>();
+      List<String> editRoles = new ArrayList<>();
+      List<String> allRoles = new ArrayList<>();
       NodeList children = node.getChildNodes();
       for (int i = 0; i < children.getLength(); i++) {
          Node child = children.item(i);
@@ -1679,7 +1679,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return configurations.get(0);
    }
 
-   private static final ArrayList<String> HA_LIST = new ArrayList<>();
+   private static final List<String> HA_LIST = new ArrayList<>();
 
    static {
       HA_LIST.add("live-only");
@@ -1688,7 +1688,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       HA_LIST.add("replication");
    }
 
-   private static final ArrayList<String> STORE_TYPE_LIST = new ArrayList<>();
+   private static final List<String> STORE_TYPE_LIST = new ArrayList<>();
 
    static {
       STORE_TYPE_LIST.add("database-store");

@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -111,7 +112,7 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
 
       session.start();
 
-      HashSet<Integer> values = new HashSet<>();
+      Set<Integer> values = new HashSet<>();
 
       for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = consumer.receive(1000);

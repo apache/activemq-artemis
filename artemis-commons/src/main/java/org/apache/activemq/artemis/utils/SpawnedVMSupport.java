@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -248,9 +249,9 @@ public class SpawnedVMSupport {
     *
     * @return
     */
-   private static HashSet<Process> getAliveProcesses() {
+   private static Set<Process> getAliveProcesses() {
 
-      HashSet<Process> aliveProcess = new HashSet<>();
+      Set<Process> aliveProcess = new HashSet<>();
 
       if (startedProcesses != null) {
          for (;;) {
@@ -275,7 +276,7 @@ public class SpawnedVMSupport {
 
    public static void forceKill() {
 
-      HashSet<Process> aliveProcess = getAliveProcesses();
+      Set<Process> aliveProcess = getAliveProcesses();
 
       for (Process alive : aliveProcess) {
          for (int i = 0; i < 5; i++) {
@@ -298,7 +299,7 @@ public class SpawnedVMSupport {
     */
    public static boolean checkProcess() {
 
-      HashSet<Process> aliveProcess = getAliveProcesses();
+      Set<Process> aliveProcess = getAliveProcesses();
 
       try {
          if (!aliveProcess.isEmpty()) {

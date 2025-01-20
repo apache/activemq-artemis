@@ -23,7 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -461,7 +463,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
       Collection<Binding> bindings = simpleAddressManager.getDirectBindings(SimpleString.of(address));
 
-      HashSet<String> result = new HashSet<>();
+      Set<String> result = new HashSet<>();
 
       bindings.forEach(b -> result.add(b.getUniqueName().toString()));
 
@@ -588,7 +590,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
    static class BindingsFake implements Bindings {
 
       SimpleString name;
-      ConcurrentHashMap<String, Binding> bindings = new ConcurrentHashMap<>();
+      ConcurrentMap<String, Binding> bindings = new ConcurrentHashMap<>();
 
       BindingsFake(SimpleString address) {
          this.name = address;

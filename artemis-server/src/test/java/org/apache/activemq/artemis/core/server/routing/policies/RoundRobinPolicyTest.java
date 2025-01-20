@@ -42,7 +42,7 @@ public class RoundRobinPolicyTest extends PolicyTestBase {
       Set<Target> selectedTargets = new HashSet<>();
       List<Target> previousTargets = new ArrayList<>();
 
-      ArrayList<Target> targets = new ArrayList<>();
+      List<Target> targets = new ArrayList<>();
       for (int i = 0; i < MULTIPLE_TARGETS; i++) {
          targets.add(new MockTarget());
       }

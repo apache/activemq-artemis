@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -26,7 +23,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -36,6 +33,9 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PagedSNFTopicDistributionTest extends ClusterTestBase {
 
@@ -106,7 +106,7 @@ public class PagedSNFTopicDistributionTest extends ClusterTestBase {
       }
 
       // verifying if everything is actually paged, nothing should be routed on the journal
-      HashMap<Integer, AtomicInteger> counters =  countJournal(servers[0].getConfiguration());
+      Map<Integer, AtomicInteger> counters =  countJournal(servers[0].getConfiguration());
       assertEquals(0, getCounter(JournalRecordIds.ADD_REF, counters), "There are routed messages on the journal");
       assertEquals(0, getCounter(JournalRecordIds.ADD_MESSAGE, counters), "There are routed messages on the journal");
       assertEquals(0, getCounter(JournalRecordIds.ADD_MESSAGE_PROTOCOL, counters), "There are routed messages on the journal");
@@ -141,7 +141,7 @@ public class PagedSNFTopicDistributionTest extends ClusterTestBase {
 
    }
 
-   private int getCounter(byte typeRecord, HashMap<Integer, AtomicInteger> values) {
+   private int getCounter(byte typeRecord, Map<Integer, AtomicInteger> values) {
       AtomicInteger value = values.get((int) typeRecord);
       if (value == null) {
          return 0;

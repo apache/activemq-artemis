@@ -16,16 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.journal.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.io.SequentialFile;
@@ -36,6 +33,10 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JournaHistorylBackupTest extends ActiveMQTestBase {
 
@@ -179,7 +180,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
 
       assertEquals(100, files.length);
 
-      HashSet<String> hashSet = new HashSet<>();
+      Set<String> hashSet = new HashSet<>();
       for (File file : files) {
          hashSet.add(file.getName());
       }
@@ -230,7 +231,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
 
       assertEquals(200, files.length);
 
-      HashSet<String> hashSet = new HashSet<>();
+      Set<String> hashSet = new HashSet<>();
       for (File file : files) {
          hashSet.add(file.getName());
       }
@@ -285,7 +286,7 @@ public class JournaHistorylBackupTest extends ActiveMQTestBase {
 
       assertEquals(10, files.length);
 
-      HashSet<String> hashSet = new HashSet<>();
+      Set<String> hashSet = new HashSet<>();
       for (File file : files) {
          hashSet.add(file.getName());
       }

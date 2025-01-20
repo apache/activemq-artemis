@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.Deflater;
 
@@ -40,7 +41,7 @@ public class CompressionUtilTest {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
 
       AtomicLong counter = new AtomicLong(0);
-      ArrayList<Integer> zipHolder = new ArrayList<>();
+      List<Integer> zipHolder = new ArrayList<>();
 
       try (DeflaterReader reader = new DeflaterReader(inputStream, counter)) {
          int b = reader.read();
@@ -76,7 +77,7 @@ public class CompressionUtilTest {
       AtomicLong counter = new AtomicLong(0);
 
       byte[] buffer = new byte[7];
-      ArrayList<Integer> zipHolder = new ArrayList<>();
+      List<Integer> zipHolder = new ArrayList<>();
 
       try (DeflaterReader reader = new DeflaterReader(inputStream, counter)) {
          int n = reader.read(buffer);
@@ -119,7 +120,7 @@ public class CompressionUtilTest {
       System.arraycopy(output, 0, zipBytes, 0, compressedDataLength);
       ByteArrayInputStream byteInput = new ByteArrayInputStream(zipBytes);
 
-      ArrayList<Integer> holder = new ArrayList<>();
+      List<Integer> holder = new ArrayList<>();
       try (InflaterReader inflater = new InflaterReader(byteInput)) {
          int read = inflater.read();
 

@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.DriverManager;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
@@ -34,8 +35,8 @@ public class JDBCJournalLoaderCallbackTest extends ArtemisTestCase {
    @Test
    public void testAddDeleteRecord() throws Exception {
 
-      ArrayList<RecordInfo> committedRecords = new ArrayList<>();
-      ArrayList<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
+      List<RecordInfo> committedRecords = new ArrayList<>();
+      List<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
       TransactionFailureCallback failureCallback = null;
       boolean fixBadTX = false;
 

@@ -17,12 +17,6 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -31,8 +25,9 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
@@ -44,6 +39,12 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PagedMirrorTest extends ActiveMQTestBase {
 
@@ -147,7 +148,7 @@ public class PagedMirrorTest extends ActiveMQTestBase {
       Wait.assertEquals(NUMBER_OF_MESSAGES - 1, queueServer1::getMessageCount, 5000);
       Wait.assertEquals(1, () -> acksCount(countJournalLocation), 5000, 1000);
 
-      HashSet<Integer> receivedIDs = new HashSet<>();
+      Set<Integer> receivedIDs = new HashSet<>();
 
       try (Connection consumeConnection = secondConsumeCF.createConnection()) {
          Session consumeSession = consumeConnection.createSession(true, Session.SESSION_TRANSACTED);
@@ -175,7 +176,7 @@ public class PagedMirrorTest extends ActiveMQTestBase {
    }
 
    private int acksCount(File countJournalLocation) throws Exception {
-      HashMap<Integer, AtomicInteger> countJournal = countJournal(countJournalLocation, 10485760, 2, 2);
+      Map<Integer, AtomicInteger> countJournal = countJournal(countJournalLocation, 10485760, 2, 2);
       AtomicInteger acksCount = countJournal.get((int)JournalRecordIds.ACKNOWLEDGE_CURSOR);
       return acksCount != null ? acksCount.get() : 0;
    }

@@ -1744,7 +1744,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             long start = (long) (page - 1) * pageSize;
             long end = Math.min((long) page * pageSize, queue.getMessageCount());
 
-            ArrayList<CompositeData> c = new ArrayList<>();
+            List<CompositeData> c = new ArrayList<>();
             Filter thefilter = FilterImpl.createFilter(filter);
 
             final int attributeSizeLimit = addressSettingsRepository.getMatch(address).getManagementMessageAttributeSizeLimit();
@@ -1805,7 +1805,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
             final int attributeSizeLimit = addressSettings.getManagementMessageAttributeSizeLimit();
             final int limit = addressSettings.getManagementBrowsePageSize();
             int currentPageSize = 0;
-            ArrayList<CompositeData> c = new ArrayList<>();
+            List<CompositeData> c = new ArrayList<>();
             Filter thefilter = FilterImpl.createFilter(filter);
             try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
                try {

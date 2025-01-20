@@ -330,14 +330,14 @@ public class CorePluginTest extends JMSTestBase {
       TransportConfiguration server0tc = new TransportConfiguration(INVM_CONNECTOR_FACTORY, server0Params);
       TransportConfiguration server1tc = new TransportConfiguration(INVM_CONNECTOR_FACTORY, server1Params);
 
-      HashMap<String, TransportConfiguration> connectors = new HashMap<>();
+      Map<String, TransportConfiguration> connectors = new HashMap<>();
       connectors.put(server1tc.getName(), server1tc);
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
       final int messageSize = 1024;
       final int numMessages = 10;
 
-      ArrayList<String> connectorConfig = new ArrayList<>();
+      List<String> connectorConfig = new ArrayList<>();
       connectorConfig.add(server1tc.getName());
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(numMessages * messageSize / 2).setStaticConnectors(connectorConfig);
 

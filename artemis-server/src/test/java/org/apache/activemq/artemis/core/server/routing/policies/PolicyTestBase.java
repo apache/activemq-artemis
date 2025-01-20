@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public abstract class PolicyTestBase {
    public static final int MULTIPLE_TARGETS = 10;
@@ -44,7 +45,7 @@ public abstract class PolicyTestBase {
    public void testPolicyWithSingleTarget() {
       AbstractPolicy policy = createPolicy();
 
-      ArrayList<Target> targets = new ArrayList<>();
+      List<Target> targets = new ArrayList<>();
       targets.add(new MockTarget());
 
       Target selectedTarget = policy.selectTarget(targets, "test");

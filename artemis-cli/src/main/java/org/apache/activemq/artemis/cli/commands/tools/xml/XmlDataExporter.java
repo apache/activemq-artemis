@@ -86,7 +86,7 @@ public final class XmlDataExporter extends DBOption {
    private String undefinedPrefix = "UndefinedQueue_";
 
    // an inner map of message refs hashed by the queue ID to which they belong and then hashed by their record ID
-   private final Map<Long, HashMap<Long, ReferenceDescribe>> messageRefs = new HashMap<>();
+   private final Map<Long, Map<Long, ReferenceDescribe>> messageRefs = new HashMap<>();
 
    // map of all message records hashed by their record ID (which will match the record ID of the message refs)
    private final Map<Long, Message> messages = new TreeMap<>();
@@ -95,9 +95,9 @@ public final class XmlDataExporter extends DBOption {
 
    private final Set<Long> pgTXs = new HashSet<>();
 
-   private final HashMap<Long, PersistentQueueBindingEncoding> queueBindings = new HashMap<>();
+   private final Map<Long, PersistentQueueBindingEncoding> queueBindings = new HashMap<>();
 
-   private final HashMap<Long, PersistentAddressBindingEncoding> addressBindings = new HashMap<>();
+   private final Map<Long, PersistentAddressBindingEncoding> addressBindings = new HashMap<>();
 
    long messagesPrinted = 0L;
 
@@ -184,7 +184,7 @@ public final class XmlDataExporter extends DBOption {
     * @throws Exception will be thrown if anything goes wrong reading the journal
     */
    private void processMessageJournal() throws Exception {
-      ArrayList<RecordInfo> acks = new ArrayList<>();
+      List<RecordInfo> acks = new ArrayList<>();
 
       List<RecordInfo> records = new LinkedList<>();
 
@@ -243,9 +243,9 @@ public final class XmlDataExporter extends DBOption {
             messages.put(info.id, ((MessageDescribe) o).getMsg());
          } else if (info.getUserRecordType() == JournalRecordIds.ADD_REF) {
             ReferenceDescribe ref = (ReferenceDescribe) o;
-            HashMap<Long, ReferenceDescribe> map = messageRefs.get(info.id);
+            Map<Long, ReferenceDescribe> map = messageRefs.get(info.id);
             if (map == null) {
-               HashMap<Long, ReferenceDescribe> newMap = new HashMap<>();
+               Map<Long, ReferenceDescribe> newMap = new HashMap<>();
                newMap.put(ref.refEncoding.queueID, ref);
                messageRefs.put(info.id, newMap);
             } else {
@@ -292,10 +292,10 @@ public final class XmlDataExporter extends DBOption {
     *
     * @param acks the list of ack records we got from the journal
     */
-   private void removeAcked(ArrayList<RecordInfo> acks) {
+   private void removeAcked(List<RecordInfo> acks) {
       for (RecordInfo info : acks) {
          AckDescribe ack = (AckDescribe) DescribeJournal.newObjectEncoding(info, null);
-         HashMap<Long, ReferenceDescribe> referenceDescribeHashMap = messageRefs.get(info.id);
+         Map<Long, ReferenceDescribe> referenceDescribeHashMap = messageRefs.get(info.id);
          if (referenceDescribeHashMap != null) {
             referenceDescribeHashMap.remove(ack.refEncoding.queueID);
             if (referenceDescribeHashMap.size() == 0) {
@@ -491,7 +491,7 @@ public final class XmlDataExporter extends DBOption {
       }
    }
 
-   private List<String> extractQueueNames(HashMap<Long, DescribeJournal.ReferenceDescribe> refMap) {
+   private List<String> extractQueueNames(Map<Long, DescribeJournal.ReferenceDescribe> refMap) {
       List<String> queues = new ArrayList<>();
       for (DescribeJournal.ReferenceDescribe ref : refMap.values()) {
          String queueName;

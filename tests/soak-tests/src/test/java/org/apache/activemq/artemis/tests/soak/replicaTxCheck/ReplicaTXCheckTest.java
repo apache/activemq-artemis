@@ -31,6 +31,7 @@ import javax.jms.TransactionRolledBackException;
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
@@ -228,7 +229,7 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
             }
          }
 
-         HashSet<Integer> received = new HashSet<>();
+         Set<Integer> received = new HashSet<>();
          int rec = 0;
          for (long timeout = System.currentTimeMillis() + 60_000; System.currentTimeMillis() < timeout;) {
             rec = 0;

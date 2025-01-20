@@ -16,19 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.util.EnumSet;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -41,6 +34,13 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UpdateQueueTest extends ActiveMQTestBase {
 
@@ -203,7 +203,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
    }
 
    private void validateBindingRecords(ActiveMQServer server, byte type, int expected) throws Exception {
-      HashMap<Integer, AtomicInteger> counts = countBindingJournal(server.getConfiguration());
+      Map<Integer, AtomicInteger> counts = countBindingJournal(server.getConfiguration());
       // if this fails, don't ignore it.. it means something is sending a new record on the journal
       // something is creating new records upon restart of the server.
       // I really meant to have this fix, so don't ignore it if it fails

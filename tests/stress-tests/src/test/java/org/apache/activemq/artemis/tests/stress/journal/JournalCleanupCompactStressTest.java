@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.stress.journal;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -256,8 +257,8 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
    private void reloadJournal() throws Exception {
       assertEquals(0, errors.get());
 
-      ArrayList<RecordInfo> committedRecords = new ArrayList<>();
-      ArrayList<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
+      List<RecordInfo> committedRecords = new ArrayList<>();
+      List<PreparedTransactionInfo> preparedTransactions = new ArrayList<>();
       journal.load(committedRecords, preparedTransactions, (transactionID, records, recordsToDelete) -> { });
 
       long appends = 0, updates = 0;

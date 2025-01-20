@@ -43,7 +43,7 @@ public final class BackupReplicationStartFailedMessage extends PacketImpl {
       }
 
       static {
-         HashMap<Integer, BackupRegistrationProblem> map = new HashMap<>();
+         Map<Integer, BackupRegistrationProblem> map = new HashMap<>();
          for (BackupRegistrationProblem type : EnumSet.allOf(BackupRegistrationProblem.class)) {
             map.put(type.code, type);
          }

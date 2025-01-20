@@ -30,6 +30,7 @@ import javax.jms.TextMessage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -114,7 +115,7 @@ public class ForceDeleteQueue extends ActiveMQTestBase {
          conn.start();
 
          LinkedListIterator<MessageReference> queueiterator =  serverQueue.browserIterator();
-         ArrayList<Long> listQueue = new ArrayList<>(1000);
+         List<Long> listQueue = new ArrayList<>(1000);
 
          while (queueiterator.hasNext()) {
             MessageReference ref = queueiterator.next();

@@ -40,7 +40,7 @@ public abstract class AbstractProtocolManagerFactory<P extends BaseInterceptor> 
       if (listIn == null) {
          return Collections.emptyList();
       } else {
-         CopyOnWriteArrayList<P> listOut = new CopyOnWriteArrayList<>();
+         List<P> listOut = new CopyOnWriteArrayList<>();
          for (BaseInterceptor<?> in : listIn) {
             if (type.isInstance(in)) {
                listOut.add((P) in);

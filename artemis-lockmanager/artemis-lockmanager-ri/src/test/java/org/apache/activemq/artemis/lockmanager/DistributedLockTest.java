@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -39,7 +40,7 @@ import org.junit.jupiter.api.Test;
 
 public abstract class DistributedLockTest {
 
-   private final ArrayList<AutoCloseable> closeables = new ArrayList<>();
+   private final List<AutoCloseable> closeables = new ArrayList<>();
 
    @BeforeEach
    public void setupEnv() throws Throwable {

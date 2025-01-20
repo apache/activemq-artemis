@@ -537,7 +537,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    protected static final ClusterConnectionConfiguration basicClusterConnectionConfig(String connectorName,
                                                                                       String... connectors) {
-      ArrayList<String> connectors0 = new ArrayList<>();
+      List<String> connectors0 = new ArrayList<>();
       for (String c : connectors) {
          connectors0.add(c);
       }
@@ -746,12 +746,12 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
     * @param connectorConfigs
     * @return
     */
-   protected ArrayList<String> registerConnectors(final ActiveMQServer server,
+   protected List<String> registerConnectors(final ActiveMQServer server,
                                                   final List<TransportConfiguration> connectorConfigs) {
       // The connectors need to be pre-configured at main config object but this method is taking
       // TransportConfigurations directly
       // So this will first register them at the config and then generate a list of objects
-      ArrayList<String> connectors = new ArrayList<>();
+      List<String> connectors = new ArrayList<>();
       for (TransportConfiguration tnsp : connectorConfigs) {
          String name1 = RandomUtil.randomString();
 
@@ -1015,7 +1015,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
     * You can pass a list of properties to be ignored, as some properties will have a pre-defined domain (not being possible to use random-values on them)
     */
    protected void validateGettersAndSetters(final Object pojo, final String... ignoredProperties) throws Exception {
-      HashSet<String> ignoreSet = new HashSet<>();
+      Set<String> ignoreSet = new HashSet<>();
 
       for (String ignore : ignoredProperties) {
          ignoreSet.add(ignore);
@@ -1900,12 +1900,12 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    private static final class RecordTypeCounter implements JournalReaderCallback {
 
-      private final HashMap<Integer, AtomicInteger> recordsType;
+      private final Map<Integer, AtomicInteger> recordsType;
 
       /**
        * @param recordsType
        */
-      private RecordTypeCounter(HashMap<Integer, AtomicInteger> recordsType) {
+      private RecordTypeCounter(Map<Integer, AtomicInteger> recordsType) {
          this.recordsType = recordsType;
       }
 
@@ -2061,7 +2061,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    private List<Exception> checkCsfStopped() throws Exception {
       if (!Wait.waitFor(ClientSessionFactoryImpl.CLOSE_RUNNABLES::isEmpty, 5_000)) {
          List<ClientSessionFactoryImpl.CloseRunnable> closeRunnables = new ArrayList<>(ClientSessionFactoryImpl.CLOSE_RUNNABLES);
-         ArrayList<Exception> exceptions = new ArrayList<>();
+         List<Exception> exceptions = new ArrayList<>();
 
          if (!closeRunnables.isEmpty()) {
             for (ClientSessionFactoryImpl.CloseRunnable closeRunnable : closeRunnables) {
@@ -2282,7 +2282,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    private List<QueueBinding> getLocalQueueBindings(final PostOffice postOffice,
                                                     final String address) throws Exception {
-      ArrayList<QueueBinding> bindingsFound = new ArrayList<>();
+      List<QueueBinding> bindingsFound = new ArrayList<>();
 
       Bindings bindings = postOffice.getBindingsForAddress(SimpleString.of(address));
 
@@ -2561,7 +2561,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
    public String createJsonFilter(String fieldName, String operationName, String value) {
-      HashMap<String, Object> filterMap = new HashMap<>();
+      Map<String, Object> filterMap = new HashMap<>();
       filterMap.put("field", fieldName);
       filterMap.put("operation", operationName);
       filterMap.put("value", value);

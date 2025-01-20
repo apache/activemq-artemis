@@ -17,15 +17,15 @@
 
 package org.apache.activemq.artemis.jndi;
 
-import static org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory.DYNAMIC_QUEUE_CONTEXT;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import java.util.Hashtable;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
+
+import static org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory.DYNAMIC_QUEUE_CONTEXT;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class JndiTest {
 

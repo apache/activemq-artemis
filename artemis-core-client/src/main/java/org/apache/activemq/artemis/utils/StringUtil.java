@@ -51,7 +51,7 @@ public class StringUtil {
     * @return the string list
     */
    public static List<String> splitStringList(String strList, String delimit) {
-      ArrayList<String> list = new ArrayList<>();
+      List<String> list = new ArrayList<>();
       if (strList != null && !strList.isEmpty()) {
          for (String string : strList.split(delimit)) {
             list.add(string.trim());

@@ -33,7 +33,7 @@ public class PersistedBindings implements EncodingSupport {
 
    private String name;
 
-   private ArrayList<String> bindings = new ArrayList<>();
+   private List<String> bindings = new ArrayList<>();
 
 
    public PersistedBindings() {

@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -114,7 +115,7 @@ public class MultiThreadAsynchronousFileTest extends AIOTestBase {
 
          CountDownLatch latchStart = new CountDownLatch(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS + 1);
 
-         ArrayList<ThreadProducer> list = new ArrayList<>(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS);
+         List<ThreadProducer> list = new ArrayList<>(MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS);
          for (int i = 0; i < MultiThreadAsynchronousFileTest.NUMBER_OF_THREADS; i++) {
             ThreadProducer producer = new ThreadProducer("Thread " + i, latchStart, file, sync);
             list.add(producer);

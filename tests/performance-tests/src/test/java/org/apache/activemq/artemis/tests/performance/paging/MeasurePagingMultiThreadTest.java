@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.performance.paging;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -41,7 +42,7 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
       final int NUMBER_OF_MESSAGES = 50000;
       final int SIZE_OF_MESSAGE = 1024;
 
-      HashMap<String, AddressSettings> settings = new HashMap<>();
+      Map<String, AddressSettings> settings = new HashMap<>();
 
       ActiveMQServer messagingService = createServer(true, createDefaultInVMConfig(), 10 * 1024, 20 * 1024, settings);
       messagingService.start();

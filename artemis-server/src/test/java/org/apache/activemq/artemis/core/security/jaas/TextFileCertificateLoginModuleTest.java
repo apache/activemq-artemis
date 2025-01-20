@@ -29,6 +29,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.spi.core.security.jaas.CertificateCallback;
 import org.apache.activemq.artemis.spi.core.security.jaas.CertificateLoginModule;
@@ -102,7 +103,7 @@ public class TextFileCertificateLoginModuleTest {
    @Test()
    public void testLoginNormaliseFalseSpace() throws Exception {
 
-      HashMap<String, String> options = new HashMap<>();
+      Map<String, String> options = new HashMap<>();
       options.put("org.apache.activemq.jaas.textfiledn.user", CERT_USERS_FILE_SMALL);
       options.put("org.apache.activemq.jaas.textfiledn.role", CERT_GROUPS_FILE);
       options.put("normalise", "false");
@@ -114,7 +115,7 @@ public class TextFileCertificateLoginModuleTest {
 
    @Test()
    public void testLoginNormaliseDefaultSpace() throws Exception {
-      HashMap<String, String> options = new HashMap<>();
+      Map<String, String> options = new HashMap<>();
       options.put("org.apache.activemq.jaas.textfiledn.user", CERT_USERS_FILE_SMALL);
       options.put("org.apache.activemq.jaas.textfiledn.role", CERT_GROUPS_FILE);
       assertThrows(FailedLoginException.class, ()-> {
@@ -124,7 +125,7 @@ public class TextFileCertificateLoginModuleTest {
 
    @Test()
    public void testLoginNormaliseTrueCommaSpace() throws Exception {
-      HashMap<String, String> options = new HashMap<>();
+      Map<String, String> options = new HashMap<>();
       options.put("org.apache.activemq.jaas.textfiledn.user", CERT_USERS_FILE_SMALL);
       options.put("org.apache.activemq.jaas.textfiledn.role", CERT_GROUPS_FILE);
       options.put("normalise", "true");
@@ -133,21 +134,21 @@ public class TextFileCertificateLoginModuleTest {
 
    @Test
    public void testLoginNormaliseNoSpace() throws Exception {
-      HashMap<String, String> options = new HashMap<>();
+      Map<String, String> options = new HashMap<>();
       options.put("org.apache.activemq.jaas.textfiledn.user", CERT_USERS_FILE_SMALL);
       options.put("org.apache.activemq.jaas.textfiledn.role", CERT_GROUPS_FILE);
       options.put("normalise", "true");
       loginOneTest(options, "CN=TEST_CNS,OU=TEST,O=TEST", "COMMA_NO_SPACE");
    }
 
-   private void loginOneTest(HashMap options, String dnFromCert, String user) throws LoginException {
+   private void loginOneTest(Map options, String dnFromCert, String user) throws LoginException {
       Subject subject = doAuthenticate(options, getJaasCertificateCallbackHandler(dnFromCert));
       assertTrue(subject.getPrincipals().stream().findFirst().toString().contains(user));
    }
 
    private void loginTest(String usersFiles, String groupsFile) throws LoginException {
 
-      HashMap<String, String> options = new HashMap<>();
+      Map<String, String> options = new HashMap<>();
       options.put("org.apache.activemq.jaas.textfiledn.user", usersFiles);
       options.put("org.apache.activemq.jaas.textfiledn.role", groupsFile);
       options.put("reload", "true");
@@ -196,7 +197,7 @@ public class TextFileCertificateLoginModuleTest {
       };
    }
 
-   private Subject doAuthenticate(HashMap<String, ?> options,
+   private Subject doAuthenticate(Map<String, ?> options,
                                   JaasCallbackHandler callbackHandler) throws LoginException {
       Subject mySubject = new Subject();
       loginModule.initialize(mySubject, callbackHandler, null, options);

@@ -269,7 +269,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       if (messageAnnotations == null) {
          return null;
       }
-      HashMap newAnnotation = new HashMap();
+      Map newAnnotation = new HashMap();
       messageAnnotations.getValue().forEach((a, b) -> {
          // These properties should not be copied when re-routing the messages
          if (!a.toString().startsWith("x-opt-ORIG") && !a.toString().equals("x-opt-routing-type")) {
@@ -1655,7 +1655,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final Set<SimpleString> getPropertyNames() {
-      HashSet<SimpleString> values = new HashSet<>();
+      Set<SimpleString> values = new HashSet<>();
       for (Object k : getApplicationPropertiesMap(false).keySet()) {
          values.add(SimpleString.of(k.toString(), getPropertyKeysPool()));
       }

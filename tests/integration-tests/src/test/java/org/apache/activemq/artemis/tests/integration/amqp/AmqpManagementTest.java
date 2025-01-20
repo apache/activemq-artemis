@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -92,7 +93,7 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
    @Timeout(60)
    public void testUnsignedValues() throws Exception {
       int sequence = 42;
-      LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+      Map<String, Object> map = new LinkedHashMap<>();
       map.put("sequence", new UnsignedInteger(sequence));
       CoreMapMessageWrapper msg = createMapMessage(1, map, null);
       assertEquals(msg.getInt("sequence"), sequence);

@@ -80,7 +80,7 @@ public class ArtemisUpgradePlugin extends ArtemisAbstractPlugin {
          }
       }
 
-      ArrayList<String> listCommands = new ArrayList<>();
+      List<String> listCommands = new ArrayList<>();
 
       add(listCommands, "upgrade");
 

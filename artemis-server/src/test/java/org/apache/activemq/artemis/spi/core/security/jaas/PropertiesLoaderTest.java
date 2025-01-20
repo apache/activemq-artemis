@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ class PropertiesLoaderTest {
       properties.store(fileWriter, "");
 
       PropertiesLoader underTest = new PropertiesLoader();
-      HashMap options = new HashMap();
+      Map options = new HashMap();
       options.put("baseDir", file.getParent().toString());
       ReloadableProperties props = underTest.load("", file.toFile().getName(), options, (String v) -> v.toUpperCase(Locale.ROOT));
 

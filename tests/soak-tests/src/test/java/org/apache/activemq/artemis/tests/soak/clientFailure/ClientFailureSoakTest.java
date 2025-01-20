@@ -38,7 +38,9 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -112,7 +114,7 @@ public class ClientFailureSoakTest extends SoakTestBase {
    public static Collection<Object[]> parameters() {
       String[] protocols = PROTOCOL_LIST.split(",");
 
-      ArrayList<Object[]> parameters = new ArrayList<>();
+      List<Object[]> parameters = new ArrayList<>();
       for (String str : protocols) {
          logger.info("Adding {} to the list for the test", str);
          parameters.add(new Object[]{str});
@@ -241,7 +243,7 @@ public class ClientFailureSoakTest extends SoakTestBase {
 
             Wait.assertEquals(1, () -> simpleManagement.getNumberOfConsumersOnQueue(QUEUE_NAME), 60_000, 100);
 
-            HashSet<Integer> receivedIDs = new HashSet<>();
+            Set<Integer> receivedIDs = new HashSet<>();
 
             for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
                Message message = consumer.receive(60_000);

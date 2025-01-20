@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -282,7 +283,7 @@ public class AutoClientIDShardClusterTest extends RoutingTestBase {
          connectionRouterConfiguration.setKeyType(KeyType.CLIENT_ID).setLocalTargetFilter(KeyResolver.NULL_KEY_VALUE + "|" + node);
          NamedPropertyConfiguration polocyConfig = new NamedPropertyConfiguration();
          polocyConfig.setName(ConsistentHashModuloPolicy.NAME);
-         HashMap<String, String> properties = new HashMap<>();
+         Map<String, String> properties = new HashMap<>();
          properties.put(ConsistentHashModuloPolicy.MODULO, String.valueOf(numberOfNodes));
          polocyConfig.setProperties(properties);
          connectionRouterConfiguration.setPolicyConfiguration(polocyConfig);

@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -140,7 +141,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    private List<Interceptor> outgoingInterceptors = null;
 
-   private final ArrayDeque<Packet> pendingPackets;
+   private final Deque<Packet> pendingPackets;
 
    private boolean synchronizing = true;
 
@@ -262,7 +263,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    @Override
    public void endOfBatch() {
-      final ArrayDeque<Packet> pendingPackets = this.pendingPackets;
+      final Deque<Packet> pendingPackets = this.pendingPackets;
       if (pendingPackets.isEmpty()) {
          return;
       }
@@ -454,7 +455,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
       logger.trace("Sync on large messages...");
 
-      ArrayList<Long> lmToRemove = null;
+      List<Long> lmToRemove = null;
 
       ByteBuffer buffer = ByteBuffer.allocate(4 * 1024);
       for (Entry<Long, ReplicatedLargeMessage> entry : largeMessages.entrySet()) {

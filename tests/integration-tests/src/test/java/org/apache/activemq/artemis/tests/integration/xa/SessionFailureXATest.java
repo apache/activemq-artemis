@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -198,7 +199,7 @@ public class SessionFailureXATest extends ActiveMQTestBase {
       clientSession.start();
       clientConsumer = clientSession.createConsumer(atestq);
 
-      HashSet<String> bodies = new HashSet<>();
+      Set<String> bodies = new HashSet<>();
       m = clientConsumer.receive(1000);
       if (xaPrepare) {
          assertNull(m);
@@ -226,7 +227,7 @@ public class SessionFailureXATest extends ActiveMQTestBase {
       }
    }
 
-   private void assertOrTrack(boolean xaEnd, ClientMessage m, HashSet<String> bodies, String expected) {
+   private void assertOrTrack(boolean xaEnd, ClientMessage m, Set<String> bodies, String expected) {
       final String body = m.getBodyBuffer().readString();
       if (xaEnd) {
          assertEquals(expected, body);

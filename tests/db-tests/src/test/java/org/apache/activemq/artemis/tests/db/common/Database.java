@@ -147,7 +147,7 @@ public enum Database {
 
    // it will return a list of Databases selected to be tested
    public static List<Database> selectedList() {
-      ArrayList<Database> dbList = new ArrayList<>();
+      List<Database> dbList = new ArrayList<>();
 
       for (Database db : Database.values()) {
          if (db.isLoad()) {
@@ -169,7 +169,7 @@ public enum Database {
 
    public static List<Database> randomList() {
       List<Database> selectedDatabases = selectedList();
-      ArrayList<Database> list = new ArrayList<>();
+      List<Database> list = new ArrayList<>();
       Database randomDB = random();
       if (randomDB != null) {
          list.add(randomDB);

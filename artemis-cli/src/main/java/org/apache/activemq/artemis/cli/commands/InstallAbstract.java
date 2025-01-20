@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -189,7 +188,7 @@ public class InstallAbstract extends InputAbstract {
 
    protected void write(String source,
                       File target,
-                      HashMap<String, String> filters,
+                      Map<String, String> filters,
                       boolean unixTarget, boolean force) throws Exception {
       if (target.exists() && !force) {
          throw new CLIException(String.format("The file '%s' already exists.  Use --force to overwrite.", target));

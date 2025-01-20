@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.qpid.proton.engine.Connection;
@@ -38,7 +39,7 @@ import org.apache.qpid.proton.engine.Transport;
  */
 public final class UnmodifiableProxy {
 
-   private static ArrayList<String> denylist = new ArrayList<>();
+   private static List<String> denylist = new ArrayList<>();
 
    // These methods are mutating but don't take an arguments so they
    // aren't automatically filtered out. We will have to keep an eye

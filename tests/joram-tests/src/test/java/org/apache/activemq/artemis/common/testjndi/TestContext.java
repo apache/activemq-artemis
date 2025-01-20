@@ -84,7 +84,7 @@ public class TestContext implements Context, Serializable {
       treeBindings = new HashMap<>();
    }
 
-   public TestContext(Hashtable env) {
+   public TestContext(Map env) {
       if (env == null) {
          this.environment = new Hashtable<>();
       } else {
@@ -94,7 +94,7 @@ public class TestContext implements Context, Serializable {
       this.treeBindings = Collections.emptyMap();
    }
 
-   public TestContext(Hashtable environment, Map<String, Object> bindings) {
+   public TestContext(Map environment, Map<String, Object> bindings) {
       if (environment == null) {
          this.environment = new Hashtable<>();
       } else {

@@ -1227,7 +1227,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public Collection<BrokerConnection> getBrokerConnections() {
-      HashSet<BrokerConnection> collections = new HashSet<>(brokerConnectionMap.size());
+      Set<BrokerConnection> collections = new HashSet<>(brokerConnectionMap.size());
       collections.addAll(brokerConnectionMap.values()); // making a copy
       return collections;
    }
@@ -3887,7 +3887,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap = new HashMap<>();
 
-      HashSet<Pair<Long, Long>> pendingLargeMessages = new HashSet<>();
+      Set<Pair<Long, Long>> pendingLargeMessages = new HashSet<>();
 
       List<PageCountPending> pendingNonTXPageCounter = new LinkedList<>();
 

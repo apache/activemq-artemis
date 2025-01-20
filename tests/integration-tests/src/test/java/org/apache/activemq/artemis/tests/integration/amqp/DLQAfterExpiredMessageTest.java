@@ -122,7 +122,7 @@ public class DLQAfterExpiredMessageTest extends AmqpClientTestSupport {
          assertNotNull(expiryView);
          Wait.assertEquals(1, expiryView::getMessageCount);
 
-         HashMap<String, Object> annotations = new HashMap<>();
+         Map<String, Object> annotations = new HashMap<>();
 
          AmqpReceiver receiverDLQ = session.createReceiver(getExpiryQueue(), "\"m." + AMQPMessageSupport.HDR_ORIGINAL_ADDRESS_ANNOTATION + "\"='" + getQueueName() + "'");
          receiverDLQ.flow(1);

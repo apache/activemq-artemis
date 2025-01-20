@@ -609,12 +609,12 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
       final int MESSAGE_COUNT_PER_GROUP = 25;
       final int PRODUCER_COUNT = 5;
 
-      HashMap<String, List<String>> results = new HashMap<>();
+      Map<String, List<String>> results = new HashMap<>();
       for (int i = 0; i < GROUP_COUNT; i++) {
          results.put(i + "", new ArrayList<>());
       }
 
-      HashMap<String, Integer> dups = new HashMap<>();
+      Map<String, Integer> dups = new HashMap<>();
       List<Producer> producers = new ArrayList<>();
       int receivedTally = 0;
 

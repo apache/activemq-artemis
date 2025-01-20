@@ -191,7 +191,7 @@ public class PropertyUtil {
          throw new IllegalArgumentException("The given properties object was null.");
       }
 
-      HashMap<String, String> rc = new HashMap<>(properties.size());
+      Map<String, String> rc = new HashMap<>(properties.size());
 
       for (Iterator<Entry<String, String>> iter = properties.entrySet().iterator(); iter.hasNext(); ) {
          Entry<String, String> entry = iter.next();

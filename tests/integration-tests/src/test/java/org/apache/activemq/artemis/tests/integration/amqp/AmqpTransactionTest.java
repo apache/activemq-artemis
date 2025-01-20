@@ -31,6 +31,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -596,7 +597,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
          // Read all messages from the Queue, do not accept them yet.
          AmqpReceiver receiver = session.createReceiver(getQueueName());
-         ArrayList<AmqpMessage> messages = new ArrayList<>(NUM_MESSAGES);
+         List<AmqpMessage> messages = new ArrayList<>(NUM_MESSAGES);
          receiver.flow((NUM_MESSAGES + 2) * 2);
          for (int i = 0; i < NUM_MESSAGES; ++i) {
             AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
@@ -735,7 +736,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
 
          // Read all messages from the Queue, do not accept them yet.
          AmqpReceiver receiver = session.createReceiver(getQueueName());
-         ArrayList<AmqpMessage> messages = new ArrayList<>(NUM_MESSAGES);
+         List<AmqpMessage> messages = new ArrayList<>(NUM_MESSAGES);
          receiver.flow((NUM_MESSAGES + 2) * 2);
          for (int i = 0; i < NUM_MESSAGES; ++i) {
             AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);

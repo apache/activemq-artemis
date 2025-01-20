@@ -76,7 +76,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
       volatile boolean failed;
 
-      ArrayList<Throwable> errors = new ArrayList<>();
+      List<Throwable> errors = new ArrayList<>();
 
       boolean isFailed() {
          return failed;

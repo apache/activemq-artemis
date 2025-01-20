@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -43,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(ParameterizedTestExtension.class)
 public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
 
-   ArrayList<Long> deletedMessage = new ArrayList<>();
+   List<Long> deletedMessage = new ArrayList<>();
 
    public DeleteMessagesOnStartupTest(StoreConfiguration.StoreType storeType) {
       super(storeType);
@@ -59,7 +61,7 @@ public class DeleteMessagesOnStartupTest extends StorageManagerTestBase {
    @TestTemplate
    public void testDeleteMessagesOnStartup() throws Exception {
       Queue theQueue = new FakeQueue(SimpleString.of(""));
-      HashMap<Long, Queue> queues = new HashMap<>();
+      Map<Long, Queue> queues = new HashMap<>();
       queues.put(100L, theQueue);
 
       Message msg = new CoreMessage(1, 100);

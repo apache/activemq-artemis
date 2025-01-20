@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -58,7 +59,7 @@ public class LocalTestServer implements Server, Runnable {
 
    private boolean started = false;
 
-   private final HashMap<String, List<String>> allBindings = new HashMap<>();
+   private final Map<String, List<String>> allBindings = new HashMap<>();
    private JMSServerManagerImpl jmsServerManager;
 
 
@@ -89,7 +90,7 @@ public class LocalTestServer implements Server, Runnable {
    }
 
    @Override
-   public synchronized void start(final HashMap<String, Object> configuration,
+   public synchronized void start(final Map<String, Object> configuration,
                                   final boolean clearJournal) throws Exception {
       if (isStarted()) {
          return;
@@ -274,7 +275,7 @@ public class LocalTestServer implements Server, Runnable {
       List<TransportConfiguration> connectorConfigs = new ArrayList<>();
       connectorConfigs.add(new TransportConfiguration(NettyConnectorFactory.class.getName()));
 
-      ArrayList<String> connectors = new ArrayList<>();
+      List<String> connectors = new ArrayList<>();
       connectors.add("netty");
 
       getJMSServerManager().createConnectionFactory(objectName, false, type, connectors, clientId, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, ActiveMQClient.DEFAULT_CALL_TIMEOUT, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_CACHE_LARGE_MESSAGE_CLIENT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES, ActiveMQClient.DEFAULT_COMPRESSION_LEVEL, prefetchSize, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, blockOnAcknowledge, true, true, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, dupsOkBatchSize, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.DEFAULT_MAX_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS, ActiveMQClient.DEFAULT_FAILOVER_ON_INITIAL_CONNECTION, null, jndiBindings);

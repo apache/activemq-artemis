@@ -114,7 +114,7 @@ public abstract class ArtemisTestCase {
 
    @AfterEach
    public synchronized void doRunAfter() throws Throwable {
-      ArrayList<Throwable> throwables = new ArrayList<>();
+      List<Throwable> throwables = new ArrayList<>();
       List<TestCompletionTask> localRunAfter = runAfter;
       runAfter = null;
       if (localRunAfter != null) {

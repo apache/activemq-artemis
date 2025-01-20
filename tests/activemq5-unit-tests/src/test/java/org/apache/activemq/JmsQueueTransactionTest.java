@@ -26,6 +26,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.activemq.test.JmsResourceProvider;
 import org.slf4j.Logger;
@@ -71,7 +72,7 @@ public class JmsQueueTransactionTest extends JmsTransactionTestSupport {
       LOG.info("Sent 0: " + outbound[0]);
       LOG.info("Sent 1: " + outbound[1]);
 
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       beginTx();
       Message message = consumer.receive(2000);
       assertEquals(outbound[0], message);

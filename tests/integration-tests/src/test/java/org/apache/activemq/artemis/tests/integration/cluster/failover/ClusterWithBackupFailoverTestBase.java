@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -87,7 +88,7 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase 
    }
 
    private ClientSession[] exploreSessions(final int node) {
-      HashSet<ClientSession> sessions = new HashSet<>();
+      Set<ClientSession> sessions = new HashSet<>();
 
       for (ConsumerHolder holder : consumers) {
          if (holder != null && holder.getNode() == node && holder.getSession() != null) {

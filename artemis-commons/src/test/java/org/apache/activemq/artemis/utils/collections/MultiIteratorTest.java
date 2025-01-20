@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,7 @@ public class MultiIteratorTest {
    @Test
    public void testSingleIterator() {
 
-      ArrayList<Integer> arrayList = new ArrayList<>();
+      List<Integer> arrayList = new ArrayList<>();
       for (int i = 0; i < 1000; i++) {
          arrayList.add(i);
       }
@@ -47,15 +48,15 @@ public class MultiIteratorTest {
    @Test
    public void testMutlipleIterators() {
 
-      ArrayList<Integer> arrayList = new ArrayList<>();
+      List<Integer> arrayList = new ArrayList<>();
       for (int i = 0; i < 1000; i++) {
          arrayList.add(i);
       }
-      ArrayList<Integer> arrayList2 = new ArrayList<>();
+      List<Integer> arrayList2 = new ArrayList<>();
       for (int i = 1000; i < 2000; i++) {
          arrayList2.add(i);
       }
-      ArrayList<Integer> arrayList3 = new ArrayList<>();
+      List<Integer> arrayList3 = new ArrayList<>();
       for (int i = 2000; i < 3000; i++) {
          arrayList3.add(i);
       }

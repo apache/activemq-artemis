@@ -142,7 +142,7 @@ public class SendAckFailTest extends SpawnedTestBase {
 
       try {
 
-         HashSet<Integer> listSent = new HashSet<>();
+         Set<Integer> listSent = new HashSet<>();
 
          Thread t = null;
          {

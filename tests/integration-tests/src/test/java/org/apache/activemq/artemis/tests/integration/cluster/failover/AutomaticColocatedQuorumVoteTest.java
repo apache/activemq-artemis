@@ -327,13 +327,13 @@ public class AutomaticColocatedQuorumVoteTest extends ActiveMQTestBase {
    }
 
    private TransportConfiguration getAcceptorTransportConfiguration(int node) {
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put("port", "" + (61616 + node));
       return new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
    }
 
    private TransportConfiguration getConnectorTransportConfiguration(String name, int node) {
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put("port", "" + (61616 + node));
       return new TransportConfiguration(NETTY_CONNECTOR_FACTORY, params, name);
    }

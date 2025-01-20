@@ -53,7 +53,7 @@ public class PahoMQTTQOS2SecurityTest extends MQTTTestSupport {
 
       // Configure roles
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-      HashSet<Role> value = new HashSet<>();
+      Set<Role> value = new HashSet<>();
       value.add(new Role("addressOnly", true, true, true, true, false, false, false, false, true, true, false, false));
 
       securityRepository.addMatch(MQTTUtil.getCoreAddressFromMqttTopic(getQueueName(), server.getConfiguration().getWildcardConfiguration()), value);

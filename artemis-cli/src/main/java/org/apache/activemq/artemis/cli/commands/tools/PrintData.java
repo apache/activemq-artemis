@@ -255,7 +255,7 @@ public class PrintData extends DBOption {
                                   DescribeJournal bindingsDescribe) throws Exception {
       PageCursorsInfo cursorACKs = calculateCursorsInfo(describeJournal.getRecords());
 
-      HashSet<Long> existingQueues = new HashSet<>();
+      Set<Long> existingQueues = new HashSet<>();
       if (bindingsDescribe != null && bindingsDescribe.getBindingEncodings() != null) {
          bindingsDescribe.getBindingEncodings().forEach(e -> existingQueues.add(e.getId()));
       }

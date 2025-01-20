@@ -465,7 +465,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
       private volatile long bufferReuseLastTime = System.currentTimeMillis();
 
-      private final ConcurrentLinkedQueue<ByteBuffer> reuseBuffersQueue = new ConcurrentLinkedQueue<>();
+      private final Queue<ByteBuffer> reuseBuffersQueue = new ConcurrentLinkedQueue<>();
 
       private boolean stopped = false;
 

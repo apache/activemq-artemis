@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -213,7 +214,7 @@ public class FailoverListenerTest extends FailoverTestBase {
 
    public class SessionFactoryFailoverListener implements FailoverEventListener {
 
-      private final ArrayList<FailoverEventType> failoverTypeEvent = new ArrayList<>();
+      private final List<FailoverEventType> failoverTypeEvent = new ArrayList<>();
 
       private final CountDownLatch failureLatch;
 
@@ -224,7 +225,7 @@ public class FailoverListenerTest extends FailoverTestBase {
          this.failureDoneLatch = failureDoneLatch;
       }
 
-      public ArrayList<FailoverEventType> getFailoverEventType() {
+      public List<FailoverEventType> getFailoverEventType() {
          return this.failoverTypeEvent;
       }
 

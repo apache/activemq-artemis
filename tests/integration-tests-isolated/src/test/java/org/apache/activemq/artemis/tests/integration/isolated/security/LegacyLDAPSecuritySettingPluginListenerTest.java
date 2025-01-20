@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -137,7 +138,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
    public void testRunning() throws Exception {
       DirContext ctx = getContext();
 
-      HashSet<String> set = new HashSet<>();
+      Set<String> set = new HashSet<>();
 
       NamingEnumeration<NameClassPair> list = ctx.list("ou=system");
 

@@ -301,11 +301,11 @@ public class ConnectionFactoryURITest {
    @Test
    public void testTCPURI() throws Exception {
       TransportConfiguration tc = new TransportConfiguration(NettyConnectorFactory.class.getName());
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put("host", "localhost1");
       params.put("port", 61617);
       TransportConfiguration tc2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
-      HashMap<String, Object> params2 = new HashMap<>();
+      Map<String, Object> params2 = new HashMap<>();
       params2.put("host", "localhost2");
       params2.put("port", 61618);
       TransportConfiguration tc3 = new TransportConfiguration(NettyConnectorFactory.class.getName(), params2);

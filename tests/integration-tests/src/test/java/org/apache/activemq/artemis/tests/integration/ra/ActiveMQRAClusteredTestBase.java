@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.ra;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -40,7 +41,7 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase {
       super.setUp();
 
       primaryConnector = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SERVER_ID_PROP_NAME, "1");
       secondaryConnector = new TransportConfiguration(INVM_CONNECTOR_FACTORY, params);
 
@@ -58,8 +59,8 @@ public class ActiveMQRAClusteredTestBase extends ActiveMQRATestBase {
    }
 
    protected Configuration createSecondaryDefaultConfig(boolean secondary) throws Exception {
-      HashMap<String, Object> invmMap = new HashMap<>();
-      HashMap<String, Object> nettyMap = new HashMap<>();
+      Map<String, Object> invmMap = new HashMap<>();
+      Map<String, Object> nettyMap = new HashMap<>();
       String primaryConnectorName = "invm2";
       String secondaryConnectorName = "invm";
       int index = 0;

@@ -17,12 +17,6 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -32,9 +26,8 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 
-import java.io.File;
 import java.lang.invoke.MethodHandles;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.util.collection.LongObjectHashMap;
@@ -70,6 +63,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AckManagerTest extends ActiveMQTestBase {
 
@@ -173,7 +172,7 @@ public class AckManagerTest extends ActiveMQTestBase {
          AckManager ackManager = AckManagerProvider.getManager(server1);
          ackManager.start();
 
-         HashMap<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> sortedRetries = ackManager.sortRetries();
+         Map<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> sortedRetries = ackManager.sortRetries();
 
          assertEquals(1, sortedRetries.size());
 
@@ -205,7 +204,7 @@ public class AckManagerTest extends ActiveMQTestBase {
 
       AckManager ackManager = AckManagerProvider.getManager(server1);
       ackManager.start();
-      HashMap<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> sortedRetries = ackManager.sortRetries();
+      Map<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> sortedRetries = ackManager.sortRetries();
       assertEquals(1, sortedRetries.size());
       LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> acksOnAddress = sortedRetries.get(c1s1.getAddress());
       JournalHashMap<AckRetry, AckRetry, Queue> acksOnc1s1 = acksOnAddress.get(c1s1.getID());
@@ -449,7 +448,7 @@ public class AckManagerTest extends ActiveMQTestBase {
 
 
 
-   private int getCounter(byte typeRecord, HashMap<Integer, AtomicInteger> values) {
+   private int getCounter(byte typeRecord, Map<Integer, AtomicInteger> values) {
       AtomicInteger value = values.get((int) typeRecord);
       if (value == null) {
          return 0;
@@ -475,12 +474,6 @@ public class AckManagerTest extends ActiveMQTestBase {
       }
 
       return null;
-   }
-
-   private int acksCount(File countJournalLocation) throws Exception {
-      HashMap<Integer, AtomicInteger> countJournal = countJournal(countJournalLocation, 10485760, 2, 2);
-      AtomicInteger acksCount = countJournal.get((int)JournalRecordIds.ACKNOWLEDGE_CURSOR);
-      return acksCount != null ? acksCount.get() : 0;
    }
 
 }

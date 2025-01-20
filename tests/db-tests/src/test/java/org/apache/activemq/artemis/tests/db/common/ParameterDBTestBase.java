@@ -80,8 +80,8 @@ public abstract class ParameterDBTestBase extends DBTestBase {
    }
 
 
-   protected static ArrayList<Object[]> convertParameters(List<Database> dbList) {
-      ArrayList<Object[]> parameters = new ArrayList<>();
+   protected static List<Object[]> convertParameters(List<Database> dbList) {
+      List<Object[]> parameters = new ArrayList<>();
       dbList.forEach(s -> {
          logger.info("Adding {} to the list for the test", s);
          parameters.add(new Object[]{s});

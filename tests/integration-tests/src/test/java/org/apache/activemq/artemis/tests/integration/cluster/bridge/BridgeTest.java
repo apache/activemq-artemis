@@ -185,7 +185,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
 
-      HashMap<String, TransportConfiguration> connectors = new HashMap<>();
+      Map<String, TransportConfiguration> connectors = new HashMap<>();
       connectors.put(server1tc.getName(), server1tc);
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
@@ -193,7 +193,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      ArrayList<String> connectorConfig = new ArrayList<>();
+      List<String> connectorConfig = new ArrayList<>();
       connectorConfig.add(server1tc.getName());
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(numMessages * messageSize / 2).setStaticConnectors(connectorConfig);
 
@@ -295,7 +295,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
 
-      HashMap<String, TransportConfiguration> connectors = new HashMap<>();
+      Map<String, TransportConfiguration> connectors = new HashMap<>();
       connectors.put(server1tc.getName(), server1tc);
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
@@ -303,7 +303,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       final int numMessages = 1000;
 
-      ArrayList<String> connectorConfig = new ArrayList<>();
+      List<String> connectorConfig = new ArrayList<>();
       connectorConfig.add(server1tc.getName());
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(100).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(true).setConfirmationWindowSize(numMessages * messageSize / 2).setStaticConnectors(connectorConfig).setProducerWindowSize(1024);
 
@@ -431,7 +431,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
 
-      HashMap<String, TransportConfiguration> connectors = new HashMap<>();
+      Map<String, TransportConfiguration> connectors = new HashMap<>();
       connectors.put(server1tc.getName(), server1tc);
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
@@ -439,7 +439,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      ArrayList<String> connectorConfig = new ArrayList<>();
+      List<String> connectorConfig = new ArrayList<>();
       connectorConfig.add(server1tc.getName());
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(numMessages * messageSize / 2).setStaticConnectors(connectorConfig);
 
@@ -542,7 +542,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
 
-      HashMap<String, TransportConfiguration> connectors = new HashMap<>();
+      Map<String, TransportConfiguration> connectors = new HashMap<>();
       connectors.put(server1tc.getName(), server1tc);
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
@@ -576,7 +576,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       TransportConfiguration server1tc = new TransportConfiguration(getConnector(), server1Params);
 
-      HashMap<String, TransportConfiguration> connectors = new HashMap<>();
+      Map<String, TransportConfiguration> connectors = new HashMap<>();
       connectors.put(server1tc.getName(), server1tc);
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
@@ -663,7 +663,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       final String filterString = "animal='goat'";
 
-      ArrayList<String> staticConnectors = new ArrayList<>();
+      List<String> staticConnectors = new ArrayList<>();
       staticConnectors.add(server1tc.getName());
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setFilterString(filterString).setRetryInterval(1000).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(0).setStaticConnectors(staticConnectors);
 
@@ -797,7 +797,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
-      ArrayList<String> staticConnectors = new ArrayList<>();
+      List<String> staticConnectors = new ArrayList<>();
       staticConnectors.add(server1tc.getName());
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(100).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(1024).setStaticConnectors(staticConnectors);
 
@@ -906,7 +906,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
-      ArrayList<String> staticConnectors = new ArrayList<>();
+      List<String> staticConnectors = new ArrayList<>();
       staticConnectors.add(server1tc.getName());
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(100).setReconnectAttemptsOnSameNode(-1).setConfirmationWindowSize(0).setStaticConnectors(staticConnectors);
 
@@ -1073,7 +1073,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
-      ArrayList<String> staticConnectors = new ArrayList<>();
+      List<String> staticConnectors = new ArrayList<>();
       staticConnectors.add(server1tc.getName());
 
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setTransformerConfiguration(new TransformerConfiguration(SimpleTransformer.class.getName())).setRetryInterval(1000).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(1024).setStaticConnectors(staticConnectors);
@@ -1183,7 +1183,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
-      ArrayList<String> staticConnectors = new ArrayList<>();
+      List<String> staticConnectors = new ArrayList<>();
       staticConnectors.add(server1tc.getName());
 
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setTransformerConfiguration(transformerConfiguration).setRetryInterval(1000).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(1024).setStaticConnectors(staticConnectors);
@@ -1285,7 +1285,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       server0.getConfiguration().setConnectorConfigurations(connectors);
 
-      ArrayList<String> staticConnectors = new ArrayList<>();
+      List<String> staticConnectors = new ArrayList<>();
       staticConnectors.add(server1tc.getName());
 
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(0).setStaticConnectors(staticConnectors).setProducerWindowSize(1);
@@ -1417,7 +1417,7 @@ public class BridgeTest extends ActiveMQTestBase {
          }
 
          for (int repeat = 0; repeat < totalrepeats; repeat++) {
-            ArrayList<Thread> threads = new ArrayList<>();
+            List<Thread> threads = new ArrayList<>();
 
             threads.add(new ConsumerThread());
             threads.add(new ProducerThread(numMessages / 2));
@@ -1484,7 +1484,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          server0.getConfiguration().setIDCacheSize(20000).setJournalBufferTimeout_NIO(10).setJournalBufferTimeout_AIO(10);
 
-         ArrayList<String> staticConnectors = new ArrayList<>();
+         List<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
 
          BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(true).setConfirmationWindowSize(1).setStaticConnectors(staticConnectors);
@@ -1556,7 +1556,7 @@ public class BridgeTest extends ActiveMQTestBase {
          // Restarting the server
          server0.start();
 
-         HashMap<Integer, AtomicInteger> receivedMsg = new HashMap<>();
+         Map<Integer, AtomicInteger> receivedMsg = new HashMap<>();
 
          for (int i = 0; i < numMessages; i++) {
             ClientMessage message = consumer1.receive(5000);
@@ -1711,7 +1711,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          server0.getConfiguration().setConnectorConfigurations(connectors);
 
-         ArrayList<String> staticConnectors = new ArrayList<>();
+         List<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
 
          BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setForwardingAddress(forwardAddress).setRetryInterval(1000).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(1024).setStaticConnectors(staticConnectors);
@@ -1841,7 +1841,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          server0.getConfiguration().setConnectorConfigurations(connectors);
 
-         ArrayList<String> staticConnectors = new ArrayList<>();
+         List<String> staticConnectors = new ArrayList<>();
          staticConnectors.add(server1tc.getName());
 
          int minLargeMessageSize = 200 * 1024;
@@ -1996,7 +1996,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       final int numMessages = 10;
 
-      ArrayList<String> staticConnectors = new ArrayList<>();
+      List<String> staticConnectors = new ArrayList<>();
       staticConnectors.add(server1tc.getName());
       // do not set forwarding address (defaults to null) to use messages' original address
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName("bridge1").setQueueName(queueName0).setRetryInterval(1000).setReconnectAttemptsOnSameNode(-1).setUseDuplicateDetection(false).setConfirmationWindowSize(numMessages * messageSize / 2).setStaticConnectors(staticConnectors);
@@ -2107,7 +2107,7 @@ public class BridgeTest extends ActiveMQTestBase {
       server.waitForActivation(100, TimeUnit.MILLISECONDS);
       server.createQueue(QueueConfiguration.of(QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       server.createQueue(QueueConfiguration.of(FORWARDING_QUEUE).setAddress(FORWARDING_ADDRESS).setRoutingType(RoutingType.ANYCAST).setDurable(false));
-      ArrayList<String> connectors = new ArrayList<>();
+      List<String> connectors = new ArrayList<>();
       connectors.add("myConnector");
       server.deployBridge(new BridgeConfiguration()
                              .setName(BRIDGE)
@@ -2145,7 +2145,7 @@ public class BridgeTest extends ActiveMQTestBase {
                             .setAddress(FORWARDING_ADDRESS)
                             .setRoutingType(RoutingType.ANYCAST)
                             .setDurable(false));
-      ArrayList<String> connectors = new ArrayList<>();
+      List<String> connectors = new ArrayList<>();
       connectors.add("myConnector");
       final int concurrency = 20;
       BridgeConfiguration config = new BridgeConfiguration()

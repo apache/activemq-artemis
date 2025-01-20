@@ -20,6 +20,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -654,7 +655,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
    @Override
    protected ClusterConnectionConfiguration createBasicClusterConfig(String connectorName,
                                                                          String... connectors) {
-      ArrayList<String> connectors0 = new ArrayList<>();
+      List<String> connectors0 = new ArrayList<>();
       for (String c : connectors) {
          connectors0.add(c);
       }

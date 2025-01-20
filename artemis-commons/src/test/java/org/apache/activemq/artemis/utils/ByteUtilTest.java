@@ -31,6 +31,7 @@ import java.nio.ReadOnlyBufferException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.netty.buffer.ByteBuf;
@@ -123,7 +124,7 @@ public class ByteUtilTest {
    public void testNoUnsafeAlignedByteArrayHashCode() {
       assumeFalse(PlatformDependent.hasUnsafe());
       assumeFalse(PlatformDependent.isUnaligned());
-      ArrayList<byte[]> inputs = new ArrayList<>();
+      List<byte[]> inputs = new ArrayList<>();
       inputs.add(new byte[0]);
       inputs.add(new byte[]{1});
       inputs.add(new byte[]{2});

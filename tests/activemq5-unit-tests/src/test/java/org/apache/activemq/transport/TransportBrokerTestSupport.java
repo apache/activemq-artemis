@@ -20,6 +20,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.BrokerTest;
@@ -29,7 +30,7 @@ import org.apache.activemq.broker.TransportConnector;
 public abstract class TransportBrokerTestSupport extends BrokerTest {
 
    protected TransportConnector connector;
-   private ArrayList<StubConnection> connections = new ArrayList<>();
+   private List<StubConnection> connections = new ArrayList<>();
 
    @Override
    protected void setUp() throws Exception {

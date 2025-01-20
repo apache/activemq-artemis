@@ -33,6 +33,7 @@ import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Run;
@@ -87,7 +88,7 @@ public class TransferTest extends SmokeTestBase {
 
       String[] protocols = new String[]{"core", "amqp"};
 
-      ArrayList<String[]> parameters = new ArrayList<>();
+      List<String[]> parameters = new ArrayList<>();
 
       for (int i = 0; i < protocols.length; i++) {
          for (int j = 0; j < protocols.length; j++) {

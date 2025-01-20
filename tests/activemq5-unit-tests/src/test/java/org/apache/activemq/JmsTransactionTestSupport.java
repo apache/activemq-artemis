@@ -207,7 +207,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
 
       // receives the first message
       beginTx();
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       LOG.info("About to consume message 1");
       Message message = consumer.receive(1000);
       messages.add(message);
@@ -242,7 +242,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
 
       // receives the first message
       beginTx();
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       LOG.info("About to consume message 1");
       Message message = consumer.receive(1000);
       messages.add(message);
@@ -282,7 +282,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
       commitTx();
 
       // receives the first message
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       LOG.info("About to consume message 1");
       beginTx();
       Message message = consumer.receive(1000);
@@ -330,7 +330,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
       commitTx();
 
       // receives the first message
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       LOG.info("About to consume message 1");
       beginTx();
       Message message = consumer.receive(1000);
@@ -374,7 +374,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
       LOG.info("Sent 0: " + outbound[0]);
       LOG.info("Sent 1: " + outbound[1]);
 
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       beginTx();
       Message message = consumer.receive(1000);
       messages.add(message);
@@ -425,7 +425,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
       LOG.info("Sent 0: " + outbound[0]);
       LOG.info("Sent 1: " + outbound[1]);
 
-      ArrayList<Message> messages = new ArrayList<>();
+      List<Message> messages = new ArrayList<>();
       beginTx();
       Message message = consumer.receive(1000);
       assertEquals(outbound[0], message);

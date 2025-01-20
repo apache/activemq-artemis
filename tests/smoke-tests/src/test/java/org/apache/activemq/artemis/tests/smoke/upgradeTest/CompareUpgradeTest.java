@@ -365,8 +365,8 @@ public class CompareUpgradeTest {
 
    private Map<String, String> checkExpectedValues(String fileName, String... expectedPairs) throws Exception {
       assertTrue(expectedPairs.length > 0 && expectedPairs.length % 2 == 0, "You must pass a pair of expected values");
-      HashMap<String, String> expectedValues = new HashMap<>();
-      HashMap<String, String> matchingValues = new HashMap<>();
+      Map<String, String> expectedValues = new HashMap<>();
+      Map<String, String> matchingValues = new HashMap<>();
 
       for (int i = 0; i < expectedPairs.length; i += 2) {
          assertFalse(expectedValues.containsKey(expectedPairs[i]), "Value duplicated on pairs ::" + expectedPairs[i]);

@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -86,7 +87,7 @@ public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
    protected void configureBrokerSecurity(ActiveMQServer server) {
       server.setSecurityManager(new ActiveMQJAASSecurityManager("CertLogin"));
       server.getConfiguration().setSecurityEnabled(true);
-      HashSet<Role> roles = new HashSet<>();
+      Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", true, true, true, false, false, false, false, false, true, true, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
    }

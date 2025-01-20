@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -487,7 +488,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
 
       clientConsumer = clientSession.createConsumer(outQueue);
 
-      HashSet<Integer> msgsIds = new HashSet<>();
+      Set<Integer> msgsIds = new HashSet<>();
 
       for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage msg = clientConsumer.receive(1000);

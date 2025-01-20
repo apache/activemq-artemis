@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.core.server.routing.KeyResolver;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,7 @@ public class ConsistentHashModuloPolicyTest {
 
       assertEquals("AA", underTest.transformKey("AA")); // default modulo 0 does nothing
 
-      HashMap<String, String> properties = new HashMap<>();
+      Map<String, String> properties = new HashMap<>();
 
       final int modulo = 2;
       properties.put(ConsistentHashModuloPolicy.MODULO, String.valueOf(modulo));
@@ -56,7 +57,7 @@ public class ConsistentHashModuloPolicyTest {
    @Test
    public void transformKeyNotNegative() {
       ConsistentHashModuloPolicy underTest = new ConsistentHashModuloPolicy();
-      HashMap<String, String> properties = new HashMap<>();
+      Map<String, String> properties = new HashMap<>();
       final int modulo = 2;
       properties.put(ConsistentHashModuloPolicy.MODULO, String.valueOf(modulo));
       underTest.init(properties);
@@ -79,7 +80,7 @@ public class ConsistentHashModuloPolicyTest {
             return negs[v++ % negs.length];
          }
       };
-      HashMap<String, String> properties = new HashMap<>();
+      Map<String, String> properties = new HashMap<>();
       final int modulo = 2;
       properties.put(ConsistentHashModuloPolicy.MODULO, String.valueOf(modulo));
       underTest.init(properties);

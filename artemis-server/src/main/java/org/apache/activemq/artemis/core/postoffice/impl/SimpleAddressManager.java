@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -179,7 +180,7 @@ public class SimpleAddressManager implements AddressManager {
    public Collection<Binding> getDirectBindings(final SimpleString address) throws Exception {
       SimpleString realAddress = CompositeAddress.extractAddressName(address);
 
-      ArrayList<Binding> outputList = new ArrayList<>();
+      List<Binding> outputList = new ArrayList<>();
 
       directBindingMap.compute(realAddress, (key, bindings) -> {
          if (bindings != null) {

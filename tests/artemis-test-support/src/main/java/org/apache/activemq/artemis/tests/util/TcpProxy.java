@@ -51,8 +51,8 @@ public final class TcpProxy implements Runnable {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   ArrayList<OutboundHandler> outbound = new ArrayList<>();
-   ArrayList<InboundHandler> inbound = new ArrayList();
+   List<OutboundHandler> outbound = new ArrayList<>();
+   List<InboundHandler> inbound = new ArrayList();
 
    public List<OutboundHandler> getOutbounddHandlers() {
       return outbound;

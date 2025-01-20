@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -59,7 +60,7 @@ public class CallbackOrderTest {
          }
       };
 
-      ArrayList<AIOSequentialFileFactory.AIOSequentialCallback> list = new ArrayList<>();
+      List<AIOSequentialFileFactory.AIOSequentialCallback> list = new ArrayList<>();
 
       // We will repeat the test a few times, increasing N
       // to increase possibility of issues due to reuse of callbacks

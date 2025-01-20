@@ -48,6 +48,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -148,7 +149,7 @@ public class PagingTest extends ParameterDBTestBase {
 
    @Parameters(name = "db={0}")
    public static Collection<Object[]> parameters() {
-      ArrayList<Database> databases = new ArrayList<>();
+      List<Database> databases = new ArrayList<>();
       databases.add(Database.JOURNAL);
 
       // PagingTest is quite expensive. And it's not really needed to run every single database every time
@@ -1770,7 +1771,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       Pair<List<RecordInfo>, List<PreparedTransactionInfo>> journalData = loadMessageJournal(config);
 
-      HashSet<Long> deletedQueueReferences = new HashSet<>();
+      Set<Long> deletedQueueReferences = new HashSet<>();
 
       for (RecordInfo info : journalData.getA()) {
          if (info.getUserRecordType() == JournalRecordIds.ADD_REF) {
@@ -2273,7 +2274,7 @@ public class PagingTest extends ParameterDBTestBase {
          session.commit();
          session.close();
 
-         ArrayList<RecordInfo> records = new ArrayList<>();
+         List<RecordInfo> records = new ArrayList<>();
 
          List<PreparedTransactionInfo> list = new ArrayList<>();
 
@@ -3946,7 +3947,7 @@ public class PagingTest extends ParameterDBTestBase {
 
    public void testDropMessages(final boolean persistent) throws Exception {
 
-      HashMap<String, AddressSettings> settings = new HashMap<>();
+      Map<String, AddressSettings> settings = new HashMap<>();
 
       AddressSettings set = new AddressSettings().setMaxReadPageBytes(-1);
       set.setAddressFullMessagePolicy(AddressFullMessagePolicy.DROP).setMaxSizeMessages(5);
@@ -4057,7 +4058,7 @@ public class PagingTest extends ParameterDBTestBase {
    @TestTemplate
    public void testDropMessagesExpiring() throws Exception {
 
-      HashMap<String, AddressSettings> settings = new HashMap<>();
+      Map<String, AddressSettings> settings = new HashMap<>();
 
       AddressSettings set = new AddressSettings().setMaxReadPageBytes(-1);
       set.setAddressFullMessagePolicy(AddressFullMessagePolicy.DROP);
@@ -5092,7 +5093,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       Configuration config = createDefaultInVMConfig();
 
-      HashMap<String, AddressSettings> settings = new HashMap<>();
+      Map<String, AddressSettings> settings = new HashMap<>();
 
       AddressSettings set = new AddressSettings().setMaxReadPageBytes(-1);
       set.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL).setMaxSizeMessages(10);
@@ -5163,7 +5164,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       Configuration config = createDefaultInVMConfig();
 
-      HashMap<String, AddressSettings> settings = new HashMap<>();
+      Map<String, AddressSettings> settings = new HashMap<>();
 
       server = createServer(true, config, 1024, 5 * 1024, settings);
 
@@ -5234,7 +5235,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       Configuration config = createDefaultInVMConfig();
 
-      HashMap<String, AddressSettings> settings = new HashMap<>();
+      Map<String, AddressSettings> settings = new HashMap<>();
 
       AddressSettings set = new AddressSettings().setMaxReadPageBytes(-1);
       set.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL).setMaxSizeMessages(3);

@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -259,7 +260,7 @@ public class OperationContextUnitTest extends ServerTestBase {
    @Test
    public void testSequentialCompletionN() throws Exception {
       ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
-      ConcurrentLinkedQueue<Long> completions = new ConcurrentLinkedQueue();
+      Queue<Long> completions = new ConcurrentLinkedQueue();
       final int N = 500;
       try {
          final OperationContextImpl impl = new OperationContextImpl(new OrderedExecutor(executor));
@@ -298,8 +299,8 @@ public class OperationContextUnitTest extends ServerTestBase {
    public void testIgnoreReplication() throws Exception {
       ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       runAfter(executor::shutdownNow);
-      ConcurrentLinkedQueue<Long> ignoreReplicationCompletions = new ConcurrentLinkedQueue();
-      ConcurrentLinkedQueue<Long> regularCompletion = new ConcurrentLinkedQueue();
+      Queue<Long> ignoreReplicationCompletions = new ConcurrentLinkedQueue();
+      Queue<Long> regularCompletion = new ConcurrentLinkedQueue();
       final int N = 500;
       final OperationContextImpl impl = new OperationContextImpl(new OrderedExecutor(executor));
 
@@ -362,7 +363,7 @@ public class OperationContextUnitTest extends ServerTestBase {
       ExecutorService executor = Executors.newSingleThreadScheduledExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       runAfter(executor::shutdownNow);
 
-      ConcurrentLinkedQueue<Long> completions = new ConcurrentLinkedQueue();
+      Queue<Long> completions = new ConcurrentLinkedQueue();
 
       final int N = 500;
       final OperationContextImpl impl = new OperationContextImpl(new OrderedExecutor(executor));

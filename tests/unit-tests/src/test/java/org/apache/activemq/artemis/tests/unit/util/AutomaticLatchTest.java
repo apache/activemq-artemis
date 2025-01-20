@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.unit.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.utils.AutomaticLatch;
@@ -61,7 +62,7 @@ public class AutomaticLatchTest {
 
    @Test
    public void testMultipleCallsOrder() {
-      ArrayList<Integer> outcome = new ArrayList<>();
+      List<Integer> outcome = new ArrayList<>();
       AutomaticLatch latch = new AutomaticLatch(1);
       latch.afterCompletion(() -> outcome.add(0));
       latch.afterCompletion(() -> outcome.add(1));

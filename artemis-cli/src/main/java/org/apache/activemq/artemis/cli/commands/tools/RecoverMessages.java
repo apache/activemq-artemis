@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.cli.commands.tools;
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
@@ -103,14 +104,14 @@ public class RecoverMessages extends DBOption {
 
       List<JournalFile> files = messagesJournal.orderFiles();
 
-      HashSet<Byte> userRecordsOfInterest = new HashSet<>();
+      Set<Byte> userRecordsOfInterest = new HashSet<>();
       userRecordsOfInterest.add(JournalRecordIds.ADD_LARGE_MESSAGE);
       userRecordsOfInterest.add(JournalRecordIds.ADD_MESSAGE);
       userRecordsOfInterest.add(JournalRecordIds.ADD_MESSAGE_PROTOCOL);
       userRecordsOfInterest.add(JournalRecordIds.ADD_REF);
       userRecordsOfInterest.add(JournalRecordIds.PAGE_TRANSACTION);
 
-      HashSet<Pair<Long, Long>> routeBindigns = new HashSet<>();
+      Set<Pair<Long, Long>> routeBindigns = new HashSet<>();
 
       for (JournalFile file : files) {
          // For reviewers and future maintainers: I really meant System.out.println here

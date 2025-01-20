@@ -28,6 +28,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -71,7 +72,7 @@ public class ReplicationFlowControlTest extends SoakTestBase {
       }
    }
 
-   ArrayList<Consumer> consumers = new ArrayList<>();
+   List<Consumer> consumers = new ArrayList<>();
    private static Process server0;
    private static Process server1;
 

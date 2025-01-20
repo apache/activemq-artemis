@@ -161,7 +161,7 @@ public class AckManager implements ActiveMQComponent {
          return false;
       }
 
-      HashMap<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> retries = sortRetries();
+      Map<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> retries = sortRetries();
 
       flushMirrorTargets();
 
@@ -195,10 +195,10 @@ public class AckManager implements ActiveMQComponent {
    // Sort the ACK list by address
    // We have the retries by queue, we need to sort them by address
    // as we will perform all the retries on the same addresses at the same time (in the Multicast case with multiple queues acking)
-   public HashMap<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> sortRetries() {
+   public Map<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> sortRetries() {
       // We will group the retries by address,
       // so we perform all of the queues in the same address at once
-      HashMap<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> retriesByAddress = new HashMap<>();
+      Map<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> retriesByAddress = new HashMap<>();
 
       Iterator<JournalHashMap<AckRetry, AckRetry, Queue>> queueRetriesIterator = journalHashMapProvider.getMaps().iterator();
 
@@ -472,12 +472,12 @@ public class AckManager implements ActiveMQComponent {
    /** The ACKManager will perform the retry on each address's pageStore executor.
     *  it will perform each address individually, one by one. */
    class MultiStepProgress {
-      HashMap<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> retryList;
+      Map<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> retryList;
 
       Iterator<Map.Entry<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>>> retryIterator;
 
 
-      MultiStepProgress(HashMap<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> retryList) {
+      MultiStepProgress(Map<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> retryList) {
          this.retryList = retryList;
          retryIterator = retryList.entrySet().iterator();
       }

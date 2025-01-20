@@ -206,7 +206,7 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
 
          // Configure roles
          HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
-         HashSet<Role> value = new HashSet<>();
+         Set<Role> value = new HashSet<>();
          value.add(new Role("nothing", false, false, false, false, false, false, false, false, false, false, false, false));
          value.add(new Role("browser", false, false, false, false, false, false, false, true, false, false, false, false));
          value.add(new Role("guest", false, true, false, false, false, false, false, true, false, false, false, false));

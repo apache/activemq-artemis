@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import javax.jms.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -238,7 +239,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(InVMConnectorFactory.class.getName());
       ConnectionFactoryProperties connectionFactoryProperties = new ConnectionFactoryProperties();
-      ArrayList<String> value = new ArrayList<>();
+      List<String> value = new ArrayList<>();
       value.add(NettyConnectorFactory.class.getName());
       connectionFactoryProperties.setParsedConnectorClassNames(value);
       ActiveMQConnectionFactory factory = ra.getConnectionFactory(connectionFactoryProperties);
@@ -307,7 +308,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
       ra.setConnectorClassName(NETTY_CONNECTOR_FACTORY + "," + INVM_CONNECTOR_FACTORY + "," + NETTY_CONNECTOR_FACTORY);
       ConnectionFactoryProperties overrideProperties = new ConnectionFactoryProperties();
-      ArrayList<String> value = new ArrayList<>();
+      List<String> value = new ArrayList<>();
       value.add(INVM_CONNECTOR_FACTORY);
       value.add(NETTY_CONNECTOR_FACTORY);
       value.add(INVM_CONNECTOR_FACTORY);
@@ -330,12 +331,12 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       ra.setConnectorClassName(NETTY_CONNECTOR_FACTORY + "," + INVM_CONNECTOR_FACTORY + "," + NETTY_CONNECTOR_FACTORY);
       ra.setConnectionParameters("host=host1;port=61616, serverid=0, host=host2;port=61617");
       ConnectionFactoryProperties overrideProperties = new ConnectionFactoryProperties();
-      ArrayList<String> value = new ArrayList<>();
+      List<String> value = new ArrayList<>();
       value.add(INVM_CONNECTOR_FACTORY);
       value.add(NETTY_CONNECTOR_FACTORY);
       value.add(INVM_CONNECTOR_FACTORY);
       overrideProperties.setParsedConnectorClassNames(value);
-      ArrayList<Map<String, Object>> connectionParameters = new ArrayList<>();
+      List<Map<String, Object>> connectionParameters = new ArrayList<>();
       Map<String, Object> map1 = new HashMap<>();
       map1.put("serverid", "0");
       connectionParameters.add(map1);

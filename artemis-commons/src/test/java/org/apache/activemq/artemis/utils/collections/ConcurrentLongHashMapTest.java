@@ -26,8 +26,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -337,7 +339,7 @@ public class ConcurrentLongHashMapTest {
    }
 
    public void benchConcurrentHashMap() throws Exception {
-      ConcurrentHashMap<Long, String> map = new ConcurrentHashMap<>(N, 0.66f, 1);
+      ConcurrentMap<Long, String> map = new ConcurrentHashMap<>(N, 0.66f, 1);
 
       for (long i = 0; i < Iterations; i++) {
          for (int j = 0; j < N; j++) {
@@ -357,7 +359,7 @@ public class ConcurrentLongHashMapTest {
    }
 
    void benchHashMap() throws Exception {
-      HashMap<Long, String> map = new HashMap<>(N, 0.66f);
+      Map<Long, String> map = new HashMap<>(N, 0.66f);
 
       for (long i = 0; i < Iterations; i++) {
          for (int j = 0; j < N; j++) {

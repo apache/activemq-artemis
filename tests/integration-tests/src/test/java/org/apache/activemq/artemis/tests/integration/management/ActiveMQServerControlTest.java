@@ -6300,7 +6300,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    protected void scaleDown(ScaleDownHandler handler) throws Exception {
       SimpleString address = SimpleString.of("testQueue");
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SERVER_ID_PROP_NAME, "2");
       Configuration config = createDefaultInVMConfig(2).clearAcceptorConfigurations().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName(), params)).setSecurityEnabled(false);
       ActiveMQServer server2 = addServer(ActiveMQServers.newActiveMQServer(config, null, true));
@@ -6372,7 +6372,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       server.getConfiguration().setAddressQueueScanPeriod(100);
       server.start();
 
-      HashSet<Role> role = new HashSet<>();
+      Set<Role> role = new HashSet<>();
       role.add(new Role("guest", true, true, true, true, true, true, true, true, true, true, false, false));
       role.add(new Role("none", false, false, false, false, false, false, false, false, false, false, false, false));
       server.getSecurityRepository().addMatch("#", role);
@@ -6383,7 +6383,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    private String createJsonFilter(String fieldName, String operationName, String value, String sortField, String sortOrder) {
-      HashMap<String, Object> filterMap = new HashMap<>();
+      Map<String, Object> filterMap = new HashMap<>();
       filterMap.put("field", fieldName);
       filterMap.put("operation", operationName);
       filterMap.put("value", value);

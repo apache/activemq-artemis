@@ -44,7 +44,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 public class CuratorDistributedLockManagerTest extends ArtemisTestCase {
 
-   private final ArrayList<AutoCloseable> autoCloseables = new ArrayList<>();
+   private final List<AutoCloseable> autoCloseables = new ArrayList<>();
 
    private static final int BASE_SERVER_PORT = 6666;
    private static final int CONNECTION_MS = 2000;

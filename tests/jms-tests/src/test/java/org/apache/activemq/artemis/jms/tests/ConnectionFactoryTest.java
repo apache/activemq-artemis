@@ -41,6 +41,7 @@ import javax.jms.XAQueueConnectionFactory;
 import javax.jms.XATopicConnection;
 import javax.jms.XATopicConnectionFactory;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -189,7 +190,7 @@ public class ConnectionFactoryTest extends JMSTestCase {
 
    @Test
    public void testSlowConsumers() throws Exception {
-      ArrayList<String> bindings = new ArrayList<>();
+      List<String> bindings = new ArrayList<>();
       bindings.add("TestSlowConsumersCF");
       ActiveMQServerTestCase.deployConnectionFactory(0, "TestSlowConsumersCF", 1, "TestSlowConsumersCF");
 

@@ -31,6 +31,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -108,7 +109,7 @@ public class BridgeRetryFullFailureTest extends ActiveMQTestBase {
       Wait.assertTrue(() -> loggerHandler.findText("AMQ229102"));
 
       // the reconnects and failure may introduce out of order issues. so we just check if they were all received
-      HashSet<Integer> receivedIntegers = new HashSet<>();
+      Set<Integer> receivedIntegers = new HashSet<>();
 
       try (Connection connection = factory1.createConnection()) {
          connection.start();

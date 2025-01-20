@@ -32,6 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.cli.commands.tools.journal.DecodeJournal;
@@ -664,12 +665,12 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
    protected void printJournalLists(final List<RecordInfo> expected, final List<RecordInfo> actual) {
       try {
 
-         HashSet<RecordInfo> expectedSet = new HashSet<>();
+         Set<RecordInfo> expectedSet = new HashSet<>();
          expectedSet.addAll(expected);
 
          assertEquals(expectedSet.size(), expected.size(), "There are duplicated on the expected list");
 
-         HashSet<RecordInfo> actualSet = new HashSet<>();
+         Set<RecordInfo> actualSet = new HashSet<>();
          actualSet.addAll(actual);
 
          expectedSet.removeAll(actualSet);
@@ -687,10 +688,10 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
          logger.warn(e.getMessage(), e);
 
-         HashSet<RecordInfo> hashActual = new HashSet<>();
+         Set<RecordInfo> hashActual = new HashSet<>();
          hashActual.addAll(actual);
 
-         HashSet<RecordInfo> hashExpected = new HashSet<>();
+         Set<RecordInfo> hashExpected = new HashSet<>();
          hashExpected.addAll(expected);
 
          logger.warn("#Summary **********************************************************************************************************************");

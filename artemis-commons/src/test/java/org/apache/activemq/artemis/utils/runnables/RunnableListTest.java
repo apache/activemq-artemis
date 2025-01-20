@@ -21,13 +21,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 
 public class RunnableListTest {
 
-   HashSet<AtomicRunnable> masterList = new HashSet<>();
+   Set<AtomicRunnable> masterList = new HashSet<>();
 
    @Test
    public void testRunning() {
@@ -62,7 +64,7 @@ public class RunnableListTest {
       assertEquals(10, listB.size());
       assertEquals(10, listC.size());
 
-      HashSet<AtomicRunnable> copyList = new HashSet<>();
+      Set<AtomicRunnable> copyList = new HashSet<>();
       copyList.addAll(masterList);
 
       copyList.forEach(r -> r.run());
@@ -120,7 +122,7 @@ public class RunnableListTest {
    // runs all AtomicRunnables inside the list
    private void runList(RunnableList list) {
       // make a copy of all the tasks to a new list
-      ArrayList<AtomicRunnable> toRun = new ArrayList<>();
+      List<AtomicRunnable> toRun = new ArrayList<>();
       list.forEach(toRun::add);
 
       // run all the elements

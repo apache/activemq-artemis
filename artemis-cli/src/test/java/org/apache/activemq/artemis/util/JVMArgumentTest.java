@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +36,7 @@ public class JVMArgumentTest {
 
       String[] fixedArguments = new String[]{"-Xmx", "-Xms"};
 
-      HashMap<String, String> usedArgs = new HashMap<>();
+      Map<String, String> usedArgs = new HashMap<>();
       JVMArgumentParser.parseOriginalArgs(prefix, "\"", arguments, fixedArguments, usedArgs);
       assertEquals(2, usedArgs.size());
       assertEquals("-Xmx77G", usedArgs.get("-Xmx"));
@@ -63,7 +64,7 @@ public class JVMArgumentTest {
 
       String[] fixedArguments = new String[]{"-Xmx", "-Xms"};
 
-      HashMap<String, String> usedArgs = new HashMap<>();
+      Map<String, String> usedArgs = new HashMap<>();
       JVMArgumentParser.parseOriginalArgs(prefix, "\"", arguments, fixedArguments, usedArgs);
       assertEquals(2, usedArgs.size());
       assertEquals("-Xmx77G", usedArgs.get("-Xmx"));

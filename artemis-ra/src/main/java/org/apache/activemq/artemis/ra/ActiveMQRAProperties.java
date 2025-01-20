@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.ra;
 
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.Hashtable;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -24,7 +25,6 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * The RA default properties - these are set in the ra.xml file

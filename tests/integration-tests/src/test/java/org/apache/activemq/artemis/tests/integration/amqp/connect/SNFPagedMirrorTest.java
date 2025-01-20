@@ -17,11 +17,6 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -31,7 +26,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.File;
 import java.lang.invoke.MethodHandles;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -53,6 +48,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SNFPagedMirrorTest extends ActiveMQTestBase {
 
@@ -255,7 +255,7 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
       if (pageSNF && pageQueue) {
          journalStorageManager.getMessageJournal().scheduleCompactAndBlock(60_000); // to remove previous sent records during the startup
          // verifying if everything is actually paged, nothing should be routed on the journal
-         HashMap<Integer, AtomicInteger> counters = countJournal(server1.getConfiguration());
+         Map<Integer, AtomicInteger> counters = countJournal(server1.getConfiguration());
          assertEquals(0, getCounter(JournalRecordIds.ADD_REF, counters), "There are routed messages on the journal");
          assertEquals(0, getCounter(JournalRecordIds.ADD_MESSAGE, counters), "There are routed messages on the journal");
          assertEquals(0, getCounter(JournalRecordIds.ADD_MESSAGE_PROTOCOL, counters), "There are routed messages on the journal");
@@ -310,7 +310,7 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
 
    }
 
-   private int getCounter(byte typeRecord, HashMap<Integer, AtomicInteger> values) {
+   private int getCounter(byte typeRecord, Map<Integer, AtomicInteger> values) {
       AtomicInteger value = values.get((int) typeRecord);
       if (value == null) {
          return 0;

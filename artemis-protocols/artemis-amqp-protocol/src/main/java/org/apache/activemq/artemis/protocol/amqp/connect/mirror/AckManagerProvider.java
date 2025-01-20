@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.connect.mirror;
 
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ public class AckManagerProvider {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static HashMap<ActiveMQServer, AckManager> managerHashMap = new HashMap<>();
+   private static Map<ActiveMQServer, AckManager> managerHashMap = new HashMap<>();
 
    public static void reset() {
       managerHashMap.clear();

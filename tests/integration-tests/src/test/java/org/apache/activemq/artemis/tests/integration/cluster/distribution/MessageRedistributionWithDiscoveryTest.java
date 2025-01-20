@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -103,7 +104,7 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase {
 
       session0.start();
 
-      ArrayList<Xid> xids = new ArrayList<>();
+      List<Xid> xids = new ArrayList<>();
 
       for (int i = 0; i < 100; i++) {
          Xid xid = newXID();

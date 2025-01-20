@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -115,8 +116,8 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
       int numConsumers = 5;
 
-      ArrayList<ClientConsumer> consumers = new ArrayList<>();
-      ArrayList<ClientSession> sessions = new ArrayList<>();
+      List<ClientConsumer> consumers = new ArrayList<>();
+      List<ClientSession> sessions = new ArrayList<>();
       for (int i = 0; i < numConsumers; i++) {
          ClientSession session1 = sf.createSession();
          ClientConsumer consumer = session1.createConsumer("testWindow");
@@ -214,8 +215,8 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
       int numConsumers = 5;
 
-      ArrayList<ClientConsumer> consumers = new ArrayList<>();
-      ArrayList<ClientSession> sessions = new ArrayList<>();
+      List<ClientConsumer> consumers = new ArrayList<>();
+      List<ClientSession> sessions = new ArrayList<>();
       for (int i = 0; i < numConsumers; i++) {
          ClientSession session1 = sf.createSession();
          ClientConsumer consumer = session1.createConsumer("testWindow");
@@ -266,8 +267,8 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
       int numConsumers = 5;
 
-      ArrayList<ClientConsumer> consumers = new ArrayList<>();
-      ArrayList<ClientSession> sessions = new ArrayList<>();
+      List<ClientConsumer> consumers = new ArrayList<>();
+      List<ClientSession> sessions = new ArrayList<>();
       for (int i = 0; i < numConsumers; i++) {
          ClientSession session1 = sf.createSession();
          ClientConsumer consumer = session1.createConsumer("testWindow");

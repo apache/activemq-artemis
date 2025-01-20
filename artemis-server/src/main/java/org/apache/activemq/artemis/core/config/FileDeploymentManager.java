@@ -40,7 +40,7 @@ public class FileDeploymentManager {
 
    private final String configurationUrl;
 
-   LinkedHashMap<String, Deployable> deployables = new LinkedHashMap<>();
+   Map<String, Deployable> deployables = new LinkedHashMap<>();
 
    public FileDeploymentManager() {
       this.configurationUrl = DEFAULT_CONFIGURATION_URL;

@@ -132,7 +132,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
    public void testConnectionFactoryEncodeDecode() throws Exception {
       jmsServer.getActiveMQServer().getConfiguration().addConnectorConfiguration("foo", "tcp://localhost:1234");
 
-      ArrayList<String> connectorNames = new ArrayList<>();
+      List<String> connectorNames = new ArrayList<>();
       connectorNames.add("foo");
       ConnectionFactoryConfiguration cfc1 = new ConnectionFactoryConfigurationImpl()
          .setName("MyConnectionFactory")
@@ -195,7 +195,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
    }
 
    private void createStaticFactory(boolean b) throws Exception {
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       Set<String> allowableConnectorKeys = TransportConstants.ALLOWABLE_CONNECTOR_KEYS;
       for (String allowableConnectorKey : allowableConnectorKeys) {
          String value = RandomUtil.randomString();
@@ -208,7 +208,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
 
       jmsServer.getActiveMQServer().getConfiguration().getConnectorConfigurations().put(main.getName(), main);
 
-      HashMap<String, Object> params2 = new HashMap<>();
+      Map<String, Object> params2 = new HashMap<>();
       for (String allowableConnectorKey : allowableConnectorKeys) {
          String value = RandomUtil.randomString();
          params2.put(allowableConnectorKey, value);
@@ -220,7 +220,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
 
       jmsServer.getActiveMQServer().getConfiguration().getConnectorConfigurations().put(main2.getName(), main2);
 
-      ArrayList<String> connectorNames = new ArrayList<>();
+      List<String> connectorNames = new ArrayList<>();
       connectorNames.add(main.getName());
       connectorNames.add(main2.getName());
       ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl().setName("MyConnectionFactory").setHA(b).setConnectorNames(connectorNames).setClientID("clientID").setClientFailureCheckPeriod(-1).setConnectionTTL(-2).setFactoryType(JMSFactoryType.CF).setCallTimeout(-3).setCallFailoverTimeout(-4).setCacheLargeMessagesClient(b).setMinLargeMessageSize(-5).setConsumerWindowSize(-6).setConsumerMaxRate(-7).setConfirmationWindowSize(-8).setProducerWindowSize(-9).setProducerMaxRate(-10).setBlockOnAcknowledge(b).setBlockOnDurableSend(b).setBlockOnNonDurableSend(b).setAutoGroup(b).setPreAcknowledge(b).setLoadBalancingPolicyClassName("foobar").setTransactionBatchSize(-11).setDupsOKBatchSize(-12).setUseGlobalPools(b).setScheduledThreadPoolMaxSize(-13).setThreadPoolMaxSize(-14).setRetryInterval(-15).setRetryIntervalMultiplier(-16).setMaxRetryInterval(-17).setReconnectAttempts(-18).setGroupID("groupID")

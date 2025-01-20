@@ -71,7 +71,7 @@ public class XMLMessageImporter {
       long timestamp = 0L;
       long id = 0L;
       org.apache.activemq.artemis.utils.UUID userId = null;
-      ArrayList<String> queues = new ArrayList<>();
+      List<String> queues = new ArrayList<>();
 
       // get message's attributes
       for (int i = 0; i < reader.getAttributeCount(); i++) {
@@ -157,7 +157,7 @@ public class XMLMessageImporter {
       return type;
    }
 
-   private void processMessageQueues(ArrayList<String> queues) {
+   private void processMessageQueues(List<String> queues) {
       for (int i = 0; i < reader.getAttributeCount(); i++) {
          if (XmlDataConstants.QUEUE_NAME.equals(reader.getAttributeLocalName(i))) {
             String queueName = reader.getAttributeValue(i);

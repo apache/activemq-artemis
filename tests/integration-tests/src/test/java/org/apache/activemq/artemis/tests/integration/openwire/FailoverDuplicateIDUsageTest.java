@@ -16,14 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import javax.jms.Connection;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
-
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,6 +33,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FailoverDuplicateIDUsageTest extends ActiveMQTestBase {
 
@@ -103,7 +102,7 @@ public class FailoverDuplicateIDUsageTest extends ActiveMQTestBase {
    }
 
    private int countDuplicateDetection(Configuration configuration) throws Exception {
-      HashMap<Integer, AtomicInteger> maps = countJournal(configuration);
+      Map<Integer, AtomicInteger> maps = countJournal(configuration);
       AtomicInteger value = maps.get((int)JournalRecordIds.DUPLICATE_ID);
       return value == null ? 0 : value.get();
    }

@@ -1036,7 +1036,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          messageJournal.setRemoveExtraFilesOnLoad(true);
          JournalLoadInformation info = messageJournal.load(records, preparedTransactions, new LargeMessageTXFailureCallback(this));
 
-         ArrayList<LargeServerMessage> largeMessages = new ArrayList<>();
+         List<LargeServerMessage> largeMessages = new ArrayList<>();
 
          Map<Long, Map<Long, AddMessageRecord>> queueMap = new HashMap<>();
 
@@ -1663,8 +1663,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
       JournalLoadInformation bindingsInfo = bindingsJournal.load(records, preparedTransactions, null);
 
-      HashMap<Long, PersistentQueueBindingEncoding> mapBindings = new HashMap<>();
-      HashMap<Long, PersistentAddressBindingEncoding> mapAddressBindings = new HashMap<>();
+      Map<Long, PersistentQueueBindingEncoding> mapBindings = new HashMap<>();
+      Map<Long, PersistentAddressBindingEncoding> mapAddressBindings = new HashMap<>();
 
       records.clear(record -> {
          try {

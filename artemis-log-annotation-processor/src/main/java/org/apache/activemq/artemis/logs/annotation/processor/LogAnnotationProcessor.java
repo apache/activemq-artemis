@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -75,7 +76,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
 
    @Override
    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-      HashMap<Integer, String> messages = new HashMap<>();
+      Map<Integer, String> messages = new HashMap<>();
 
       try {
          for (TypeElement annotation : annotations) {
@@ -227,7 +228,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
                                 PrintWriter writerOutput,
                                 ExecutableElement executableMember,
                                 Message messageAnnotation,
-                                HashMap<Integer, String> processedMessages,
+                                Map<Integer, String> processedMessages,
                                 List<Integer> activeIDs) {
 
       verifyIdNotRetiredOrProcessedPreviously(bundleAnnotation, executableMember, messageAnnotation.id(), messageAnnotation.value(), processedMessages, activeIDs);
@@ -367,7 +368,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
                                PrintWriter writerOutput,
                                ExecutableElement executableMember,
                                LogMessage messageAnnotation,
-                               HashMap<Integer, String> processedMessages,
+                               Map<Integer, String> processedMessages,
                                List<Integer> activeIDs) {
 
       verifyIdNotRetiredOrProcessedPreviously(bundleAnnotation, executableMember, messageAnnotation.id(), messageAnnotation.value(), processedMessages, activeIDs);
@@ -510,7 +511,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
       }
    }
 
-   private static void verifyIdNotRetiredOrProcessedPreviously(final LogBundle bundleAnnotation, final ExecutableElement executableMember, final Integer id, final String message, final HashMap<Integer, String> processedMessages, final List<Integer> activeIDs) {
+   private static void verifyIdNotRetiredOrProcessedPreviously(final LogBundle bundleAnnotation, final ExecutableElement executableMember, final Integer id, final String message, final Map<Integer, String> processedMessages, final List<Integer> activeIDs) {
       Objects.requireNonNull(id, "id must not be null");
 
       boolean retiredID = isRetiredID(bundleAnnotation, id);

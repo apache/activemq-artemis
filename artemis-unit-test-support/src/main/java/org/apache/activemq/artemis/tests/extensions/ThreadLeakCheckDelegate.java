@@ -22,6 +22,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -151,7 +152,7 @@ public class ThreadLeakCheckDelegate {
       long waitUntil = System.currentTimeMillis() + timeout;
       // A loop that will wait GC, using the minimal time as possible
       while (ref.get() != null && System.currentTimeMillis() < waitUntil) {
-         ArrayList<String> list = new ArrayList<>();
+         List<String> list = new ArrayList<>();
          for (int i = 0; i < 1000; i++) {
             list.add("Some string with garbage with concatenation " + i);
          }

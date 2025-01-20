@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.http;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -51,7 +52,7 @@ public class CoreClientOverHttpTest extends ActiveMQTestBase {
    @BeforeEach
    public void setUp() throws Exception {
       super.setUp();
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HTTP_ENABLED_PROP_NAME, true);
 
       conf = createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));

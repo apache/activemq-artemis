@@ -487,7 +487,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
                String[] usedBindings = null;
 
                if (bindings != null) {
-                  ArrayList<String> bindingsToAdd = new ArrayList<>();
+                  List<String> bindingsToAdd = new ArrayList<>();
 
                   for (String bindingsItem : bindings) {
                      if (bindToBindings(bindingsItem, destination)) {
@@ -561,7 +561,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
                   throw new IllegalArgumentException("Queue does not exist");
                }
 
-               ArrayList<String> bindingsToAdd = new ArrayList<>();
+               List<String> bindingsToAdd = new ArrayList<>();
 
                if (bindings != null) {
                   for (String bindingsItem : bindings) {
@@ -1003,7 +1003,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
             ActiveMQConnectionFactory cf = internalCreateCF(cfConfig);
 
-            ArrayList<String> bindingsToAdd = new ArrayList<>();
+            List<String> bindingsToAdd = new ArrayList<>();
 
             for (String bindingsItem : bindings) {
                if (bindToBindings(bindingsItem, cf)) {

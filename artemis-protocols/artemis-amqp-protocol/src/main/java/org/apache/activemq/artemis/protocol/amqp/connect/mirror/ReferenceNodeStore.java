@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.protocol.amqp.connect.mirror;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.api.core.Message;
@@ -34,7 +35,7 @@ public class ReferenceNodeStore implements NodeStore<MessageReference> {
    }
 
    // This is where the messages are stored by server id...
-   HashMap<String, LongObjectHashMap<LinkedListImpl.Node<MessageReference>>> lists;
+   Map<String, LongObjectHashMap<LinkedListImpl.Node<MessageReference>>> lists;
 
    String name;
 

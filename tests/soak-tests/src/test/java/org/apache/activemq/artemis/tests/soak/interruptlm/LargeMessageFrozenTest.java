@@ -31,6 +31,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -204,7 +205,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
       }
       session.commit();
 
-      ArrayList<MessageReference> queueMessages = new ArrayList<>();
+      List<MessageReference> queueMessages = new ArrayList<>();
 
       Wait.assertEquals(NUMBER_OF_MESSAGES, serverQueue::getMessageCount);
 

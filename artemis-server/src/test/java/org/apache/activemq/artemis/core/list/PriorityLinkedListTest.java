@@ -20,7 +20,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -942,7 +945,7 @@ public final class PriorityLinkedListTest {
 
       Iterator<Wibble> iterator = list.iterator();
 
-      HashSet<String> values = new HashSet<>();
+      Set<String> values = new HashSet<>();
       while (iterator.hasNext()) {
          values.add(iterator.next().s1);
       }
@@ -966,7 +969,7 @@ public final class PriorityLinkedListTest {
 
       list.setNodeStore(WibbleNodeStore::new);
 
-      ArrayList<Integer> usedIds = new ArrayList<>();
+      List<Integer> usedIds = new ArrayList<>();
 
       int elements = 50;
 
@@ -976,9 +979,9 @@ public final class PriorityLinkedListTest {
          usedIds.add(i);
       }
 
-      HashMap<Integer, Wibble> hashMapOutput = new HashMap<>(elements);
+      Map<Integer, Wibble> hashMapOutput = new HashMap<>(elements);
 
-      while (usedIds.size() > 0) {
+      while (!usedIds.isEmpty()) {
          Integer idToRemove = usedIds.remove(RandomUtil.randomInterval(0, usedIds.size() - 1));
          Wibble wibble = list.removeWithID("", idToRemove);
          assertNotNull(wibble);

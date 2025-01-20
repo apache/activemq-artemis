@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.integration;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
@@ -59,7 +60,7 @@ public class FileBroker implements Broker {
          createComponents();
       }
 
-      ArrayList<ActiveMQComponent> componentsByStartOrder = getComponentsByStartOrder(components);
+      List<ActiveMQComponent> componentsByStartOrder = getComponentsByStartOrder(components);
       String fullVersion = VersionLoader.getVersion().getFullVersion();
       ActiveMQBootstrapLogger.LOGGER.serverStarting(fullVersion);
       for (ActiveMQComponent component : componentsByStartOrder) {
@@ -128,8 +129,8 @@ public class FileBroker implements Broker {
    * this makes sure the components are started in the correct order. Its simple at the mo as e only have core and jms but
    * will need impproving if we get more.
    * */
-   private ArrayList<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components) {
-      ArrayList<ActiveMQComponent> activeMQComponents = new ArrayList<>();
+   private List<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components) {
+      List<ActiveMQComponent> activeMQComponents = new ArrayList<>();
       ActiveMQComponent jmsComponent = components.get("jms");
       if (jmsComponent != null) {
          activeMQComponents.add(jmsComponent);

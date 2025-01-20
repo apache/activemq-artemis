@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.soak.client;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -75,7 +76,7 @@ public class ClientSoakTest extends ActiveMQTestBase {
 
       DivertConfiguration divert2 = new DivertConfiguration().setName("dv2").setRoutingName("nm2").setAddress(ClientSoakTest.ADDRESS.toString()).setForwardingAddress(ClientSoakTest.DIVERTED_AD2.toString()).setExclusive(true);
 
-      ArrayList<DivertConfiguration> divertList = new ArrayList<>();
+      List<DivertConfiguration> divertList = new ArrayList<>();
       divertList.add(divert1);
       divertList.add(divert2);
 

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server.impl;
 
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -51,7 +52,7 @@ public class ServerStatus {
    }
 
    private ActiveMQServerImpl server;
-   private final HashMap<String, String> immutableStateValues = new HashMap<>();
+   private final Map<String, String> immutableStateValues = new HashMap<>();
    private JsonObject globalStatus = JsonLoader.createObjectBuilder().build();
 
    public synchronized String asJson() {
@@ -61,7 +62,7 @@ public class ServerStatus {
 
    private synchronized void updateServerStatus() {
       if (instance.server != null) {
-         HashMap<String, String> snapshotOfServerStatusAttributes = new HashMap<>();
+         Map<String, String> snapshotOfServerStatusAttributes = new HashMap<>();
          snapshotOfServerStatusAttributes.putAll(immutableStateValues);
          snapshotOfServerStatusAttributes.put("identity", server.getIdentity());
          SimpleString nodeId = server.getNodeID();
@@ -77,7 +78,7 @@ public class ServerStatus {
       update(component, JsonUtil.readJsonObject(statusJson));
    }
 
-   public synchronized void update(String component, HashMap<String, String> statusAttributes) {
+   public synchronized void update(String component, Map<String, String> statusAttributes) {
       update(component, JsonUtil.toJsonObject(statusAttributes));
    }
 

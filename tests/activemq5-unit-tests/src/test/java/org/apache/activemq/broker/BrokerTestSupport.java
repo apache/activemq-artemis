@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.CombinationTestSupport;
@@ -248,7 +249,7 @@ public class BrokerTestSupport extends CombinationTestSupport {
       consumerInfo.setBrowser(true);
       connection.send(consumerInfo);
 
-      ArrayList<Object> skipped = new ArrayList<>();
+      List<Object> skipped = new ArrayList<>();
 
       // Now get the messages.
       Object m = connection.getDispatchQueue().poll(maxWait, TimeUnit.MILLISECONDS);

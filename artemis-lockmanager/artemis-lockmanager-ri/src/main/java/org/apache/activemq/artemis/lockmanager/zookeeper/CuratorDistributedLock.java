@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.lockmanager.zookeeper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +32,7 @@ import org.apache.curator.framework.recipes.locks.Lease;
 final class CuratorDistributedLock extends CuratorDistributedPrimitive implements DistributedLock {
 
    private final InterProcessSemaphoreV2 ipcSem;
-   private final CopyOnWriteArrayList<UnavailableLockListener> listeners;
+   private final List<UnavailableLockListener> listeners;
    private Lease lease;
    private byte[] leaseVersion;
 

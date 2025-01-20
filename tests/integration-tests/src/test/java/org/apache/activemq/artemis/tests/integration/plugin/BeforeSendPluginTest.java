@@ -42,6 +42,7 @@ import javax.jms.TextMessage;
 
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,7 +64,7 @@ public class BeforeSendPluginTest extends JMSTestBase {
       Configuration config = super.createDefaultConfig(netty);
       config.getAcceptorConfigurations().clear();
 
-      HashMap<String, Object> params = new HashMap<>();
+      Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, 61616);
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, "CORE,AMQP,OPENWIRE");
       params.put("amqpMinLargeMessageSize", MIN_LARGE_MESSAGE_SIZE);

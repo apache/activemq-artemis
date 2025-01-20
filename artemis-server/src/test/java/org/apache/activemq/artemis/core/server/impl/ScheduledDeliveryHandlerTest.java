@@ -277,7 +277,7 @@ public class ScheduledDeliveryHandlerTest {
                           long numberOfExpectedMessages) throws Exception {
       List<MessageReference> refs = handler.getScheduledReferences();
 
-      HashSet<Long> messages = new HashSet<>();
+      Set<Long> messages = new HashSet<>();
 
       long lastTime = -1;
 

@@ -279,7 +279,7 @@ public class HelperCreate extends HelperBase {
 
    public void createServer() throws Exception {
 
-      ArrayList<String> listCommands = new ArrayList<>();
+      List<String> listCommands = new ArrayList<>();
 
       add(listCommands, "create", "--silent", "--force", "--user", user, "--password", password, "--role", role, "--port-offset", "" + portOffset, "--data", dataFolder);
 

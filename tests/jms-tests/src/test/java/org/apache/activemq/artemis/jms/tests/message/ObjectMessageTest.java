@@ -24,6 +24,7 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
@@ -192,7 +193,7 @@ public class ObjectMessageTest extends MessageTestBase {
          pathIgnore = classLocation.toString();
       }
 
-      ArrayList<URL> urls = new ArrayList<>();
+      List<URL> urls = new ArrayList<>();
       while (tokenString.hasMoreElements()) {
          String value = tokenString.nextToken();
          URL itemLocation = new File(value).toURI().toURL();
