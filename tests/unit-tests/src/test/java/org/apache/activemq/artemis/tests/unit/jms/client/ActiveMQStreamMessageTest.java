@@ -66,12 +66,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
    @Test
    public void testReadBooleanFromEmptyMessage() throws Exception {
-      doReadTypeFromEmptyMessage(new TypeReader() {
-         @Override
-         public Object readType(final ActiveMQStreamMessage message) throws Exception {
-            return message.readBoolean();
-         }
-      });
+      doReadTypeFromEmptyMessage(message -> message.readBoolean());
    }
 
    @Test
