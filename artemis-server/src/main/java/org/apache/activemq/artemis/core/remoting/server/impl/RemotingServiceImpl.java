@@ -303,7 +303,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       if (isStarted()) {
          for (Acceptor a : acceptors.values()) {
             try {
-               if (a instanceof NettyAcceptor && !((NettyAcceptor)a).isAutoStart()) {
+               if (a instanceof NettyAcceptor acceptor && !acceptor.isAutoStart()) {
                   continue;
                }
                a.start();

@@ -212,8 +212,7 @@ public class ReattachTest extends ActiveMQTestBase {
       final AtomicInteger count = new AtomicInteger(0);
 
       Interceptor intercept = (packet, connection) -> {
-         if (packet instanceof SessionProducerCreditsMessage) {
-            SessionProducerCreditsMessage credit = (SessionProducerCreditsMessage) packet;
+         if (packet instanceof SessionProducerCreditsMessage credit) {
 
             if (count.incrementAndGet() == 2) {
                connection.fail(new ActiveMQException(ActiveMQExceptionType.UNSUPPORTED_PACKET, "bye"));

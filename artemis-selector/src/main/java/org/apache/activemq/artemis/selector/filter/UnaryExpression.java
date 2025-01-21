@@ -43,8 +43,8 @@ public abstract class UnaryExpression implements Expression {
             if (rvalue == null) {
                return null;
             }
-            if (rvalue instanceof Number) {
-               return negate((Number) rvalue);
+            if (rvalue instanceof Number number) {
+               return negate(number);
             }
             return null;
          }

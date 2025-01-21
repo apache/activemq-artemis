@@ -42,8 +42,8 @@ public class EmbedMessageUtil {
 
    public static ICoreMessage embedAsCoreMessage(Message source) {
 
-      if (source instanceof ICoreMessage) {
-         return (ICoreMessage) source;
+      if (source instanceof ICoreMessage message) {
+         return message;
       } else {
 
          if (source.isLargeMessage()) {
@@ -98,8 +98,8 @@ public class EmbedMessageUtil {
    private static Message readEncoded(ICoreMessage message, StorageManager storageManager, ActiveMQBuffer buffer) {
       try {
          Message returnMessage = MessagePersister.getInstance().decode(buffer, null, null, storageManager);
-         if (returnMessage instanceof LargeServerMessage) {
-            ((LargeServerMessage)returnMessage).setStorageManager(storageManager);
+         if (returnMessage instanceof LargeServerMessage largeServerMessage) {
+            largeServerMessage.setStorageManager(storageManager);
          }
          returnMessage.setMessageID(message.getMessageID());
          return returnMessage;

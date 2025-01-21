@@ -2240,8 +2240,8 @@ public class StompV11Test extends StompTestBase {
       Iterator<RemotingConnection> iterator = server.getRemotingService().getConnections().iterator();
       while (iterator.hasNext()) {
          remotingConnection = iterator.next();
-         if (remotingConnection instanceof StompConnection) {
-            stompConnection = (StompConnection)remotingConnection;
+         if (remotingConnection instanceof StompConnection stompConnection1) {
+            stompConnection = stompConnection1;
          }
       }
 

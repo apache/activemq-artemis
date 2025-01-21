@@ -315,8 +315,8 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
 
       super.referenceOriginalMessage(original, originalQueue);
 
-      if (original instanceof LargeServerMessageImpl) {
-         this.largeBody.referenceOriginalMessage(((LargeServerMessageImpl) original).largeBody);
+      if (original instanceof LargeServerMessageImpl largeServerMessage) {
+         this.largeBody.referenceOriginalMessage(largeServerMessage.largeBody);
       }
    }
 

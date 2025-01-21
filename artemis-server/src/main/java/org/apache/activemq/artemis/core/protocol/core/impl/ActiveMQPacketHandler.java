@@ -168,8 +168,8 @@ public class ActiveMQPacketHandler implements ChannelHandler {
             ActiveMQServerLogger.LOGGER.incompatibleVersionAfterConnect(request.getVersion(), connection.getChannelVersion());
          }
 
-         if (request instanceof CreateSessionMessage_V2) {
-            connection.setClientID(((CreateSessionMessage_V2) request).getClientID());
+         if (request instanceof CreateSessionMessage_V2 v2) {
+            connection.setClientID(v2.getClientID());
          }
 
          Channel channel = connection.getChannel(request.getSessionChannelID(), request.getWindowSize());

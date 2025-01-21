@@ -228,13 +228,12 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
          return false;
       }
 
-      if (obj instanceof ActiveMQRAConnectionRequestInfo) {
-         ActiveMQRAConnectionRequestInfo you = (ActiveMQRAConnectionRequestInfo) obj;
-         return ActiveMQRaUtils.compare(userName, you.getUserName()) && ActiveMQRaUtils.compare(password, you.getPassword()) &&
-            ActiveMQRaUtils.compare(clientID, you.getClientID()) &&
-            type == you.getType() &&
-            transacted == you.isTransacted() &&
-            acknowledgeMode == you.getAcknowledgeMode();
+      if (obj instanceof ActiveMQRAConnectionRequestInfo requestInfo) {
+         return ActiveMQRaUtils.compare(userName, requestInfo.getUserName()) && ActiveMQRaUtils.compare(password, requestInfo.getPassword()) &&
+            ActiveMQRaUtils.compare(clientID, requestInfo.getClientID()) &&
+            type == requestInfo.getType() &&
+            transacted == requestInfo.isTransacted() &&
+            acknowledgeMode == requestInfo.getAcknowledgeMode();
       } else {
          return false;
       }

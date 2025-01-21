@@ -1620,10 +1620,10 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       // Implementors should override this to provide their optimized version
       final SparseArrayLinkedList<RecordInfo> records = new SparseArrayLinkedList<>();
       final JournalLoadInformation info = load(records, preparedTransactions, transactionFailure, fixBadTx);
-      if (committedRecords instanceof ArrayList) {
+      if (committedRecords instanceof ArrayList list) {
          final long survivedRecordsCount = records.size();
          if (survivedRecordsCount <= Integer.MAX_VALUE) {
-            ((ArrayList) committedRecords).ensureCapacity((int) survivedRecordsCount);
+            list.ensureCapacity((int) survivedRecordsCount);
          }
       }
       records.clear(committedRecords::add);
@@ -2654,8 +2654,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                            " live size = " +
                            file.getLiveSize() +
                            "\n");
-         if (file instanceof JournalFileImpl) {
-            builder.append(((JournalFileImpl) file).debug());
+         if (file instanceof JournalFileImpl journalFile) {
+            builder.append(journalFile.debug());
 
          }
       }
@@ -2667,8 +2667,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       if (currentFile != null) {
          builder.append("CurrentFile:" + currentFile + " posCounter = " + currentFile.getPosCount() + "\n");
 
-         if (currentFile instanceof JournalFileImpl) {
-            builder.append(((JournalFileImpl) currentFile).debug());
+         if (currentFile instanceof JournalFileImpl journalFile) {
+            builder.append(journalFile.debug());
          }
       } else {
          builder.append("CurrentFile: No current file at this point!");
@@ -3492,10 +3492,10 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    private void criticalIO(Throwable e, SequentialFile file) throws Exception {
       fileFactory.onIOError(e, e.getMessage(), file);
-      if (e instanceof Exception) {
-         throw (Exception) e;
-      } else if (e instanceof IllegalStateException) {
-         throw (IllegalStateException) e;
+      if (e instanceof Exception exception) {
+         throw exception;
+      } else if (e instanceof IllegalStateException illegalStateException) {
+         throw illegalStateException;
       } else {
          IOException ioex = new IOException();
          ioex.initCause(e);

@@ -509,11 +509,11 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
          doDeliveryUpdateInspection(delivery);
 
          Outcome outcome = null;
-         if (state instanceof TransactionalState) {
+         if (state instanceof TransactionalState transactionalState) {
             logger.trace("State of delivery is Transactional, retrieving outcome: {}", state);
-            outcome = ((TransactionalState) state).getOutcome();
-         } else if (state instanceof Outcome) {
-            outcome = (Outcome) state;
+            outcome = transactionalState.getOutcome();
+         } else if (state instanceof Outcome stateOutcome) {
+            outcome = stateOutcome;
          } else {
             logger.warn("Message send updated with unsupported state: {}", state);
             outcome = null;
@@ -527,9 +527,9 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
             if (request != null && !request.isComplete()) {
                request.onSuccess();
             }
-         } else if (outcome instanceof Rejected) {
+         } else if (outcome instanceof Rejected rejected) {
             logger.trace("Outcome of delivery was rejected: {}", delivery);
-            ErrorCondition remoteError = ((Rejected) outcome).getError();
+            ErrorCondition remoteError = rejected.getError();
             if (remoteError == null) {
                remoteError = getEndpoint().getRemoteCondition();
             }

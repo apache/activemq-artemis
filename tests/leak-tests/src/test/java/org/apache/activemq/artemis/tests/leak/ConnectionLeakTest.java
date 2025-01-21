@@ -213,8 +213,8 @@ public class ConnectionLeakTest extends AbstractLeakTest {
       assertMemory(checkLeak, 0, MessageReferenceImpl.class.getName());
       assertMemory(checkLeak, 0, AMQPStandardMessage.class.getName());
 
-      if (cf instanceof ActiveMQConnectionFactory) {
-         ((ActiveMQConnectionFactory)cf).close();
+      if (cf instanceof ActiveMQConnectionFactory factory) {
+         factory.close();
       }
 
    }

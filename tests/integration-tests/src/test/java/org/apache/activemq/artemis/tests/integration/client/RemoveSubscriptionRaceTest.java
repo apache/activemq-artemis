@@ -182,8 +182,7 @@ public class RemoveSubscriptionRaceTest extends ActiveMQTestBase {
    int countAddMessage() throws Exception {
       StorageManager manager = server.getStorageManager();
 
-      if (manager instanceof JournalStorageManager) {
-         JournalStorageManager journalStorageManager = (JournalStorageManager) manager;
+      if (manager instanceof JournalStorageManager journalStorageManager) {
          journalStorageManager.getMessageJournal().scheduleCompactAndBlock(5_000);
       } else {
          return 0;

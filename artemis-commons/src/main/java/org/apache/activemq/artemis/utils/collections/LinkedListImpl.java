@@ -492,8 +492,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
       private static <E> Node<E> with(final E o) {
          Objects.requireNonNull(o, "Only HEAD nodes are allowed to hold null values");
-         if (o instanceof Node) {
-            final Node node = (Node) o;
+         if (o instanceof Node node) {
             //only a node that not belong already to a list is allowed to be reused
             if (node.prev == null && node.next == null) {
                //reset the iterCount

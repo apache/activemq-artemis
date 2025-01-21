@@ -100,9 +100,9 @@ public class AllClassesTest {
          String targetOutput = targetInstance.toString();
          logger.debug("targetOutput: {}", targetOutput);
       } finally {
-         if (targetInstance instanceof AutoCloseable) {
+         if (targetInstance instanceof AutoCloseable closeable) {
             try {
-               ((AutoCloseable)targetInstance).close();
+               closeable.close();
             } catch (Throwable t) {
                logger.debug("Error closing the instance of {}: {}", targetClass.getName(), t);
             }

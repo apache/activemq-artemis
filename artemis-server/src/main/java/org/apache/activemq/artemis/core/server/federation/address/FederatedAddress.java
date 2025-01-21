@@ -158,22 +158,21 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
 
    @Override
    public void afterAddBinding(Binding binding) {
-      if (binding instanceof QueueBinding) {
-         conditionalCreateRemoteConsumer(((QueueBinding) binding).getQueue());
+      if (binding instanceof QueueBinding queueBinding) {
+         conditionalCreateRemoteConsumer(queueBinding.getQueue());
 
          if (config.isEnableDivertBindings()) {
             synchronized (this) {
                for (Map.Entry<DivertBinding, Set<SimpleString>> entry : matchingDiverts.entrySet()) {
                   //for each divert check the new QueueBinding to see if the divert matches and is not already tracking
-                  if (!entry.getValue().contains(((QueueBinding) binding).getQueue().getName())) {
+                  if (!entry.getValue().contains(queueBinding.getQueue().getName())) {
                      //conditionalCreateRemoteConsumer will check if the queue is a target of the divert before adding
-                     conditionalCreateRemoteConsumer(entry.getKey(), entry.getValue(), (QueueBinding) binding);
+                     conditionalCreateRemoteConsumer(entry.getKey(), entry.getValue(), queueBinding);
                   }
                }
             }
          }
-      } else if (config.isEnableDivertBindings() && binding instanceof DivertBinding) {
-         final DivertBinding divertBinding = (DivertBinding) binding;
+      } else if (config.isEnableDivertBindings() && binding instanceof DivertBinding divertBinding) {
          final AddressInfo addressInfo = server.getPostOffice().getAddressInfo(binding.getAddress());
 
          synchronized (this) {
@@ -232,8 +231,8 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
    @Override
    public void beforeRemoveBinding(SimpleString uniqueName, Transaction tx, boolean deleteData) {
       final Binding binding = server.getPostOffice().getBinding(uniqueName);
-      if (binding instanceof QueueBinding) {
-         final Queue queue = ((QueueBinding) binding).getQueue();
+      if (binding instanceof QueueBinding queueBinding) {
+         final Queue queue = queueBinding.getQueue();
 
          //Remove any direct queue demand
          removeRemoteConsumer(getKey(queue));
@@ -253,8 +252,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
                });
             }
          }
-      } else if (config.isEnableDivertBindings() && binding instanceof DivertBinding) {
-         final DivertBinding divertBinding = (DivertBinding) binding;
+      } else if (config.isEnableDivertBindings() && binding instanceof DivertBinding divertBinding) {
          final SimpleString forwardAddress = divertBinding.getDivert().getForwardAddress();
 
          //Check if we have added this divert binding as a matching binding
@@ -268,7 +266,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
                   if (addressInfo != null) {
                      //remove queue binding demand if tracked by the divert
                      server.getPostOffice().getBindingsForAddress(forwardAddress)
-                        .getBindings().stream().filter(b -> b instanceof QueueBinding && matchingQueues.remove(((QueueBinding) b).getQueue().getName()))
+                        .getBindings().stream().filter(b -> b instanceof QueueBinding qb && matchingQueues.remove(qb.getQueue().getName()))
                         .forEach(queueBinding -> removeRemoteConsumer(getKey(addressInfo)));
                   }
                } catch (Exception e) {

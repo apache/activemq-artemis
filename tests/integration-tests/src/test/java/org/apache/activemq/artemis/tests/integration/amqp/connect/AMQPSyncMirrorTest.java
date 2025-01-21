@@ -219,8 +219,8 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
 
          ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + AMQP_PORT);
 
-         if (factory instanceof ActiveMQConnectionFactory) {
-            ((ActiveMQConnectionFactory) factory).getServerLocator().setBlockOnAcknowledge(true);
+         if (factory instanceof ActiveMQConnectionFactory connectionFactory) {
+            connectionFactory.getServerLocator().setBlockOnAcknowledge(true);
          }
 
          Connection connection = factory.createConnection();
@@ -557,8 +557,8 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
 
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + AMQP_PORT);
 
-      if (factory instanceof ActiveMQConnectionFactory) {
-         ((ActiveMQConnectionFactory) factory).getServerLocator().setBlockOnAcknowledge(true);
+      if (factory instanceof ActiveMQConnectionFactory connectionFactory) {
+         connectionFactory.getServerLocator().setBlockOnAcknowledge(true);
       }
 
       Connection connection = factory.createConnection();

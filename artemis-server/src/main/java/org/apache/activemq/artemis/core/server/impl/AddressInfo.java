@@ -216,8 +216,8 @@ public class AddressInfo {
          Bindings bindings = postOffice.lookupBindingsForAddress(this.getName());
          if (bindings != null) {
             for (Binding binding : bindings.getBindings()) {
-               if (binding instanceof LocalQueueBinding) {
-                  ((LocalQueueBinding) binding).getQueue().pause(false);
+               if (binding instanceof LocalQueueBinding localQueueBinding) {
+                  localQueueBinding.getQueue().pause(false);
                }
             }
          }
@@ -250,8 +250,8 @@ public class AddressInfo {
          Bindings bindings = postOffice.lookupBindingsForAddress(this.getName());
          if (bindings != null) {
             for (Binding binding : bindings.getBindings()) {
-               if (binding instanceof LocalQueueBinding) {
-                  ((LocalQueueBinding) binding).getQueue().pause(false);
+               if (binding instanceof LocalQueueBinding localQueueBinding) {
+                  localQueueBinding.getQueue().pause(false);
                }
             }
          }
@@ -278,8 +278,8 @@ public class AddressInfo {
          Bindings bindings = postOffice.lookupBindingsForAddress(this.getName());
          if (bindings != null) {
             for (Binding binding : bindings.getBindings()) {
-               if (binding instanceof LocalQueueBinding) {
-                  ((LocalQueueBinding) binding).getQueue().resume();
+               if (binding instanceof LocalQueueBinding localQueueBinding) {
+                  localQueueBinding.getQueue().resume();
                }
             }
          }

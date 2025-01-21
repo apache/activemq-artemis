@@ -377,8 +377,8 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
    protected final void signalPluginBeforeFederationConsumerMessageHandled(Message message) throws ActiveMQException {
       try {
          federation.getServer().callBrokerAMQPFederationPlugins((plugin) -> {
-            if (plugin instanceof ActiveMQServerAMQPFederationPlugin) {
-               ((ActiveMQServerAMQPFederationPlugin) plugin).beforeFederationConsumerMessageHandled(this, message);
+            if (plugin instanceof ActiveMQServerAMQPFederationPlugin federationPlugin) {
+               federationPlugin.beforeFederationConsumerMessageHandled(this, message);
             }
          });
       } catch (ActiveMQException t) {
@@ -397,8 +397,8 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
    protected final void signalPluginAfterFederationConsumerMessageHandled(Message message) throws ActiveMQException {
       try {
          federation.getServer().callBrokerAMQPFederationPlugins((plugin) -> {
-            if (plugin instanceof ActiveMQServerAMQPFederationPlugin) {
-               ((ActiveMQServerAMQPFederationPlugin) plugin).afterFederationConsumerMessageHandled(this, message);
+            if (plugin instanceof ActiveMQServerAMQPFederationPlugin federationPlugin) {
+               federationPlugin.afterFederationConsumerMessageHandled(this, message);
             }
          });
       } catch (ActiveMQException t) {

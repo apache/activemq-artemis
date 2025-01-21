@@ -174,10 +174,10 @@ public class TypedProperties {
       Object value = doGetProperty(key);
       if (value == null) {
          return Boolean.valueOf(null);
-      } else if (value instanceof Boolean) {
-         return (Boolean) value;
-      } else if (value instanceof SimpleString) {
-         return Boolean.valueOf(((SimpleString) value).toString());
+      } else if (value instanceof Boolean booleanValue) {
+         return booleanValue;
+      } else if (value instanceof SimpleString simpleString) {
+         return Boolean.valueOf(simpleString.toString());
       }
       throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
@@ -188,10 +188,10 @@ public class TypedProperties {
       Object value = doGetProperty(key);
       if (value == null) {
          return defaultValue.get();
-      } else if (value instanceof Byte) {
-         return (Byte) value;
-      } else if (value instanceof SimpleString) {
-         return Byte.parseByte(((SimpleString) value).toString());
+      } else if (value instanceof Byte byteValue) {
+         return byteValue;
+      } else if (value instanceof SimpleString simpleString) {
+         return Byte.parseByte(simpleString.toString());
       }
       throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
@@ -206,8 +206,8 @@ public class TypedProperties {
          throw new NullPointerException("Invalid conversion: " + key);
       }
 
-      if (value instanceof Character) {
-         return ((Character) value);
+      if (value instanceof Character character) {
+         return character;
       }
       throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
@@ -216,8 +216,8 @@ public class TypedProperties {
       Object value = doGetProperty(key);
       if (value == null) {
          return null;
-      } else if (value instanceof byte[]) {
-         return (byte[]) value;
+      } else if (value instanceof byte[] bytes) {
+         return bytes;
       }
       throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
@@ -226,12 +226,12 @@ public class TypedProperties {
       Object value = doGetProperty(key);
       if (value == null) {
          return Double.valueOf(null);
-      } else if (value instanceof Float) {
-         return ((Float) value).doubleValue();
-      } else if (value instanceof Double) {
-         return (Double) value;
-      } else if (value instanceof SimpleString) {
-         return Double.parseDouble(((SimpleString) value).toString());
+      } else if (value instanceof Float floatValue) {
+         return floatValue.doubleValue();
+      } else if (value instanceof Double doubleValue) {
+         return doubleValue;
+      } else if (value instanceof SimpleString simpleString) {
+         return Double.parseDouble(simpleString.toString());
       }
       throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
@@ -240,14 +240,14 @@ public class TypedProperties {
       Object value = doGetProperty(key);
       if (value == null) {
          return Integer.valueOf(null);
-      } else if (value instanceof Integer) {
-         return (Integer) value;
-      } else if (value instanceof Byte) {
-         return ((Byte) value).intValue();
-      } else if (value instanceof Short) {
-         return ((Short) value).intValue();
-      } else if (value instanceof SimpleString) {
-         return Integer.parseInt(((SimpleString) value).toString());
+      } else if (value instanceof Integer integer) {
+         return integer;
+      } else if (value instanceof Byte byteValue) {
+         return byteValue.intValue();
+      } else if (value instanceof Short shortValue) {
+         return shortValue.intValue();
+      } else if (value instanceof SimpleString simpleString) {
+         return Integer.parseInt(simpleString.toString());
       }
       throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
@@ -256,16 +256,16 @@ public class TypedProperties {
       Object value = doGetProperty(key);
       if (value == null) {
          return Long.valueOf(null);
-      } else if (value instanceof Long) {
-         return (Long) value;
-      } else if (value instanceof Byte) {
-         return ((Byte) value).longValue();
-      } else if (value instanceof Short) {
-         return ((Short) value).longValue();
-      } else if (value instanceof Integer) {
-         return ((Integer) value).longValue();
-      } else if (value instanceof SimpleString) {
-         return Long.parseLong(((SimpleString) value).toString());
+      } else if (value instanceof Long longValue) {
+         return longValue;
+      } else if (value instanceof Byte byteValue) {
+         return byteValue.longValue();
+      } else if (value instanceof Short shortValue) {
+         return shortValue.longValue();
+      } else if (value instanceof Integer integer) {
+         return integer.longValue();
+      } else if (value instanceof SimpleString simpleString) {
+         return Long.parseLong(simpleString.toString());
       }
       throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
@@ -274,12 +274,12 @@ public class TypedProperties {
       Object value = doGetProperty(key);
       if (value == null) {
          return Short.valueOf(null);
-      } else if (value instanceof Byte) {
-         return ((Byte) value).shortValue();
-      } else if (value instanceof Short) {
-         return (Short) value;
-      } else if (value instanceof SimpleString) {
-         return Short.parseShort(((SimpleString) value).toString());
+      } else if (value instanceof Byte byteValue) {
+         return byteValue.shortValue();
+      } else if (value instanceof Short shortValue) {
+         return shortValue;
+      } else if (value instanceof SimpleString simpleString) {
+         return Short.parseShort(simpleString.toString());
       }
       throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
@@ -288,11 +288,11 @@ public class TypedProperties {
       Object value = doGetProperty(key);
       if (value == null)
          return Float.valueOf(null);
-      if (value instanceof Float) {
-         return ((Float) value);
+      if (value instanceof Float floatValue) {
+         return floatValue;
       }
-      if (value instanceof SimpleString) {
-         return Float.parseFloat(((SimpleString) value).toString());
+      if (value instanceof SimpleString string) {
+         return Float.parseFloat(string.toString());
       }
       throw new ActiveMQPropertyConversionException("Invalid conversion: " + key);
    }
@@ -304,8 +304,8 @@ public class TypedProperties {
          return null;
       }
 
-      if (value instanceof SimpleString) {
-         return (SimpleString) value;
+      if (value instanceof SimpleString string) {
+         return string;
       } else if (value instanceof Boolean) {
          return SimpleString.of(value.toString());
       } else if (value instanceof Character) {
@@ -642,13 +642,13 @@ public class TypedProperties {
 
             if (theValue == null) {
                sb.append("NULL-value");
-            } else if (theValue instanceof byte[]) {
-               sb.append("[" + ByteUtil.maxString(ByteUtil.bytesToHex((byte[]) theValue, 2), 150) + "]");
+            } else if (theValue instanceof byte[] bytes) {
+               sb.append("[" + ByteUtil.maxString(ByteUtil.bytesToHex(bytes, 2), 150) + "]");
 
                if (iterItem.getKey().toString().startsWith("_AMQ_ROUTE_TO")) {
                   sb.append(", bytesAsLongs[");
                   try {
-                     ByteBuffer buff = ByteBuffer.wrap((byte[]) theValue);
+                     ByteBuffer buff = ByteBuffer.wrap(bytes);
                      while (buff.hasRemaining()) {
                         long bindingID = buff.getLong();
                         sb.append(bindingID);
@@ -1200,8 +1200,8 @@ public class TypedProperties {
          Map<String, Object> m = new HashMap<>(properties.size());
          for (Entry<SimpleString, PropertyValue> entry : properties.entrySet()) {
             Object val = entry.getValue().getValue();
-            if (val instanceof SimpleString) {
-               m.put(entry.getKey().toString(), ((SimpleString) val).toString());
+            if (val instanceof SimpleString simpleString) {
+               m.put(entry.getKey().toString(), simpleString.toString());
             } else {
                m.put(entry.getKey().toString(), val);
             }
@@ -1220,28 +1220,28 @@ public class TypedProperties {
    public static void setObjectProperty(final SimpleString key, final Object value, final TypedProperties properties) {
       if (value == null) {
          properties.putNullValue(key);
-      } else if (value instanceof Boolean) {
-         properties.putBooleanProperty(key, (Boolean) value);
-      } else if (value instanceof Byte) {
-         properties.putByteProperty(key, (Byte) value);
-      } else if (value instanceof Character) {
-         properties.putCharProperty(key, (Character) value);
-      } else if (value instanceof Short) {
-         properties.putShortProperty(key, (Short) value);
-      } else if (value instanceof Integer) {
-         properties.putIntProperty(key, (Integer) value);
-      } else if (value instanceof Long) {
-         properties.putLongProperty(key, (Long) value);
-      } else if (value instanceof Float) {
-         properties.putFloatProperty(key, (Float) value);
-      } else if (value instanceof Double) {
-         properties.putDoubleProperty(key, (Double) value);
-      } else if (value instanceof String) {
-         properties.putSimpleStringProperty(key, SimpleString.of((String) value));
-      } else if (value instanceof SimpleString) {
-         properties.putSimpleStringProperty(key, (SimpleString) value);
-      } else if (value instanceof byte[]) {
-         properties.putBytesProperty(key, (byte[]) value);
+      } else if (value instanceof Boolean booleanValue) {
+         properties.putBooleanProperty(key, booleanValue);
+      } else if (value instanceof Byte byteValue) {
+         properties.putByteProperty(key, byteValue);
+      } else if (value instanceof Character character) {
+         properties.putCharProperty(key, character);
+      } else if (value instanceof Short shortValue) {
+         properties.putShortProperty(key, shortValue);
+      } else if (value instanceof Integer integer) {
+         properties.putIntProperty(key, integer);
+      } else if (value instanceof Long longValue) {
+         properties.putLongProperty(key, longValue);
+      } else if (value instanceof Float floatValue) {
+         properties.putFloatProperty(key, floatValue);
+      } else if (value instanceof Double doubleValue) {
+         properties.putDoubleProperty(key, doubleValue);
+      } else if (value instanceof String string) {
+         properties.putSimpleStringProperty(key, SimpleString.of(string));
+      } else if (value instanceof SimpleString simpleString) {
+         properties.putSimpleStringProperty(key, simpleString);
+      } else if (value instanceof byte[] bytes) {
+         properties.putBytesProperty(key, bytes);
       } else {
          throw new ActiveMQPropertyConversionException(value.getClass() + " is not a valid property type");
       }

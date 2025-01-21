@@ -16,7 +16,6 @@
  */
 package org.objectweb.jtests.jms.framework;
 
-import javax.jms.JMSException;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -58,8 +57,7 @@ public abstract class JMSTestCase extends Assert {
     * (provided there's one).
     */
    public void fail(final Exception e) {
-      if (e instanceof javax.jms.JMSException) {
-         JMSException exception = (JMSException) e;
+      if (e instanceof javax.jms.JMSException exception) {
          String message = e.toString();
          Exception linkedException = exception.getLinkedException();
          if (linkedException != null) {

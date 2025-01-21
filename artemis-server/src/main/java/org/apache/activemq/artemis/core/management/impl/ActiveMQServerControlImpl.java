@@ -424,8 +424,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          HAPolicy haPolicy = server.getHAPolicy();
-         if (haPolicy instanceof SharedStoreBackupPolicy) {
-            ((SharedStoreBackupPolicy) haPolicy).setFailoverOnServerShutdown(failoverOnServerShutdown);
+         if (haPolicy instanceof SharedStoreBackupPolicy sharedStoreBackupPolicy) {
+            sharedStoreBackupPolicy.setFailoverOnServerShutdown(failoverOnServerShutdown);
          }
       } finally {
          blockOnIO();
@@ -442,8 +442,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          HAPolicy haPolicy = server.getHAPolicy();
-         if (haPolicy instanceof SharedStoreBackupPolicy) {
-            return ((SharedStoreBackupPolicy) haPolicy).isFailoverOnServerShutdown();
+         if (haPolicy instanceof SharedStoreBackupPolicy sharedStoreBackupPolicy) {
+            return sharedStoreBackupPolicy.isFailoverOnServerShutdown();
          } else {
             return false;
          }
@@ -862,9 +862,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
       try (AutoCloseable lock = server.managementLock()) {
          Activation activation = server.getActivation();
-         if (activation instanceof SharedNothingPrimaryActivation) {
-            SharedNothingPrimaryActivation primaryActivation = (SharedNothingPrimaryActivation) activation;
-            primaryActivation.freezeReplication();
+         if (activation instanceof SharedNothingPrimaryActivation sharedNothingPrimaryActivation) {
+            sharedNothingPrimaryActivation.freezeReplication();
             return true;
          }
          return false;
@@ -2291,11 +2290,10 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          clearIO();
          try {
             for (Binding binding : postOffice.getMatchingBindings(SimpleString.of(address))) {
-               if (binding instanceof LocalQueueBinding) {
-                  Queue queue = ((LocalQueueBinding) binding).getQueue();
+               if (binding instanceof LocalQueueBinding localQueueBinding) {
+                  Queue queue = localQueueBinding.getQueue();
                   for (Consumer consumer : queue.getConsumers()) {
-                     if (consumer instanceof ServerConsumer) {
-                        ServerConsumer serverConsumer = (ServerConsumer) consumer;
+                     if (consumer instanceof ServerConsumer serverConsumer) {
                         RemotingConnection connection = null;
 
                         for (RemotingConnection potentialConnection : remotingService.getConnections()) {
@@ -4166,8 +4164,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          clearIO();
          HAPolicy haPolicy = server.getHAPolicy();
-         if (haPolicy instanceof PrimaryOnlyPolicy) {
-            PrimaryOnlyPolicy primaryOnlyPolicy = (PrimaryOnlyPolicy) haPolicy;
+         if (haPolicy instanceof PrimaryOnlyPolicy primaryOnlyPolicy) {
 
             if (primaryOnlyPolicy.getScaleDownPolicy() == null) {
                primaryOnlyPolicy.setScaleDownPolicy(new ScaleDownPolicy());

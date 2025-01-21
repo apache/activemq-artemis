@@ -53,9 +53,9 @@ public class ConfigurationHelper {
          return def;
       } else {
          // The resource adapter will aways send Strings, hence the conversion here
-         if (prop instanceof String) {
+         if (prop instanceof String string) {
             try {
-               return Integer.parseInt((String) prop);
+               return Integer.parseInt(string);
             } catch (NumberFormatException e) {
                ActiveMQClientLogger.LOGGER.propertyNotInteger(propName, prop.getClass().getName());
 
@@ -82,9 +82,9 @@ public class ConfigurationHelper {
          return def;
       } else {
          // The resource adapter will aways send Strings, hence the conversion here
-         if (prop instanceof String) {
+         if (prop instanceof String string) {
             try {
-               return Long.parseLong((String) prop);
+               return Long.parseLong(string);
             } catch (NumberFormatException e) {
                ActiveMQClientLogger.LOGGER.propertyNotLong(propName, prop.getClass().getName());
                return def;
@@ -110,8 +110,8 @@ public class ConfigurationHelper {
          return def;
       } else {
          // The resource adapter will aways send Strings, hence the conversion here
-         if (prop instanceof String) {
-            return Boolean.valueOf((String) prop);
+         if (prop instanceof String string) {
+            return Boolean.parseBoolean(string);
          } else if (prop instanceof Boolean == false) {
             ActiveMQClientLogger.LOGGER.propertyNotBoolean(propName, prop.getClass().getName());
 
@@ -175,8 +175,8 @@ public class ConfigurationHelper {
       String value = prop.toString();
       Object useMaskObject = props.get(defaultMaskPassword);
       Boolean useMask;
-      if (useMaskObject instanceof String) {
-         useMask = Boolean.parseBoolean((String)useMaskObject);
+      if (useMaskObject instanceof String string) {
+         useMask = Boolean.parseBoolean(string);
       } else {
          useMask = (Boolean) useMaskObject;
       }

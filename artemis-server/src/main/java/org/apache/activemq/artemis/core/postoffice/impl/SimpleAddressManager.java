@@ -304,8 +304,8 @@ public class SimpleAddressManager implements AddressManager {
 
       bindings.addBinding(binding);
 
-      if (binding instanceof LocalQueueBinding) {
-         localBindingsMap.put(binding.getID(), (LocalQueueBinding) binding);
+      if (binding instanceof LocalQueueBinding localQueueBinding) {
+         localBindingsMap.put(binding.getID(), localQueueBinding);
       }
 
       return addedNewBindings;
@@ -392,8 +392,7 @@ public class SimpleAddressManager implements AddressManager {
       final Bindings bindings = this.mappings.get(addressName);
       if (bindings != null) {
          for (Binding binding : bindings.getBindings()) {
-            if (binding instanceof QueueBinding && binding.isLocal()) {
-               final QueueBinding queueBinding = (QueueBinding) binding;
+            if (binding instanceof QueueBinding queueBinding && binding.isLocal()) {
                final RoutingType routingType = queueBinding.getQueue().getRoutingType();
                if (!routingTypes.contains(routingType) && binding.getAddress().equals(addressName)) {
                   throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeDelete(routingType, addressName.toString());
@@ -437,8 +436,7 @@ public class SimpleAddressManager implements AddressManager {
          Bindings bindings = mappings.get(info.getName());
          if (bindings != null) {
             for (Binding binding : bindings.getBindings()) {
-               if (binding instanceof LocalQueueBinding) {
-                  LocalQueueBinding localQueueBinding = (LocalQueueBinding)binding;
+               if (binding instanceof LocalQueueBinding localQueueBinding) {
                   if (!localQueueBinding.getQueue().isMirrorController() && !localQueueBinding.getQueue().isInternalQueue()) {
                      mirrorController.createQueue(localQueueBinding.getQueue().getQueueConfiguration());
                   }

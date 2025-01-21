@@ -94,8 +94,8 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler {
    @Override
    public void write(final ChannelHandlerContext ctx, final Object msg, ChannelPromise promise) throws Exception {
       // we are either a channel buffer, which gets delayed until a response is available, or we are the actual response
-      if (msg instanceof ByteBuf) {
-         executor.execute(new ResponseRunner((ByteBuf) msg, promise));
+      if (msg instanceof ByteBuf buf) {
+         executor.execute(new ResponseRunner(buf, promise));
       } else {
          ctx.write(msg, promise);
       }

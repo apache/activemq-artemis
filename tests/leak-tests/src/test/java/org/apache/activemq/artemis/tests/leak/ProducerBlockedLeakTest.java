@@ -119,8 +119,8 @@ public class ProducerBlockedLeakTest extends AbstractLeakTest {
          server.getRemotingService().getConnections().forEach(c -> c.fail(new ActiveMQException("this is it!")));
          Wait.assertEquals(0, () -> server.getRemotingService().getConnectionCount());
          server.getRemotingService().getAcceptors().forEach((a, b) -> {
-            if (b instanceof NettyAcceptor) {
-               ((NettyAcceptor) b).getConnections().clear();
+            if (b instanceof NettyAcceptor acceptor) {
+               acceptor.getConnections().clear();
             }
          });
       }

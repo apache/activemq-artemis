@@ -157,8 +157,8 @@ public class RefCountMessage {
    }
 
    public static void deferredDebug(Message message, String debugMessage, Object... args) {
-      if (message instanceof RefCountMessage && isRefDebugEnabled()) {
-         deferredDebug((RefCountMessage) message, debugMessage, args);
+      if (message instanceof RefCountMessage countMessage && isRefDebugEnabled()) {
+         deferredDebug(countMessage, debugMessage, args);
       }
    }
 

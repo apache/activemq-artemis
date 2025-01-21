@@ -86,8 +86,8 @@ public class CertificateLoginModuleTest {
                fail("Unknown UserPrincipal found.");
             }
 
-         } else if (currentPrincipal instanceof RolePrincipal) {
-            int principalIdx = ROLE_NAMES.indexOf(((RolePrincipal) currentPrincipal).getName());
+         } else if (currentPrincipal instanceof RolePrincipal rolePrincipal) {
+            int principalIdx = ROLE_NAMES.indexOf(rolePrincipal.getName());
 
             if (principalIdx < 0) {
                fail("Unknown RolePrincipal found.");

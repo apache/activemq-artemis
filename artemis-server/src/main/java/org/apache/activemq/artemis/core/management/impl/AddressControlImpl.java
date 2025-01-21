@@ -639,8 +639,8 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
             if (bindings != null) {
                for (Binding binding : bindings.getBindings()) {
-                  if (binding instanceof QueueBinding) {
-                     totalMsgs += ((QueueBinding) binding).getQueue().deleteMatchingReferences(QueueImpl.DEFAULT_FLUSH_LIMIT, null, AckReason.KILLED);
+                  if (binding instanceof QueueBinding queueBinding) {
+                     totalMsgs += queueBinding.getQueue().deleteMatchingReferences(QueueImpl.DEFAULT_FLUSH_LIMIT, null, AckReason.KILLED);
                   }
                }
             }

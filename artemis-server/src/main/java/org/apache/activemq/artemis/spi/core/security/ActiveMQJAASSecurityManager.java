@@ -97,8 +97,8 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
          return getAuthenticatedSubject(user, password, remotingConnection, securityDomain);
       } catch (LoginException e) {
          logger.debug("Couldn't validate user", e);
-         if (e instanceof NoCacheLoginException) {
-            throw (NoCacheLoginException) e;
+         if (e instanceof NoCacheLoginException noCacheLoginException) {
+            throw noCacheLoginException;
          }
          return null;
       }

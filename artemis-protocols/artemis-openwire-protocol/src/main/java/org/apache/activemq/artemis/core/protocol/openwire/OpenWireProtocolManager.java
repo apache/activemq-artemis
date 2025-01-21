@@ -328,8 +328,8 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
    private int getActorThreadshold(Acceptor acceptorUsed) {
       int actorThreshold = TransportConstants.DEFAULT_TCP_RECEIVEBUFFER_SIZE;
 
-      if (acceptorUsed instanceof NettyAcceptor) {
-         actorThreshold = ((NettyAcceptor) acceptorUsed).getTcpReceiveBufferSize();
+      if (acceptorUsed instanceof NettyAcceptor acceptor) {
+         actorThreshold = acceptor.getTcpReceiveBufferSize();
       }
 
       if (this.actorThresholdBytes > 0) {

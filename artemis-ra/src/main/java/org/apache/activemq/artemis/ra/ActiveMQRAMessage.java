@@ -745,8 +745,8 @@ public class ActiveMQRAMessage implements Message {
    public boolean equals(final Object object) {
       logger.trace("equals({})", object);
 
-      if (object != null && object instanceof ActiveMQRAMessage) {
-         return message.equals(((ActiveMQRAMessage) object).message);
+      if (object != null && object instanceof ActiveMQRAMessage activeMQRAMessage) {
+         return message.equals(activeMQRAMessage.message);
       } else {
          return message.equals(object);
       }

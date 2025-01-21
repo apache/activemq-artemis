@@ -176,8 +176,8 @@ public class PagedMessageImpl implements PagedMessage {
          largeMessageLazyData = null;
          checkLargeMessage();
       } else {
-         if (message != null && message instanceof LargeServerMessage) {
-            ((LargeServerMessage)message).setStorageManager(storageManager);
+         if (message != null && message instanceof LargeServerMessage largeServerMessage) {
+            largeServerMessage.setStorageManager(storageManager);
          }
       }
    }

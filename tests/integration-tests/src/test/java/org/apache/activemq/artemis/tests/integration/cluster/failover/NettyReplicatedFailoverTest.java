@@ -215,8 +215,8 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
    public void testTimeoutOnFailover() throws Exception {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(10);
 
-      if (nodeManager instanceof InVMNodeManager) {
-         ((InVMNodeManager) nodeManager).failoverPause = 500L;
+      if (nodeManager instanceof InVMNodeManager manager) {
+         manager.failoverPause = 500L;
       }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
@@ -279,8 +279,8 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
    public void testTimeoutOnFailoverConsume() throws Exception {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(-1).setRetryInterval(10).setAckBatchSize(0);
 
-      if (nodeManager instanceof InVMNodeManager) {
-         ((InVMNodeManager) nodeManager).failoverPause = 2000L;
+      if (nodeManager instanceof InVMNodeManager manager) {
+         manager.failoverPause = 2000L;
       }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
@@ -343,8 +343,8 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
    public void testTimeoutOnFailoverConsumeBlocked() throws Exception {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setConsumerWindowSize(0).setBlockOnDurableSend(true).setAckBatchSize(0).setBlockOnAcknowledge(true).setReconnectAttempts(-1).setAckBatchSize(0).setRetryInterval(10);
 
-      if (nodeManager instanceof InVMNodeManager) {
-         ((InVMNodeManager) nodeManager).failoverPause = 200L;
+      if (nodeManager instanceof InVMNodeManager manager) {
+         manager.failoverPause = 200L;
       }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
@@ -437,8 +437,8 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
    public void testTimeoutOnFailoverTransactionCommit() throws Exception {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(10);
 
-      if (nodeManager instanceof InVMNodeManager) {
-         ((InVMNodeManager) nodeManager).failoverPause = 2000L;
+      if (nodeManager instanceof InVMNodeManager manager) {
+         manager.failoverPause = 2000L;
       }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
@@ -507,8 +507,8 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
    public void testTimeoutOnFailoverTransactionCommitTimeoutCommunication() throws Exception {
       locator.setCallTimeout(1000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(50);
 
-      if (nodeManager instanceof InVMNodeManager) {
-         ((InVMNodeManager) nodeManager).failoverPause = 2000L;
+      if (nodeManager instanceof InVMNodeManager manager) {
+         manager.failoverPause = 2000L;
       }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);
@@ -586,8 +586,8 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
    public void testTimeoutOnFailoverTransactionRollback() throws Exception {
       locator.setCallTimeout(2000).setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setAckBatchSize(0).setReconnectAttempts(300).setRetryInterval(10);
 
-      if (nodeManager instanceof InVMNodeManager) {
-         ((InVMNodeManager) nodeManager).failoverPause = 1000L;
+      if (nodeManager instanceof InVMNodeManager manager) {
+         manager.failoverPause = 1000L;
       }
 
       ClientSessionFactoryInternal sf1 = (ClientSessionFactoryInternal) createSessionFactory(locator);

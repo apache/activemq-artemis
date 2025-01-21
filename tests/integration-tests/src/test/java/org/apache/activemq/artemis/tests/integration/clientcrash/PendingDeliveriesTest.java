@@ -137,8 +137,8 @@ public class PendingDeliveriesTest extends ClientTestBase {
 
       }
 
-      if (cf instanceof ActiveMQConnectionFactory) {
-         ((ActiveMQConnectionFactory) cf).close();
+      if (cf instanceof ActiveMQConnectionFactory factory) {
+         factory.close();
       }
 
    }

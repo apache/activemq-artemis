@@ -298,7 +298,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
    }
 
    private static boolean isAddressFull(final Exception e) {
-      return e instanceof ActiveMQException && ActiveMQExceptionType.ADDRESS_FULL.equals(((ActiveMQException) e).getType());
+      return e instanceof ActiveMQException amqe && ActiveMQExceptionType.ADDRESS_FULL.equals(amqe.getType());
    }
 
    private static boolean outcomeSupported(final Source source, final Symbol outcome) {

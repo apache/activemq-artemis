@@ -599,8 +599,8 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       for (Acceptor acceptor : impl.getAcceptors().values()) {
          AbstractAcceptor abstractAcceptor = (AbstractAcceptor) acceptor;
          for (ProtocolManager manager : abstractAcceptor.getProtocolMap().values()) {
-            if (manager instanceof MQTTProtocolManager) {
-               return (MQTTProtocolManager) manager;
+            if (manager instanceof MQTTProtocolManager mqttProtocolManager) {
+               return mqttProtocolManager;
             }
          }
       }

@@ -405,8 +405,8 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
          return;
       }
       HAPolicy policy = server.getServer().getHAPolicy();
-      if (policy instanceof ReplicatedPolicy) {
-         ((ReplicatedPolicy) policy).setCheckForPrimaryServer(true);
+      if (policy instanceof ReplicatedPolicy replicatedPolicy) {
+         replicatedPolicy.setCheckForPrimaryServer(true);
       }
 
    }

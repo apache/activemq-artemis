@@ -325,10 +325,9 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    public void associateConnection(final Object obj) throws ResourceException {
       logger.trace("associateConnection({})", obj);
 
-      if (!isDestroyed.get() && obj instanceof ActiveMQRASession) {
-         ActiveMQRASession h = (ActiveMQRASession) obj;
-         h.setManagedConnection(this);
-         handles.add(h);
+      if (!isDestroyed.get() && obj instanceof ActiveMQRASession activeMQRASession) {
+         activeMQRASession.setManagedConnection(this);
+         handles.add(activeMQRASession);
       } else {
          throw new IllegalStateException("ManagedConnection in an illegal state");
       }

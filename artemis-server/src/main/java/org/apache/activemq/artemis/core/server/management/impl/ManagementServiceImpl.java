@@ -402,12 +402,12 @@ public class ManagementServiceImpl implements ManagementService {
       broadcastGroup.setNotificationService(this);
       BroadcastEndpointFactory endpointFactory = configuration.getEndpointFactory();
       BaseBroadcastGroupControl control = null;
-      if (endpointFactory instanceof UDPBroadcastEndpointFactory) {
-         control = new BroadcastGroupControlImpl(broadcastGroup, storageManager, configuration, (UDPBroadcastEndpointFactory) endpointFactory);
-      } else if (endpointFactory instanceof JGroupsFileBroadcastEndpointFactory) {
-         control = new JGroupsFileBroadcastGroupControlImpl(broadcastGroup, storageManager, configuration, (JGroupsFileBroadcastEndpointFactory) endpointFactory);
-      } else if (endpointFactory instanceof ChannelBroadcastEndpointFactory) {
-         control = new JGroupsChannelBroadcastGroupControlImpl(broadcastGroup, storageManager, configuration, (ChannelBroadcastEndpointFactory) endpointFactory);
+      if (endpointFactory instanceof UDPBroadcastEndpointFactory factory) {
+         control = new BroadcastGroupControlImpl(broadcastGroup, storageManager, configuration, factory);
+      } else if (endpointFactory instanceof JGroupsFileBroadcastEndpointFactory factory) {
+         control = new JGroupsFileBroadcastGroupControlImpl(broadcastGroup, storageManager, configuration, factory);
+      } else if (endpointFactory instanceof ChannelBroadcastEndpointFactory factory) {
+         control = new JGroupsChannelBroadcastGroupControlImpl(broadcastGroup, storageManager, configuration, factory);
       } else {
          control = new BaseBroadcastGroupControlImpl(broadcastGroup, storageManager, configuration);
       }
@@ -523,8 +523,8 @@ public class ManagementServiceImpl implements ManagementService {
             ActiveMQServerLogger.LOGGER.managementOperationError(operation, resourceName, e);
             reply.putBooleanProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED, false);
             String exceptionMessage;
-            if (e instanceof InvocationTargetException) {
-               exceptionMessage = ((InvocationTargetException) e).getTargetException().getMessage();
+            if (e instanceof InvocationTargetException invocationTargetException) {
+               exceptionMessage = invocationTargetException.getTargetException().getMessage();
             } else {
                exceptionMessage = e.getMessage();
             }
@@ -544,8 +544,8 @@ public class ManagementServiceImpl implements ManagementService {
                ActiveMQServerLogger.LOGGER.managementAttributeError(attribute, resourceName, e);
                reply.putBooleanProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED, false);
                String exceptionMessage;
-               if (e instanceof InvocationTargetException) {
-                  exceptionMessage = ((InvocationTargetException) e).getTargetException().getMessage();
+               if (e instanceof InvocationTargetException invocationTargetException) {
+                  exceptionMessage = invocationTargetException.getTargetException().getMessage();
                } else {
                   exceptionMessage = e.getMessage();
                }

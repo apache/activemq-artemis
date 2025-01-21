@@ -113,12 +113,12 @@ public class MessageSerializerTest extends CliTestBase {
       List<Message> received = consumeMessages(session, address, TEST_MESSAGE_COUNT, CompositeAddress.isFullyQualified(address));
       for (int i = 0; i < TEST_MESSAGE_COUNT; i++) {
          Message m = messages.get(i);
-         if (m instanceof TextMessage) {
-            assertEquals(((TextMessage) m).getText(), ((TextMessage) received.get(i)).getText());
-         } else if (m instanceof ObjectMessage) {
-            assertEquals(((ObjectMessage) m).getObject(), ((ObjectMessage) received.get(i)).getObject());
-         } else if (m instanceof MapMessage) {
-            assertEquals(((MapMessage) m).getString(key), ((MapMessage) received.get(i)).getString(key));
+         if (m instanceof TextMessage textMessage) {
+            assertEquals(textMessage.getText(), ((TextMessage) received.get(i)).getText());
+         } else if (m instanceof ObjectMessage objectMessage) {
+            assertEquals(objectMessage.getObject(), ((ObjectMessage) received.get(i)).getObject());
+         } else if (m instanceof MapMessage mapMessage) {
+            assertEquals(mapMessage.getString(key), ((MapMessage) received.get(i)).getString(key));
          }
       }
    }

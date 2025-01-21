@@ -507,8 +507,8 @@ public interface Message {
       if (duplicateID == null) {
          return null;
       } else {
-         if (duplicateID instanceof SimpleString) {
-            return ((SimpleString) duplicateID).getData();
+         if (duplicateID instanceof SimpleString simpleString) {
+            return simpleString.getData();
          } else if (duplicateID instanceof String) {
             return SimpleString.of(duplicateID.toString()).getData();
          } else {

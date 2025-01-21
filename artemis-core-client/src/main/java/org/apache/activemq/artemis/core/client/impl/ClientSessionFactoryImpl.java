@@ -592,8 +592,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       for (ClientSessionInternal session : sessions) {
          SessionContext context = session.getSessionContext();
-         if (context instanceof ActiveMQSessionContext) {
-            ActiveMQSessionContext sessionContext = (ActiveMQSessionContext) context;
+         if (context instanceof ActiveMQSessionContext sessionContext) {
             if (sessionContext.isKilled()) {
                setReconnectAttempts(0);
             }
@@ -961,9 +960,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          }
 
          if (getConnection() != null) {
-            if (oldConnection != null && oldConnection instanceof CoreRemotingConnection) {
+            if (oldConnection != null && oldConnection instanceof CoreRemotingConnection oldRemotingConnection) {
                // transferring old connection version into the new connection
-               ((CoreRemotingConnection)connection).setChannelVersion(((CoreRemotingConnection)oldConnection).getChannelVersion());
+               ((CoreRemotingConnection)connection).setChannelVersion(oldRemotingConnection.getChannelVersion());
             }
             logger.debug("Reconnection successful");
             return count;
@@ -1213,8 +1212,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    protected Connector createConnector(ConnectorFactory connectorFactory, TransportConfiguration configuration) {
       Connector connector = connectorFactory.createConnector(configuration.getCombinedParams(), new DelegatingBufferHandler(), this, closeExecutor, threadPool, scheduledThreadPool, clientProtocolManager);
-      if (connector instanceof NettyConnector) {
-         NettyConnector nettyConnector = (NettyConnector) connector;
+      if (connector instanceof NettyConnector nettyConnector) {
          if (nettyConnector.getConnectTimeoutMillis() < 0) {
             nettyConnector.setConnectTimeoutMillis((int)serverLocator.getConnectionTTL());
          }

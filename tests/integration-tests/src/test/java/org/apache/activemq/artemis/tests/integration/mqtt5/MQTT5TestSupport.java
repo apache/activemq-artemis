@@ -325,10 +325,10 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
 
    public MQTTProtocolManager getProtocolManager() {
       Acceptor acceptor = server.getRemotingService().getAcceptor(MQTT_PROTOCOL_NAME);
-      if (acceptor instanceof AbstractAcceptor) {
-         ProtocolManager protocolManager = ((AbstractAcceptor) acceptor).getProtocolMap().get(MQTT_PROTOCOL_NAME);
-         if (protocolManager instanceof MQTTProtocolManager) {
-            return (MQTTProtocolManager) protocolManager;
+      if (acceptor instanceof AbstractAcceptor abstractAcceptor) {
+         ProtocolManager protocolManager = abstractAcceptor.getProtocolMap().get(MQTT_PROTOCOL_NAME);
+         if (protocolManager instanceof MQTTProtocolManager mqttProtocolManager) {
+            return mqttProtocolManager;
          }
       }
       return null;

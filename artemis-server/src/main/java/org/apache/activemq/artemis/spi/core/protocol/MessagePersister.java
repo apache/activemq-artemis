@@ -119,8 +119,8 @@ public class MessagePersister implements Persister<Message> {
          throw new NullPointerException("couldn't find factory for type=" + protocol);
       }
       Message message = persister.decode(buffer, record, pools);
-      if (message instanceof LargeServerMessage) {
-         ((LargeServerMessage) message).setStorageManager(storageManager);
+      if (message instanceof LargeServerMessage largeServerMessage) {
+         largeServerMessage.setStorageManager(storageManager);
       }
       return message;
    }

@@ -168,9 +168,9 @@ public class CoreMessageWrapper {
    public final String getJMSCorrelationID()  {
 
       Object correlationID = message.getCorrelationID();
-      if (correlationID instanceof String) {
+      if (correlationID instanceof String string) {
 
-         return ((String) correlationID);
+         return string;
       } else if (correlationID != null) {
          return String.valueOf(correlationID);
       } else {

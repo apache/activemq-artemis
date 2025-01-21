@@ -205,8 +205,8 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
 
    private Queue lookupSubscriptionQueue() {
       Binding binding = server.getPostOffice().getBinding(SimpleString.of(getContainerID() + "." + getSubscriptionName()));
-      if (binding != null && binding instanceof LocalQueueBinding) {
-         return ((LocalQueueBinding) binding).getQueue();
+      if (binding instanceof LocalQueueBinding localQueueBinding) {
+         return localQueueBinding.getQueue();
       }
 
       throw new AssertionError("Should have found an existing queue binding for the durable subscription");

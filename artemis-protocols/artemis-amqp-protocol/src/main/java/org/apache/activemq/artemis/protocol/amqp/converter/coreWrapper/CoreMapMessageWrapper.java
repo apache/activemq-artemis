@@ -64,8 +64,8 @@ public final class CoreMapMessageWrapper extends CoreMessageWrapper {
       while (names.hasMoreElements()) {
          String key = names.nextElement();
          Object value = message.getObject(key);
-         if (value instanceof byte[]) {
-            value = new Binary((byte[]) value);
+         if (value instanceof byte[] bytes) {
+            value = new Binary(bytes);
          }
          map.put(key, value);
       }
@@ -128,14 +128,14 @@ public final class CoreMapMessageWrapper extends CoreMessageWrapper {
    public void setObject(final String name, final Object value) throws ActiveMQPropertyConversionException {
       // primitives and String
       Object val = value;
-      if (value instanceof UnsignedInteger) {
-         val = ((UnsignedInteger) value).intValue();
-      } else if (value instanceof UnsignedShort) {
-         val = ((UnsignedShort) value).shortValue();
-      } else if (value instanceof UnsignedByte) {
-         val = ((UnsignedByte) value).byteValue();
-      } else if (value instanceof UnsignedLong) {
-         val = ((UnsignedLong) value).longValue();
+      if (value instanceof UnsignedInteger unsignedInteger) {
+         val = unsignedInteger.intValue();
+      } else if (value instanceof UnsignedShort unsignedShort) {
+         val = unsignedShort.shortValue();
+      } else if (value instanceof UnsignedByte unsignedByte) {
+         val = unsignedByte.byteValue();
+      } else if (value instanceof UnsignedLong unsignedLong) {
+         val = unsignedLong.longValue();
       }
       TypedProperties.setObjectProperty(SimpleString.of(name), val, map);
    }
@@ -188,8 +188,8 @@ public final class CoreMapMessageWrapper extends CoreMessageWrapper {
    public Object getObject(final String name) {
       Object val = map.getProperty(SimpleString.of(name));
 
-      if (val instanceof SimpleString) {
-         val = ((SimpleString) val).toString();
+      if (val instanceof SimpleString simpleString) {
+         val = simpleString.toString();
       }
 
       return val;

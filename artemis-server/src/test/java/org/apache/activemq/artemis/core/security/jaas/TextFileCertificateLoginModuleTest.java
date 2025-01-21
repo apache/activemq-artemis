@@ -186,8 +186,7 @@ public class TextFileCertificateLoginModuleTest {
          @Override
          public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
             for (Callback callback : callbacks) {
-               if (callback instanceof CertificateCallback) {
-                  CertificateCallback certCallback = (CertificateCallback) callback;
+               if (callback instanceof CertificateCallback certCallback) {
                   certCallback.setCertificates(new X509Certificate[]{cert});
                } else {
                   throw new UnsupportedCallbackException(callback);

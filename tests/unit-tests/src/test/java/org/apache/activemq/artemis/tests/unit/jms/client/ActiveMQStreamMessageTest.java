@@ -762,8 +762,8 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
       message.reset();
 
       Object v = reader.readType(message);
-      if (value instanceof byte[]) {
-         ActiveMQTestBase.assertEqualsByteArrays((byte[]) value, (byte[]) v);
+      if (value instanceof byte[] bytes) {
+         ActiveMQTestBase.assertEqualsByteArrays(bytes, (byte[]) v);
       } else {
          assertEquals(value, v);
       }

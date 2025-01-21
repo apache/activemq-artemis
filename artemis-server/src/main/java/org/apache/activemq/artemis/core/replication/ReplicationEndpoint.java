@@ -460,8 +460,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       ByteBuffer buffer = ByteBuffer.allocate(4 * 1024);
       for (Entry<Long, ReplicatedLargeMessage> entry : largeMessages.entrySet()) {
          ReplicatedLargeMessage lm = entry.getValue();
-         if (lm instanceof LargeServerMessageInSync) {
-            LargeServerMessageInSync lmSync = (LargeServerMessageInSync) lm;
+         if (lm instanceof LargeServerMessageInSync lmSync) {
             logger.trace("lmSync on {}", lmSync);
 
             lmSync.joinSyncedData(buffer);

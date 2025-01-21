@@ -52,9 +52,7 @@ public class TypedPropertiesTest {
          SimpleString key = iterator.next();
          Object expectedValue = expected.getProperty(key);
          Object actualValue = actual.getProperty(key);
-         if (expectedValue instanceof byte[] && actualValue instanceof byte[]) {
-            byte[] expectedBytes = (byte[]) expectedValue;
-            byte[] actualBytes = (byte[]) actualValue;
+         if (expectedValue instanceof byte[] expectedBytes && actualValue instanceof byte[] actualBytes) {
             assertArrayEquals(expectedBytes, actualBytes);
          } else {
             assertEquals(expectedValue, actualValue);

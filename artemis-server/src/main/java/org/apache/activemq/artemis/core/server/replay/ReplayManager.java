@@ -84,10 +84,9 @@ public class ReplayManager {
       if (journal == null) {
          // notice this routing plays single threaded. no need for any sort of synchronization here
          Journal storageManageJournal =  server.getStorageManager().getMessageJournal();
-         if (storageManageJournal instanceof JournalImpl) {
-            journal = (JournalImpl) storageManageJournal;
-         } else if (storageManageJournal instanceof ReplicatedJournal) {
-            ReplicatedJournal replicatedJournal = (ReplicatedJournal)  storageManageJournal;
+         if (storageManageJournal instanceof JournalImpl impl) {
+            journal = impl;
+         } else if (storageManageJournal instanceof ReplicatedJournal replicatedJournal) {
             journal = (JournalImpl) replicatedJournal.getLocalJournal();
          } else {
             throw new IllegalStateException("could not local a valid journal to use with the ReplayManager");

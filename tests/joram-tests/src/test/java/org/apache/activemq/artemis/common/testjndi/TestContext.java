@@ -239,16 +239,14 @@ public class TestContext implements Context, Serializable {
                Object obj = bindings.get(first);
                if (obj == null) {
                   throw new NameNotFoundException(name);
-               } else if (obj instanceof Context && path.size() > 1) {
-                  Context subContext = (Context) obj;
+               } else if (obj instanceof Context subContext && path.size() > 1) {
                   obj = subContext.lookup(path.getSuffix(1));
                }
                return obj;
             }
          }
       }
-      if (result instanceof LinkRef) {
-         LinkRef ref = (LinkRef) result;
+      if (result instanceof LinkRef ref) {
          result = lookup(ref.getLinkName());
       }
       if (result instanceof Reference) {
@@ -260,12 +258,12 @@ public class TestContext implements Context, Serializable {
             throw (NamingException) new NamingException("could not look up : " + name).initCause(e);
          }
       }
-      if (result instanceof TestContext) {
+      if (result instanceof TestContext context) {
          String prefix = getNameInNamespace();
          if (prefix.length() > 0) {
             prefix = prefix + SEPARATOR;
          }
-         result = new TestContext((TestContext) result, environment, prefix + name);
+         result = new TestContext(context, environment, prefix + name);
       }
       return result;
    }
@@ -299,8 +297,8 @@ public class TestContext implements Context, Serializable {
       Object o = lookup(name);
       if (o == this) {
          return new ListEnumeration();
-      } else if (o instanceof Context) {
-         return ((Context) o).list("");
+      } else if (o instanceof Context context) {
+         return context.list("");
       } else {
          throw new NotContextException();
       }
@@ -311,8 +309,8 @@ public class TestContext implements Context, Serializable {
       Object o = lookup(name);
       if (o == this) {
          return new ListBindingEnumeration();
-      } else if (o instanceof Context) {
-         return ((Context) o).listBindings("");
+      } else if (o instanceof Context context) {
+         return context.listBindings("");
       } else {
          throw new NotContextException();
       }

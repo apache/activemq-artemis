@@ -244,16 +244,16 @@ public class ActiveMQRAMessageConsumer implements MessageConsumer {
    Message wrapMessage(final Message message) {
       logger.trace("wrapMessage({})", message);
 
-      if (message instanceof BytesMessage) {
-         return new ActiveMQRABytesMessage((BytesMessage) message, session);
-      } else if (message instanceof MapMessage) {
-         return new ActiveMQRAMapMessage((MapMessage) message, session);
-      } else if (message instanceof ObjectMessage) {
-         return new ActiveMQRAObjectMessage((ObjectMessage) message, session);
-      } else if (message instanceof StreamMessage) {
-         return new ActiveMQRAStreamMessage((StreamMessage) message, session);
-      } else if (message instanceof TextMessage) {
-         return new ActiveMQRATextMessage((TextMessage) message, session);
+      if (message instanceof BytesMessage bytesMessage) {
+         return new ActiveMQRABytesMessage(bytesMessage, session);
+      } else if (message instanceof MapMessage mapMessage) {
+         return new ActiveMQRAMapMessage(mapMessage, session);
+      } else if (message instanceof ObjectMessage objectMessage) {
+         return new ActiveMQRAObjectMessage(objectMessage, session);
+      } else if (message instanceof StreamMessage streamMessage) {
+         return new ActiveMQRAStreamMessage(streamMessage, session);
+      } else if (message instanceof TextMessage textMessage) {
+         return new ActiveMQRATextMessage(textMessage, session);
       }
       return new ActiveMQRAMessage(message, session);
    }

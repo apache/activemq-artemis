@@ -244,7 +244,7 @@ public class MQTTUtil {
        * Maintain the original order of the properties by using a decomposable name that indicates the original order.
        */
       List<MqttProperties.StringPair> userProperties = getProperty(List.class, properties, USER_PROPERTY);
-      if (userProperties != null && userProperties.size() != 0) {
+      if (userProperties != null && !userProperties.isEmpty()) {
          message.putIntProperty(MQTT_USER_PROPERTY_EXISTS_KEY, userProperties.size());
          for (int i = 0; i < userProperties.size(); i++) {
             String key = new StringBuilder()
@@ -328,9 +328,9 @@ public class MQTTUtil {
                   for (MqttProperties.MqttProperty property : ((MqttPublishMessage)message).variableHeader().properties().listAll()) {
                      Object value = property.value();
                      if (value != null) {
-                        if (value instanceof byte[]) {
-                           value = new String((byte[]) value, StandardCharsets.UTF_8);
-                        } else if (value instanceof ArrayList && ((ArrayList)value).size() > 0 && ((ArrayList)value).get(0) instanceof MqttProperties.StringPair) {
+                        if (value instanceof byte[] bytes) {
+                           value = new String(bytes, StandardCharsets.UTF_8);
+                        } else if (value instanceof ArrayList<?> list && !list.isEmpty() && list.get(0) instanceof MqttProperties.StringPair) {
                            StringBuilder userProperties = new StringBuilder();
                            userProperties.append("[");
                            for (MqttProperties.StringPair pair : (ArrayList<MqttProperties.StringPair>) value) {

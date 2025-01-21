@@ -44,8 +44,8 @@ public class WebSocketFrameEncoder extends ChannelOutboundHandlerAdapter {
 
    @Override
    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-      if (msg instanceof ByteBuf) {
-         writeContinuationFrame(ctx, (ByteBuf) msg, promise);
+      if (msg instanceof ByteBuf buf) {
+         writeContinuationFrame(ctx, buf, promise);
       } else {
          super.write(ctx, msg, promise);
       }

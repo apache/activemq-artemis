@@ -1630,11 +1630,11 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
          Element e = XMLUtil.urlToElement(url);
 
-         if (config instanceof FileJMSConfiguration) {
+         if (config instanceof FileJMSConfiguration fileJMSConfiguration) {
             NodeList children = e.getElementsByTagName("jms");
             //if the "jms" element exists then parse it
             if (children.getLength() > 0) {
-               ((FileJMSConfiguration) config).parse((Element) children.item(0), url);
+               fileJMSConfiguration.parse((Element) children.item(0), url);
                JMSServerManagerImpl.this.deploy();
             }
          }

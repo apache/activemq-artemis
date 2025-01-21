@@ -111,8 +111,8 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       clearIO();
       try {
          Transformer transformer = divert.getTransformer();
-         return transformer != null ? (transformer instanceof RegisteredTransformer ?
-            ((RegisteredTransformer)transformer).getTransformer() : transformer).getClass().getName() : null;
+         return transformer != null ? (transformer instanceof RegisteredTransformer rt ?
+            rt.getTransformer() : transformer).getClass().getName() : null;
       } finally {
          blockOnIO();
       }
@@ -134,8 +134,8 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       clearIO();
       try {
          Transformer transformer = divert.getTransformer();
-         return transformer != null && transformer instanceof RegisteredTransformer ?
-            ((RegisteredTransformer)transformer).getProperties() : Collections.emptyMap();
+         return transformer != null && transformer instanceof RegisteredTransformer rt ?
+            rt.getProperties() : Collections.emptyMap();
       } finally {
          blockOnIO();
       }

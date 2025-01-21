@@ -125,8 +125,8 @@ public class AMQPFederationTarget extends AMQPFederation {
       final Symbol condition;
       final String description = cause.getMessage();
 
-      if (cause instanceof ActiveMQAMQPException) {
-         condition = ((ActiveMQAMQPException) cause).getAmqpError();
+      if (cause instanceof ActiveMQAMQPException exception) {
+         condition = exception.getAmqpError();
       } else {
          condition = AmqpError.INTERNAL_ERROR;
       }

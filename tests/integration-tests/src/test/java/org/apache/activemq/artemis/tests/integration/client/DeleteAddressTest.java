@@ -241,8 +241,8 @@ public class DeleteAddressTest extends ActiveMQTestBase {
 
          Bindings bindings = server.getPostOffice().lookupBindingsForAddress(SimpleString.of(ADDRESS_NAME));
          for (Binding b : bindings.getBindings()) {
-            if (b instanceof LocalQueueBinding) {
-               Wait.assertEquals(0, () -> ((LocalQueueBinding)b).getQueue().getConsumerCount());
+            if (b instanceof LocalQueueBinding localQueueBinding) {
+               Wait.assertEquals(0, () -> localQueueBinding.getQueue().getConsumerCount());
                server.destroyQueue(b.getUniqueName());
             }
          }

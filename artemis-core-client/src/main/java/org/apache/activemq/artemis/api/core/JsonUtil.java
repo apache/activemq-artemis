@@ -56,12 +56,11 @@ public final class JsonUtil {
       for (int i = 0; i < jsonArray.size(); i++) {
          Object val = jsonArray.get(i);
 
-         if (val instanceof JsonArray) {
-            Object[] inner = fromJsonArray((JsonArray) val);
+         if (val instanceof JsonArray jsonArrayValue) {
+            Object[] inner = fromJsonArray(jsonArrayValue);
 
             array[i] = inner;
-         } else if (val instanceof JsonObject) {
-            JsonObject jsonObject = (JsonObject) val;
+         } else if (val instanceof JsonObject jsonObject) {
 
             Map<String, Object> map = new HashMap<>();
 
@@ -70,27 +69,25 @@ public final class JsonUtil {
             for (String key : keys) {
                Object innerVal = jsonObject.get(key);
 
-               if (innerVal instanceof JsonArray) {
-                  innerVal = fromJsonArray(((JsonArray) innerVal));
-               } else if (innerVal instanceof JsonString) {
-                  innerVal = ((JsonString) innerVal).getString();
+               if (innerVal instanceof JsonArray jsonArrayValue) {
+                  innerVal = fromJsonArray(jsonArrayValue);
+               } else if (innerVal instanceof JsonString jsonString) {
+                  innerVal = jsonString.getString();
                } else if (innerVal == JsonValue.FALSE) {
                   innerVal = Boolean.FALSE;
                } else if (innerVal == JsonValue.TRUE) {
                   innerVal = Boolean.TRUE;
-               } else if (innerVal instanceof JsonNumber) {
-                  JsonNumber jsonNumber = (JsonNumber) innerVal;
+               } else if (innerVal instanceof JsonNumber jsonNumber) {
                   if (jsonNumber.isIntegral()) {
                      innerVal = jsonNumber.longValue();
                   } else {
                      innerVal = jsonNumber.doubleValue();
                   }
-               } else if (innerVal instanceof JsonObject) {
+               } else if (innerVal instanceof JsonObject innerJsonObject) {
                   Map<String, Object> innerMap = new HashMap<>();
-                  JsonObject o = (JsonObject) innerVal;
-                  Set<String> innerKeys = o.keySet();
+                  Set<String> innerKeys = innerJsonObject.keySet();
                   for (String k : innerKeys) {
-                     innerMap.put(k, o.get(k));
+                     innerMap.put(k, innerJsonObject.get(k));
                   }
                   innerVal = innerMap;
                }
@@ -111,14 +108,13 @@ public final class JsonUtil {
             }
 
             array[i] = map;
-         } else if (val instanceof JsonString) {
-            array[i] = ((JsonString) val).getString();
+         } else if (val instanceof JsonString jsonString) {
+            array[i] = jsonString.getString();
          } else if (val == JsonValue.FALSE) {
             array[i] = Boolean.FALSE;
          } else if (val == JsonValue.TRUE) {
             array[i] = Boolean.TRUE;
-         } else if (val instanceof JsonNumber) {
-            JsonNumber jsonNumber = (JsonNumber) val;
+         } else if (val instanceof JsonNumber jsonNumber) {
             if (jsonNumber.isIntegral()) {
                array[i] = jsonNumber.longValue();
             } else {
@@ -141,87 +137,85 @@ public final class JsonUtil {
    }
 
    public static void addToObject(final String key, final Object param, final JsonObjectBuilder jsonObjectBuilder) {
-      if (param instanceof Integer) {
-         jsonObjectBuilder.add(key, (Integer) param);
-      } else if (param instanceof Long) {
-         jsonObjectBuilder.add(key, (Long) param);
-      } else if (param instanceof Double) {
-         jsonObjectBuilder.add(key, (Double) param);
-      } else if (param instanceof String) {
-         jsonObjectBuilder.add(key, (String) param);
-      } else if (param instanceof Boolean) {
-         jsonObjectBuilder.add(key, (Boolean) param);
-      } else if (param instanceof Map) {
-         JsonObject mapObject = toJsonObject((Map<String, Object>) param);
-         jsonObjectBuilder.add(key, mapObject);
-      } else if (param instanceof Short) {
-         jsonObjectBuilder.add(key, (Short) param);
-      } else if (param instanceof Byte) {
-         jsonObjectBuilder.add(key, ((Byte) param).shortValue());
-      } else if (param instanceof Number) {
-         jsonObjectBuilder.add(key, ((Number)param).doubleValue());
+      if (param instanceof Integer integer) {
+         jsonObjectBuilder.add(key, integer);
+      } else if (param instanceof Long longValue) {
+         jsonObjectBuilder.add(key, longValue);
+      } else if (param instanceof Double doubleValue) {
+         jsonObjectBuilder.add(key, doubleValue);
+      } else if (param instanceof String string) {
+         jsonObjectBuilder.add(key, string);
+      } else if (param instanceof Boolean booleanValue) {
+         jsonObjectBuilder.add(key, booleanValue);
+      } else if (param instanceof Map map) {
+         jsonObjectBuilder.add(key, toJsonObject(map));
+      } else if (param instanceof Short shortValue) {
+         jsonObjectBuilder.add(key, shortValue);
+      } else if (param instanceof Byte byteValue) {
+         jsonObjectBuilder.add(key, byteValue.shortValue());
+      } else if (param instanceof Number number) {
+         jsonObjectBuilder.add(key, number.doubleValue());
       } else if (param instanceof SimpleString) {
          jsonObjectBuilder.add(key, param.toString());
       } else if (param == null) {
          jsonObjectBuilder.addNull(key);
-      } else if (param instanceof byte[]) {
-         JsonArrayBuilder byteArrayObject = toJsonArrayBuilder((byte[]) param);
+      } else if (param instanceof byte[] bytes) {
+         JsonArrayBuilder byteArrayObject = toJsonArrayBuilder(bytes);
          jsonObjectBuilder.add(key, byteArrayObject);
-      } else if (param instanceof Object[]) {
+      } else if (param instanceof Object[] objects) {
          final JsonArrayBuilder objectArrayBuilder = JsonLoader.createArrayBuilder();
-         for (Object parameter : (Object[])param) {
+         for (Object parameter : objects) {
             addToArray(parameter, objectArrayBuilder);
          }
          jsonObjectBuilder.add(key, objectArrayBuilder);
-      } else if (param instanceof JsonValue) {
-         jsonObjectBuilder.add(key, (JsonValue)param);
+      } else if (param instanceof JsonValue jsonValue) {
+         jsonObjectBuilder.add(key, jsonValue);
       } else {
          jsonObjectBuilder.add(key, param.toString());
       }
    }
 
    public static void addToArray(final Object param, final JsonArrayBuilder jsonArrayBuilder) {
-      if (param instanceof Integer) {
-         jsonArrayBuilder.add((Integer) param);
-      } else if (param instanceof Long) {
-         jsonArrayBuilder.add((Long) param);
-      } else if (param instanceof Double) {
-         jsonArrayBuilder.add((Double) param);
-      } else if (param instanceof String) {
-         jsonArrayBuilder.add((String) param);
-      } else if (param instanceof Boolean) {
-         jsonArrayBuilder.add((Boolean) param);
-      } else if (param instanceof Map) {
-         JsonObject mapObject = toJsonObject((Map<String, Object>) param);
-         jsonArrayBuilder.add(mapObject);
-      } else if (param instanceof Short) {
-         jsonArrayBuilder.add((Short) param);
-      } else if (param instanceof Byte) {
-         jsonArrayBuilder.add(((Byte) param).shortValue());
-      } else if (param instanceof Number) {
-         jsonArrayBuilder.add(((Number)param).doubleValue());
+      if (param instanceof Integer integer) {
+         jsonArrayBuilder.add(integer);
+      } else if (param instanceof Long longValue) {
+         jsonArrayBuilder.add(longValue);
+      } else if (param instanceof Double doubleValue) {
+         jsonArrayBuilder.add(doubleValue);
+      } else if (param instanceof String string) {
+         jsonArrayBuilder.add(string);
+      } else if (param instanceof Boolean booleanValue) {
+         jsonArrayBuilder.add(booleanValue);
+      } else if (param instanceof Map map) {
+         jsonArrayBuilder.add(toJsonObject(map));
+      } else if (param instanceof Short shortValue) {
+         jsonArrayBuilder.add(shortValue);
+      } else if (param instanceof Byte byteValue) {
+         jsonArrayBuilder.add(byteValue.shortValue());
+      } else if (param instanceof Number number) {
+         jsonArrayBuilder.add(number.doubleValue());
       } else if (param == null) {
          jsonArrayBuilder.addNull();
-      } else if (param instanceof byte[]) {
-         JsonArrayBuilder byteArrayObject = toJsonArrayBuilder((byte[]) param);
+      } else if (param instanceof byte[] bytes) {
+         JsonArrayBuilder byteArrayObject = toJsonArrayBuilder(bytes);
          jsonArrayBuilder.add(byteArrayObject);
-      } else if (param instanceof CompositeData[]) {
+      } else if (param instanceof CompositeData[] compositeData) {
          JsonArrayBuilder innerJsonArray = JsonLoader.createArrayBuilder();
-         for (Object data : (CompositeData[])param) {
+         for (Object data : compositeData) {
             String s = Base64.encodeObject((CompositeDataSupport) data);
             innerJsonArray.add(s);
          }
          JsonObjectBuilder jsonObject = JsonLoader.createObjectBuilder();
          jsonObject.add(CompositeData.class.getName(), innerJsonArray);
          jsonArrayBuilder.add(jsonObject);
-      } else if (param instanceof Object[]) {
+      } else if (param instanceof Object[] objects) {
          JsonArrayBuilder objectArrayBuilder = JsonLoader.createArrayBuilder();
-         for (Object parameter : (Object[])param) {
+         for (Object parameter : objects) {
             addToArray(parameter, objectArrayBuilder);
          }
          jsonArrayBuilder.add(objectArrayBuilder);
-      } else if (param instanceof JsonValue) {
-         jsonArrayBuilder.add((JsonValue)param);
+      } else if (param instanceof JsonValue jsonValue) {
+         jsonArrayBuilder.add(jsonValue);
       } else {
          jsonArrayBuilder.add(param.toString());
       }
@@ -274,8 +268,7 @@ public final class JsonUtil {
    }
 
    public static Object convertJsonValue(Object jsonValue, Class desiredType) {
-      if (jsonValue instanceof JsonNumber) {
-         JsonNumber number = (JsonNumber) jsonValue;
+      if (jsonValue instanceof JsonNumber number) {
 
          if (desiredType == null || desiredType == Long.class || desiredType == Long.TYPE) {
             return number.longValue();
@@ -286,8 +279,8 @@ public final class JsonUtil {
          } else {
             return number.longValue();
          }
-      } else if (jsonValue instanceof JsonString) {
-         return ((JsonString) jsonValue).getString();
+      } else if (jsonValue instanceof JsonString jsonString) {
+         return jsonString.getString();
       } else if (jsonValue instanceof JsonValue) {
          if (jsonValue == JsonValue.TRUE) {
             return true;
@@ -296,8 +289,7 @@ public final class JsonUtil {
          } else {
             return jsonValue.toString();
          }
-      } else if (jsonValue instanceof Number) {
-         Number jsonNumber = (Number) jsonValue;
+      } else if (jsonValue instanceof Number jsonNumber) {
          if (desiredType == Integer.TYPE || desiredType == Integer.class) {
             return jsonNumber.intValue();
          } else if (desiredType == Long.TYPE || desiredType == Long.class) {
@@ -309,16 +301,15 @@ public final class JsonUtil {
          } else {
             return jsonValue;
          }
-      } else if (jsonValue instanceof Object[]) {
-         Object[] array = (Object[]) jsonValue;
+      } else if (jsonValue instanceof Object[] objects) {
          Object[] result;
          if (desiredType != null) {
-            result = (Object[]) Array.newInstance(desiredType, array.length);
+            result = (Object[]) Array.newInstance(desiredType, objects.length);
          } else {
-            result = array;
+            result = objects;
          }
-         for (int i = 0; i < array.length; i++) {
-            result[i] = convertJsonValue(array[i], desiredType);
+         for (int i = 0; i < objects.length; i++) {
+            result[i] = convertJsonValue(objects[i], desiredType);
          }
          return result;
       } else {

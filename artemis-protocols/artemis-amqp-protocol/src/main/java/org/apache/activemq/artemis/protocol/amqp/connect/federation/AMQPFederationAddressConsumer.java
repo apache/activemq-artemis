@@ -385,8 +385,8 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
 
             final Message baseMessage;
 
-            if (message instanceof ICoreMessage) {
-               baseMessage = incrementCoreMessageHops((ICoreMessage) message);
+            if (message instanceof ICoreMessage coreMessage) {
+               baseMessage = incrementCoreMessageHops(coreMessage);
 
                // Add / Update the connection Id value to reflect the remote container Id so that the
                // no-local filter of a federation address receiver directed back to the source of this

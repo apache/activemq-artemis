@@ -29,8 +29,8 @@ import org.apache.activemq.artemis.utils.Base64;
 public class XmlDataExporterUtil {
 
    public static String convertProperty(final Object value) {
-      if (value instanceof byte[]) {
-         return encode((byte[]) value);
+      if (value instanceof byte[] bytes) {
+         return encode(bytes);
       } else {
          return value == null ? XmlDataConstants.NULL : value.toString();
       }

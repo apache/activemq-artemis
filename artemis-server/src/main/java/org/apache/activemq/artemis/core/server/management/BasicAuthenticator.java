@@ -37,8 +37,8 @@ public class BasicAuthenticator implements JMXAuthenticator {
    public Subject authenticate(final Object credentials) throws SecurityException {
       Subject result;
       String[] params = null;
-      if (credentials instanceof String[] && ((String[]) credentials).length == 2) {
-         params = (String[]) credentials;
+      if (credentials instanceof String[] strings && strings.length == 2) {
+         params = strings;
       }
       result = securityManager.authenticate(params[0], params[1], null, null);
       if (result != null) {

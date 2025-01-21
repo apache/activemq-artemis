@@ -181,8 +181,8 @@ public class NettyBridgeReconnectTest extends BridgeTestBase {
       BridgeImpl bridge = null;
       for (Consumer c : serverQueue1.getConsumers()) {
          System.out.println("Consumer " + c);
-         if (c instanceof BridgeImpl) {
-            bridge = (BridgeImpl) c;
+         if (c instanceof BridgeImpl bridgeConsumer) {
+            bridge = bridgeConsumer;
          }
       }
       assertNotNull(bridge);

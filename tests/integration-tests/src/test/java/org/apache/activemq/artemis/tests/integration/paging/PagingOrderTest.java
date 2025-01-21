@@ -272,14 +272,13 @@ public class PagingOrderTest extends ActiveMQTestBase {
       q2 = null;
 
       for (Binding bind : bindings.getBindings()) {
-         if (bind instanceof LocalQueueBinding) {
-            LocalQueueBinding qb = (LocalQueueBinding) bind;
-            if (qb.getQueue().getName().equals(ADDRESS)) {
-               q1 = qb.getQueue();
+         if (bind instanceof LocalQueueBinding localQueueBinding) {
+            if (localQueueBinding.getQueue().getName().equals(ADDRESS)) {
+               q1 = localQueueBinding.getQueue();
             }
 
-            if (qb.getQueue().getName().equals(SimpleString.of("inactive"))) {
-               q2 = qb.getQueue();
+            if (localQueueBinding.getQueue().getName().equals(SimpleString.of("inactive"))) {
+               q2 = localQueueBinding.getQueue();
             }
          }
       }

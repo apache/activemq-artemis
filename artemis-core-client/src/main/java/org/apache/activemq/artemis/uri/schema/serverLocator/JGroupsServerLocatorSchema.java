@@ -53,8 +53,8 @@ public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema {
       DiscoveryGroupConfiguration dgc = bean.getDiscoveryGroupConfiguration();
       BroadcastEndpointFactory endpoint = dgc.getBroadcastEndpointFactory();
       String auth;
-      if (endpoint instanceof JGroupsFileBroadcastEndpointFactory) {
-         auth = ((JGroupsFileBroadcastEndpointFactory) endpoint).getChannelName();
+      if (endpoint instanceof JGroupsFileBroadcastEndpointFactory factory) {
+         auth = factory.getChannelName();
       } else {
          throw new NotSerializableException(endpoint + "not serializable");
       }

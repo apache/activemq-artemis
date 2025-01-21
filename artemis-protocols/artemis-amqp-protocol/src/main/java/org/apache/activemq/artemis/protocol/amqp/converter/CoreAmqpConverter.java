@@ -72,8 +72,8 @@ import org.apache.qpid.proton.codec.ReadableBuffer.ByteBufferReader;
 public class CoreAmqpConverter {
 
    public static AMQPMessage checkAMQP(Message message, StorageManager storageManager) throws Exception {
-      if (message instanceof AMQPMessage) {
-         return (AMQPMessage)message;
+      if (message instanceof AMQPMessage amqpMessage) {
+         return amqpMessage;
       } else {
          // It will first convert to Core, then to AMQP
          return fromCore(message.toCore(), storageManager);
@@ -89,8 +89,8 @@ public class CoreAmqpConverter {
          if (coreMessage.isServerMessage() && coreMessage.isLargeMessage() && coreMessage.getType() == EMBEDDED_TYPE) {
             //large AMQP messages received across cluster nodes
             final Message message = EmbedMessageUtil.extractEmbedded(coreMessage, storageManager);
-            if (message instanceof AMQPMessage) {
-               return (AMQPMessage) message;
+            if (message instanceof AMQPMessage amqpMessage) {
+               return amqpMessage;
             }
          }
          CoreMessageWrapper message = CoreMessageWrapper.wrap(coreMessage);
@@ -153,14 +153,14 @@ public class CoreAmqpConverter {
 
          Object correlationID = message.getInnerMessage().getCorrelationID();
          if (correlationID instanceof String || correlationID instanceof SimpleString) {
-            String c = correlationID instanceof String ? ((String) correlationID) : ((SimpleString) correlationID).toString();
+            String c = correlationID.toString();
             try {
                properties.setCorrelationId(AMQPMessageIdHelper.INSTANCE.toIdObject(c));
             } catch (ActiveMQAMQPIllegalStateException e) {
                properties.setCorrelationId(correlationID);
             }
-         } else if (correlationID instanceof byte[]) {
-            properties.setCorrelationId(new Binary(((byte[])correlationID)));
+         } else if (correlationID instanceof byte[] bytes) {
+            properties.setCorrelationId(new Binary(bytes));
          } else {
             properties.setCorrelationId(correlationID);
          }
@@ -305,8 +305,8 @@ public class CoreAmqpConverter {
             }
 
             Object objectProperty = message.getObjectProperty(key);
-            if (objectProperty instanceof byte[]) {
-               objectProperty = new Binary((byte[]) objectProperty);
+            if (objectProperty instanceof byte[] bytes) {
+               objectProperty = new Binary(bytes);
             }
 
             apMap.put(key, objectProperty);

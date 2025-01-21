@@ -105,8 +105,8 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       try {
          out.writeUTF(uri.toASCIIString());
       } catch (Exception e) {
-         if (e instanceof IOException) {
-            throw (IOException) e;
+         if (e instanceof IOException ioException) {
+            throw ioException;
          }
          throw new IOException(e);
       }
@@ -134,8 +134,8 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       try {
          uri = parser.createSchema(scheme, this);
       } catch (Exception e) {
-         if (e instanceof IOException) {
-            throw (IOException) e;
+         if (e instanceof IOException ioException) {
+            throw ioException;
          }
          throw new IOException(e);
       }

@@ -182,8 +182,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       logger.trace("Looking for connection matching credentials: {}", credential);
 
       for (Object obj : connectionSet) {
-         if (obj instanceof ActiveMQRAManagedConnection) {
-            ActiveMQRAManagedConnection mc = (ActiveMQRAManagedConnection) obj;
+         if (obj instanceof ActiveMQRAManagedConnection mc) {
             ManagedConnectionFactory mcf = mc.getManagedConnectionFactory();
 
             if ((mc.getUserName() == null || mc.getUserName() != null && mc.getUserName().equals(credential.getUserName())) && mcf.equals(this)) {
@@ -275,8 +274,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
          return false;
       }
 
-      if (obj instanceof ActiveMQRAManagedConnectionFactory) {
-         ActiveMQRAManagedConnectionFactory other = (ActiveMQRAManagedConnectionFactory) obj;
+      if (obj instanceof ActiveMQRAManagedConnectionFactory other) {
 
          return mcfProperties.equals(other.getProperties()) && ra.equals(other.getResourceAdapter());
       } else {

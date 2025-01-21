@@ -216,20 +216,20 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             }
          }
          if (check) {
-            if (securityManager instanceof ActiveMQSecurityManager5) {
+            if (securityManager instanceof ActiveMQSecurityManager5 manager5) {
                try {
-                  subject = ((ActiveMQSecurityManager5) securityManager).authenticate(user, password, connection, securityDomain);
+                  subject = manager5.authenticate(user, password, connection, securityDomain);
                   putAuthenticationCacheEntry(authnCacheKey, subject);
                   validatedUser = getUserFromSubject(subject);
                } catch (NoCacheLoginException e) {
                   handleNoCacheLoginException(e);
                }
-            } else if (securityManager instanceof ActiveMQSecurityManager4) {
-               validatedUser = ((ActiveMQSecurityManager4) securityManager).validateUser(user, password, connection, securityDomain);
-            } else if (securityManager instanceof ActiveMQSecurityManager3) {
-               validatedUser = ((ActiveMQSecurityManager3) securityManager).validateUser(user, password, connection);
-            } else if (securityManager instanceof ActiveMQSecurityManager2) {
-               userIsValid = ((ActiveMQSecurityManager2) securityManager).validateUser(user, password, CertificateUtil.getCertsFromConnection(connection));
+            } else if (securityManager instanceof ActiveMQSecurityManager4 manager4) {
+               validatedUser = manager4.validateUser(user, password, connection, securityDomain);
+            } else if (securityManager instanceof ActiveMQSecurityManager3 manager3) {
+               validatedUser = manager3.validateUser(user, password, connection);
+            } else if (securityManager instanceof ActiveMQSecurityManager2 manager2) {
+               userIsValid = manager2.validateUser(user, password, CertificateUtil.getCertsFromConnection(connection));
             } else {
                userIsValid = securityManager.validateUser(user, password);
             }
@@ -302,8 +302,8 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          }
 
          final Boolean validated;
-         if (securityManager instanceof ActiveMQSecurityManager5) {
-            Subject subject = getSubjectForAuthorization(session, ((ActiveMQSecurityManager5) securityManager));
+         if (securityManager instanceof ActiveMQSecurityManager5 manager5) {
+            Subject subject = getSubjectForAuthorization(session, manager5);
 
             /**
              * A user may authenticate successfully at first, but then later when their Subject is evicted from the
@@ -316,13 +316,13 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                authenticationFailed(user, session.getRemotingConnection());
             }
 
-            validated = ((ActiveMQSecurityManager5) securityManager).authorize(subject, roles, checkType, fqqn != null ? fqqn.toString() : bareAddress.toString());
-         } else if (securityManager instanceof ActiveMQSecurityManager4) {
-            validated = ((ActiveMQSecurityManager4) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, bareAddress.toString(), session.getRemotingConnection(), session.getSecurityDomain()) != null;
-         } else if (securityManager instanceof ActiveMQSecurityManager3) {
-            validated = ((ActiveMQSecurityManager3) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, bareAddress.toString(), session.getRemotingConnection()) != null;
-         } else if (securityManager instanceof ActiveMQSecurityManager2) {
-            validated = ((ActiveMQSecurityManager2) securityManager).validateUserAndRole(user, session.getPassword(), roles, checkType, bareAddress.toString(), session.getRemotingConnection());
+            validated = manager5.authorize(subject, roles, checkType, fqqn != null ? fqqn.toString() : bareAddress.toString());
+         } else if (securityManager instanceof ActiveMQSecurityManager4 manager4) {
+            validated = manager4.validateUserAndRole(user, session.getPassword(), roles, checkType, bareAddress.toString(), session.getRemotingConnection(), session.getSecurityDomain()) != null;
+         } else if (securityManager instanceof ActiveMQSecurityManager3 manager3) {
+            validated = manager3.validateUserAndRole(user, session.getPassword(), roles, checkType, bareAddress.toString(), session.getRemotingConnection()) != null;
+         } else if (securityManager instanceof ActiveMQSecurityManager2 manager2) {
+            validated = manager2.validateUserAndRole(user, session.getPassword(), roles, checkType, bareAddress.toString(), session.getRemotingConnection());
          } else {
             validated = securityManager.validateUserAndRole(user, session.getPassword(), roles, checkType);
          }
@@ -402,8 +402,8 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
     */
    @Override
    public Subject getSessionSubject(SecurityAuth session) {
-      if (securityManager instanceof ActiveMQSecurityManager5) {
-         return getSubjectForAuthorization(session, (ActiveMQSecurityManager5) securityManager);
+      if (securityManager instanceof ActiveMQSecurityManager5 manager5) {
+         return getSubjectForAuthorization(session, manager5);
       }
       return null;
    }

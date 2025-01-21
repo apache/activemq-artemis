@@ -199,8 +199,8 @@ public final class ReplicationManager implements ActiveMQComponent {
       this.replicatingChannel = remotingConnection.getChannel(CHANNEL_ID.REPLICATION.id, -1);
       this.remotingConnection = remotingConnection;
       final Connection transportConnection = this.remotingConnection.getTransportConnection();
-      if (transportConnection instanceof NettyConnection) {
-         final EventLoop eventLoop = ((NettyConnection) transportConnection).getNettyChannel().eventLoop();
+      if (transportConnection instanceof NettyConnection nettyConnection) {
+         final EventLoop eventLoop = nettyConnection.getNettyChannel().eventLoop();
          this.replicationStream = eventLoop;
          this.scheduledExecutorService = eventLoop;
       } else {

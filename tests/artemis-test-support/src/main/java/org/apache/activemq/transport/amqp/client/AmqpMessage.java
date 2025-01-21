@@ -629,11 +629,10 @@ public class AmqpMessage {
     */
    public String getText() throws NoSuchElementException {
       Section body = getWrappedMessage().getBody();
-      if (body instanceof AmqpValue) {
-         AmqpValue value = (AmqpValue) body;
+      if (body instanceof AmqpValue amqpValue) {
 
-         if (value.getValue() instanceof String) {
-            return (String) value.getValue();
+         if (amqpValue.getValue() instanceof String) {
+            return (String) amqpValue.getValue();
          }
       }
 

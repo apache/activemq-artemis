@@ -103,10 +103,10 @@ public final class AMQPFederationConfiguration {
     */
    public int getReceiverCredits() {
       final Object property = properties.get(RECEIVER_CREDITS);
-      if (property instanceof Number) {
-         return ((Number) property).intValue();
-      } else if (property instanceof String) {
-         return Integer.parseInt((String) property);
+      if (property instanceof Number number) {
+         return number.intValue();
+      } else if (property instanceof String string) {
+         return Integer.parseInt(string);
       } else {
          return connection.getAmqpCredits();
       }
@@ -117,10 +117,10 @@ public final class AMQPFederationConfiguration {
     */
    public int getReceiverCreditsLow() {
       final Object property = properties.get(RECEIVER_CREDITS_LOW);
-      if (property instanceof Number) {
-         return ((Number) property).intValue();
-      } else if (property instanceof String) {
-         return Integer.parseInt((String) property);
+      if (property instanceof Number number) {
+         return number.intValue();
+      } else if (property instanceof String string) {
+         return Integer.parseInt(string);
       } else {
          return connection.getAmqpLowCredits();
       }
@@ -131,10 +131,10 @@ public final class AMQPFederationConfiguration {
     */
    public int getPullReceiverBatchSize() {
       final Object property = properties.get(PULL_RECEIVER_BATCH_SIZE);
-      if (property instanceof Number) {
-         return ((Number) property).intValue();
-      } else if (property instanceof String) {
-         return Integer.parseInt((String) property);
+      if (property instanceof Number number) {
+         return number.intValue();
+      } else if (property instanceof String string) {
+         return Integer.parseInt(string);
       } else {
          return DEFAULT_PULL_CREDIT_BATCH_SIZE;
       }
@@ -145,10 +145,10 @@ public final class AMQPFederationConfiguration {
     */
    public int getLargeMessageThreshold() {
       final Object property = properties.get(LARGE_MESSAGE_THRESHOLD);
-      if (property instanceof Number) {
-         return ((Number) property).intValue();
-      } else if (property instanceof String) {
-         return Integer.parseInt((String) property);
+      if (property instanceof Number number) {
+         return number.intValue();
+      } else if (property instanceof String string) {
+         return Integer.parseInt(string);
       } else {
          return connection.getProtocolManager().getAmqpMinLargeMessageSize();
       }
@@ -159,10 +159,10 @@ public final class AMQPFederationConfiguration {
     */
    public int getLinkAttachTimeout() {
       final Object property = properties.get(LINK_ATTACH_TIMEOUT);
-      if (property instanceof Number) {
-         return ((Number) property).intValue();
-      } else if (property instanceof String) {
-         return Integer.parseInt((String) property);
+      if (property instanceof Number number) {
+         return number.intValue();
+      } else if (property instanceof String string) {
+         return Integer.parseInt(string);
       } else {
          return DEFAULT_LINK_ATTACH_TIMEOUT;
       }
@@ -173,10 +173,10 @@ public final class AMQPFederationConfiguration {
     */
    public boolean isCoreMessageTunnelingEnabled() {
       final Object property = properties.get(AmqpSupport.TUNNEL_CORE_MESSAGES);
-      if (property instanceof Boolean) {
-         return (Boolean) property;
-      } else if (property instanceof String) {
-         return Boolean.parseBoolean((String) property);
+      if (property instanceof Boolean booleanValue) {
+         return booleanValue;
+      } else if (property instanceof String string) {
+         return Boolean.parseBoolean(string);
       } else {
          return DEFAULT_CORE_MESSAGE_TUNNELING_ENABLED;
       }
@@ -187,10 +187,10 @@ public final class AMQPFederationConfiguration {
     */
    public boolean isIgnoreSubscriptionFilters() {
       final Object property = properties.get(IGNORE_QUEUE_CONSUMER_FILTERS);
-      if (property instanceof Boolean) {
-         return (Boolean) property;
-      } else if (property instanceof String) {
-         return Boolean.parseBoolean((String) property);
+      if (property instanceof Boolean booleanValue) {
+         return booleanValue;
+      } else if (property instanceof String string) {
+         return Boolean.parseBoolean(string);
       } else {
          return DEFAULT_IGNNORE_QUEUE_CONSUMER_FILTERS;
       }
@@ -201,10 +201,10 @@ public final class AMQPFederationConfiguration {
     */
    public boolean isIgnoreSubscriptionPriorities() {
       final Object property = properties.get(IGNORE_QUEUE_CONSUMER_PRIORITIES);
-      if (property instanceof Boolean) {
-         return (Boolean) property;
-      } else if (property instanceof String) {
-         return Boolean.parseBoolean((String) property);
+      if (property instanceof Boolean booleanValue) {
+         return booleanValue;
+      } else if (property instanceof String string) {
+         return Boolean.parseBoolean(string);
       } else {
          return DEFAULT_IGNNORE_QUEUE_CONSUMER_PRIORITIES;
       }
@@ -215,10 +215,10 @@ public final class AMQPFederationConfiguration {
     */
    public int getReceiverQuiesceTimeout() {
       final Object property = properties.get(RECEIVER_QUIESCE_TIMEOUT);
-      if (property instanceof Number) {
-         return ((Number) property).intValue();
-      } else if (property instanceof String) {
-         return Integer.parseInt((String) property);
+      if (property instanceof Number number) {
+         return number.intValue();
+      } else if (property instanceof String string) {
+         return Integer.parseInt(string);
       } else {
          return DEFAULT_RECEIVER_QUIESCE_TIMEOUT;
       }

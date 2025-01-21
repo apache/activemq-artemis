@@ -306,26 +306,26 @@ public class ActiveMQStreamMessage extends ActiveMQMessage implements StreamMess
 
    @Override
    public void writeObject(final Object value) throws JMSException {
-      if (value instanceof String) {
-         writeString((String) value);
-      } else if (value instanceof Boolean) {
-         writeBoolean((Boolean) value);
-      } else if (value instanceof Byte) {
-         writeByte((Byte) value);
-      } else if (value instanceof Short) {
-         writeShort((Short) value);
-      } else if (value instanceof Integer) {
-         writeInt((Integer) value);
-      } else if (value instanceof Long) {
-         writeLong((Long) value);
-      } else if (value instanceof Float) {
-         writeFloat((Float) value);
-      } else if (value instanceof Double) {
-         writeDouble((Double) value);
-      } else if (value instanceof byte[]) {
-         writeBytes((byte[]) value);
-      } else if (value instanceof Character) {
-         writeChar((Character) value);
+      if (value instanceof String string) {
+         writeString(string);
+      } else if (value instanceof Boolean booleanValue) {
+         writeBoolean(booleanValue);
+      } else if (value instanceof Byte byteValue) {
+         writeByte(byteValue);
+      } else if (value instanceof Short shortValue) {
+         writeShort(shortValue);
+      } else if (value instanceof Integer integer) {
+         writeInt(integer);
+      } else if (value instanceof Long longValue) {
+         writeLong(longValue);
+      } else if (value instanceof Float floatValue) {
+         writeFloat(floatValue);
+      } else if (value instanceof Double doubleValue) {
+         writeDouble(doubleValue);
+      } else if (value instanceof byte[] bytes) {
+         writeBytes(bytes);
+      } else if (value instanceof Character character) {
+         writeChar(character);
       } else if (value == null) {
          writeString(null);
       } else {

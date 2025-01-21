@@ -3092,8 +3092,7 @@ public class AMQPMessageTest {
 
       assertTrue(left.getClass().equals(right.getClass()));
 
-      if (left instanceof AmqpValue) {
-         AmqpValue leftValue = (AmqpValue) left;
+      if (left instanceof AmqpValue leftValue) {
          AmqpValue rightValue = (AmqpValue) right;
 
          if (leftValue.getValue() == null && rightValue.getValue() == null) {
@@ -3104,8 +3103,7 @@ public class AMQPMessageTest {
          }
 
          assertEquals(leftValue.getValue(), rightValue.getValue());
-      } else if (left instanceof AmqpSequence) {
-         AmqpSequence leftValue = (AmqpSequence) left;
+      } else if (left instanceof AmqpSequence leftValue) {
          AmqpSequence rightValue = (AmqpSequence) right;
 
          if (leftValue.getValue() == null && rightValue.getValue() == null) {
@@ -3123,8 +3121,7 @@ public class AMQPMessageTest {
          for (int i = 0; i < leftList.size(); ++i) {
             assertEquals(leftList.get(i), rightList.get(i));
          }
-      } else if (left instanceof Data) {
-         Data leftValue = (Data) left;
+      } else if (left instanceof Data leftValue) {
          Data rightValue = (Data) right;
 
          if (leftValue.getValue() == null && rightValue.getValue() == null) {

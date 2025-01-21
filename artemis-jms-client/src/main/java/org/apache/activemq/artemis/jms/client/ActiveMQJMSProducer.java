@@ -133,27 +133,26 @@ public final class ActiveMQJMSProducer implements JMSProducer {
             for (Entry<String, Object> entry : body.entrySet()) {
                final String name = entry.getKey();
                final Object v = entry.getValue();
-               if (v instanceof String) {
-                  message.setString(name, (String) v);
-               } else if (v instanceof Long) {
-                  message.setLong(name, (Long) v);
-               } else if (v instanceof Double) {
-                  message.setDouble(name, (Double) v);
-               } else if (v instanceof Integer) {
-                  message.setInt(name, (Integer) v);
-               } else if (v instanceof Character) {
-                  message.setChar(name, (Character) v);
-               } else if (v instanceof Short) {
-                  message.setShort(name, (Short) v);
-               } else if (v instanceof Boolean) {
-                  message.setBoolean(name, (Boolean) v);
-               } else if (v instanceof Float) {
-                  message.setFloat(name, (Float) v);
-               } else if (v instanceof Byte) {
-                  message.setByte(name, (Byte) v);
-               } else if (v instanceof byte[]) {
-                  byte[] array = (byte[]) v;
-                  message.setBytes(name, array, 0, array.length);
+               if (v instanceof String string) {
+                  message.setString(name, string);
+               } else if (v instanceof Long longValue) {
+                  message.setLong(name, longValue);
+               } else if (v instanceof Double doubleValue) {
+                  message.setDouble(name, doubleValue);
+               } else if (v instanceof Integer integer) {
+                  message.setInt(name, integer);
+               } else if (v instanceof Character character) {
+                  message.setChar(name, character);
+               } else if (v instanceof Short shortValue) {
+                  message.setShort(name, shortValue);
+               } else if (v instanceof Boolean booleanValue) {
+                  message.setBoolean(name, booleanValue);
+               } else if (v instanceof Float floatValue) {
+                  message.setFloat(name, floatValue);
+               } else if (v instanceof Byte byteValue) {
+                  message.setByte(name, byteValue);
+               } else if (v instanceof byte[] bytes) {
+                  message.setBytes(name, bytes, 0, bytes.length);
                } else {
                   message.setObject(name, v);
                }

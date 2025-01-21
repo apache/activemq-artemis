@@ -124,8 +124,8 @@ public class ScaleDownHandler {
             Set<Queue> queues = new TreeSet<>(new OrderQueueByNumberOfReferencesComparator());
             if (bindings != null) {
                for (Binding binding : bindings.getBindings()) {
-                  if (binding instanceof LocalQueueBinding) {
-                     Queue queue = ((LocalQueueBinding) binding).getQueue();
+                  if (binding instanceof LocalQueueBinding localQueueBinding) {
+                     Queue queue = localQueueBinding.getQueue();
                      if (!queue.isTemporary()) {
                         // as part of scale down we will cancel any scheduled message and pass it to theWhile we scan for the queues we will also cancel any scheduled messages and deliver them right away
                         queue.deliverScheduledMessages();
@@ -342,8 +342,7 @@ public class ScaleDownHandler {
          // Get the information of the Prepared TXs so it could replay the TXs
          Map<Message, Pair<List<Long>, List<Long>>> queuesToSendTo = new HashMap<>();
          for (TransactionOperation operation : allOperations) {
-            if (operation instanceof PostOfficeImpl.AddOperation) {
-               PostOfficeImpl.AddOperation addOperation = (PostOfficeImpl.AddOperation) operation;
+            if (operation instanceof PostOfficeImpl.AddOperation addOperation) {
                List<MessageReference> refs = addOperation.getRelatedMessageReferences();
                for (MessageReference ref : refs) {
                   Message message = ref.getMessage();
@@ -364,8 +363,7 @@ public class ScaleDownHandler {
                   }
                   queueIds.getA().add(queueID);
                }
-            } else if (operation instanceof RefsOperation) {
-               RefsOperation refsOperation = (RefsOperation) operation;
+            } else if (operation instanceof RefsOperation refsOperation) {
                List<MessageReference> refs = refsOperation.getReferencesToAcknowledge();
                for (MessageReference ref : refs) {
                   Message message = ref.getMessage();
@@ -473,8 +471,8 @@ public class ScaleDownHandler {
          ClientMessage reply = requestor.request(managementMessage);
          result = ManagementHelper.getResult(reply);
       }
-      if (result != null && result instanceof Number) {
-         queueID = ((Number) result).longValue();
+      if (result != null && result instanceof Number number) {
+         queueID = number.longValue();
       }
       return queueID;
    }

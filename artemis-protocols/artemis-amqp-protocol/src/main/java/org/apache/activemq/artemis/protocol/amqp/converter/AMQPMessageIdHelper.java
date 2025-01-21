@@ -90,8 +90,7 @@ public class AMQPMessageIdHelper {
    }
 
    public String toMessageIdString(Object idObject) {
-      if (idObject instanceof String) {
-         final String stringId = (String) idObject;
+      if (idObject instanceof String stringId) {
 
          boolean hasMessageIdPrefix = hasMessageIdPrefix(stringId);
          if (!hasMessageIdPrefix) {
@@ -114,8 +113,7 @@ public class AMQPMessageIdHelper {
    }
 
    public Object toCorrelationIdStringOrBytes(Object idObject) {
-      if (idObject instanceof String) {
-         final String stringId = (String) idObject;
+      if (idObject instanceof String stringId) {
 
          boolean hasMessageIdPrefix = hasMessageIdPrefix(stringId);
          if (!hasMessageIdPrefix) {
@@ -130,8 +128,8 @@ public class AMQPMessageIdHelper {
             // It has "ID:" prefix and doesn't have encoding prefix, use it as-is.
             return stringId;
          }
-      } else if (idObject instanceof Binary) {
-         ByteBuffer dup = ((Binary) idObject).asByteBuffer();
+      } else if (idObject instanceof Binary binary) {
+         ByteBuffer dup = binary.asByteBuffer();
          byte[] bytes = new byte[dup.remaining()];
          dup.get(bytes);
          return bytes;
@@ -161,8 +159,8 @@ public class AMQPMessageIdHelper {
          return JMS_ID_PREFIX + AMQP_UUID_PREFIX + idObject.toString();
       } else if (idObject instanceof UnsignedLong) {
          return JMS_ID_PREFIX + AMQP_ULONG_PREFIX + idObject.toString();
-      } else if (idObject instanceof Binary) {
-         ByteBuffer dup = ((Binary) idObject).asByteBuffer();
+      } else if (idObject instanceof Binary binary) {
+         ByteBuffer dup = binary.asByteBuffer();
 
          byte[] bytes = new byte[dup.remaining()];
          dup.get(bytes);

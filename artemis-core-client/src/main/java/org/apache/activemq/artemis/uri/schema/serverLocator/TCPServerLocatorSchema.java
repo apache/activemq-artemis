@@ -94,8 +94,8 @@ public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
 
    private static int getPort(Map<String, Object> params) {
       Object port = params.get("port");
-      if (port instanceof String) {
-         return Integer.parseInt((String) port);
+      if (port instanceof String string) {
+         return Integer.parseInt(string);
       }
       return port != null ? (int) port : 61616;
    }

@@ -53,8 +53,7 @@ public class FailoverOnFlowControlTest extends FailoverTestBase {
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
             logger.debug("Intercept...{}", packet.getClass().getName());
 
-            if (packet instanceof SessionProducerCreditsMessage) {
-               SessionProducerCreditsMessage credit = (SessionProducerCreditsMessage) packet;
+            if (packet instanceof SessionProducerCreditsMessage credit) {
 
                logger.debug("Credits: {}", credit.getCredits());
                if (count.incrementAndGet() == 2) {

@@ -324,11 +324,11 @@ public class MQTTTestSupport extends ActiveMQTestBase {
          } catch (Throwable e) {
             long remaining = deadline - System.currentTimeMillis();
             if (remaining <= 0) {
-               if (e instanceof RuntimeException) {
-                  throw (RuntimeException) e;
+               if (e instanceof RuntimeException runtimeException) {
+                  throw runtimeException;
                }
-               if (e instanceof Error) {
-                  throw (Error) e;
+               if (e instanceof Error error) {
+                  throw error;
                }
                throw new RuntimeException(e);
             }
@@ -375,10 +375,10 @@ public class MQTTTestSupport extends ActiveMQTestBase {
 
    public Map<String, MQTTSessionState> getSessions() {
       Acceptor acceptor = server.getRemotingService().getAcceptor("MQTT");
-      if (acceptor instanceof AbstractAcceptor) {
-         ProtocolManager protocolManager = ((AbstractAcceptor) acceptor).getProtocolMap().get("MQTT");
-         if (protocolManager instanceof MQTTProtocolManager) {
-            return ((MQTTProtocolManager) protocolManager).getStateManager().getSessionStates();
+      if (acceptor instanceof AbstractAcceptor abstractAcceptor) {
+         ProtocolManager protocolManager = abstractAcceptor.getProtocolMap().get("MQTT");
+         if (protocolManager instanceof MQTTProtocolManager mqttProtocolManager) {
+            return mqttProtocolManager.getStateManager().getSessionStates();
          }
 
       }

@@ -105,8 +105,8 @@ public class JsonValueImpl implements JsonValue {
 
    @Override
    public boolean equals(Object obj) {
-      if (obj instanceof JsonValueImpl) {
-         return rawValue.equals(((JsonValueImpl)obj).getRawValue());
+      if (obj instanceof JsonValueImpl jsonValue) {
+         return rawValue.equals(jsonValue.getRawValue());
       }
       return super.equals(obj);
    }

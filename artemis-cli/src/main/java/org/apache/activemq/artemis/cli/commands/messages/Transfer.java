@@ -353,9 +353,7 @@ public class Transfer extends InputAbstract {
          } else {
             consumer = sourceSession.createConsumer(sourceDestination);
          }
-      } else if (sourceDestination instanceof Topic) {
-
-         Topic topic = (Topic) sourceDestination;
+      } else if (sourceDestination instanceof Topic topic) {
 
          if (durableConsumer != null) {
             if (filter != null) {

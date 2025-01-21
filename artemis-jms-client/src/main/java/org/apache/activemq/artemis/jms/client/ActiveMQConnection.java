@@ -309,9 +309,8 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    public synchronized void signalStopToAllSessions() {
       for (ActiveMQSession session : sessions) {
          ClientSession coreSession = session.getCoreSession();
-         if (coreSession instanceof ClientSessionInternal) {
-            ClientSessionInternal internalSession = (ClientSessionInternal) coreSession;
-            internalSession.setStopSignal();
+         if (coreSession instanceof ClientSessionInternal clientSessionInternal) {
+            clientSessionInternal.setStopSignal();
          }
       }
 

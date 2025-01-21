@@ -89,8 +89,7 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
 
       Message msg = replyConsumer.receive(5000);
 
-      if (msg instanceof TextMessage) {
-         TextMessage replyMessage = (TextMessage) msg;
+      if (msg instanceof TextMessage replyMessage) {
          assertEquals("Hello: Olivier", replyMessage.getText(), "Wrong message content");
       } else {
          fail("Should have received a reply by now");

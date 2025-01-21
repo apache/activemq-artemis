@@ -177,21 +177,21 @@ public class RequestReplyMultiProtocolTest extends OpenWireTestBase {
 
             logger.debug("received {} and {}", received.getText(), received.getJMSReplyTo());
 
-            if (destination instanceof Queue) {
+            if (destination instanceof Queue queue) {
                assertTrue(received.getJMSReplyTo() instanceof Queue, "Type is " + received.getJMSReplyTo().getClass().toString());
-               assertEquals(((Queue) destination).getQueueName(), ((Queue)received.getJMSReplyTo()).getQueueName());
+               assertEquals(queue.getQueueName(), ((Queue)received.getJMSReplyTo()).getQueueName());
             }
-            if (destination instanceof Topic) {
+            if (destination instanceof Topic topic) {
                assertTrue(received.getJMSReplyTo() instanceof Topic, "Type is " + received.getJMSReplyTo().getClass().toString());
-               assertEquals(((Topic) destination).getTopicName(), ((Topic)received.getJMSReplyTo()).getTopicName());
+               assertEquals(topic.getTopicName(), ((Topic)received.getJMSReplyTo()).getTopicName());
             }
-            if (destination instanceof TemporaryQueue) {
+            if (destination instanceof TemporaryQueue temporaryQueue) {
                assertTrue(received.getJMSReplyTo() instanceof TemporaryQueue, "Type is " + received.getJMSReplyTo().getClass().toString());
-               assertEquals(((TemporaryQueue) destination).getQueueName(), ((TemporaryQueue)received.getJMSReplyTo()).getQueueName());
+               assertEquals(temporaryQueue.getQueueName(), ((TemporaryQueue)received.getJMSReplyTo()).getQueueName());
             }
-            if (destination instanceof TemporaryTopic) {
+            if (destination instanceof TemporaryTopic temporaryTopic) {
                assertTrue(received.getJMSReplyTo() instanceof TemporaryTopic, "Type is " + received.getJMSReplyTo().getClass().toString());
-               assertEquals(((TemporaryTopic) destination).getTopicName(), ((TemporaryTopic)received.getJMSReplyTo()).getTopicName());
+               assertEquals(temporaryTopic.getTopicName(), ((TemporaryTopic)received.getJMSReplyTo()).getTopicName());
             }
          }
       } catch (Throwable e) {

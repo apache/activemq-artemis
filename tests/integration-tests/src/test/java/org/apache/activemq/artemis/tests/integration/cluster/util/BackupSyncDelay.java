@@ -98,11 +98,9 @@ public class BackupSyncDelay implements Interceptor {
          try {
             Activation backupActivation = backup.getActivation();
             ReplicationEndpoint repEnd = null;
-            if (backupActivation instanceof SharedNothingBackupActivation) {
-               SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backupActivation;
+            if (backupActivation instanceof SharedNothingBackupActivation activation) {
                repEnd = activation.getReplicationEndpoint();
-            } else if (backupActivation instanceof ReplicationBackupActivation) {
-               ReplicationBackupActivation activation = (ReplicationBackupActivation) backupActivation;
+            } else if (backupActivation instanceof ReplicationBackupActivation activation) {
                repEnd = activation.getReplicationEndpoint();
             }
             if (repEnd == null) {

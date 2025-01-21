@@ -34,8 +34,8 @@ public class HelpAction implements Runnable {
             Object subCommand = theLIn.getSubcommands().get(i);
             if (subCommand == null) {
                commandLine.usage(System.out);
-            } else if (subCommand instanceof CommandLine) {
-               theLIn = (CommandLine) subCommand;
+            } else if (subCommand instanceof CommandLine subCommandLine) {
+               theLIn = subCommandLine;
             } else {
                commandLine.usage(System.out);
             }

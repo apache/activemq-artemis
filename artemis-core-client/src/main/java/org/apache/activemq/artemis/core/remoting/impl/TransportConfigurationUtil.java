@@ -47,9 +47,9 @@ public class TransportConfigurationUtil {
 
       if (!DEFAULTS.containsKey(className)) {
          Object object = instantiateObject(className, TransportConfigurationHelper.class);
-         if (object != null && object instanceof TransportConfigurationHelper) {
+         if (object != null && object instanceof TransportConfigurationHelper helper) {
 
-            DEFAULTS.put(className, ((TransportConfigurationHelper) object).getDefaults());
+            DEFAULTS.put(className, helper.getDefaults());
          } else {
             DEFAULTS.put(className, EMPTY_HELPER);
          }

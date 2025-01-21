@@ -806,8 +806,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                   session.close();
                } catch (Throwable ignored) {
                }
-               if (t instanceof Exception) {
-                  throw (Exception) t;
+               if (t instanceof Exception exception) {
+                  throw exception;
                } else {
                   throw new RuntimeException("Unexpected error: ", t);
                }
@@ -819,8 +819,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
             current = current.getCause();
          }
 
-         if (current != null && current instanceof JMSException) {
-            throw (JMSException) current;
+         if (current != null && current instanceof JMSException jmsException) {
+            throw jmsException;
          } else {
             JMSException je = new JMSException("Could not create a session: " + e.getMessage());
             je.setLinkedException(e);

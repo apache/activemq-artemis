@@ -110,11 +110,11 @@ public class ConstantExpression implements Expression {
       if (value == null) {
          return "NULL";
       }
-      if (value instanceof Boolean) {
-         return (Boolean) value ? "TRUE" : "FALSE";
+      if (value instanceof Boolean booleanValue) {
+         return booleanValue ? "TRUE" : "FALSE";
       }
-      if (value instanceof String) {
-         return encodeString((String) value);
+      if (value instanceof String string) {
+         return encodeString(string);
       }
       return value.toString();
    }

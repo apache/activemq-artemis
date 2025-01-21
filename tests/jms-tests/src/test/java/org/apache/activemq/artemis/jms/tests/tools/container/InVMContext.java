@@ -79,11 +79,10 @@ public class InVMContext implements Context, Serializable {
       if (value == null) {
          throw new NameNotFoundException("Name not found: " + tok);
       }
-      if (value instanceof InVMContext && i != -1) {
-         return ((InVMContext) value).lookup(name.substring(i));
+      if (value instanceof InVMContext context && i != -1) {
+         return context.lookup(name.substring(i));
       }
-      if (value instanceof Reference) {
-         Reference ref = (Reference) value;
+      if (value instanceof Reference ref) {
          RefAddr refAddr = ref.get("nns");
 
          // we only deal with references create by NonSerializableFactory

@@ -143,8 +143,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
                   }
                });
             }
-         } else if (policy.isEnableDivertBindings() && binding instanceof DivertBinding) {
-            final DivertBinding divert = (DivertBinding) binding;
+         } else if (policy.isEnableDivertBindings() && binding instanceof DivertBinding divert) {
 
             if (divertsTracking.remove(divert) != null) {
                // The divert binding is treated as one unit of demand on a federated address and
@@ -263,8 +262,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
     *       The binding that should be checked against the federated address policy,
     */
    private void checkBindingForMatch(Binding binding) {
-      if (binding instanceof QueueBinding) {
-         final QueueBinding queueBinding = (QueueBinding) binding;
+      if (binding instanceof QueueBinding queueBinding) {
          final AddressInfo addressInfo = server.getPostOffice().getAddressInfo(binding.getAddress());
 
          if (testIfAddressMatchesPolicy(addressInfo)) {
@@ -280,8 +278,8 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
          } else {
             reactIfQueueBindingMatchesAnyDivertTarget(queueBinding);
          }
-      } else if (binding instanceof DivertBinding) {
-         reactIfAnyQueueBindingMatchesDivertTarget((DivertBinding) binding);
+      } else if (binding instanceof DivertBinding divertBinding) {
+         reactIfAnyQueueBindingMatchesDivertTarget(divertBinding);
       }
    }
 

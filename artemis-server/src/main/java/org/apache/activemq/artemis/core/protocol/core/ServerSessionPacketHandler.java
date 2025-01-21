@@ -746,12 +746,12 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       if (poolNullResponse == null || poolNullResponseV2 == null) {
          return;
       }
-      if (packet instanceof NullResponseMessage) {
-         poolNullResponse.release((NullResponseMessage) packet);
+      if (packet instanceof NullResponseMessage message) {
+         poolNullResponse.release(message);
          return;
       }
-      if (packet instanceof NullResponseMessage_V2) {
-         poolNullResponseV2.release((NullResponseMessage_V2) packet);
+      if (packet instanceof NullResponseMessage_V2 v2) {
+         poolNullResponseV2.release(v2);
       }
    }
 
@@ -1012,8 +1012,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
       for (CloseListener closeListener : listeners) {
          closeListener.connectionClosed();
-         if (closeListener instanceof FailureListener) {
-            remotingConnection.removeFailureListener((FailureListener) closeListener);
+         if (closeListener instanceof FailureListener listener) {
+            remotingConnection.removeFailureListener(listener);
          }
       }
    }

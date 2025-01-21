@@ -458,12 +458,12 @@ public class ActiveMQActivation {
             ctx = new InitialContext(spec.getParsedJndiParams());
          }
          Object fac = ctx.lookup(spec.getConnectionFactoryLookup());
-         if (fac instanceof ActiveMQConnectionFactory) {
+         if (fac instanceof ActiveMQConnectionFactory connectionFactory) {
             // This will clone the connection factory
             // to make sure we won't close anyone's connection factory when we stop the MDB
-            factory = ActiveMQJMSClient.createConnectionFactory(((ActiveMQConnectionFactory) fac).toURI().toString(), "internalConnection");
+            factory = ActiveMQJMSClient.createConnectionFactory(connectionFactory.toURI().toString(), "internalConnection");
             factory.setEnableSharedClientID(true);
-            factory.setEnable1xPrefixes(((ActiveMQConnectionFactory) fac).isEnable1xPrefixes());
+            factory.setEnable1xPrefixes(connectionFactory.isEnable1xPrefixes());
          } else {
             factory = ra.newConnectionFactory(spec);
          }
@@ -503,8 +503,8 @@ public class ActiveMQActivation {
          } catch (Exception e) {
             logger.trace("Ignored error closing connection", e);
          }
-         if (t instanceof Exception) {
-            throw (Exception) t;
+         if (t instanceof Exception exception) {
+            throw exception;
          }
          throw new RuntimeException("Error configuring connection", t);
       }
@@ -678,9 +678,9 @@ public class ActiveMQActivation {
       logger.trace("reconnecting activation {}", this);
 
       if (failure != null) {
-         if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
+         if (failure instanceof ActiveMQException exception && exception.getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
             ActiveMQRALogger.LOGGER.awaitingTopicQueueCreation(getActivationSpec().getDestination());
-         } else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED) {
+         } else if (failure instanceof ActiveMQException exception && exception.getType() == ActiveMQExceptionType.NOT_CONNECTED) {
             ActiveMQRALogger.LOGGER.awaitingJMSServerCreation();
          } else {
             ActiveMQRALogger.LOGGER.failureInActivation(spec, failure);
@@ -713,12 +713,12 @@ public class ActiveMQActivation {
                ActiveMQRALogger.LOGGER.reconnected();
                break;
             } catch (Throwable t) {
-               if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
+               if (failure instanceof ActiveMQException exception && exception.getType() == ActiveMQExceptionType.QUEUE_DOES_NOT_EXIST) {
                   if (lastException == null || !(t instanceof ActiveMQNonExistentQueueException)) {
                      lastException = t;
                      ActiveMQRALogger.LOGGER.awaitingTopicQueueCreation(getActivationSpec().getDestination());
                   }
-               } else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED) {
+               } else if (failure instanceof ActiveMQException exception && exception.getType() == ActiveMQExceptionType.NOT_CONNECTED) {
                   if (lastException == null || !(t instanceof ActiveMQNotConnectedException)) {
                      lastException = t;
                      ActiveMQRALogger.LOGGER.awaitingJMSServerCreation();

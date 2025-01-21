@@ -146,8 +146,8 @@ public final class BindingsImpl implements Bindings {
          bindingsIdMap.put(binding.getID(), binding);
          bindingsNameMap.put(String.valueOf(binding.getUniqueName()), binding);
 
-         if (binding instanceof RemoteQueueBinding) {
-            setMessageLoadBalancingType(((RemoteQueueBinding) binding).getMessageLoadBalancingType());
+         if (binding instanceof RemoteQueueBinding remoteQueueBinding) {
+            setMessageLoadBalancingType(remoteQueueBinding.getMessageLoadBalancingType());
          }
          if (logger.isTraceEnabled()) {
             logger.trace("Adding binding {} into {} bindingTable: {}", binding, this, debugBindings());

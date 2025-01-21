@@ -1962,8 +1962,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
          for (Consumer consumer : consumers) {
 
-            if (consumer instanceof ServerConsumer) {
-               ServerConsumer serverConsumer = (ServerConsumer) consumer;
+            if (consumer instanceof ServerConsumer serverConsumer) {
                JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
                        .add(ConsumerField.ID.getAlternativeName(), serverConsumer.getID())
                        .add(ConsumerField.SEQUENTIAL_ID.getAlternativeName(), serverConsumer.getSequentialID())
@@ -2151,8 +2150,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                   List<TransactionOperation> allOperations = transaction.getAllOperations();
 
                   for (TransactionOperation operation : allOperations) {
-                     if (operation instanceof RefsOperation) {
-                        RefsOperation refsOperation = (RefsOperation) operation;
+                     if (operation instanceof RefsOperation refsOperation) {
                         List<MessageReference> references = refsOperation.getReferencesToAcknowledge();
                         for (MessageReference reference : references) {
                            if (reference != null && reference.getQueue().getName().equals(queue.getName())) {

@@ -91,18 +91,16 @@ public class ParameterizedTestExtension implements TestTemplateInvocationContext
       Objects.requireNonNull(parameterValues, "No paramaters returned by @Parameters annotated method: " + parameterProvider.getName());
 
       // Parameter values could be Object[][]
-      if (parameterValues instanceof Object[][]) {
-         Object[][] typedParameterValues = (Object[][]) parameterValues;
+      if (parameterValues instanceof Object[][] typedParameterValues) {
          return createContextForParameters(Arrays.stream(typedParameterValues), testNameTemplate, context);
       }
 
       // or a Collection
-      if (parameterValues instanceof Collection) {
-         final Collection<?> typedParameterValues = (Collection<?>) parameterValues;
+      if (parameterValues instanceof Collection<?> typedParameterValues) {
          final Stream<Object[]> parameterValueStream = typedParameterValues.stream()
                .map((Function<Object, Object[]>) parameterValue -> {
-                  if (parameterValue instanceof Object[]) {
-                     return (Object[]) parameterValue;
+                  if (parameterValue instanceof Object[] objects) {
+                     return objects;
                   } else {
                      return new Object[]{parameterValue};
                   }
