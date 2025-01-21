@@ -354,9 +354,10 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
 
       //now add HashMap, test should pass.
       denyList = null;
-      allowList = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1," +
-         "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2," +
-         "java.util.HashMap";
+      allowList = """
+         org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1,\
+         org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2,\
+         java.util.HashMap""";
 
       result = readSerializedObject(allowList, denyList, serailizeFile);
       assertNull(result);

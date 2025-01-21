@@ -172,8 +172,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
          // that code is not thread safe and would require more work which is likely still ripe
          // with issues.
          if (containsMirrorConfiguration(toRemove)) {
-            logger.info("Skipping remove of broker connection {} which contains a mirror " +
-                        "configuration which are not reloadable.", toRemove.getName());
+            logger.info("Skipping remove of broker connection {} which contains a mirror configuration which are not reloadable.", toRemove.getName());
             continue;
          }
 

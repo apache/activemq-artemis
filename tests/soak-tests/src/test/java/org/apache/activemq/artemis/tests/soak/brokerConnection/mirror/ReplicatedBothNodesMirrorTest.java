@@ -210,16 +210,17 @@ public class ReplicatedBothNodesMirrorTest extends SoakTestBase {
 
    private static void replaceLogs(File serverLocation) throws Exception {
       File log4j = new File(serverLocation, "/etc/log4j2.properties");
-      assertTrue(FileUtil.findReplace(log4j, "logger.artemis_utils.level=INFO",
-                                      "logger.artemis_utils.level=INFO\n" + "\n" +
-                                         "logger.endpoint.name=org.apache.activemq.artemis.core.replication.ReplicationEndpoint\n" +
-                                         "logger.endpoint.level=INFO\n" +
-                                         "logger.ack.name=org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManager\n" +
-                                         "logger.ack.level=TRACE\n" +
-                                         "logger.mirrorTarget.name=org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget\n" +
-                                         "logger.mirrorTarget.level=INFO\n" +
-                                         "appender.console.filter.threshold.type = ThresholdFilter\n" +
-                                         "appender.console.filter.threshold.level = info"));
+      assertTrue(FileUtil.findReplace(log4j, "logger.artemis_utils.level=INFO", """
+         logger.artemis_utils.level=INFO
+
+         logger.endpoint.name=org.apache.activemq.artemis.core.replication.ReplicationEndpoint
+         logger.endpoint.level=INFO
+         logger.ack.name=org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManager
+         logger.ack.level=TRACE
+         logger.mirrorTarget.name=org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget
+         logger.mirrorTarget.level=INFO
+         appender.console.filter.threshold.type = ThresholdFilter
+         appender.console.filter.threshold.level = info"""));
    }
 
    private static void createMirroredBackupServer(boolean paging, String serverName, int portOffset, String clusterStatic, String mirrorURI) throws Exception {

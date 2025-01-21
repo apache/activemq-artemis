@@ -108,18 +108,38 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
       // This URL was failing in some ConnectionFactoryTests.
       // The issue seemed to be the # to be creating extra spaces on the parsing
       // Added some treatment to fix that, and I kept the test here.
-      URI uri = new URI("tcp://localhost:61616?&blockOnNonDurableSend=true&" +
-                           "retryIntervalMultiplier=1.0&maxRetryInterval=2000&producerMaxRate=-1&" +
-                           "blockOnDurableSend=true&connectionTTL=60000&compressLargeMessage=false&reconnectAttempts=0&" +
-                           "cacheLargeMessagesClient=false&scheduledThreadPoolMaxSize=5&useGlobalPools=true&" +
-                           "callFailoverTimeout=-1&initialConnectAttempts=1&clientFailureCheckPeriod=30000&" +
-                           "blockOnAcknowledge=true&consumerWindowSize=1048576&minLargeMessageSize=102400&" +
-                           "autoGroup=false&threadPoolMaxSize=-1&confirmationWindowSize=-1&" +
-                           "transactionBatchSize=1048576&callTimeout=30000&preAcknowledge=false&" +
-                           "connectionLoadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance." +
-                           "RoundRobinConnectionLoadBalancingPolicy&dupsOKBatchSize=1048576&initialMessagePacketSize=1500&" +
-                           "consumerMaxRate=-1&retryInterval=2000&producerWindowSize=65536&" +
-                           "port=61616&host=localhost#");
+      URI uri = new URI("""
+                           tcp://localhost:61616?&\
+                           blockOnNonDurableSend=true&\
+                           retryIntervalMultiplier=1.0&\
+                           maxRetryInterval=2000&\
+                           producerMaxRate=-1&\
+                           blockOnDurableSend=true&connectionTTL=60000&\
+                           compressLargeMessage=false&\
+                           reconnectAttempts=0&\
+                           cacheLargeMessagesClient=false&\
+                           scheduledThreadPoolMaxSize=5&\
+                           useGlobalPools=true&\
+                           callFailoverTimeout=-1&\
+                           initialConnectAttempts=1&\
+                           clientFailureCheckPeriod=30000&\
+                           blockOnAcknowledge=true&\
+                           consumerWindowSize=1048576&\
+                           minLargeMessageSize=102400&\
+                           autoGroup=false&\
+                           threadPoolMaxSize=-1&\
+                           confirmationWindowSize=-1&\
+                           transactionBatchSize=1048576&\
+                           callTimeout=30000&\
+                           preAcknowledge=false&\
+                           connectionLoadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy&\
+                           dupsOKBatchSize=1048576&\
+                           initialMessagePacketSize=1500&\
+                           consumerMaxRate=-1&\
+                           retryInterval=2000&\
+                           producerWindowSize=65536&\
+                           port=61616&\
+                           host=localhost#""");
 
       // try it a few times to make sure it fails if it's broken
       for (int i = 0; i < 10; i++) {

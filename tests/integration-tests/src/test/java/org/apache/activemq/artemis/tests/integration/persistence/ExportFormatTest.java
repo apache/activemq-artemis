@@ -39,37 +39,39 @@ public class ExportFormatTest extends ActiveMQTestBase {
 
 
    // Case the format was changed, and the change was agreed, use _testCreateFormat to recreate this field
-   String bindingsFile = "#File,JournalFileImpl: (activemq-bindings-1.bindings id = 1, recordID = 1)\n" +
-      "operation@AddRecord,id@1,userRecordType@24,length@8,isUpdate@false,compactCount@0,data@AAAAAH____8=\n" +
-      "operation@AddRecordTX,txID@2,id@3,userRecordType@21,length@43,isUpdate@false,compactCount@0,data@AAAABEEAMQAAAAAEQQAxAAABAAAAFHUAcwBlAHIAPQBuAHUAbABsADsAAA==\n" +
-      "operation@Commit,txID@2,numberOfRecords@1\n" +
-      "operation@AddRecord,id@20,userRecordType@24,length@8,isUpdate@false,compactCount@0,data@AAAAAAAAABQ=\n" +
-      "#File,JournalFileImpl: (activemq-bindings-2.bindings id = 2, recordID = 2)";
+   String bindingsFile = """
+      #File,JournalFileImpl: (activemq-bindings-1.bindings id = 1, recordID = 1)
+      operation@AddRecord,id@1,userRecordType@24,length@8,isUpdate@false,compactCount@0,data@AAAAAH____8=
+      operation@AddRecordTX,txID@2,id@3,userRecordType@21,length@43,isUpdate@false,compactCount@0,data@AAAABEEAMQAAAAAEQQAxAAABAAAAFHUAcwBlAHIAPQBuAHUAbABsADsAAA==
+      operation@Commit,txID@2,numberOfRecords@1
+      operation@AddRecord,id@20,userRecordType@24,length@8,isUpdate@false,compactCount@0,data@AAAAAAAAABQ=
+      #File,JournalFileImpl: (activemq-bindings-2.bindings id = 2, recordID = 2)""";
 
    // Case the format was changed, and the change was agreed, use _testCreateFormat to recreate this field
-   String journalFile = "#File,JournalFileImpl: (activemq-data-1.amq id = 1, recordID = 1)\n" +
-      "operation@AddRecordTX,txID@0,id@7,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAHAQAAAARBADEAAAAAPQAAAA0AAAAAAAAABwEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WFoEAQAAAAEAAAAGawBlAHkABgAAAAA=\n" +
-      "operation@UpdateTX,txID@0,id@7,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecordTX,txID@0,id@8,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAIAQAAAARBADEAAAAAPQAAAA0AAAAAAAAACAEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WF4EAQAAAAEAAAAGawBlAHkABgAAAAE=\n" +
-      "operation@UpdateTX,txID@0,id@8,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecordTX,txID@0,id@9,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAJAQAAAARBADEAAAAAPQAAAA0AAAAAAAAACQEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WF4EAQAAAAEAAAAGawBlAHkABgAAAAI=\n" +
-      "operation@UpdateTX,txID@0,id@9,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecordTX,txID@0,id@10,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAKAQAAAARBADEAAAAAPQAAAA0AAAAAAAAACgEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WF8EAQAAAAEAAAAGawBlAHkABgAAAAM=\n" +
-      "operation@UpdateTX,txID@0,id@10,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecordTX,txID@0,id@11,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAALAQAAAARBADEAAAAAPQAAAA0AAAAAAAAACwEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WF8EAQAAAAEAAAAGawBlAHkABgAAAAQ=\n" +
-      "operation@UpdateTX,txID@0,id@11,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@Commit,txID@0,numberOfRecords@10\n" +
-      "operation@AddRecord,id@15,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAPAQAAAARBADEAAAAAPQAAAA0AAAAAAAAADwEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WLAEAQAAAAEAAAAGawBlAHkABgAAAAU=\n" +
-      "operation@Update,id@15,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecord,id@16,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAQAQAAAARBADEAAAAAPQAAAA0AAAAAAAAAEAEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WLIEAQAAAAEAAAAGawBlAHkABgAAAAY=\n" +
-      "operation@Update,id@16,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecord,id@17,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAARAQAAAARBADEAAAAAPQAAAA0AAAAAAAAAEQEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WLgEAQAAAAEAAAAGawBlAHkABgAAAAc=\n" +
-      "operation@Update,id@17,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecord,id@18,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAASAQAAAARBADEAAAAAPQAAAA0AAAAAAAAAEgEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WLwEAQAAAAEAAAAGawBlAHkABgAAAAg=\n" +
-      "operation@Update,id@18,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "operation@AddRecord,id@19,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAATAQAAAARBADEAAAAAPQAAAA0AAAAAAAAAEwEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WL4EAQAAAAEAAAAGawBlAHkABgAAAAk=\n" +
-      "operation@Update,id@19,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=\n" +
-      "#File,JournalFileImpl: (activemq-data-2.amq id = 2, recordID = 2)";
+   String journalFile = """
+      #File,JournalFileImpl: (activemq-data-1.amq id = 1, recordID = 1)
+      operation@AddRecordTX,txID@0,id@7,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAHAQAAAARBADEAAAAAPQAAAA0AAAAAAAAABwEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WFoEAQAAAAEAAAAGawBlAHkABgAAAAA=
+      operation@UpdateTX,txID@0,id@7,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=
+      operation@AddRecordTX,txID@0,id@8,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAIAQAAAARBADEAAAAAPQAAAA0AAAAAAAAACAEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WF4EAQAAAAEAAAAGawBlAHkABgAAAAE=
+      operation@UpdateTX,txID@0,id@8,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=
+      operation@AddRecordTX,txID@0,id@9,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAJAQAAAARBADEAAAAAPQAAAA0AAAAAAAAACQEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WF4EAQAAAAEAAAAGawBlAHkABgAAAAI=
+      operation@UpdateTX,txID@0,id@9,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=
+      operation@AddRecordTX,txID@0,id@10,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAKAQAAAARBADEAAAAAPQAAAA0AAAAAAAAACgEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WF8EAQAAAAEAAAAGawBlAHkABgAAAAM=
+      operation@UpdateTX,txID@0,id@10,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=
+      operation@AddRecordTX,txID@0,id@11,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAALAQAAAARBADEAAAAAPQAAAA0AAAAAAAAACwEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WF8EAQAAAAEAAAAGawBlAHkABgAAAAQ=
+      operation@UpdateTX,txID@0,id@11,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=
+      operation@Commit,txID@0,numberOfRecords@10
+      operation@AddRecord,id@15,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAPAQAAAARBADEAAAAAPQAAAA0AAAAAAAAADwEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WLAEAQAAAAEAAAAGawBlAHkABgAAAAU=
+      operation@Update,id@15,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=
+      operation@AddRecord,id@16,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAAQAQAAAARBADEAAAAAPQAAAA0AAAAAAAAAEAEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WLIEAQAAAAEAAAAGawBlAHkABgAAAAY=
+      operation@Update,id@16,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=
+      operation@AddRecord,id@17,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAARAQAAAARBADEAAAAAPQAAAA0AAAAAAAAAEQEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WLgEAQAAAAEAAAAGawBlAHkABgAAAAc=
+      operation@Update,id@17,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=
+      operation@AddRecord,id@18,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAASAQAAAARBADEAAAAAPQAAAA0AAAAAAAAAEgEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WLwEAQAAAAEAAAAGawBlAHkABgAAAAg=
+      operation@Update,id@18,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=
+      operation@AddRecord,id@19,userRecordType@45,length@83,isUpdate@false,compactCount@0,data@AQAAAAAAAAATAQAAAARBADEAAAAAPQAAAA0AAAAAAAAAEwEAAAAEQQAxAAAAAQAAAAAAAAAAAAABWpf6WL4EAQAAAAEAAAAGawBlAHkABgAAAAk=
+      operation@Update,id@19,userRecordType@32,length@8,isUpdate@true,compactCount@0,data@AAAAAAAAAAM=
+      #File,JournalFileImpl: (activemq-data-2.amq id = 2, recordID = 2)""";
 
    @Test
    @Disabled

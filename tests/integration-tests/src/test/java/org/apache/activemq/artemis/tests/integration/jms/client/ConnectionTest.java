@@ -68,18 +68,38 @@ public class ConnectionTest extends JMSTestBase {
       connectionFactory = serialClone(connectionFactory);
       testThroughNewConnectionFactory(connectionFactory);
 
-      connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616?&blockOnNonDurableSend=true&" +
-                                                           "retryIntervalMultiplier=1.0&maxRetryInterval=2000&producerMaxRate=-1&" +
-                                                           "blockOnDurableSend=true&connectionTTL=60000&compressLargeMessage=false&reconnectAttempts=0&" +
-                                                           "cacheLargeMessagesClient=false&scheduledThreadPoolMaxSize=5&useGlobalPools=true&" +
-                                                           "callFailoverTimeout=-1&initialConnectAttempts=1&clientFailureCheckPeriod=30000&" +
-                                                           "blockOnAcknowledge=true&consumerWindowSize=1048576&minLargeMessageSize=102400&" +
-                                                           "autoGroup=false&threadPoolMaxSize=-1&confirmationWindowSize=-1&" +
-                                                           "transactionBatchSize=1048576&callTimeout=30000&preAcknowledge=false&" +
-                                                           "connectionLoadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance." +
-                                                           "RoundRobinConnectionLoadBalancingPolicy&dupsOKBatchSize=1048576&initialMessagePacketSize=1500&" +
-                                                           "consumerMaxRate=-1&retryInterval=2000&producerWindowSize=65536&" +
-                                                           "port=61616&host=localhost#");
+      connectionFactory = new ActiveMQConnectionFactory("""
+                                                           tcp://localhost:61616?&\
+                                                           blockOnNonDurableSend=true&\
+                                                           retryIntervalMultiplier=1.0&\
+                                                           maxRetryInterval=2000&producerMaxRate=-1&\
+                                                           blockOnDurableSend=true&\
+                                                           connectionTTL=60000&\
+                                                           compressLargeMessage=false&\
+                                                           reconnectAttempts=0&\
+                                                           cacheLargeMessagesClient=false&\
+                                                           scheduledThreadPoolMaxSize=5&\
+                                                           useGlobalPools=true&\
+                                                           callFailoverTimeout=-1&\
+                                                           initialConnectAttempts=1&\
+                                                           clientFailureCheckPeriod=30000&\
+                                                           blockOnAcknowledge=true&\
+                                                           consumerWindowSize=1048576&\
+                                                           minLargeMessageSize=102400&\
+                                                           autoGroup=false&\
+                                                           threadPoolMaxSize=-1&\
+                                                           confirmationWindowSize=-1&\
+                                                           transactionBatchSize=1048576&\
+                                                           callTimeout=30000&\
+                                                           preAcknowledge=false&\
+                                                           connectionLoadBalancingPolicyClassName=org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy&\
+                                                           dupsOKBatchSize=1048576&\
+                                                           initialMessagePacketSize=1500&\
+                                                           consumerMaxRate=-1&\
+                                                           retryInterval=2000&\
+                                                           producerWindowSize=65536&\
+                                                           port=61616&\
+                                                           host=localhost#""");
 
       testThroughNewConnectionFactory(connectionFactory);
 
