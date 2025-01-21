@@ -116,10 +116,10 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
 
       LoginContext context = new LoginContext("LDAPLogin", callbacks -> {
          for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof NameCallback) {
-               ((NameCallback) callbacks[i]).setName("first");
-            } else if (callbacks[i] instanceof PasswordCallback) {
-               ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("secret".toCharArray());
             } else {
                throw new UnsupportedCallbackException(callbacks[i]);
             }
@@ -149,10 +149,10 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
    public void testUnauthenticated() throws Exception {
       LoginContext context = new LoginContext("UnAuthenticatedLDAPLogin", callbacks -> {
          for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof NameCallback) {
-               ((NameCallback) callbacks[i]).setName("first");
-            } else if (callbacks[i] instanceof PasswordCallback) {
-               ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("secret".toCharArray());
             } else {
                throw new UnsupportedCallbackException(callbacks[i]);
             }
@@ -173,10 +173,10 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
    public void testAuthenticatedViaBindOnAnonConnection() throws Exception {
       LoginContext context = new LoginContext("AnonBindCheckUserLDAPLogin", callbacks -> {
          for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof NameCallback) {
-               ((NameCallback) callbacks[i]).setName("first");
-            } else if (callbacks[i] instanceof PasswordCallback) {
-               ((PasswordCallback) callbacks[i]).setPassword("wrongSecret".toCharArray());
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("wrongSecret".toCharArray());
             } else {
                throw new UnsupportedCallbackException(callbacks[i]);
             }
@@ -194,10 +194,10 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
    public void testAuthenticatedOkViaBindOnAnonConnection() throws Exception {
       LoginContext context = new LoginContext("AnonBindCheckUserLDAPLogin", callbacks -> {
          for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof NameCallback) {
-               ((NameCallback) callbacks[i]).setName("first");
-            } else if (callbacks[i] instanceof PasswordCallback) {
-               ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("secret".toCharArray());
             } else {
                throw new UnsupportedCallbackException(callbacks[i]);
             }
@@ -251,10 +251,10 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
    public void testEmptyPassword() throws Exception {
       LoginContext context = new LoginContext("LDAPLogin", callbacks -> {
          for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof NameCallback) {
-               ((NameCallback) callbacks[i]).setName("first");
-            } else if (callbacks[i] instanceof PasswordCallback) {
-               ((PasswordCallback) callbacks[i]).setPassword("".toCharArray());
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("".toCharArray());
             } else {
                throw new UnsupportedCallbackException(callbacks[i]);
             }
@@ -273,10 +273,10 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
    public void testNullPassword() throws Exception {
       LoginContext context = new LoginContext("LDAPLogin", callbacks -> {
          for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof NameCallback) {
-               ((NameCallback) callbacks[i]).setName("first");
-            } else if (callbacks[i] instanceof PasswordCallback) {
-               ((PasswordCallback) callbacks[i]).setPassword(null);
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword(null);
             } else {
                throw new UnsupportedCallbackException(callbacks[i]);
             }

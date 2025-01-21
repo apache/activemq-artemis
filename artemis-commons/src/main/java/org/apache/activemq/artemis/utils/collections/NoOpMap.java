@@ -90,7 +90,7 @@ public class NoOpMap<K, V> extends AbstractMap<K, V> {
 
    @Override
    public boolean equals(Object o) {
-      return (o instanceof Map) && ((Map)o).size() == 0;
+      return (o instanceof Map m) && m.size() == 0;
    }
 
    @Override

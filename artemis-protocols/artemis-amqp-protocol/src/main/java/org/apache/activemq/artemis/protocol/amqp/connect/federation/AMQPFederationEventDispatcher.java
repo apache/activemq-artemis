@@ -217,9 +217,9 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
 
    @Override
    public void afterAddBinding(Binding binding) throws ActiveMQException {
-      if (binding instanceof QueueBinding) {
-         final String addressName = ((QueueBinding) binding).getAddress().toString();
-         final String queueName = ((QueueBinding) binding).getQueue().getName().toString();
+      if (binding instanceof QueueBinding queueBinding) {
+         final String addressName = queueBinding.getAddress().toString();
+         final String queueName = queueBinding.getQueue().getName().toString();
 
          // Run this on the connection thread so that rejection of a federation consumer
          // and addition of the binding can't race such that the consumer adds its intent

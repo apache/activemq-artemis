@@ -106,10 +106,10 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
          assertTrue(Wait.waitFor(() -> finalConnection.isConnected(), 5000, 100), "Should be connected");
          Map<String, MQTTSessionState> sessionStates = null;
          Acceptor acceptor = server.getRemotingService().getAcceptor("MQTT");
-         if (acceptor instanceof AbstractAcceptor) {
-            ProtocolManager protocolManager = ((AbstractAcceptor) acceptor).getProtocolMap().get("MQTT");
-            if (protocolManager instanceof MQTTProtocolManager) {
-               sessionStates = ((MQTTProtocolManager) protocolManager).getStateManager().getSessionStates();
+         if (acceptor instanceof AbstractAcceptor abstractAcceptor) {
+            ProtocolManager protocolManager = abstractAcceptor.getProtocolMap().get("MQTT");
+            if (protocolManager instanceof MQTTProtocolManager mqttProtocolManager) {
+               sessionStates = mqttProtocolManager.getStateManager().getSessionStates();
             }
          }
          assertEquals(1, sessionStates.size());
@@ -139,10 +139,10 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
          assertTrue(Wait.waitFor(() -> finalConnection.isConnected(), 5000, 100), "Should be connected");
          Map<String, MQTTSessionState> sessionStates = null;
          Acceptor acceptor = server.getRemotingService().getAcceptor("MQTT");
-         if (acceptor instanceof AbstractAcceptor) {
-            ProtocolManager protocolManager = ((AbstractAcceptor) acceptor).getProtocolMap().get("MQTT");
-            if (protocolManager instanceof MQTTProtocolManager) {
-               sessionStates = ((MQTTProtocolManager) protocolManager).getStateManager().getSessionStates();
+         if (acceptor instanceof AbstractAcceptor abstractAcceptor) {
+            ProtocolManager protocolManager = abstractAcceptor.getProtocolMap().get("MQTT");
+            if (protocolManager instanceof MQTTProtocolManager manager) {
+               sessionStates = manager.getStateManager().getSessionStates();
             }
          }
          assertEquals(1, sessionStates.size());

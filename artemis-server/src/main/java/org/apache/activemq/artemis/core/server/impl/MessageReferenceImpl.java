@@ -336,10 +336,9 @@ public class MessageReferenceImpl extends AbstractProtocolReference implements M
          return true;
       }
 
-      if (other instanceof MessageReferenceImpl) {
-         MessageReferenceImpl reference = (MessageReferenceImpl) other;
+      if (other instanceof MessageReferenceImpl otherRef) {
 
-         if (this.getMessage().equals(reference.getMessage()))
+         if (this.getMessage().equals(otherRef.getMessage()))
             return true;
       }
 

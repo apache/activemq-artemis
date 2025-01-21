@@ -183,8 +183,7 @@ public class PriorityCollection<E extends PriorityAware> extends AbstractCollect
    }
 
    private boolean removeInternal(Object o) {
-      if (o instanceof PriorityAware) {
-         PriorityAware priorityAware = (PriorityAware) o;
+      if (o instanceof PriorityAware priorityAware) {
          Collection<E> priority = getCollection(priorityAware.getPriority(), false);
          boolean result = priority != null && priority.remove(priorityAware);
          if (priority != null && priority.isEmpty()) {
@@ -283,7 +282,7 @@ public class PriorityCollection<E extends PriorityAware> extends AbstractCollect
 
    @Override
    public boolean contains(Object o) {
-      return o instanceof PriorityAware && contains((PriorityAware) o);
+      return o instanceof PriorityAware pa && contains(pa);
    }
 
    public boolean contains(PriorityAware priorityAware) {

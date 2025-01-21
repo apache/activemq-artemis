@@ -39,9 +39,9 @@ public class GSSAPIServerSASLFactory implements ServerSASLFactory {
    @Override
    public ServerSASL create(ActiveMQServer server, ProtocolManager<AmqpInterceptor, AMQPRoutingHandler> manager, Connection connection,
                             RemotingConnection remotingConnection) {
-      if (manager instanceof ProtonProtocolManager) {
+      if (manager instanceof ProtonProtocolManager protonProtocolManager) {
          GSSAPIServerSASL gssapiServerSASL = new GSSAPIServerSASL();
-         gssapiServerSASL.setLoginConfigScope(((ProtonProtocolManager) manager).getSaslLoginConfigScope());
+         gssapiServerSASL.setLoginConfigScope(protonProtocolManager.getSaslLoginConfigScope());
          return gssapiServerSASL;
       }
       logger.debug("SASL GSSAPI requires ProtonProtocolManager");

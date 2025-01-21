@@ -118,8 +118,8 @@ public abstract class ContainerService {
          try {
             ConnectionFactory cf = createCF(container, "core");
             cf.createConnection(username, password).close();
-            if (cf instanceof AutoCloseable) {
-               ((AutoCloseable)cf).close();
+            if (cf instanceof AutoCloseable autoCloseable) {
+               autoCloseable.close();
             }
             System.out.println("server started");
          } catch (Exception e) {

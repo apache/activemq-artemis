@@ -345,24 +345,24 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
          if (value == null) {
             throw new NullPointerException("Attempt to write a new value");
          }
-         if (value instanceof String) {
-            p.writeUTF((String) value);
-         } else if (value instanceof Boolean) {
-            p.writeBoolean(((Boolean) value).booleanValue());
-         } else if (value instanceof Byte) {
-            p.writeByte(((Byte) value).byteValue());
-         } else if (value instanceof Short) {
-            p.writeShort(((Short) value).shortValue());
-         } else if (value instanceof Integer) {
-            p.writeInt(((Integer) value).intValue());
-         } else if (value instanceof Long) {
-            p.writeLong(((Long) value).longValue());
-         } else if (value instanceof Float) {
-            p.writeFloat(((Float) value).floatValue());
-         } else if (value instanceof Double) {
-            p.writeDouble(((Double) value).doubleValue());
-         } else if (value instanceof byte[]) {
-            p.write((byte[]) value, 0, ((byte[]) value).length);
+         if (value instanceof String string) {
+            p.writeUTF(string);
+         } else if (value instanceof Boolean booleanValue) {
+            p.writeBoolean(booleanValue.booleanValue());
+         } else if (value instanceof Byte byteValue) {
+            p.writeByte(byteValue.byteValue());
+         } else if (value instanceof Short shortValue) {
+            p.writeShort(shortValue.shortValue());
+         } else if (value instanceof Integer integer) {
+            p.writeInt(integer.intValue());
+         } else if (value instanceof Long longValue) {
+            p.writeLong(longValue.longValue());
+         } else if (value instanceof Float floatValue) {
+            p.writeFloat(floatValue.floatValue());
+         } else if (value instanceof Double doubleValue) {
+            p.writeDouble(doubleValue.doubleValue());
+         } else if (value instanceof byte[] bytes) {
+            p.write(bytes, 0, bytes.length);
          } else {
             throw new MessageFormatException("Invalid object for properties");
          }

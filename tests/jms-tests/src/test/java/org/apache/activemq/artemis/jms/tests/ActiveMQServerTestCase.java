@@ -325,8 +325,8 @@ public abstract class ActiveMQServerTestCase {
    protected boolean assertRemainingMessages(final int expected) throws Exception {
       String queueName = "Queue1";
       Binding binding = servers.get(0).getActiveMQServer().getPostOffice().getBinding(SimpleString.of(queueName));
-      if (binding != null && binding instanceof LocalQueueBinding) {
-         ((LocalQueueBinding) binding).getQueue().flushExecutor();
+      if (binding != null && binding instanceof LocalQueueBinding queueBinding) {
+         queueBinding.getQueue().flushExecutor();
       }
       Long messageCount = null;
       for (int i = 0; i < 10; i++) {

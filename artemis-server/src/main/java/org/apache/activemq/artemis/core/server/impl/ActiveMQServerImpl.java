@@ -1869,9 +1869,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       AtomicInteger bindingsCount = new AtomicInteger(0);
       postOffice.getAllBindings().forEach((b) -> {
-         if (b instanceof LocalQueueBinding) {
-            LocalQueueBinding l = (LocalQueueBinding) b;
-            SimpleString user = l.getQueue().getUser();
+         if (b instanceof LocalQueueBinding localQueueBinding) {
+            SimpleString user = localQueueBinding.getQueue().getUser();
             if (user != null) {
                if (user.equals(userNameSimpleString)) {
                   bindingsCount.incrementAndGet();
@@ -2754,9 +2753,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                return false;
             }
          } catch (Throwable e) {
-            if (e instanceof ActiveMQException) {
+            if (e instanceof ActiveMQException activeMQException) {
                logger.debug("plugin {} is throwing ActiveMQException", plugin);
-               throw (ActiveMQException) e;
+               throw activeMQException;
             } else {
                logger.warn("Internal error on plugin {}", plugin, e);
             }
@@ -2797,9 +2796,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             try {
                pluginRun.run(plugin);
             } catch (Throwable e) {
-               if (e instanceof ActiveMQException) {
+               if (e instanceof ActiveMQException activeMQException) {
                   logger.debug("plugin {} is throwing ActiveMQException", plugin);
-                  throw (ActiveMQException) e;
+                  throw activeMQException;
                } else {
                   logger.warn("Internal error on plugin {}", pluginRun, e);
                }
@@ -3426,8 +3425,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             // preference for Control to capture consistent audit logging
             if (managementService != null) {
                Object targetControl = managementService.getResource(ResourceNames.ACCEPTOR + acceptorName);
-               if (targetControl instanceof AcceptorControl) {
-                  ((AcceptorControl) targetControl).reload();
+               if (targetControl instanceof AcceptorControl acceptorControl) {
+                  acceptorControl.reload();
                }
             }
          });
@@ -3454,9 +3453,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    private URL fileUrlFrom(Object o) {
-      if (o instanceof String) {
+      if (o instanceof String string) {
          try {
-            return new File((String) o).toURI().toURL();
+            return new File(string).toURI().toURL();
          } catch (MalformedURLException ignored) {
          }
       }
@@ -3464,8 +3463,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    private String storeTypeFrom(Object o) {
-      if (o instanceof String) {
-         return (String)o;
+      if (o instanceof String string) {
+         return string;
       }
       return null;
    }
@@ -3532,8 +3531,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       removeExtraAddressStores();
 
-      if (securityManager instanceof ActiveMQBasicSecurityManager) {
-         ((ActiveMQBasicSecurityManager)securityManager).completeInit(storageManager);
+      if (securityManager instanceof ActiveMQBasicSecurityManager manager) {
+         manager.completeInit(storageManager);
       }
 
       final ServerInfo dumper = new ServerInfo(this, pagingManager);
@@ -4204,11 +4203,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return runtimeTempQueueNamespace.toString();
    }
 
-   private void copyRetroactiveMessages(Queue queue) throws Exception {
-      if (addressSettingsRepository.getMatch(queue.getAddress().toString()).getRetroactiveMessageCount() > 0) {
-         Queue retroQueue = locateQueue(ResourceNames.getRetroactiveResourceQueueName(getInternalNamingPrefix(), getConfiguration().getWildcardConfiguration().getDelimiterString(), queue.getAddress(), queue.getRoutingType()));
-         if (retroQueue != null && retroQueue instanceof QueueImpl) {
-            ((QueueImpl) retroQueue).rerouteMessages(queue.getName(), queue.getFilter());
+   private void copyRetroactiveMessages(Queue targetQueue) throws Exception {
+      if (addressSettingsRepository.getMatch(targetQueue.getAddress().toString()).getRetroactiveMessageCount() > 0) {
+         Queue retroQueue = locateQueue(ResourceNames.getRetroactiveResourceQueueName(getInternalNamingPrefix(), getConfiguration().getWildcardConfiguration().getDelimiterString(), targetQueue.getAddress(), targetQueue.getRoutingType()));
+         if (retroQueue != null && retroQueue instanceof QueueImpl queue) {
+            queue.rerouteMessages(targetQueue.getName(), targetQueue.getFilter());
          }
       }
    }
@@ -4828,8 +4827,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       synchronized (externalComponents) {
          for (ActiveMQComponent externalComponent : externalComponents) {
             try {
-               if (externalComponent instanceof ServiceComponent) {
-                  ((ServiceComponent) externalComponent).stop(shutdown);
+               if (externalComponent instanceof ServiceComponent component) {
+                  component.stop(shutdown);
                } else {
                   externalComponent.stop();
                }

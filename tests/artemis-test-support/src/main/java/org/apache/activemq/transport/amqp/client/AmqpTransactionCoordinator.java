@@ -86,14 +86,12 @@ public class AmqpTransactionCoordinator extends AmqpAbstractResource<Sender> {
                throw new IllegalStateException("Pending tx operation with no pending request");
             }
 
-            if (state instanceof Declared) {
+            if (state instanceof Declared declared) {
                logger.debug("New TX started: {}", txId.getTxId());
-               Declared declared = (Declared) state;
                txId.setRemoteTxId(declared.getTxnId());
                pendingRequest.onSuccess();
-            } else if (state instanceof Rejected) {
+            } else if (state instanceof Rejected rejected) {
                logger.debug("Last TX request failed: {}", txId.getTxId());
-               Rejected rejected = (Rejected) state;
                Exception cause = AmqpSupport.convertToException(rejected.getError());
                JMSException failureCause = null;
                if (txId.isCommit()) {

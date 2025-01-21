@@ -52,8 +52,7 @@ public class ForeignTestObject implements Serializable {
 
    @Override
    public boolean equals(final Object o) {
-      if (o instanceof ForeignTestObject) {
-         ForeignTestObject to = (ForeignTestObject) o;
+      if (o instanceof ForeignTestObject to) {
 
          return s1.equals(to.getS1()) && d1 == to.getD1();
       }

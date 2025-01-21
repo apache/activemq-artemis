@@ -1001,8 +1001,8 @@ public class ActiveMQSessionContext extends SessionContext {
 
    @Override
    public int getDefaultConsumerWindowSize(SessionQueueQueryResponseMessage response) throws ActiveMQException {
-      if (response instanceof SessionQueueQueryResponseMessage_V3) {
-         final Integer defaultConsumerWindowSize = ((SessionQueueQueryResponseMessage_V3) response).getDefaultConsumerWindowSize();
+      if (response instanceof SessionQueueQueryResponseMessage_V3 v3) {
+         final Integer defaultConsumerWindowSize = v3.getDefaultConsumerWindowSize();
          return defaultConsumerWindowSize != null ? defaultConsumerWindowSize : ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE;
       } else {
          return ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE;

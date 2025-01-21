@@ -57,8 +57,7 @@ public class JNDIReferenceFactory implements ObjectFactory {
    public Object getObjectInstance(Object object, Name name, Context nameCtx, Hashtable<?, ?> environment)
          throws Exception {
       Object result = null;
-      if (object instanceof Reference) {
-         Reference reference = (Reference) object;
+      if (object instanceof Reference reference) {
          Class<?> theClass = loadClass(this, reference.getClassName());
          if (JNDIStorable.class.isAssignableFrom(theClass)) {
             JNDIStorable store = (JNDIStorable) theClass.getDeclaredConstructor().newInstance();

@@ -1734,8 +1734,8 @@ public class DivertTest extends ActiveMQTestBase {
       Collection<Binding> bindings = server.getPostOffice().getBindingsForAddress(ADDRESS).getBindings();
       Divert divert = null;
       for (Binding binding : bindings) {
-         if (binding instanceof DivertBinding) {
-            divert = ((DivertBinding) binding).getDivert();
+         if (binding instanceof DivertBinding divertBinding) {
+            divert = divertBinding.getDivert();
          }
       }
       assertNotNull(divert);

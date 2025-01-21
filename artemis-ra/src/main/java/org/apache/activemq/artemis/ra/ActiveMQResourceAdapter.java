@@ -1421,8 +1421,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          return false;
       }
 
-      if (obj instanceof ActiveMQResourceAdapter) {
-         return raProperties.equals(((ActiveMQResourceAdapter) obj).getProperties());
+      if (obj instanceof ActiveMQResourceAdapter adapter) {
+         return raProperties.equals(adapter.getProperties());
       }
       return false;
    }

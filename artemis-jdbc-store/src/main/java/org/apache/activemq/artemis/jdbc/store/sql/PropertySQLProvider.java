@@ -419,8 +419,8 @@ public class PropertySQLProvider implements SQLProvider {
       public static SQLDialect investigateDialect(Map<String, Object> dataSourceProperties) {
          SQLDialect dialect = null;
          for (Object entry : dataSourceProperties.values()) {
-            if (entry instanceof String) {
-               dialect = identifyDialect((String) entry);
+            if (entry instanceof String string) {
+               dialect = identifyDialect(string);
                if (dialect != null) {
                   return dialect;
                }

@@ -183,8 +183,7 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
 
          ((ActiveMQServerImpl) backupServer.getServer()).setAfterActivationCreated(() -> {
             final Activation backupActivation = theBackup.getServer().getActivation();
-            if (backupActivation instanceof SharedNothingBackupActivation) {
-               SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backupActivation;
+            if (backupActivation instanceof SharedNothingBackupActivation activation) {
                ReplicationEndpoint repEnd = activation.getReplicationEndpoint();
                repEnd.addOutgoingInterceptorForReplication((packet, connection) -> {
                   if (packet.getType() == PacketImpl.REPLICATION_RESPONSE_V2) {
@@ -192,8 +191,7 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
                   }
                   return true;
                });
-            } else if (backupActivation instanceof ReplicationBackupActivation) {
-               ReplicationBackupActivation activation = (ReplicationBackupActivation) backupActivation;
+            } else if (backupActivation instanceof ReplicationBackupActivation activation) {
                activation.spyReplicationEndpointCreation(replicationEndpoint -> {
                   replicationEndpoint.addOutgoingInterceptorForReplication((packet, connection) -> {
                      if (packet.getType() == PacketImpl.REPLICATION_RESPONSE_V2) {

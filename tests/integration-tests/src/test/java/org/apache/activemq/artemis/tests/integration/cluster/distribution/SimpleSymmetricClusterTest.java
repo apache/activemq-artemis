@@ -326,8 +326,8 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
       // the remote binding should point to the SnF queue
       SimpleString snf = null;
       for (Binding binding : bindings) {
-         if (binding instanceof RemoteQueueBinding) {
-            snf = ((RemoteQueueBinding)binding).getQueue().getName();
+         if (binding instanceof RemoteQueueBinding remoteQueueBinding) {
+            snf = remoteQueueBinding.getQueue().getName();
          }
       }
       assertNotNull(snf);

@@ -666,8 +666,8 @@ public abstract class AMQPFederation implements Federation {
    protected final void signalFederationStarted() {
       try {
          server.callBrokerAMQPFederationPlugins((plugin) -> {
-            if (plugin instanceof ActiveMQServerAMQPFederationPlugin) {
-               ((ActiveMQServerAMQPFederationPlugin) plugin).federationStarted(this);
+            if (plugin instanceof ActiveMQServerAMQPFederationPlugin federationPlugin) {
+               federationPlugin.federationStarted(this);
             }
          });
       } catch (ActiveMQException t) {
@@ -678,8 +678,8 @@ public abstract class AMQPFederation implements Federation {
    protected final void signalFederationStopped() {
       try {
          server.callBrokerAMQPFederationPlugins((plugin) -> {
-            if (plugin instanceof ActiveMQServerAMQPFederationPlugin) {
-               ((ActiveMQServerAMQPFederationPlugin) plugin).federationStopped(this);
+            if (plugin instanceof ActiveMQServerAMQPFederationPlugin federationPlugin) {
+               federationPlugin.federationStopped(this);
             }
          });
       } catch (ActiveMQException t) {

@@ -226,8 +226,8 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
             for (int received = 0; received < NUMBER_OF_MESSAGES; received++) {
                Message m = consumer.receive(5000);
                assertNotNull(m);
-               if (m instanceof TextMessage) {
-                  assertEquals(largeString, ((TextMessage) m).getText());
+               if (m instanceof TextMessage message) {
+                  assertEquals(largeString, message.getText());
                }
                if (received > 0 && received % TX_SIZE == 0) {
                   logger.info("Received {} messages", received);

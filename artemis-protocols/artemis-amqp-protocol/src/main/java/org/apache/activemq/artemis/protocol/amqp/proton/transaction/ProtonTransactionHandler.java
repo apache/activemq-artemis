@@ -122,8 +122,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
                }
             };
             sessionSPI.afterIO(ioAction);
-         } else if (action instanceof Discharge) {
-            Discharge discharge = (Discharge) action;
+         } else if (action instanceof Discharge discharge) {
 
             Binary txID = discharge.getTxnId();
             ProtonTransactionImpl tx = (ProtonTransactionImpl) sessionSPI.getTransaction(txID, true);
@@ -177,8 +176,8 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
       logger.warn(e.getMessage(), e);
       connection.runNow(() -> {
          delivery.settle();
-         if (e instanceof ActiveMQAMQPException) {
-            delivery.disposition(createRejected(((ActiveMQAMQPException) e).getAmqpError(), e.getMessage()));
+         if (e instanceof ActiveMQAMQPException activeMQAMQPException) {
+            delivery.disposition(createRejected(activeMQAMQPException.getAmqpError(), e.getMessage()));
          } else {
             delivery.disposition(createRejected(Symbol.getSymbol("failed"), e.getMessage()));
          }

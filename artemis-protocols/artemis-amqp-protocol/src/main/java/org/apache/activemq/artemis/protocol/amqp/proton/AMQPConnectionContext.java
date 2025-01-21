@@ -329,9 +329,9 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    public void close(ErrorCondition errorCondition) {
       Future<?> scheduledFuture = scheduledFutureRef.getAndSet(null);
 
-      if (scheduledPool instanceof ThreadPoolExecutor && scheduledFuture != null &&
-         scheduledFuture != VOID_FUTURE && scheduledFuture instanceof Runnable) {
-         if (!((ThreadPoolExecutor) scheduledPool).remove((Runnable) scheduledFuture) &&
+      if (scheduledPool instanceof ThreadPoolExecutor executor && scheduledFuture != null &&
+         scheduledFuture != VOID_FUTURE && scheduledFuture instanceof Runnable runnable) {
+         if (!executor.remove(runnable) &&
             !scheduledFuture.isCancelled() && !scheduledFuture.isDone()) {
             ActiveMQAMQPProtocolLogger.LOGGER.cantRemovingScheduledTask();
          }
@@ -407,8 +407,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       link.setSource(link.getRemoteSource());
       link.setTarget(link.getRemoteTarget());
 
-      if (link instanceof Receiver) {
-         Receiver receiver = (Receiver) link;
+      if (link instanceof Receiver receiver) {
          if (link.getRemoteTarget() instanceof Coordinator) {
             Coordinator coordinator = (Coordinator) link.getRemoteTarget();
             protonSession.addTransactionHandler(coordinator, receiver);
@@ -675,8 +674,8 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       SASLResult saslResult = getSASLResult();
       if (saslResult != null) {
          user = saslResult.getUser();
-         if (saslResult instanceof PlainSASLResult) {
-            password = ((PlainSASLResult) saslResult).getPassword();
+         if (saslResult instanceof PlainSASLResult plainSASLResult) {
+            password = plainSASLResult.getPassword();
          }
       }
 
@@ -899,8 +898,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    public void onLocalDetach(Link link) throws Exception {
       handler.requireHandler();
       Object context = link.getContext();
-      if (context instanceof ProtonServerSenderContext) {
-         ProtonServerSenderContext senderContext = (ProtonServerSenderContext) context;
+      if (context instanceof ProtonServerSenderContext senderContext) {
          senderContext.close(false);
       }
    }
@@ -933,8 +931,8 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          String password = null;
          SASLResult saslResult = getSASLResult();
          if (saslResult != null) {
-            if (saslResult instanceof PlainSASLResult) {
-               password = ((PlainSASLResult) saslResult).getPassword();
+            if (saslResult instanceof PlainSASLResult plainSASLResult) {
+               password = plainSASLResult.getPassword();
             }
          }
 

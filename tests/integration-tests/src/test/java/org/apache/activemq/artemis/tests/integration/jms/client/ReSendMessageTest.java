@@ -148,14 +148,12 @@ public class ReSendMessageTest extends JMSTestBase {
 
          sess.commit();
 
-         if (copiedMessage instanceof BytesMessage) {
-            BytesMessage copiedBytes = (BytesMessage) copiedMessage;
+         if (copiedMessage instanceof BytesMessage copiedBytes) {
 
             for (int i = 0; i < copiedBytes.getBodyLength(); i++) {
                assertEquals(ActiveMQTestBase.getSamplebyte(i), copiedBytes.readByte());
             }
-         } else if (copiedMessage instanceof MapMessage) {
-            MapMessage copiedMap = (MapMessage) copiedMessage;
+         } else if (copiedMessage instanceof MapMessage copiedMap) {
             MapMessage originalMap = (MapMessage) originalMessage;
             if (originalMap.getString("str") != null) {
                assertEquals(originalMap.getString("str"), copiedMap.getString("str"));
@@ -169,11 +167,11 @@ public class ReSendMessageTest extends JMSTestBase {
             if (originalMap.getObject("object") != null) {
                assertEquals(originalMap.getObject("object"), copiedMap.getObject("object"));
             }
-         } else if (copiedMessage instanceof ObjectMessage) {
-            assertNotSame(((ObjectMessage) originalMessage).getObject(), ((ObjectMessage) copiedMessage).getObject());
-            assertEquals(((ObjectMessage) originalMessage).getObject(), ((ObjectMessage) copiedMessage).getObject());
-         } else if (copiedMessage instanceof TextMessage) {
-            assertEquals(((TextMessage) originalMessage).getText(), ((TextMessage) copiedMessage).getText());
+         } else if (copiedMessage instanceof ObjectMessage objectMessage) {
+            assertNotSame(((ObjectMessage) originalMessage).getObject(), objectMessage.getObject());
+            assertEquals(((ObjectMessage) originalMessage).getObject(), objectMessage.getObject());
+         } else if (copiedMessage instanceof TextMessage textMessage) {
+            assertEquals(((TextMessage) originalMessage).getText(), textMessage.getText());
          }
       }
 

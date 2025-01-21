@@ -77,17 +77,16 @@ public class FederationUpstream extends AbstractFederationStream {
       for (String policyRef : policyRefsToDeploy) {
          FederationPolicy policy = policyMap.get(policyRef);
          if (policy != null) {
-            if (policy instanceof FederationPolicySet) {
-               FederationPolicySet federationPolicySet = (FederationPolicySet) policy;
+            if (policy instanceof FederationPolicySet federationPolicySet) {
                if (recursionDepth < 10) {
                   deployPolicyRefs(federationPolicySet.getPolicyRefs(), policyMap, ++recursionDepth);
                } else {
                   ActiveMQServerLogger.LOGGER.federationAvoidStackOverflowPolicyRef(name.toString(), policyRef);
                }
-            } else if (policy instanceof FederationQueuePolicyConfiguration) {
-               deploy((FederationQueuePolicyConfiguration) policy);
-            } else if (policy instanceof FederationAddressPolicyConfiguration) {
-               deploy((FederationAddressPolicyConfiguration) policy);
+            } else if (policy instanceof FederationQueuePolicyConfiguration configuration) {
+               deploy(configuration);
+            } else if (policy instanceof FederationAddressPolicyConfiguration configuration) {
+               deploy(configuration);
             } else {
                ActiveMQServerLogger.LOGGER.federationUnknownPolicyType(name.toString(), policyRef);
             }

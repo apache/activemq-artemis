@@ -461,12 +461,11 @@ public class AckManagerTest extends ActiveMQTestBase {
       ActiveMQServerImpl theServer = (ActiveMQServerImpl) server;
 
       for (RemotingConnection connection : theServer.getRemotingService().getConnections()) {
-         if (connection instanceof ActiveMQProtonRemotingConnection) {
-            ActiveMQProtonRemotingConnection protonRC = (ActiveMQProtonRemotingConnection) connection;
+         if (connection instanceof ActiveMQProtonRemotingConnection protonRC) {
             for (AMQPSessionContext sessionContext : protonRC.getAmqpConnection().getSessions().values()) {
                for (ProtonAbstractReceiver receiver : sessionContext.getReceivers().values()) {
-                  if (receiver instanceof AMQPMirrorControllerTarget) {
-                     return (AMQPMirrorControllerTarget) receiver;
+                  if (receiver instanceof AMQPMirrorControllerTarget target) {
+                     return target;
                   }
                }
             }

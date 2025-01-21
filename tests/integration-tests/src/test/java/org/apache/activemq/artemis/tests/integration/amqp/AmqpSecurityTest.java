@@ -165,8 +165,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
                markAsInvalid("delivery is not remotely settled");
             }
 
-            if (state instanceof Rejected) {
-               Rejected rejected = (Rejected) state;
+            if (state instanceof Rejected rejected) {
                if (rejected.getError() == null || rejected.getError().getCondition() == null) {
                   markAsInvalid("Delivery should have been Rejected with an error condition");
                } else {
@@ -303,8 +302,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
                markAsInvalid("delivery is not remotely settled");
             }
 
-            if (state instanceof Rejected) {
-               Rejected rejected = (Rejected) state;
+            if (state instanceof Rejected rejected) {
                if (rejected.getError() == null || rejected.getError().getCondition() == null) {
                   markAsInvalid("Delivery should have been Rejected with an error condition");
                } else {

@@ -622,10 +622,10 @@ public class JournalFilesRepository {
 
    private RuntimeException unwrapException(PrivilegedActionException e) throws Exception {
       Throwable c = e.getCause();
-      if (c instanceof RuntimeException) {
-         throw (RuntimeException) c;
-      } else if (c instanceof Error) {
-         throw (Error) c;
+      if (c instanceof RuntimeException runtimeException) {
+         throw runtimeException;
+      } else if (c instanceof Error error) {
+         throw error;
       } else {
          throw new RuntimeException(c);
       }

@@ -57,8 +57,7 @@ public class HttpServerAuthenticator extends Authenticator {
       try {
          LoginContext loginContext = new LoginContext(realm, callbacks -> {
             for (Callback callback : callbacks) {
-               if (callback instanceof PasswordCallback) {
-                  PasswordCallback passwordCallback = (PasswordCallback) callback;
+               if (callback instanceof PasswordCallback passwordCallback) {
 
                   StringTokenizer stringTokenizer = new StringTokenizer(extractAuthHeader(httpExchange));
                   String method = stringTokenizer.nextToken();
@@ -71,8 +70,7 @@ public class HttpServerAuthenticator extends Authenticator {
                   } else if ("Bearer".equalsIgnoreCase(method)) {
                      passwordCallback.setPassword(stringTokenizer.nextToken().toCharArray());
                   }
-               } else if (callback instanceof NameCallback) {
-                  NameCallback nameCallback = (NameCallback) callback;
+               } else if (callback instanceof NameCallback nameCallback) {
 
                   StringTokenizer stringTokenizer = new StringTokenizer(extractAuthHeader(httpExchange));
                   String method = stringTokenizer.nextToken();
@@ -83,22 +81,18 @@ public class HttpServerAuthenticator extends Authenticator {
                      byte[] user = Arrays.copyOfRange(authHeaderBytes, 0, Arrays.binarySearch(authHeaderBytes, (byte) ':'));
                      nameCallback.setName(new String(user, StandardCharsets.UTF_8));
                   }
-               } else if (callback instanceof CertificateCallback) {
-                  CertificateCallback certCallback = (CertificateCallback) callback;
+               } else if (callback instanceof CertificateCallback certCallback) {
 
-                  if (httpExchange instanceof HttpsExchange) {
-                     HttpsExchange httpsExchange = (HttpsExchange) httpExchange;
+                  if (httpExchange instanceof HttpsExchange httpsExchange) {
                      Certificate[] peerCerts = httpsExchange.getSSLSession().getPeerCertificates();
                      if (peerCerts != null && peerCerts.length > 0) {
                         certCallback.setCertificates(new X509Certificate[]{(X509Certificate) peerCerts[0]});
                      }
                   }
-               } else if (callback instanceof PrincipalsCallback) {
-                  PrincipalsCallback principalsCallback = (PrincipalsCallback) callback;
+               } else if (callback instanceof PrincipalsCallback principalsCallback) {
 
                   Principal principal = httpExchange.getPrincipal();
-                  if (principal == null && httpExchange instanceof HttpsExchange) {
-                     HttpsExchange httpsExchange = (HttpsExchange) httpExchange;
+                  if (principal == null && httpExchange instanceof HttpsExchange httpsExchange) {
                      principal = httpsExchange.getSSLSession().getPeerPrincipal();
                   }
                   if (principal != null) {

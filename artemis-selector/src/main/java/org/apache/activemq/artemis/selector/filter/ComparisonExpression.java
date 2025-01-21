@@ -229,8 +229,8 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
             if (lv == rv || lv.equals(rv)) {
                return Boolean.TRUE;
             }
-            if (lv instanceof Comparable && rv instanceof Comparable) {
-               return compare((Comparable) lv, (Comparable) rv);
+            if (lv instanceof Comparable l && rv instanceof Comparable r) {
+               return compare(l, r);
             }
             return Boolean.FALSE;
          }
@@ -253,8 +253,8 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
                // this case happens often while comparing non equals Strings
                return false;
             }
-            if (lv instanceof Comparable && rv instanceof Comparable) {
-               Boolean compareResult = compare((Comparable) lv, (Comparable) rv);
+            if (lv instanceof Comparable<?> l && rv instanceof Comparable<?> r) {
+               Boolean compareResult = compare(l, r);
                return compareResult != null && compareResult;
             }
             return false;
@@ -345,8 +345,8 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
     * @param expr
     */
    public static void checkLessThanOperand(Expression expr) {
-      if (expr instanceof ConstantExpression) {
-         Object value = ((ConstantExpression) expr).getValue();
+      if (expr instanceof ConstantExpression constantExpression) {
+         Object value = constantExpression.getValue();
          if (value instanceof Number) {
             return;
          }
@@ -366,8 +366,8 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
     * @param expr
     */
    public static void checkEqualOperand(Expression expr) {
-      if (expr instanceof ConstantExpression) {
-         Object value = ((ConstantExpression) expr).getValue();
+      if (expr instanceof ConstantExpression constantExpression) {
+         Object value = constantExpression.getValue();
          if (value == null) {
             throw new RuntimeException("'" + expr + "' cannot be compared.");
          }

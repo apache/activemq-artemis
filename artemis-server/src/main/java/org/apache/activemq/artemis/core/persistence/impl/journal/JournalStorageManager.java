@@ -520,10 +520,8 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       // Check durable large massage size before to allocate resources if it can't be stored
       if (largeMessage.toMessage().isDurable()) {
          final long maxRecordSize = getMaxRecordSize();
-         if (largeMessage instanceof LargeServerMessageImpl) {
-            // the following check only applies to Core
-            LargeServerMessageImpl coreLarge = (LargeServerMessageImpl)largeMessage;
-            final int messageEncodeSize = coreLarge.getEncodeSize();
+         if (largeMessage instanceof LargeServerMessageImpl largeServerMessage) {
+            final int messageEncodeSize = largeServerMessage.getEncodeSize();
 
             if (messageEncodeSize > maxRecordSize) {
                ActiveMQServerLogger.LOGGER.messageWithHeaderTooLarge(largeMessage.getMessageID(), logger.getName());

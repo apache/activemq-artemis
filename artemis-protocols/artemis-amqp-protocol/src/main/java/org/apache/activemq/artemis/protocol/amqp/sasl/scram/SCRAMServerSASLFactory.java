@@ -70,8 +70,8 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
    public ServerSASL create(ActiveMQServer server, ProtocolManager<AmqpInterceptor, AMQPRoutingHandler> manager, Connection connection,
                             RemotingConnection remotingConnection) {
       try {
-         if (manager instanceof ProtonProtocolManager) {
-            String loginConfigScope = ((ProtonProtocolManager) manager).getSaslLoginConfigScope();
+         if (manager instanceof ProtonProtocolManager protonProtocolManager) {
+            String loginConfigScope = protonProtocolManager.getSaslLoginConfigScope();
             return new JAASSCRAMServerSASL(scramType, loginConfigScope, logger);
          }
       } catch (NoSuchAlgorithmException e) {
@@ -97,14 +97,14 @@ public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
       protected UserData aquireUserData(String userName) throws LoginException {
          loginContext = new LoginContext(loginConfigScope, callbacks -> {
             for (Callback callback : callbacks) {
-               if (callback instanceof NameCallback) {
-                  ((NameCallback) callback).setName(userName);
-               } else if (callback instanceof SCRAMMechanismCallback) {
-                  ((SCRAMMechanismCallback) callback).setMechanism(mechanism.getName());
-               } else if (callback instanceof DigestCallback) {
-                  ((DigestCallback) callback).setDigest(scram.getDigest());
-               } else if (callback instanceof HmacCallback) {
-                  ((HmacCallback) callback).setHmac(scram.getHmac());
+               if (callback instanceof NameCallback nameCallback) {
+                  nameCallback.setName(userName);
+               } else if (callback instanceof SCRAMMechanismCallback scramMechanismCallback) {
+                  scramMechanismCallback.setMechanism(mechanism.getName());
+               } else if (callback instanceof DigestCallback digestCallback) {
+                  digestCallback.setDigest(scram.getDigest());
+               } else if (callback instanceof HmacCallback hmacCallback) {
+                  hmacCallback.setHmac(scram.getHmac());
                } else {
                   throw new UnsupportedCallbackException(callback, "Unrecognized Callback " +
                            callback.getClass().getSimpleName());

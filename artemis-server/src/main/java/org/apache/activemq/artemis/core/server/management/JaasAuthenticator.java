@@ -49,17 +49,17 @@ public class JaasAuthenticator implements JMXAuthenticator {
             * pull out the jmx credentials if they exist if not, guest login module will handle it
             * */
             String[] params = null;
-            if (credentials instanceof String[] && ((String[]) credentials).length == 2) {
-               params = (String[]) credentials;
+            if (credentials instanceof String[] strings && strings.length == 2) {
+               params = strings;
             }
             for (int i = 0; i < callbacks.length; i++) {
-               if (callbacks[i] instanceof NameCallback) {
+               if (callbacks[i] instanceof NameCallback nameCallback) {
                   if (params != null) {
-                     ((NameCallback) callbacks[i]).setName(params[0]);
+                     nameCallback.setName(params[0]);
                   }
-               } else if (callbacks[i] instanceof PasswordCallback) {
+               } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
                   if (params != null) {
-                     ((PasswordCallback) callbacks[i]).setPassword((params[1].toCharArray()));
+                     passwordCallback.setPassword((params[1].toCharArray()));
                   }
                } else {
                   throw new UnsupportedCallbackException(callbacks[i]);

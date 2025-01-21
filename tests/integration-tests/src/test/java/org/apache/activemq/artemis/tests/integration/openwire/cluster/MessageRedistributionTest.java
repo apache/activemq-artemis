@@ -276,8 +276,8 @@ public class MessageRedistributionTest extends ClusterTestBase {
    private RemoteQueueBinding getRemoteQueueBinding(Collection<Binding> bindingSet) {
       RemoteQueueBinding remoteBinding = null;
       for (Binding b : bindingSet) {
-         if (b instanceof RemoteQueueBinding) {
-            remoteBinding = (RemoteQueueBinding) b;
+         if (b instanceof RemoteQueueBinding remoteQueueBinding) {
+            remoteBinding = remoteQueueBinding;
             break;
          }
       }

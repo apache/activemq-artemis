@@ -94,8 +94,8 @@ public class ArtemisRbacInvocationHandler implements GuardInvocationHandler {
       }
 
       // filter query results based on RBAC
-      if (method.getName().startsWith("query") && result instanceof Collection<?>) {
-         ((Collection<?>) result).removeIf(this::viewPermissionCheckFails);
+      if (method.getName().startsWith("query") && result instanceof Collection<?> collection) {
+         collection.removeIf(this::viewPermissionCheckFails);
       }
 
       return result;
@@ -114,7 +114,7 @@ public class ArtemisRbacInvocationHandler implements GuardInvocationHandler {
    }
 
    private ObjectName objectNameFrom(Object[] args) {
-      return (args != null && args.length > 0 && args[0] instanceof ObjectName) ? (ObjectName) args[0] : null;
+      return (args != null && args.length > 0 && args[0] instanceof ObjectName on) ? on : null;
    }
 
    @Override
@@ -136,15 +136,15 @@ public class ArtemisRbacInvocationHandler implements GuardInvocationHandler {
 
    private void initializeFromFirstServerMBeanRegistration(Method method, Object[] args) {
       if (activeMQServer == null && method.getName().equals("registerMBean")) {
-         if (args != null && args[0] instanceof ActiveMQServerControlImpl) {
-            activeMQServer = ((ActiveMQServerControlImpl) args[0]).getServer();
+         if (args != null && args[0] instanceof ActiveMQServerControlImpl serverControl) {
+            activeMQServer = serverControl.getServer();
             brokerDomain = activeMQServer.getConfiguration().getJMXDomain();
 
             viewPermissionMatcher = Pattern.compile(activeMQServer.getConfiguration().getViewPermissionMethodMatchPattern());
             rbacPrefix = SimpleString.of(activeMQServer.getConfiguration().getManagementRbacPrefix());
             mBeanServerRbacAddressPrefix = rbacPrefix.concat(".mbeanserver.");
 
-            ((ActiveMQServerControlImpl) args[0]).getServer().registerActivateCallback(new ActivateCallback() {
+            serverControl.getServer().registerActivateCallback(new ActivateCallback() {
                @Override
                public void shutdown(ActiveMQServer server) {
                   try {
@@ -313,7 +313,7 @@ public class ArtemisRbacInvocationHandler implements GuardInvocationHandler {
 
    private boolean viewPermissionCheckFails(Object candidate) {
       boolean failed = false;
-      ObjectName objectName = candidate instanceof ObjectInstance ? ((ObjectInstance) candidate).getObjectName() : (ObjectName) candidate;
+      ObjectName objectName = candidate instanceof ObjectInstance oi ? oi.getObjectName() : (ObjectName) candidate;
       if (!isUncheckedDomain(objectName)) {
          try {
             final SimpleString rbacAddress = addressFrom(objectName);

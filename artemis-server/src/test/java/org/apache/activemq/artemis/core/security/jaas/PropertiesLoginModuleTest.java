@@ -199,10 +199,10 @@ public class PropertiesLoginModuleTest {
       @Override
       public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
          for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof NameCallback) {
-               ((NameCallback) callbacks[i]).setName(user);
-            } else if (callbacks[i] instanceof PasswordCallback) {
-               ((PasswordCallback) callbacks[i]).setPassword(pass.toCharArray());
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName(user);
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword(pass.toCharArray());
             } else {
                throw new UnsupportedCallbackException(callbacks[i]);
             }

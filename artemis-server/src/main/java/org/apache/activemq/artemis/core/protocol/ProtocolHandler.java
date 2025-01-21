@@ -150,9 +150,8 @@ public class ProtocolHandler {
 
       @Override
       public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-         if (msg instanceof FullHttpRequest) {
-            FullHttpRequest request = (FullHttpRequest) msg;
-            HttpHeaders headers = request.headers();
+         if (msg instanceof FullHttpRequest httpRequest) {
+            HttpHeaders headers = httpRequest.headers();
             String upgrade = headers.get("upgrade");
 
             if (upgrade != null && upgrade.equalsIgnoreCase("websocket")) {

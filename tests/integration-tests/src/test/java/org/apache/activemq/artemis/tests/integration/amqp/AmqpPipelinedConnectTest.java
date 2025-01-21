@@ -109,8 +109,7 @@ public class AmqpPipelinedConnectTest extends AmqpClientTestSupport {
             public void onSaslFrame(SaslFrameBody saslType) {
                saslPerformatives.incrementAndGet();
 
-               if (saslType instanceof SaslOutcome) {
-                  final SaslOutcome outcome = (SaslOutcome) saslType;
+               if (saslType instanceof SaslOutcome outcome) {
                   if (outcome.getCode() != SaslCode.OK) {
                      // We are expecting SASL outcome to be OK which it isn't then the
                      // broker behavior has changed and this should fail the test.
@@ -127,10 +126,8 @@ public class AmqpPipelinedConnectTest extends AmqpClientTestSupport {
             @Override
             public void onAMQPFrame(FrameBody amqpType) {
                performatives.incrementAndGet();
-               if (amqpType instanceof Close) {
+               if (amqpType instanceof Close close) {
                   closedReceived.set(true);
-
-                  final Close close = (Close) amqpType;
 
                   if (close.getError() == null || !AmqpError.UNAUTHORIZED_ACCESS.equals(close.getError().getCondition())) {
                      failure.compareAndSet(null, new AssertionError("Connection should indicate access was unauthorized"));

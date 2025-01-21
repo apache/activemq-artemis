@@ -108,9 +108,9 @@ public class ClusteredExpiryTest extends ClusterTestBase {
 
    private void pauseQueue(Binding binding) {
       assertNull(snfPaused);
-      if (binding instanceof LocalQueueBinding) {
+      if (binding instanceof LocalQueueBinding localQueueBinding) {
          logger.info("Pausing {}", binding.getUniqueName());
-         snfPaused = ((LocalQueueBinding) binding).getQueue();
+         snfPaused = localQueueBinding.getQueue();
          snfPaused.pause();
       }
    }

@@ -69,8 +69,7 @@ public class ConnectionPeriodicExpiryPlugin implements ActiveMQServerBasePlugin 
             final long currentTime = System.currentTimeMillis();
             for (Acceptor acceptor : remotingService.getAcceptors().values()) {
                if (matchPattern.matcher(acceptor.getName()).matches()) {
-                  if (acceptor instanceof NettyAcceptor) {
-                     NettyAcceptor nettyAcceptor = (NettyAcceptor) acceptor;
+                  if (acceptor instanceof NettyAcceptor nettyAcceptor) {
 
                      for (NettyServerConnection nettyServerConnection : nettyAcceptor.getConnections().values()) {
                         RemotingConnection remotingConnection = remotingService.getConnection(nettyServerConnection.getID());

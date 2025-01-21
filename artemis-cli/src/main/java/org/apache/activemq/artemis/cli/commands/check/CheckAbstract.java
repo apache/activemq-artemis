@@ -132,8 +132,8 @@ public abstract class CheckAbstract extends ConnectionAbstract {
          return checkTask.get(timeout, TimeUnit.MILLISECONDS);
       } catch (ExecutionException e) {
          Throwable cause = e.getCause();
-         if (cause instanceof CLIException) {
-            throw (CLIException)cause;
+         if (cause instanceof CLIException cliException) {
+            throw cliException;
          } else {
             fail(cause.toString());
          }

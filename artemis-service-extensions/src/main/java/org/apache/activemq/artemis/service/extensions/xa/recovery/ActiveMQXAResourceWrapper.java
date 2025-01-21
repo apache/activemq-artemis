@@ -131,8 +131,8 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
 
    @Override
    public boolean isSameRM(XAResource xaRes) throws XAException {
-      if (xaRes instanceof ActiveMQXAResourceWrapper) {
-         xaRes = ((ActiveMQXAResourceWrapper) xaRes).getDelegate(false);
+      if (xaRes instanceof ActiveMQXAResourceWrapper wrapper) {
+         xaRes = wrapper.getDelegate(false);
       }
 
       XAResource xaResource = getDelegate(false);

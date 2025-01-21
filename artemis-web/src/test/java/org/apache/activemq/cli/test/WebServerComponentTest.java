@@ -1022,11 +1022,9 @@ public class WebServerComponentTest extends ArtemisTestCase {
 
       @Override
       public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
-         if (msg instanceof HttpResponse) {
-            HttpResponse response = (HttpResponse) msg;
+         if (msg instanceof HttpResponse response) {
             serverHeader = response.headers().get("Server");
-         } else if (msg instanceof HttpContent) {
-            HttpContent content = (HttpContent) msg;
+         } else if (msg instanceof HttpContent content) {
             body.append(content.content().toString(CharsetUtil.UTF_8));
             if (msg instanceof LastHttpContent) {
                latch.countDown();

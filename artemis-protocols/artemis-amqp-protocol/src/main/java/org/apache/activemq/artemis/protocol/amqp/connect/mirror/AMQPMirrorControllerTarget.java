@@ -274,8 +274,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
       try {
 
-         if (message instanceof AMQPMessage) {
-            final AMQPMessage amqpMessage = (AMQPMessage) message;
+         if (message instanceof AMQPMessage amqpMessage) {
 
             /** We use message annotations, because on the same link we will receive control messages
              *  coming from mirror events,

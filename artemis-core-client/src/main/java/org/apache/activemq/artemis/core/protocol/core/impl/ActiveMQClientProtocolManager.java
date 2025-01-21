@@ -329,8 +329,8 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
                lock = null;
             }
 
-            if (t instanceof ActiveMQException) {
-               throw (ActiveMQException) t;
+            if (t instanceof ActiveMQException activeMQException) {
+               throw activeMQException;
             } else {
                throw ActiveMQClientMessageBundle.BUNDLE.failedToCreateSession(t);
             }
@@ -512,13 +512,13 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
          final long eventUID;
          final String backupGroupName;
          final String scaleDownGroupName;
-         if (topMessage instanceof ClusterTopologyChangeMessage_V3) {
-            eventUID = ((ClusterTopologyChangeMessage_V3) topMessage).getUniqueEventID();
-            backupGroupName = ((ClusterTopologyChangeMessage_V3) topMessage).getBackupGroupName();
-            scaleDownGroupName = ((ClusterTopologyChangeMessage_V3) topMessage).getScaleDownGroupName();
-         } else if (topMessage instanceof ClusterTopologyChangeMessage_V2) {
-            eventUID = ((ClusterTopologyChangeMessage_V2) topMessage).getUniqueEventID();
-            backupGroupName = ((ClusterTopologyChangeMessage_V2) topMessage).getBackupGroupName();
+         if (topMessage instanceof ClusterTopologyChangeMessage_V3 v3) {
+            eventUID = v3.getUniqueEventID();
+            backupGroupName = v3.getBackupGroupName();
+            scaleDownGroupName = v3.getScaleDownGroupName();
+         } else if (topMessage instanceof ClusterTopologyChangeMessage_V2 v2) {
+            eventUID = v2.getUniqueEventID();
+            backupGroupName = v2.getBackupGroupName();
             scaleDownGroupName = null;
          } else {
             eventUID = System.currentTimeMillis();

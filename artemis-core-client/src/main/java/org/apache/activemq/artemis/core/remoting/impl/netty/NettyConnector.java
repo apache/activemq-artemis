@@ -1055,10 +1055,9 @@ public class NettyConnector extends AbstractConnector {
       public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
          logger.debug("Received msg={}", msg);
 
-         if (msg instanceof HttpResponse) {
-            HttpResponse response = (HttpResponse) msg;
-            if (response.status().code() == HttpResponseStatus.SWITCHING_PROTOCOLS.code() && response.headers().get(HttpHeaderNames.UPGRADE).equals(ACTIVEMQ_REMOTING)) {
-               String accept = response.headers().get(SEC_ACTIVEMQ_REMOTING_ACCEPT);
+         if (msg instanceof HttpResponse httpResponse) {
+            if (httpResponse.status().code() == HttpResponseStatus.SWITCHING_PROTOCOLS.code() && httpResponse.headers().get(HttpHeaderNames.UPGRADE).equals(ACTIVEMQ_REMOTING)) {
+               String accept = httpResponse.headers().get(SEC_ACTIVEMQ_REMOTING_ACCEPT);
                String expectedResponse = createExpectedResponse(MAGIC_NUMBER, ctx.channel().attr(REMOTING_KEY).get());
 
                if (expectedResponse.equals(accept)) {
@@ -1175,7 +1174,7 @@ public class NettyConnector extends AbstractConnector {
 
       @Override
       public void write(final ChannelHandlerContext ctx, final Object msg, ChannelPromise promise) throws Exception {
-         if (msg instanceof ByteBuf) {
+         if (msg instanceof ByteBuf buf) {
             if (httpRequiresSessionId && !active) {
                if (handshaking) {
                   handshaking = true;
@@ -1185,8 +1184,6 @@ public class NettyConnector extends AbstractConnector {
                   }
                }
             }
-
-            ByteBuf buf = (ByteBuf) msg;
             FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, url, buf);
             httpRequest.headers().add(HttpHeaderNames.HOST, NettyConnector.this.host);
             for (Map.Entry<String, String> header : headers.entrySet()) {

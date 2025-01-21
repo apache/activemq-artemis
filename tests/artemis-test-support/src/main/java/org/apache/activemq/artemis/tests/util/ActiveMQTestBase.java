@@ -2287,8 +2287,8 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       Bindings bindings = postOffice.getBindingsForAddress(SimpleString.of(address));
 
       for (Binding binding : bindings.getBindings()) {
-         if (binding instanceof LocalQueueBinding) {
-            bindingsFound.add((QueueBinding) binding);
+         if (binding instanceof LocalQueueBinding localQueueBinding) {
+            bindingsFound.add(localQueueBinding);
          }
       }
       return bindingsFound;
@@ -2571,11 +2571,11 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    protected static ReplicationEndpoint getReplicationEndpoint(ActiveMQServer server) {
       final Activation activation = server.getActivation();
-      if (activation instanceof SharedNothingBackupActivation) {
-         return ((SharedNothingBackupActivation) activation).getReplicationEndpoint();
+      if (activation instanceof SharedNothingBackupActivation backupActivation) {
+         return backupActivation.getReplicationEndpoint();
       }
-      if (activation instanceof ReplicationBackupActivation) {
-         return ((ReplicationBackupActivation) activation).getReplicationEndpoint();
+      if (activation instanceof ReplicationBackupActivation backupActivation) {
+         return backupActivation.getReplicationEndpoint();
       }
       return null;
    }

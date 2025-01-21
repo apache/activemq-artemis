@@ -210,8 +210,7 @@ public class Artemis implements Runnable {
       Objects.requireNonNull(userObject, "Picocli action command should never be null");
       assert userObject != null;
 
-      if (userObject instanceof Action) {
-         Action action = (Action) userObject;
+      if (userObject instanceof Action action) {
          action.setHomeValues(artemisHome, artemisInstance, etcFolder);
          if (action.isVerbose()) {
             context.out.print("Executing " + action.getClass().getName() + " ");
@@ -224,8 +223,8 @@ public class Artemis implements Runnable {
 
          return action.execute(context);
       } else {
-         if (userObject instanceof Runnable) {
-            ((Runnable) userObject).run();
+         if (userObject instanceof Runnable runnable) {
+            runnable.run();
          } else {
             throw new IllegalArgumentException(userObject.getClass() + " should implement either " + Action.class.getName() + " or " + Runnable.class.getName());
          }

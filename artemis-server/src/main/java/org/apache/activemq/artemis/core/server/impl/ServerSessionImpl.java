@@ -380,8 +380,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public void markTXFailed(Throwable e) {
       Transaction currentTX = this.tx;
       if (currentTX != null) {
-         if (e instanceof ActiveMQException) {
-            currentTX.markAsRollbackOnly((ActiveMQException) e);
+         if (e instanceof ActiveMQException activeMQException) {
+            currentTX.markAsRollbackOnly(activeMQException);
          } else {
             ActiveMQException exception = new ActiveMQException(e.getMessage());
             exception.initCause(e);
@@ -773,8 +773,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          // It is up to the user to delete the queue when finished with it
 
          TempQueueCleanerUpper cleaner = new TempQueueCleanerUpper(server, queueConfiguration.getName());
-         if (remotingConnection instanceof TempQueueObserver) {
-            cleaner.setObserver((TempQueueObserver) remotingConnection);
+         if (remotingConnection instanceof TempQueueObserver observer) {
+            cleaner.setObserver(observer);
          }
 
          remotingConnection.addCloseListener(cleaner);
@@ -1237,8 +1237,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       // remotingConnection could be null on UnitTests
       // that's why I'm checking for null here, and it's best to do so
-      if (remotingConnection != null && remotingConnection instanceof CoreRemotingConnection) {
-         newFQQN = ((CoreRemotingConnection) remotingConnection).isVersionNewFQQN();
+      if (remotingConnection != null && remotingConnection instanceof CoreRemotingConnection coreRemotingConnection) {
+         newFQQN = coreRemotingConnection.isVersionNewFQQN();
       }
 
       return server.bindingQuery(removePrefix(address), newFQQN);
@@ -2363,7 +2363,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          // Retrieve message size for metrics update before routing,
          // since large message backing files may be closed once routing completes
-         int mSize = msg instanceof LargeServerMessageImpl ? ((LargeServerMessageImpl)msg).getBodyBufferSize() : msg.getEncodeSize();
+         int mSize = msg instanceof LargeServerMessageImpl lsmi ? lsmi.getBodyBufferSize() : msg.getEncodeSize();
 
          result = postOffice.route(msg, routingContext, direct);
 

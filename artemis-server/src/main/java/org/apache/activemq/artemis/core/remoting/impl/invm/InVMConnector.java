@@ -102,35 +102,31 @@ public class InVMConnector extends AbstractConnector {
 
    private final boolean bufferPoolingEnabled;
 
-   private static ExecutorService threadPoolExecutor;
+   private static ExecutorService executorService;
 
    public static synchronized void resetThreadPool() {
-      if (threadPoolExecutor != null) {
-         threadPoolExecutor.shutdownNow();
-         if (threadPoolExecutor instanceof ThreadPoolExecutor) {
-            ThreadPoolExecutor tp = (ThreadPoolExecutor) threadPoolExecutor;
-            if (tp.getThreadFactory() instanceof ActiveMQThreadFactory) {
-               ActiveMQThreadFactory tf = (ActiveMQThreadFactory)tp.getThreadFactory();
-               if (!tf.join(10, TimeUnit.SECONDS)) {
-                  // resetThreadPool is only used on tests.
-                  // no need to use a logger method, this is just fine.
-                  logger.warn("Thread pool is still busy. couldn't stop on time");
-               }
+      if (executorService != null) {
+         executorService.shutdownNow();
+         if (executorService instanceof ThreadPoolExecutor threadPoolExecutor && threadPoolExecutor.getThreadFactory() instanceof ActiveMQThreadFactory activeMQThreadFactory) {
+            if (!activeMQThreadFactory.join(10, TimeUnit.SECONDS)) {
+               // resetThreadPool is only used on tests.
+               // no need to use a logger method, this is just fine.
+               logger.warn("Thread pool is still busy. couldn't stop on time");
             }
          }
-         threadPoolExecutor = null;
+         executorService = null;
       }
    }
 
    private static synchronized ExecutorService getInVMExecutor() {
-      if (threadPoolExecutor == null) {
+      if (executorService == null) {
          if (ActiveMQClient.getGlobalThreadPoolSize() <= -1) {
-            threadPoolExecutor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), ActiveMQThreadFactory.defaultThreadFactory(InVMConnector.class.getName()));
+            executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), ActiveMQThreadFactory.defaultThreadFactory(InVMConnector.class.getName()));
          } else {
-            threadPoolExecutor = new ActiveMQThreadPoolExecutor(0, ActiveMQClient.getGlobalThreadPoolSize(), 60L, TimeUnit.SECONDS, ActiveMQThreadFactory.defaultThreadFactory(InVMConnector.class.getName()));
+            executorService = new ActiveMQThreadPoolExecutor(0, ActiveMQClient.getGlobalThreadPoolSize(), 60L, TimeUnit.SECONDS, ActiveMQThreadFactory.defaultThreadFactory(InVMConnector.class.getName()));
          }
       }
-      return threadPoolExecutor;
+      return executorService;
    }
 
    public InVMConnector(final Map<String, Object> configuration,

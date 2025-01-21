@@ -699,8 +699,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
                   if (!autoFillCollections.collections.isEmpty()) {
                      autoFillCollections.collections.pop();
                   }
-                  if (target instanceof Map) {
-                     Map targetMap = (Map) target;
+                  if (target instanceof Map targetMap) {
                      Iterator<Map.Entry<String, Object>> i = targetMap.entrySet().iterator();
                      while (i.hasNext()) {
                         String key = i.next().getKey();
@@ -709,9 +708,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
                            break;
                         }
                      }
-                  } else if (target instanceof Collection) {
+                  } else if (target instanceof Collection targetCollection) {
                      try {
-                        autoFillCollections.removeByNameProperty(propName, (Collection) target);
+                        autoFillCollections.removeByNameProperty(propName, targetCollection);
                      } catch (NoSuchMethodException e) {
                         throw new InvocationTargetException(e, "Can only remove named entries from collections or maps" + name + ", on: " + target);
                      }
@@ -744,16 +743,16 @@ public class ConfigurationImpl implements Configuration, Serializable {
                   } catch (final NoSuchMethodException e) {
                      throw new InvocationTargetException(e, "Failed to get descriptor for: " + name + " on: " + target.getClass());
                   }
-                  if (descriptor instanceof MappedPropertyDescriptor) {
-                     if (((MappedPropertyDescriptor) descriptor).getMappedWriteMethod() == null) {
+                  if (descriptor instanceof MappedPropertyDescriptor mappedPropertyDescriptor) {
+                     if (mappedPropertyDescriptor.getMappedWriteMethod() == null) {
                         throw new InvocationTargetException(null, "No mapped Write method for: " + name + " on: " + target.getClass());
                      }
-                     type = ((MappedPropertyDescriptor) descriptor).getMappedPropertyType();
-                  } else if (index >= 0 && descriptor instanceof IndexedPropertyDescriptor) {
-                     if (((IndexedPropertyDescriptor) descriptor).getIndexedWriteMethod() == null) {
+                     type = mappedPropertyDescriptor.getMappedPropertyType();
+                  } else if (index >= 0 && descriptor instanceof IndexedPropertyDescriptor indexedPropertyDescriptor) {
+                     if (indexedPropertyDescriptor.getIndexedWriteMethod() == null) {
                         throw new InvocationTargetException(null, "No indexed Write method for: " + name + " on: " + target.getClass());
                      }
-                     type = ((IndexedPropertyDescriptor) descriptor).getIndexedPropertyType();
+                     type = indexedPropertyDescriptor.getIndexedPropertyType();
                   } else if (index >= 0 && List.class.isAssignableFrom(descriptor.getPropertyType())) {
                      type = Object.class;
                   } else if (key != null) {
@@ -778,22 +777,21 @@ public class ConfigurationImpl implements Configuration, Serializable {
                      newValue = getConvertUtils().convert(values, type);
                   } else if (value instanceof String) {
                      newValue = getConvertUtils().convert(value, type);
-                  } else if (value instanceof String[]) {
-                     newValue = getConvertUtils().convert((String[]) value, type);
+                  } else if (value instanceof String[] strings) {
+                     newValue = getConvertUtils().convert(strings, type);
                   } else {
                      newValue = convert(value, type);
                   }
                } else if (type.isArray()) {         // Indexed value into array
                   if (value instanceof String || value == null) {
                      newValue = getConvertUtils().convert((String) value, type.getComponentType());
-                  } else if (value instanceof String[]) {
-                     newValue = getConvertUtils().convert(((String[]) value)[0], type.getComponentType());
+                  } else if (value instanceof String[] strings) {
+                     newValue = getConvertUtils().convert(strings[0], type.getComponentType());
                   } else {
                      newValue = convert(value, type.getComponentType());
                   }
                } else {                             // Value into scalar
-                  if (value instanceof String) {
-                     String possibleDotClassValue = (String)value;
+                  if (value instanceof String possibleDotClassValue) {
                      if (type != String.class && isClassProperty(possibleDotClassValue)) {
                         final String clazzName = extractPropertyClassName(possibleDotClassValue);
                         try {
@@ -804,8 +802,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
                      } else {
                         newValue = getConvertUtils().convert(possibleDotClassValue, type);
                      }
-                  } else if (value instanceof String[]) {
-                     newValue = getConvertUtils().convert(((String[]) value)[0], type);
+                  } else if (value instanceof String[] strings) {
+                     newValue = getConvertUtils().convert(strings[0], type);
                   } else {
                      newValue = convert(value, type);
                   }
@@ -2275,41 +2273,41 @@ public class ConfigurationImpl implements Configuration, Serializable {
       if (!brokerPlugins.contains(plugin)) {
          brokerPlugins.add(plugin);
       }
-      if (plugin instanceof ActiveMQServerConnectionPlugin && !brokerConnectionPlugins.contains(plugin)) {
-         brokerConnectionPlugins.add((ActiveMQServerConnectionPlugin) plugin);
+      if (plugin instanceof ActiveMQServerConnectionPlugin connectionPlugin && !brokerConnectionPlugins.contains(plugin)) {
+         brokerConnectionPlugins.add(connectionPlugin);
       }
-      if (plugin instanceof ActiveMQServerSessionPlugin && !brokerSessionPlugins.contains(plugin)) {
-         brokerSessionPlugins.add((ActiveMQServerSessionPlugin) plugin);
+      if (plugin instanceof ActiveMQServerSessionPlugin sessionPlugin && !brokerSessionPlugins.contains(plugin)) {
+         brokerSessionPlugins.add(sessionPlugin);
       }
-      if (plugin instanceof ActiveMQServerConsumerPlugin && !brokerConsumerPlugins.contains(plugin)) {
-         brokerConsumerPlugins.add((ActiveMQServerConsumerPlugin) plugin);
+      if (plugin instanceof ActiveMQServerConsumerPlugin consumerPlugin && !brokerConsumerPlugins.contains(plugin)) {
+         brokerConsumerPlugins.add(consumerPlugin);
       }
-      if (plugin instanceof ActiveMQServerAddressPlugin && !brokerAddressPlugins.contains(plugin)) {
-         brokerAddressPlugins.add((ActiveMQServerAddressPlugin) plugin);
+      if (plugin instanceof ActiveMQServerAddressPlugin addressPlugin && !brokerAddressPlugins.contains(plugin)) {
+         brokerAddressPlugins.add(addressPlugin);
       }
-      if (plugin instanceof ActiveMQServerQueuePlugin && !brokerQueuePlugins.contains(plugin)) {
-         brokerQueuePlugins.add((ActiveMQServerQueuePlugin) plugin);
+      if (plugin instanceof ActiveMQServerQueuePlugin queuePlugin && !brokerQueuePlugins.contains(plugin)) {
+         brokerQueuePlugins.add(queuePlugin);
       }
-      if (plugin instanceof ActiveMQServerBindingPlugin && !brokerBindingPlugins.contains(plugin)) {
-         brokerBindingPlugins.add((ActiveMQServerBindingPlugin) plugin);
+      if (plugin instanceof ActiveMQServerBindingPlugin bindingPlugin && !brokerBindingPlugins.contains(plugin)) {
+         brokerBindingPlugins.add(bindingPlugin);
       }
-      if (plugin instanceof ActiveMQServerMessagePlugin && !brokerMessagePlugins.contains(plugin)) {
-         brokerMessagePlugins.add((ActiveMQServerMessagePlugin) plugin);
+      if (plugin instanceof ActiveMQServerMessagePlugin messagePlugin && !brokerMessagePlugins.contains(plugin)) {
+         brokerMessagePlugins.add(messagePlugin);
       }
-      if (plugin instanceof ActiveMQServerBridgePlugin && !brokerBridgePlugins.contains(plugin)) {
-         brokerBridgePlugins.add((ActiveMQServerBridgePlugin) plugin);
+      if (plugin instanceof ActiveMQServerBridgePlugin bridgePlugin && !brokerBridgePlugins.contains(plugin)) {
+         brokerBridgePlugins.add(bridgePlugin);
       }
-      if (plugin instanceof ActiveMQServerCriticalPlugin && !brokerCriticalPlugins.contains(plugin)) {
-         brokerCriticalPlugins.add((ActiveMQServerCriticalPlugin) plugin);
+      if (plugin instanceof ActiveMQServerCriticalPlugin criticalPlugin && !brokerCriticalPlugins.contains(plugin)) {
+         brokerCriticalPlugins.add(criticalPlugin);
       }
-      if (plugin instanceof ActiveMQServerFederationPlugin && !brokerFederationPlugins.contains(plugin)) {
-         brokerFederationPlugins.add((ActiveMQServerFederationPlugin) plugin);
+      if (plugin instanceof ActiveMQServerFederationPlugin federationPlugin && !brokerFederationPlugins.contains(plugin)) {
+         brokerFederationPlugins.add(federationPlugin);
       }
-      if (plugin instanceof AMQPFederationBrokerPlugin && !brokerAMQPFederationPlugins.contains(plugin)) {
-         brokerAMQPFederationPlugins.add((AMQPFederationBrokerPlugin) plugin);
+      if (plugin instanceof AMQPFederationBrokerPlugin brokerPlugin && !brokerAMQPFederationPlugins.contains(plugin)) {
+         brokerAMQPFederationPlugins.add(brokerPlugin);
       }
-      if (plugin instanceof ActiveMQServerResourcePlugin && !brokerResourcePlugins.contains(plugin)) {
-         brokerResourcePlugins.add((ActiveMQServerResourcePlugin) plugin);
+      if (plugin instanceof ActiveMQServerResourcePlugin resourcePlugin && !brokerResourcePlugins.contains(plugin)) {
+         brokerResourcePlugins.add(resourcePlugin);
       }
    }
 
@@ -3445,8 +3443,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
          if (!collections.isEmpty()) {
             final String key = getResolver().getProperty(name);
             Pair<String, Object> collectionInfo = collections.pop();
-            if (bean instanceof Map) {
-               Map map = (Map) bean;
+            if (bean instanceof Map map) {
                if (!map.containsKey(key)) {
                   map.put(key, newNamedInstanceForCollection(collectionInfo.getA(), collectionInfo.getB(), key));
                }
@@ -3542,9 +3539,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
                                                name + "'+ on bean class '" + bean.getClass() + "'");
          }
 
-         if (descriptor instanceof MappedPropertyDescriptor) {
+         if (descriptor instanceof MappedPropertyDescriptor mappedPropertyDescriptor) {
             // Call the keyed getter method if there is one
-            Method readMethod = ((MappedPropertyDescriptor) descriptor).
+            Method readMethod = mappedPropertyDescriptor.
                getMappedReadMethod();
             readMethod = MethodUtils.getAccessibleMethod(bean.getClass(), readMethod);
             if (readMethod != null) {
@@ -3560,10 +3557,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
             final Method readMethod = MethodUtils.getAccessibleMethod(bean.getClass(), descriptor.getReadMethod());
             if (readMethod != null) {
                final Object invokeResult = readMethod.invoke(bean, EMPTY_OBJECT_ARRAY);
-               if (invokeResult instanceof Map) {
-                  result = ((Map<?, ?>)invokeResult).get(key);
-               } else if (invokeResult instanceof Collection) {
-                  result = findByNameProperty(key, (Collection) invokeResult);
+               if (invokeResult instanceof Map<?, ?> map) {
+                  result = map.get(key);
+               } else if (invokeResult instanceof Collection collection) {
+                  result = findByNameProperty(key, collection);
                }
             } else {
                throw new NoSuchMethodException("Property '" + name +

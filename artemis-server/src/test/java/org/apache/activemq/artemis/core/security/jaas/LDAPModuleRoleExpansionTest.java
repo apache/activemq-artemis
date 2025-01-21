@@ -100,10 +100,10 @@ public class LDAPModuleRoleExpansionTest extends AbstractLdapTestUnit {
    public void testRoleExpansion() throws LoginException {
       LoginContext context = new LoginContext("ExpandedLDAPLogin", callbacks -> {
          for (int i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] instanceof NameCallback) {
-               ((NameCallback) callbacks[i]).setName("first");
-            } else if (callbacks[i] instanceof PasswordCallback) {
-               ((PasswordCallback) callbacks[i]).setPassword("secret".toCharArray());
+            if (callbacks[i] instanceof NameCallback nameCallback) {
+               nameCallback.setName("first");
+            } else if (callbacks[i] instanceof PasswordCallback passwordCallback) {
+               passwordCallback.setPassword("secret".toCharArray());
             } else {
                throw new UnsupportedCallbackException(callbacks[i]);
             }
@@ -114,11 +114,10 @@ public class LDAPModuleRoleExpansionTest extends AbstractLdapTestUnit {
       boolean isAdmin = false;
       boolean isUser = false;
       for (Principal principal : subject.getPrincipals()) {
-         if (principal instanceof RolePrincipal) {
-            RolePrincipal groupPrincipal = (RolePrincipal) principal;
-            if (groupPrincipal.getName().equalsIgnoreCase("admins"))
+         if (principal instanceof RolePrincipal rolePrincipal) {
+            if (rolePrincipal.getName().equalsIgnoreCase("admins"))
                isAdmin = true;
-            if (groupPrincipal.getName().equalsIgnoreCase("users"))
+            if (rolePrincipal.getName().equalsIgnoreCase("users"))
                isUser = true;
          }
       }

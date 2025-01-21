@@ -191,8 +191,8 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          content.put(name, value);
       } else if (value instanceof String) {
          content.put(name, value);
-      } else if (value instanceof byte[]) {
-         content.put(name, ((byte[]) value).clone());
+      } else if (value instanceof byte[] bytes) {
+         content.put(name, bytes.clone());
       } else {
          throw new MessageFormatException("Invalid object type.");
       }
@@ -209,10 +209,10 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          return Boolean.valueOf(null).booleanValue();
       }
 
-      if (value instanceof Boolean) {
-         return ((Boolean) value).booleanValue();
-      } else if (value instanceof String) {
-         return Boolean.valueOf((String) value).booleanValue();
+      if (value instanceof Boolean booleanValue) {
+         return booleanValue.booleanValue();
+      } else if (value instanceof String string) {
+         return Boolean.valueOf(string).booleanValue();
       } else {
          throw new MessageFormatException("Invalid conversion");
       }
@@ -228,10 +228,10 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          return Byte.parseByte(null);
       }
 
-      if (value instanceof Byte) {
-         return ((Byte) value).byteValue();
-      } else if (value instanceof String) {
-         return Byte.parseByte((String) value);
+      if (value instanceof Byte byteValue) {
+         return byteValue.byteValue();
+      } else if (value instanceof String string) {
+         return Byte.parseByte(string);
       } else {
          throw new MessageFormatException("Invalid conversion");
       }
@@ -247,12 +247,12 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          return Short.parseShort(null);
       }
 
-      if (value instanceof Byte) {
-         return ((Byte) value).shortValue();
-      } else if (value instanceof Short) {
-         return ((Short) value).shortValue();
-      } else if (value instanceof String) {
-         return Short.parseShort((String) value);
+      if (value instanceof Byte byteValue) {
+         return byteValue.shortValue();
+      } else if (value instanceof Short shortValue) {
+         return shortValue.shortValue();
+      } else if (value instanceof String string) {
+         return Short.parseShort(string);
       } else {
          throw new MessageFormatException("Invalid conversion");
       }
@@ -268,8 +268,8 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new NullPointerException("Invalid conversion");
       }
 
-      if (value instanceof Character) {
-         return ((Character) value).charValue();
+      if (value instanceof Character character) {
+         return character.charValue();
       } else {
          throw new MessageFormatException("Invalid conversion");
       }
@@ -285,14 +285,14 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          return Integer.parseInt(null);
       }
 
-      if (value instanceof Byte) {
-         return ((Byte) value).intValue();
-      } else if (value instanceof Short) {
-         return ((Short) value).intValue();
-      } else if (value instanceof Integer) {
-         return ((Integer) value).intValue();
-      } else if (value instanceof String) {
-         return Integer.parseInt((String) value);
+      if (value instanceof Byte byteValue) {
+         return byteValue.intValue();
+      } else if (value instanceof Short shortValue) {
+         return shortValue.intValue();
+      } else if (value instanceof Integer integer) {
+         return integer.intValue();
+      } else if (value instanceof String string) {
+         return Integer.parseInt(string);
       } else {
          throw new MessageFormatException("Invalid conversion");
       }
@@ -308,16 +308,16 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          return Long.parseLong(null);
       }
 
-      if (value instanceof Byte) {
-         return ((Byte) value).longValue();
-      } else if (value instanceof Short) {
-         return ((Short) value).longValue();
-      } else if (value instanceof Integer) {
-         return ((Integer) value).longValue();
-      } else if (value instanceof Long) {
-         return ((Long) value).longValue();
-      } else if (value instanceof String) {
-         return Long.parseLong((String) value);
+      if (value instanceof Byte byteValue) {
+         return byteValue.longValue();
+      } else if (value instanceof Short shortValue) {
+         return shortValue.longValue();
+      } else if (value instanceof Integer integer) {
+         return integer.longValue();
+      } else if (value instanceof Long longValue) {
+         return longValue.longValue();
+      } else if (value instanceof String string) {
+         return Long.parseLong(string);
       } else {
          throw new MessageFormatException("Invalid conversion");
       }
@@ -333,10 +333,10 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          return Float.parseFloat(null);
       }
 
-      if (value instanceof Float) {
-         return ((Float) value).floatValue();
-      } else if (value instanceof String) {
-         return Float.parseFloat((String) value);
+      if (value instanceof Float floatValue) {
+         return floatValue.floatValue();
+      } else if (value instanceof String string) {
+         return Float.parseFloat(string);
       } else {
          throw new MessageFormatException("Invalid conversion");
       }
@@ -352,12 +352,12 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          return Double.parseDouble(null);
       }
 
-      if (value instanceof Float) {
-         return ((Float) value).doubleValue();
-      } else if (value instanceof Double) {
-         return ((Double) value).doubleValue();
-      } else if (value instanceof String) {
-         return Double.parseDouble((String) value);
+      if (value instanceof Float floatValue) {
+         return floatValue.doubleValue();
+      } else if (value instanceof Double doubleValue) {
+         return doubleValue.doubleValue();
+      } else if (value instanceof String string) {
+         return Double.parseDouble(string);
       } else {
          throw new MessageFormatException("Invalid conversion");
       }
@@ -373,24 +373,24 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          return null;
       }
 
-      if (value instanceof Boolean) {
-         return ((Boolean) value).toString();
-      } else if (value instanceof Byte) {
-         return ((Byte) value).toString();
-      } else if (value instanceof Short) {
-         return ((Short) value).toString();
-      } else if (value instanceof Character) {
-         return ((Character) value).toString();
-      } else if (value instanceof Integer) {
-         return ((Integer) value).toString();
-      } else if (value instanceof Long) {
-         return ((Long) value).toString();
-      } else if (value instanceof Float) {
-         return ((Float) value).toString();
-      } else if (value instanceof Double) {
-         return ((Double) value).toString();
-      } else if (value instanceof String) {
-         return (String) value;
+      if (value instanceof Boolean booleanValue) {
+         return booleanValue.toString();
+      } else if (value instanceof Byte byteValue) {
+         return byteValue.toString();
+      } else if (value instanceof Short shortValue) {
+         return shortValue.toString();
+      } else if (value instanceof Character character) {
+         return character.toString();
+      } else if (value instanceof Integer integer) {
+         return integer.toString();
+      } else if (value instanceof Long longValue) {
+         return longValue.toString();
+      } else if (value instanceof Float floatValue) {
+         return floatValue.toString();
+      } else if (value instanceof Double doubleValue) {
+         return doubleValue.toString();
+      } else if (value instanceof String string) {
+         return string;
       } else {
          throw new MessageFormatException("Invalid conversion");
       }
@@ -405,8 +405,8 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
       if (value == null) {
          return null;
       }
-      if (value instanceof byte[]) {
-         return (byte[]) value;
+      if (value instanceof byte[] bytes) {
+         return bytes;
       } else {
          throw new MessageFormatException("Invalid conversion");
       }

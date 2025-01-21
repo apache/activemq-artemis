@@ -146,8 +146,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
       int tempDestinationCount = 0;
       for (RemotingConnection remotingConnection : server.getRemotingService().getConnections()) {
-         if (remotingConnection instanceof OpenWireConnection) {
-            OpenWireConnection openWireConnection = (OpenWireConnection) remotingConnection;
+         if (remotingConnection instanceof OpenWireConnection openWireConnection) {
             if (openWireConnection.getState() != null && openWireConnection.getState().getTempDestinations() != null) {
                tempDestinationCount += openWireConnection.getState().getTempDestinations().size();
             }

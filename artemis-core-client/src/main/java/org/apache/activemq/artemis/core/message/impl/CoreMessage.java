@@ -381,8 +381,8 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    public Long getScheduledDeliveryTime() {
       Object property = getProperties().getProperty(Message.HDR_SCHEDULED_DELIVERY_TIME);
 
-      if (property != null && property instanceof Number) {
-         return ((Number) property).longValue();
+      if (property != null && property instanceof Number number) {
+         return number.longValue();
       }
 
       return 0L;
@@ -502,8 +502,8 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       timestamp = msg.getTimestamp();
       priority = msg.getPriority();
 
-      if (msg instanceof CoreMessage) {
-         properties = new TypedProperties(((CoreMessage) msg).getProperties());
+      if (msg instanceof CoreMessage coreMessage) {
+         properties = new TypedProperties(coreMessage.getProperties());
       }
    }
 

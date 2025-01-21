@@ -118,8 +118,8 @@ public class FailoverTest extends FailoverTestBase {
    public void testFailBack() throws Exception {
       boolean doFailBack = true;
       HAPolicy haPolicy = backupServer.getServer().getHAPolicy();
-      if (haPolicy instanceof ReplicaPolicy) {
-         ((ReplicaPolicy) haPolicy).setMaxSavedReplicatedJournalsSize(1);
+      if (haPolicy instanceof ReplicaPolicy policy) {
+         policy.setMaxSavedReplicatedJournalsSize(1);
       }
 
       simpleFailover(haPolicy instanceof ReplicaPolicy || haPolicy instanceof ReplicationBackupPolicy, doFailBack);

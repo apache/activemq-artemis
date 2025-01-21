@@ -63,10 +63,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
    @Override
    public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
-      if (msg instanceof FullHttpRequest) {
-         handleHttpRequest(ctx, (FullHttpRequest) msg);
-      } else if (msg instanceof WebSocketFrame) {
-         WebSocketFrame frame = (WebSocketFrame) msg;
+      if (msg instanceof FullHttpRequest request) {
+         handleHttpRequest(ctx, request);
+      } else if (msg instanceof WebSocketFrame frame) {
          boolean handle = handleWebSocketFrame(ctx, frame);
          if (handle) {
             ctx.fireChannelRead(frame.content().retain());
@@ -107,8 +106,8 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
    private boolean handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
 
       // Check for closing frame
-      if (frame instanceof CloseWebSocketFrame) {
-         this.handshaker.close(ctx.channel(), ((CloseWebSocketFrame) frame).retain());
+      if (frame instanceof CloseWebSocketFrame socketFrame) {
+         this.handshaker.close(ctx.channel(), socketFrame.retain());
          return false;
       } else if (frame instanceof PingWebSocketFrame) {
          ctx.writeAndFlush(new PongWebSocketFrame(frame.content().retain()));

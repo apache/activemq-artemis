@@ -246,8 +246,8 @@ public class AMQPFederationSource extends AMQPFederation {
 
       if (errorCaught.get() != null) {
          final Exception error = errorCaught.get();
-         if (error instanceof ActiveMQException) {
-            throw (ActiveMQException) error;
+         if (error instanceof ActiveMQException exception) {
+            throw exception;
          } else {
             throw (ActiveMQException) new ActiveMQException(error.getMessage()).initCause(error);
          }

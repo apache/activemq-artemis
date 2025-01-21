@@ -89,8 +89,8 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    // adding connection factories that need to be closed
    // this is because UDP connection factories could hold a UDP thread running if they are not closed
    private void addCF(ConnectionFactory factory) {
-      if (factory instanceof ActiveMQConnectionFactory) {
-         factories.add((ActiveMQConnectionFactory)factory);
+      if (factory instanceof ActiveMQConnectionFactory connectionFactory) {
+         factories.add(connectionFactory);
       }
    }
 

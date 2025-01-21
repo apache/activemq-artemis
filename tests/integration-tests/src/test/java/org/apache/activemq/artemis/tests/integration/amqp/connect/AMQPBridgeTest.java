@@ -150,8 +150,8 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       for (int i = 0; i < 30; i++) {
          Message message = consumer.receive(5000);
          if (message instanceof TextMessage) {
-            if (message instanceof TextMessage) {
-               assertEquals(largeMessageBody, ((TextMessage)message).getText());
+            if (message instanceof TextMessage textMessage) {
+               assertEquals(largeMessageBody, textMessage.getText());
             } else {
                System.out.println("i = " + i);
             }
@@ -238,8 +238,8 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       for (int i = 0; i < 30; i++) {
          Message message = consumer.receive(5000);
          if (message instanceof TextMessage) {
-            if (message instanceof TextMessage) {
-               assertEquals(largeMessageBody, ((TextMessage)message).getText());
+            if (message instanceof TextMessage textMessage) {
+               assertEquals(largeMessageBody, textMessage.getText());
             } else {
                System.out.println("i = " + i);
             }

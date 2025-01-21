@@ -242,8 +242,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
                // handle HTTP GET + Upgrade with a handshake specific to ActiveMQ Artemis remoting.
                @Override
                protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
-                  if (msg instanceof HttpRequest) {
-                     HttpRequest request = (HttpRequest) msg;
+                  if (msg instanceof HttpRequest request) {
 
                      for (Map.Entry<String, String> entry : request.headers()) {
                         System.out.println(entry);

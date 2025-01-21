@@ -124,8 +124,7 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
 
    @Override
    public synchronized void afterRemoveBinding(Binding binding, Transaction tx, boolean deleteData) throws ActiveMQException {
-      if (binding instanceof QueueBinding) {
-         final QueueBinding queueBinding = (QueueBinding) binding;
+      if (binding instanceof QueueBinding queueBinding) {
          final String queueName = queueBinding.getQueue().getName().toString();
 
          demandTracking.values().removeIf((entry) -> {

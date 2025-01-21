@@ -608,8 +608,8 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       @Override
       public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
          Object obj = method.invoke(anObject, args);
-         if (obj instanceof Integer) {
-            return ((Integer) obj).intValue() * 2;
+         if (obj instanceof Integer integer) {
+            return integer.intValue() * 2;
          } else {
             return obj;
          }

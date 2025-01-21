@@ -85,8 +85,8 @@ public final class Topology {
       }
       this.executor = executor;
       this.owner = owner;
-      if (owner instanceof TopologyManager) {
-         manager = (TopologyManager)owner;
+      if (owner instanceof TopologyManager topologyManager) {
+         manager = topologyManager;
       } else {
          manager = null;
       }

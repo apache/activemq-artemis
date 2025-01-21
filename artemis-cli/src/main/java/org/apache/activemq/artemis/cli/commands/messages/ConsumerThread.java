@@ -80,29 +80,29 @@ public class ConsumerThread extends Thread {
             if (verbose) {
                context.out.println("..." + msg);
             }
-            if (bytesAsText && (msg instanceof BytesMessage)) {
-               long length = ((BytesMessage) msg).getBodyLength();
+            if (bytesAsText && (msg instanceof BytesMessage bytesMessage)) {
+               long length = bytesMessage.getBodyLength();
                byte[] bytes = new byte[(int) length];
-               ((BytesMessage) msg).readBytes(bytes);
+               bytesMessage.readBytes(bytes);
                context.out.println("Message:" + msg);
             }
          } else {
             if (verbose) {
                context.out.println("JMS Message ID:" + msg.getJMSMessageID());
-               if (bytesAsText && (msg instanceof BytesMessage)) {
-                  long length = ((BytesMessage) msg).getBodyLength();
+               if (bytesAsText && (msg instanceof BytesMessage bytesMessage)) {
+                  long length = bytesMessage.getBodyLength();
                   byte[] bytes = new byte[(int) length];
-                  ((BytesMessage) msg).readBytes(bytes);
+                  bytesMessage.readBytes(bytes);
                   context.out.println("Received a message with " + bytes.length);
                }
 
-               if (msg instanceof TextMessage) {
-                  String text = ((TextMessage) msg).getText();
+               if (msg instanceof TextMessage textMessage) {
+                  String text = textMessage.getText();
                   context.out.println("Received text sized at " + text.length());
                }
 
-               if (msg instanceof ObjectMessage) {
-                  Object obj = ((ObjectMessage) msg).getObject();
+               if (msg instanceof ObjectMessage objectMessage) {
+                  Object obj = objectMessage.getObject();
                   context.out.println("Received object " + obj.toString().length());
                }
             }
@@ -126,7 +126,7 @@ public class ConsumerThread extends Thread {
          while (enumBrowse.hasMoreElements()) {
             Message msg = enumBrowse.nextElement();
             if (msg != null) {
-               context.out.println(threadName + " browsing " + (msg instanceof TextMessage ? ((TextMessage) msg).getText() : msg.getJMSMessageID()));
+               context.out.println(threadName + " browsing " + (msg instanceof TextMessage tm ? tm.getText() : msg.getJMSMessageID()));
                handle(msg, true);
                received++;
 
@@ -169,11 +169,11 @@ public class ConsumerThread extends Thread {
       String threadName = Thread.currentThread().getName();
       context.out.println(threadName + " wait " + (receiveTimeOut == -1 ? "forever" : receiveTimeOut + "ms") + " until " + messageCount + " messages are consumed");
       try {
-         if (durable && destination instanceof Topic) {
+         if (durable && destination instanceof Topic topic) {
             if (filter != null) {
-               consumer = session.createDurableSubscriber((Topic) destination, getName(), filter, false);
+               consumer = session.createDurableSubscriber(topic, getName(), filter, false);
             } else {
-               consumer = session.createDurableSubscriber((Topic) destination, getName());
+               consumer = session.createDurableSubscriber(topic, getName());
             }
          } else {
             if (filter != null) {
@@ -193,7 +193,7 @@ public class ConsumerThread extends Thread {
             }
             if (msg != null) {
                if (verbose) {
-                  context.out.println(threadName + " Received " + (msg instanceof TextMessage ? ((TextMessage) msg).getText() : msg.getJMSMessageID()));
+                  context.out.println(threadName + " Received " + (msg instanceof TextMessage tm ? tm.getText() : msg.getJMSMessageID()));
                } else {
                   if (++count % 1000 == 0) {
                      context.out.println("Received " + count);

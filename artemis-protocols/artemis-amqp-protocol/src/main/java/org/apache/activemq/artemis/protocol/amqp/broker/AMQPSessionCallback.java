@@ -668,8 +668,8 @@ public class AMQPSessionCallback implements SessionCallback {
       }
 
       if (transaction != null) {
-         if (cause instanceof ActiveMQException) {
-            transaction.markAsRollbackOnly((ActiveMQException) cause);
+         if (cause instanceof ActiveMQException activeMQException) {
+            transaction.markAsRollbackOnly(activeMQException);
          } else {
             transaction.markAsRollbackOnly(
                new ActiveMQInternalErrorException("Delivery failure triggered TXN to be marked as rollback only", cause));

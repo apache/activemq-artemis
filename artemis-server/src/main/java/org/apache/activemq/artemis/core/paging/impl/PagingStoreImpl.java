@@ -959,9 +959,9 @@ public class PagingStoreImpl implements PagingStore {
          }
       } catch (Throwable e) {
          logger.warn(e.getMessage(), e);
-         if (e instanceof AssertionError) {
+         if (e instanceof AssertionError error) {
             // this will give a chance to callers log an AssertionError if assertion flag is enabled
-            throw (AssertionError)e;
+            throw error;
          }
          storageManager.criticalError(e);
          return null;

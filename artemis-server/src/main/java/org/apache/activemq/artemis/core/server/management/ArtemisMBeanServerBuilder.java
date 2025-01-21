@@ -81,8 +81,8 @@ public class ArtemisMBeanServerBuilder extends MBeanServerBuilder {
             Object target = args[0];
             if (target != null && Proxy.isProxyClass(target.getClass())) {
                InvocationHandler handler = Proxy.getInvocationHandler(target);
-               if (handler instanceof MBeanInvocationHandler) {
-                  args[0] = ((MBeanInvocationHandler) handler).wrapped;
+               if (handler instanceof MBeanInvocationHandler invocationHandler) {
+                  args[0] = invocationHandler.wrapped;
                }
             }
          } else if (method.getName().equals("finalize") && method.getParameterTypes().length == 0) {

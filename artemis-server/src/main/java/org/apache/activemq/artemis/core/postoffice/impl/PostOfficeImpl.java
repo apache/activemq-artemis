@@ -349,8 +349,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                         Bindings bindings = getBindingsForAddress(address);
 
                         for (Binding bind : bindings.getBindings()) {
-                           if (bind.isConnected() && bind instanceof RemoteQueueBinding) {
-                              RemoteQueueBinding remoteBinding = (RemoteQueueBinding) bind;
+                           if (bind.isConnected() && bind instanceof RemoteQueueBinding remoteBinding) {
 
                               if (remoteBinding.consumerCount() > 0) {
                                  queue.addRedistributor(redistributionDelay);
@@ -883,8 +882,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          final Collection<Binding> bindingsForAddress = getDirectBindings(address);
          if (force) {
             for (Binding binding : bindingsForAddress) {
-               if (binding instanceof LocalQueueBinding) {
-                  ((LocalQueueBinding)binding).getQueue().deleteQueue(true);
+               if (binding instanceof LocalQueueBinding localQueueBinding) {
+                  localQueueBinding.getQueue().deleteQueue(true);
                } else if (binding instanceof RemoteQueueBinding) {
                   removeBinding(binding.getUniqueName(), null, true);
                }
@@ -920,8 +919,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       List<Queue> queues = new ArrayList<>();
       if (bindingsForAddress != null) {
          for (Binding b : bindingsForAddress.getBindings()) {
-            if (b instanceof QueueBinding) {
-               Queue q = ((QueueBinding) b).getQueue();
+            if (b instanceof QueueBinding queueBinding) {
+               Queue q = queueBinding.getQueue();
                queues.add(q);
             }
          }

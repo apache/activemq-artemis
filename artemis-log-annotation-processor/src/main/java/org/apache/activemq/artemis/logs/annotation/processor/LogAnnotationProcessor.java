@@ -331,8 +331,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
             return false;
       }
 
-      if (parameterType instanceof DeclaredType) {
-         DeclaredType declaredType = (DeclaredType) parameterType;
+      if (parameterType instanceof DeclaredType declaredType) {
          if (declaredType.asElement() instanceof TypeElement) {
             TypeElement theElement = (TypeElement) declaredType.asElement();
             if (DEBUG) {

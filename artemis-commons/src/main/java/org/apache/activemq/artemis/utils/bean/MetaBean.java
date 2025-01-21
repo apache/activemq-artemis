@@ -114,13 +114,13 @@ public class MetaBean<T> {
             } else if (type == String.class || type == SimpleString.class) {
                logger.trace("Setting {} as String {}", name, value);
                builder.add(name, String.valueOf(value));
-            } else if (Number.class.isAssignableFrom(type) && value instanceof Number) {
+            } else if (Number.class.isAssignableFrom(type) && value instanceof Number number) {
                if (value instanceof Double || value instanceof Float) {
                   logger.trace("Setting {} as double {}", name, value);
-                  builder.add(name, ((Number) value).doubleValue());
+                  builder.add(name, number.doubleValue());
                } else {
                   logger.trace("Setting {} as long {}", name, value);
-                  builder.add(name, ((Number) value).longValue());
+                  builder.add(name, number.longValue());
                }
             } else if (type == Boolean.class) {
                builder.add(name, (Boolean) value);

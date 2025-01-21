@@ -634,8 +634,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
       checkTopic(topic);
       ActiveMQTopic localTopic;
-      if (topic instanceof ActiveMQTopic) {
-         localTopic = (ActiveMQTopic) topic;
+      if (topic instanceof ActiveMQTopic activeMQTopic) {
+         localTopic = activeMQTopic;
       } else {
          localTopic = new ActiveMQTopic(topic.getTopicName());
       }
@@ -657,8 +657,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
       checkTopic(topic);
       ActiveMQTopic localTopic;
-      if (topic instanceof ActiveMQTopic) {
-         localTopic = (ActiveMQTopic) topic;
+      if (topic instanceof ActiveMQTopic activeMQTopic) {
+         localTopic = activeMQTopic;
       } else {
          localTopic = new ActiveMQTopic(topic.getTopicName());
       }
@@ -682,8 +682,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
       ActiveMQTopic localTopic;
 
-      if (topic instanceof ActiveMQTopic) {
-         localTopic = (ActiveMQTopic) topic;
+      if (topic instanceof ActiveMQTopic activeMQTopic) {
+         localTopic = activeMQTopic;
       } else {
          localTopic = new ActiveMQTopic(topic.getTopicName());
       }

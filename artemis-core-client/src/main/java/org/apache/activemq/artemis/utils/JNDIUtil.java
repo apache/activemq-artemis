@@ -53,8 +53,8 @@ public class JNDIUtil {
          Binding b = ne.next();
          String name = b.getName();
          Object object = b.getObject();
-         if (object instanceof Context) {
-            JNDIUtil.tearDownRecursively((Context) object);
+         if (object instanceof Context context) {
+            JNDIUtil.tearDownRecursively(context);
          }
          c.unbind(name);
       }

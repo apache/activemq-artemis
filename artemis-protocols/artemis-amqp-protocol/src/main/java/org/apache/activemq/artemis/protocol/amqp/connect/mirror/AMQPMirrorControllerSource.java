@@ -510,8 +510,8 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    }
 
    private static Properties getProperties(Message message) {
-      if (message instanceof AMQPMessage) {
-         return AMQPMessageBrokerAccessor.getCurrentProperties((AMQPMessage)message);
+      if (message instanceof AMQPMessage pMessage) {
+         return AMQPMessageBrokerAccessor.getCurrentProperties(pMessage);
       } else {
          return null;
       }

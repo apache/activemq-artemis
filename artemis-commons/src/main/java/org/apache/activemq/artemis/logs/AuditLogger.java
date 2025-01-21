@@ -129,24 +129,24 @@ public interface AuditLogger {
 
       final String prefix = "with parameters: ";
 
-      if (value instanceof long[]) {
-         return prefix + Arrays.toString((long[])value);
-      } else if (value instanceof int[]) {
-         return prefix + Arrays.toString((int[])value);
-      } else if (value instanceof char[]) {
-         return prefix + Arrays.toString((char[])value);
-      } else if (value instanceof byte[]) {
-         return prefix + Arrays.toString((byte[])value);
-      } else if (value instanceof float[]) {
-         return prefix + Arrays.toString((float[])value);
-      } else if (value instanceof short[]) {
-         return prefix + Arrays.toString((short[])value);
-      } else if (value instanceof double[]) {
-         return prefix + Arrays.toString((double[])value);
-      } else if (value instanceof boolean[]) {
-         return prefix + Arrays.toString((boolean[])value);
-      } else if (value instanceof Object[]) {
-         return prefix + Arrays.toString((Object[])value);
+      if (value instanceof long[] longs) {
+         return prefix + Arrays.toString(longs);
+      } else if (value instanceof int[] ints) {
+         return prefix + Arrays.toString(ints);
+      } else if (value instanceof char[] chars) {
+         return prefix + Arrays.toString(chars);
+      } else if (value instanceof byte[] bytes) {
+         return prefix + Arrays.toString(bytes);
+      } else if (value instanceof float[] floats) {
+         return prefix + Arrays.toString(floats);
+      } else if (value instanceof short[] shorts) {
+         return prefix + Arrays.toString(shorts);
+      } else if (value instanceof double[] doubles) {
+         return prefix + Arrays.toString(doubles);
+      } else if (value instanceof boolean[] booleans) {
+         return prefix + Arrays.toString(booleans);
+      } else if (value instanceof Object[] objects) {
+         return prefix + Arrays.toString(objects);
       } else {
          return prefix + value.toString();
       }

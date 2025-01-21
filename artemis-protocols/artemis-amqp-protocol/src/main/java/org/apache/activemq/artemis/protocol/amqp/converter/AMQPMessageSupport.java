@@ -361,8 +361,7 @@ public final class AMQPMessageSupport {
       final Set<Map.Entry<String, Object>> set = content.entrySet();
       for (Map.Entry<String, Object> entry : set) {
          Object value = entry.getValue();
-         if (value instanceof Binary) {
-            Binary binary = (Binary) value;
+         if (value instanceof Binary binary) {
             value = Arrays.copyOfRange(binary.getArray(), binary.getArrayOffset(), binary.getLength());
          }
          message.setObject(entry.getKey(), value);

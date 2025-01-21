@@ -96,8 +96,7 @@ public class SessionHandlingOpenWireTest extends BasicOpenWireTest {
 
          // verify no trace of producer on the broker
          for (RemotingConnection remotingConnection : server.getRemotingService().getConnections()) {
-            if (remotingConnection instanceof OpenWireConnection) {
-               OpenWireConnection openWireConnection = (OpenWireConnection) remotingConnection;
+            if (remotingConnection instanceof OpenWireConnection openWireConnection) {
                ConnectionState connectionState = openWireConnection.getState();
                if (connectionState != null) {
                   for (SessionState sessionState : connectionState.getSessionStates()) {

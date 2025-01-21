@@ -38,8 +38,8 @@ public class TokenCallbackHandler implements CallbackHandler {
    @Override
    public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
       for (Callback c : callbacks) {
-         if (c instanceof PasswordCallback) {
-            ((PasswordCallback) c).setPassword(password);
+         if (c instanceof PasswordCallback passwordCallback) {
+            passwordCallback.setPassword(password);
          } else {
             throw new UnsupportedCallbackException(c);
          }

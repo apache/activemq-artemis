@@ -72,8 +72,8 @@ public class ReloadableProperties {
             // want to checksum in read order
             @Override
             public synchronized Object put(Object key, Object value) {
-               String sKey = key instanceof String ? (String)key : null;
-               String sValue = value instanceof String ? (String)value : null;
+               String sKey = key instanceof String s ? s : null;
+               String sValue = value instanceof String s ? s : null;
                if (sKey != null && sValue != null) {
                   adler32.update(sKey.getBytes(StandardCharsets.UTF_8));
                   adler32.update('=');

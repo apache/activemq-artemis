@@ -136,8 +136,8 @@ public class AmqpCoreConverter {
          }
 
          result.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_NULL);
-      } else if (body instanceof Data) {
-         Binary payload = ((Data) body).getValue();
+      } else if (body instanceof Data data) {
+         Binary payload = data.getValue();
 
          if (isContentType(SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString(), contentType)) {
             result = createObjectMessage(messageId, payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
@@ -160,28 +160,26 @@ public class AmqpCoreConverter {
          }
 
          result.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_DATA);
-      } else if (body instanceof AmqpSequence) {
-         AmqpSequence sequence = (AmqpSequence) body;
+      } else if (body instanceof AmqpSequence amqpSequence) {
          CoreStreamMessageWrapper m = createStreamMessage(messageId, coreMessageObjectPools);
-         for (Object item : sequence.getValue()) {
+         for (Object item : amqpSequence.getValue()) {
             m.writeObject(item);
          }
 
          result = m;
          result.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_SEQUENCE);
-      } else if (body instanceof AmqpValue) {
-         Object value = ((AmqpValue) body).getValue();
+      } else if (body instanceof AmqpValue amqpValue) {
+         Object value = amqpValue.getValue();
          if (value == null || value instanceof String) {
             result = createTextMessage(messageId, (String) value, coreMessageObjectPools);
 
             result.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, value == null ? AMQP_VALUE_NULL : AMQP_VALUE_STRING);
-         } else if (value instanceof Binary) {
-            Binary payload = (Binary) value;
+         } else if (value instanceof Binary binary) {
 
             if (isContentType(SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.toString(), contentType)) {
-               result = createObjectMessage(messageId, payload, coreMessageObjectPools);
+               result = createObjectMessage(messageId, binary, coreMessageObjectPools);
             } else {
-               result = createBytesMessage(messageId, payload.getArray(), payload.getArrayOffset(), payload.getLength(), coreMessageObjectPools);
+               result = createBytesMessage(messageId, binary.getArray(), binary.getArrayOffset(), binary.getLength(), coreMessageObjectPools);
             }
 
             result.setShortProperty(JMS_AMQP_ORIGINAL_ENCODING, AMQP_VALUE_BINARY);
@@ -456,25 +454,25 @@ public class AmqpCoreConverter {
    }
 
    private static void setProperty(CoreMessageWrapper msg, String key, Object value) {
-      if (value instanceof UnsignedLong) {
-         long v = ((UnsignedLong) value).longValue();
+      if (value instanceof UnsignedLong unsignedLong) {
+         long v = unsignedLong.longValue();
          msg.setLongProperty(key, v);
-      } else if (value instanceof UnsignedInteger) {
-         long v = ((UnsignedInteger) value).longValue();
+      } else if (value instanceof UnsignedInteger unsignedInteger) {
+         long v = unsignedInteger.longValue();
          if (Integer.MIN_VALUE <= v && v <= Integer.MAX_VALUE) {
             msg.setIntProperty(key, (int) v);
          } else {
             msg.setLongProperty(key, v);
          }
-      } else if (value instanceof UnsignedShort) {
-         int v = ((UnsignedShort) value).intValue();
+      } else if (value instanceof UnsignedShort unsignedShort) {
+         int v = unsignedShort.intValue();
          if (Short.MIN_VALUE <= v && v <= Short.MAX_VALUE) {
             msg.setShortProperty(key, (short) v);
          } else {
             msg.setIntProperty(key, v);
          }
-      } else if (value instanceof UnsignedByte) {
-         short v = ((UnsignedByte) value).shortValue();
+      } else if (value instanceof UnsignedByte unsignedByte) {
+         short v = unsignedByte.shortValue();
          if (Byte.MIN_VALUE <= v && v <= Byte.MAX_VALUE) {
             msg.setByteProperty(key, (byte) v);
          } else {
@@ -482,15 +480,14 @@ public class AmqpCoreConverter {
          }
       } else if (value instanceof Symbol) {
          msg.setStringProperty(key, value.toString());
-      } else if (value instanceof Decimal128) {
-         msg.setDoubleProperty(key, ((Decimal128) value).doubleValue());
-      } else if (value instanceof Decimal64) {
-         msg.setDoubleProperty(key, ((Decimal64) value).doubleValue());
-      } else if (value instanceof Decimal32) {
-         msg.setFloatProperty(key, ((Decimal32) value).floatValue());
-      } else if (value instanceof Binary) {
-         Binary bin = (Binary) value;
-         msg.setObjectProperty(key, Arrays.copyOfRange(bin.getArray(), bin.getArrayOffset(), bin.getLength()));
+      } else if (value instanceof Decimal128 decimal128) {
+         msg.setDoubleProperty(key, decimal128.doubleValue());
+      } else if (value instanceof Decimal64 decimal64) {
+         msg.setDoubleProperty(key, decimal64.doubleValue());
+      } else if (value instanceof Decimal32 decimal32) {
+         msg.setFloatProperty(key, decimal32.floatValue());
+      } else if (value instanceof Binary binary) {
+         msg.setObjectProperty(key, Arrays.copyOfRange(binary.getArray(), binary.getArrayOffset(), binary.getLength()));
       } else {
          msg.setObjectProperty(key, value);
       }

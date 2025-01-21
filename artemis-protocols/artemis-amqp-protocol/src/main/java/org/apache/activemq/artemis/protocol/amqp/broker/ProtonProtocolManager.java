@@ -371,8 +371,8 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       // For tunneled messages we need to check the type as our interceptor only cares about
       // AMQP message right now so there's not notification point for other types that cross
       if (incomingInterceptors != null && !incomingInterceptors.isEmpty()) {
-         if (message instanceof AMQPMessage) {
-            return super.invokeInterceptors(this.incomingInterceptors, (AMQPMessage) message, connection);
+         if (message instanceof AMQPMessage amqpMessage) {
+            return super.invokeInterceptors(this.incomingInterceptors, amqpMessage, connection);
          } else {
             return null;
          }
@@ -385,8 +385,8 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       // For tunneled messages we need to check the type as our interceptor only cares about
       // AMQP message right now so there's not notification point for other types that cross
       if (outgoingInterceptors != null && !outgoingInterceptors.isEmpty()) {
-         if (message instanceof AMQPMessage) {
-            return super.invokeInterceptors(this.outgoingInterceptors, (AMQPMessage) message, connection);
+         if (message instanceof AMQPMessage amqpMessage) {
+            return super.invokeInterceptors(this.outgoingInterceptors, amqpMessage, connection);
          } else {
             return null;
          }

@@ -61,8 +61,7 @@ public class GSSAPIServerSASL implements ServerSASL {
          if (saslServer == null) {
             saslServer = Subject.doAs(jaasId, (PrivilegedExceptionAction<SaslServer>) () -> Sasl.createSaslServer(NAME, null, null, new HashMap<String, String>(), callbacks -> {
                for (Callback callback : callbacks) {
-                  if (callback instanceof AuthorizeCallback) {
-                     AuthorizeCallback authorizeCallback = (AuthorizeCallback) callback;
+                  if (callback instanceof AuthorizeCallback authorizeCallback) {
                      // only ok to authenticate as self
                      authorizeCallback.setAuthorized(authorizeCallback.getAuthenticationID().equals(authorizeCallback.getAuthorizationID()));
                   }

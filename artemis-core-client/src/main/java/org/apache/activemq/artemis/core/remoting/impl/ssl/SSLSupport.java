@@ -369,8 +369,8 @@ public class SSLSupport {
       KeyManager[] keyManagers = factory.getKeyManagers();
       if (keystoreAlias != null) {
          for (int i = 0; i < keyManagers.length; i++) {
-            if (keyManagers[i] instanceof X509KeyManager) {
-               keyManagers[i] = new AliasedKeyManager((X509KeyManager) keyManagers[i], keystoreAlias);
+            if (keyManagers[i] instanceof X509KeyManager x509KeyManager) {
+               keyManagers[i] = new AliasedKeyManager(x509KeyManager, keystoreAlias);
             }
          }
       }

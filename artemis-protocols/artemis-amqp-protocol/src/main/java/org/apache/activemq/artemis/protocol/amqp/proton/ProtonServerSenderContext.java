@@ -486,9 +486,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       // Preserve for hasCredits to check for busy state and possible abort on close
       this.messageWriter = messageWriter;
 
-      if (messageReference instanceof Runnable && consumer.allowReferenceCallback()) {
+      if (messageReference instanceof Runnable runnable && consumer.allowReferenceCallback()) {
          messageReference.onDelivery(messageWriter);
-         connection.runNow((Runnable) messageReference);
+         connection.runNow(runnable);
       } else {
          connection.runNow(() -> messageWriter.accept(messageReference));
       }
@@ -508,11 +508,10 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    }
 
    void reportDeliveryError(MessageWriter deliveryWriter, MessageReference messageReference, Exception e) {
-      if (e instanceof ConversionException && brokerConsumer.getBinding() instanceof LocalQueueBinding) {
+      if (e instanceof ConversionException && brokerConsumer.getBinding() instanceof LocalQueueBinding localQueueBinding) {
          ActiveMQAMQPProtocolLogger.LOGGER.messageConversionFailed(e);
-         LocalQueueBinding queueBinding = (LocalQueueBinding) brokerConsumer.getBinding();
          try {
-            queueBinding.getQueue().sendToDeadLetterAddress(null, messageReference);
+            localQueueBinding.getQueue().sendToDeadLetterAddress(null, messageReference);
          } catch (Exception e1) {
             ActiveMQAMQPProtocolLogger.LOGGER.unableToSendMessageToDLA(messageReference, e1);
          }

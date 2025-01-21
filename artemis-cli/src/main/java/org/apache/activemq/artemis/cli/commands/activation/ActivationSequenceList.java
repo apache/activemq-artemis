@@ -86,11 +86,9 @@ public class ActivationSequenceList extends LockAbstract {
       final HAPolicyConfiguration policyConfig = config.getHAPolicyConfiguration();
       final DistributedLockManagerConfiguration managerConfiguration;
       String coordinationId = null;
-      if (policyConfig instanceof ReplicationBackupPolicyConfiguration) {
-         ReplicationBackupPolicyConfiguration backupPolicyConfig = (ReplicationBackupPolicyConfiguration) policyConfig;
+      if (policyConfig instanceof ReplicationBackupPolicyConfiguration backupPolicyConfig) {
          managerConfiguration = backupPolicyConfig.getDistributedManagerConfiguration();
-      } else if (policyConfig instanceof ReplicationPrimaryPolicyConfiguration) {
-         ReplicationPrimaryPolicyConfiguration primaryPolicyConfig = (ReplicationPrimaryPolicyConfiguration) policyConfig;
+      } else if (policyConfig instanceof ReplicationPrimaryPolicyConfiguration primaryPolicyConfig) {
          managerConfiguration = primaryPolicyConfig.getDistributedManagerConfiguration();
          if (primaryPolicyConfig.getCoordinationId() != null) {
             coordinationId = primaryPolicyConfig.getCoordinationId();

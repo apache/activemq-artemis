@@ -257,8 +257,8 @@ public class NettyTransportSupport {
       KeyManager[] keyManagers = new KeyManager[origKeyManagers.length];
       for (int i = 0; i < origKeyManagers.length; i++) {
          KeyManager km = origKeyManagers[i];
-         if (km instanceof X509ExtendedKeyManager) {
-            km = new X509AliasKeyManager(alias, (X509ExtendedKeyManager) km);
+         if (km instanceof X509ExtendedKeyManager manager) {
+            km = new X509AliasKeyManager(alias, manager);
          }
 
          keyManagers[i] = km;
