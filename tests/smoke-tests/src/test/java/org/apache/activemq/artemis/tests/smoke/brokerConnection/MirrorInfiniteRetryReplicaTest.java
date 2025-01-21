@@ -153,18 +153,17 @@ public class MirrorInfiniteRetryReplicaTest extends SmokeTestBase {
 
    private static void replaceLogs(File serverLocation) throws Exception {
       File log4j = new File(serverLocation, "/etc/log4j2.properties");
-      assertTrue(FileUtil.findReplace(log4j, "logger.artemis_utils.level=INFO",
-                                      "logger.artemis_utils.level=INFO\n" + "\n" +
-                                      "logger.endpoint.name=org.apache.activemq.artemis.core.replication.ReplicationEndpoint\n" +
-                                      "logger.endpoint.level=DEBUG\n" +
-                                      "logger.ackmanager.name=org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManager\n" +
-                                      "logger.ackmanager.level=INFO\n" +
+      assertTrue(FileUtil.findReplace(log4j, "logger.artemis_utils.level=INFO", """
+         logger.artemis_utils.level=INFO
 
-                                      "logger.mirrorTarget.name=org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget\n" +
-                                      "logger.mirrorTarget.level=INFO\n" +
-
-                                      "appender.console.filter.threshold.type = ThresholdFilter\n" +
-                                      "appender.console.filter.threshold.level = trace"));
+         logger.endpoint.name=org.apache.activemq.artemis.core.replication.ReplicationEndpoint
+         logger.endpoint.level=DEBUG
+         logger.ackmanager.name=org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManager
+         logger.ackmanager.level=INFO
+         logger.mirrorTarget.name=org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget
+         logger.mirrorTarget.level=INFO
+         appender.console.filter.threshold.type = ThresholdFilter
+         appender.console.filter.threshold.level = trace"""));
    }
 
    private static void createMirroredBackupServer(String serverName,
@@ -208,7 +207,11 @@ public class MirrorInfiniteRetryReplicaTest extends SmokeTestBase {
       File brokerXml = new File(serverLocation, "/etc/broker.xml");
       assertTrue(brokerXml.exists());
       // Adding redistribution delay to broker configuration
-      assertTrue(FileUtil.findReplace(brokerXml, "<address-setting match=\"#\">", "<address-setting match=\"#\">\n\n" + "            <redistribution-delay>0</redistribution-delay> <!-- added by SimpleMirrorSoakTest.java --> \n"));
+      assertTrue(FileUtil.findReplace(brokerXml, "<address-setting match=\"#\">", """
+         <address-setting match="#">
+
+                     <redistribution-delay>0</redistribution-delay> <!-- added by SimpleMirrorSoakTest.java -->
+         """));
       assertTrue(FileUtil.findReplace(brokerXml, "<page-size-bytes>10M</page-size-bytes>", "<page-size-bytes>100K</page-size-bytes>"));
 
       if (TRACE_LOGS) {

@@ -734,12 +734,19 @@ public class Create extends InstallAbstract {
             retentionTag = "<journal-retention-directory period=\"" + retentionDays + "\" unit=\"DAYS\">" + data + "/retention</journal-retention-directory>";
          }
       } else {
-         retentionTag =  "\n" +
-            "      <!-- if you want to retain your journal uncomment this following configuration.\n\n" +
-            "      This will allow your system to keep 7 days of your data, up to 10G. Tweak it accordingly to your use case and capacity.\n\n" +
-            "      it is recommended to use a separate storage unit from the journal for performance considerations.\n\n" +
-            "      <journal-retention-directory period=\"7\" unit=\"DAYS\" storage-limit=\"10G\">data/retention</journal-retention-directory>\n\n" +
-            "      You can also enable retention by using the argument journal-retention on the `artemis create` command -->\n\n";
+         retentionTag = """
+
+                  <!-- if you want to retain your journal uncomment this following configuration.
+
+                  This will allow your system to keep 7 days of your data, up to 10G. Tweak it accordingly to your use case and capacity.
+
+                  it is recommended to use a separate storage unit from the journal for performance considerations.
+
+                  <journal-retention-directory period="7" unit="DAYS" storage-limit="10G">data/retention</journal-retention-directory>
+
+                  You can also enable retention by using the argument journal-retention on the `artemis create` command -->
+
+            """;
       }
 
       filters.put("${journal-retention}", retentionTag);

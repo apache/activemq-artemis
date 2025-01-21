@@ -58,11 +58,13 @@ public class KubernetesClientImplTest {
    private static final String host = "localhost";
    private static String port;
 
-   private static final String BOB_REQUEST = "{\"apiVersion\": \"authentication.k8s.io/v1\"," +
-         "\"kind\": \"TokenReview\", \"spec\": {\"token\": \"bob_token\"}}";
+   private static final String BOB_REQUEST = """
+         {"apiVersion": "authentication.k8s.io/v1",\
+         "kind": "TokenReview", "spec": {"token": "bob_token"}}""";
 
-   private static final String KERMIT_REQUEST = "{\"apiVersion\": \"authentication.k8s.io/v1\"," +
-         "\"kind\": \"TokenReview\", \"spec\": {\"token\": \"kermit_token\"}}";
+   private static final String KERMIT_REQUEST = """
+         {"apiVersion": "authentication.k8s.io/v1",\
+         "kind": "TokenReview", "spec": {"token": "kermit_token"}}""";
 
    @BeforeAll
    public static void startServer() {

@@ -1714,16 +1714,17 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
    @Test
    public void testRoleAugmentViaProperties() throws Exception {
 
-      final String xmlConfig = "<configuration xmlns=\"urn:activemq\"\n" +
-         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-         "xsi:schemaLocation=\"urn:activemq /schema/artemis-configuration.xsd\">\n" +
-         "<security-settings>" + "\n" +
-         "<security-setting match=\"#\">" + "\n" +
-         "<permission type=\"consume\" roles=\"guest\"/>" + "\n" +
-         "<permission type=\"send\" roles=\"guest\"/>" + "\n" +
-         "</security-setting>" + "\n" +
-         "</security-settings>" + "\n" +
-         "</configuration>";
+      final String xmlConfig = """
+         <configuration xmlns="urn:activemq"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+            <security-settings>
+               <security-setting match="#">
+                  <permission type="consume" roles="guest"/>
+                  <permission type="send" roles="guest"/>
+               </security-setting>
+            </security-settings>
+         </configuration>""";
 
       FileConfigurationParser parser = new FileConfigurationParser();
       ByteArrayInputStream input = new ByteArrayInputStream(xmlConfig.getBytes(StandardCharsets.UTF_8));

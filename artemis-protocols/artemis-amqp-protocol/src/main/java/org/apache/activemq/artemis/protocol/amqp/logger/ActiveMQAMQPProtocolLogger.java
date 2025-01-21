@@ -32,19 +32,28 @@ public interface ActiveMQAMQPProtocolLogger {
    @LogMessage(id = 111000, value = "Scheduled task can't be removed from scheduledPool.", level = LogMessage.Level.WARN)
    void cantRemovingScheduledTask();
 
-   @LogMessage(id = 111001, value = "\n*******************************************************************************************************************************" +
-      "\nCould not re-establish AMQP Server Connection {} on {} after {} retries" +
-      "\n*******************************************************************************************************************************\n", level = LogMessage.Level.WARN)
+   @LogMessage(id = 111001, value = """
+
+      *******************************************************************************************************************************
+      Could not re-establish AMQP Server Connection {} on {} after {} retries
+      *******************************************************************************************************************************
+      """, level = LogMessage.Level.WARN)
    void retryConnectionFailed(String name, String hostAndPort, int currentRetry);
 
-   @LogMessage(id = 111002, value = "\n*******************************************************************************************************************************" +
-                                 "\nRetrying Server AMQP Connection {} on {} retry {} of {}" +
-                                 "\n*******************************************************************************************************************************\n", level = LogMessage.Level.INFO)
+   @LogMessage(id = 111002, value = """
+
+      *******************************************************************************************************************************
+      Retrying Server AMQP Connection {} on {} retry {} of {}
+      *******************************************************************************************************************************
+      """, level = LogMessage.Level.INFO)
    void retryConnection(String name, String hostAndPort, int currentRetry, int maxRetry);
 
-   @LogMessage(id = 111003, value = "\n*******************************************************************************************************************************" +
-      "\nConnected on Server AMQP Connection {} on {} after {} retries" +
-      "\n*******************************************************************************************************************************\n", level = LogMessage.Level.INFO)
+   @LogMessage(id = 111003, value = """
+
+      *******************************************************************************************************************************
+      Connected on Server AMQP Connection {} on {} after {} retries
+      *******************************************************************************************************************************
+      """, level = LogMessage.Level.INFO)
    void successReconnect(String name, String hostAndPort, int currentRetry);
 
    @LogMessage(id = 111004, value = "AddressFullPolicy clash on an anonymous producer between destinations {}(addressFullPolicy={}) and {}(addressFullPolicy={}). This could lead to semantic inconsistencies on your clients. Notice you could have other instances of this scenario however this message will only be logged once. log.debug output would show all instances of this event.", level = LogMessage.Level.WARN)

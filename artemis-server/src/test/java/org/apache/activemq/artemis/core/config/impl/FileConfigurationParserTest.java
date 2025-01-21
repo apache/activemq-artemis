@@ -56,6 +56,64 @@ import org.junit.jupiter.api.Test;
 
 public class FileConfigurationParserTest extends ServerTestBase {
 
+   private static final String FIRST_PART = """
+      <core xmlns="urn:activemq:core">
+         <name>ActiveMQ.main.config</name>
+         <log-delegate-factory-class-name>org.apache.activemq.artemis.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>
+         <bindings-directory>${jboss.server.data.dir}/activemq/bindings</bindings-directory>
+         <journal-directory>${jboss.server.data.dir}/activemq/journal</journal-directory>
+         <journal-min-files>10</journal-min-files>
+         <large-messages-directory>${jboss.server.data.dir}/activemq/largemessages</large-messages-directory>
+         <paging-directory>${jboss.server.data.dir}/activemq/paging</paging-directory>
+         <connectors>
+            <connector name="netty">tcp://localhost:61616</connector>
+            <connector name="netty-throughput">tcp://localhost:5545</connector>
+            <connector name="in-vm">vm://0</connector>
+         </connectors>
+         <acceptors>
+            <acceptor name="netty">tcp://localhost:5545</acceptor>
+            <acceptor name="netty-throughput">tcp://localhost:5545</acceptor>
+            <acceptor name="in-vm">vm://0</acceptor>
+         </acceptors>
+         <security-settings>
+            <security-setting match="#">
+               <permission type="createNonDurableQueue" roles="guest"/>
+               <permission type="deleteNonDurableQueue" roles="guest"/>
+               <permission type="createDurableQueue" roles="guest"/>
+               <permission type="deleteDurableQueue" roles="guest"/>
+               <permission type="consume" roles="guest"/>
+               <permission type="send" roles="guest"/>
+            </security-setting>
+         </security-settings>
+         <address-settings>
+            <address-setting match="#">
+               <dead-letter-address>DLQ</dead-letter-address>
+               <expiry-address>ExpiryQueue</expiry-address>
+               <redelivery-delay>0</redelivery-delay>
+               <max-size-bytes>10485760</max-size-bytes>
+               <message-counter-history-day-limit>10</message-counter-history-day-limit>
+               <address-full-policy>BLOCK</address-full-policy>
+            </address-setting>
+         </address-settings>""";
+
+   private static final String LAST_PART = "</core>";
+
+   private static final String BRIDGE_PART = """
+      <bridges>
+         <bridge name="my-bridge">
+            <queue-name>sausage-factory</queue-name>
+            <forwarding-address>mincing-machine</forwarding-address>
+            <filter string="name='aardvark'"/>
+            <transformer-class-name>org.apache.activemq.artemis.jms.example.HatColourChangeTransformer</transformer-class-name>
+            <reconnect-attempts>-1</reconnect-attempts>
+            <user>bridge-user</user>
+            <password>ENC(5aec0780b12bf225a13ab70c6c76bc8e)</password>
+            <static-connectors>
+               <connector-ref>remote-connector</connector-ref>
+            </static-connectors>
+         </bridge>
+      </bridges>""";
+
    /**
     * These "InvalidConfigurationTest*.xml" files are modified copies of {@value
     * ConfigurationTest-full-config.xml}, so just diff it for changes, e.g.
@@ -130,10 +188,12 @@ public class FileConfigurationParserTest extends ServerTestBase {
    @Test
    public void testParsingClusterConnectionURIs() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
+      String middlePart = """
+         <cluster-connections>
+            <cluster-connection-uri name="my-cluster" address="multicast://my-discovery-group?messageLoadBalancingType=STRICT;retryInterval=333;connectorName=netty-connector;maxHops=1"/>
+         </cluster-connections>""";
 
-      String configStr = firstPart + "<cluster-connections>\n" +
-         "   <cluster-connection-uri name=\"my-cluster\" address=\"multicast://my-discovery-group?messageLoadBalancingType=STRICT;retryInterval=333;connectorName=netty-connector;maxHops=1\"/>\n" +
-         "</cluster-connections>\n" + lastPart;
+      String configStr = FIRST_PART + middlePart + LAST_PART;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
 
       Configuration config = parser.parseMainConfig(input);
@@ -148,7 +208,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
    public void testParsingZeroIDCacheSize() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
 
-      String configStr = firstPart + "<id-cache-size>0</id-cache-size>" + lastPart;
+      String configStr = FIRST_PART + "<id-cache-size>0</id-cache-size>" + LAST_PART;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
 
       Configuration config = parser.parseMainConfig(input);
@@ -159,8 +219,13 @@ public class FileConfigurationParserTest extends ServerTestBase {
    @Test
    public void testWildcardConfiguration() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
-
-      String configStr = firstPart + "<wildcard-addresses>\n<routing-enabled>true</routing-enabled>\n<delimiter>/</delimiter>\n<any-words>></any-words></wildcard-addresses>" + lastPart;
+      String middlePart = """
+         <wildcard-addresses>
+            <routing-enabled>true</routing-enabled>
+            <delimiter>/</delimiter>
+            <any-words>></any-words>
+         </wildcard-addresses>""";
+      String configStr = FIRST_PART + middlePart + LAST_PART;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
 
       Configuration config = parser.parseMainConfig(input);
@@ -174,8 +239,15 @@ public class FileConfigurationParserTest extends ServerTestBase {
    @Test
    public void testParsingHaSharedStoreWaitForActivation() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
-
-      String configStr = firstPart + "<ha-policy><shared-store><primary><wait-for-activation>false</wait-for-activation></primary></shared-store></ha-policy>" + lastPart;
+      String middlePart = """
+         <ha-policy>
+            <shared-store>
+               <primary>
+                  <wait-for-activation>false</wait-for-activation>
+               </primary>
+            </shared-store>
+         </ha-policy>""";
+      String configStr = FIRST_PART + middlePart + LAST_PART;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
 
       Configuration config = parser.parseMainConfig(input);
@@ -192,7 +264,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
    public void testParsingDefaultServerConfig() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
 
-      String configStr = firstPart + lastPart;
+      String configStr = FIRST_PART + LAST_PART;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
 
       Configuration config = parser.parseMainConfig(input);
@@ -204,7 +276,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
       //if we add cluster-password, it should be default plain text
       String clusterPasswordPart = "<cluster-password>helloworld</cluster-password>";
 
-      configStr = firstPart + clusterPasswordPart + lastPart;
+      configStr = FIRST_PART + clusterPasswordPart + LAST_PART;
 
       config = parser.parseMainConfig(new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8)));
 
@@ -217,7 +289,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
       String maskPasswordPart = "<mask-password>true</mask-password>";
       clusterPasswordPart = "<cluster-password>" + mask + "</cluster-password>";
 
-      configStr = firstPart + clusterPasswordPart + maskPasswordPart + lastPart;
+      configStr = FIRST_PART + clusterPasswordPart + maskPasswordPart + LAST_PART;
 
       config = parser.parseMainConfig(new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8)));
 
@@ -233,10 +305,9 @@ public class FileConfigurationParserTest extends ServerTestBase {
 
       clusterPasswordPart = "<cluster-password>" + mask + "</cluster-password>";
 
-      String codecPart = "<password-codec>" + "org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec" +
-         ";key=newkey</password-codec>";
+      String codecPart = "<password-codec>org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;key=newkey</password-codec>";
 
-      configStr = firstPart + clusterPasswordPart + maskPasswordPart + codecPart + lastPart;
+      configStr = FIRST_PART + clusterPasswordPart + maskPasswordPart + codecPart + LAST_PART;
 
       config = parser.parseMainConfig(new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8)));
 
@@ -247,7 +318,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
    public void testParsingDefaultServerConfigWithENCMaskedPwd() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
 
-      String configStr = firstPart + lastPart;
+      String configStr = FIRST_PART + LAST_PART;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
 
       Configuration config = parser.parseMainConfig(input);
@@ -259,7 +330,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
       //if we add cluster-password, it should be default plain text
       String clusterPasswordPart = "<cluster-password>ENC(5aec0780b12bf225a13ab70c6c76bc8e)</cluster-password>";
 
-      configStr = firstPart + clusterPasswordPart + lastPart;
+      configStr = FIRST_PART + clusterPasswordPart + LAST_PART;
 
       config = parser.parseMainConfig(new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8)));
 
@@ -271,7 +342,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
 
       clusterPasswordPart = "<cluster-password>" + PasswordMaskingUtil.wrap(mask) + "</cluster-password>";
 
-      configStr = firstPart + clusterPasswordPart + lastPart;
+      configStr = FIRST_PART + clusterPasswordPart + LAST_PART;
 
       config = parser.parseMainConfig(new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8)));
 
@@ -287,16 +358,15 @@ public class FileConfigurationParserTest extends ServerTestBase {
 
       clusterPasswordPart = "<cluster-password>" + PasswordMaskingUtil.wrap(mask) + "</cluster-password>";
 
-      String codecPart = "<password-codec>" + "org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec" +
-              ";key=newkey</password-codec>";
+      String codecPart = "<password-codec>org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;key=newkey</password-codec>";
 
-      configStr = firstPart + clusterPasswordPart + codecPart + lastPart;
+      configStr = FIRST_PART + clusterPasswordPart + codecPart + LAST_PART;
 
       config = parser.parseMainConfig(new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8)));
 
       assertEquals("newpassword", config.getClusterPassword());
 
-      configStr = firstPart + bridgePart + lastPart;
+      configStr = FIRST_PART + BRIDGE_PART + LAST_PART;
       config = parser.parseMainConfig(new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8)));
 
       List<BridgeConfiguration> bridgeConfigs = config.getBridgeConfigurations();
@@ -310,25 +380,25 @@ public class FileConfigurationParserTest extends ServerTestBase {
    @Test
    public void testDefaultBridgeProducerWindowSize() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
+      String middlePart = """
+         <bridges>
+            <bridge name="my-bridge">
+               <queue-name>sausage-factory</queue-name>
+               <forwarding-address>mincing-machine</forwarding-address>
+               <static-connectors>
+                  <connector-ref>remote-connector</connector-ref>
+               </static-connectors>
+            </bridge>
+            <bridge name="my-other-bridge">
+               <static-connectors>
+                  <connector-ref>remote-connector</connector-ref>
+               </static-connectors>
+               <forwarding-address>mincing-machine</forwarding-address>
+               <queue-name>sausage-factory</queue-name>
+            </bridge>
+         </bridges>""";
 
-      String configStr = firstPart +
-         "<bridges>\n" +
-         "   <bridge name=\"my-bridge\">\n" +
-         "      <queue-name>sausage-factory</queue-name>\n" +
-         "      <forwarding-address>mincing-machine</forwarding-address>\n" +
-         "      <static-connectors>\n" +
-         "         <connector-ref>remote-connector</connector-ref>\n" +
-         "      </static-connectors>\n" +
-         "   </bridge>\n" +
-         "   <bridge name=\"my-other-bridge\">\n" +
-         "      <static-connectors>\n" +
-         "         <connector-ref>remote-connector</connector-ref>\n" +
-         "      </static-connectors>\n" +
-         "      <forwarding-address>mincing-machine</forwarding-address>\n" +
-         "      <queue-name>sausage-factory</queue-name>\n" +
-         "   </bridge>\n" +
-         "</bridges>\n"
-         + lastPart;
+      String configStr = FIRST_PART + middlePart + LAST_PART;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
 
       Configuration config = parser.parseMainConfig(input);
@@ -343,32 +413,89 @@ public class FileConfigurationParserTest extends ServerTestBase {
 
    @Test
    public void testParsingOverflowPageSize() throws Exception {
-      testParsingOverFlow("<address-settings>" + "\n" + "<address-setting match=\"#\">" + "\n" + "<page-size-bytes>2147483648</page-size-bytes>\n" + "</address-setting>" + "\n" + "</address-settings>" + "\n");
+      testParsingOverFlow("""
+                             <address-settings>
+                                <address-setting match="#">
+                                   <page-size-bytes>2147483648</page-size-bytes>
+                                </address-setting>
+                             </address-settings>""");
       testParsingOverFlow("<journal-file-size>2147483648</journal-file-size>");
       testParsingOverFlow("<journal-buffer-size>2147483648</journal-buffer-size>");
 
-      testParsingOverFlow("<cluster-connections> \n" + "  <cluster-connection name=\"my-cluster\"> \n" + "    <connector-ref>netty</connector-ref>  \n" + "    <min-large-message-size>2147483648</min-large-message-size>\n" + "    <discovery-group-ref discovery-group-name=\"my-discovery-group\"/> \n" + "  </cluster-connection> \n" + "</cluster-connections>");
-      testParsingOverFlow("<cluster-connections> \n" + "  <cluster-connection name=\"my-cluster\"> \n" + "    <connector-ref>netty</connector-ref>  \n" + "    <confirmation-window-size>2147483648</confirmation-window-size>\n" + "    <discovery-group-ref discovery-group-name=\"my-discovery-group\"/> \n" + "  </cluster-connection> \n" + "</cluster-connections>");
-      testParsingOverFlow("<cluster-connections> \n" + "  <cluster-connection name=\"my-cluster\"> \n" + "    <connector-ref>netty</connector-ref>  \n" + "    <producer-window-size>2147483648</producer-window-size>\n" + "    <discovery-group-ref discovery-group-name=\"my-discovery-group\"/> \n" + "  </cluster-connection> \n" + "</cluster-connections>");
+      testParsingOverFlow("""
+                             <cluster-connections>
+                                <cluster-connection name="my-cluster">
+                                   <connector-ref>netty</connector-ref>
+                                   <min-large-message-size>2147483648</min-large-message-size>
+                                   <discovery-group-ref discovery-group-name="my-discovery-group"/>
+                                </cluster-connection>
+                             </cluster-connections>""");
+      testParsingOverFlow("""
+                             <cluster-connections>
+                                <cluster-connection name="my-cluster">
+                                   <connector-ref>netty</connector-ref>
+                                   <confirmation-window-size>2147483648</confirmation-window-size>
+                                   <discovery-group-ref discovery-group-name="my-discovery-group"/>
+                                </cluster-connection>
+                             </cluster-connections>""");
+      testParsingOverFlow("""
+                             <cluster-connections>
+                                <cluster-connection name="my-cluster">
+                                   <connector-ref>netty</connector-ref>
+                                   <producer-window-size>2147483648</producer-window-size>
+                                   <discovery-group-ref discovery-group-name="my-discovery-group"/>
+                                </cluster-connection>
+                             </cluster-connections>""");
 
-      testParsingOverFlow("<bridges> \n" + "  <bridge name=\"price-forward-bridge\"> \n" + "    <queue-name>priceForwarding</queue-name>  \n" + "    <forwarding-address>newYorkPriceUpdates</forwarding-address>\n" + "    <min-large-message-size>2147483648</min-large-message-size>\n" + "    <static-connectors> \n" + "      <connector-ref>netty</connector-ref> \n" + "    </static-connectors> \n" + "  </bridge> \n" + "</bridges>");
-      testParsingOverFlow("<bridges> \n" + "  <bridge name=\"price-forward-bridge\"> \n" + "    <queue-name>priceForwarding</queue-name>  \n" + "    <forwarding-address>newYorkPriceUpdates</forwarding-address>\n" + "    <confirmation-window-size>2147483648</confirmation-window-size>\n" + "    <static-connectors> \n" + "      <connector-ref>netty</connector-ref> \n" + "    </static-connectors> \n" + "  </bridge> \n" + "</bridges>\n");
-      testParsingOverFlow("<bridges> \n" + "  <bridge name=\"price-forward-bridge\"> \n" + "    <queue-name>priceForwarding</queue-name>  \n" + "    <forwarding-address>newYorkPriceUpdates</forwarding-address>\n" + "    <producer-window-size>2147483648</producer-window-size>\n" + "    <static-connectors> \n" + "      <connector-ref>netty</connector-ref> \n" + "    </static-connectors> \n" + "  </bridge> \n" + "</bridges>\n");
+      testParsingOverFlow("""
+                             <bridges>\s
+                                <bridge name="price-forward-bridge">
+                                   <queue-name>priceForwarding</queue-name>
+                                   <forwarding-address>newYorkPriceUpdates</forwarding-address>
+                                   <min-large-message-size>2147483648</min-large-message-size>
+                                   <static-connectors>
+                                      <connector-ref>netty</connector-ref>
+                                   </static-connectors>
+                                </bridge>
+                             </bridges>""");
+      testParsingOverFlow("""
+                             <bridges>
+                                <bridge name="price-forward-bridge">
+                                   <queue-name>priceForwarding</queue-name>
+                                   <forwarding-address>newYorkPriceUpdates</forwarding-address>
+                                   <confirmation-window-size>2147483648</confirmation-window-size>
+                                   <static-connectors>
+                                      <connector-ref>netty</connector-ref>
+                                   </static-connectors>
+                                </bridge>
+                             </bridges>""");
+      testParsingOverFlow("""
+                             <bridges>
+                                <bridge name="price-forward-bridge">
+                                   <queue-name>priceForwarding</queue-name>
+                                   <forwarding-address>newYorkPriceUpdates</forwarding-address>
+                                   <producer-window-size>2147483648</producer-window-size>
+                                   <static-connectors>
+                                      <connector-ref>netty</connector-ref>
+                                   </static-connectors>
+                                </bridge>
+                             </bridges>""");
    }
 
    @Test
    public void testParsingScaleDownConfig() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
-
-      String configStr = firstPart + "<ha-policy>\n" +
-               "   <live-only>\n" +
-               "      <scale-down>\n" +
-               "         <connectors>\n" +
-               "            <connector-ref>server0-connector</connector-ref>\n" +
-               "         </connectors>\n" +
-               "      </scale-down>\n" +
-               "   </live-only>\n" +
-               "</ha-policy>\n" + lastPart;
+      String middlePart = """
+         <ha-policy>
+            <live-only>
+               <scale-down>
+                  <connectors>
+                     <connector-ref>server0-connector</connector-ref>
+                  </connectors>
+               </scale-down>
+            </live-only>
+         </ha-policy>""";
+      String configStr = FIRST_PART + middlePart + LAST_PART;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
 
       Configuration config = parser.parseMainConfig(input);
@@ -387,9 +514,9 @@ public class FileConfigurationParserTest extends ServerTestBase {
 
    private void testParsingOverFlow(String config) throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
-      String firstPartWithoutAddressSettings = firstPart.substring(0, firstPart.indexOf("<address-settings"));
+      String firstPartWithoutAddressSettings = FIRST_PART.substring(0, FIRST_PART.indexOf("<address-settings"));
 
-      String configStr = firstPartWithoutAddressSettings + config + lastPart;
+      String configStr = firstPartWithoutAddressSettings + config + LAST_PART;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
 
       try {
@@ -401,7 +528,14 @@ public class FileConfigurationParserTest extends ServerTestBase {
 
    @Test
    public void testParseMaxSizeOnAddressSettings() throws Exception {
-      String configStr = "<configuration><address-settings>" + "\n" + "<address-setting match=\"foo\">" + "\n" + "<max-size-messages>123</max-size-messages>\n" + "</address-setting>" + "\n" + "</address-settings></configuration>" + "\n";
+      String configStr = """
+         <configuration>
+            <address-settings>
+               <address-setting match="foo">
+                  <max-size-messages>123</max-size-messages>
+               </address-setting>
+            </address-settings>
+         </configuration>""";
 
       FileConfigurationParser parser = new FileConfigurationParser();
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
@@ -414,7 +548,14 @@ public class FileConfigurationParserTest extends ServerTestBase {
 
    @Test
    public void testParseMaxReadAddressSettings() throws Exception {
-      String configStr = "<configuration><address-settings>" + "\n" + "<address-setting match=\"foo\">" + "\n" + "<max-read-page-bytes>1k</max-read-page-bytes><max-read-page-messages>33</max-read-page-messages>.\n" + "</address-setting>" + "\n" + "</address-settings></configuration>" + "\n";
+      String configStr = """
+         <configuration>
+            <address-settings>
+               <address-setting match="foo">
+                  <max-read-page-bytes>1k</max-read-page-bytes><max-read-page-messages>33</max-read-page-messages>.
+               </address-setting>
+            </address-settings>
+         </configuration>""";
 
       FileConfigurationParser parser = new FileConfigurationParser();
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
@@ -430,7 +571,20 @@ public class FileConfigurationParserTest extends ServerTestBase {
 
    @Test
    public void testParsePageLimitSettings() throws Exception {
-      String configStr = "<configuration><address-settings>" + "\n" + "<address-setting match=\"foo\">" + "\n" + "<max-read-page-bytes>1k</max-read-page-bytes><prefetch-page-bytes>100M</prefetch-page-bytes><prefetch-page-messages>777</prefetch-page-messages><page-limit-bytes>10G</page-limit-bytes><page-limit-messages>3221225472</page-limit-messages><page-full-policy>FAIL</page-full-policy><max-read-page-messages>33</max-read-page-messages>.\n" + "</address-setting>" + "\n" + "</address-settings></configuration>" + "\n";
+      String configStr = """
+         <configuration>
+            <address-settings>
+               <address-setting match="foo">
+                  <max-read-page-bytes>1k</max-read-page-bytes>
+                  <prefetch-page-bytes>100M</prefetch-page-bytes>
+                  <prefetch-page-messages>777</prefetch-page-messages>
+                  <page-limit-bytes>10G</page-limit-bytes>
+                  <page-limit-messages>3221225472</page-limit-messages>
+                  <page-full-policy>FAIL</page-full-policy>
+                  <max-read-page-messages>33</max-read-page-messages>
+               </address-setting>
+            </address-settings>
+         </configuration>""";
 
       FileConfigurationParser parser = new FileConfigurationParser();
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
@@ -448,7 +602,15 @@ public class FileConfigurationParserTest extends ServerTestBase {
 
    @Test
    public void testParseMaxReadAddressSettingsAllNegative() throws Exception {
-      String configStr = "<configuration><address-settings>" + "\n" + "<address-setting match=\"foo\">" + "\n" + "<max-read-page-bytes>-1</max-read-page-bytes><max-read-page-messages>-1</max-read-page-messages>.\n" + "</address-setting>" + "\n" + "</address-settings></configuration>" + "\n";
+      String configStr = """
+         <configuration>
+            <address-settings>
+               <address-setting match="foo">
+                  <max-read-page-bytes>-1</max-read-page-bytes>
+                  <max-read-page-messages>-1</max-read-page-messages>
+               </address-setting>
+            </address-settings>
+         </configuration>""";
 
       FileConfigurationParser parser = new FileConfigurationParser();
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
@@ -461,7 +623,15 @@ public class FileConfigurationParserTest extends ServerTestBase {
 
    @Test
    public void testLiteralMatchMarkers() throws Exception {
-      String configStr = "<configuration><literal-match-markers>()</literal-match-markers><address-settings>\n<address-setting match=\"(foo)\">\n<max-read-page-bytes>-1</max-read-page-bytes></address-setting>\n</address-settings></configuration>\n";
+      String configStr = """
+         <configuration>
+            <literal-match-markers>()</literal-match-markers>
+            <address-settings>
+               <address-setting match="(foo)">
+                  <max-read-page-bytes>-1</max-read-page-bytes>
+               </address-setting>
+            </address-settings>
+         </configuration>""";
 
       FileConfigurationParser parser = new FileConfigurationParser();
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
@@ -473,10 +643,13 @@ public class FileConfigurationParserTest extends ServerTestBase {
    @Test
    public void testViewPermissionMethodMatchPattern() throws Exception {
       final String pattern = "^(get|list).+$";
-      String configStr = "<configuration><view-permission-method-match-pattern>" + pattern + "</view-permission-method-match-pattern>\n</configuration>\n";
+      String configStr = """
+         <configuration>
+            <view-permission-method-match-pattern>%s</view-permission-method-match-pattern>
+         </configuration>""";
 
       FileConfigurationParser parser = new FileConfigurationParser();
-      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+      ByteArrayInputStream input = new ByteArrayInputStream(String.format(configStr, pattern).getBytes(StandardCharsets.UTF_8));
 
       Configuration configuration = parser.parseMainConfig(input);
       assertEquals(pattern, configuration.getViewPermissionMethodMatchPattern());
@@ -485,10 +658,13 @@ public class FileConfigurationParserTest extends ServerTestBase {
    @Test
    public void testManagementRbacPrefix() throws Exception {
       final String pattern = "j.m.x";
-      String configStr = "<configuration><management-rbac-prefix>" + pattern + "</management-rbac-prefix>\n</configuration>\n";
+      String configStr = """
+         <configuration>
+            <management-rbac-prefix>%s</management-rbac-prefix>
+         </configuration>""";
 
       FileConfigurationParser parser = new FileConfigurationParser();
-      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+      ByteArrayInputStream input = new ByteArrayInputStream(String.format(configStr, pattern).getBytes(StandardCharsets.UTF_8));
 
       Configuration configuration = parser.parseMainConfig(input);
       assertEquals(pattern, configuration.getManagementRbacPrefix());
@@ -497,10 +673,13 @@ public class FileConfigurationParserTest extends ServerTestBase {
    @Test
    public void testManagementRbac() throws Exception {
       final boolean enabled = true;
-      String configStr = "<configuration><management-message-rbac>" + enabled + "</management-message-rbac>\n</configuration>\n";
+      String configStr = """
+         <configuration>
+            <management-message-rbac>%s</management-message-rbac>
+         </configuration>""";
 
       FileConfigurationParser parser = new FileConfigurationParser();
-      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+      ByteArrayInputStream input = new ByteArrayInputStream(String.format(configStr, enabled).getBytes(StandardCharsets.UTF_8));
 
       Configuration configuration = parser.parseMainConfig(input);
       assertEquals(enabled, configuration.isManagementMessageRbac());
@@ -509,7 +688,14 @@ public class FileConfigurationParserTest extends ServerTestBase {
    // you should not use K, M notations on address settings max-size-messages
    @Test
    public void testExpectedErrorOverMaxMessageNotation() throws Exception {
-      String configStr = "<configuration><address-settings>" + "\n" + "<address-setting match=\"foo\">" + "\n" + "<max-size-messages>123K</max-size-messages>\n" + "</address-setting>" + "\n" + "</address-settings></configuration>" + "\n";
+      String configStr = """
+         <configuration>
+            <address-settings>
+               <address-setting match="foo">
+                  <max-size-messages>123K</max-size-messages>
+               </address-setting>
+            </address-settings>
+         </configuration>""";
 
       FileConfigurationParser parser = new FileConfigurationParser();
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
@@ -523,32 +709,17 @@ public class FileConfigurationParserTest extends ServerTestBase {
       assertTrue(valid, "Exception expected");
    }
 
-   private static String bridgePart = "<bridges>\n" +
-           "            <bridge name=\"my-bridge\">\n" +
-           "               <queue-name>sausage-factory</queue-name>\n" +
-           "               <forwarding-address>mincing-machine</forwarding-address>\n" +
-           "               <filter string=\"name='aardvark'\"/>\n" +
-           "               <transformer-class-name>org.apache.activemq.artemis.jms.example.HatColourChangeTransformer</transformer-class-name>\n" +
-           "               <reconnect-attempts>-1</reconnect-attempts>\n" +
-           "               <user>bridge-user</user>" +
-           "               <password>ENC(5aec0780b12bf225a13ab70c6c76bc8e)</password>" +
-           "               <static-connectors>\n" +
-           "                  <connector-ref>remote-connector</connector-ref>\n" +
-           "               </static-connectors>\n" +
-           "            </bridge>\n" +
-           "</bridges>\n";
-
    @Test
    public void testParsingAddressSettings() throws Exception {
       long expected = 2147483648L;
-      String firstPartWithoutAS = firstPart.substring(0, firstPart.indexOf("<address-settings"));
-      String configStr = firstPartWithoutAS + ("<address-settings>\n"
-                                               + "<address-setting match=\"#\">\n"
-                                               + String.format("<max-size-bytes-reject-threshold>%d</max-size-bytes-reject-threshold>\n",
-                                                               expected)
-                                               + "</address-setting>\n"
-                                               + "</address-settings>"
-                                               + "\n") + lastPart;
+      String firstPartWithoutAS = FIRST_PART.substring(0, FIRST_PART.indexOf("<address-settings"));
+      String middlePart = """
+         <address-settings>
+            <address-setting match="#">
+               <max-size-bytes-reject-threshold>%d</max-size-bytes-reject-threshold>
+            </address-setting>
+         </address-settings>""";
+      String configStr = firstPartWithoutAS + (String.format(middlePart, expected)) + LAST_PART;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
       Configuration configuration = new FileConfigurationParser().parseMainConfig(input);
       assertEquals(1, configuration.getAddressSettings().size());
@@ -561,7 +732,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
       int expected = 1000;
       FileConfigurationParser parser = new FileConfigurationParser();
 
-      String configStr = firstPart + String.format("<page-sync-timeout>%d</page-sync-timeout>\n", expected) + lastPart;
+      String configStr = FIRST_PART + String.format("<page-sync-timeout>%d</page-sync-timeout>\n", expected) + LAST_PART;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
 
       Configuration config = parser.parseMainConfig(input);
@@ -574,12 +745,15 @@ public class FileConfigurationParserTest extends ServerTestBase {
       StringPrintStream stringPrintStream = new StringPrintStream();
       PrintStream stream = stringPrintStream.newStream();
 
-      stream.println("<configuration><core>");
-      stream.println("</core></configuration>");
+      stream.println("""
+                        <configuration>
+                           <core>
+                           </core>
+                        </configuration>""");
 
       ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
       FileConfigurationParser parser = new FileConfigurationParser();
-      Configuration configuration = parser.parseMainConfig(inputStream);
+      parser.parseMainConfig(inputStream);
    }
 
    @Test
@@ -587,10 +761,13 @@ public class FileConfigurationParserTest extends ServerTestBase {
       StringPrintStream stringPrintStream = new StringPrintStream();
       PrintStream stream = stringPrintStream.newStream();
 
-      stream.println("<configuration><core>");
-      stream.println("<global-max-size>10M</global-max-size>");
-      stream.println("<global-max-messages>1000</global-max-messages>");
-      stream.println("</core></configuration>");
+      stream.println("""
+                        <configuration>
+                           <core>
+                              <global-max-size>10M</global-max-size>
+                              <global-max-messages>1000</global-max-messages>
+                           </core>
+                        </configuration>""");
 
       ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
       FileConfigurationParser parser = new FileConfigurationParser();
@@ -605,9 +782,12 @@ public class FileConfigurationParserTest extends ServerTestBase {
       StringPrintStream stringPrintStream = new StringPrintStream();
       PrintStream stream = stringPrintStream.newStream();
 
-      stream.println("<configuration><core>");
-      stream.println("<max-redelivery-records>0</max-redelivery-records>");
-      stream.println("</core></configuration>");
+      stream.println("""
+                        <configuration>
+                           <core>
+                              <max-redelivery-records>0</max-redelivery-records>
+                           </core>
+                        </configuration>""");
 
       ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
       FileConfigurationParser parser = new FileConfigurationParser();
@@ -621,9 +801,12 @@ public class FileConfigurationParserTest extends ServerTestBase {
       StringPrintStream stringPrintStream = new StringPrintStream();
       PrintStream stream = stringPrintStream.newStream();
 
-      stream.println("<configuration><core>");
-      stream.println("<global-max-messages>1000K</global-max-messages>");
-      stream.println("</core></configuration>");
+      stream.println("""
+                        <configuration>
+                           <core>
+                              <global-max-messages>1000K</global-max-messages>
+                           </core>
+                        </configuration>""");
 
       ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
       FileConfigurationParser parser = new FileConfigurationParser();
@@ -644,11 +827,14 @@ public class FileConfigurationParserTest extends ServerTestBase {
       StringPrintStream stringPrintStream = new StringPrintStream();
       PrintStream stream = stringPrintStream.newStream();
 
-      stream.println("<configuration><core>");
-      stream.println("<global-max-size>100MiB</global-max-size>");
-      stream.println("<journal-file-size>10M</journal-file-size>");
-      stream.println("<journal-buffer-size>5Mb</journal-buffer-size>");
-      stream.println("</core></configuration>");
+      stream.println("""
+                        <configuration>
+                           <core>
+                              <global-max-size>100MiB</global-max-size>
+                              <journal-file-size>10M</journal-file-size>
+                              <journal-buffer-size>5Mb</journal-buffer-size>
+                           </core>
+                        </configuration>""");
 
       ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
       FileConfigurationParser parser = new FileConfigurationParser();
@@ -686,9 +872,12 @@ public class FileConfigurationParserTest extends ServerTestBase {
       StringPrintStream stringPrintStream = new StringPrintStream();
       PrintStream stream = stringPrintStream.newStream();
 
-      stream.println("<configuration><core>");
-      stream.println("<journal-retention-directory unit=\"" + option + "\" period=\"365\" storage-limit=\"10G\">history</journal-retention-directory>");
-      stream.println("</core></configuration>");
+      stream.println(String.format("""
+                                      <configuration>
+                                         <core>
+                                            <journal-retention-directory unit="%s" period="365" storage-limit="10G">history</journal-retention-directory>
+                                         </core>
+                                      </configuration>""", option));
 
       ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
       FileConfigurationParser parser = new FileConfigurationParser();
@@ -705,9 +894,12 @@ public class FileConfigurationParserTest extends ServerTestBase {
       StringPrintStream stringPrintStream = new StringPrintStream();
       PrintStream stream = stringPrintStream.newStream();
 
-      stream.println("<configuration><core>");
-      stream.println("<journal-retention-directory>directory</journal-retention-directory>");
-      stream.println("</core></configuration>");
+      stream.println("""
+                        <configuration>
+                           <core>
+                              <journal-retention-directory>directory</journal-retention-directory>
+                           </core>
+                        </configuration>""");
 
       ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
       FileConfigurationParser parser = new FileConfigurationParser();
@@ -729,9 +921,12 @@ public class FileConfigurationParserTest extends ServerTestBase {
       StringPrintStream stringPrintStream = new StringPrintStream();
       PrintStream stream = stringPrintStream.newStream();
 
-      stream.println("<configuration><core>");
-      stream.println("<journal-directory>journal</journal-directory>");
-      stream.println("</core></configuration>");
+      stream.println("""
+                        <configuration>
+                           <core>
+                              <journal-directory>journal</journal-directory>
+                           </core>
+                        </configuration>""");
 
       ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
       FileConfigurationParser parser = new FileConfigurationParser();
@@ -748,9 +943,12 @@ public class FileConfigurationParserTest extends ServerTestBase {
       StringPrintStream stringPrintStream = new StringPrintStream();
       PrintStream stream = stringPrintStream.newStream();
 
-      stream.println("<configuration><core>");
-      stream.println("<journal-retention-directory period=\"3\"></journal-retention-directory>");
-      stream.println("</core></configuration>");
+      stream.println("""
+                        <configuration>
+                           <core>
+                              <journal-retention-directory period="3"></journal-retention-directory>
+                           </core>
+                        </configuration>""");
       FileConfigurationParser parser = new FileConfigurationParser();
       ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
       boolean exception = false;
@@ -768,68 +966,35 @@ public class FileConfigurationParserTest extends ServerTestBase {
       StringPrintStream stringPrintStream = new StringPrintStream();
       PrintStream stream = stringPrintStream.newStream();
 
-      stream.println("<configuration><core>");
-      stream.println("<large-message-sync>false</large-message-sync>");
-      stream.println("</core></configuration>");
+      stream.println("""
+                        <configuration>
+                           <core>
+                              <large-message-sync>false</large-message-sync>
+                           </core>
+                        </configuration>""");
       FileConfigurationParser parser = new FileConfigurationParser();
       ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
       Configuration configuration = parser.parseMainConfig(inputStream);
       assertFalse(configuration.isLargeMessageSync());
    }
 
-   private static String firstPart = "<core xmlns=\"urn:activemq:core\">" + "\n" +
-      "<name>ActiveMQ.main.config</name>" + "\n" +
-      "<log-delegate-factory-class-name>org.apache.activemq.artemis.integration.logging.Log4jLogDelegateFactory</log-delegate-factory-class-name>" + "\n" +
-      "<bindings-directory>${jboss.server.data.dir}/activemq/bindings</bindings-directory>" + "\n" +
-      "<journal-directory>${jboss.server.data.dir}/activemq/journal</journal-directory>" + "\n" +
-      "<journal-min-files>10</journal-min-files>" + "\n" +
-      "<large-messages-directory>${jboss.server.data.dir}/activemq/largemessages</large-messages-directory>" + "\n" +
-      "<paging-directory>${jboss.server.data.dir}/activemq/paging</paging-directory>" + "\n" +
-      "<connectors>" + "\n" +
-      "<connector name=\"netty\">tcp://localhost:61616</connector>" + "\n" +
-      "<connector name=\"netty-throughput\">tcp://localhost:5545</connector>" + "\n" +
-      "<connector name=\"in-vm\">vm://0</connector>" + "\n" +
-      "</connectors>" + "\n" +
-      "<acceptors>" + "\n" +
-      "<acceptor name=\"netty\">tcp://localhost:5545</acceptor>" + "\n" +
-      "<acceptor name=\"netty-throughput\">tcp://localhost:5545</acceptor>" + "\n" +
-      "<acceptor name=\"in-vm\">vm://0</acceptor>" + "\n" +
-      "</acceptors>" + "\n" +
-      "<security-settings>" + "\n" +
-      "<security-setting match=\"#\">" + "\n" +
-      "<permission type=\"createNonDurableQueue\" roles=\"guest\"/>" + "\n" +
-      "<permission type=\"deleteNonDurableQueue\" roles=\"guest\"/>" + "\n" +
-      "<permission type=\"createDurableQueue\" roles=\"guest\"/>" + "\n" +
-      "<permission type=\"deleteDurableQueue\" roles=\"guest\"/>" + "\n" +
-      "<permission type=\"consume\" roles=\"guest\"/>" + "\n" +
-      "<permission type=\"send\" roles=\"guest\"/>" + "\n" +
-      "</security-setting>" + "\n" +
-      "</security-settings>" + "\n" +
-      "<address-settings>" + "\n" +
-      "<address-setting match=\"#\">" + "\n" + "<dead-letter-address>DLQ\n</dead-letter-address>" + "\n" + "<expiry-address>ExpiryQueue\n</expiry-address>" + "\n" + "<redelivery-delay>0\n</redelivery-delay>" + "\n" + "<max-size-bytes>10485760\n</max-size-bytes>" + "\n" + "<message-counter-history-day-limit>10</message-counter-history-day-limit>" + "\n" + "<address-full-policy>BLOCK</address-full-policy>" + "\n" +
-      "</address-setting>" + "\n" +
-      "</address-settings>" + "\n";
-
-   private static String lastPart = "</core>";
-
    @Test
    public void testParseQueueMatchInFederationConfiguration() throws Exception {
-      String configStr = firstPart +
-                         "<federations>" +
-                          "<federation name=\"server-1-federation\">" +
-                           "<upstream name=\"upstream\">" +
-                            "<static-connectors>" +
-                             "<connector-ref>server-connector</connector-ref>" +
-                            "</static-connectors>" +
-                            "<policy ref=\"queue-federation\"/>" +
-                           "</upstream>" +
-                           "" +
-                           "<queue-policy name=\"queue-federation\">" +
-                            "<include queue-match=\"myQueue\" address-match=\"#\"/>" +
-                           "</queue-policy>" +
-                          "</federation>" +
-                         "</federations>" +
-                         lastPart;
+      String middlePart = """
+         <federations>
+            <federation name="server-1-federation">
+               <upstream name="upstream">
+                  <static-connectors>
+                     <connector-ref>server-connector</connector-ref>
+                  </static-connectors>
+                  <policy ref="queue-federation"/>
+               </upstream>
+               <queue-policy name="queue-federation">
+                  <include queue-match="myQueue" address-match="#"/>
+               </queue-policy>
+            </federation>
+         </federations>""";
+      String configStr = FIRST_PART + middlePart + LAST_PART;
 
       final FileConfigurationParser parser = new FileConfigurationParser();
       final ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));

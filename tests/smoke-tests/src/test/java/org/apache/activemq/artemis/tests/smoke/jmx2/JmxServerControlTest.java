@@ -64,10 +64,10 @@ public class JmxServerControlTest extends SmokeTestBase {
       {
          HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).
-            setConfiguration("./src/main/resources/servers/jmx").setArgs("--java-options",
-                                                                         "-Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote=true " +
-                                                                            "-Dcom.sun.management.jmxremote.port=11099 -Dcom.sun.management.jmxremote.rmi.port=11098 " +
-                                                                            "-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false");
+            setConfiguration("./src/main/resources/servers/jmx").setArgs("--java-options", """
+            -Djava.rmi.server.hostname=localhost -Dcom.sun.management.jmxremote=true \
+            -Dcom.sun.management.jmxremote.port=11099 -Dcom.sun.management.jmxremote.rmi.port=11098 \
+            -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false""");
          cliCreateServer.createServer();
       }
    }
