@@ -203,7 +203,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
          (InetSocketAddress)kdcServer.getTransports()[0].getAcceptor().getLocalAddress();
       int port = addr.getPort();
       File krb5conf = new File(testDir, "krb5.conf").getAbsoluteFile();
-      String krb5confBody = MessageFormat.format(sb.toString(), getRealm(), "localhost", Integer.toString(port), System.getProperty("line.separator"));
+      String krb5confBody = MessageFormat.format(sb.toString(), getRealm(), "localhost", Integer.toString(port), System.lineSeparator());
       FileUtils.writeStringToFile(krb5conf, krb5confBody, StandardCharsets.UTF_8);
       System.setProperty("java.security.krb5.conf", krb5conf.getAbsolutePath());
 

@@ -202,7 +202,7 @@ public class InstallAbstract extends InputAbstract {
 
       // and then writing out in the new target encoding..  Let's also replace \n with the values
       // that is correct for the current platform.
-      String separator = unixTarget && IS_NIX ? "\n" : System.getProperty("line.separator");
+      String separator = unixTarget && IS_NIX ? "\n" : System.lineSeparator();
       content = content.replaceAll("\\r?\\n", Matcher.quoteReplacement(separator));
       ByteArrayInputStream in = new ByteArrayInputStream(content.getBytes(encoding));
       try (FileOutputStream fout = new FileOutputStream(target)) {

@@ -525,7 +525,7 @@ public final class XmlDataExporter extends DBOption {
 
       private static final char INDENT_CHAR = ' ';
 
-      private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+      private static final String LINE_SEPARATOR = System.lineSeparator();
 
       boolean wrap = true;
 
