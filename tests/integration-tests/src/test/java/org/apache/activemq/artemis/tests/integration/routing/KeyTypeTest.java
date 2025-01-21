@@ -28,8 +28,6 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.routing.policies.FirstElementPolicy;
-import org.apache.activemq.artemis.core.server.routing.policies.Policy;
-import org.apache.activemq.artemis.core.server.routing.policies.PolicyFactory;
 import org.apache.activemq.artemis.core.server.routing.policies.PolicyFactoryResolver;
 import org.apache.activemq.artemis.core.server.routing.targets.Target;
 import org.apache.activemq.artemis.core.server.routing.KeyType;
@@ -94,19 +92,13 @@ public class KeyTypeTest extends RoutingTestBase {
 
    @BeforeEach
    public void setup() throws Exception {
-      PolicyFactoryResolver.getInstance().registerPolicyFactory(MOCK_POLICY_NAME,
-         new PolicyFactory() {
-            @Override
-            public Policy create() {
-               return new FirstElementPolicy(MOCK_POLICY_NAME) {
-                  @Override
-                  public Target selectTarget(List<Target> targets, String key) {
-                     keys.add(key);
-                     return super.selectTarget(targets, key);
-                  }
-               };
-            }
-         });
+      PolicyFactoryResolver.getInstance().registerPolicyFactory(MOCK_POLICY_NAME, () -> new FirstElementPolicy(MOCK_POLICY_NAME) {
+         @Override
+         public Target selectTarget(List<Target> targets, String key) {
+            keys.add(key);
+            return super.selectTarget(targets, key);
+         }
+      });
    }
 
    @TestTemplate

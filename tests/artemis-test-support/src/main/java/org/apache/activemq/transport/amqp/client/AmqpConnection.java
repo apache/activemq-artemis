@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -122,15 +121,11 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
       this.connectionId = CONNECTION_ID_GENERATOR.generateId();
       this.remoteURI = transport.getRemoteLocation();
 
-      this.serializer = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
-
-         @Override
-         public Thread newThread(Runnable runner) {
-            Thread serial = new Thread(runner);
-            serial.setDaemon(true);
-            serial.setName(toString());
-            return serial;
-         }
+      this.serializer = new ScheduledThreadPoolExecutor(1, runner -> {
+         Thread serial = new Thread(runner);
+         serial.setDaemon(true);
+         serial.setName(toString());
+         return serial;
       });
 
       // Ensure timely shutdown
