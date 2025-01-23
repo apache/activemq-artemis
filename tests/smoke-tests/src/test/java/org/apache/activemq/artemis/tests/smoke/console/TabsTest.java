@@ -23,15 +23,14 @@ import org.apache.activemq.artemis.tests.smoke.console.pages.LoginPage;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
-import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.NoSuchElementException;
 
 //Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
 public class TabsTest extends ConsoleTest {
 
-   public TabsTest(MutableCapabilities browserOptions) {
-      super(browserOptions);
+   public TabsTest(String browser) {
+      super(browser);
    }
 
    @TestTemplate

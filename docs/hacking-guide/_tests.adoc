@@ -42,7 +42,8 @@ https://github.com/apache/activemq-artemis/blob/main//tests/integration-tests/sr
 
 The broker has a web console based on https://github.com/hawtio/hawtio[hawtio] and the `smoke-tests` are used to test it.
 For instance, the https://github.com/apache/activemq-artemis/blob/main/tests/smoke-tests/src/test/java/org/apache/activemq/artemis/tests/smoke/console/ConsoleTest.java[ConsoleTest] checks the web console using the https://github.com/SeleniumHQ/selenium[selenium framework].
-The tests can be executed using a remote server, local browsers or https://www.testcontainers.org/modules/webdriver_containers[testcontainers].
+The tests can be executed on the Chrome and Firefox browsers by using a remote server, local browsers or https://www.testcontainers.org/modules/webdriver_containers[testcontainers].
+To configure the browsers on which execute the tests set the `webdriver.browsers` property with the comma-separated list of the browsers, i.e. `-Dwebdriver.browsers=chrome,firefox`.
 To use a remote server set the `webdriver.remote.server` property with the URL of the server, ie -Dwebdriver.remote.server=http://localhost:4444/wd/hub To use your local Google Chrome browser download the https://chromedriver.chromium.org/[WebDriver for Chrome] and set the `webdriver.chrome.driver` property with the WebDriver path, ie `-Dwebdriver.chrome.driver=/home/artemis/chromedriver_linux64/chromedriver`.
 To use your local Firefox browser download the https://github.com/mozilla/geckodriver/[WebDriver for Firefox] and set the `webdriver.gecko.driver` property with the WebDriver path, ie `-Dwebdriver.gecko.driver=/home/artemis/geckodriver-linux64/geckodriver`.
 To use https://www.testcontainers.org/modules/webdriver_containers[testcontainers] install docker.

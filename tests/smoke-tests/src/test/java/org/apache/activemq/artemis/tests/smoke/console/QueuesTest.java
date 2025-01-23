@@ -36,7 +36,6 @@ import org.apache.activemq.artemis.tests.smoke.console.pages.StatusPage;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.openqa.selenium.MutableCapabilities;
 
 import javax.management.ObjectName;
 
@@ -44,8 +43,8 @@ import javax.management.ObjectName;
 @ExtendWith(ParameterizedTestExtension.class)
 public class QueuesTest extends ConsoleTest {
 
-   public QueuesTest(MutableCapabilities browserOptions) {
-      super(browserOptions);
+   public QueuesTest(String browser) {
+      super(browser);
    }
 
    @TestTemplate

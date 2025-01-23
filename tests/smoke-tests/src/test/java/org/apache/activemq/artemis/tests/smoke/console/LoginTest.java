@@ -22,7 +22,6 @@ import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedT
 import org.apache.activemq.artemis.tests.smoke.console.pages.LoginPage;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.openqa.selenium.MutableCapabilities;
 
 //Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
@@ -30,8 +29,8 @@ public class LoginTest extends ConsoleTest {
 
    private static final String DEFAULT_CONSOLE_LOGIN_BRAND_IMAGE = "/activemq-branding/plugin/img/activemq.png";
 
-   public LoginTest(MutableCapabilities browserOptions) {
-      super(browserOptions);
+   public LoginTest(String browser) {
+      super(browser);
    }
 
    @TestTemplate
