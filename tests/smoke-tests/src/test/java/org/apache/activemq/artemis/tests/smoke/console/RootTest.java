@@ -21,14 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.openqa.selenium.MutableCapabilities;
 
 //Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
 public class RootTest extends ConsoleTest {
 
-   public RootTest(MutableCapabilities browserOptions) {
-      super(browserOptions);
+   public RootTest(String browser) {
+      super(browser);
    }
 
    @TestTemplate
