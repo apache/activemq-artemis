@@ -39,10 +39,9 @@ USER artemis
 
 ADD . /opt/activemq-artemis
 
-# Web Server
-EXPOSE 8161 \
-# JMX Exporter
-    9404 \
+EXPOSE \
+# Port for HTTP
+    8161 \
 # Port for CORE,MQTT,AMQP,HORNETQ,STOMP,OPENWIRE
     61616 \
 # Port for HORNETQ,STOMP
