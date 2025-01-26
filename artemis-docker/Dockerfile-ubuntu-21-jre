@@ -19,8 +19,6 @@
 
 FROM eclipse-temurin:21-jre
 LABEL maintainer="Apache ActiveMQ Team"
-# Make sure pipes are considered to determine success, see: https://github.com/hadolint/hadolint/wiki/DL4006
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 WORKDIR /opt
 
 ENV ARTEMIS_USER artemis
@@ -34,9 +32,8 @@ RUN groupadd -g 1001 -r artemis && useradd -r -u 1001 -g artemis artemis
 # install AIO
 RUN apt-get -qq -o=Dpkg::Use-Pty=0 update && \
     apt-get -qq -o=Dpkg::Use-Pty=0 install -y libaio1t64 && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/libaio.so.1
+    rm -rf /var/lib/apt/lists/* && \
+    ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/libaio.so.1
 
 USER artemis
 
@@ -47,13 +44,13 @@ EXPOSE \
     8161 \
 # Port for CORE,MQTT,AMQP,HORNETQ,STOMP,OPENWIRE
     61616 \
-# Port for HORNETQ,STOMP
+# Port for legacy HORNETQ,STOMP clients
     5445 \
 # Port for AMQP
     5672 \
 # Port for MQTT
     1883 \
-#Port for STOMP
+# Port for STOMP
     61613
 
 USER root
