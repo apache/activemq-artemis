@@ -109,6 +109,11 @@
          </dependency>
          <dependency>
             <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-jakarta-cdi-client</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-jakarta-client</artifactId>
             <version>${project.version}</version>
          </dependency>
