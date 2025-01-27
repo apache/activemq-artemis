@@ -44,7 +44,7 @@ if [ -z "$ARTEMIS_INSTANCE" ] ; then
   ARTEMIS_INSTANCE=`cd "$ARTEMIS_INSTANCE/.." && pwd`
 fi
 
-HAWTIO_ROLE="NO_HAWTIO_ROLE"
+HAWTIO_ROLES="NO_HAWTIO_ROLE"
 
 # Load Profile Data
 ARTEMIS_INSTANCE_ETC='/var/lib/artemis-instance/etc'

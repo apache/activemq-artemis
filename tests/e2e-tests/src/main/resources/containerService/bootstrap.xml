@@ -28,8 +28,6 @@
    <!-- The web server is only bound to localhost by default -->
    <web path="web">
       <binding uri="http://0.0.0.0:8161">
-         <app url="activemq-branding" war="activemq-branding.war"/>
-         <app url="artemis-plugin" war="artemis-plugin.war"/>
          <app url="console" war="console.war"/>
       </binding>
    </web>
