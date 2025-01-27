@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.smoke.console;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.apache.activemq.artemis.tests.smoke.console.ArtemisTest;
 import org.apache.activemq.artemis.tests.smoke.console.pages.LoginPage;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
