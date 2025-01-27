@@ -640,7 +640,7 @@
          </dependency>
          <dependency>
             <groupId>org.jboss.weld.se</groupId>
-            <artifactId>weld-se</artifactId>
+            <artifactId>weld-se-core</artifactId>
             <version>${weld.version}</version>
             <scope>test</scope>
          </dependency>
@@ -661,6 +661,11 @@
             <artifactId>arquillian-junit-core</artifactId>
             <version>${arquillian.version}</version>
             <scope>test</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.jboss.shrinkwrap</groupId>
+            <artifactId>shrinkwrap-api</artifactId>
+            <version>${shrinkwrap-api.version}</version>
          </dependency>
          <dependency>
             <groupId>org.jacoco</groupId>
@@ -875,7 +880,6 @@
             <artifactId>httpclient</artifactId>
             <version>${apache.httpclient.version}</version>
          </dependency>
-
       </dependencies>
    </dependencyManagement>
 
