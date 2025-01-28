@@ -493,6 +493,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
                <scale-down>
                   <connectors>
                      <connector-ref>server0-connector</connector-ref>
+                     <commit-interval>33</commit-interval>
                   </connectors>
                </scale-down>
             </live-only>
@@ -511,6 +512,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
       assertEquals(1, connectors.size());
       String connector = connectors.get(0);
       assertEquals("server0-connector", connector);
+      assertEquals(33, scaledownCfg.getCommitInterval());
    }
 
 

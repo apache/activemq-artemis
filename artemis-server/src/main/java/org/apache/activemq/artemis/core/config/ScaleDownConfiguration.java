@@ -34,6 +34,8 @@ public class ScaleDownConfiguration implements Serializable {
 
    private boolean enabled = ActiveMQDefaultConfiguration.isDefaultScaleDownEnabled();
 
+   private int commitInterval = ActiveMQDefaultConfiguration.getDefaultScaleDownCommitInterval();
+
    public List<String> getConnectors() {
       return connectors;
    }
@@ -81,6 +83,15 @@ public class ScaleDownConfiguration implements Serializable {
 
    public ScaleDownConfiguration setEnabled(boolean enabled) {
       this.enabled = enabled;
+      return this;
+   }
+
+   public int getCommitInterval() {
+      return commitInterval;
+   }
+
+   public ScaleDownConfiguration setCommitInterval(int commitInterval) {
+      this.commitInterval = commitInterval;
       return this;
    }
 }

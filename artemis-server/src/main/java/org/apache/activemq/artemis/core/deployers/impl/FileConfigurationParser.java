@@ -1990,6 +1990,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
          scaleDownConfiguration.setEnabled(getBoolean(scaleDownElement, "enabled", scaleDownConfiguration.isEnabled()));
 
+         scaleDownConfiguration.setCommitInterval(getInteger(scaleDownElement, "commit-interval", scaleDownConfiguration.getCommitInterval(), MINUS_ONE_OR_GT_ZERO));
+
          NodeList discoveryGroupRef = scaleDownElement.getElementsByTagName("discovery-group-ref");
 
          if (discoveryGroupRef.item(0) != null) {
