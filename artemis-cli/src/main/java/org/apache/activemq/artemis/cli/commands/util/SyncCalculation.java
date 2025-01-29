@@ -142,7 +142,6 @@ public class SyncCalculation {
             for (int i = 0; i < blocks; i++) {
                bufferBlock.position(0);
                latch.countUp();
-               long startWrite = 0;
                file.writeDirect(bufferBlock, true, callback);
 
                if (syncWrites) {

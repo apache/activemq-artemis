@@ -188,7 +188,6 @@ public class InvalidDestinationTest extends JMSTestBase {
 
    @Test
    public void invalidDestinationExceptionTests() throws Exception {
-      Destination invalidDestination = null;
       Topic invalidTopic = null;
 
       Connection conn = cf.createConnection();

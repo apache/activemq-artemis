@@ -115,8 +115,6 @@ public class XmlImportExportRbacTest extends ActiveMQTestBase {
          international.append(x);
       }
 
-      String special = "\"<>'&";
-
       for (int i = 0; i < 5; i++) {
          ClientMessage msg = session.createMessage(true);
          msg.getBodyBuffer().writeString("Bob the giant pig " + i);

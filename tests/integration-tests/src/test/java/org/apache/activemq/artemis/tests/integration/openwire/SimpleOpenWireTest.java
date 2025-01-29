@@ -1716,12 +1716,10 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    @Test
    public void testXAResourceCommitSuspendedNotRemoved() throws Exception {
-      Queue queue = null;
 
       Xid xid = newXID();
       try (XAConnection xaconnection = xaFactory.createXAConnection()) {
          XASession session = xaconnection.createXASession();
-         queue = session.createQueue(queueName);
          session.getXAResource().start(xid, XAResource.TMNOFLAGS);
          session.getXAResource().end(xid, XAResource.TMSUSPEND);
 
@@ -1743,12 +1741,10 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    @Test
    public void testXAResourceRolledBackSuspendedNotRemoved() throws Exception {
-      Queue queue = null;
 
       Xid xid = newXID();
       try (XAConnection xaconnection = xaFactory.createXAConnection()) {
          XASession session = xaconnection.createXASession();
-         queue = session.createQueue(queueName);
          session.getXAResource().start(xid, XAResource.TMNOFLAGS);
          session.getXAResource().end(xid, XAResource.TMSUSPEND);
 

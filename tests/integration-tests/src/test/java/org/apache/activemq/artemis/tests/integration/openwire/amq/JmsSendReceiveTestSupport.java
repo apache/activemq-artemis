@@ -107,7 +107,6 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
     */
    protected void assertMessagesReceivedAreValid(List<Message> receivedMessages) throws JMSException {
       List<Object> copyOfMessages = Arrays.asList(receivedMessages.toArray());
-      int counter = 0;
 
       if (data.length != copyOfMessages.size()) {
          for (Iterator<Object> iter = copyOfMessages.iterator(); iter.hasNext(); ) {

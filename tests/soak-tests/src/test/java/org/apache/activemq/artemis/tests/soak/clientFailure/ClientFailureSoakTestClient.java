@@ -65,8 +65,6 @@ public class ClientFailureSoakTestClient {
          CyclicBarrier consumersCreated = new CyclicBarrier(numberOfThreads + 1);
 
          for (int i = 0; i < numberOfThreads; i++) {
-
-            int threadID = i;
             service.execute(() -> {
                try {
                   boolean tx = RandomUtil.randomBoolean(); // flip a coin if we are using TX or Auto-ACK

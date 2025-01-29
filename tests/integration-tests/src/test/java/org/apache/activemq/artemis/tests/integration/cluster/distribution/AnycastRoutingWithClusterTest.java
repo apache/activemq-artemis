@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.List;
-
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -55,8 +53,6 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 2);
 
       startServers(0, 1, 2);
-
-      List<Queue> queues;
       for (int i = 0; i < 3; i++) {
          createAddressInfo(i, address, RoutingType.ANYCAST, -1, false);
          setupSessionFactory(i, isNetty());
@@ -111,8 +107,6 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 2);
 
       startServers(0, 1, 2);
-
-      List<Queue> queues;
       for (int i = 0; i < 3; i++) {
          createAddressInfo(i, address, RoutingType.ANYCAST, -1, false);
          setupSessionFactory(i, isNetty());
@@ -166,8 +160,6 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 2);
 
       startServers(0, 1, 2);
-
-      List<Queue> queues;
       for (int i = 0; i < 3; i++) {
          createAddressInfo(i, address, RoutingType.ANYCAST, -1, false);
          setupSessionFactory(i, isNetty());
@@ -228,8 +220,6 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
       setUpGroupHandler(GroupingHandlerConfiguration.TYPE.REMOTE, 2);
 
       startServers(0, 1, 2);
-
-      List<Queue> queues;
       for (int i = 0; i < 3; i++) {
          createAddressInfo(i, address, RoutingType.MULTICAST, -1, false);
          setupSessionFactory(i, isNetty());

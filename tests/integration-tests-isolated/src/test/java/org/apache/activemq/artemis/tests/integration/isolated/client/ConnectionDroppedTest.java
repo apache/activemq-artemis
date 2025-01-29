@@ -213,7 +213,6 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
       flagStart.reset();
 
       for (int i = 0; i < NUMBER_OF_CONNECTIONS; i++) {
-         final int t = i;
          executorService.execute(() -> {
             try {
                boolean alreadyStarted = false;

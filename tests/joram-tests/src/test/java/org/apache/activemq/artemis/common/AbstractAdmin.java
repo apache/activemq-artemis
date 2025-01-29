@@ -118,7 +118,6 @@ public class AbstractAdmin implements Admin {
 
    @Override
    public void createQueue(final String name) {
-      Boolean result;
       try {
          invokeSyncOperation(ResourceNames.BROKER, "createQueue", name, RoutingType.ANYCAST.toString(), name, null, true, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(), ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), true);
       } catch (Exception e) {
@@ -128,7 +127,6 @@ public class AbstractAdmin implements Admin {
 
    @Override
    public void deleteQueue(final String name) {
-      Boolean result;
       try {
          invokeSyncOperation(ResourceNames.BROKER, "destroyQueue", name, true);
       } catch (Exception e) {
@@ -157,7 +155,6 @@ public class AbstractAdmin implements Admin {
 
    @Override
    public void deleteTopic(final String name) {
-      Boolean result;
       try {
          invokeSyncOperation(ResourceNames.BROKER, "deleteAddress", name, Boolean.TRUE);
       } catch (Exception e) {

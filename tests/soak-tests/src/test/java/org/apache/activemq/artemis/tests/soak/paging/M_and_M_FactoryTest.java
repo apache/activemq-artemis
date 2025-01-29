@@ -188,7 +188,6 @@ public class M_and_M_FactoryTest extends SoakTestBase {
       Process dlqProcess = startConsumerProcess(theprotocol, 0, "DLQ", 100, 1000);
 
       AtomicInteger retryNumber = new AtomicInteger(0);
-      int expectedTotalSize = 0;
 
       ConnectionFactory factory = CFUtil.createConnectionFactory(theprotocol, "tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {
@@ -259,8 +258,6 @@ public class M_and_M_FactoryTest extends SoakTestBase {
                      return false;
                   }
                }, 45_000, 1_000);
-
-               expectedTotalSize += BATCH_SIZE * 2;
 
                retryNumber.incrementAndGet();
 

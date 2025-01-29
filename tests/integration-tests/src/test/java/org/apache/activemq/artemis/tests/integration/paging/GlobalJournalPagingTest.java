@@ -120,8 +120,6 @@ public class GlobalJournalPagingTest extends JournalPagingTest {
 
       final ClientProducer producer = session.createProducer(JournalPagingTest.ADDRESS);
 
-      ClientMessage message = null;
-
       final byte[] body = new byte[MESSAGE_SIZE];
 
       ByteBuffer bb = ByteBuffer.wrap(body);
