@@ -128,7 +128,6 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
       server2.setIdentity("server2");
 
       String QUEUE_NAME = "q" + RandomUtil.randomString();
-      String server1URI = "tcp://localhost:61616";
       String server2URI = "tcp://localhost:61617";
 
       Wait.waitFor(() -> server1.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_other") != null);

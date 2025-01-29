@@ -472,7 +472,6 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       long retryInterval = RandomUtil.randomPositiveLong();
       double retryIntervalMultiplier = RandomUtil.randomDouble();
       int reconnectAttempts = RandomUtil.randomPositiveInt();
-      boolean enableSharedClientID = true;
 
       try {
          cf.setClientID(clientID);

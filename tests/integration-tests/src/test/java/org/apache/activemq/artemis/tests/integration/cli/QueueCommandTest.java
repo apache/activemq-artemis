@@ -146,7 +146,6 @@ public class QueueCommandTest extends JMSTestBase {
    @Test
    public void testCreateQueueAlreadyExists() throws Exception {
       String queueName = "queue2";
-      String filerString = "color='green'";
 
       CreateQueue command = new CreateQueue();
       command.setName(queueName);
@@ -302,8 +301,6 @@ public class QueueCommandTest extends JMSTestBase {
       final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.copyOf(supportedRoutingTypes));
       server.addAddressInfo(addressInfo);
       server.createQueue(QueueConfiguration.of(queueNameString).setAddress(addressSimpleString).setRoutingType(oldRoutingType).setMaxConsumers(oldMaxConsumers).setPurgeOnNoConsumers(oldPurgeOnNoConsumers).setAutoCreateAddress(false));
-
-      final RoutingType newRoutingType = RoutingType.ANYCAST;
       final UpdateQueue updateQueue = new UpdateQueue();
       updateQueue.setName(queueName);
       updateQueue.setAnycast(true);

@@ -134,7 +134,6 @@ public class JsonUtilTest {
 
       final byte[] bytesA = {0x0a, 0x0b};
       final byte[] bytesB = {0x1a, 0x1b};
-      final byte[] bytesAB = {0x0a, 0x0b, 0x1a, 0x1b};
 
       JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
       JsonUtil.addToObject("a", "a", jsonObjectBuilder);

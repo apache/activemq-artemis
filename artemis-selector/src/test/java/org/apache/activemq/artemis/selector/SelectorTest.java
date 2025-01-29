@@ -292,45 +292,18 @@ public class SelectorTest {
    @Test
    public void testFloatComparisons() throws Exception {
       MockMessage message = createMessage();
-
-      // JMS 1.1 Section 3.8.1.1 : Approximate literals use the Java
-      // floating-point literal syntax.
-      // We will use the java varible x to demo valid floating point syntaxs.
-      double x;
-
-      // test decimals like x.x
-      x = 1.0;
-      x = -1.1;
-      x = 1.0E1;
-      x = 1.1E1;
-      x = -1.1E1;
       assertSelector(message, "1.0 < 1.1", true);
       assertSelector(message, "-1.1 < 1.0", true);
       assertSelector(message, "1.0E1 < 1.1E1", true);
       assertSelector(message, "-1.1E1 < 1.0E1", true);
-
-      // test decimals like x.
-      x = 1.;
-      x = 1.E1;
       assertSelector(message, "1. < 1.1", true);
       assertSelector(message, "-1.1 < 1.", true);
       assertSelector(message, "1.E1 < 1.1E1", true);
       assertSelector(message, "-1.1E1 < 1.E1", true);
-
-      // test decimals like .x
-      x = .5;
-      x = -.5;
-      x = .5E1;
       assertSelector(message, ".1 < .5", true);
       assertSelector(message, "-.5 < .1", true);
       assertSelector(message, ".1E1 < .5E1", true);
       assertSelector(message, "-.5E1 < .1E1", true);
-
-      // test exponents
-      x = 4E10;
-      x = -4E10;
-      x = 5E+10;
-      x = 5E-10;
       assertSelector(message, "4E10 < 5E10", true);
       assertSelector(message, "5E8 < 5E10", true);
       assertSelector(message, "-4E10 < 2E10", true);

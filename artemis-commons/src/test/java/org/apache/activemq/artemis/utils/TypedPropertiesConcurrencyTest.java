@@ -41,7 +41,6 @@ public class TypedPropertiesConcurrencyTest {
       AtomicBoolean hasError = new AtomicBoolean();
       CountDownLatch countDownLatch = new CountDownLatch(1);
       for (int i = 0; i < 10000; i++) {
-         int g = i;
          executorService.submit(() -> {
             try {
                countDownLatch.await();
@@ -89,7 +88,6 @@ public class TypedPropertiesConcurrencyTest {
       AtomicBoolean hasError = new AtomicBoolean();
       CountDownLatch countDownLatch = new CountDownLatch(1);
       for (int i = 0; i < 10000; i++) {
-         int g = i;
          executorService.submit(() -> {
             try {
                countDownLatch.await();

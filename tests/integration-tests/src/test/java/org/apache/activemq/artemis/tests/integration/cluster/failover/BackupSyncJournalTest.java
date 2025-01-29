@@ -155,15 +155,6 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       assertEquals(size, backupMsgJournal.getFileSize(), "file sizes must be the same");
       Set<Pair<Long, Integer>> backupIds = getFileIds(backupMsgJournal);
 
-      int total = 0;
-      for (Pair<Long, Integer> pair : primaryIds) {
-         total += pair.getB();
-      }
-      int totalBackup = 0;
-      for (Pair<Long, Integer> pair : backupIds) {
-         totalBackup += pair.getB();
-      }
-
       // "+ 2": there two other calls that send N_MSGS.
       for (int i = 0; i < totalRounds + 3; i++) {
          receiveMsgsInRange(0, n_msgs);

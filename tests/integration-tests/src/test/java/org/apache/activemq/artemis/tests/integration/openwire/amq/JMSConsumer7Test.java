@@ -112,7 +112,6 @@ public class JMSConsumer7Test extends BasicOpenWireTest {
       consumer = session.createConsumer(destination);
       consumer.setMessageListener(m -> {
          try {
-            TextMessage tm = (TextMessage) m;
             // order is not guaranteed as the connection is started before
             // the listener is set.
             // assertEquals("" + counter.get(), tm.getText());

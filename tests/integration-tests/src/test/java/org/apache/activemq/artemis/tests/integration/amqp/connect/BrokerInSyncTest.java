@@ -860,7 +860,6 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
          assertEquals(i, message.getIntProperty("i"));
          assertEquals("test " + i, message.getText());
          session1.commit();
-         int fi = i;
       }
 
       Wait.assertEquals(0L, queueOnServer1::getMessageCount, 2000, 100);

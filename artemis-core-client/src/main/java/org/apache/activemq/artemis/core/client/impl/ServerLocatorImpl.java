@@ -103,6 +103,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private transient String identity;
 
+   // this is not used... I'm only keeping it here because of Serialization compatibility and Wildfly usage on JNDI.
+   @SuppressWarnings("unused")
+   private boolean finalizeCheck;
+
    private final Set<ClientSessionFactoryInternal> factories = new HashSet<>();
 
    private final Set<ClientSessionFactoryInternal> connectingFactories = new HashSet<>();

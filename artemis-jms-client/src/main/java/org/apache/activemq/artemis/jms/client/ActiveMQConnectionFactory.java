@@ -98,6 +98,10 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
 
    private boolean enable1xPrefixes = ActiveMQJMSClient.DEFAULT_ENABLE_1X_PREFIXES;
 
+   // keeping this field for serialization compatibility only. do not use it
+   @SuppressWarnings("unused")
+   private boolean finalizeCheck;
+
    @Override
    public void writeExternal(ObjectOutput out) throws IOException {
       URI uri = toURI();

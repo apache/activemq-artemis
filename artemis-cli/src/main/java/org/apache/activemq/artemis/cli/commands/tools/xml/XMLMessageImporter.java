@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.cli.commands.tools.xml;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -103,8 +102,6 @@ public class XMLMessageImporter {
       message.setUserID(userId);
 
       boolean endLoop = false;
-
-      File largeMessageTemporaryFile = null;
       // loop through the XML and gather up all the message's data (i.e. body, properties, queues, etc.)
       while (reader.hasNext()) {
          int eventType = reader.getEventType();
@@ -234,13 +231,10 @@ public class XMLMessageImporter {
    }
 
    private void processMessageBody(final ICoreMessage message, boolean decodeTextMessage) throws XMLStreamException, IOException {
-      File tempFileName = null;
-      boolean isLarge = false;
 
       for (int i = 0; i < reader.getAttributeCount(); i++) {
          String attributeName = reader.getAttributeLocalName(i);
          if (XmlDataConstants.MESSAGE_IS_LARGE.equals(attributeName)) {
-            isLarge = Boolean.parseBoolean(reader.getAttributeValue(i));
          }
       }
       reader.next();

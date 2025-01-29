@@ -113,7 +113,6 @@ public class JMSConsumer8Test extends BasicOpenWireTest {
       consumer = session.createConsumer(destination);
       consumer.setMessageListener(m -> {
          try {
-            TextMessage tm = (TextMessage) m;
             counter.incrementAndGet();
             if (counter.get() == 4) {
                done2.countDown();

@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.openwire;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -69,7 +68,6 @@ public class DisableAdvisoryTest extends BasicOpenWireTest {
       connection.start();
 
       TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
-
       //Openwire client will create advisory consumers to the broker.
       //The broker is configured supportAdvisory=false and therefore doesn't
       //actually create a server consumer. However the consumer info should be
@@ -77,7 +75,6 @@ public class DisableAdvisoryTest extends BasicOpenWireTest {
       //it won't cause the broker to throw an exception because of the missing
       //consumer info.
       //See OpenWireConnection.CommandProcessor.processRemoveConsumer
-      ActiveMQSession owSession = (ActiveMQSession) session;
       RemotingService remotingService = server.getRemotingService();
       Set<RemotingConnection> conns = remotingService.getConnections();
       assertEquals(1, conns.size());

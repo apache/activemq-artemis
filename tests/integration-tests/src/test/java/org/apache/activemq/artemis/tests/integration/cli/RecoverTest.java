@@ -133,7 +133,6 @@ public class RecoverTest extends JMSTestBase {
       {
          StringBuffer stringBuffer = new StringBuffer();
          if (large) {
-            int i = 0;
             while (stringBuffer.length() < 110 * 1024) {
                //stringBuffer.append("this is " + (i++));
                stringBuffer.append(" ");

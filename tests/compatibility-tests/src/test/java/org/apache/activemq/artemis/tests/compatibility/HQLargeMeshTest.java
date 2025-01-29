@@ -68,7 +68,6 @@ public class HQLargeMeshTest extends VersionedBase {
       startServer(serverFolder, serverClassloader, "live");
 
       try {
-         boolean value = true;
          evaluate(senderClassloader, "meshTest/sendLargeMessages.groovy", server, sender, "sendMessages");
          evaluate(receiverClassloader, "meshTest/sendLargeMessages.groovy", server, receiver, "receiveMessages");
       } finally {
