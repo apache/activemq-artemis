@@ -19,11 +19,11 @@
 
 package org.apache.artemis.client.cdi.factory;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.jms.JMSContext;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
+import jakarta.jms.JMSContext;
 import java.util.HashMap;
 import java.util.Map;
 

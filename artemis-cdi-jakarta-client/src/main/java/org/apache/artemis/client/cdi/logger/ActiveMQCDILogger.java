@@ -19,7 +19,7 @@
 
 package org.apache.artemis.client.cdi.logger;
 
-import javax.enterprise.inject.spi.ProcessBean;
+import jakarta.enterprise.inject.spi.ProcessBean;
 
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;

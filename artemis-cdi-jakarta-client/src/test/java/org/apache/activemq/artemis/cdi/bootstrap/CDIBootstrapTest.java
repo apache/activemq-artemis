@@ -19,11 +19,11 @@
 
 package org.apache.activemq.artemis.cdi.bootstrap;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.spi.Extension;
-import javax.inject.Inject;
-import javax.jms.JMSContext;
-import javax.jms.Queue;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.Extension;
+import jakarta.inject.Inject;
+import jakarta.jms.JMSContext;
+import jakarta.jms.Queue;
 
 import org.apache.artemis.client.cdi.configuration.ArtemisClientConfiguration;
 import org.apache.artemis.client.cdi.configuration.DefaultArtemisClientConfigurationImpl;

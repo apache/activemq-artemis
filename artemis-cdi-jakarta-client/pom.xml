@@ -27,8 +27,16 @@
    </parent>
    <modelVersion>4.0.0</modelVersion>
 
-   <artifactId>artemis-cdi-client</artifactId>
+   <artifactId>artemis-cdi-jakarta-client</artifactId>
    <name>ActiveMQ Artemis CDI Integration</name>
+
+   <properties>
+      <jakarta.inject-api.version>${jakarta.inject-api.version.alt}</jakarta.inject-api.version>
+      <jakarta.annotation-api.version>${jakarta.annotation-api.version.alt}</jakarta.annotation-api.version>
+      <jakarta.enterprise.cdi-api.version>${jakarta.enterprise.cdi-api.version.alt}</jakarta.enterprise.cdi-api.version>
+      <jakarta.jms-api.version>${jakarta.jms-api.version.alt}</jakarta.jms-api.version>
+      <jakarta.transaction-api.version>${jakarta.transaction-api.version.alt}</jakarta.transaction-api.version>
+   </properties>
 
    <dependencies>
       <!-- logging -->
@@ -53,11 +61,11 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-jms-client</artifactId>
+         <artifactId>artemis-jakarta-client</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-server</artifactId>
+         <artifactId>artemis-jakarta-server</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>

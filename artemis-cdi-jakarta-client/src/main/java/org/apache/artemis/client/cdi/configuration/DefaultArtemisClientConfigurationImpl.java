@@ -19,7 +19,7 @@
 
 package org.apache.artemis.client.cdi.configuration;
 
-import javax.enterprise.inject.Vetoed;
+import jakarta.enterprise.inject.Vetoed;
 import java.util.Map;
 
 @Vetoed

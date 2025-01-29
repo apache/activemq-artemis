@@ -19,8 +19,8 @@
 
 package org.apache.artemis.client.cdi.extension;
 
-import javax.enterprise.inject.Default;
-import javax.enterprise.util.AnnotationLiteral;
+import jakarta.enterprise.inject.Default;
+import jakarta.enterprise.util.AnnotationLiteral;
 
 class DefaultLiteral extends AnnotationLiteral<Default> implements Default {
 

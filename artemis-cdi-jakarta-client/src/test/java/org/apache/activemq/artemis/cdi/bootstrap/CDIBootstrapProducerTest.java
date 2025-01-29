@@ -19,9 +19,9 @@
 
 package org.apache.activemq.artemis.cdi.bootstrap;
 
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.spi.Extension;
-import javax.inject.Inject;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.spi.Extension;
+import jakarta.inject.Inject;
 
 import org.apache.artemis.client.cdi.configuration.ArtemisClientConfiguration;
 import org.apache.artemis.client.cdi.extension.ArtemisExtension;

@@ -39,6 +39,7 @@
       <module>artemis-protocols</module>
       <module>artemis-dto</module>
       <module>artemis-cdi-client</module>
+      <module>artemis-cdi-jakarta-client</module>
       <module>artemis-boot</module>
       <module>artemis-cli</module>
       <module>artemis-commons</module>
@@ -180,6 +181,9 @@
       <jakarta.jms-api.version.alt>3.1.0</jakarta.jms-api.version.alt>
       <jakarta.transaction-api.version.alt>2.0.1</jakarta.transaction-api.version.alt>
       <jakarta.resource-api.version.alt>2.1.0</jakarta.resource-api.version.alt>
+      <jakarta.inject-api.version.alt>2.0.1</jakarta.inject-api.version.alt>
+      <jakarta.annotation-api.version.alt>3.0.0</jakarta.annotation-api.version.alt>
+      <jakarta.enterprise.cdi-api.version.alt>4.1.0</jakarta.enterprise.cdi-api.version.alt>
 
       <!-- used on tests -->
       <elementary.version>3.0.0</elementary.version>

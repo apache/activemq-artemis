@@ -19,8 +19,8 @@
 
 package org.apache.activemq.artemis.cdi.bootstrap;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
 
 import org.apache.artemis.client.cdi.configuration.ArtemisClientConfiguration;
 import org.apache.artemis.client.cdi.configuration.DefaultArtemisClientConfigurationImpl;

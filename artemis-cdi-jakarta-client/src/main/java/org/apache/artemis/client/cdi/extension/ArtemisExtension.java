@@ -19,10 +19,10 @@
 
 package org.apache.artemis.client.cdi.extension;
 
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.spi.AfterBeanDiscovery;
-import javax.enterprise.inject.spi.Extension;
-import javax.enterprise.inject.spi.ProcessBean;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
+import jakarta.enterprise.inject.spi.Extension;
+import jakarta.enterprise.inject.spi.ProcessBean;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.artemis.client.cdi.configuration.ArtemisClientConfiguration;
