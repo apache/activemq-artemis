@@ -876,6 +876,11 @@
             <version>${apache.httpclient.version}</version>
          </dependency>
 
+         <dependency>
+            <groupId>org.jboss.shrinkwrap</groupId>
+            <artifactId>shrinkwrap-api</artifactId>
+            <version>${shrinkwrap-api.version}</version>
+         </dependency>
       </dependencies>
    </dependencyManagement>
 
