@@ -50,6 +50,7 @@ public class ArtemisEmbeddedServerConfigBean implements Bean<Configuration> {
    }
 
    // we cannot use @Override here because otherwise the build of artemis-cdi-jakarta-client fails since the method was removed in jakarta ee 9+
+   @SuppressWarnings("MissingOverride")
    public boolean isNullable() {
       return false;
    }
