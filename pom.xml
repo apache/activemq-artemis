@@ -184,6 +184,9 @@
       <jakarta.inject-api.version.alt>2.0.1</jakarta.inject-api.version.alt>
       <jakarta.annotation-api.version.alt>3.0.0</jakarta.annotation-api.version.alt>
       <jakarta.enterprise.cdi-api.version.alt>4.1.0</jakarta.enterprise.cdi-api.version.alt>
+      <jakarta.ejb-api.version.alt>4.0.1</jakarta.ejb-api.version.alt>
+      <weld.version.alt>6.0.0.Final</weld.version.alt>
+      <arquillian-weld-embedded.version.alt>4.0.0.Final</arquillian-weld-embedded.version.alt>
 
       <!-- used on tests -->
       <elementary.version>3.0.0</elementary.version>

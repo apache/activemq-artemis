@@ -36,6 +36,9 @@
       <jakarta.enterprise.cdi-api.version>${jakarta.enterprise.cdi-api.version.alt}</jakarta.enterprise.cdi-api.version>
       <jakarta.jms-api.version>${jakarta.jms-api.version.alt}</jakarta.jms-api.version>
       <jakarta.transaction-api.version>${jakarta.transaction-api.version.alt}</jakarta.transaction-api.version>
+      <jakarta.ejb-api.version>${jakarta.ejb-api.version.alt}</jakarta.ejb-api.version>
+      <weld.version>${weld.version.alt}</weld.version>
+      <arquillian-weld-embedded.version>${arquillian-weld-embedded.version.alt}</arquillian-weld-embedded.version>
    </properties>
 
    <dependencies>
@@ -158,11 +161,15 @@
          <dependencies>
             <dependency>
                <groupId>org.jboss.weld.se</groupId>
-               <artifactId>weld-se</artifactId>
+               <artifactId>weld-se-core</artifactId>
             </dependency>
             <dependency>
                <groupId>org.jboss.arquillian.container</groupId>
                <artifactId>arquillian-weld-embedded</artifactId>
+            </dependency>
+            <dependency>
+               <groupId>jakarta.ejb</groupId>
+               <artifactId>jakarta.ejb-api</artifactId>
             </dependency>
          </dependencies>
       </profile>
