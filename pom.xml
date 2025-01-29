@@ -187,6 +187,7 @@
       <jakarta.ejb-api.version.alt>4.0.1</jakarta.ejb-api.version.alt>
       <weld.version.alt>6.0.0.Final</weld.version.alt>
       <arquillian-weld-embedded.version.alt>4.0.0.Final</arquillian-weld-embedded.version.alt>
+      <owb.version.alt>4.0.3</owb.version.alt>
 
       <!-- used on tests -->
       <elementary.version>3.0.0</elementary.version>
