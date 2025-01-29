@@ -71,7 +71,7 @@ public class PageCounterRebuildManager implements Runnable {
    /** this method will perform the copy from Acked recorded from the subscription into a separate data structure.
     * So we can count data while we consolidate at the end */
    private void initialize(PagingStore store) {
-      store.lock(-1);
+      store.writeLock();
       try {
          try {
             paging = store.isPaging();
@@ -134,7 +134,7 @@ public class PageCounterRebuildManager implements Runnable {
             });
          });
       } finally {
-         store.unlock();
+         store.writeUnlock();
       }
    }
 

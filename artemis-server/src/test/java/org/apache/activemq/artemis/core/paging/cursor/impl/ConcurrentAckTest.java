@@ -59,7 +59,7 @@ public class ConcurrentAckTest extends ServerTestBase {
 
    private void testConcurrentAddAckPaging(ScheduledExecutorService scheduledExecutorService, ExecutorService service) throws Throwable {
       AtomicInteger errors = new AtomicInteger(0);
-      PagingStoreImpl store = new PagingStoreImpl(SimpleString.of("TEST"), scheduledExecutorService, 100L, Mockito.mock(PagingManager.class), new NullStorageManager(), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), SimpleString.of("TEST"), new AddressSettings(), ArtemisExecutor.delegate(service), ArtemisExecutor.delegate(service), false);
+      PagingStoreImpl store = new PagingStoreImpl(SimpleString.of("TEST"), scheduledExecutorService, 100L, Mockito.mock(PagingManager.class), new NullStorageManager(), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), SimpleString.of("TEST"), new AddressSettings(), ArtemisExecutor.delegate(service), false);
 
       PageCursorProviderImpl pageCursorProvider = new PageCursorProviderImpl(store, new NullStorageManager());
       PageSubscriptionImpl subscription = (PageSubscriptionImpl) pageCursorProvider.createSubscription(1, null, true);

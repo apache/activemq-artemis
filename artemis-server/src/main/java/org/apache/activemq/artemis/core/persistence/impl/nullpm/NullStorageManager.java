@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -81,6 +82,8 @@ public class NullStorageManager implements StorageManager {
 
    private volatile boolean started;
 
+   Supplier<OperationContext> contextSupplier = () -> dummyContext;
+
    private final IOCriticalErrorListener ioCriticalErrorListener;
 
    @Override
@@ -95,7 +98,7 @@ public class NullStorageManager implements StorageManager {
    private static final ArtemisCloseable dummy = () -> { };
 
    @Override
-   public ArtemisCloseable closeableReadLock() {
+   public ArtemisCloseable closeableReadLock(boolean tryLock) {
       return dummy;
    }
 
@@ -405,7 +408,7 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public void pageWrite(final SimpleString address, final PagedMessage message, final long pageNumber) {
+   public void pageWrite(final SimpleString address, final PagedMessage message, final long pageNumber, boolean lineup, boolean originallyReplicated) {
    }
 
    @Override
@@ -440,9 +443,14 @@ public class NullStorageManager implements StorageManager {
    public void waitOnOperations() throws Exception {
    }
 
+   public NullStorageManager setContextSupplier(Supplier<OperationContext> contextSupplier) {
+      this.contextSupplier = contextSupplier;
+      return this;
+   }
+
    @Override
    public OperationContext getContext() {
-      return NullStorageManager.dummyContext;
+      return contextSupplier.get();
    }
 
    @Override

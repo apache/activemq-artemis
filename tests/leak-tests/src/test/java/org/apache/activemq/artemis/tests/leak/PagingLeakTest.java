@@ -131,7 +131,7 @@ public class PagingLeakTest extends AbstractLeakTest {
             producer.send(message);
             if (i > 0 && i % COMMIT_INTERVAL == 0) {
                session.commit();
-               serverQueue.getPagingStore().forceAnotherPage();
+               serverQueue.getPagingStore().forceAnotherPage(true);
             }
          }
          session.commit();
@@ -186,7 +186,7 @@ public class PagingLeakTest extends AbstractLeakTest {
             producer.send(message);
             if (i > 0 && i % COMMIT_INTERVAL == 0) {
                session.commit();
-               serverQueue.getPagingStore().forceAnotherPage();
+               serverQueue.getPagingStore().forceAnotherPage(true);
             }
          }
          session.commit();

@@ -364,14 +364,14 @@ public class PageTest extends ActiveMQTestBase {
          msg.setMessageID(msgID);
          msg.addBytes(content);
          msg.setAddress(address);
-         page.write(new PagedMessageImpl(msg, new long[0]));
+         page.write(new PagedMessageImpl(msg, new long[0]), true, false);
          msg.releaseResources(false, false);
       } else {
          ICoreMessage msg = new CoreMessage().initBuffer(100);
          msg.setMessageID(msgID);
          msg.getBodyBuffer().writeBytes(content);
          msg.setAddress(address);
-         page.write(new PagedMessageImpl(msg, new long[0]));
+         page.write(new PagedMessageImpl(msg, new long[0]), true, false);
       }
    }
 }

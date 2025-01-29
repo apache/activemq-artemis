@@ -17,12 +17,27 @@
 
 package org.apache.activemq.artemis.core.paging.cursor.impl;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
+import org.apache.activemq.artemis.utils.SimpleFutureImpl;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PageCursorProviderTestAccessor {
 
    public static void cleanup(PageCursorProvider provider) {
-      ((PageCursorProviderImpl)provider).cleanup();
+      SimpleFutureImpl<Object> simpleFuture = new SimpleFutureImpl<>();
+      ((PageCursorProviderImpl)provider).pagingStore.execute(() -> {
+         ((PageCursorProviderImpl)provider).cleanup();
+         simpleFuture.set(new Object());
+      });
+      try {
+         Object value = simpleFuture.get(30, TimeUnit.SECONDS);
+         assertNotNull(value, "There was a timeout on calling cleanup");
+      } catch (Throwable e) {
+         e.printStackTrace();
+      }
    }
 
    public static Long getNumberOfMessagesOnSubscriptions(PageCursorProvider provider) {

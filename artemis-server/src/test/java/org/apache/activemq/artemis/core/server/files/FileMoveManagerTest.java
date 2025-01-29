@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -50,6 +51,7 @@ import org.apache.activemq.artemis.utils.FileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mockito;
 
 public class FileMoveManagerTest extends ArtemisTestCase {
 
@@ -291,6 +293,7 @@ public class FileMoveManagerTest extends ArtemisTestCase {
    public void testMoveOverPaging() throws Exception {
 
       ExecutorService threadPool = Executors.newCachedThreadPool();
+      runAfter(threadPool::shutdownNow);
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          manager.setMaxFolders(3);
          for (int i = 1; i <= 10; i++) {
@@ -301,7 +304,7 @@ public class FileMoveManagerTest extends ArtemisTestCase {
 
             final StorageManager storageManager = new NullStorageManager();
 
-            PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, dataLocation, 100, null, new OrderedExecutorFactory(threadPool),  new OrderedExecutorFactory(threadPool), true, null);
+            PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, dataLocation, 100, Mockito.mock(ScheduledExecutorService.class), new OrderedExecutorFactory(threadPool), true, null);
 
             PagingManagerImpl managerImpl = new PagingManagerImpl(storeFactory, addressSettings, -1, -1, ActiveMQDefaultConfiguration.getDefaultManagementAddress(), null);
 
@@ -321,8 +324,6 @@ public class FileMoveManagerTest extends ArtemisTestCase {
          }
 
          assertFalse(loggerHandler.findText("address.txt"), "The loggers are complaining about address.txt");
-      } finally {
-         threadPool.shutdown();
       }
 
    }

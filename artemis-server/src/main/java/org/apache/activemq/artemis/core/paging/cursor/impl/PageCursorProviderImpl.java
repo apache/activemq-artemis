@@ -275,7 +275,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       try (ArtemisCloseable readLock = storageManager.closeableReadLock()) {
 
          while (true) {
-            if (pagingStore.lock(100)) {
+            if (pagingStore.writeLock(1_000)) {
                break;
             }
             if (!pagingStore.isStarted())
@@ -318,8 +318,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
                assert pagingStore.getNumberOfPages() >= 0;
 
-               if (pagingStore.getNumberOfPages() == 0 || pagingStore.getNumberOfPages() == 1 && (pagingStore.getCurrentPage() == null || pagingStore.getCurrentPage().getNumberOfMessages() == 0)) {
-                  logger.trace("StopPaging being called on {}", pagingStore);
+               if (!pagingStore.hasPendingIO() && (pagingStore.getNumberOfPages() == 0 || pagingStore.getNumberOfPages() == 1 && (pagingStore.getCurrentPage() == null || pagingStore.getCurrentPage().getNumberOfMessages() == 0))) {
+                  logger.trace("StopPaging being called on {}, pending={}", pagingStore, pagingStore.hasPendingIO());
                   pagingStore.stopPaging();
                } else {
                   if (logger.isTraceEnabled()) {
@@ -333,7 +333,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                return;
             } finally {
                logger.trace("<<<< Cleanup end on {}", pagingStore.getAddress());
-               pagingStore.unlock();
+               pagingStore.writeUnlock();
             }
          }
       }
@@ -452,7 +452,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
       storeBookmark(cursorList, currentPage);
 
-      pagingStore.stopPaging();
+      if (!pagingStore.hasPendingIO()) {
+         pagingStore.stopPaging();
+      }
    }
 
    // Protected as a way to inject testing

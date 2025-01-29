@@ -365,7 +365,7 @@ public class RoutingContextImpl implements RoutingContext {
       return this.map;
    }
 
-   private static class ContextListing implements RouteContextList {
+   public static class ContextListing implements RouteContextList {
 
       private final List<Queue> durableQueue = new ArrayList<>(1);
 

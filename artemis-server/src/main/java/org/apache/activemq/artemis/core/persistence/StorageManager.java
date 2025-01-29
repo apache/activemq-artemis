@@ -85,6 +85,10 @@ public interface StorageManager extends MapStorageManager, IDGenerator, ActiveMQ
       return Long.MAX_VALUE;
    }
 
+   default boolean isReplicated() {
+      return false;
+   }
+
    default long getWarningRecordSize() {
       /** Null journal is pretty much memory */
       return Long.MAX_VALUE;
@@ -132,7 +136,7 @@ public interface StorageManager extends MapStorageManager, IDGenerator, ActiveMQ
 
    void pageDeleted(SimpleString address, long pageNumber);
 
-   void pageWrite(SimpleString address, PagedMessage message, long pageNumber);
+   void pageWrite(SimpleString address, PagedMessage message, long pageNumber, boolean storageUp, boolean originallyReplicated);
 
    void afterCompleteOperations(IOCallback run);
 
@@ -509,6 +513,10 @@ public interface StorageManager extends MapStorageManager, IDGenerator, ActiveMQ
     */
    void deleteID(long journalD) throws Exception;
 
+   default ArtemisCloseable closeableReadLock() {
+      return closeableReadLock(false);
+   }
+
    /**
     * Read lock the StorageManager. USE WITH CARE!
     * <p>
@@ -518,7 +526,7 @@ public interface StorageManager extends MapStorageManager, IDGenerator, ActiveMQ
     * when starting replication sync.
     *
     */
-   ArtemisCloseable closeableReadLock();
+   ArtemisCloseable closeableReadLock(boolean tryLock);
 
    /**
     * Closes the {@link IDGenerator} persisting the current record ID.

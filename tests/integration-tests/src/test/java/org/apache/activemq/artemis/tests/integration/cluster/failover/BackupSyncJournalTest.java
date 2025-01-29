@@ -111,7 +111,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       // in case of paging I must close the current page otherwise we will get a pending counter
       // what would make the verification on similar journal to fail after the recovery
       if (store.isPaging()) {
-         store.forceAnotherPage();
+         store.forceAnotherPage(true);
       }
       backupServer.start();
 
@@ -124,7 +124,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       // in case of paging I must close the current page otherwise we will get a pending counter
       // what would make the verification on similar journal to fail after the recovery
       if (store.isPaging()) {
-         store.forceAnotherPage();
+         store.forceAnotherPage(true);
       }
 
       // Deliver messages with Backup up-to-date
@@ -136,7 +136,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       // in case of paging I must close the current page otherwise we will get a pending counter
       // what would make the verification on similar journal to fail after the recovery
       if (store.isPaging()) {
-         store.forceAnotherPage();
+         store.forceAnotherPage(true);
       }
 
       int size = messageJournal.getFileSize();

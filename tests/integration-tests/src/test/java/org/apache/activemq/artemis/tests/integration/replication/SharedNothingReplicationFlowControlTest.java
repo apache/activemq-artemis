@@ -248,7 +248,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
          if (i % 10 == 0) {
             sess.commit();
-            store.forceAnotherPage();
+            store.forceAnotherPage(true);
          }
       }
 
@@ -294,7 +294,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
                                       ExecutorFactory executorFactory,
                                       boolean syncNonTransactional,
                                       IOCriticalErrorListener critialErrorListener) {
-         super(storageManager, directory, syncTimeout, scheduledExecutor, executorFactory, executorFactory, syncNonTransactional, critialErrorListener);
+         super(storageManager, directory, syncTimeout, scheduledExecutor, executorFactory, syncNonTransactional, critialErrorListener);
       }
 
       PageStoreFactoryTestable(PagingStoreFactoryNIO other) {

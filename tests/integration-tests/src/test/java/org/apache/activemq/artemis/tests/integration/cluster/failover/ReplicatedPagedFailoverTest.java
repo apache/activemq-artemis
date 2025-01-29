@@ -85,7 +85,7 @@ public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
          // some are durable, some are not!
          producer.send(createMessage(session, i, i % 2 == 0));
          if (i > 0 && i % messagesPerPage == 0) {
-            queue.getPageSubscription().getPagingStore().forceAnotherPage();
+            queue.getPageSubscription().getPagingStore().forceAnotherPage(true);
          }
       }
 

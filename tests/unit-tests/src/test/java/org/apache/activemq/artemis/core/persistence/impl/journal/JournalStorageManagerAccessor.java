@@ -14,21 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.cluster.failover.lockmanager;
 
-import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
-import org.apache.activemq.artemis.tests.integration.cluster.failover.PageCleanupWhileReplicaCatchupTest;
+package org.apache.activemq.artemis.core.persistence.impl.journal;
 
-public class LockManagerPageCleanupWhileReplicaCatchupTest extends PageCleanupWhileReplicaCatchupTest {
+import org.apache.activemq.artemis.core.replication.ReplicationManager;
 
-   @Override
-   protected void createConfigs() throws Exception {
-      createPluggableReplicatedConfigs();
-   }
+public class JournalStorageManagerAccessor {
 
-   @Override
-   protected void setupHAPolicyConfiguration() {
-      ((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(2).setAllowFailBack(true);
+   public static void setReplicationManager(JournalStorageManager journalStorageManager, ReplicationManager replicationManager) {
+      journalStorageManager.setReplicator(replicationManager);
    }
 
 }

@@ -58,7 +58,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -94,6 +96,7 @@ import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
@@ -104,6 +107,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -152,6 +156,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.SimpleFutureImpl;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.Wait;
@@ -458,7 +463,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
    protected ConfigurationImpl createBasicConfig(final int serverID) {
-      ConfigurationImpl configuration = new ConfigurationImpl().setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(100 * 1024).setJournalType(getDefaultJournalType()).setJournalDirectory(getJournalDir(serverID, false)).setBindingsDirectory(getBindingsDir(serverID, false)).setPagingDirectory(getPageDir(serverID, false)).setLargeMessagesDirectory(getLargeMessagesDir(serverID, false)).setJournalCompactMinFiles(0).setJournalCompactPercentage(0).setClusterPassword(CLUSTER_PASSWORD).setJournalDatasync(false);
+      ConfigurationImpl configuration = new ConfigurationImpl().setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(100 * 1024).setJournalType(getDefaultJournalType()).setJournalDirectory(getJournalDir(serverID, false)).setBindingsDirectory(getBindingsDir(serverID, false)).setPagingDirectory(getPageDir(serverID, false)).setLargeMessagesDirectory(getLargeMessagesDir(serverID, false)).setJournalCompactMinFiles(0).setJournalCompactPercentage(0).setClusterPassword(CLUSTER_PASSWORD).setJournalDatasync(false).setPageSyncTimeout(100);
 
       // When it comes to the testsuite, we don't need any batching, I will leave some minimal batching to exercise the codebase
       configuration.setJournalBufferTimeout_AIO(100).setJournalBufferTimeout_NIO(100);
@@ -2596,5 +2601,53 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
     */
    public static void waitForLatch(CountDownLatch latch) throws InterruptedException {
       assertTrue(latch.await(1, TimeUnit.MINUTES), "Latch has got to return within a minute");
+   }
+
+   /** use the current OperationContext to sync any pending operations. */
+   protected void syncOperationContext() throws Exception {
+      CountDownLatch latch = new CountDownLatch(1);
+      OperationContext operationContext = OperationContextImpl.getContext();
+      if (operationContext != null) {
+         operationContext.executeOnCompletion(new IOCallback() {
+            @Override
+            public void done() {
+               latch.countDown();
+            }
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+
+            }
+         });
+
+         assertTrue(latch.await(10, TimeUnit.SECONDS));
+      }
+   }
+
+   protected <T> T callOnExecutor(Executor executor, Callable<T> callable, long time, TimeUnit unit) throws Exception {
+      Object nullReturn = new Object();
+      SimpleFutureImpl<Object> future = new SimpleFutureImpl<>();
+      executor.execute(() -> {
+         try {
+            Object value = callable.call();
+            if (value == null) {
+               future.set(nullReturn);
+            } else {
+               future.set(value);
+            }
+         } catch (Exception e) {
+            future.fail(e);
+         }
+      });
+
+      Object futureGet = future.get(time, unit);
+
+      assertNotNull(futureGet, "Timeout call");
+
+      if (futureGet == nullReturn) {
+         return null;
+      } else {
+         return (T) futureGet;
+      }
    }
 }

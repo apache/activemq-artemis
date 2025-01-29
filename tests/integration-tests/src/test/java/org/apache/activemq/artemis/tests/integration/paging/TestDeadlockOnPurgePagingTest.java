@@ -101,7 +101,7 @@ public class TestDeadlockOnPurgePagingTest extends ActiveMQTestBase {
          }
 
          if (i > 10 && i % 10 == 0) {
-            purgeQueue.getPageSubscription().getPagingStore().forceAnotherPage();
+            purgeQueue.getPageSubscription().getPagingStore().forceAnotherPage(true);
          }
       }
       session.commit();
