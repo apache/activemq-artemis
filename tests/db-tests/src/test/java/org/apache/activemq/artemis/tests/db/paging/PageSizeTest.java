@@ -106,8 +106,7 @@ public class PageSizeTest extends ParameterDBTestBase {
 
          // Since we sent a large message (I mean, not streaming large, but larger than page-size,
          // a page with more than 30K should been created to allow the "large" message to be stored.
-         size = getMaxSizeBytesStored(queue);
-         assertTrue(size >= 50 * 1024, "size is " + size);
+         Wait.assertTrue(() -> getMaxSizeBytesStored(queue) >= 50 * 1024);
       }
    }
 

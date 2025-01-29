@@ -74,7 +74,7 @@ public class AmqpFilterChangePageTest extends ActiveMQTestBase {
          producer.send(message);
          if (i % 100 == 0 && i > 0) {
             session.commit();
-            queue.getPagingStore().forceAnotherPage();
+            queue.getPagingStore().forceAnotherPage(true);
          }
       }
       session.commit();

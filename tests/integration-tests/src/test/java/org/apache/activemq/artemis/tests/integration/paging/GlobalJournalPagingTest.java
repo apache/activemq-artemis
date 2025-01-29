@@ -129,7 +129,7 @@ public class GlobalJournalPagingTest extends JournalPagingTest {
       }
 
       Queue queue = server.locateQueue(ADDRESS);
-      queue.getPageSubscription().getPagingStore().forceAnotherPage();
+      queue.getPageSubscription().getPagingStore().forceAnotherPage(true);
 
       sendFewMessages(numberOfMessages, session, producer, body);
 

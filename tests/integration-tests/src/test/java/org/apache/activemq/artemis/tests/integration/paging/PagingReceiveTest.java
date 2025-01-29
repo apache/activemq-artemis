@@ -114,7 +114,7 @@ public class PagingReceiveTest extends ActiveMQTestBase {
       queue.getPageSubscription().getPagingStore().startPaging();
 
       for (int i = 0; i < 10; i++) {
-         queue.getPageSubscription().getPagingStore().forceAnotherPage();
+         queue.getPageSubscription().getPagingStore().forceAnotherPage(true);
       }
 
       locator.setBlockOnNonDurableSend(false).setBlockOnAcknowledge(false);

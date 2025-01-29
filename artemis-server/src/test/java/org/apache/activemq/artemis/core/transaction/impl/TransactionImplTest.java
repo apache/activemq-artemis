@@ -348,7 +348,7 @@ public class TransactionImplTest extends ServerTestBase {
       }
 
       @Override
-      public ArtemisCloseable closeableReadLock() {
+      public ArtemisCloseable closeableReadLock(boolean tryLock) {
          return () -> { };
       }
 
@@ -423,7 +423,7 @@ public class TransactionImplTest extends ServerTestBase {
       }
 
       @Override
-      public void pageWrite(SimpleString address, PagedMessage message, long pageNumber) {
+      public void pageWrite(SimpleString address, PagedMessage message, long pageNumber, boolean lineup, boolean originallyReplicated) {
 
       }
 

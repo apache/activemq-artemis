@@ -277,14 +277,14 @@ public final class ReplicationTest extends ActiveMQTestBase {
       replicatedJournal.appendAddRecordTransactional(23, 24, (byte) 1, new FakeData());
 
       PagedMessage pgmsg = new PagedMessageImpl(msg, new long[0]);
-      manager.pageWrite(dummy, pgmsg, 1);
-      manager.pageWrite(dummy, pgmsg, 2);
-      manager.pageWrite(dummy, pgmsg, 3);
-      manager.pageWrite(dummy, pgmsg, 4);
+      manager.pageWrite(dummy, pgmsg, 1, true);
+      manager.pageWrite(dummy, pgmsg, 2, true);
+      manager.pageWrite(dummy, pgmsg, 3, true);
+      manager.pageWrite(dummy, pgmsg, 4, true);
 
       blockOnReplication(storage, manager);
 
-      PagingManager pagingManager = createPageManager(backupServer.getStorageManager(), backupServer.getConfiguration(), backupServer.getExecutorFactory(), backupServer.getAddressSettingsRepository());
+      PagingManager pagingManager = createPageManager(backupServer.getStorageManager(), backupServer.getConfiguration(), backupServer.getExecutorFactory(), backupServer.getScheduledPool(), backupServer.getAddressSettingsRepository());
 
       PagingStore store = pagingManager.getPageStore(dummy);
       store.start();
@@ -717,9 +717,10 @@ public final class ReplicationTest extends ActiveMQTestBase {
    protected PagingManager createPageManager(final StorageManager storageManager,
                                              final Configuration configuration,
                                              final ExecutorFactory executorFactory,
+                                             final ScheduledExecutorService scheduledExecutorService,
                                              final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception {
 
-      PagingManager paging = new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(), 1000, null, executorFactory, executorFactory, false, null), addressSettingsRepository, configuration.getManagementAddress());
+      PagingManager paging = new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(), 1000, scheduledExecutorService, executorFactory, false, null), addressSettingsRepository, configuration.getManagementAddress());
 
       paging.start();
       runAfter(paging::stop);

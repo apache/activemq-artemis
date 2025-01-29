@@ -287,6 +287,21 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void readLock() {
+
+      }
+
+      @Override
+      public boolean readLock(long timeout) {
+         return true;
+      }
+
+      @Override
+      public void readUnlock() {
+
+      }
+
+      @Override
       public void counterSnapshot() {
       }
 
@@ -401,11 +416,6 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void addSyncPoint(OperationContext context) throws Exception {
-
-      }
-
-      @Override
       public Page usePage(long page, boolean create) {
          return null;
       }
@@ -486,7 +496,7 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void forceAnotherPage() throws Exception {
+      public void forceAnotherPage(boolean useExecutor) throws Exception {
 
       }
 
@@ -502,7 +512,6 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
 
       @Override
       public void stopPaging() throws Exception {
-
       }
 
       @Override
@@ -525,12 +534,16 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean lock(long timeout) {
+      public void writeLock() {
+      }
+
+      @Override
+      public boolean writeLock(long timeout) {
          return false;
       }
 
       @Override
-      public void unlock() {
+      public void writeUnlock() {
 
       }
 

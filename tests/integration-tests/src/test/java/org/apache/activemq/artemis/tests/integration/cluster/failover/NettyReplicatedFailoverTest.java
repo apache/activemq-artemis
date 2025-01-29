@@ -163,7 +163,7 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
          for (int i = 0; i < 50; i++) {
             producer.send(session.createTextMessage("hello"));
             session.commit();
-            serverQueue.getPagingStore().forceAnotherPage();
+            serverQueue.getPagingStore().forceAnotherPage(true);
          }
          backupServer.stop();
          backupServer.start();

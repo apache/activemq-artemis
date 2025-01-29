@@ -381,8 +381,8 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
-      public void pageWrite(SimpleString address, PagedMessage message, long pageNumber) {
-         manager.pageWrite(address, message, pageNumber);
+      public void pageWrite(SimpleString address, PagedMessage message, long pageNumber, boolean lineup, boolean originallyReplicated) {
+         manager.pageWrite(address, message, pageNumber, lineup, originallyReplicated);
       }
 
       @Override
@@ -914,7 +914,7 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
-      public ArtemisCloseable closeableReadLock() {
+      public ArtemisCloseable closeableReadLock(boolean tryLock) {
          return manager.closeableReadLock();
       }
 

@@ -148,12 +148,12 @@ public class JournalPagingTest extends ActiveMQTestBase {
       Queue queue = server.locateQueue(ADDRESS);
       queue.getPagingStore().startPaging();
 
-      queue.getPagingStore().forceAnotherPage(); // forcing an empty file, just to make it more challenging
+      queue.getPagingStore().forceAnotherPage(true); // forcing an empty file, just to make it more challenging
 
       int page = 1;
       for (int i = 0; i < numberOfMessages; i++) {
          if (i % 10 == 0 && i > 0) {
-            queue.getPagingStore().forceAnotherPage();
+            queue.getPagingStore().forceAnotherPage(true);
             page++;
          }
          message = session.createMessage(true);
@@ -215,7 +215,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
       page4.delete(null);
       page4.open(true);
       for (int i = 0; i < 9; i++) {
-         page4.write(messagesRead.get(i)); // this will make message 29 disappear
+         page4.write(messagesRead.get(i), true, false); // this will make message 29 disappear
       }
       page4.close(false);
 
@@ -455,7 +455,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
          if (i == 4) {
             session.commit();
-            queue.getPageSubscription().getPagingStore().forceAnotherPage();
+            queue.getPageSubscription().getPagingStore().forceAnotherPage(true);
          }
       }
 

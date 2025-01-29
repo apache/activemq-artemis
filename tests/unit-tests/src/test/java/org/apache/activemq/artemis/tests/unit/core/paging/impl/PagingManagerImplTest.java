@@ -18,6 +18,9 @@ package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -28,6 +31,7 @@ import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
@@ -36,6 +40,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,9 +58,14 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
       HierarchicalRepository<AddressSettings> addressSettings = new HierarchicalObjectRepository<>();
       addressSettings.setDefault(new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE));
 
-      final StorageManager storageManager = new NullStorageManager();
+      OrderedExecutorFactory orderedExecutorFactory = getOrderedExecutor();
 
-      PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, getPageDirFile(), 100, null, getOrderedExecutor(), getOrderedExecutor(), true, null);
+      final StorageManager storageManager = new NullStorageManager().setContextSupplier(() -> OperationContextImpl.getContext(orderedExecutorFactory));
+
+      ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+      runAfter(scheduledExecutorService::shutdownNow);
+
+      PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, getPageDirFile(), 100, scheduledExecutorService, orderedExecutorFactory, true, null);
 
       PagingManagerImpl managerImpl = new PagingManagerImpl(storeFactory, addressSettings);
 
@@ -73,8 +83,9 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
       store.startPaging();
 
       assertTrue(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
+      syncOperationContext();
 
-      Page page = store.depage();
+      Page page = depageOnExecutor(store);
 
       page.open(true);
 
@@ -88,7 +99,7 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
 
       assertTrue(store.isPaging());
 
-      assertNull(store.depage());
+      assertNull(depageOnExecutor(store));
 
       final RoutingContextImpl ctx2 = new RoutingContextImpl(null);
       assertFalse(store.page(msg, ctx2.getTransaction(), ctx2.getContextListing(store.getStoreName())));
@@ -126,4 +137,12 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
       }
       return buffer;
    }
+
+
+   /** depage is now done within the page's executor.
+    * This unit test needs to call the depage within that executor */
+   protected Page depageOnExecutor(final PagingStore store) throws Exception {
+      return callOnExecutor(store.getExecutor(), () -> store.depage(), 10, TimeUnit.SECONDS);
+   }
+
 }

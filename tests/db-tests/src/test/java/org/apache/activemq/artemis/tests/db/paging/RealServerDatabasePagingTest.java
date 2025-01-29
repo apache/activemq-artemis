@@ -117,8 +117,7 @@ public class RealServerDatabasePagingTest extends ParameterDBTestBase {
 
       }
 
-      serverProcess.destroyForcibly();
-      serverProcess.waitFor(1, TimeUnit.MINUTES);
+      stopServerWithFile(getServerLocation(database.getName()), serverProcess, 1, TimeUnit.MINUTES);
       assertFalse(serverProcess.isAlive());
 
       serverProcess = startServer(database.getName(), 0, 60_000);

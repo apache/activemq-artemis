@@ -69,10 +69,10 @@ public class AmqpPageTest extends PageTest {
                                Page page) throws Exception {
       if (!isLargeMessage) {
          final Message message = createStandardMessage(address, msgID, content);
-         page.write(new PagedMessageImpl(message, new long[0]));
+         page.write(new PagedMessageImpl(message, new long[0]), true, false);
       } else {
          final AMQPLargeMessage message = createLargeMessage(storageManager, address, msgID, content);
-         page.write(new PagedMessageImpl(message, new long[0]));
+         page.write(new PagedMessageImpl(message, new long[0]), true, false);
          message.releaseResources(false, false);
       }
    }

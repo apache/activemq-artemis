@@ -216,10 +216,14 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    // Life Cycle Handlers
    @Override
    protected void beforeStart() throws Exception {
+      createDirectories();
+      cleanupIncompleteFiles();
+   }
+
+   protected void createDirectories() {
       checkAndCreateDir(config.getBindingsLocation(), config.isCreateBindingsDir());
       checkAndCreateDir(config.getJournalLocation(), config.isCreateJournalDir());
       checkAndCreateDir(config.getLargeMessagesLocation(), config.isCreateJournalDir());
-      cleanupIncompleteFiles();
    }
 
    @Override
@@ -234,6 +238,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       stop(false, true);
    }
 
+   @Override
    public boolean isReplicated() {
       return replicator != null && replicator.isStarted();
    }
@@ -394,7 +399,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    }
 
    @Override
-   public void pageWrite(final SimpleString address, final PagedMessage message, final long pageNumber) {
+   public void pageWrite(final SimpleString address, final PagedMessage message, final long pageNumber, boolean storageUp, boolean originallyReplicated) {
       if (messageJournal.isHistory()) {
          try (ArtemisCloseable lock = closeableReadLock()) {
 
@@ -412,16 +417,28 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             logger.warn(e.getMessage(), e);
          }
       }
-      if (isReplicated()) {
-         // Note: (https://issues.jboss.org/browse/HORNETQ-1059)
-         // We have to replicate durable and non-durable messages on paging
-         // since acknowledgments are written using the page-position.
-         // Say you are sending durable and non-durable messages to a page
-         // The ACKs would be done to wrong positions, and the backup would be a mess
 
+      if (isReplicated()) {
          try (ArtemisCloseable lock = closeableReadLock()) {
-            if (isReplicated())
-               replicator.pageWrite(address, message, pageNumber);
+            if (isReplicated()) {
+               replicator.pageWrite(address, message, pageNumber, storageUp);
+            } else {
+               if (originallyReplicated) {
+                  // this is a case where we originally contemplated as replicated, so we have to discount it in case it is not any more
+                  OperationContext context = OperationContextImpl.getContext();
+                  if (context != null) {
+                     context.replicationDone();
+                  }
+               }
+            }
+         }
+      } else {
+         if (originallyReplicated) {
+            // this is a case where we originally contemplated as replicated, so we have to discount it in case it is not any more
+            OperationContext context = OperationContextImpl.getContext();
+            if (context != null) {
+               context.replicationDone();
+            }
          }
       }
    }
@@ -566,6 +583,10 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       JournalFile[] datafiles = journal.getDataFiles();
       replicator.sendStartSyncMessage(datafiles, contentType, nodeID, autoFailBack);
       return datafiles;
+   }
+
+   void setReplicator(ReplicationManager replicator) {
+      this.replicator = replicator;
    }
 
    @Override
