@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.server.mirror.MirrorController;
+import org.apache.activemq.artemis.core.server.mirror.TargetMirrorController;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class MirrorTransaction extends TransactionImpl {
 
    boolean allowPageTransaction;
 
-   MirrorController controlInUse;
+   TargetMirrorController controlInUse;
 
    public MirrorTransaction(StorageManager storageManager) {
       super(storageManager);
@@ -44,7 +44,7 @@ public class MirrorTransaction extends TransactionImpl {
 
    @Override
    protected synchronized void afterCommit(List<TransactionOperation> operationsToComplete) {
-      MirrorController beforeController = AMQPMirrorControllerTarget.getControllerInUse();
+      TargetMirrorController beforeController = AMQPMirrorControllerTarget.getControllerInUse();
       AMQPMirrorControllerTarget.setControllerInUse(controlInUse);
       try {
          super.afterCommit(operationsToComplete);
