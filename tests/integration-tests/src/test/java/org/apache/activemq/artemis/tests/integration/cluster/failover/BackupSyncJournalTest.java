@@ -16,21 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -45,7 +37,6 @@ import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DescribeJournal;
@@ -59,6 +50,11 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BackupSyncJournalTest extends FailoverTestBase {
 
@@ -103,7 +99,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
    @Test
    public void testReserveFileIdValuesOnBackup() throws Exception {
       final int totalRounds = 5;
-      createProducerSendSomeMessages();
+      createProducer();
       JournalImpl messageJournal = getMessageJournalFromServer(primaryServer);
       for (int i = 0; i < totalRounds; i++) {
          messageJournal.forceMoveNextFile();
@@ -143,7 +139,6 @@ public class BackupSyncJournalTest extends FailoverTestBase {
          store.forceAnotherPage();
       }
 
-      Set<Pair<Long, Integer>> primaryIds = getFileIds(messageJournal);
       int size = messageJournal.getFileSize();
       PagingStore ps = primaryServer.getServer().getPagingManager().getPageStore(ADDRESS);
       if (ps.getPageSizeBytes() == PAGE_SIZE) {
@@ -153,10 +148,9 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       finishSyncAndFailover();
 
       assertEquals(size, backupMsgJournal.getFileSize(), "file sizes must be the same");
-      Set<Pair<Long, Integer>> backupIds = getFileIds(backupMsgJournal);
 
       // "+ 2": there two other calls that send N_MSGS.
-      for (int i = 0; i < totalRounds + 3; i++) {
+      for (int i = 0; i < totalRounds + 2; i++) {
          receiveMsgsInRange(0, n_msgs);
       }
       assertNoMoreMessages();
@@ -353,12 +347,16 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       assertTrue(failoverWaiter.waitFailoverComplete(), "Session didn't failover, the maxRetryAttempts and retryInterval may be too small");
    }
 
-   protected void createProducerSendSomeMessages() throws ActiveMQException {
+   protected void createProducer() throws ActiveMQException {
       session = addClientSession(sessionFactory.createSession(true, true));
       session.createQueue(QueueConfiguration.of(ADDRESS));
       if (producer != null)
          producer.close();
       producer = addClientProducer(session.createProducer(ADDRESS));
+   }
+
+   protected void createProducerSendSomeMessages() throws ActiveMQException {
+      createProducer();
       sendMessages(session, producer, n_msgs);
       session.commit();
    }
@@ -369,23 +367,6 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       receiveMessages(consumer, start, end, true);
       consumer.close();
       session.commit();
-   }
-
-   private Set<Pair<Long, Integer>> getFileIds(JournalImpl journal) {
-      Set<Pair<Long, Integer>> results = new HashSet<>();
-      for (JournalFile jf : journal.getDataFiles()) {
-         results.add(getPair(jf));
-      }
-      results.add(getPair(journal.getCurrentFile()));
-      return results;
-   }
-
-   /**
-    * @param jf
-    * @return
-    */
-   private Pair<Long, Integer> getPair(JournalFile jf) {
-      return new Pair<>(jf.getFileID(), jf.getPosCount());
    }
 
    static JournalImpl getMessageJournalFromServer(TestableServer server) {

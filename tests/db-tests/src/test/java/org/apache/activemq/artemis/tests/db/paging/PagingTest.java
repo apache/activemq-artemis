@@ -450,6 +450,8 @@ public class PagingTest extends ParameterDBTestBase {
 
          message.getBodyBuffer().writerIndex(0);
 
+         message.getBodyBuffer().writeBytes(new byte[numberOfBytes]);
+
          message.putIntProperty("i", i);
 
          producer.send(message);
