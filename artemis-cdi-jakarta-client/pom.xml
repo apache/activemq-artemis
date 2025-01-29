@@ -134,6 +134,29 @@
                <argLine>--add-opens java.base/java.lang=ALL-UNNAMED ${activemq-surefire-argline}</argLine>
             </configuration>
          </plugin>
+         <plugin>
+            <groupId>org.wildfly.extras.batavia</groupId>
+            <artifactId>transformer-tools-mvn</artifactId>
+            <executions>
+               <execution>
+                  <id>transform-sources</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>transform-sources</goal>
+                  </goals>
+                  <configuration>
+                     <source-project>${project.basedir}/../artemis-cdi-client</source-project>
+                  </configuration>
+               </execution>
+            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>org.wildfly.extras.batavia</groupId>
+                  <artifactId>transformer-impl-eclipse</artifactId>
+                  <version>${version.batavia}</version>
+               </dependency>
+            </dependencies>
+         </plugin>
       </plugins>
    </build>
 
