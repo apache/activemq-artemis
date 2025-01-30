@@ -424,14 +424,17 @@ public final class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
       private void performCreditTopUp() {
          connection.requireInHandler();
 
-         if (!isStarted() || receiver.getLocalState() != EndpointState.ACTIVE) {
-            return; // Closed or stopped before this was triggered.
-         }
+         try {
+            if (!isStarted() || receiver.getLocalState() != EndpointState.ACTIVE) {
+               return; // Closed or stopped before this was triggered.
+            }
 
-         receiver.flow(configuration.getPullReceiverBatchSize());
-         connection.instantFlush();
-         lastBacklogCheckDelay = 0;
-         creditTopUpInProgress.set(false);
+            receiver.flow(configuration.getPullReceiverBatchSize());
+            connection.instantFlush();
+            lastBacklogCheckDelay = 0;
+         } finally {
+            creditTopUpInProgress.set(false);
+         }
       }
    }
 }
