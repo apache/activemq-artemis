@@ -446,7 +446,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
          throw new IllegalArgumentException("Name must not be null.");
       }
 
-      if (name.equals("")) {
+      if (name.isEmpty()) {
          throw new IllegalArgumentException("Name must not be an empty String.");
       }
    }

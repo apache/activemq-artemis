@@ -96,7 +96,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       this.clientSSLProvider = clientSSLProvider;
       this.serverSSLProvider = serverSSLProvider;
 
-      String suffix = storeType == null || storeType.length() == 0 ? storeProvider.toLowerCase() : storeType.toLowerCase();
+      String suffix = storeType == null || storeType.isEmpty() ? storeProvider.toLowerCase() : storeType.toLowerCase();
       // keytool expects PKCS12 stores to use the extension "p12"
       if (suffix.equalsIgnoreCase("PKCS12")) {
          suffix = "p12";

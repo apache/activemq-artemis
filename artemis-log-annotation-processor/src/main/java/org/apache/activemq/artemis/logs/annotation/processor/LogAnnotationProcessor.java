@@ -500,7 +500,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
       Objects.requireNonNull(message, "message must not be null");
 
       tupples(message, '{', '}', (tupple) -> {
-         if (!tupple.equals("")) {
+         if (!tupple.isEmpty()) {
             throw new IllegalArgumentException("Invalid placeholder argument {" + tupple + "} on message \'" + message + "\' as part of " + holder + "\nreplace it by {}");
          }
       });

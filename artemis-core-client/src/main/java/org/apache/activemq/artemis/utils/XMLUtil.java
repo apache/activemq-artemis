@@ -163,7 +163,7 @@ public final class XMLUtil {
          }
 
          String s = sb.toString();
-         if (s.length() != 0) {
+         if (!s.isEmpty()) {
             return s;
          }
       }

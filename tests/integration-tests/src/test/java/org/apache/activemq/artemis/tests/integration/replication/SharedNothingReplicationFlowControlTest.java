@@ -275,7 +275,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       Wait.waitFor(backupServer::isReplicaSync, 30000);
 
       // Asserting for file leaks
-      if (!Wait.waitFor(() -> TestableSequentialFile.openFiles.size() == 0, 5000)) {
+      if (!Wait.waitFor(() -> TestableSequentialFile.openFiles.isEmpty(), 5000)) {
          StringWriter writer = new StringWriter();
          PrintWriter print = new PrintWriter(writer);
          for (Object fileOpen : TestableSequentialFile.openFiles.keySet()) {

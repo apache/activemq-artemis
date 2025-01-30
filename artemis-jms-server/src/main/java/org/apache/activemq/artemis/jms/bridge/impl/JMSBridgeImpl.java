@@ -596,7 +596,7 @@ public final class JMSBridgeImpl implements JMSBridge {
                }
             }
 
-            if (messages.size() > 0) {
+            if (!messages.isEmpty()) {
                // Clear outstanding messages so they don't get retransmitted and duplicated on the other side of the bridge
                logger.trace("Clearing up messages before stopping...");
                messages.clear();

@@ -4608,7 +4608,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       messageID = (String) browse[1].get("userID");
 
-      assertTrue(messageID.length() > 0);
+      assertFalse(messageID.isEmpty());
 
       assertNotNull(body);
 

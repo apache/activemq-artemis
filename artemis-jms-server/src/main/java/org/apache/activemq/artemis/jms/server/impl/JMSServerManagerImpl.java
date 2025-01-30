@@ -243,7 +243,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
    public void recoverregistryBindings(String name, PersistedType type) throws NamingException {
       List<String> bindings = unRecoveredBindings.get(name);
-      if ((bindings != null) && (bindings.size() > 0)) {
+      if (bindings != null && !bindings.isEmpty()) {
          Map<String, List<String>> mapBindings;
          Map<String, ?> objects;
 
@@ -1159,7 +1159,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
             cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(groupConfig, cfConfig.getFactoryType());
          }
       } else {
-         if (cfConfig.getConnectorNames() == null || cfConfig.getConnectorNames().size() == 0) {
+         if (cfConfig.getConnectorNames() == null || cfConfig.getConnectorNames().isEmpty()) {
             throw ActiveMQJMSServerBundle.BUNDLE.noConnectorNameOnCF();
          }
 
@@ -1453,7 +1453,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
                                                    final String name) throws Exception {
       checkInitialised();
       List<String> registryBindings = bindingsMap.remove(name);
-      if (registryBindings == null || registryBindings.size() == 0) {
+      if (registryBindings == null || registryBindings.isEmpty()) {
          return false;
       } else {
          keys.remove(name);
@@ -1474,7 +1474,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
                                                    final String bindings) throws Exception {
       checkInitialised();
       List<String> registryBindings = bindingsMap.get(name);
-      if (registryBindings == null || registryBindings.size() == 0) {
+      if (registryBindings == null || registryBindings.isEmpty()) {
          return false;
       }
 

@@ -431,7 +431,7 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
          throw new IllegalArgumentException(Context.PROVIDER_URL + " or " + "brokerURL is required");
       }
       try {
-         if (url != null && url.length() > 0) {
+         if (url != null && !url.isEmpty()) {
             url = updateBrokerURL(url, props);
             setBrokerURL(url);
          }

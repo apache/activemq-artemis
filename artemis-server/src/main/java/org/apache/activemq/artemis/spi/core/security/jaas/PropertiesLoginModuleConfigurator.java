@@ -64,7 +64,7 @@ public class PropertiesLoginModuleConfigurator implements UserManagement {
    private PropertiesConfiguration roleConfig;
 
    public PropertiesLoginModuleConfigurator(String entryName, String brokerEtc) throws Exception {
-      if (entryName == null || entryName.length() == 0) {
+      if (entryName == null || entryName.isEmpty()) {
          entryName = "activemq";
       }
 
@@ -159,7 +159,7 @@ public class PropertiesLoginModuleConfigurator implements UserManagement {
    public Map<String, Set<String>> listUser(String username) {
       Map<String, Set<String>> result = new HashMap<>();
 
-      if (username != null && username.length() > 0) {
+      if (username != null && !username.isEmpty()) {
          result.put(username, findRoles(username));
       } else {
          Iterator<String> iter = userConfig.getKeys();
@@ -246,7 +246,7 @@ public class PropertiesLoginModuleConfigurator implements UserManagement {
                }
             }
             if (found) {
-               if (update.size() > 0) {
+               if (!update.isEmpty()) {
                   newList.add(StringUtil.joinStringList(update, ","));
                }
             }
@@ -260,7 +260,7 @@ public class PropertiesLoginModuleConfigurator implements UserManagement {
       while (iterUpdate.hasNext()) {
          Pair<String, List<String>> entry = iterUpdate.next();
          roleConfig.clearProperty(entry.getA());
-         if (entry.getB().size() > 0) {
+         if (!entry.getB().isEmpty()) {
             roleConfig.addProperty(entry.getA(), entry.getB());
          }
       }

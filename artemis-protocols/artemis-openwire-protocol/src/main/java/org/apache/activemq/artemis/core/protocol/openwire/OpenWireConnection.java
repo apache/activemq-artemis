@@ -972,7 +972,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          ss.addConsumer(info);
          info.setLastDeliveredSequenceId(RemoveInfo.LAST_DELIVERED_UNKNOWN);
 
-         if (consumersList.size() == 0) {
+         if (consumersList.isEmpty()) {
             return;
          }
 

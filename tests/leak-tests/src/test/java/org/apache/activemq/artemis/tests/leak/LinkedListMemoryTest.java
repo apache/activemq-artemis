@@ -54,7 +54,7 @@ public class LinkedListMemoryTest extends AbstractLeakTest {
 
       int countRemoved = 0;
 
-      while (listIerators.size() > 0) {
+      while (!listIerators.isEmpty()) {
          int removeElement = randomInt(0, listIerators.size() - 1);
          countRemoved++;
          LinkedListIterator toRemove = listIerators.remove(removeElement);

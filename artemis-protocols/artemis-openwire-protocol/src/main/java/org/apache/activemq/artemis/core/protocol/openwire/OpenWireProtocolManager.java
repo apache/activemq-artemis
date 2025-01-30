@@ -524,7 +524,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       String separator = "";
 
       synchronized (members) {
-         if (members.size() > 0) {
+         if (!members.isEmpty()) {
             for (TopologyMember member : members) {
                connectedBrokers.append(separator).append(member.toURI());
                separator = ",";

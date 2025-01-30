@@ -151,7 +151,7 @@ public final class UUIDGenerator {
       try {
          List<NetworkInterface> ifaces = getAllNetworkInterfaces();
 
-         if (ifaces.size() == 0) {
+         if (ifaces.isEmpty()) {
             return null;
          }
 

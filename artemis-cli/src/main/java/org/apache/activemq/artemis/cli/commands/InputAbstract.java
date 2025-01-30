@@ -74,7 +74,7 @@ public class InputAbstract extends ActionAbstract {
       Integer value = null;
       do {
          String input = input(propertyName, prompt, silentDefault);
-         if (input == null || input.trim().equals("")) {
+         if (input == null || input.trim().isEmpty()) {
             input = "0";
          }
 
@@ -106,7 +106,7 @@ public class InputAbstract extends ActionAbstract {
          getActionContext().out.println(propertyName + ":");
          getActionContext().out.println(prompt);
          inputStr = scanner.nextLine();
-         if (!acceptNull && inputStr.trim().equals("")) {
+         if (!acceptNull && inputStr.trim().isEmpty()) {
             getActionContext().out.println("Invalid Entry!");
          } else {
             valid = true;
@@ -138,7 +138,7 @@ public class InputAbstract extends ActionAbstract {
 
          inputStr = new String(chars);
 
-         if (inputStr.trim().equals("")) {
+         if (inputStr.trim().isEmpty()) {
             getActionContext().out.println("Invalid Entry!");
          } else {
             valid = true;

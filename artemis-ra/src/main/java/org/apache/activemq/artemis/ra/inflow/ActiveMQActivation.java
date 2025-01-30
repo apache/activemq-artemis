@@ -529,7 +529,7 @@ public class ActiveMQActivation {
          logger.trace("setupDestination({})", ctx);
 
          String destinationTypeString = spec.getDestinationType();
-         if (destinationTypeString != null && !destinationTypeString.trim().equals("")) {
+         if (destinationTypeString != null && !destinationTypeString.trim().isEmpty()) {
             logger.debug("Destination type defined as {}", destinationTypeString);
 
             Class<?> destinationType;

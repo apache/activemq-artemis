@@ -229,8 +229,7 @@ public class FederationBrokerPluginTest extends FederatedTestBase {
          MessageConsumer consumer0 = session0.createConsumer(topic0);
          MessageProducer producer1 = session1.createProducer(topic1);
 
-         assertFalse(Wait.waitFor(() -> getServer(1).getPostOffice().getBindingsForAddress(
-            SimpleString.of(address)).getBindings().size() > 0, 2000, 500));
+         assertFalse(Wait.waitFor(() -> !getServer(1).getPostOffice().getBindingsForAddress(SimpleString.of(address)).getBindings().isEmpty(), 2000, 500));
 
          verifier0.validatePluginMethodsEquals(1, 5000, 500, FEDERATED_ADDRESS_CONDITIONAL_CREATE_CONSUMER);
          verifier0.validatePluginMethodsEquals(0, 5000, 500, BEFORE_CREATE_FEDERATED_QUEUE_CONSUMER,

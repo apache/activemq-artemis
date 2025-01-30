@@ -121,7 +121,7 @@ public class LeastConnectionsPolicy extends RoundRobinPolicy {
          } else {
             return selectedTargets.get(0);
          }
-      } else if (targets.size() > 0) {
+      } else if (!targets.isEmpty()) {
          return targets.get(0);
       }
 

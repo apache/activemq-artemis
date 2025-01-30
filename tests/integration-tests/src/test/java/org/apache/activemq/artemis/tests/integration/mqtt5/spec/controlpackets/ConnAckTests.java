@@ -231,7 +231,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       consumer.disconnect();
 
       // session should still exist since session expiry interval used the max value
-      assertFalse(Wait.waitFor(() -> getSessionStates().size() == 0, EXPIRY_INTERVAL * 2, 100));
+      assertFalse(Wait.waitFor(() -> getSessionStates().isEmpty(), EXPIRY_INTERVAL * 2, 100));
       assertNotNull(getSessionStates().get(CONSUMER_ID));
    }
 

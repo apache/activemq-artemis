@@ -71,7 +71,7 @@ public abstract class ArtemisPage extends ConsolePage {
       if (!queuesMenuItem.isDisplayed()) {
          List<WebElement> dropdownMenu = driver.findElements(dropdownMenuLocator);
 
-         if (dropdownMenu.size() > 0) {
+         if (!dropdownMenu.isEmpty()) {
             dropdownMenu.get(0).click();
          } else {
             waitForElementToBeVisible(queuesMenuItemLocator, timeout);

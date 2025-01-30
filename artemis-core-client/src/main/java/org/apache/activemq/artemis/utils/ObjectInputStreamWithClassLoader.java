@@ -257,7 +257,7 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
 
       // Failing outright rejection or allow from above
       // reject only if the allowList is not empty.
-      return allowList.size() == 0;
+      return allowList.isEmpty();
    }
 
    private boolean isClassOrPackageMatch(String className, String listEntry) {

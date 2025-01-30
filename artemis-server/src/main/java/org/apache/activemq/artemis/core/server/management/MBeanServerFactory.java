@@ -70,7 +70,7 @@ public class MBeanServerFactory {
    public void init() throws Exception {
       if (this.locateExistingServerIfPossible) {
          List servers = javax.management.MBeanServerFactory.findMBeanServer(null);
-         if (servers != null && servers.size() > 0) {
+         if (servers != null && !servers.isEmpty()) {
             this.server = (MBeanServer) servers.get(0);
          }
          if (this.server == null) {

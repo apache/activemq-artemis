@@ -119,7 +119,7 @@ public class ScramUtils {
     * @return true if the string is null or empty, false otherwise
     */
    public static boolean isNullOrEmpty(String string) {
-      return string == null || string.length() == 0; // string.isEmpty() in Java 6
+      return string == null || string.isEmpty();
    }
 
    /**

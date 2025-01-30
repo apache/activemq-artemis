@@ -77,7 +77,7 @@ public class FilterImpl implements Filter {
     * @throws ActiveMQException if the string does not correspond to a valid filter
     */
    public static Filter createFilter(final SimpleString filterStr) throws ActiveMQException {
-      if (filterStr == null || filterStr.length() == 0) {
+      if (filterStr == null || filterStr.isEmpty()) {
          return null;
       }
 

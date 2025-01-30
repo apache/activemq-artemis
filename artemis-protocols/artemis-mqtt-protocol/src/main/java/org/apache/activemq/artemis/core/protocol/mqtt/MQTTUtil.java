@@ -316,7 +316,7 @@ public class MQTTUtil {
                case PUBLISH:
                   MqttPublishVariableHeader publishHeader = (MqttPublishVariableHeader) message.variableHeader();
                   String topicName = publishHeader.topicName();
-                  if (topicName == null || topicName.length() == 0) {
+                  if (topicName == null || topicName.isEmpty()) {
                      topicName = "<empty>";
                   }
                   log.append("(" + publishHeader.packetId() + ")")
@@ -428,7 +428,7 @@ public class MQTTUtil {
          return "<empty>";
       }
       String publishPayload = message.payload().toString(StandardCharsets.UTF_8);
-      if (publishPayload.length() == 0) {
+      if (publishPayload.isEmpty()) {
          return "<empty>";
       }
       return publishPayload.length() > maxPayloadLogSize ? publishPayload.substring(0, maxPayloadLogSize) : publishPayload;

@@ -1615,7 +1615,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       synchronized (topologyArrayGuard) {
          Collection<TopologyMemberImpl> membersCopy = topology.getMembers();
 
-         if (membersCopy.size() == 0) {
+         if (membersCopy.isEmpty()) {
             //it could happen when primary is down, in that case we keeps the old copy
             //and don't update
             return;
@@ -1960,7 +1960,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    private void feedInterceptors(final List<Interceptor> interceptors, final String interceptorList) {
       interceptors.clear();
 
-      if (interceptorList == null || interceptorList.trim().equals("")) {
+      if (interceptorList == null || interceptorList.trim().isEmpty()) {
          return;
       }
       AccessController.doPrivileged((PrivilegedAction<Object>) () -> {

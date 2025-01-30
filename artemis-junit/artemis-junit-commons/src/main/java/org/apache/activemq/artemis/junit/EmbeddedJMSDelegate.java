@@ -194,7 +194,7 @@ public class EmbeddedJMSDelegate implements EmbeddedJMSOperations<EmbeddedJMSDel
    }
 
    public static void setMessageProperties(Message message, Map<String, Object> properties) {
-      if (properties != null && properties.size() > 0) {
+      if (properties != null && !properties.isEmpty()) {
          for (Map.Entry<String, Object> property : properties.entrySet()) {
             try {
                message.setObjectProperty(property.getKey(), property.getValue());
@@ -310,7 +310,7 @@ public class EmbeddedJMSDelegate implements EmbeddedJMSOperations<EmbeddedJMSDel
          }
          if (bindingQueryResult.isExists()) {
             List<SimpleString> queueNames = bindingQueryResult.getQueueNames();
-            if (queueNames.size() > 0) {
+            if (!queueNames.isEmpty()) {
                queue = jmsServer.getActiveMQServer().locateQueue(queueNames.get(0));
             }
          }

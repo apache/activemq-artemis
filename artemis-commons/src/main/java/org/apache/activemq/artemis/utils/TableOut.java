@@ -75,7 +75,7 @@ public class TableOut {
                cellString = "";
             }
 
-            if (centralize != null && centralize[column] && cellString.length() > 0) {
+            if (centralize != null && centralize[column] && !cellString.isEmpty()) {
                int centralAdd = (columnSizes[column] - cellString.length()) / 2;
                for (int i = 0; i < centralAdd; i++) {
                   cell.append(' ');

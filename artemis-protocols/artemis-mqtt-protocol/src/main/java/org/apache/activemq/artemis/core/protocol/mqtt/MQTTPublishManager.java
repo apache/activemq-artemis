@@ -201,13 +201,13 @@ public class MQTTPublishManager {
 
                String existingTopicMapping = session.getState().getClientTopicAlias(alias);
                if (existingTopicMapping == null) {
-                  if (topic == null || topic.length() == 0) {
+                  if (topic == null || topic.isEmpty()) {
                      // using a topic alias with no matching topic in the state; potentially [MQTT-3.3.2-7]
                      throw new DisconnectException(MQTTReasonCodes.TOPIC_ALIAS_INVALID);
                   }
                   logger.debug("Adding new alias {} for topic {}", alias, topic);
                   session.getState().putClientTopicAlias(alias, topic);
-               } else if (topic != null && topic.length() > 0) {
+               } else if (topic != null && !topic.isEmpty()) {
                   logger.debug("Modifying existing alias {}. New value: {}; old value: {}", alias, topic, existingTopicMapping);
                   session.getState().putClientTopicAlias(alias, topic);
                } else {

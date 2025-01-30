@@ -94,7 +94,7 @@ public abstract class VersionedBase extends ClasspathBase {
       folder.mkdirs();
 
       String scriptToUse;
-      if (getServerScriptToUse() != null && getServerScriptToUse().length() != 0) {
+      if (getServerScriptToUse() != null && !getServerScriptToUse().isEmpty()) {
          scriptToUse = getServerScriptToUse();
       } else if (server.startsWith("ARTEMIS")) {
          scriptToUse = "servers/artemisServer.groovy";

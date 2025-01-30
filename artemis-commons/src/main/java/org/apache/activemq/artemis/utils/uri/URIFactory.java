@@ -112,7 +112,7 @@ public class URIFactory<T, P> {
          String[] connectorURIS = split[0].substring(split[0].indexOf('(') + 1).split(",");
          String factoryQuery = split.length > 1 ? split[1] : "";
          StringBuilder builder = new StringBuilder(connectorURIS[0]);
-         if (factoryQuery != null && factoryQuery.length() > 0) {
+         if (factoryQuery != null && !factoryQuery.isEmpty()) {
             if (connectorURIS[0].contains("?")) {
                builder.append("&").append(factoryQuery.substring(1));
             } else {

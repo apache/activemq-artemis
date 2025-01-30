@@ -151,7 +151,7 @@ public class ClasspathBase {
          classPathValue = buffer.toString();
       }
 
-      assertTrue(classPathValue != null && !classPathValue.trim().equals(""), "Cannot run compatibility tests, no classpath found on ./target/" + name + ".cp");
+      assertTrue(classPathValue != null && !classPathValue.trim().isEmpty(), "Cannot run compatibility tests, no classpath found on ./target/" + name + ".cp");
 
       ClassLoader loader = defineClassLoader(classPathValue);
       if (!forceNew) {

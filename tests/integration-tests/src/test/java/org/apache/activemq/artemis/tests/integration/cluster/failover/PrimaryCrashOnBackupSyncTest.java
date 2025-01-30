@@ -97,7 +97,7 @@ public class PrimaryCrashOnBackupSyncTest extends ActiveMQTestBase {
          Wait.waitFor(() -> primaryServer.isStarted());
 
          File primaryLMDir = primaryServer.getConfiguration().getLargeMessagesLocation();
-         Wait.assertTrue(() -> getAllMessageFileIds(primaryLMDir).size() == 0, 5000, 100);
+         Wait.assertTrue(() -> getAllMessageFileIds(primaryLMDir).isEmpty(), 5000, 100);
          Set<Long> primaryLM = getAllMessageFileIds(primaryLMDir);
          assertEquals(0, primaryLM.size(), "we really ought to delete these after delivery");
          primaryServer.stop();

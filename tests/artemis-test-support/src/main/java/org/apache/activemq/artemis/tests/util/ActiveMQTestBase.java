@@ -371,7 +371,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
    public static int countOccurrencesOf(String str, String sub) {
-      if (str == null || sub == null || str.length() == 0 || sub.length() == 0) {
+      if (str == null || sub == null || str.isEmpty() || sub.isEmpty()) {
          return 0;
       }
       int count = 0;

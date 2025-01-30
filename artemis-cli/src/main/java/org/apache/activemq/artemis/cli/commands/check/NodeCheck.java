@@ -139,7 +139,7 @@ public class NodeCheck extends CheckAbstract {
          }
       }
 
-      if (up || checkTasks.size() == 0) {
+      if (up || checkTasks.isEmpty()) {
          checkTasks.add(0, new CheckTask("the node is started", this::checkNodeUp));
       }
 

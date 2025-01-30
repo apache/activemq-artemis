@@ -108,7 +108,7 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
    }
 
    private String getPackageName(org.eclipse.aether.artifact.Artifact artifact) {
-      return artifact.getGroupId() + ":" + artifact.getArtifactId() + (artifact.getClassifier() != null && !artifact.getClassifier().equals("") ? ":" + artifact.getClassifier() : "");
+      return artifact.getGroupId() + ":" + artifact.getArtifactId() + (artifact.getClassifier() != null && !artifact.getClassifier().isEmpty() ? ":" + artifact.getClassifier() : "");
    }
 
    private String getGroupOrder(String group) {
@@ -194,7 +194,7 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
 
                filter.put("X{uri}", uri);
 
-               if (uri.equals("")) {
+               if (uri.isEmpty()) {
                   filter.put("X{fileMD}", result.getArtifact().getFile().getName());
                } else {
                   filter.put("X{fileMD}", "link:" + uri + "[" + result.getArtifact().getFile().getName() + "]");

@@ -22,7 +22,7 @@ import java.util.List;
 public class ListUtil {
    public static List<String> toList(final String commaSeparatedString) {
       List<String> list = new ArrayList<>();
-      if (commaSeparatedString == null || commaSeparatedString.trim().length() == 0) {
+      if (commaSeparatedString == null || commaSeparatedString.trim().isEmpty()) {
          return list;
       }
       String[] values = commaSeparatedString.split(",");

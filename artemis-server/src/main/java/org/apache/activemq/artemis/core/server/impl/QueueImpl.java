@@ -1905,7 +1905,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       while (consumerHolderIterator.hasNext()) {
          ConsumerHolder holder = consumerHolderIterator.next();
          List<MessageReference> msgs = holder.consumer.getDeliveringMessages();
-         if (msgs != null && msgs.size() > 0) {
+         if (msgs != null && !msgs.isEmpty()) {
             mapReturn.put(holder.consumer.toManagementString(), msgs);
          }
       }
@@ -2140,7 +2140,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          logger.debug("expire on {}/{}, consumer={}, expiryAddress={}", this.address, this.name, consumer, expiryAddress);
       }
 
-      if (expiryAddress != null && expiryAddress.length() != 0) {
+      if (expiryAddress != null && !expiryAddress.isEmpty()) {
          String messageAddress = ref.getMessage().getAddress();
 
          if (messageAddress == null) {
@@ -2234,7 +2234,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void deliverScheduledMessages(String filterString) throws ActiveMQException {
-      final Filter filter = filterString == null || filterString.length() == 0 ? null : FilterImpl.createFilter(filterString);
+      final Filter filter = filterString == null || filterString.isEmpty() ? null : FilterImpl.createFilter(filterString);
       internalDeliverScheduleMessages(scheduledDeliveryHandler.cancel(ref -> filter == null ? true : filter.match(ref.getMessage())));
    }
 
@@ -2244,7 +2244,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private void internalDeliverScheduleMessages(List<MessageReference> scheduledMessages) {
-      if (scheduledMessages != null && scheduledMessages.size() > 0) {
+      if (scheduledMessages != null && !scheduledMessages.isEmpty()) {
          for (MessageReference ref : scheduledMessages) {
             ref.getMessage().setScheduledDeliveryTime(ref.getScheduledDeliveryTime());
             ref.setScheduledDeliveryTime(0);
@@ -3239,7 +3239,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          synchronized (QueueImpl.this) {
 
             if (queueDestroyed) {
-               if (messageReferences.size() == 0) {
+               if (messageReferences.isEmpty()) {
                   return false;
                }
                try {
@@ -3255,7 +3255,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                return false;
             }
 
-            if (messageReferences.size() == 0) {
+            if (messageReferences.isEmpty()) {
                break;
             }
 
@@ -4019,7 +4019,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private void createResources(String address, boolean isAutoCreate, SimpleString destinationAddress, SimpleString prefix, SimpleString suffix) throws Exception {
       if (isAutoCreate && !address.equals(destinationAddress)) {
-         if (destinationAddress != null && destinationAddress.length() != 0) {
+         if (destinationAddress != null && !destinationAddress.isEmpty()) {
             SimpleString destinationQueueName = prefix.concat(address).concat(suffix);
             SimpleString filter = SimpleString.of(String.format("%s = '%s'", Message.HDR_ORIGINAL_ADDRESS, address));
             try {

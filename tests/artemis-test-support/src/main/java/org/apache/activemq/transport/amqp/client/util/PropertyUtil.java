@@ -51,7 +51,7 @@ public class PropertyUtil {
     */
    public static URI replaceQuery(URI originalURI, Map<String, String> params) throws URISyntaxException {
       String s = createQueryString(params);
-      if (s.length() == 0) {
+      if (s.isEmpty()) {
          s = null;
       }
       return replaceQuery(originalURI, s);
@@ -76,7 +76,7 @@ public class PropertyUtil {
       if (questionMark > 0) {
          schemeSpecificPart = schemeSpecificPart.substring(0, questionMark);
       }
-      if (query != null && query.length() > 0) {
+      if (query != null && !query.isEmpty()) {
          schemeSpecificPart += "?" + query;
       }
       return new URI(uri.getScheme(), schemeSpecificPart, uri.getFragment());
@@ -101,7 +101,7 @@ public class PropertyUtil {
     * @return a URI formatted query string.
     */
    public static String createQueryString(Map<String, ?> options) {
-      if (options.size() > 0) {
+      if (!options.isEmpty()) {
          StringBuffer rc = new StringBuffer();
          boolean first = true;
          for (Entry<String, ?> entry : options.entrySet()) {

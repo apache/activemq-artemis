@@ -632,7 +632,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
 
          // Should arrive on the original federated Address and the now added address
          // but we need to await the federation being setup and a binding added.
-         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("address2")).getQueueNames().size() > 0);
+         Wait.assertTrue(() -> !server.bindingQuery(SimpleString.of("address2")).getQueueNames().isEmpty());
 
          address1Producer.send(message);
          address2Producer.send(message);
@@ -802,7 +802,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
 
          // The original address consumer should have gone away and not returned when the federation
          // connection was recreated.
-         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("address2")).getQueueNames().size() == 0);
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("address2")).getQueueNames().isEmpty());
 
       } finally  {
          embeddedActiveMQ.stop();

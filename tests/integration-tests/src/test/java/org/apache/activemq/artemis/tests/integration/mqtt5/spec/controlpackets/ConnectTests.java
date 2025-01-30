@@ -1062,7 +1062,7 @@ public class ConnectTests extends MQTT5TestSupport {
 
       // session should still exist since session expiry interval used the max value
       long start = System.currentTimeMillis();
-      assertFalse(Wait.waitFor(() -> getSessionStates().size() == 0, EXPIRY_INTERVAL * 2, 100));
+      assertFalse(Wait.waitFor(() -> getSessionStates().isEmpty(), EXPIRY_INTERVAL * 2, 100));
       assertNotNull(getSessionStates().get(CONSUMER_ID));
    }
 

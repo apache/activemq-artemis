@@ -2144,7 +2144,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       StringBuffer buffer = new StringBuffer();
       if (this.metaData != null) {
          for (Map.Entry<String, String> value : metaData.entrySet()) {
-            if (buffer.length() != 0) {
+            if (!buffer.isEmpty()) {
                buffer.append(",");
             }
             Object tmpValue = value.getValue();

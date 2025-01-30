@@ -3970,7 +3970,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.connect("localhost", AMQP_PORT);
 
          // Precondition is that there were no bindings before the federation receiver attaches.
-         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test")).getQueueNames().size() == 0);
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test")).getQueueNames().isEmpty());
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
@@ -4018,7 +4018,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
          // Federation consumer should no longer be bound to the server's address
-         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test")).getQueueNames().size() == 0);
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test")).getQueueNames().isEmpty());
 
          peer.expectClose();
          peer.remoteClose().now();
@@ -4044,7 +4044,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.connect("localhost", AMQP_PORT);
 
          // Precondition is that there were no bindings before the federation receiver attaches.
-         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test")).getQueueNames().size() == 0);
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test")).getQueueNames().isEmpty());
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
@@ -4151,7 +4151,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
          // Federation consumer should no longer be bound to the server's address
-         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test")).getQueueNames().size() == 0);
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test")).getQueueNames().isEmpty());
 
          peer.expectClose();
          peer.remoteClose().now();
@@ -4196,7 +4196,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.connect("localhost", AMQP_PORT);
 
          // Precondition is that there were no bindings before the federation receiver attaches.
-         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test")).getQueueNames().size() == 0);
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test")).getQueueNames().isEmpty());
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
@@ -4246,7 +4246,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          if (autoDelete) {
             // Queue binding should eventually be auto deleted based on configuration
-            Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test")).getQueueNames().size() == 0, 5_000, 100);
+            Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test")).getQueueNames().isEmpty(), 5_000, 100);
          } else {
             // Should still be there as it wasn't marked as auto delete as previously validated.
             Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test")).getQueueNames().size() == 1, 1_000, 100);

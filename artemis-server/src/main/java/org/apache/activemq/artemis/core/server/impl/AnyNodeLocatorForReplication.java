@@ -110,7 +110,7 @@ public class AnyNodeLocatorForReplication extends NodeLocator {
          lock.lock();
          untriedConnectors.putAll(triedConnectors);
          triedConnectors.clear();
-         if (untriedConnectors.size() > 0) {
+         if (!untriedConnectors.isEmpty()) {
             condition.signal();
          }
       } finally {

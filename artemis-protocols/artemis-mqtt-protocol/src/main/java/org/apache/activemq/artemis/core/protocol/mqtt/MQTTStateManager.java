@@ -89,7 +89,7 @@ public class MQTTStateManager {
                continue;
             }
             String clientId = message.getStringProperty(Message.HDR_LAST_VALUE_NAME);
-            if (clientId == null || clientId.length() == 0) {
+            if (clientId == null || clientId.isEmpty()) {
                MQTTLogger.LOGGER.sessionStateMessageBadClientId();
                continue;
             }

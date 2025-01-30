@@ -271,7 +271,7 @@ public final class Topology {
          logger.trace("{}::prepare to send {} to {} elements", this, nodeId, copy.size());
       }
 
-      if (copy.size() > 0) {
+      if (!copy.isEmpty()) {
          executor.execute(() -> {
             for (ClusterTopologyListener listener : copy) {
                if (logger.isTraceEnabled()) {

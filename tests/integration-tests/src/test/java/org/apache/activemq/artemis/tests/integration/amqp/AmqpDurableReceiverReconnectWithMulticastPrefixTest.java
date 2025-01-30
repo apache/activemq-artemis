@@ -87,7 +87,7 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
       Configuration serverConfig = server.getConfiguration();
       serverConfig.setJournalType(JournalType.NIO);
       Map<String, AddressSettings> map = serverConfig.getAddressSettings();
-      if (map.size() == 0) {
+      if (map.isEmpty()) {
          AddressSettings as = new AddressSettings();
          map.put("#", as);
       }

@@ -36,7 +36,7 @@ public class IOExceptionSupport {
       }
 
       String message = cause.getMessage();
-      if (message == null || message.length() == 0) {
+      if (message == null || message.isEmpty()) {
          message = cause.toString();
       }
 

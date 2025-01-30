@@ -115,7 +115,7 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
 
       impl.forceMoveNextFile();
 
-      if (info.size() > 0) {
+      if (!info.isEmpty()) {
          System.out.println("Info ID: " + info.get(0).id);
       }
 
@@ -175,7 +175,7 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
 
       impl.load(info, trans, null);
 
-      if (info.size() > 0) {
+      if (!info.isEmpty()) {
          System.out.println("Info ID: " + info.get(0).id);
       }
 

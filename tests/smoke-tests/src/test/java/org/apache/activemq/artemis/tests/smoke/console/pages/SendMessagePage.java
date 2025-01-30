@@ -30,7 +30,7 @@ public class SendMessagePage extends ArtemisPage {
    }
 
    public void clearMessageText() {
-      while (getMessageText().length() > 0) {
+      while (!getMessageText().isEmpty()) {
          Actions actions = new Actions(driver);
          actions.click(driver.findElement(messageTextEditorLocator));
          actions.sendKeys(Keys.BACK_SPACE);

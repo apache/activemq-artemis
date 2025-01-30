@@ -3576,7 +3576,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
          StringBuilder addPropertyNameBuilder = new StringBuilder("add");
          // expect an add... without the plural for named access methods that add a single instance.
-         if (collectionPropertyName != null && collectionPropertyName.length() > 0) {
+         if (collectionPropertyName != null && !collectionPropertyName.isEmpty()) {
             addPropertyNameBuilder.append(Character.toUpperCase(collectionPropertyName.charAt(0)));
             if (collectionPropertyName.endsWith("ies")) {
                // Plural form would convert to a singular ending in 'y' e.g. policies becomes policy

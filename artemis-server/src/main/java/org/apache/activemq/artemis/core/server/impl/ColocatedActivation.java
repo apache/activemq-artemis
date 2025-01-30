@@ -197,7 +197,7 @@ public class ColocatedActivation extends PrimaryActivation {
       @Override
       public void allVotesCast(Topology voteTopology) {
          //if we have any nodes that we can request then send a request
-         if (nodes.size() > 0) {
+         if (!nodes.isEmpty()) {
             Pair<String, Integer> decision = getDecision();
             TopologyMemberImpl member = voteTopology.getMember(decision.getA());
             try {

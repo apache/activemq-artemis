@@ -154,7 +154,7 @@ public class TestContext implements Context, Serializable {
     * @throws NamingException
     */
    protected Map<String, Object> internalBind(String name, Object value) throws NamingException {
-      assert name != null && name.length() > 0;
+      assert name != null && !name.isEmpty();
 
       Map<String, Object> newBindings = new HashMap<>();
       int pos = name.indexOf('/');
@@ -167,7 +167,7 @@ public class TestContext implements Context, Serializable {
       } else {
          String segment = name.substring(0, pos);
          assert segment != null;
-         assert !segment.equals("");
+         assert !segment.isEmpty();
          Object o = treeBindings.get(segment);
          if (o == null) {
             o = newContext();
@@ -211,7 +211,7 @@ public class TestContext implements Context, Serializable {
 
    @Override
    public Object lookup(String name) throws NamingException {
-      if (name.length() == 0) {
+      if (name.isEmpty()) {
          return this;
       }
       Object result = treeBindings.get(name);
@@ -232,7 +232,7 @@ public class TestContext implements Context, Serializable {
             // and look for it in the bindings map.
             CompositeName path = new CompositeName(name);
 
-            if (path.size() == 0) {
+            if (path.isEmpty()) {
                return this;
             } else {
                String first = path.get(0);
@@ -260,7 +260,7 @@ public class TestContext implements Context, Serializable {
       }
       if (result instanceof TestContext context) {
          String prefix = getNameInNamespace();
-         if (prefix.length() > 0) {
+         if (!prefix.isEmpty()) {
             prefix = prefix + SEPARATOR;
          }
          result = new TestContext(context, environment, prefix + name);

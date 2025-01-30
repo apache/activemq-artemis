@@ -185,7 +185,7 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
       currentBindings.deleteBinding(address);
 
-      if (currentBindings.getBindings().size() == 0) {
+      if (currentBindings.getBindings().isEmpty()) {
          mapBindings.remove(key);
       } else {
          long newId = idGenerator.generateID();

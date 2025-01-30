@@ -104,7 +104,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       this.storeType = storeType;
       this.generateWarning = generateWarning;
       this.useKeystoreAlias = useKeystoreAlias;
-      suffix = storeType == null || storeType.length() == 0 ? storeProvider.toLowerCase() : storeType.toLowerCase();
+      suffix = storeType == null || storeType.isEmpty() ? storeProvider.toLowerCase() : storeType.toLowerCase();
       // keytool expects PKCS12 stores to use the extension "p12"
       if (suffix.equalsIgnoreCase("PKCS12")) {
          suffix = "p12";

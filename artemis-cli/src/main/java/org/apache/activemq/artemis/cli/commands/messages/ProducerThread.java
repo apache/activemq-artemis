@@ -199,7 +199,7 @@ public class ProducerThread extends Thread {
       answer.setLongProperty("count", i);
       answer.setStringProperty("ThreadSent", threadName);
 
-      if (properties != null && properties.length() != 0) {
+      if (properties != null && !properties.isEmpty()) {
          applyProperties(answer);
       }
 

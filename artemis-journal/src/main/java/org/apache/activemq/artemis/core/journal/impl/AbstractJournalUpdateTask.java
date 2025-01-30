@@ -165,7 +165,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
             }
          }, wholeFileBufferRef, false, null);
 
-         if (records.size() == 0) {
+         if (records.isEmpty()) {
             // the record is damaged
             controlFile.delete();
             return null;

@@ -259,7 +259,7 @@ public class XMLMessageImporter {
          currentEventType = reader.getEventType();
          if (currentEventType == XMLStreamConstants.END_ELEMENT) {
             break;
-         } else if (currentEventType == XMLStreamConstants.CHARACTERS && reader.isWhiteSpace() && cdata.length() > 0) {
+         } else if (currentEventType == XMLStreamConstants.CHARACTERS && reader.isWhiteSpace() && !cdata.isEmpty()) {
             /* when we hit a whitespace CHARACTERS event we know that the entire CDATA is complete so decode, pass back to
              * the processor, and reset the cdata for the next event(s)
              */

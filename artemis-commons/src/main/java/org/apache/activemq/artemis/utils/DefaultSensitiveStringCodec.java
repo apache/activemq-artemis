@@ -153,7 +153,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
             updateKey(key);
          } else {
             key = System.getProperty(KEY_SYSTEM_PROPERTY);
-            if (key != null && key.trim().length() > 0) {
+            if (key != null && !key.trim().isEmpty()) {
                logger.trace("Set key from system property {}", KEY_SYSTEM_PROPERTY);
                updateKey(key);
             }

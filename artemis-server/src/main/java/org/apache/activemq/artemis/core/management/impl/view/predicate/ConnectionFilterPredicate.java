@@ -79,7 +79,7 @@ public class ConnectionFilterPredicate extends ActiveMQFilterPredicate<RemotingC
 
    @Override
    public void setField(String field) {
-      if (field != null && !field.equals("")) {
+      if (field != null && !field.isEmpty()) {
          this.f = ConnectionField.valueOfName(field);
 
          //for backward compatibility

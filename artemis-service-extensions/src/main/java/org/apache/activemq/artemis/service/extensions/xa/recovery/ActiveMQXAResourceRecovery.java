@@ -126,7 +126,7 @@ public class ActiveMQXAResourceRecovery {
       private String password;
 
       public ConfigParser(final String config) {
-         if (config == null || config.length() == 0) {
+         if (config == null || config.isEmpty()) {
             throw new IllegalArgumentException("Must specify provider connector factory class name in config");
          }
 
@@ -144,7 +144,7 @@ public class ActiveMQXAResourceRecovery {
          if (strings.length >= 2) {
 
             username = strings[1].trim();
-            if (username.length() == 0) {
+            if (username.isEmpty()) {
                username = null;
             }
 
@@ -153,7 +153,7 @@ public class ActiveMQXAResourceRecovery {
             }
 
             password = strings[2].trim();
-            if (password.length() == 0) {
+            if (password.isEmpty()) {
                password = null;
             }
          }

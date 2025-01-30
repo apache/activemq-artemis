@@ -1027,7 +1027,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       RemotingConnection connectionInUse = connection;
       Connector connectorInUse = connector;
 
-      if (connectionInUse != null && sessions.size() == 0) {
+      if (connectionInUse != null && sessions.isEmpty()) {
          cancelScheduledTasks();
 
          try {

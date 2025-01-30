@@ -241,7 +241,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
    public void awaitBindings() throws Exception {
       lock.lock();
       try {
-         if (groupMap.size() > 0) {
+         if (!groupMap.isEmpty()) {
             waitingForBindings = true;
 
             //make a copy of the bindings added so far from the cluster via onNotification()
@@ -260,7 +260,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
             //received via onNotification
             expectedBindings.removeAll(bindingsAlreadyAdded);
 
-            if (expectedBindings.size() > 0) {
+            if (!expectedBindings.isEmpty()) {
                logger.debug("Waiting remote group bindings to arrive before starting the server. timeout={} milliseconds", timeout);
                //now we wait here for the rest to be received in onNotification, it will signal once all have been received.
                //if we aren't signaled then bindingsAdded still has some groupids we need to remove.
@@ -307,7 +307,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
                   }
                }
 
-               if (expectedBindings.size() == 0) {
+               if (expectedBindings.isEmpty()) {
                   awaitCondition.signal();
                }
             }

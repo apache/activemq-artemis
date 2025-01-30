@@ -155,7 +155,7 @@ public class PropertiesLoginModuleRaceConditionTest extends ArtemisTestCase {
    }
 
    private boolean isRaceConditionDetected() {
-      return errors.size() > 0;
+      return !errors.isEmpty();
    }
 
    private void prepareLoginThreads(final CountDownLatch start, final CountDownLatch finished) {

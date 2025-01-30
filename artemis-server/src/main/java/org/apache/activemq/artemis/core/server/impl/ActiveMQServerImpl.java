@@ -3290,7 +3290,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       storageManager = createStorageManager();
 
-      if (configuration.getClusterConfigurations().size() > 0 && ActiveMQDefaultConfiguration.getDefaultClusterUser().equals(configuration.getClusterUser()) && ActiveMQDefaultConfiguration.getDefaultClusterPassword().equals(configuration.getClusterPassword())) {
+      if (!configuration.getClusterConfigurations().isEmpty() && ActiveMQDefaultConfiguration.getDefaultClusterUser().equals(configuration.getClusterUser()) && ActiveMQDefaultConfiguration.getDefaultClusterPassword().equals(configuration.getClusterPassword())) {
          ActiveMQServerLogger.LOGGER.clusterSecurityRisk();
       }
 
@@ -4098,7 +4098,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          return null;
       }
       synchronized (postOfficeInUse) {
-         if (queueConfiguration.getName() == null || queueConfiguration.getName().length() == 0) {
+         if (queueConfiguration.getName() == null || queueConfiguration.getName().isEmpty()) {
             throw ActiveMQMessageBundle.BUNDLE.invalidQueueName(queueConfiguration.getName());
          }
 
@@ -4197,7 +4197,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    public String getRuntimeTempQueueNamespace(boolean temporary) {
       StringBuilder runtimeTempQueueNamespace = new StringBuilder();
-      if (temporary && configuration.getTemporaryQueueNamespace() != null && configuration.getTemporaryQueueNamespace().length() > 0) {
+      if (temporary && configuration.getTemporaryQueueNamespace() != null && !configuration.getTemporaryQueueNamespace().isEmpty()) {
          runtimeTempQueueNamespace.append(configuration.getTemporaryQueueNamespace()).append(configuration.getWildcardConfiguration().getDelimiterString());
       }
       return runtimeTempQueueNamespace.toString();

@@ -298,7 +298,7 @@ public final class XmlDataExporter extends DBOption {
          Map<Long, ReferenceDescribe> referenceDescribeHashMap = messageRefs.get(info.id);
          if (referenceDescribeHashMap != null) {
             referenceDescribeHashMap.remove(ack.refEncoding.queueID);
-            if (referenceDescribeHashMap.size() == 0) {
+            if (referenceDescribeHashMap.isEmpty()) {
                messages.remove(info.id);
                messageRefs.remove(info.id);
             }
@@ -472,7 +472,7 @@ public final class XmlDataExporter extends DBOption {
                            }
                         }
 
-                        if (queueNames.size() > 0 && (message.getTransactionID() == -1 || pgTXs.contains(message.getTransactionID()))) {
+                        if (!queueNames.isEmpty() && (message.getTransactionID() == -1 || pgTXs.contains(message.getTransactionID()))) {
                            printSingleMessageAsXML(message.getMessage().toCore(), queueNames);
                         }
 

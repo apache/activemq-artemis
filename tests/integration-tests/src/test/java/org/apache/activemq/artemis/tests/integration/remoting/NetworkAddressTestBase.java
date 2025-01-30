@@ -80,7 +80,7 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
    @Test
    public void testConnectToServerWithSameHost() throws Exception {
       Map<NetworkInterface, InetAddress> map = NetworkAddressTestBase.getAddressForEachNetworkInterface();
-      if (map.size() > 0) {
+      if (!map.isEmpty()) {
          Set<Entry<NetworkInterface, InetAddress>> set = map.entrySet();
          Iterator<Entry<NetworkInterface, InetAddress>> iterator = set.iterator();
          InetAddress address = iterator.next().getValue();

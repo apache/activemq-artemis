@@ -636,7 +636,7 @@ public class Create extends InstallAbstract {
 
       filters.put("${global-max-messages}", Long.toString(globalMaxMessages));
 
-      if (globalMaxSize == null || globalMaxSize.trim().equals("")) {
+      if (globalMaxSize == null || globalMaxSize.trim().isEmpty()) {
          filters.put("${global-max-section}", readTextFile(ETC_GLOBAL_MAX_DEFAULT_TXT, filters));
       } else {
          filters.put("${global-max-size}", globalMaxSize);

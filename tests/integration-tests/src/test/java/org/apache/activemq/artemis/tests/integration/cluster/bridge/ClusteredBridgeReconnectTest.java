@@ -142,7 +142,7 @@ public class ClusteredBridgeReconnectTest extends ClusterTestBase {
 
          Wait.waitFor(() -> BridgeTestAccessor.withinRefs(bridge, (refs) -> {
             synchronized (refs) {
-               if (refs.size() > 0) {
+               if (!refs.isEmpty()) {
                   executorFail.execute(() -> {
                      bridge.connectionFailed(new ActiveMQException("bye"), false);
                   });

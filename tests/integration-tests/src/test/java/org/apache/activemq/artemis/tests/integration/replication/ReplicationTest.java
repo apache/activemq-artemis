@@ -447,7 +447,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
       ExtraConfigurer configurer = (primaryConfig, backupConfig) -> {
          List<ClusterConnectionConfiguration> ccList = backupConfig.getClusterConfigurations();
-         assertTrue(ccList.size() > 0);
+         assertFalse(ccList.isEmpty());
          ClusterConnectionConfiguration cc = ccList.get(0);
          cc.setConnectionTTL(ttlOverride);
          cc.setClientFailureCheckPeriod(checkPeriodOverride);

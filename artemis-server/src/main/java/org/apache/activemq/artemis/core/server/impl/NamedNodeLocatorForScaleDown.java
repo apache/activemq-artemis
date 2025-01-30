@@ -113,7 +113,7 @@ public class NamedNodeLocatorForScaleDown extends NodeLocator {
       try {
          lock.lock();
          connectors.remove(nodeID);
-         if (connectors.size() > 0) {
+         if (!connectors.isEmpty()) {
             condition.signal();
          }
       } finally {
