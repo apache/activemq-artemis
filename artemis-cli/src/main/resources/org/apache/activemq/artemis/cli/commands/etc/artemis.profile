@@ -31,9 +31,9 @@ ARTEMIS_INSTANCE_ETC_URI='${artemis.instance.etc.uri}'
 #ARTEMIS_CLUSTER_PROPS="-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446"
 
 # Hawtio Properties
-# HAWTIO_ROLE define the user role or roles required to be able to login to the console. Multiple roles to allow can
+# HAWTIO_ROLES defines the user roles required to be able to login to the console. Multiple roles to allow can
 # be separated by a comma. Set to '*' or an empty value to disable role checking when Hawtio authenticates a user.
-HAWTIO_ROLE='${role}'
+HAWTIO_ROLES='${role}'
 
 # Java Opts
 if [ -z "$JAVA_ARGS" ]; then
