@@ -94,7 +94,7 @@ public class XMLConfigurationUtil {
                                           final Integer def,
                                           final Validator<Number> validator) {
       String attribute = e.getAttribute(name);
-      if (attribute != null && !attribute.equals("")) {
+      if (attribute != null && !attribute.isEmpty()) {
          return (Integer) validator.validate(name, XMLUtil.parseInt(e, attribute));
       } else {
          return def;

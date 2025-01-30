@@ -427,7 +427,7 @@ public class StatQueue extends ConnectionAbstract {
       }
 
       //would expect to have some data
-      if (value.length() == 0) {
+      if (value.isEmpty()) {
          value.append("NO DATA");
       }
 
@@ -450,12 +450,12 @@ public class StatQueue extends ConnectionAbstract {
 
       Map<String, Object> filterMap = new HashMap<>();
 
-      if (((fieldName != null) && (fieldName.trim().length() > 0)) && ((queueName != null && queueName.trim().length() > 0))) {
+      if (((fieldName != null) && (!fieldName.trim().isEmpty())) && ((queueName != null && !queueName.trim().isEmpty()))) {
          getActionContext().err.println("'--field' and '--queueName' cannot be specified together.");
          return null;
       }
 
-      if ((fieldName != null) && (fieldName.trim().length() > 0)) {
+      if ((fieldName != null) && (!fieldName.trim().isEmpty())) {
          try {
             FIELD field = FIELD.valueOfJsonId(fieldName);
 
@@ -471,7 +471,7 @@ public class StatQueue extends ConnectionAbstract {
          }
 
          //full filter being set ensure value is set
-         if (value == null || value.trim().length() == 0) {
+         if (value == null || value.trim().isEmpty()) {
             getActionContext().err.println("'--value' needs to be set when '--field' is specified");
             return null;
          }
@@ -490,7 +490,7 @@ public class StatQueue extends ConnectionAbstract {
             return null;
          }
 
-      } else if (queueName != null && queueName.trim().length() > 0) {
+      } else if (queueName != null && !queueName.trim().isEmpty()) {
          filterMap.put("field", FIELD.NAME.toString());
          filterMap.put("value", queueName);
          filterMap.put("operation", OPERATION.CONTAINS.toString());

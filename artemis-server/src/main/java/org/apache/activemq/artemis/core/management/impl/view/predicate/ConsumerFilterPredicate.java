@@ -77,7 +77,7 @@ public class ConsumerFilterPredicate extends ActiveMQFilterPredicate<ServerConsu
 
    @Override
    public void setField(String field) {
-      if (field != null && !field.equals("")) {
+      if (field != null && !field.isEmpty()) {
          this.f = ConsumerField.valueOfName(field);
 
          //for backward compatibility

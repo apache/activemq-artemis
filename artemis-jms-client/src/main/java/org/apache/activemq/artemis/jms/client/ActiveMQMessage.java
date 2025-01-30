@@ -904,7 +904,7 @@ public class ActiveMQMessage implements javax.jms.Message {
          throw ActiveMQJMSClientBundle.BUNDLE.nullArgumentNotAllowed("property");
       }
 
-      if (name.equals("")) {
+      if (name.isEmpty()) {
          throw new IllegalArgumentException("The name of a property must not be an empty String.");
       }
 
@@ -922,7 +922,7 @@ public class ActiveMQMessage implements javax.jms.Message {
    }
 
    private boolean isValidJavaIdentifier(final String s) {
-      if (s == null || s.length() == 0) {
+      if (s == null || s.isEmpty()) {
          return false;
       }
 

@@ -39,7 +39,7 @@ public final class Validators {
    public static final Validator NO_CHECK = (name, value) -> value;
 
    public static final Validator<String> NOT_NULL_OR_EMPTY = (name, value) -> {
-      if (value == null || value.length() == 0) {
+      if (value == null || value.isEmpty()) {
          throw ActiveMQMessageBundle.BUNDLE.emptyOrNull(name);
       }
       return value;

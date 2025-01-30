@@ -85,7 +85,7 @@ public class StompWithInterceptorsTest extends StompTestBase {
       sendJmsMessage(getName());
 
       // Something was supposed to be called on sendMessages
-      assertTrue(CoreInterceptor.incomingInterceptedFrames.size() > 0, "core interceptor is not working");
+      assertTrue(!CoreInterceptor.incomingInterceptedFrames.isEmpty(), "core interceptor is not working");
 
       conn.receiveFrame(10000);
 

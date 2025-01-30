@@ -377,7 +377,7 @@ public class SimpleAddressManager implements AddressManager {
       Set<RoutingType> eset1 = set1 == null || set1.isEmpty() ? Collections.emptySet() : EnumSet.copyOf(set1);
       Set<RoutingType> eset2 = set2 == null || set2.isEmpty() ? Collections.emptySet() : EnumSet.copyOf(set2);
 
-      if (eset1.size() == 0 && eset2.size() == 0) {
+      if (eset1.isEmpty() && eset2.isEmpty()) {
          return true;
       }
 

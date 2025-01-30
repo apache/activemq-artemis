@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.createMapMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -77,7 +78,7 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
          assertTrue(section instanceof AmqpValue);
          Object value = ((AmqpValue) section).getValue();
          assertTrue(value instanceof String);
-         assertTrue(((String) value).length() > 0);
+         assertFalse(((String) value).isEmpty());
          assertTrue(((String) value).contains(destinationAddress));
          response.accept();
       } finally {

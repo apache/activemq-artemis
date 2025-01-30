@@ -83,7 +83,7 @@ public class URISupport {
             sb.append(':');
          }
 
-         if (host != null && host.length() != 0) {
+         if (host != null && !host.isEmpty()) {
             sb.append(host);
          } else {
             sb.append('(');
@@ -215,7 +215,7 @@ public class URISupport {
          StringBuilder newQuery = uri.getRawQuery() != null ? new StringBuilder(uri.getRawQuery()) : new StringBuilder();
          for (Map.Entry<String, String> param : queryParameters.entrySet()) {
             if (param.getKey().startsWith(optionPrefix)) {
-               if (newQuery.length() != 0) {
+               if (!newQuery.isEmpty()) {
                   newQuery.append('&');
                }
                final String key = param.getKey().substring(optionPrefix.length());
@@ -261,7 +261,7 @@ public class URISupport {
       if (questionMark > 0) {
          schemeSpecificPart = schemeSpecificPart.substring(0, questionMark);
       }
-      if (query != null && query.length() > 0) {
+      if (query != null && !query.isEmpty()) {
          schemeSpecificPart += "?" + query;
       }
       return new URI(uri.getScheme(), schemeSpecificPart, uri.getFragment());
@@ -393,7 +393,7 @@ public class URISupport {
          }
          rc.parameters = parseQuery(params.substring(p + 1));
       } else {
-         if (params.length() > 0) {
+         if (!params.isEmpty()) {
             rc.path = stripPrefix(params, "/");
          }
          rc.parameters = emptyMap();
@@ -433,7 +433,7 @@ public class URISupport {
       }
 
       String s = str.substring(last);
-      if (s.length() != 0) {
+      if (!s.isEmpty()) {
          l.add(s);
       }
 
@@ -475,7 +475,7 @@ public class URISupport {
     * @return a URI formatted query string.
     */
    public static String createQueryString(Map<String, ? extends Object> options) {
-      if (options.size() > 0) {
+      if (!options.isEmpty()) {
          StringBuilder rc = new StringBuilder();
          boolean first = true;
          List<String> keys = new ArrayList<>();
@@ -513,7 +513,7 @@ public class URISupport {
     */
    public static URI createRemainingURI(URI originalURI, Map<String, String> params) throws URISyntaxException {
       String s = createQueryString(params);
-      if (s.length() == 0) {
+      if (s.isEmpty()) {
          s = null;
       }
       return createURIWithQuery(originalURI, s);

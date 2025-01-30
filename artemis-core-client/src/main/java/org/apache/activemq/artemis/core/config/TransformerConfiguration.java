@@ -95,7 +95,7 @@ public final class TransformerConfiguration implements Serializable {
 
    public JsonObjectBuilder createJsonObjectBuilder() {
       JsonObjectBuilder tcBuilder = JsonLoader.createObjectBuilder().add(TransformerConfiguration.CLASS_NAME, getClassName());
-      if (getProperties() != null && getProperties().size() > 0) {
+      if (getProperties() != null && !getProperties().isEmpty()) {
          JsonObjectBuilder propBuilder = JsonLoader.createObjectBuilder();
          getProperties().forEach(propBuilder::add);
          tcBuilder.add(TransformerConfiguration.PROPERTIES, propBuilder);

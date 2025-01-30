@@ -70,7 +70,7 @@ public class StompWithClientIdValidationTest extends StompTestBase {
                /*
                 * perform some kind of clientId validation, e.g. check presence or format
                 */
-               if (clientId == null || clientId.length() == 0) {
+               if (clientId == null || clientId.isEmpty()) {
                   System.err.println("ClientID not set!");
                   return null;
                }

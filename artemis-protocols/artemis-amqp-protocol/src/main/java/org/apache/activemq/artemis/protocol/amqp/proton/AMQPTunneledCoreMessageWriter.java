@@ -77,7 +77,7 @@ public class AMQPTunneledCoreMessageWriter implements MessageWriter {
          final Delivery delivery = serverSender.createDelivery(messageReference, AMQP_TUNNELED_CORE_MESSAGE_FORMAT);
 
          final DeliveryAnnotations annotations = messageReference.getProtocolData(DeliveryAnnotations.class);
-         if (annotations != null && annotations.getValue() != null && annotations.getValue().size() > 0) {
+         if (annotations != null && annotations.getValue() != null && !annotations.getValue().isEmpty()) {
             final EncoderImpl encoder = TLSEncode.getEncoder();
 
             try {

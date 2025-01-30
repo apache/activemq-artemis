@@ -123,7 +123,7 @@ public class QueueCheck extends CheckAbstract {
          }
       }
 
-      if (up || checkTasks.size() == 0) {
+      if (up || checkTasks.isEmpty()) {
          checkTasks.add(0, new CheckTask(String.format("the queue %s exists and is not paused",
                                                        getName()), this::checkQueueUp));
       }

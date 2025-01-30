@@ -219,7 +219,7 @@ public final class InetAddresses {
       // This indicates that a run of zeroes has been skipped.
       int skipIndex = -1;
       for (int i = 1; i < parts.length - 1; i++) {
-         if (parts[i].length() == 0) {
+         if (parts[i].isEmpty()) {
             if (skipIndex >= 0) {
                return null;  // Can't have more than one ::
             }
@@ -233,10 +233,10 @@ public final class InetAddresses {
          // If we found a "::", then check if it also covers the endpoints.
          partsHi = skipIndex;
          partsLo = parts.length - skipIndex - 1;
-         if (parts[0].length() == 0 && --partsHi != 0) {
+         if (parts[0].isEmpty() && --partsHi != 0) {
             return null;  // ^: requires ^::
          }
-         if (parts[parts.length - 1].length() == 0 && --partsLo != 0) {
+         if (parts[parts.length - 1].isEmpty() && --partsLo != 0) {
             return null;  // :$ requires ::$
          }
       } else {

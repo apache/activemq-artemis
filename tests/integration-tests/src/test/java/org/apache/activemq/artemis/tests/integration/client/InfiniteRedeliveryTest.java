@@ -55,6 +55,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -201,7 +202,7 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
       counts.forEach((k, v) -> assertTrue(v.intValue() < 20, "Record type " + k + " has a lot of records:" +  v));
 
       Map<Integer, AtomicInteger> backupCounts = countJournal(backupServer.getServer().getConfiguration());
-      assertTrue(backupCounts.size() > 0);
+      assertFalse(backupCounts.isEmpty());
       backupCounts.forEach((k, v) -> logger.debug("On Backup:{}={}", k, v));
       backupCounts.forEach((k, v) -> assertTrue(v.intValue() < 10, "Backup Record type " + k + " has a lot of records:" +  v));
 

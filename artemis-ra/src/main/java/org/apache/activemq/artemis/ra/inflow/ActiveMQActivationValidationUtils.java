@@ -49,7 +49,7 @@ public final class ActiveMQActivationValidationUtils {
       List<PropertyDescriptor> propsNotSet = new ArrayList<>();
 
       try {
-         if (destination == null || destination.trim().equals("")) {
+         if (destination == null || destination.trim().isEmpty()) {
             propsNotSet.add(new PropertyDescriptor("destination", ActiveMQActivationSpec.class));
             errorMessages.add("Destination is mandatory.");
          }
@@ -60,8 +60,8 @@ public final class ActiveMQActivationValidationUtils {
             errorMessages.add("If set, the destinationType must be either 'javax.jms.Topic' or 'javax.jms.Queue'.");
          }
 
-         if ((destinationType == null || destinationType.length() == 0 || Topic.class.getName().equals(destinationType))
-               && subscriptionDurability && (subscriptionName == null || subscriptionName.length() == 0)) {
+         if ((destinationType == null || destinationType.isEmpty() || Topic.class.getName().equals(destinationType))
+               && subscriptionDurability && (subscriptionName == null || subscriptionName.isEmpty())) {
             propsNotSet.add(new PropertyDescriptor("subscriptionName", ActiveMQActivationSpec.class));
             errorMessages.add("If subscription is durable then subscription name must be specified.");
          }
@@ -74,7 +74,7 @@ public final class ActiveMQActivationValidationUtils {
 
    private static void buildAndThrowExceptionIfNeeded(List<PropertyDescriptor> propsNotSet, List<String> errorMessages)
          throws InvalidPropertyException {
-      if (propsNotSet.size() > 0) {
+      if (!propsNotSet.isEmpty()) {
          StringBuffer b = new StringBuffer();
          b.append("Invalid settings:");
          for (String errorMessage : errorMessages) {

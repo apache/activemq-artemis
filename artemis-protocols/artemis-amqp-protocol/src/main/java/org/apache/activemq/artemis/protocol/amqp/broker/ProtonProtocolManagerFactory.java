@@ -95,7 +95,7 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
       }
       final List<AMQPBrokerConnectConfiguration> amqpServicesConfigurations = server.getConfiguration().getAMQPConnection();
 
-      if (amqpServicesConfigurations != null && amqpServicesConfigurations.size() > 0) {
+      if (amqpServicesConfigurations != null && !amqpServicesConfigurations.isEmpty()) {
          brokerConnectionManager = new AMQPBrokerConnectionManager(this, amqpServicesConfigurations, server);
          services.add(brokerConnectionManager);
       }

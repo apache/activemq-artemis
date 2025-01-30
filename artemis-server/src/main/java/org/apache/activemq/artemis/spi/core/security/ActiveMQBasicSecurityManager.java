@@ -146,13 +146,13 @@ public class ActiveMQBasicSecurityManager implements ActiveMQSecurityManager5, U
    @Override
    public synchronized Map<String, Set<String>> listUser(String user) {
       // a null or empty user is actually valid here
-      if (user != null && user.length() != 0 && !userExists(user)) {
+      if (user != null && !user.isEmpty() && !userExists(user)) {
          throw ActiveMQMessageBundle.BUNDLE.userDoesNotExist(user);
       }
 
       Map<String, Set<String>> result = new HashMap<>();
 
-      if (user != null && user.length() > 0) {
+      if (user != null && !user.isEmpty()) {
          result.put(user, new HashSet<>(getRole(user).getRoles()));
       } else {
          for (String thisUser : storageManager.getPersistedUsers().keySet()) {

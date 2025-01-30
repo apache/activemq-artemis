@@ -26,7 +26,7 @@ public enum JournalType {
       StringBuffer stringBuffer = new StringBuffer();
       for (JournalType type : JournalType.values()) {
 
-         if (stringBuffer.length() != 0) {
+         if (!stringBuffer.isEmpty()) {
             stringBuffer.append(",");
          }
 

@@ -57,7 +57,7 @@ public class AddressFilterPredicate extends ActiveMQFilterPredicate<AddressInfo>
 
    @Override
    public void setField(String field) {
-      if (field != null && !field.equals("")) {
+      if (field != null && !field.isEmpty()) {
          this.f = AddressField.valueOfName(field);
 
          //for backward compatibility

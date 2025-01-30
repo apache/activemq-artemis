@@ -126,7 +126,7 @@ public class SecurityManagerUtil {
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.failedToFindRolesForTheSubject(e);
          }
-         if (rolesForSubject.size() > 0 && rolesWithPermission.size() > 0) {
+         if (!rolesForSubject.isEmpty() && !rolesWithPermission.isEmpty()) {
             Iterator<Principal> rolesForSubjectIter = rolesForSubject.iterator();
             while (!authorized && rolesForSubjectIter.hasNext()) {
                Iterator<RolePrincipal> rolesWithPermissionIter = rolesWithPermission.iterator();

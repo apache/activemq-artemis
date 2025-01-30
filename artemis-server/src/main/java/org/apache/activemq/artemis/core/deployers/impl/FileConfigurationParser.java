@@ -936,7 +936,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          config.setJournalRetentionMaxBytes(storageLimit);
          config.setJournalRetentionPeriod(unit, period);
 
-         if (directory == null || directory.equals("")) {
+         if (directory == null || directory.isEmpty()) {
             throw new IllegalArgumentException("journal-retention-directory=null");
          }
 
@@ -1299,7 +1299,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          } else {
             Set<String> externalRoleNames = new HashSet<>();
             externalRoleNames.add(externalRoleName);
-            if ((internalRoleName.length() > 0) && (externalRoleName.length() > 0)) {
+            if ((!internalRoleName.isEmpty()) && (!externalRoleName.isEmpty())) {
                mappedRoleNames.put(internalRoleName, externalRoleNames);
             }
          }

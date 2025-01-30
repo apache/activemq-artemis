@@ -33,7 +33,7 @@ public class FirstElementPolicy extends AbstractPolicy {
 
    @Override
    public Target selectTarget(List<Target> targets, String key) {
-      if (targets.size() > 0) {
+      if (!targets.isEmpty()) {
          return targets.get(0);
       }
 

@@ -89,7 +89,7 @@ public class StringPrep {
             int count = pair.getValue();
 
             // Coalesce overlapping ranges.
-            if (tupleStart.size() > 0) {
+            if (!tupleStart.isEmpty()) {
                int prevIndex = tupleStart.size() - 1;
                int prevStart = tupleStart.get(prevIndex);
                int prevCount = tupleCount.get(prevIndex);

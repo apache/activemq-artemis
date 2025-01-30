@@ -81,7 +81,7 @@ public abstract class AbstractActiveMQClientDelegate {
     * @param properties
     */
    public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
-      if (properties != null && properties.size() > 0) {
+      if (properties != null && !properties.isEmpty()) {
          for (Map.Entry<String, Object> property : properties.entrySet()) {
             message.putObjectProperty(property.getKey(), property.getValue());
          }

@@ -90,6 +90,6 @@ public class DefaultArtemisClientConfigurationImpl implements ArtemisClientConfi
 
    @Override
    public boolean hasAuthentication() {
-      return getUsername() != null && getUsername().length() > 0;
+      return getUsername() != null && !getUsername().isEmpty();
    }
 }

@@ -1673,7 +1673,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          connection1.close();
 
          // need to wait here because the ActiveMQ client's temp destination map is updated asynchronously, not waiting can introduce a race
-         assertTrue(Wait.waitFor(() -> ((ActiveMQConnection)connection2).activeTempDestinations.size() == 0, 2000, 100));
+         assertTrue(Wait.waitFor(() -> ((ActiveMQConnection) connection2).activeTempDestinations.isEmpty(), 2000, 100));
 
          waitForBindings(this.server, tempQueue.getQueueName(), true, 0, 0, 5000);
          //send again
@@ -1703,9 +1703,9 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          subscriber.setMessageListener(receivedMessages::add);
          topicConnection.start();
 
-         Wait.waitFor(() -> receivedMessages.size() > 0);
+         Wait.waitFor(() -> !receivedMessages.isEmpty());
 
-         assertTrue(receivedMessages.size() > 0);
+         assertFalse(receivedMessages.isEmpty());
 
          for (Message message : receivedMessages) {
             assertNotNull(message);

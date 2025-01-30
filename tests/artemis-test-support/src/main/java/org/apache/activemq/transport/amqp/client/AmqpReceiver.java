@@ -848,7 +848,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
          filters.put(NO_LOCAL_NAME, AmqpNoLocalFilter.NO_LOCAL);
       }
 
-      if (getSelector() != null && !getSelector().trim().equals("")) {
+      if (getSelector() != null && !getSelector().trim().isEmpty()) {
          filters.put(JMS_SELECTOR_NAME, new AmqpJmsSelectorFilter(getSelector()));
       }
 

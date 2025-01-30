@@ -1911,7 +1911,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
          filesRepository.clearDataFiles();
 
-         if (dataFilesToProcess.size() == 0) {
+         if (dataFilesToProcess.isEmpty()) {
             logger.trace("Finishing compacting, nothing to process");
             return null;
          }
@@ -3340,7 +3340,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    private void cleanupTmpFiles(final String extension) throws Exception {
       List<String> leftFiles = fileFactory.listFiles(getFileExtension() + extension);
 
-      if (leftFiles.size() > 0) {
+      if (!leftFiles.isEmpty()) {
          ActiveMQJournalLogger.LOGGER.tempFilesLeftOpen();
 
          for (String fileToDelete : leftFiles) {

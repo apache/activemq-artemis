@@ -65,12 +65,12 @@ public class NamedNodeLocatorForReplication extends NodeLocator {
    public void locateNode(long timeout) throws ActiveMQException {
       try {
          lock.lock();
-         if (configurations.size() == 0) {
+         if (configurations.isEmpty()) {
             try {
                if (timeout != -1L) {
                   ConcurrentUtil.await(condition, timeout);
                } else {
-                  while (configurations.size() == 0) {
+                  while (configurations.isEmpty()) {
                      condition.await(retryReplicationWait, TimeUnit.MILLISECONDS);
                      configurations.addAll(triedConfigurations);
                      triedConfigurations.clear();

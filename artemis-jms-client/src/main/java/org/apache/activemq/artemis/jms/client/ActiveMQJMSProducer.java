@@ -572,7 +572,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
       if (name == null) {
          throw ActiveMQJMSClientBundle.BUNDLE.nameCannotBeNull();
       }
-      if (name.equals("")) {
+      if (name.isEmpty()) {
          throw ActiveMQJMSClientBundle.BUNDLE.nameCannotBeEmpty();
       }
    }

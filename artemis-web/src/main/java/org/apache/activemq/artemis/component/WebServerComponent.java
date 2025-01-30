@@ -171,7 +171,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          connectors[i] = connector;
          virtualHosts[i] = "@Connector-" + i;
 
-         if (binding.apps != null && binding.apps.size() > 0) {
+         if (binding.apps != null && !binding.apps.isEmpty()) {
             for (AppDTO app : binding.apps) {
                Path dirToUse = homeWarDir;
                if (new File(instanceWarDir.toFile() + File.separator + app.war).exists()) {
@@ -443,7 +443,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          requestLog = new CustomRequestLog(requestLogWriter, CustomRequestLog.NCSA_FORMAT);
       }
 
-      if (webServerConfig.requestLog.ignorePaths != null && webServerConfig.requestLog.ignorePaths.length() > 0) {
+      if (webServerConfig.requestLog.ignorePaths != null && !webServerConfig.requestLog.ignorePaths.isEmpty()) {
          String[] split = webServerConfig.requestLog.ignorePaths.split(",");
          String[] ignorePaths = new String[split.length];
          for (int i = 0; i < ignorePaths.length; i++) {

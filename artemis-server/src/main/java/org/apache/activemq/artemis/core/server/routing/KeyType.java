@@ -25,7 +25,7 @@ public enum KeyType {
       StringBuffer stringBuffer = new StringBuffer();
       for (KeyType type : KeyType.values()) {
 
-         if (stringBuffer.length() != 0) {
+         if (!stringBuffer.isEmpty()) {
             stringBuffer.append(",");
          }
 

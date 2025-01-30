@@ -57,7 +57,7 @@ public class AMQPMirrorControllerAggregation implements MirrorController, Active
 
    @Override
    public String getRemoteMirrorId() {
-      if (partitions != null && partitions.size() > 0) {
+      if (partitions != null && !partitions.isEmpty()) {
          return partitions.get(0).getRemoteMirrorId();
       } else {
          throw new IllegalStateException();

@@ -43,7 +43,7 @@ public class ConsistentHashPolicy extends AbstractPolicy {
             consistentTargets.put(getHash(target.getNodeID()), target);
          }
 
-         if (consistentTargets.size() > 0) {
+         if (!consistentTargets.isEmpty()) {
             Map.Entry<Integer, Target> consistentEntry = consistentTargets.floorEntry(getHash(key));
 
             if (consistentEntry == null) {
@@ -52,7 +52,7 @@ public class ConsistentHashPolicy extends AbstractPolicy {
 
             return consistentEntry.getValue();
          }
-      } else if (targets.size() > 0) {
+      } else if (!targets.isEmpty()) {
          return targets.get(0);
       }
 

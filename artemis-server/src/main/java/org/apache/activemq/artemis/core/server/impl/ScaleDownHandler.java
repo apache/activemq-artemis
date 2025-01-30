@@ -398,7 +398,7 @@ public class ScaleDownHandler {
             Message message = entry.getKey();
             message.putBytesProperty(Message.HDR_ROUTE_TO_IDS.toString(), buffer.array());
             ids = entry.getValue().getB();
-            if (ids.size() > 0) {
+            if (!ids.isEmpty()) {
                buffer = ByteBuffer.allocate(ids.size() * 8);
                for (Long id : ids) {
                   buffer.putLong(id);

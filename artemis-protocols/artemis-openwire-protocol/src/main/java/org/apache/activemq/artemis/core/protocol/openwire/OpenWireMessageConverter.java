@@ -578,12 +578,12 @@ public final class OpenWireMessageConverter {
       amqMsg.setArrival(arrival);
 
       final SimpleString brokerPath = getObjectProperty(coreMessage, SimpleString.class, OpenWireConstants.AMQ_MSG_BROKER_PATH);
-      if (brokerPath != null && brokerPath.length() > 0) {
+      if (brokerPath != null && !brokerPath.isEmpty()) {
          setAMQMsgBrokerPath(amqMsg, brokerPath.toString());
       }
 
       final SimpleString clusterPath = getObjectProperty(coreMessage, SimpleString.class, OpenWireConstants.AMQ_MSG_CLUSTER);
-      if (clusterPath != null && clusterPath.length() > 0) {
+      if (clusterPath != null && !clusterPath.isEmpty()) {
          setAMQMsgClusterPath(amqMsg, clusterPath.toString());
       }
 
@@ -662,7 +662,7 @@ public final class OpenWireMessageConverter {
       }
 
       final SimpleString userId = getObjectProperty(coreMessage, SimpleString.class, OpenWireConstants.AMQ_MSG_USER_ID);
-      if (userId != null && userId.length() > 0) {
+      if (userId != null && !userId.isEmpty()) {
          amqMsg.setUserID(userId.toString());
       }
 
@@ -947,7 +947,7 @@ public final class OpenWireMessageConverter {
                                                  final Set<SimpleString> props) throws IOException {
       for (SimpleString s : props) {
          final String keyStr = s.toString();
-         if (keyStr.length() == 0) {
+         if (keyStr.isEmpty()) {
             logger.debug("ignoring property with empty key name");
             continue;
          }

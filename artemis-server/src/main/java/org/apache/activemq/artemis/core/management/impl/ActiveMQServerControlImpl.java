@@ -1272,7 +1272,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       SimpleString filter = filterStr == null ? null : SimpleString.of(filterStr);
       try {
-         if (filterStr != null && !filterStr.trim().equals("")) {
+         if (filterStr != null && !filterStr.trim().isEmpty()) {
             filter = SimpleString.of(filterStr);
          }
 
@@ -1689,7 +1689,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          StringBuilder result = new StringBuilder();
          for (SimpleString string : sortAddress) {
-            if (result.length() > 0) {
+            if (!result.isEmpty()) {
                result.append(separator);
             }
             result.append(string);
@@ -1980,7 +1980,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          Map<Xid, Long> xids = resourceManager.getPreparedTransactionsWithCreationTime();
-         if (xids == null || xids.size() == 0) {
+         if (xids == null || xids.isEmpty()) {
             return "";
          }
 
@@ -2023,7 +2023,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          Map<Xid, Long> xids = resourceManager.getPreparedTransactionsWithCreationTime();
-         if (xids == null || xids.size() == 0) {
+         if (xids == null || xids.isEmpty()) {
             return "<h3>*** Prepared Transaction Details ***</h3><p>No entry.</p>";
          }
 

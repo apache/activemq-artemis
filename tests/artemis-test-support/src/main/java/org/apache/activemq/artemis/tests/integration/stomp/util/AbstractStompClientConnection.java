@@ -204,7 +204,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
                }
             }
          } else {
-            if (b == 10 && receiveList.size() == 0) {
+            if (b == 10 && receiveList.isEmpty()) {
                //may be a ping
                incrementServerPing();
             } else {

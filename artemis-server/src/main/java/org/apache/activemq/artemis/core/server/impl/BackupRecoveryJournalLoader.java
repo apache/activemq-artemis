@@ -77,7 +77,7 @@ public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader {
       //currently only the node that is configured with the local group handler can recover these as all other nodes are
       //remote handlers, this means that you can only use FULL backup server when using group handlers.
       //todo maybe in the future we can restart the handler on the active server as a local handler and redistribute the state
-      if (groupingInfos != null && groupingInfos.size() > 0) {
+      if (groupingInfos != null && !groupingInfos.isEmpty()) {
          ActiveMQServerLogger.LOGGER.groupBindingsOnRecovery();
       }
    }

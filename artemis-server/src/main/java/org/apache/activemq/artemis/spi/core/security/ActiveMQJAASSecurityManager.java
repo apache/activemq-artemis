@@ -143,7 +143,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
          }
          if (securityDomain != null) {
             lc = new LoginContext(securityDomain, null, new JaasCallbackHandler(user, password, remotingConnection), null);
-         } else if (certificateConfigurationName != null && certificateConfigurationName.length() > 0 && getCertsFromConnection(remotingConnection) != null) {
+         } else if (certificateConfigurationName != null && !certificateConfigurationName.isEmpty() && getCertsFromConnection(remotingConnection) != null) {
             lc = new LoginContext(certificateConfigurationName, null, new JaasCallbackHandler(user, password, remotingConnection), certificateConfiguration);
          } else {
             lc = new LoginContext(configurationName, null, new JaasCallbackHandler(user, password, remotingConnection), configuration);

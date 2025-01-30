@@ -460,7 +460,7 @@ public final class DescribeJournal {
          }
       }
 
-      if (counters.size() > 0) {
+      if (!counters.isEmpty()) {
          out.println("### Page Counters");
          printCounters(out, counters);
       }
@@ -496,7 +496,7 @@ public final class DescribeJournal {
 
       String missingTX = bufferFailingTransactions.toString();
 
-      if (missingTX.length() > 0) {
+      if (!missingTX.isEmpty()) {
          out.println();
          out.println("### Failed Transactions (Missing commit/prepare/rollback record) ###");
       }

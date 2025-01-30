@@ -117,7 +117,7 @@ public abstract class Configurable extends ActionAbstract {
    }
 
    protected String getConfiguration() {
-      if (configuration == null || configuration.equals("")) {
+      if (configuration == null || configuration.isEmpty()) {
          File xmlFile = new File(new File(getBrokerEtc()), "bootstrap.xml");
          configuration = "xml:" + xmlFile.toURI().toString().substring("file:".length());
 

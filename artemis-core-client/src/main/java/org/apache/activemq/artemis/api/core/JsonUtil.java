@@ -421,7 +421,7 @@ public final class JsonUtil {
       private String escape;
 
       NullableJsonString(String value) {
-         if (value == null || value.length() == 0) {
+         if (value == null || value.isEmpty()) {
             this.value = null;
          } else {
             this.value = value;

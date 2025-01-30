@@ -105,7 +105,7 @@ public class QueueFilterPredicate extends ActiveMQFilterPredicate<QueueControl> 
 
    @Override
    public void setField(String field) {
-      if (field != null && !field.equals("")) {
+      if (field != null && !field.isEmpty()) {
          this.f = QueueField.valueOfName(field);
 
          //for backward compatibility

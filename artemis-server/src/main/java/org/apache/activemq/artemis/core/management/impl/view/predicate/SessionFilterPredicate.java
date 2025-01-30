@@ -55,7 +55,7 @@ public class SessionFilterPredicate extends ActiveMQFilterPredicate<ServerSessio
 
    @Override
    public void setField(String field) {
-      if (field != null && !field.equals("")) {
+      if (field != null && !field.isEmpty()) {
          this.f = SessionField.valueOfName(field);
 
          //for backward compatibility

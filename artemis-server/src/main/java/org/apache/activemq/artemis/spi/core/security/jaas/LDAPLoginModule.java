@@ -208,7 +208,7 @@ public class LDAPLoginModule implements AuditLoginModule {
           * requests (by verifying that the supplied password is not empty) and
           * react appropriately.
           */
-         if (password == null || password.length() == 0) {
+         if (password == null || password.isEmpty()) {
             throw new FailedLoginException("Password cannot be null or empty");
          }
 

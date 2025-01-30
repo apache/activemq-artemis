@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.unit.core.persistence.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -125,7 +126,7 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
 
       assertEquals(0, tx.size());
 
-      assertTrue(records.size() > 0, "Contains " + records.size());
+      assertFalse(records.isEmpty(), "Contains " + records.size());
 
       for (RecordInfo record : records) {
          if (record.userRecordType == JournalRecordIds.ID_COUNTER_RECORD) {

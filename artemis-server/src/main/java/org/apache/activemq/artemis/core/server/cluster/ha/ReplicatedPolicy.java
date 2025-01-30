@@ -170,10 +170,10 @@ public class ReplicatedPolicy implements HAPolicy<PrimaryActivation> {
          replicaPolicy.setVoteRetryWait(voteRetryWait);
          replicaPolicy.setretryReplicationWait(retryReplicationWait);
          replicaPolicy.setMaxSavedReplicatedJournalsSize(maxSavedReplicatedJournalsSize);
-         if (clusterName != null && clusterName.length() > 0) {
+         if (clusterName != null && !clusterName.isEmpty()) {
             replicaPolicy.setClusterName(clusterName);
          }
-         if (groupName != null && groupName.length() > 0) {
+         if (groupName != null && !groupName.isEmpty()) {
             replicaPolicy.setGroupName(groupName);
          }
       }

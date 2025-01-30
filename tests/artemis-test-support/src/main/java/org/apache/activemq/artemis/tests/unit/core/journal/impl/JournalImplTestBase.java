@@ -694,6 +694,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
          Set<RecordInfo> hashExpected = new HashSet<>();
          hashExpected.addAll(expected);
 
+
          logger.warn("#Summary **********************************************************************************************************************");
          for (RecordInfo r : hashActual) {
             if (!hashExpected.contains(r)) {

@@ -63,7 +63,7 @@ public class ProducerFilterPredicate extends ActiveMQFilterPredicate<ServerProdu
 
    @Override
    public void setField(String field) {
-      if (field != null && !field.equals("")) {
+      if (field != null && !field.isEmpty()) {
          this.f = ProducerField.valueOfName(field);
 
          //for backward compatibility

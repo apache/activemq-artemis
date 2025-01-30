@@ -284,7 +284,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
    public static Map<Meter.Id, Double> getMetrics(ActiveMQServer server) {
       Map<Meter.Id, Double> metrics = new HashMap<>();
       List<Meter> meters = server.getMetricsManager().getMeterRegistry().getMeters();
-      assertTrue(meters.size() > 0);
+      assertFalse(meters.isEmpty());
       for (Meter meter : meters) {
          Iterable<Measurement> measurements = meter.measure();
          for (Measurement measurement : measurements) {

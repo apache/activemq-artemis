@@ -109,7 +109,7 @@ public class HawtioSecurityControlImpl extends AbstractControl implements Hawtio
       for (Map.Entry<String, List<String>> entry : bulkQuery.entrySet()) {
          String objectName = entry.getKey();
          List<String> methods = entry.getValue();
-         if (methods.size() == 0) {
+         if (methods.isEmpty()) {
             boolean res = canInvoke(objectName);
             CompositeData data = new CompositeDataSupport(CAN_INVOKE_RESULT_ROW_TYPE,
                   CAN_INVOKE_RESULT_COLUMNS,

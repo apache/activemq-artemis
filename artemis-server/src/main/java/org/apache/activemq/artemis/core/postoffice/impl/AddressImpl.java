@@ -95,7 +95,7 @@ public class AddressImpl implements Address {
             // check if last part of otherAddr is the any-words wildcard and report a match if so
             if (otherIdx == otherAddrPartsLastIdx) {
                final SimpleString otherAddrLastPart = otherAddrParts[otherAddrPartsLastIdx];
-               return otherAddrLastPart.length() > 0 && otherAddrLastPart.charAt(0) == sepAnyWords;
+               return !otherAddrLastPart.isEmpty() && otherAddrLastPart.charAt(0) == sepAnyWords;
             }
             return false;
          }

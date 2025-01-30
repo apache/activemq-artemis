@@ -1148,7 +1148,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       }
 
       public static boolean isApplicable(final String username, final String password) {
-         return username != null && username.length() > 0 && password != null && password.length() > 0;
+         return username != null && !username.isEmpty() && password != null && !password.isEmpty();
       }
    }
 

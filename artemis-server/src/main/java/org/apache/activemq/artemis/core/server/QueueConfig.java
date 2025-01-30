@@ -124,7 +124,7 @@ public final class QueueConfig {
       }
 
       private static boolean isEmptyOrNull(SimpleString value) {
-         return (value == null || value.length() == 0);
+         return (value == null || value.isEmpty());
       }
 
       private void validateState() {
