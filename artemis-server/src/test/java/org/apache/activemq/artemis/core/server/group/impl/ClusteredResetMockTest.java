@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.RemoteBrokerConnection;
 import org.apache.activemq.artemis.core.server.management.GuardInvocationHandler;
 import org.apache.activemq.artemis.core.server.routing.ConnectionRouter;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
@@ -416,6 +417,16 @@ public class ClusteredResetMockTest extends ServerTestBase {
 
       @Override
       public void removeNotificationListener(NotificationListener listener) {
+
+      }
+
+      @Override
+      public void registerRemoteBrokerConnection(RemoteBrokerConnection brokerConnection) throws Exception {
+
+      }
+
+      @Override
+      public void unregisterRemoteBrokerConnection(String nodeId, String name) throws Exception {
 
       }
    }

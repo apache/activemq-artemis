@@ -26,15 +26,15 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AuditLogger;
 
 /**
- * Management service control instance for an AMQPFederationSource instance that federates messages
- * from the remote broker on the opposing side of this broker connection. The federation source has
- * a lifetime that matches that of its parent broker connection.
+ * Management service control instance for an AMQPFederationTarget instance that is the target of an
+ * AMQP broker connection with federation configured. The target can behave much the same as a federation
+ * source but its scoped to the connection and all operations cease as soon as the connection is closed.
  */
-public final class AMQPFederationSourceControlType extends AbstractControl implements AMQPFederationControl {
+public final class AMQPFederationTargetControlType extends AbstractControl implements AMQPFederationControl {
 
-   private final AMQPFederationSource federation;
+   private final AMQPFederationTarget federation;
 
-   public AMQPFederationSourceControlType(ActiveMQServer server, AMQPFederationSource federation) throws NotCompliantMBeanException {
+   public AMQPFederationTargetControlType(ActiveMQServer server, AMQPFederationTarget federation) throws NotCompliantMBeanException {
       super(AMQPFederationControl.class, server.getStorageManager());
 
       this.federation = federation;

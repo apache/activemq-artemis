@@ -141,12 +141,44 @@ public final class ObjectNameBuilder {
     * for use in an ObjectName.getIstnace call but is intended for use by broker connection components to create
     * names specific to a broker connection feature that registers its own object for management.
     *
+    * @param name
+    *    The broker connection name
+    *
     * @return the base object name string that is used for broker connection Object names.
     *
     * @see BrokerConnectionControl
     */
    public String getBrokerConnectionBaseObjectNameString(String name) throws Exception {
       return getActiveMQServerName() + ",component=broker-connections,name=" + ObjectName.quote(name);
+   }
+
+   /**
+    * Returns the ObjectName used by remote broker connection management objects for incoming connections.
+    *
+    * @see RemoteBrokerConnectionControl
+    */
+   public ObjectName getRemoteBrokerConnectionObjectName(String nodeId, String name) throws Exception {
+      return ObjectName.getInstance(getRemoteBrokerConnectionBaseObjectNameString(nodeId, name));
+   }
+
+   /**
+    * Returns the base ObjectName string used by for incoming broker connections and possibly broker connection
+    * services that are registered by broker connection specific features. This value is pre-quoted and ready
+    * for use in an ObjectName.getIstnace call but is intended for use by broker connection components to create
+    * names specific to a broker connection feature that registers its own object for management.
+    *
+    * @param nodeId
+    *    The node ID of the remote broker that initiated the broker connection.
+    * @param name
+    *    The broker connection name configured on the initiating broker.
+    *
+    * @return the base object name string that is used for broker connection Object names.
+    */
+   public String getRemoteBrokerConnectionBaseObjectNameString(String nodeId, String name) throws Exception {
+      return getActiveMQServerName() +
+             ",component=remote-broker-connections" +
+             ",nodeId=" + ObjectName.quote(nodeId) +
+             ",name=" + ObjectName.quote(name);
    }
 
    /**

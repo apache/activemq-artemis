@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation.FEDERATION_INSTANCE_RECORD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONFIGURATION;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_POLICY_NAME;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import java.util.function.BiFunction;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.protocol.amqp.connect.AMQPRemoteBrokerConnection;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationCommandProcessor;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConfiguration;
@@ -443,22 +445,24 @@ public class AMQPSessionContext extends ProtonInitializable {
                   "Unexpected federation instance found on connection when creating control link processor");
             }
 
-            final Map<String, Object> federationConfigurationMap;
+            final Map<Symbol, Object> receiverProperties =
+               receiver.getRemoteProperties() != null ? receiver.getRemoteProperties() : Collections.emptyMap();
+            final Map<String, Object> federationConfigurationMap =
+               (Map<String, Object>) receiverProperties.getOrDefault(FEDERATION_CONFIGURATION, Collections.emptyMap());
 
-            if (receiver.getRemoteProperties() == null || !receiver.getRemoteProperties().containsKey(FEDERATION_CONFIGURATION)) {
-               federationConfigurationMap = Collections.emptyMap();
-            } else {
-               federationConfigurationMap = (Map<String, Object>) receiver.getRemoteProperties().get(FEDERATION_CONFIGURATION);
-            }
+            final String remoteFederationName = (String) receiverProperties.getOrDefault(FEDERATION_NAME, receiver.getName());
 
+            final AMQPRemoteBrokerConnection brokerConnection =
+               AMQPRemoteBrokerConnection.getOrCreateRemoteBrokerConnection(server, connection, protonConnection);
             final AMQPFederationConfiguration configuration = new AMQPFederationConfiguration(connection, federationConfigurationMap);
-            final AMQPFederationTarget federation = new AMQPFederationTarget(receiver.getName(), configuration, this, server);
+            final AMQPFederationTarget federation = new AMQPFederationTarget(brokerConnection, remoteFederationName, configuration, this);
 
             federation.initialize();
-            federation.start();
+
+            brokerConnection.addFederationTarget(federation);
 
             final AMQPFederationCommandProcessor commandProcessor =
-               new AMQPFederationCommandProcessor(federation, sessionSPI.getAMQPSessionContext(), receiver);
+               new AMQPFederationCommandProcessor(federation, this, receiver);
 
             attachments.set(FEDERATION_INSTANCE_RECORD, AMQPFederationTarget.class, federation);
 

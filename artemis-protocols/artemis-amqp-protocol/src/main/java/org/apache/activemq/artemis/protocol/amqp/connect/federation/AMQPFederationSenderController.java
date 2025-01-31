@@ -249,7 +249,7 @@ public abstract class AMQPFederationSenderController implements SenderController
 
    private void unregisterSenderManagement() {
       try {
-         federation.unregisterFederationProdcerManagement(this);
+         federation.unregisterFederationProducerManagement(this);
       } catch (Exception e) {
          logger.trace("Ignored exception while removing sender from management: ", e);
       }

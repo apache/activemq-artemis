@@ -53,7 +53,7 @@ public abstract class AMQPFederation implements Federation {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private enum State {
-      UNITIALIZED,
+      UNINITIALIZED,
       STOPPED,
       STARTED,
       SHUTDOWN
@@ -82,7 +82,6 @@ public abstract class AMQPFederation implements Federation {
    protected final WildcardConfiguration wildcardConfiguration;
    protected final ScheduledExecutorService scheduler;
 
-   protected final String brokerConnectionName;
    protected final String name;
    protected final ActiveMQServer server;
    protected final AMQPFederationMetrics metrics = new AMQPFederationMetrics();
@@ -94,14 +93,13 @@ public abstract class AMQPFederation implements Federation {
    protected volatile AMQPConnectionContext connection;
    protected volatile AMQPSessionContext session;
 
-   protected volatile State state = State.UNITIALIZED;
+   protected volatile State state = State.UNINITIALIZED;
    protected volatile boolean connected;
 
-   public AMQPFederation(String brokerConnectionName, String name, ActiveMQServer server) {
+   public AMQPFederation(String name, ActiveMQServer server) {
       Objects.requireNonNull(name, "Federation name cannot be null");
       Objects.requireNonNull(server, "Provided server instance cannot be null");
 
-      this.brokerConnectionName = brokerConnectionName;
       this.name = name;
       this.server = server;
       this.scheduler = server.getScheduledPool();
@@ -176,7 +174,7 @@ public abstract class AMQPFederation implements Federation {
    public final synchronized void initialize() throws ActiveMQException {
       failIfShutdown();
 
-      if (state == State.UNITIALIZED) {
+      if (state == State.UNINITIALIZED) {
          state = State.STOPPED;
          handleFederationInitialized();
 
@@ -719,6 +717,6 @@ public abstract class AMQPFederation implements Federation {
 
    abstract void registerFederationProducerManagement(AMQPFederationSenderController sender) throws Exception;
 
-   abstract void unregisterFederationProdcerManagement(AMQPFederationSenderController sender) throws Exception;
+   abstract void unregisterFederationProducerManagement(AMQPFederationSenderController sender) throws Exception;
 
 }

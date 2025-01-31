@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.utils.DestinationUtil;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -220,20 +221,24 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    @Override
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection remotingConnection) {
-      return internalConnectionEntry(remotingConnection, false, null);
+      return internalConnectionEntry(remotingConnection, false, null, null);
    }
 
    /** This method is not part of the ProtocolManager interface because it only makes sense on AMQP.
     *  More specifically on AMQP Bridges */
    public ConnectionEntry createOutgoingConnectionEntry(Connection remotingConnection) {
-      return internalConnectionEntry(remotingConnection, true, null);
+      return internalConnectionEntry(remotingConnection, true, null, null);
    }
 
    public ConnectionEntry createOutgoingConnectionEntry(Connection remotingConnection, ClientSASLFactory saslFactory) {
-      return internalConnectionEntry(remotingConnection, true, saslFactory);
+      return internalConnectionEntry(remotingConnection, true, saslFactory, null);
    }
 
-   private ConnectionEntry internalConnectionEntry(Connection remotingConnection, boolean outgoing, ClientSASLFactory saslFactory) {
+   public ConnectionEntry createOutgoingConnectionEntry(Connection remotingConnection, ClientSASLFactory saslFactory, Map<Symbol, Object> connectionProperties) {
+      return internalConnectionEntry(remotingConnection, true, saslFactory, connectionProperties);
+   }
+
+   private ConnectionEntry internalConnectionEntry(Connection remotingConnection, boolean outgoing, ClientSASLFactory saslFactory, Map<Symbol, Object> connectionProperties) {
       AMQPConnectionCallback connectionCallback = new AMQPConnectionCallback(this, remotingConnection, server.getExecutorFactory().getExecutor(), server);
       long ttl = ActiveMQClient.DEFAULT_CONNECTION_TTL;
 
@@ -251,7 +256,7 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
       String id = server.getNodeID().toString();
       boolean useCoreSubscriptionNaming = server.getConfiguration().isAmqpUseCoreSubscriptionNaming();
-      AMQPConnectionContext amqpConnection = new AMQPConnectionContext(this, connectionCallback, id, (int) ttl, getMaxFrameSize(), AMQPConstants.Connection.DEFAULT_CHANNEL_MAX, useCoreSubscriptionNaming, server.getScheduledPool(), true, saslFactory, null, outgoing);
+      AMQPConnectionContext amqpConnection = new AMQPConnectionContext(this, connectionCallback, id, (int) ttl, getMaxFrameSize(), AMQPConstants.Connection.DEFAULT_CHANNEL_MAX, useCoreSubscriptionNaming, server.getScheduledPool(), true, saslFactory, connectionProperties, outgoing);
 
       Executor executor = server.getExecutorFactory().getExecutor();
 

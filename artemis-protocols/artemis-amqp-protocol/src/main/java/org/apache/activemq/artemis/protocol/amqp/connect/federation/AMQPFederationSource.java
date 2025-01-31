@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONFIGURATION;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LINK_INITIALIZER_KEY;
 
@@ -102,9 +103,8 @@ public class AMQPFederationSource extends AMQPFederation {
     * @param connection
     *    The broker connection over which this federation will occur.
     */
-   @SuppressWarnings("unchecked")
    public AMQPFederationSource(String name, Map<String, Object> properties, AMQPBrokerConnection connection) {
-      super(connection.getName(), name, connection.getServer());
+      super(name, connection.getServer());
 
       if (properties == null || properties.isEmpty()) {
          this.properties = Collections.emptyMap();
@@ -298,52 +298,52 @@ public class AMQPFederationSource extends AMQPFederation {
 
    @Override
    void registerFederationManagement() throws Exception {
-      AMQPFederationManagementSupport.registerFederationManagement(this);
+      AMQPFederationManagementSupport.registerFederationSource(this);
    }
 
    @Override
    void unregisterFederationManagement() throws Exception {
-      AMQPFederationManagementSupport.unregisterFederationManagement(this);
+      AMQPFederationManagementSupport.unregisterFederationSource(this);
    }
 
    @Override
    void registerLocalPolicyManagement(AMQPFederationLocalPolicyManager manager) throws Exception {
-      AMQPFederationManagementSupport.registerLocalPolicyManagement(brokerConnectionName, manager);
+      AMQPFederationManagementSupport.registerLocalPolicyOnSource(brokerConnection.getName(), manager);
    }
 
    @Override
    void unregisterLocalPolicyManagement(AMQPFederationLocalPolicyManager manager) throws Exception {
-      AMQPFederationManagementSupport.unregisterLocalPolicyManagement(brokerConnectionName, manager);
+      AMQPFederationManagementSupport.unregisterLocalPolicyOnSource(brokerConnection.getName(), manager);
    }
 
    @Override
    void registerRemotePolicyManagement(AMQPFederationRemotePolicyManager manager) throws Exception {
-      AMQPFederationManagementSupport.registerRemotePolicyManagement(brokerConnectionName, manager);
+      AMQPFederationManagementSupport.registerRemotePolicyOnSource(brokerConnection.getName(), manager);
    }
 
    @Override
    void unregisterRemotePolicyManagement(AMQPFederationRemotePolicyManager manager) throws Exception {
-      AMQPFederationManagementSupport.unregisterRemotePolicyManagement(brokerConnectionName, manager);
+      AMQPFederationManagementSupport.unregisterRemotePolicyOnSource(brokerConnection.getName(), manager);
    }
 
    @Override
    void registerFederationConsumerManagement(AMQPFederationConsumer consumer) throws Exception {
-      AMQPFederationManagementSupport.registerFederationConsumerManagement(brokerConnectionName, consumer);
+      AMQPFederationManagementSupport.registerFederationSourceConsumer(brokerConnection.getName(), consumer);
    }
 
    @Override
    void unregisterFederationConsumerManagement(AMQPFederationConsumer consumer) throws Exception {
-      AMQPFederationManagementSupport.unregisterFederationConsumerManagement(brokerConnectionName, consumer);
+      AMQPFederationManagementSupport.unregisterFederationSourceConsumer(brokerConnection.getName(), consumer);
    }
 
    @Override
    void registerFederationProducerManagement(AMQPFederationSenderController sender) throws Exception {
-      AMQPFederationManagementSupport.registerFederationProducerManagement(brokerConnectionName, sender);
+      AMQPFederationManagementSupport.registerFederationSourceProducer(brokerConnection.getName(), sender);
    }
 
    @Override
-   void unregisterFederationProdcerManagement(AMQPFederationSenderController sender) throws Exception {
-      AMQPFederationManagementSupport.unregisterFederationProducerManagement(brokerConnectionName, sender);
+   void unregisterFederationProducerManagement(AMQPFederationSenderController sender) throws Exception {
+      AMQPFederationManagementSupport.unregisterFederationSourceProducer(brokerConnection.getName(), sender);
    }
 
    private void asyncCreateTargetEventsSender(AMQPFederationCommandDispatcher commandLink) {
@@ -609,6 +609,7 @@ public class AMQPFederationSource extends AMQPFederation {
             // for use when creating remote federation resources.
             final Map<Symbol, Object> senderProperties = new HashMap<>();
             senderProperties.put(FEDERATION_CONFIGURATION, configuration.toConfigurationMap());
+            senderProperties.put(FEDERATION_NAME, getName());
 
             sender.setSenderSettleMode(SenderSettleMode.UNSETTLED);
             sender.setReceiverSettleMode(ReceiverSettleMode.FIRST);

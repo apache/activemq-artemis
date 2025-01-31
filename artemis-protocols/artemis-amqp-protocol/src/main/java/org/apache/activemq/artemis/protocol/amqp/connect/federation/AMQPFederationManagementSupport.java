@@ -29,29 +29,60 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
  */
 public abstract class AMQPFederationManagementSupport {
 
+   // Resource names specific to federation resources that exist on the local end of a broker connection.
+
    /**
     * Template used to denote federation source instances in the server management registry.
     */
-   public static final String FEDERATION_SOURCE_RESOURCE_TEMPLATE = "brokerconnection.local.federation.%s";
+   public static final String FEDERATION_SOURCE_RESOURCE_TEMPLATE = "brokerconnection.%s.federation.%s";
 
    /**
-    * Template used to denote local federation policy managers in the server management registry.
+    * Template used to denote federation policy managers created on the source in the server management registry.
     */
-   public static final String FEDERATION_POLICY_RESOURCE_TEMPLATE = "brokerconnection.local.federation.%s.policy.%s";
+   public static final String FEDERATION_SOURCE_POLICY_RESOURCE_TEMPLATE = FEDERATION_SOURCE_RESOURCE_TEMPLATE + ".policy.%s";
 
    /**
-    * Template used to denote local federation consumers in the server management registry. Since policy names
-    * are unique on the local broker AMQP federation configuration these names should not collide as each policy
-    * will create only one consumer for a given address or queue.
+    * Template used to denote federation consumers on the source in the server management registry. Since policy
+    * names are unique on the local broker AMQP federation configuration these names should not collide as each
+    * policy will create only one consumer for a given address or queue.
     */
-   public static final String FEDERATION_CONSUMER_RESOURCE_TEMPLATE = "brokerconnection.local.federation.%s.policy.%s.consumer.%s";
+   public static final String FEDERATION_SOURCE_CONSUMER_RESOURCE_TEMPLATE = FEDERATION_SOURCE_POLICY_RESOURCE_TEMPLATE + ".consumer.%s";
 
    /**
-    * Template used to denote local federation producers in the server management registry. Since policy names
-    * are unique on the local broker AMQP federation configuration these names should not collide as each policy
-    * will create only one producer for a given address or queue.
+    * Template used to denote federation producers on the source in the server management registry. Since policy
+    * names are unique on the local broker AMQP federation configuration these names should not collide as each
+    * policy will create only one producer for a given address or queue.
     */
-   public static final String FEDERATION_PRODUCER_RESOURCE_TEMPLATE = "brokerconnection.local.federation.%s.policy.%s.producer.%s";
+   public static final String FEDERATION_SOURCE_PRODUCER_RESOURCE_TEMPLATE = FEDERATION_SOURCE_POLICY_RESOURCE_TEMPLATE + ".producer.%s";
+
+   // Resource names specific to federation resources that exist on the remote end of a broker connection.
+
+   /**
+    * Template used to denote federation source instances in the server management registry.
+    */
+   public static final String FEDERATION_TARGET_RESOURCE_TEMPLATE = "node.%s.brokerconnection.%s.federation.%s";
+
+   /**
+    * Template used to denote federation policy managers created on the source in the server management registry.
+    */
+   public static final String FEDERATION_TARGET_POLICY_RESOURCE_TEMPLATE = FEDERATION_TARGET_RESOURCE_TEMPLATE + ".policy.%s";
+
+   /**
+    * Template used to denote federation consumers on the source in the server management registry. Since policy
+    * names are unique on the local broker AMQP federation configuration these names should not collide as each
+    * policy will create only one consumer for a given address or queue.
+    */
+   public static final String FEDERATION_TARGET_CONSUMER_RESOURCE_TEMPLATE = FEDERATION_TARGET_POLICY_RESOURCE_TEMPLATE + ".consumer.%s";
+
+   /**
+    * Template used to denote federation producers on the source in the server management registry. Since policy
+    * names are unique on the local broker AMQP federation configuration these names should not collide as each
+    * policy will create only one producer for a given address or queue.
+    */
+   public static final String FEDERATION_TARGET_PRODUCER_RESOURCE_TEMPLATE = FEDERATION_TARGET_POLICY_RESOURCE_TEMPLATE + ".producer.%s";
+
+   // MBean naming that will be registered under an name that links to the location of the bean
+   // either source or target end of the broker connection.
 
    /**
     * The template used to create the object name suffix that is appending to the broker connection
@@ -99,7 +130,7 @@ public abstract class AMQPFederationManagementSupport {
     *
     * @throws Exception if an error occurs while registering the federation with the management services.
     */
-   public static void registerFederationManagement(AMQPFederationSource federation) throws Exception {
+   public static void registerFederationSource(AMQPFederationSource federation) throws Exception {
       final String federationName = federation.getName();
       final String brokerConnectionName = federation.getBrokerConnection().getName();
       final ActiveMQServer server = federation.getServer();
@@ -107,7 +138,7 @@ public abstract class AMQPFederationManagementSupport {
       final AMQPFederationSourceControlType control = new AMQPFederationSourceControlType(server, federation);
 
       management.registerInJMX(getFederationSourceObjectName(management, brokerConnectionName, federationName), control);
-      management.registerInRegistry(getFederationSourceResourceName(federationName), control);
+      management.registerInRegistry(getFederationSourceResourceName(brokerConnectionName, federationName), control);
    }
 
    /**
@@ -118,33 +149,77 @@ public abstract class AMQPFederationManagementSupport {
     *
     * @throws Exception if an error occurs while unregistering the federation with the management services.
     */
-   public static void unregisterFederationManagement(AMQPFederationSource federation) throws Exception {
+   public static void unregisterFederationSource(AMQPFederationSource federation) throws Exception {
       final String federationName = federation.getName();
       final String brokerConnectionName = federation.getBrokerConnection().getName();
       final ActiveMQServer server = federation.getServer();
       final ManagementService management = server.getManagementService();
 
       management.unregisterFromJMX(getFederationSourceObjectName(management, brokerConnectionName, federationName));
-      management.unregisterFromRegistry(getFederationSourceResourceName(federationName));
+      management.unregisterFromRegistry(getFederationSourceResourceName(brokerConnectionName, federationName));
    }
 
-   public static String getFederationSourceResourceName(String federationName) {
-      return String.format(FEDERATION_SOURCE_RESOURCE_TEMPLATE, federationName);
+   public static String getFederationSourceResourceName(String brokerConnectionName, String federationName) {
+      return String.format(FEDERATION_SOURCE_RESOURCE_TEMPLATE, brokerConnectionName, federationName);
    }
 
    public static ObjectName getFederationSourceObjectName(ManagementService management, String brokerConnection, String federationName) throws Exception {
-      final String brokerConnectionName = management.getObjectNameBuilder().getBrokerConnectionBaseObjectNameString(brokerConnection);
-
       return ObjectName.getInstance(
          String.format("%s," + FEDERATION_NAME_TEMPLATE,
-            brokerConnectionName,
+            management.getObjectNameBuilder().getBrokerConnectionBaseObjectNameString(brokerConnection),
+            ObjectName.quote(federationName)));
+   }
+
+   /**
+    * Register the given {@link AMQPFederationTarget} instance with the broker management services.
+    *
+    * @param federation
+    *    The federation target instance being registered with management.
+    *
+    * @throws Exception if an error occurs while registering the federation with the management services.
+    */
+   public static void registerFederationTarget(String remoteNodeId, String brokerConnectionName, AMQPFederationTarget federation) throws Exception {
+      final String federationName = federation.getName();
+      final ActiveMQServer server = federation.getServer();
+      final ManagementService management = server.getManagementService();
+      final AMQPFederationTargetControlType control = new AMQPFederationTargetControlType(server, federation);
+
+      management.registerInJMX(getFederationTargetObjectName(management, remoteNodeId, brokerConnectionName, federationName), control);
+      management.registerInRegistry(getFederationTargetResourceName(remoteNodeId, brokerConnectionName, federationName), control);
+   }
+
+   /**
+    * Unregister the given {@link AMQPFederationTarget} instance with the broker management services.
+    *
+    * @param federation
+    *    The federation target instance being unregistered from management.
+    *
+    * @throws Exception if an error occurs while unregistering the federation with the management services.
+    */
+   public static void unregisterFederationTarget(String remoteNodeId, String brokerConnectionName, AMQPFederationTarget federation) throws Exception {
+      final String federationName = federation.getName();
+      final ActiveMQServer server = federation.getServer();
+      final ManagementService management = server.getManagementService();
+
+      management.unregisterFromJMX(getFederationTargetObjectName(management, remoteNodeId, brokerConnectionName, federationName));
+      management.unregisterFromRegistry(getFederationTargetResourceName(remoteNodeId, brokerConnectionName, federationName));
+   }
+
+   public static String getFederationTargetResourceName(String remoteNodeId, String brokerConnectionName, String federationName) {
+      return String.format(FEDERATION_TARGET_RESOURCE_TEMPLATE, remoteNodeId, brokerConnectionName, federationName);
+   }
+
+   public static ObjectName getFederationTargetObjectName(ManagementService management, String remoteNodeId, String brokerConnection, String federationName) throws Exception {
+      return ObjectName.getInstance(
+         String.format("%s," + FEDERATION_NAME_TEMPLATE,
+            management.getObjectNameBuilder().getRemoteBrokerConnectionBaseObjectNameString(remoteNodeId, brokerConnection),
             ObjectName.quote(federationName)));
    }
 
    // APIs for federation address and queue policy management
 
    /**
-    * Register a local federation policy manager with the server management services.
+    * Register a local federation policy manager with the server management services for a federation source.
     *
     * @param brokerConnectionName
     *    The name of the broker connection that owns the manager being registered.
@@ -153,7 +228,7 @@ public abstract class AMQPFederationManagementSupport {
     *
     * @throws Exception if an error occurs while registering the manager with the management services.
     */
-   public static void registerLocalPolicyManagement(String brokerConnectionName, AMQPFederationLocalPolicyManager manager) throws Exception {
+   public static void registerLocalPolicyOnSource(String brokerConnectionName, AMQPFederationLocalPolicyManager manager) throws Exception {
       final AMQPFederation federation = manager.getFederation();
       final ActiveMQServer server = federation.getServer();
       final ManagementService management = server.getManagementService();
@@ -161,12 +236,12 @@ public abstract class AMQPFederationManagementSupport {
       final String federationName = federation.getName();
       final String policyName = manager.getPolicyName();
 
-      management.registerInJMX(getFederationPolicyObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName), control);
-      management.registerInRegistry(getFederationPolicyResourceName(federationName, policyName), control);
+      management.registerInJMX(getFederationSourcePolicyObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName), control);
+      management.registerInRegistry(getFederationSourcePolicyResourceName(brokerConnectionName, federationName, policyName), control);
    }
 
    /**
-    * Unregister a local federation policy manager with the server management services.
+    * Unregister a local federation policy manager with the server management services for a federation source.
     *
     * @param brokerConnectionName
     *    The name of the broker connection that owns the manager being unregistered.
@@ -175,19 +250,19 @@ public abstract class AMQPFederationManagementSupport {
     *
     * @throws Exception if an error occurs while unregistering the manager with the management services.
     */
-   public static void unregisterLocalPolicyManagement(String brokerConnectionName, AMQPFederationLocalPolicyManager manager) throws Exception {
+   public static void unregisterLocalPolicyOnSource(String brokerConnectionName, AMQPFederationLocalPolicyManager manager) throws Exception {
       final AMQPFederation federation = manager.getFederation();
       final ActiveMQServer server = federation.getServer();
       final ManagementService management = server.getManagementService();
       final String federationName = federation.getName();
       final String policyName = manager.getPolicyName();
 
-      management.unregisterFromJMX(getFederationPolicyObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName));
-      management.unregisterFromRegistry(getFederationPolicyResourceName(federationName, policyName));
+      management.unregisterFromJMX(getFederationSourcePolicyObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName));
+      management.unregisterFromRegistry(getFederationSourcePolicyResourceName(brokerConnectionName, federationName, policyName));
    }
 
    /**
-    * Register a remote federation policy manager with the server management services.
+    * Register a remote federation policy manager with the server management services for a federation source.
     *
     * @param brokerConnectionName
     *    The name of the broker connection that owns the manager being registered.
@@ -196,7 +271,7 @@ public abstract class AMQPFederationManagementSupport {
     *
     * @throws Exception if an error occurs while registering the manager with the management services.
     */
-   public static void registerRemotePolicyManagement(String brokerConnectionName, AMQPFederationRemotePolicyManager manager) throws Exception {
+   public static void registerRemotePolicyOnSource(String brokerConnectionName, AMQPFederationRemotePolicyManager manager) throws Exception {
       final AMQPFederation federation = manager.getFederation();
       final ActiveMQServer server = federation.getServer();
       final ManagementService management = server.getManagementService();
@@ -204,12 +279,12 @@ public abstract class AMQPFederationManagementSupport {
       final String federationName = federation.getName();
       final String policyName = manager.getPolicyName();
 
-      management.registerInJMX(getFederationPolicyObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName), control);
-      management.registerInRegistry(getFederationPolicyResourceName(federationName, policyName), control);
+      management.registerInJMX(getFederationSourcePolicyObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName), control);
+      management.registerInRegistry(getFederationSourcePolicyResourceName(brokerConnectionName, federationName, policyName), control);
    }
 
    /**
-    * Unregister a remote federation policy manager with the server management services.
+    * Unregister a remote federation policy manager with the server management services for a federation source.
     *
     * @param brokerConnectionName
     *    The name of the broker connection that owns the manager being unregistered.
@@ -218,27 +293,132 @@ public abstract class AMQPFederationManagementSupport {
     *
     * @throws Exception if an error occurs while unregistering the manager with the management services.
     */
-   public static void unregisterRemotePolicyManagement(String brokerConnectionName, AMQPFederationRemotePolicyManager manager) throws Exception {
+   public static void unregisterRemotePolicyOnSource(String brokerConnectionName, AMQPFederationRemotePolicyManager manager) throws Exception {
       final AMQPFederation federation = manager.getFederation();
       final ActiveMQServer server = federation.getServer();
       final ManagementService management = server.getManagementService();
       final String federationName = federation.getName();
       final String policyName = manager.getPolicyName();
 
-      management.unregisterFromJMX(getFederationPolicyObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName));
-      management.unregisterFromRegistry(getFederationPolicyResourceName(federationName, policyName));
+      management.unregisterFromJMX(getFederationSourcePolicyObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName));
+      management.unregisterFromRegistry(getFederationSourcePolicyResourceName(brokerConnectionName, federationName, policyName));
    }
 
-   public static String getFederationPolicyResourceName(String federationName, String policyName) {
-      return String.format(FEDERATION_POLICY_RESOURCE_TEMPLATE, federationName, policyName);
+   public static String getFederationSourcePolicyResourceName(String brokerConnectionName, String federationName, String policyName) {
+      return String.format(FEDERATION_SOURCE_POLICY_RESOURCE_TEMPLATE, brokerConnectionName, federationName, policyName);
    }
 
-   public static ObjectName getFederationPolicyObjectName(ManagementService management, String brokerConnection, String federationName, String policyType, String policyName) throws Exception {
-      final String brokerConnectionName = management.getObjectNameBuilder().getBrokerConnectionBaseObjectNameString(brokerConnection);
-
+   public static ObjectName getFederationSourcePolicyObjectName(ManagementService management, String brokerConnection, String federationName, String policyType, String policyName) throws Exception {
       return ObjectName.getInstance(
          String.format("%s," + FEDERATION_POLICY_NAME_TEMPLATE,
-            brokerConnectionName,
+            management.getObjectNameBuilder().getBrokerConnectionBaseObjectNameString(brokerConnection),
+            ObjectName.quote(federationName),
+            ObjectName.quote(policyType),
+            ObjectName.quote(policyName)));
+   }
+
+   /**
+    * Register a local federation policy manager with the server management services for a federation target.
+    *
+    * @param remoteNodeId
+    *    The remote broker node ID that is the source of the federation operations.
+    * @param brokerConnectionName
+    *    The name of the remote broker connection that owns the manager being registered.
+    * @param manager
+    *    The AMQP federation policy manager instance that is being managed.
+    *
+    * @throws Exception if an error occurs while registering the manager with the management services.
+    */
+   public static void registerLocalPolicyOnTarget(String remoteNodeId, String brokerConnectionName, AMQPFederationLocalPolicyManager manager) throws Exception {
+      final AMQPFederation federation = manager.getFederation();
+      final ActiveMQServer server = federation.getServer();
+      final ManagementService management = server.getManagementService();
+      final AMQPFederationLocalPolicyControlType control = new AMQPFederationLocalPolicyControlType(manager);
+      final String federationName = federation.getName();
+      final String policyName = manager.getPolicyName();
+
+      management.registerInJMX(getFederationTargetPolicyObjectName(management, remoteNodeId, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName), control);
+      management.registerInRegistry(getFederationTargetPolicyResourceName(remoteNodeId, brokerConnectionName, federationName, policyName), control);
+   }
+
+   /**
+    * Unregister a local federation policy manager with the server management services for a federation target.
+    *
+    * @param remoteNodeId
+    *    The remote broker node ID that is the source of the federation operations.
+    * @param brokerConnectionName
+    *    The name of the remote broker connection that owns the manager being unregistered.
+    * @param manager
+    *    The AMQP federation policy manager instance that is being managed.
+    *
+    * @throws Exception if an error occurs while unregistering the manager with the management services.
+    */
+   public static void unregisterLocalPolicyOnTarget(String remoteNodeId, String brokerConnectionName, AMQPFederationLocalPolicyManager manager) throws Exception {
+      final AMQPFederation federation = manager.getFederation();
+      final ActiveMQServer server = federation.getServer();
+      final ManagementService management = server.getManagementService();
+      final String federationName = federation.getName();
+      final String policyName = manager.getPolicyName();
+
+      management.unregisterFromJMX(getFederationTargetPolicyObjectName(management, remoteNodeId, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName));
+      management.unregisterFromRegistry(getFederationTargetPolicyResourceName(remoteNodeId, brokerConnectionName, federationName, policyName));
+   }
+
+   /**
+    * Register a remote federation policy manager with the server management services for a federation target.
+    *
+    * @param remoteNodeId
+    *    The remote broker node ID that is the source of the federation operations.
+    * @param brokerConnectionName
+    *    The name of the remote broker connection that owns the manager being registered.
+    * @param manager
+    *    The AMQP federation policy manager instance that is being managed.
+    *
+    * @throws Exception if an error occurs while registering the manager with the management services.
+    */
+   public static void registerRemotePolicyOnTarget(String remoteNodeId, String brokerConnectionName, AMQPFederationRemotePolicyManager manager) throws Exception {
+      final AMQPFederation federation = manager.getFederation();
+      final ActiveMQServer server = federation.getServer();
+      final ManagementService management = server.getManagementService();
+      final AMQPFederationRemotePolicyControl control = new AMQPFederationRemotePolicyControlType(server, manager);
+      final String federationName = federation.getName();
+      final String policyName = manager.getPolicyName();
+
+      management.registerInJMX(getFederationTargetPolicyObjectName(management, remoteNodeId, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName), control);
+      management.registerInRegistry(getFederationTargetPolicyResourceName(remoteNodeId, brokerConnectionName, federationName, policyName), control);
+   }
+
+   /**
+    * Unregister a remote federation policy manager with the server management services for a federation target.
+    *
+    * @param remoteNodeId
+    *    The remote broker node ID that is the source of the federation operations.
+    * @param brokerConnectionName
+    *    The name of the remote broker connection that owns the manager being unregistered.
+    * @param manager
+    *    The AMQP federation policy manager instance that is being managed.
+    *
+    * @throws Exception if an error occurs while unregistering the manager with the management services.
+    */
+   public static void unregisterRemotePolicyOnTarget(String remoteNodeId, String brokerConnectionName, AMQPFederationRemotePolicyManager manager) throws Exception {
+      final AMQPFederation federation = manager.getFederation();
+      final ActiveMQServer server = federation.getServer();
+      final ManagementService management = server.getManagementService();
+      final String federationName = federation.getName();
+      final String policyName = manager.getPolicyName();
+
+      management.unregisterFromJMX(getFederationTargetPolicyObjectName(management, remoteNodeId, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName));
+      management.unregisterFromRegistry(getFederationTargetPolicyResourceName(remoteNodeId, brokerConnectionName, federationName, policyName));
+   }
+
+   public static String getFederationTargetPolicyResourceName(String remoteNodeId, String brokerConnectionName, String federationName, String policyName) {
+      return String.format(FEDERATION_TARGET_POLICY_RESOURCE_TEMPLATE, remoteNodeId, brokerConnectionName, federationName, policyName);
+   }
+
+   public static ObjectName getFederationTargetPolicyObjectName(ManagementService management, String remoteNodeId, String brokerConnection, String federationName, String policyType, String policyName) throws Exception {
+      return ObjectName.getInstance(
+         String.format("%s," + FEDERATION_POLICY_NAME_TEMPLATE,
+            management.getObjectNameBuilder().getRemoteBrokerConnectionBaseObjectNameString(remoteNodeId, brokerConnection),
             ObjectName.quote(federationName),
             ObjectName.quote(policyType),
             ObjectName.quote(policyName)));
@@ -247,7 +427,7 @@ public abstract class AMQPFederationManagementSupport {
    // APIs for federation consumer and producer management
 
    /**
-    * Registers the federation consumer with the server management services.
+    * Registers the federation consumer with the server management services on the source.
     *
     * @param brokerConnectionName
     *    The name of the broker connection that owns the consumer being registered.
@@ -256,7 +436,7 @@ public abstract class AMQPFederationManagementSupport {
     *
     * @throws Exception if an error occurs while registering the consumer with the management services.
     */
-   public static void registerFederationConsumerManagement(String brokerConnectionName, AMQPFederationConsumer consumer) throws Exception {
+   public static void registerFederationSourceConsumer(String brokerConnectionName, AMQPFederationConsumer consumer) throws Exception {
       final AMQPFederationPolicyManager manager = consumer.getPolicyManager();
       final AMQPFederation federation = manager.getFederation();
       final ActiveMQServer server = federation.getServer();
@@ -266,16 +446,16 @@ public abstract class AMQPFederationManagementSupport {
       final String policyName = manager.getPolicyName();
 
       if (consumer.getRole() == FederationConsumerInfo.Role.ADDRESS_CONSUMER) {
-         management.registerInJMX(getFederationAddressConsumerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, consumer.getConsumerInfo().getAddress()), control);
-         management.registerInRegistry(getFederationAddressConsumerResourceName(federationName, policyName, consumer.getConsumerInfo().getAddress()), control);
+         management.registerInJMX(getFederationSourceAddressConsumerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, consumer.getConsumerInfo().getAddress()), control);
+         management.registerInRegistry(getFederationSourceAddressConsumerResourceName(brokerConnectionName, federationName, policyName, consumer.getConsumerInfo().getAddress()), control);
       } else {
-         management.registerInJMX(getFederationQueueConsumerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, consumer.getConsumerInfo().getFqqn()), control);
-         management.registerInRegistry(getFederationQueueConsumerResourceName(federationName, policyName, consumer.getConsumerInfo().getFqqn()), control);
+         management.registerInJMX(getFederationSourceQueueConsumerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, consumer.getConsumerInfo().getFqqn()), control);
+         management.registerInRegistry(getFederationSourceQueueConsumerResourceName(brokerConnectionName, federationName, policyName, consumer.getConsumerInfo().getFqqn()), control);
       }
    }
 
    /**
-    * Unregisters the federation consumer with the server management services.
+    * Unregisters the federation consumer with the server management services on the source.
     *
     * @param brokerConnectionName
     *    The name of the broker connection that owns the consumer being registered.
@@ -284,7 +464,7 @@ public abstract class AMQPFederationManagementSupport {
     *
     * @throws Exception if an error occurs while registering the consumer with the management services.
     */
-   public static void unregisterFederationConsumerManagement(String brokerConnectionName, AMQPFederationConsumer consumer) throws Exception {
+   public static void unregisterFederationSourceConsumer(String brokerConnectionName, AMQPFederationConsumer consumer) throws Exception {
       final AMQPFederationPolicyManager manager = consumer.getPolicyManager();
       final AMQPFederation federation = manager.getFederation();
       final ActiveMQServer server = federation.getServer();
@@ -293,16 +473,16 @@ public abstract class AMQPFederationManagementSupport {
       final String policyName = manager.getPolicyName();
 
       if (consumer.getRole() == FederationConsumerInfo.Role.ADDRESS_CONSUMER) {
-         management.unregisterFromJMX(getFederationAddressConsumerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, consumer.getConsumerInfo().getAddress()));
-         management.unregisterFromRegistry(getFederationAddressConsumerResourceName(federationName, policyName, consumer.getConsumerInfo().getAddress()));
+         management.unregisterFromJMX(getFederationSourceAddressConsumerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, consumer.getConsumerInfo().getAddress()));
+         management.unregisterFromRegistry(getFederationSourceAddressConsumerResourceName(brokerConnectionName, federationName, policyName, consumer.getConsumerInfo().getAddress()));
       } else {
-         management.unregisterFromJMX(getFederationQueueConsumerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, consumer.getConsumerInfo().getFqqn()));
-         management.unregisterFromRegistry(getFederationQueueConsumerResourceName(federationName, policyName, consumer.getConsumerInfo().getFqqn()));
+         management.unregisterFromJMX(getFederationSourceQueueConsumerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, consumer.getConsumerInfo().getFqqn()));
+         management.unregisterFromRegistry(getFederationSourceQueueConsumerResourceName(brokerConnectionName, federationName, policyName, consumer.getConsumerInfo().getFqqn()));
       }
    }
 
    /**
-    * Registers the federation producer with the server management services.
+    * Registers the federation producer with the server management services on the source.
     *
     * @param brokerConnectionName
     *    The name of the broker connection that owns the producer being registered.
@@ -311,7 +491,7 @@ public abstract class AMQPFederationManagementSupport {
     *
     * @throws Exception if an error occurs while registering the producer with the management services.
     */
-   public static void registerFederationProducerManagement(String brokerConnectionName, AMQPFederationSenderController sender) throws Exception {
+   public static void registerFederationSourceProducer(String brokerConnectionName, AMQPFederationSenderController sender) throws Exception {
       final AMQPFederationPolicyManager manager = sender.getPolicyManager();
       final AMQPFederation federation = manager.getFederation();
       final ActiveMQServer server = federation.getServer();
@@ -323,18 +503,18 @@ public abstract class AMQPFederationManagementSupport {
       if (sender.getRole() == Role.ADDRESS_PRODUCER) {
          final String address = control.getAddress();
 
-         management.registerInJMX(getFederationAddressProducerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, address), control);
-         management.registerInRegistry(getFederationAddressProducerResourceName(federationName, policyName, address), control);
+         management.registerInJMX(getFederationSourceAddressProducerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, address), control);
+         management.registerInRegistry(getFederationSourceAddressProducerResourceName(brokerConnectionName, federationName, policyName, address), control);
       } else {
          final String fqqn = control.getFqqn();
 
-         management.registerInJMX(getFederationQueueProducerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, fqqn), control);
-         management.registerInRegistry(getFederationQueueProducerResourceName(federationName, policyName, fqqn), control);
+         management.registerInJMX(getFederationSourceQueueProducerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, fqqn), control);
+         management.registerInRegistry(getFederationSourceQueueProducerResourceName(brokerConnectionName, federationName, policyName, fqqn), control);
       }
    }
 
    /**
-    * Unregisters the federation producer with the server management services.
+    * Unregisters the federation producer with the server management services on the source.
     *
     * @param brokerConnectionName
     *    The name of the broker connection that owns the producer being registered.
@@ -343,7 +523,7 @@ public abstract class AMQPFederationManagementSupport {
     *
     * @throws Exception if an error occurs while registering the producer with the management services.
     */
-   public static void unregisterFederationProducerManagement(String brokerConnectionName, AMQPFederationSenderController sender) throws Exception {
+   public static void unregisterFederationSourceProducer(String brokerConnectionName, AMQPFederationSenderController sender) throws Exception {
       final AMQPFederationPolicyManager manager = sender.getPolicyManager();
       final AMQPFederation federation = manager.getFederation();
       final ActiveMQServer server = federation.getServer();
@@ -354,74 +534,240 @@ public abstract class AMQPFederationManagementSupport {
       if (sender.getRole() == Role.ADDRESS_PRODUCER) {
          final String address = sender.getServerConsumer().getQueueAddress().toString();
 
-         management.unregisterFromJMX(getFederationAddressProducerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, address));
-         management.unregisterFromRegistry(getFederationAddressProducerResourceName(federationName, policyName, address));
+         management.unregisterFromJMX(getFederationSourceAddressProducerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, address));
+         management.unregisterFromRegistry(getFederationSourceAddressProducerResourceName(brokerConnectionName, federationName, policyName, address));
       } else {
          final String fqqn = CompositeAddress.toFullyQualified(sender.getServerConsumer().getQueueAddress().toString(), sender.getServerConsumer().getQueueName().toString());
 
-         management.unregisterFromJMX(getFederationQueueProducerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, fqqn));
-         management.unregisterFromRegistry(getFederationQueueProducerResourceName(federationName, policyName, fqqn));
+         management.unregisterFromJMX(getFederationSourceQueueProducerObjectName(management, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, fqqn));
+         management.unregisterFromRegistry(getFederationSourceQueueProducerResourceName(brokerConnectionName, federationName, policyName, fqqn));
       }
    }
 
-   public static String getFederationAddressConsumerResourceName(String federationName, String policyName, String address) {
-      return String.format(FEDERATION_CONSUMER_RESOURCE_TEMPLATE, federationName, policyName, address);
+   public static String getFederationSourceAddressConsumerResourceName(String brokerConnectionName, String federationName, String policyName, String address) {
+      return String.format(FEDERATION_SOURCE_CONSUMER_RESOURCE_TEMPLATE, brokerConnectionName, federationName, policyName, address);
    }
 
-   public static String getFederationQueueConsumerResourceName(String federationName, String policyName, String fqqn) {
-      return String.format(FEDERATION_CONSUMER_RESOURCE_TEMPLATE, federationName, policyName, fqqn);
+   public static String getFederationSourceQueueConsumerResourceName(String brokerConnectionName, String federationName, String policyName, String fqqn) {
+      return String.format(FEDERATION_SOURCE_CONSUMER_RESOURCE_TEMPLATE, brokerConnectionName, federationName, policyName, fqqn);
    }
 
-   public static String getFederationAddressProducerResourceName(String federationName, String policyName, String address) {
-      return String.format(FEDERATION_PRODUCER_RESOURCE_TEMPLATE, federationName, policyName, address);
+   public static String getFederationSourceAddressProducerResourceName(String brokerConnectionName, String federationName, String policyName, String address) {
+      return String.format(FEDERATION_SOURCE_PRODUCER_RESOURCE_TEMPLATE, brokerConnectionName, federationName, policyName, address);
    }
 
-   public static String getFederationQueueProducerResourceName(String federationName, String policyName, String fqqn) {
-      return String.format(FEDERATION_PRODUCER_RESOURCE_TEMPLATE, federationName, policyName, fqqn);
+   public static String getFederationSourceQueueProducerResourceName(String brokerConnectionName, String federationName, String policyName, String fqqn) {
+      return String.format(FEDERATION_SOURCE_PRODUCER_RESOURCE_TEMPLATE, brokerConnectionName, federationName, policyName, fqqn);
    }
 
-   public static ObjectName getFederationAddressConsumerObjectName(ManagementService management, String brokerConnection, String federationName, String policyType, String policyName, String address) throws Exception {
-      final String brokerConnectionName = management.getObjectNameBuilder().getBrokerConnectionBaseObjectNameString(brokerConnection);
-
+   public static ObjectName getFederationSourceAddressConsumerObjectName(ManagementService management, String brokerConnection, String federationName, String policyType, String policyName, String address) throws Exception {
       return ObjectName.getInstance(
          String.format("%s," + FEDERATION_ADDRESS_CONSUMER_NAME_TEMPLATE,
-            brokerConnectionName,
+            management.getObjectNameBuilder().getBrokerConnectionBaseObjectNameString(brokerConnection),
             ObjectName.quote(federationName),
             ObjectName.quote(policyType),
             ObjectName.quote(policyName),
             ObjectName.quote(address)));
    }
 
-   public static ObjectName getFederationAddressProducerObjectName(ManagementService management, String brokerConnection, String federationName, String policyType, String policyName, String address) throws Exception {
-      final String brokerConnectionName = management.getObjectNameBuilder().getBrokerConnectionBaseObjectNameString(brokerConnection);
-
+   public static ObjectName getFederationSourceAddressProducerObjectName(ManagementService management, String brokerConnection, String federationName, String policyType, String policyName, String address) throws Exception {
       return ObjectName.getInstance(
          String.format("%s," + FEDERATION_ADDRESS_PRODUCER_NAME_TEMPLATE,
-            brokerConnectionName,
+            management.getObjectNameBuilder().getBrokerConnectionBaseObjectNameString(brokerConnection),
             ObjectName.quote(federationName),
             ObjectName.quote(policyType),
             ObjectName.quote(policyName),
             ObjectName.quote(address)));
    }
 
-   public static ObjectName getFederationQueueConsumerObjectName(ManagementService management, String brokerConnection, String federationName, String policyType, String policyName, String fqqn) throws Exception {
-      final String brokerConnectionName = management.getObjectNameBuilder().getBrokerConnectionBaseObjectNameString(brokerConnection);
-
+   public static ObjectName getFederationSourceQueueConsumerObjectName(ManagementService management, String brokerConnection, String federationName, String policyType, String policyName, String fqqn) throws Exception {
       return ObjectName.getInstance(
          String.format("%s," + FEDERATION_QUEUE_CONSUMER_NAME_TEMPLATE,
-            brokerConnectionName,
+            management.getObjectNameBuilder().getBrokerConnectionBaseObjectNameString(brokerConnection),
             ObjectName.quote(federationName),
             ObjectName.quote(policyType),
             ObjectName.quote(policyName),
             ObjectName.quote(fqqn)));
    }
 
-   public static ObjectName getFederationQueueProducerObjectName(ManagementService management, String brokerConnection, String federationName, String policyType, String policyName, String fqqn) throws Exception {
-      final String brokerConnectionName = management.getObjectNameBuilder().getBrokerConnectionBaseObjectNameString(brokerConnection);
-
+   public static ObjectName getFederationSourceQueueProducerObjectName(ManagementService management, String brokerConnection, String federationName, String policyType, String policyName, String fqqn) throws Exception {
       return ObjectName.getInstance(
          String.format("%s," + FEDERATION_QUEUE_PRODUCER_NAME_TEMPLATE,
-            brokerConnectionName,
+            management.getObjectNameBuilder().getBrokerConnectionBaseObjectNameString(brokerConnection),
+            ObjectName.quote(federationName),
+            ObjectName.quote(policyType),
+            ObjectName.quote(policyName),
+            ObjectName.quote(fqqn)));
+   }
+
+   /**
+    * Registers the federation consumer with the server management services on the target.
+    *
+    * @param brokerConnectionName
+    *    The name of the remote broker connection that owns the consumer being registered.
+    * @param consumer
+    *    The AMQP federation consumer instance that is being managed.
+    *
+    * @throws Exception if an error occurs while registering the consumer with the management services.
+    */
+   public static void registerFederationTargetConsumer(String remoteNodeId, String brokerConnectionName, AMQPFederationConsumer consumer) throws Exception {
+      final AMQPFederationPolicyManager manager = consumer.getPolicyManager();
+      final AMQPFederation federation = manager.getFederation();
+      final ActiveMQServer server = federation.getServer();
+      final ManagementService management = server.getManagementService();
+      final AMQPFederationConsumerControlType control = new AMQPFederationConsumerControlType(consumer);
+      final String federationName = federation.getName();
+      final String policyName = manager.getPolicyName();
+
+      if (consumer.getRole() == FederationConsumerInfo.Role.ADDRESS_CONSUMER) {
+         management.registerInJMX(getFederationTargetAddressConsumerObjectName(management, remoteNodeId, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, consumer.getConsumerInfo().getAddress()), control);
+         management.registerInRegistry(getFederationTargetAddressConsumerResourceName(remoteNodeId, brokerConnectionName, federationName, policyName, consumer.getConsumerInfo().getAddress()), control);
+      } else {
+         management.registerInJMX(getFederationTargetQueueConsumerObjectName(management, remoteNodeId, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, consumer.getConsumerInfo().getFqqn()), control);
+         management.registerInRegistry(getFederationTargetQueueConsumerResourceName(remoteNodeId, brokerConnectionName, federationName, policyName, consumer.getConsumerInfo().getFqqn()), control);
+      }
+   }
+
+   /**
+    * Unregisters the federation consumer with the server management services on the target.
+    *
+    * @param brokerConnectionName
+    *    The name of the remote broker connection that owns the consumer being registered.
+    * @param consumer
+    *    The AMQP federation consumer instance that is being managed.
+    *
+    * @throws Exception if an error occurs while registering the consumer with the management services.
+    */
+   public static void unregisterFederationTargetConsumer(String remoteNodeId, String brokerConnectionName, AMQPFederationConsumer consumer) throws Exception {
+      final AMQPFederationPolicyManager manager = consumer.getPolicyManager();
+      final AMQPFederation federation = manager.getFederation();
+      final ActiveMQServer server = federation.getServer();
+      final ManagementService management = server.getManagementService();
+      final String federationName = federation.getName();
+      final String policyName = manager.getPolicyName();
+
+      if (consumer.getRole() == FederationConsumerInfo.Role.ADDRESS_CONSUMER) {
+         management.unregisterFromJMX(getFederationTargetAddressConsumerObjectName(management, remoteNodeId, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, consumer.getConsumerInfo().getAddress()));
+         management.unregisterFromRegistry(getFederationTargetAddressConsumerResourceName(remoteNodeId, brokerConnectionName, federationName, policyName, consumer.getConsumerInfo().getAddress()));
+      } else {
+         management.unregisterFromJMX(getFederationTargetQueueConsumerObjectName(management, remoteNodeId, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, consumer.getConsumerInfo().getFqqn()));
+         management.unregisterFromRegistry(getFederationTargetQueueConsumerResourceName(remoteNodeId, brokerConnectionName, federationName, policyName, consumer.getConsumerInfo().getFqqn()));
+      }
+   }
+
+   /**
+    * Registers the federation producer with the server management services on the target.
+    *
+    * @param brokerConnectionName
+    *    The name of the remote broker connection that owns the producer being registered.
+    * @param sender
+    *    The AMQP federation sender controller that manages the federation producer.
+    *
+    * @throws Exception if an error occurs while registering the producer with the management services.
+    */
+   public static void registerFederationTargetProducer(String remoteNodeId, String brokerConnectionName, AMQPFederationSenderController sender) throws Exception {
+      final AMQPFederationPolicyManager manager = sender.getPolicyManager();
+      final AMQPFederation federation = manager.getFederation();
+      final ActiveMQServer server = federation.getServer();
+      final ManagementService management = server.getManagementService();
+      final AMQPFederationProducerControlType control = new AMQPFederationProducerControlType(sender);
+      final String federationName = federation.getName();
+      final String policyName = manager.getPolicyName();
+
+      if (sender.getRole() == Role.ADDRESS_PRODUCER) {
+         final String address = control.getAddress();
+
+         management.registerInJMX(getFederationTargetAddressProducerObjectName(management, remoteNodeId, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, address), control);
+         management.registerInRegistry(getFederationTargetAddressProducerResourceName(remoteNodeId, brokerConnectionName, federationName, policyName, address), control);
+      } else {
+         final String fqqn = control.getFqqn();
+
+         management.registerInJMX(getFederationTargetQueueProducerObjectName(management, remoteNodeId, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, fqqn), control);
+         management.registerInRegistry(getFederationTargetQueueProducerResourceName(remoteNodeId, brokerConnectionName, federationName, policyName, fqqn), control);
+      }
+   }
+
+   /**
+    * Unregisters the federation producer with the server management services on the target.
+    *
+    * @param brokerConnectionName
+    *    The name of the remote broker connection that owns the producer being registered.
+    * @param sender
+    *    The AMQP federation sender controller that manages the federation producer.
+    *
+    * @throws Exception if an error occurs while registering the producer with the management services.
+    */
+   public static void unregisterFederationTargetProducer(String remoteNodeId, String brokerConnectionName, AMQPFederationSenderController sender) throws Exception {
+      final AMQPFederationPolicyManager manager = sender.getPolicyManager();
+      final AMQPFederation federation = manager.getFederation();
+      final ActiveMQServer server = federation.getServer();
+      final ManagementService management = server.getManagementService();
+      final String federationName = federation.getName();
+      final String policyName = manager.getPolicyName();
+
+      if (sender.getRole() == Role.ADDRESS_PRODUCER) {
+         final String address = sender.getServerConsumer().getQueueAddress().toString();
+
+         management.unregisterFromJMX(getFederationTargetAddressProducerObjectName(management, remoteNodeId, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, address));
+         management.unregisterFromRegistry(getFederationTargetAddressProducerResourceName(remoteNodeId, brokerConnectionName, federationName, policyName, address));
+      } else {
+         final String fqqn = CompositeAddress.toFullyQualified(sender.getServerConsumer().getQueueAddress().toString(), sender.getServerConsumer().getQueueName().toString());
+
+         management.unregisterFromJMX(getFederationTargetQueueProducerObjectName(management, remoteNodeId, brokerConnectionName, federationName, manager.getPolicyType().toString(), policyName, fqqn));
+         management.unregisterFromRegistry(getFederationTargetQueueProducerResourceName(remoteNodeId, brokerConnectionName, federationName, policyName, fqqn));
+      }
+   }
+
+   public static String getFederationTargetAddressConsumerResourceName(String remoteNodeId, String brokerConnectionName, String federationName, String policyName, String address) {
+      return String.format(FEDERATION_SOURCE_CONSUMER_RESOURCE_TEMPLATE, brokerConnectionName, federationName, policyName, address);
+   }
+
+   public static String getFederationTargetQueueConsumerResourceName(String remoteNodeId, String brokerConnectionName, String federationName, String policyName, String fqqn) {
+      return String.format(FEDERATION_SOURCE_CONSUMER_RESOURCE_TEMPLATE, brokerConnectionName, federationName, policyName, fqqn);
+   }
+
+   public static String getFederationTargetAddressProducerResourceName(String remoteNodeId, String brokerConnectionName, String federationName, String policyName, String address) {
+      return String.format(FEDERATION_SOURCE_PRODUCER_RESOURCE_TEMPLATE, brokerConnectionName, federationName, policyName, address);
+   }
+
+   public static String getFederationTargetQueueProducerResourceName(String remoteNodeId, String brokerConnectionName, String federationName, String policyName, String fqqn) {
+      return String.format(FEDERATION_SOURCE_PRODUCER_RESOURCE_TEMPLATE, brokerConnectionName, federationName, policyName, fqqn);
+   }
+
+   public static ObjectName getFederationTargetAddressConsumerObjectName(ManagementService management, String remoteNodeId, String brokerConnection, String federationName, String policyType, String policyName, String address) throws Exception {
+      return ObjectName.getInstance(
+         String.format("%s," + FEDERATION_ADDRESS_CONSUMER_NAME_TEMPLATE,
+            management.getObjectNameBuilder().getRemoteBrokerConnectionBaseObjectNameString(remoteNodeId, brokerConnection),
+            ObjectName.quote(federationName),
+            ObjectName.quote(policyType),
+            ObjectName.quote(policyName),
+            ObjectName.quote(address)));
+   }
+
+   public static ObjectName getFederationTargetAddressProducerObjectName(ManagementService management, String remoteNodeId, String brokerConnection, String federationName, String policyType, String policyName, String address) throws Exception {
+      return ObjectName.getInstance(
+         String.format("%s," + FEDERATION_ADDRESS_PRODUCER_NAME_TEMPLATE,
+            management.getObjectNameBuilder().getRemoteBrokerConnectionBaseObjectNameString(remoteNodeId, brokerConnection),
+            ObjectName.quote(federationName),
+            ObjectName.quote(policyType),
+            ObjectName.quote(policyName),
+            ObjectName.quote(address)));
+   }
+
+   public static ObjectName getFederationTargetQueueConsumerObjectName(ManagementService management, String remoteNodeId, String brokerConnection, String federationName, String policyType, String policyName, String fqqn) throws Exception {
+      return ObjectName.getInstance(
+         String.format("%s," + FEDERATION_QUEUE_CONSUMER_NAME_TEMPLATE,
+            management.getObjectNameBuilder().getRemoteBrokerConnectionBaseObjectNameString(remoteNodeId, brokerConnection),
+            ObjectName.quote(federationName),
+            ObjectName.quote(policyType),
+            ObjectName.quote(policyName),
+            ObjectName.quote(fqqn)));
+   }
+
+   public static ObjectName getFederationTargetQueueProducerObjectName(ManagementService management, String remoteNodeId, String brokerConnection, String federationName, String policyType, String policyName, String fqqn) throws Exception {
+      return ObjectName.getInstance(
+         String.format("%s," + FEDERATION_QUEUE_PRODUCER_NAME_TEMPLATE,
+            management.getObjectNameBuilder().getRemoteBrokerConnectionBaseObjectNameString(remoteNodeId, brokerConnection),
             ObjectName.quote(federationName),
             ObjectName.quote(policyType),
             ObjectName.quote(policyName),

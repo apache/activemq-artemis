@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.RemoteBrokerConnection;
 import org.apache.activemq.artemis.core.server.routing.ConnectionRouter;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
@@ -136,6 +137,10 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
    void registerBrokerConnection(BrokerConnection brokerConnection) throws Exception;
 
    void unregisterBrokerConnection(String name) throws Exception;
+
+   void registerRemoteBrokerConnection(RemoteBrokerConnection brokerConnection) throws Exception;
+
+   void unregisterRemoteBrokerConnection(String nodeId, String name) throws Exception;
 
    Object getResource(String resourceName);
 

@@ -113,6 +113,9 @@ import org.apache.qpid.proton.engine.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.AMQPBrokerConnectionConstants.BROKER_CONNECTION_INFO;
+import static org.apache.activemq.artemis.protocol.amqp.connect.AMQPBrokerConnectionConstants.CONNECTION_NAME;
+import static org.apache.activemq.artemis.protocol.amqp.connect.AMQPBrokerConnectionConstants.NODE_ID;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LINK_INITIALIZER_KEY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyCapabilities;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyOfferedCapabilities;
@@ -460,8 +463,17 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
          ClientSASLFactory saslFactory = new SaslFactory(connection, brokerConnectConfiguration);
 
+         final Map<String, Object> brokerConnectionInfo = new HashMap<>();
+
+         brokerConnectionInfo.put(CONNECTION_NAME, getName());
+         brokerConnectionInfo.put(NODE_ID, server.getNodeID().toString());
+
+         final Map<Symbol, Object> brokerConnectionProperties = new HashMap<>();
+
+         brokerConnectionProperties.put(BROKER_CONNECTION_INFO, brokerConnectionInfo);
+
          NettyConnectorCloseHandler connectorCloseHandler = new NettyConnectorCloseHandler(connector, connectExecutor);
-         ConnectionEntry entry = protonProtocolManager.createOutgoingConnectionEntry(connection, saslFactory);
+         ConnectionEntry entry = protonProtocolManager.createOutgoingConnectionEntry(connection, saslFactory, brokerConnectionProperties);
          server.getRemotingService().addConnectionEntry(connection, entry);
          protonRemotingConnection = (ActiveMQProtonRemotingConnection) entry.connection;
          protonRemotingConnection.getAmqpConnection().addLinkRemoteCloseListener(getName(), this::linkClosed);

@@ -49,7 +49,6 @@ public class FederationReceiveFromQueuePolicy implements FederationReceiveFromRe
    private final Map<String, Object> properties;
    private final TransformerConfiguration transformerConfig;
 
-   @SuppressWarnings("unchecked")
    public FederationReceiveFromQueuePolicy(String name, boolean includeFederated, int priorotyAdjustment,
                                            Collection<Map.Entry<String, String>> includeQueues,
                                            Collection<Map.Entry<String, String>> excludeQueues,

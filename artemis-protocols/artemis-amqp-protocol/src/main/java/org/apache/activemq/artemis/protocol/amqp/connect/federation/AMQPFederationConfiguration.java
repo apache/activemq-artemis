@@ -85,7 +85,6 @@ public final class AMQPFederationConfiguration {
    private final Map<String, Object> properties;
    private final AMQPConnectionContext connection;
 
-   @SuppressWarnings("unchecked")
    public AMQPFederationConfiguration(AMQPConnectionContext connection, Map<String, Object> properties) {
       Objects.requireNonNull(connection, "Connection provided cannot be null");
 
