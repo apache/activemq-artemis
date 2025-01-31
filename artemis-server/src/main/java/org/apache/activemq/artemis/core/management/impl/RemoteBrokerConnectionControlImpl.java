@@ -14,66 +14,62 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.protocol.amqp.connect.federation;
+package org.apache.activemq.artemis.core.management.impl;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.NotCompliantMBeanException;
 
-import org.apache.activemq.artemis.core.management.impl.AbstractControl;
-import org.apache.activemq.artemis.core.management.impl.MBeanInfoHelper;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.api.core.management.RemoteBrokerConnectionControl;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.server.RemoteBrokerConnection;
 import org.apache.activemq.artemis.logs.AuditLogger;
 
-/**
- * Management service control instance for an AMQPFederationSource instance that federates messages
- * from the remote broker on the opposing side of this broker connection. The federation source has
- * a lifetime that matches that of its parent broker connection.
- */
-public final class AMQPFederationSourceControlType extends AbstractControl implements AMQPFederationControl {
+public class RemoteBrokerConnectionControlImpl extends AbstractControl implements RemoteBrokerConnectionControl {
 
-   private final AMQPFederationSource federation;
+   private final RemoteBrokerConnection connection;
 
-   public AMQPFederationSourceControlType(ActiveMQServer server, AMQPFederationSource federation) throws NotCompliantMBeanException {
-      super(AMQPFederationControl.class, server.getStorageManager());
+   public RemoteBrokerConnectionControlImpl(RemoteBrokerConnection connection,
+                                            StorageManager storageManager) throws NotCompliantMBeanException {
+      super(RemoteBrokerConnectionControl.class, storageManager);
 
-      this.federation = federation;
+      this.connection = connection;
    }
 
    @Override
    public String getName() {
       if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.getName(federation);
+         AuditLogger.getName(connection);
       }
       clearIO();
       try {
-         return federation.getName();
+         return connection.getName();
       } finally {
          blockOnIO();
       }
    }
 
    @Override
-   public long getMessagesReceived() {
+   public String getNodeId() {
       if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.getMessagesReceived(federation);
+         AuditLogger.getNodeID(connection);
       }
       clearIO();
       try {
-         return federation.getMetrics().getMessagesReceived();
+         return connection.getNodeId();
       } finally {
          blockOnIO();
       }
    }
 
    @Override
-   public long getMessagesSent() {
+   public String getProtocol() {
       if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.getMessagesSent(federation);
+         AuditLogger.getProtocol(connection);
       }
       clearIO();
       try {
-         return federation.getMetrics().getMessagesSent();
+         return connection.getProtocol();
       } finally {
          blockOnIO();
       }
@@ -81,11 +77,11 @@ public final class AMQPFederationSourceControlType extends AbstractControl imple
 
    @Override
    protected MBeanOperationInfo[] fillMBeanOperationInfo() {
-      return MBeanInfoHelper.getMBeanOperationsInfo(AMQPFederationControl.class);
+      return MBeanInfoHelper.getMBeanOperationsInfo(RemoteBrokerConnectionControl.class);
    }
 
    @Override
    protected MBeanAttributeInfo[] fillMBeanAttributeInfo() {
-      return MBeanInfoHelper.getMBeanAttributesInfo(AMQPFederationControl.class);
+      return MBeanInfoHelper.getMBeanAttributesInfo(RemoteBrokerConnectionControl.class);
    }
 }

@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.AMQPBrokerConnectionConstants.BROKER_CONNECTION_INFO;
+import static org.apache.activemq.artemis.protocol.amqp.connect.AMQPBrokerConnectionConstants.CONNECTION_NAME;
+import static org.apache.activemq.artemis.protocol.amqp.connect.AMQPBrokerConnectionConstants.NODE_ID;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_DELAY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_MSG_COUNT;
@@ -25,17 +28,24 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_ADDRESS_POLICY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_QUEUE_POLICY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_ADDRESS_RECEIVER;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONFIGURATION;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_POLICY_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_QUEUE_RECEIVER;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_RECEIVER_PRIORITY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.OPERATION_TYPE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.POLICY_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_INCLUDES;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_INCLUDE_FEDERATED;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_PRIORITY_ADJUSTMENT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -45,6 +55,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +73,7 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.BrokerConnectionControl;
+import org.apache.activemq.artemis.api.core.management.RemoteBrokerConnectionControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederatedBrokerConnectionElement;
@@ -75,15 +87,18 @@ import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederati
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationManagementSupport;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationProducerControl;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationRemotePolicyControlType;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationLocalPolicyControlType;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.qpid.protonj2.test.driver.ProtonTestClient;
 import org.apache.qpid.protonj2.test.driver.ProtonTestServer;
 import org.apache.qpid.protonj2.test.driver.matchers.messaging.MessageAnnotationsMatcher;
 import org.apache.qpid.protonj2.test.driver.matchers.transport.TransferPayloadCompositeMatcher;
 import org.apache.qpid.protonj2.test.driver.matchers.types.EncodedAmqpValueMatcher;
 import org.hamcrest.Matchers;
+import org.jgroups.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
@@ -175,9 +190,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
          assertNotNull(brokerConnection);
          assertTrue(brokerConnection.isConnected());
 
-         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName());
-         final String policyResourceName = AMQPFederationManagementSupport.getFederationPolicyResourceName(getTestName(), "address-policy");
-         final String consumerResourceName = AMQPFederationManagementSupport.getFederationAddressConsumerResourceName(getTestName(), "address-policy", getTestName());
+         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName(), getTestName());
+         final String policyResourceName = AMQPFederationManagementSupport.getFederationSourcePolicyResourceName(getTestName(), getTestName(), "address-policy");
+         final String consumerResourceName = AMQPFederationManagementSupport.getFederationSourceAddressConsumerResourceName(getTestName(), getTestName(), "address-policy", getTestName());
 
          final AMQPFederationControl federationControl =
             (AMQPFederationControl) server.getManagementService().getResource(federationResourceName);
@@ -290,9 +305,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
          assertNotNull(brokerConnection);
          assertTrue(brokerConnection.isConnected());
 
-         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName());
-         final String policyResourceName = AMQPFederationManagementSupport.getFederationPolicyResourceName(getTestName(), "address-policy");
-         final String consumerResourceName = AMQPFederationManagementSupport.getFederationAddressConsumerResourceName(getTestName(), "address-policy", getTestName());
+         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName(), getTestName());
+         final String policyResourceName = AMQPFederationManagementSupport.getFederationSourcePolicyResourceName(getTestName(), getTestName(), "address-policy");
+         final String consumerResourceName = AMQPFederationManagementSupport.getFederationSourceAddressConsumerResourceName(getTestName(), getTestName(), "address-policy", getTestName());
 
          final AMQPFederationControl federationControl =
             (AMQPFederationControl) server.getManagementService().getResource(federationResourceName);
@@ -380,9 +395,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
          assertNotNull(brokerConnection);
          assertTrue(brokerConnection.isConnected());
 
-         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName());
-         final String policyResourceName = AMQPFederationManagementSupport.getFederationPolicyResourceName(getTestName(), "address-policy");
-         final String consumerResourceName = AMQPFederationManagementSupport.getFederationAddressConsumerResourceName(getTestName(), "address-policy", getTestName());
+         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName(), getTestName());
+         final String policyResourceName = AMQPFederationManagementSupport.getFederationSourcePolicyResourceName(getTestName(), getTestName(), "address-policy");
+         final String consumerResourceName = AMQPFederationManagementSupport.getFederationSourceAddressConsumerResourceName(getTestName(), getTestName(), "address-policy", getTestName());
 
          final AMQPFederationControl federationControl =
             (AMQPFederationControl) server.getManagementService().getResource(federationResourceName);
@@ -481,9 +496,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
             final String brokerConnectionName = ResourceNames.BROKER_CONNECTION + getTestName();
-            final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName());
-            final String policyResourceName = AMQPFederationManagementSupport.getFederationPolicyResourceName(getTestName(), "queue-policy");
-            final String consumerResourceName = AMQPFederationManagementSupport.getFederationAddressConsumerResourceName(getTestName(), "queue-policy", getTestName() + "::" + getTestName());
+            final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName(), getTestName());
+            final String policyResourceName = AMQPFederationManagementSupport.getFederationSourcePolicyResourceName(getTestName(), getTestName(), "queue-policy");
+            final String consumerResourceName = AMQPFederationManagementSupport.getFederationSourceAddressConsumerResourceName(getTestName(), getTestName(), "queue-policy", getTestName() + "::" + getTestName());
 
             final BrokerConnectionControl brokerConnection = (BrokerConnectionControl)
                server.getManagementService().getResource(brokerConnectionName);
@@ -608,9 +623,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
-            final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName());
-            final String policyResourceName = AMQPFederationManagementSupport.getFederationPolicyResourceName(getTestName(), "queue-policy");
-            final String consumerResourceName = AMQPFederationManagementSupport.getFederationAddressConsumerResourceName(getTestName(), "queue-policy", getTestName() + "::" + getTestName());
+            final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName(), getTestName());
+            final String policyResourceName = AMQPFederationManagementSupport.getFederationSourcePolicyResourceName(getTestName(), getTestName(), "queue-policy");
+            final String consumerResourceName = AMQPFederationManagementSupport.getFederationSourceAddressConsumerResourceName(getTestName(), getTestName(), "queue-policy", getTestName() + "::" + getTestName());
 
             final BrokerConnectionControl brokerConnection = (BrokerConnectionControl)
                server.getManagementService().getResource(ResourceNames.BROKER_CONNECTION + getTestName());
@@ -708,9 +723,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
 
-            final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName());
-            final String policyResourceName = AMQPFederationManagementSupport.getFederationPolicyResourceName(getTestName(), "queue-policy");
-            final String consumerResourceName = AMQPFederationManagementSupport.getFederationAddressConsumerResourceName(getTestName(), "queue-policy", getTestName() + "::" + getTestName());
+            final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName(), getTestName());
+            final String policyResourceName = AMQPFederationManagementSupport.getFederationSourcePolicyResourceName(getTestName(), getTestName(), "queue-policy");
+            final String consumerResourceName = AMQPFederationManagementSupport.getFederationSourceAddressConsumerResourceName(getTestName(), getTestName(), "queue-policy", getTestName() + "::" + getTestName());
 
             final BrokerConnectionControl brokerConnection = (BrokerConnectionControl)
                server.getManagementService().getResource(ResourceNames.BROKER_CONNECTION + getTestName());
@@ -797,9 +812,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
                               .queue();
          peer.expectDisposition().withSettled(true).withState().accepted();
 
-         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName());
-         final String policyResourceName = AMQPFederationManagementSupport.getFederationPolicyResourceName(getTestName(), "address-policy");
-         final String consumerResourceName = AMQPFederationManagementSupport.getFederationAddressConsumerResourceName(getTestName(), "address-policy", getTestName());
+         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName(), getTestName());
+         final String policyResourceName = AMQPFederationManagementSupport.getFederationSourcePolicyResourceName(getTestName(), getTestName(), "address-policy");
+         final String consumerResourceName = AMQPFederationManagementSupport.getFederationSourceAddressConsumerResourceName(getTestName(), getTestName(), "address-policy", getTestName());
 
          final AMQPFederationControl federationControl =
             (AMQPFederationControl) server.getManagementService().getResource(federationResourceName);
@@ -948,9 +963,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
                                                                 .setAddress(getTestName())
                                                                 .setAutoCreated(false));
 
-         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName());
-         final String policyResourceName = AMQPFederationManagementSupport.getFederationPolicyResourceName(getTestName(), "queue-policy");
-         final String consumerResourceName = AMQPFederationManagementSupport.getFederationAddressConsumerResourceName(getTestName(), "queue-policy", getTestName() + "::" + getTestName());
+         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName(), getTestName());
+         final String policyResourceName = AMQPFederationManagementSupport.getFederationSourcePolicyResourceName(getTestName(), getTestName(), "queue-policy");
+         final String consumerResourceName = AMQPFederationManagementSupport.getFederationSourceAddressConsumerResourceName(getTestName(), getTestName(), "queue-policy", getTestName() + "::" + getTestName());
 
          final AMQPFederationControl federationControl =
             (AMQPFederationControl) server.getManagementService().getResource(federationResourceName);
@@ -1113,9 +1128,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
          server.start();
          server.addAddressInfo(new AddressInfo(getTestName()).addRoutingType(RoutingType.MULTICAST));
 
-         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName());
-         final String policyResourceName = AMQPFederationManagementSupport.getFederationPolicyResourceName(getTestName(), "remote-address-policy");
-         final String producerResourceName = AMQPFederationManagementSupport.getFederationAddressProducerResourceName(getTestName(), "remote-address-policy", getTestName());
+         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName(), getTestName());
+         final String policyResourceName = AMQPFederationManagementSupport.getFederationSourcePolicyResourceName(getTestName(), getTestName(), "remote-address-policy");
+         final String producerResourceName = AMQPFederationManagementSupport.getFederationSourceAddressProducerResourceName(getTestName(), getTestName(), "remote-address-policy", getTestName());
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofSender().withName("federation-address-receiver")
@@ -1315,9 +1330,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
          server.start();
          server.addAddressInfo(new AddressInfo(getTestName()).addRoutingType(RoutingType.MULTICAST));
 
-         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName());
-         final String policyResourceName = AMQPFederationManagementSupport.getFederationPolicyResourceName(getTestName(), "remote-address-policy");
-         final String producerResourceName = AMQPFederationManagementSupport.getFederationAddressProducerResourceName(getTestName(), "remote-address-policy", getTestName());
+         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName(), getTestName());
+         final String policyResourceName = AMQPFederationManagementSupport.getFederationSourcePolicyResourceName(getTestName(), getTestName(), "remote-address-policy");
+         final String producerResourceName = AMQPFederationManagementSupport.getFederationSourceAddressProducerResourceName(getTestName(), getTestName(), "remote-address-policy", getTestName());
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofSender().withName("federation-address-receiver")
@@ -1350,7 +1365,7 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
             (AMQPFederationControl) server.getManagementService().getResource(federationResourceName);
          final AMQPFederationRemotePolicyControlType remotePolicyControl = (AMQPFederationRemotePolicyControlType)
             server.getManagementService().getResource(policyResourceName);
-         AMQPFederationProducerControl producerControl = (AMQPFederationProducerControl)
+         final AMQPFederationProducerControl producerControl = (AMQPFederationProducerControl)
             server.getManagementService().getResource(producerResourceName);
 
          assertNotNull(brokerConnection);
@@ -1439,9 +1454,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
                                                                 .setAddress(getTestName())
                                                                 .setAutoCreated(false));
 
-         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName());
-         final String policyResourceName = AMQPFederationManagementSupport.getFederationPolicyResourceName(getTestName(), "remote-queue-policy");
-         final String producerResourceName = AMQPFederationManagementSupport.getFederationAddressProducerResourceName(getTestName(), "remote-queue-policy", getTestName() + "::" + getTestName());
+         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName(), getTestName());
+         final String policyResourceName = AMQPFederationManagementSupport.getFederationSourcePolicyResourceName(getTestName(), getTestName(), "remote-queue-policy");
+         final String producerResourceName = AMQPFederationManagementSupport.getFederationSourceAddressProducerResourceName(getTestName(), getTestName(), "remote-queue-policy", getTestName() + "::" + getTestName());
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofSender().withName("federation-queue-receiver")
@@ -1638,9 +1653,9 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
                                                                 .setAddress(getTestName())
                                                                 .setAutoCreated(false));
 
-         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName());
-         final String policyResourceName = AMQPFederationManagementSupport.getFederationPolicyResourceName(getTestName(), "remote-queue-policy");
-         final String producerResourceName = AMQPFederationManagementSupport.getFederationAddressProducerResourceName(getTestName(), "remote-queue-policy", getTestName() + "::" + getTestName());
+         final String federationResourceName = AMQPFederationManagementSupport.getFederationSourceResourceName(getTestName(), getTestName());
+         final String policyResourceName = AMQPFederationManagementSupport.getFederationSourcePolicyResourceName(getTestName(), getTestName(), "remote-queue-policy");
+         final String producerResourceName = AMQPFederationManagementSupport.getFederationSourceAddressProducerResourceName(getTestName(), getTestName(), "remote-queue-policy", getTestName() + "::" + getTestName());
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofSender().withName("federation-queue-receiver")
@@ -1672,7 +1687,7 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
             (AMQPFederationControl) server.getManagementService().getResource(federationResourceName);
          final AMQPFederationRemotePolicyControlType remotePolicyControl = (AMQPFederationRemotePolicyControlType)
             server.getManagementService().getResource(policyResourceName);
-         AMQPFederationProducerControl producerControl = (AMQPFederationProducerControl)
+         final AMQPFederationProducerControl producerControl = (AMQPFederationProducerControl)
             server.getManagementService().getResource(producerResourceName);
 
          assertNotNull(brokerConnection);
@@ -1694,5 +1709,306 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
 
          peer.close();
       }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testRemoteBrokerRegistersAndRemovesRemoteAddressFederationBrokerConnectionInManagement() throws Exception {
+      server.start();
+      server.addAddressInfo(new AddressInfo(getTestName()).addRoutingType(RoutingType.MULTICAST));
+
+      final String serverNodeId = server.getNodeID().toString();
+      final String brokerConnectionName = getTestName();
+      final String remoteBrokerConnectionName = ResourceNames.REMOTE_BROKER_CONNECTION + server.getNodeID() + "." + getTestName();
+      final String federationResourceName =
+         AMQPFederationManagementSupport.getFederationTargetResourceName(serverNodeId, brokerConnectionName, getTestName());
+      final String policyResourceName = AMQPFederationManagementSupport.getFederationTargetPolicyResourceName(serverNodeId, brokerConnectionName, getTestName(), "address-policy");
+      final String producerResourceName = AMQPFederationManagementSupport.getFederationTargetAddressProducerResourceName(serverNodeId, brokerConnectionName, getTestName(), "address-policy", getTestName());
+
+      // Test registers and cleans up on connection closed by remote
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         scriptFederationConnectToRemote(peer, serverNodeId, brokerConnectionName, getTestName());
+         peer.connect("localhost", AMQP_PORT);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final RemoteBrokerConnectionControl remoteBrokerConnection = (RemoteBrokerConnectionControl)
+            server.getManagementService().getResource(remoteBrokerConnectionName);
+
+         assertNotNull(remoteBrokerConnection);
+         assertEquals(getTestName(), remoteBrokerConnection.getName());
+         assertEquals(server.getNodeID().toString(), remoteBrokerConnection.getNodeId());
+
+         final AMQPFederationControl federationControl =
+            (AMQPFederationControl) server.getManagementService().getResource(federationResourceName);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender().withName(getTestName())
+                                       .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                                       .withSource().withAddress(getTestName());
+
+         // Connect to remote as if an queue had demand and matched our federation policy
+         peer.remoteAttach().ofReceiver()
+                            .withDesiredCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName(getTestName())
+                            .withProperty(FEDERATION_POLICY_NAME.toString(), "address-policy")
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withSource().withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withAddress(getTestName())
+                                         .withCapabilities("topic")
+                                         .and()
+                            .withTarget().and()
+                            .now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final AMQPFederationRemotePolicyControlType remotePolicyControl = (AMQPFederationRemotePolicyControlType)
+            server.getManagementService().getResource(policyResourceName);
+         final AMQPFederationProducerControl producerControl = (AMQPFederationProducerControl)
+            server.getManagementService().getResource(producerResourceName);
+
+         assertNotNull(federationControl);
+         assertNotNull(remotePolicyControl);
+         assertNotNull(producerControl);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+
+         Wait.assertTrue(() -> server.getManagementService().getResource(remoteBrokerConnectionName) == null, 5_000, 50);
+         Wait.assertTrue(() -> server.getManagementService().getResource(federationResourceName) == null, 5_000, 50);
+         Wait.assertTrue(() -> server.getManagementService().getResource(policyResourceName) == null, 5_000, 50);
+         Wait.assertTrue(() -> server.getManagementService().getResource(producerResourceName) == null, 5_000, 50);
+      }
+
+      // Test registers and cleans up on connection dropped
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         scriptFederationConnectToRemote(peer, serverNodeId, brokerConnectionName, getTestName());
+         peer.connect("localhost", AMQP_PORT);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final AMQPFederationControl federationControl =
+            (AMQPFederationControl) server.getManagementService().getResource(federationResourceName);
+
+         assertNotNull(federationControl);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender().withName(getTestName())
+                                       .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                                       .withSource().withAddress(getTestName());
+
+         // Connect to remote as if an queue had demand and matched our federation policy
+         peer.remoteAttach().ofReceiver()
+                            .withDesiredCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName(getTestName())
+                            .withProperty(FEDERATION_POLICY_NAME.toString(), "address-policy")
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withSource().withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withAddress(getTestName())
+                                         .withCapabilities("topic")
+                                         .and()
+                            .withTarget().and()
+                            .now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final AMQPFederationRemotePolicyControlType remotePolicyControl = (AMQPFederationRemotePolicyControlType)
+            server.getManagementService().getResource(policyResourceName);
+         final AMQPFederationProducerControl producerControl = (AMQPFederationProducerControl)
+            server.getManagementService().getResource(producerResourceName);
+
+         assertNotNull(federationControl);
+         assertNotNull(remotePolicyControl);
+         assertNotNull(producerControl);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+
+         Wait.assertTrue(() -> server.getManagementService().getResource(remoteBrokerConnectionName) == null, 5_000, 50);
+         Wait.assertTrue(() -> server.getManagementService().getResource(federationResourceName) == null, 5_000, 50);
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testRemoteBrokerRegistersAndRemovesRemoteQueueFederationBrokerConnectionInManagement() throws Exception {
+      server.start();
+      server.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.ANYCAST)
+                                                             .setAddress(getTestName())
+                                                             .setAutoCreated(false));
+
+      final String serverNodeId = server.getNodeID().toString();
+      final String brokerConnectionName = getTestName();
+      final String remoteBrokerConnectionName = ResourceNames.REMOTE_BROKER_CONNECTION + server.getNodeID() + "." + getTestName();
+      final String federationResourceName =
+         AMQPFederationManagementSupport.getFederationTargetResourceName(serverNodeId, brokerConnectionName, getTestName());
+      final String policyResourceName = AMQPFederationManagementSupport.getFederationTargetPolicyResourceName(serverNodeId, brokerConnectionName, getTestName(), "queue-policy");
+      final String producerResourceName = AMQPFederationManagementSupport.getFederationTargetQueueProducerResourceName(serverNodeId, brokerConnectionName, getTestName(), "queue-policy", getTestName() + "::" + getTestName());
+
+      // Test registers and cleans up on connection closed by remote
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         scriptFederationConnectToRemote(peer, serverNodeId, brokerConnectionName, getTestName());
+         peer.connect("localhost", AMQP_PORT);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final RemoteBrokerConnectionControl remoteBrokerConnection = (RemoteBrokerConnectionControl)
+            server.getManagementService().getResource(remoteBrokerConnectionName);
+
+         assertNotNull(remoteBrokerConnection);
+         assertEquals(getTestName(), remoteBrokerConnection.getName());
+         assertEquals(server.getNodeID().toString(), remoteBrokerConnection.getNodeId());
+
+         final AMQPFederationControl federationControl =
+            (AMQPFederationControl) server.getManagementService().getResource(federationResourceName);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender().withName(getTestName() + "::" + getTestName())
+                                       .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString())
+                                       .withSource().withAddress(getTestName() + "::" + getTestName());
+
+         // Connect to remote as if an queue had demand and matched our federation policy
+         peer.remoteAttach().ofReceiver()
+                            .withDesiredCapabilities(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(getTestName() + "::" + getTestName())
+                            .withProperty(FEDERATION_RECEIVER_PRIORITY.toString(), DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT)
+                            .withProperty(FEDERATION_POLICY_NAME.toString(), "queue-policy")
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withSource().withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withAddress(getTestName() + "::" + getTestName())
+                                         .withCapabilities("queue")
+                                         .and()
+                            .withTarget().and()
+                            .now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final AMQPFederationRemotePolicyControlType remotePolicyControl = (AMQPFederationRemotePolicyControlType)
+            server.getManagementService().getResource(policyResourceName);
+         final AMQPFederationProducerControl producerControl = (AMQPFederationProducerControl)
+            server.getManagementService().getResource(producerResourceName);
+
+         assertNotNull(federationControl);
+         assertNotNull(remotePolicyControl);
+         assertNotNull(producerControl);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+
+         Wait.assertTrue(() -> server.getManagementService().getResource(remoteBrokerConnectionName) == null, 5_000, 50);
+         Wait.assertTrue(() -> server.getManagementService().getResource(federationResourceName) == null, 5_000, 50);
+         Wait.assertTrue(() -> server.getManagementService().getResource(policyResourceName) == null, 5_000, 50);
+         Wait.assertTrue(() -> server.getManagementService().getResource(producerResourceName) == null, 5_000, 50);
+      }
+
+      // Test registers and cleans up on connection dropped
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         scriptFederationConnectToRemote(peer, serverNodeId, brokerConnectionName, getTestName());
+         peer.connect("localhost", AMQP_PORT);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final AMQPFederationControl federationControl =
+            (AMQPFederationControl) server.getManagementService().getResource(federationResourceName);
+
+         assertNotNull(federationControl);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender().withName(getTestName() + "::" + getTestName())
+                                       .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString())
+                                       .withSource().withAddress(getTestName() + "::" + getTestName());
+
+         // Connect to remote as if an queue had demand and matched our federation policy
+         peer.remoteAttach().ofReceiver()
+                            .withDesiredCapabilities(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(getTestName() + "::" + getTestName())
+                            .withProperty(FEDERATION_RECEIVER_PRIORITY.toString(), DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT)
+                            .withProperty(FEDERATION_POLICY_NAME.toString(), "queue-policy")
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withSource().withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withAddress(getTestName() + "::" + getTestName())
+                                         .withCapabilities("queue")
+                                         .and()
+                            .withTarget().and()
+                            .now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final AMQPFederationRemotePolicyControlType remotePolicyControl = (AMQPFederationRemotePolicyControlType)
+            server.getManagementService().getResource(policyResourceName);
+         final AMQPFederationProducerControl producerControl = (AMQPFederationProducerControl)
+            server.getManagementService().getResource(producerResourceName);
+
+         assertNotNull(federationControl);
+         assertNotNull(remotePolicyControl);
+         assertNotNull(producerControl);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+
+         Wait.assertTrue(() -> server.getManagementService().getResource(remoteBrokerConnectionName) == null, 5_000, 50);
+         Wait.assertTrue(() -> server.getManagementService().getResource(federationResourceName) == null, 5_000, 50);
+      }
+   }
+
+   // Use this method to script the initial handshake that a broker that is establishing
+   // a federation connection with a remote broker instance would perform.
+   private void scriptFederationConnectToRemote(ProtonTestClient peer, String nodeId, String brokerConnectionName, String federationName) {
+      final String federationControlLinkName = "Federation:control:" + UUID.randomUUID().toString();
+
+      final Map<String, Object> brokerConnectionInfo = new HashMap<>();
+      brokerConnectionInfo.put(NODE_ID, nodeId);
+      brokerConnectionInfo.put(CONNECTION_NAME, brokerConnectionName);
+
+      final Map<String, Object> federationConfiguration = new HashMap<>();
+      federationConfiguration.put(RECEIVER_CREDITS, AmqpSupport.AMQP_CREDITS_DEFAULT);
+      federationConfiguration.put(RECEIVER_CREDITS_LOW, AmqpSupport.AMQP_LOW_CREDITS_DEFAULT);
+
+      final Map<String, Object> controlLinkProperties = new HashMap<>();
+      controlLinkProperties.put(FEDERATION_CONFIGURATION.toString(), federationConfiguration);
+      controlLinkProperties.put(FEDERATION_NAME.toString(), federationName);
+
+      peer.queueClientSaslAnonymousConnect();
+      peer.remoteOpen().withProperty(BROKER_CONNECTION_INFO.toString(), brokerConnectionInfo).queue();
+      peer.expectOpen();
+      peer.remoteBegin().queue();
+      peer.expectBegin();
+      peer.remoteAttach().ofSender()
+                         .withInitialDeliveryCount(0)
+                         .withName(federationControlLinkName)
+                         .withPropertiesMap(controlLinkProperties)
+                         .withDesiredCapabilities(FEDERATION_CONTROL_LINK.toString())
+                         .withSenderSettleModeUnsettled()
+                         .withReceivervSettlesFirst()
+                         .withSource().also()
+                         .withTarget().withDynamic(true)
+                                      .withDurabilityOfNone()
+                                      .withExpiryPolicyOnLinkDetach()
+                                      .withLifetimePolicyOfDeleteOnClose()
+                                      .withCapabilities("temporary-topic")
+                                      .also()
+                         .queue();
+      peer.expectAttach().ofReceiver()
+                         .withTarget()
+                            .withAddress(notNullValue())
+                         .also()
+                         .withOfferedCapability(FEDERATION_CONTROL_LINK.toString());
+      peer.expectFlow();
    }
 }

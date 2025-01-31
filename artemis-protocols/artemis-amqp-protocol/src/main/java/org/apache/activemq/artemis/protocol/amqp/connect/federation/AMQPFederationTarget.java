@@ -20,7 +20,7 @@ package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.protocol.amqp.connect.AMQPRemoteBrokerConnection;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConstants;
@@ -42,14 +42,16 @@ import org.apache.qpid.proton.engine.Link;
  */
 public class AMQPFederationTarget extends AMQPFederation {
 
+   private final AMQPRemoteBrokerConnection brokerConnection;
    private final AMQPConnectionContext connection;
    private final AMQPFederationConfiguration configuration;
 
-   public AMQPFederationTarget(String name, AMQPFederationConfiguration configuration, AMQPSessionContext session, ActiveMQServer server) {
-      super(null, name, server);
+   public AMQPFederationTarget(AMQPRemoteBrokerConnection brokerConnection, String name, AMQPFederationConfiguration configuration, AMQPSessionContext session) {
+      super(name, brokerConnection.getServer());
 
       Objects.requireNonNull(session, "Provided session instance cannot be null");
 
+      this.brokerConnection = brokerConnection;
       this.session = session;
       this.connection = session.getAMQPConnectionContext();
       this.connection.addLinkRemoteCloseListener(getName(), this::handleLinkRemoteClose);
@@ -137,51 +139,71 @@ public class AMQPFederationTarget extends AMQPFederation {
 
    @Override
    void registerFederationManagement() throws Exception {
-      // Not yet implemented for the target side of the federation connection
+      if (brokerConnection.isManagable()) {
+         AMQPFederationManagementSupport.registerFederationTarget(brokerConnection.getNodeId(), brokerConnection.getName(), this);
+      }
    }
 
    @Override
    void unregisterFederationManagement() throws Exception {
-      // Not yet implemented for the target side of the federation connection
+      if (brokerConnection.isManagable()) {
+         AMQPFederationManagementSupport.unregisterFederationTarget(brokerConnection.getNodeId(), brokerConnection.getName(), this);
+      }
    }
 
    @Override
    void registerLocalPolicyManagement(AMQPFederationLocalPolicyManager manager) throws Exception {
-      // Not yet implemented for the target side of the federation connection
+      if (brokerConnection.isManagable()) {
+         AMQPFederationManagementSupport.registerLocalPolicyOnTarget(brokerConnection.getNodeId(), brokerConnection.getName(), manager);
+      }
    }
 
    @Override
    void unregisterLocalPolicyManagement(AMQPFederationLocalPolicyManager manager) throws Exception {
-      // Not yet implemented for the target side of the federation connection
+      if (brokerConnection.isManagable()) {
+         AMQPFederationManagementSupport.unregisterLocalPolicyOnTarget(brokerConnection.getNodeId(), brokerConnection.getName(), manager);
+      }
    }
 
    @Override
    void registerRemotePolicyManagement(AMQPFederationRemotePolicyManager manager) throws Exception {
-      // Not yet implemented for the target side of the federation connection
+      if (brokerConnection.isManagable()) {
+         AMQPFederationManagementSupport.registerRemotePolicyOnTarget(brokerConnection.getNodeId(), brokerConnection.getName(), manager);
+      }
    }
 
    @Override
    void unregisterRemotePolicyManagement(AMQPFederationRemotePolicyManager manager) throws Exception {
-      // Not yet implemented for the target side of the federation connection
+      if (brokerConnection.isManagable()) {
+         AMQPFederationManagementSupport.unregisterRemotePolicyOnTarget(brokerConnection.getNodeId(), brokerConnection.getName(), manager);
+      }
    }
 
    @Override
    void registerFederationConsumerManagement(AMQPFederationConsumer consumer) throws Exception {
-      // Not yet implemented for the target side of the federation connection
+      if (brokerConnection.isManagable()) {
+         AMQPFederationManagementSupport.registerFederationTargetConsumer(brokerConnection.getNodeId(), brokerConnection.getName(), consumer);
+      }
    }
 
    @Override
    void unregisterFederationConsumerManagement(AMQPFederationConsumer consumer) throws Exception {
-      // Not yet implemented for the target side of the federation connection
+      if (brokerConnection.isManagable()) {
+         AMQPFederationManagementSupport.unregisterFederationTargetConsumer(brokerConnection.getNodeId(), brokerConnection.getName(), consumer);
+      }
    }
 
    @Override
    void registerFederationProducerManagement(AMQPFederationSenderController sender) throws Exception {
-      // Not yet implemented for the target side of the federation connection
+      if (brokerConnection.isManagable()) {
+         AMQPFederationManagementSupport.registerFederationTargetProducer(brokerConnection.getNodeId(), brokerConnection.getName(), sender);
+      }
    }
 
    @Override
-   void unregisterFederationProdcerManagement(AMQPFederationSenderController sender) throws Exception {
-      // Not yet implemented for the target side of the federation connection
+   void unregisterFederationProducerManagement(AMQPFederationSenderController sender) throws Exception {
+      if (brokerConnection.isManagable()) {
+         AMQPFederationManagementSupport.unregisterFederationTargetProducer(brokerConnection.getNodeId(), brokerConnection.getName(), sender);
+      }
    }
 }

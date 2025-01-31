@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.AMQPBrokerConnectionConstants.BROKER_CONNECTION_INFO;
+import static org.apache.activemq.artemis.protocol.amqp.connect.AMQPBrokerConnectionConstants.CONNECTION_NAME;
+import static org.apache.activemq.artemis.protocol.amqp.connect.AMQPBrokerConnectionConstants.NODE_ID;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_DELAY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_MSG_COUNT;
@@ -32,6 +35,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_BASE_VALIDATION_ADDRESS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENTS_LINK_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LARGE_MESSAGE_THRESHOLD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LINK_ATTACH_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.OPERATION_TYPE;
@@ -52,6 +56,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.allOf;
 
@@ -262,6 +267,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          peer.expectAttach().ofSender()
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
                             .withName(allOf(containsString("federation-"), containsString("myFederation")))
+                            .withProperty(FEDERATION_NAME.toString(), "myFederation")
                             .withProperty(FEDERATION_CONFIGURATION.toString(), federationConfiguration)
                             .withTarget().withDynamic(true)
                                          .withCapabilities("temporary-topic")
@@ -294,6 +300,8 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          Wait.assertTrue(() -> server.locateQueue(FEDERATION_BASE_VALIDATION_ADDRESS +
                                                   "." + FEDERATION_CONTROL_LINK_PREFIX +
                                                   "." + controlLinkAddress) != null);
+
+         peer.close();
       }
    }
 
@@ -1237,6 +1245,45 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          }
       }
    }
+
+   @Test
+   @Timeout(20)
+   public void testBrokerConnectsCarriesInfoInConnectionProperties() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         // No user or pass given, it will have to select ANONYMOUS even though PLAIN also offered
+         AMQPBrokerConnectConfiguration amqpConnection =
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setAutostart(false);
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         final Map<String, Object> brokerConnectionInfo = new HashMap<>();
+
+         brokerConnectionInfo.put(CONNECTION_NAME, getTestName());
+         brokerConnectionInfo.put(NODE_ID, server.getNodeID().toString());
+
+         peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
+         peer.expectOpen().withProperty(BROKER_CONNECTION_INFO.toString(), brokerConnectionInfo).respond();
+         peer.expectBegin().respond();
+
+         server.getBrokerConnections().forEach(conn -> {
+            try {
+               conn.start();
+            } catch (Exception e) {
+               fail("Should not have thrown an error on start: " + e);
+            }
+         });
+
+         peer.waitForScriptToComplete(5, TimeUnit.MINUTES);
+      }
+   }
+
 
    // Use these methods to script the initial handshake that a broker that is establishing
    // a federation connection with a remote broker instance would perform.

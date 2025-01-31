@@ -18,6 +18,10 @@ package org.apache.activemq.artemis.core.server;
 
 import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
 
+/**
+ * A broker connection defines a server connection created to provide services
+ * between this server and another instance.
+ */
 public interface BrokerConnection extends ActiveMQComponent {
 
    default void initialize() throws Exception {

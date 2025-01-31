@@ -472,7 +472,6 @@ public final class AMQPFederationPolicySupport {
     *
     * @return a new address match and handling policy for use in the broker connection.
     */
-   @SuppressWarnings("unchecked")
    public static FederationReceiveFromAddressPolicy create(AMQPFederationAddressPolicyElement element, WildcardConfiguration wildcards) {
       final Set<String> includes;
       final Set<String> excludes;
@@ -525,7 +524,6 @@ public final class AMQPFederationPolicySupport {
     *
     * @return a new queue match and handling policy for use in the broker connection.
     */
-   @SuppressWarnings("unchecked")
    public static FederationReceiveFromQueuePolicy create(AMQPFederationQueuePolicyElement element, WildcardConfiguration wildcards) {
       final Set<Map.Entry<String, String>> includes;
       final Set<Map.Entry<String, String>> excludes;

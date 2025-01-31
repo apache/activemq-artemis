@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -59,6 +60,7 @@ import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.RemoteBrokerConnectionControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -75,6 +77,7 @@ import org.apache.activemq.artemis.core.management.impl.DivertControlImpl;
 import org.apache.activemq.artemis.core.management.impl.JGroupsChannelBroadcastGroupControlImpl;
 import org.apache.activemq.artemis.core.management.impl.JGroupsFileBroadcastGroupControlImpl;
 import org.apache.activemq.artemis.core.management.impl.QueueControlImpl;
+import org.apache.activemq.artemis.core.management.impl.RemoteBrokerConnectionControlImpl;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
@@ -94,6 +97,7 @@ import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
+import org.apache.activemq.artemis.core.server.RemoteBrokerConnection;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
@@ -432,6 +436,33 @@ public class ManagementServiceImpl implements ManagementService {
    public void unregisterBrokerConnection(String name) throws Exception {
       unregisterFromJMX(objectNameBuilder.getBrokerConnectionObjectName(name));
       unregisterFromRegistry(ResourceNames.BROKER_CONNECTION + name);
+   }
+
+   @Override
+   public void registerRemoteBrokerConnection(RemoteBrokerConnection brokerConnection) throws Exception {
+      final String nodeId = brokerConnection.getNodeId();
+      final String name = brokerConnection.getName();
+
+      Objects.requireNonNull(nodeId, "Remote Node ID must be a non-null value");
+      Objects.requireNonNull(name, "Remote connection name must be a non-null value");
+
+      if (nodeId.isBlank()) {
+         throw new IllegalArgumentException("Remote node ID must be a non-empty string value");
+      }
+
+      if (name.isBlank()) {
+         throw new IllegalArgumentException("Remote connection name must be a non-empty string value");
+      }
+
+      RemoteBrokerConnectionControl control = new RemoteBrokerConnectionControlImpl(brokerConnection, storageManager);
+      registerInJMX(objectNameBuilder.getRemoteBrokerConnectionObjectName(nodeId, name), control);
+      registerInRegistry(ResourceNames.REMOTE_BROKER_CONNECTION + nodeId + "." + name, control);
+   }
+
+   @Override
+   public void unregisterRemoteBrokerConnection(String nodeId, String name) throws Exception {
+      unregisterFromJMX(objectNameBuilder.getRemoteBrokerConnectionObjectName(nodeId, name));
+      unregisterFromRegistry(ResourceNames.REMOTE_BROKER_CONNECTION + nodeId + "." + name);
    }
 
    @Override

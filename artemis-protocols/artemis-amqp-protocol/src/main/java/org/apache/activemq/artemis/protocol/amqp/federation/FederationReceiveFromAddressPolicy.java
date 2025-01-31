@@ -55,7 +55,6 @@ public class FederationReceiveFromAddressPolicy implements FederationReceiveFrom
    private final Map<String, Object> properties;
    private final TransformerConfiguration transformerConfig;
 
-   @SuppressWarnings("unchecked")
    public FederationReceiveFromAddressPolicy(String name, boolean autoDelete, long autoDeleteDelay,
                                              long autoDeleteMessageCount, int maxHops, boolean enableDivertBindings,
                                              Collection<String> includeAddresses, Collection<String> excludeAddresses,

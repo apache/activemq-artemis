@@ -36,6 +36,8 @@ public final class ResourceNames {
 
    public static final String BROKER_CONNECTION = "brokerconnection.";
 
+   public static final String REMOTE_BROKER_CONNECTION = "remotebrokerconnection.";
+
    public static final String BRIDGE = "bridge.";
 
    public static final String ACCEPTOR = "acceptor.";
