@@ -62,9 +62,12 @@ public class MetricsPluginTest extends ActiveMQTestBase {
    protected ClientSession session;
    protected ClientSessionFactory sf;
    protected ServerLocator locator;
+   private static final String TEMP_QUEUE_NAMESPACE = "temp";
 
    protected void configureServer(ActiveMQServer server) {
-      server.getConfiguration().setMetricsConfiguration(new MetricsConfiguration().setPlugin(new SimpleMetricsPlugin().init(null)));
+      server.getConfiguration()
+         .setTemporaryQueueNamespace(TEMP_QUEUE_NAMESPACE)
+         .setMetricsConfiguration(new MetricsConfiguration().setPlugin(new SimpleMetricsPlugin().init(null)));
    }
 
    @Override
@@ -175,23 +178,33 @@ public class MetricsPluginTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testForBasicMetricsPresenceAndValue() throws Exception {
-      internalTestForBasicMetrics(true);
+   public void testForBasicQueueMetricsPresenceAndValue() throws Exception {
+      internalTestForBasicQueueMetrics(true, false);
    }
 
    @Test
-   public void testDisablingMetrics() throws Exception {
-      internalTestForBasicMetrics(false);
+   public void testDisablingQueueMetrics() throws Exception {
+      internalTestForBasicQueueMetrics(false, false);
    }
 
-   private void internalTestForBasicMetrics(boolean enabled) throws Exception {
+   @Test
+   public void testForBasicTempQueueMetricsPresenceAndValue() throws Exception {
+      internalTestForBasicQueueMetrics(true, true);
+   }
+
+   @Test
+   public void testDisablingTempQueueMetrics() throws Exception {
+      internalTestForBasicQueueMetrics(false, true);
+   }
+
+   private void internalTestForBasicQueueMetrics(boolean enabled, boolean temp) throws Exception {
       final String data = "Simple Text " + UUID.randomUUID().toString();
       final String queueName = "simpleQueue";
       final String addressName = "simpleAddress";
 
-      server.getAddressSettingsRepository().getMatch(addressName).setEnableMetrics(enabled);
+      server.getAddressSettingsRepository().getMatch(temp ? TEMP_QUEUE_NAMESPACE + "." + addressName : addressName).setEnableMetrics(enabled);
 
-      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setTemporary(temp).setDurable(!temp));
       ClientProducer producer = session.createProducer(addressName);
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString(data);
@@ -206,7 +219,9 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       checkMetric(metrics, "artemis.message.count", "queue", queueName, 1.0, enabled);
       checkMetric(metrics, "artemis.messages.added", "queue", queueName, 1.0, enabled);
       checkMetric(metrics, "artemis.messages.acknowledged", "queue", queueName, 0.0, enabled);
-      checkMetric(metrics, "artemis.durable.message.count", "queue", queueName, 1.0, enabled);
+      if (!temp) {
+         checkMetric(metrics, "artemis.durable.message.count", "queue", queueName, 1.0, enabled);
+      }
       checkMetric(metrics, "artemis.delivering.message.count", "queue", queueName, 0.0, enabled);
       checkMetric(metrics, "artemis.routed.message.count", "address", addressName, 1.0, enabled);
       checkMetric(metrics, "artemis.unrouted.message.count", "address", addressName, 0.0, enabled);
