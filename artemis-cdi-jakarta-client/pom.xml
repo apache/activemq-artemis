@@ -27,8 +27,20 @@
    </parent>
    <modelVersion>4.0.0</modelVersion>
 
-   <artifactId>artemis-cdi-client</artifactId>
+   <artifactId>artemis-cdi-jakarta-client</artifactId>
    <name>ActiveMQ Artemis CDI Integration</name>
+
+   <properties>
+      <jakarta.inject-api.version>${jakarta.inject-api.version.alt}</jakarta.inject-api.version>
+      <jakarta.annotation-api.version>${jakarta.annotation-api.version.alt}</jakarta.annotation-api.version>
+      <jakarta.enterprise.cdi-api.version>${jakarta.enterprise.cdi-api.version.alt}</jakarta.enterprise.cdi-api.version>
+      <jakarta.jms-api.version>${jakarta.jms-api.version.alt}</jakarta.jms-api.version>
+      <jakarta.transaction-api.version>${jakarta.transaction-api.version.alt}</jakarta.transaction-api.version>
+      <jakarta.ejb-api.version>${jakarta.ejb-api.version.alt}</jakarta.ejb-api.version>
+      <weld.version>${weld.version.alt}</weld.version>
+      <arquillian-weld-embedded.version>${arquillian-weld-embedded.version.alt}</arquillian-weld-embedded.version>
+      <owb.version>${owb.version.alt}</owb.version>
+   </properties>
 
    <dependencies>
       <!-- logging -->
@@ -53,11 +65,11 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-jms-client</artifactId>
+         <artifactId>artemis-jakarta-client</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-server</artifactId>
+         <artifactId>artemis-jakarta-server</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -122,6 +134,29 @@
                <argLine>--add-opens java.base/java.lang=ALL-UNNAMED ${activemq-surefire-argline}</argLine>
             </configuration>
          </plugin>
+         <plugin>
+            <groupId>org.wildfly.extras.batavia</groupId>
+            <artifactId>transformer-tools-mvn</artifactId>
+            <executions>
+               <execution>
+                  <id>transform-sources</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>transform-sources</goal>
+                  </goals>
+                  <configuration>
+                     <source-project>${project.basedir}/../artemis-cdi-client</source-project>
+                  </configuration>
+               </execution>
+            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>org.wildfly.extras.batavia</groupId>
+                  <artifactId>transformer-impl-eclipse</artifactId>
+                  <version>${version.batavia}</version>
+               </dependency>
+            </dependencies>
+         </plugin>
       </plugins>
    </build>
 
@@ -140,6 +175,10 @@
                <groupId>org.jboss.arquillian.container</groupId>
                <artifactId>arquillian-weld-embedded</artifactId>
             </dependency>
+            <dependency>
+               <groupId>jakarta.ejb</groupId>
+               <artifactId>jakarta.ejb-api</artifactId>
+            </dependency>
          </dependencies>
       </profile>
       <profile>
@@ -152,10 +191,6 @@
             <dependency>
                <groupId>org.apache.openwebbeans</groupId>
                <artifactId>openwebbeans-spi</artifactId>
-            </dependency>
-            <dependency>
-               <groupId>org.apache.openwebbeans</groupId>
-               <artifactId>openwebbeans-resource</artifactId>
             </dependency>
             <dependency>
                <groupId>org.apache.openwebbeans.arquillian</groupId>
