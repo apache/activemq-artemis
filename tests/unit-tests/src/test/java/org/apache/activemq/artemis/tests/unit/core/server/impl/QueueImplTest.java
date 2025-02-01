@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
@@ -1452,10 +1453,7 @@ public class QueueImplTest extends ActiveMQTestBase {
             throw new AssertionError();
          }
       };
-      final QueueImpl queue = new QueueImpl(1, SimpleString.of("address1"), QueueImplTest.queue1,
-                                            null, null, false, true, false,
-                                            scheduledExecutor, null, null, null,
-                                            ArtemisExecutor.delegate(executor), defaultServer, null);
+      final QueueImpl queue = new QueueImpl(QueueConfiguration.of(QueueImplTest.queue1).setAddress("address1").setRoutingType(RoutingType.MULTICAST).setId(1L).setDurable(false).setTemporary(true), null, null, null, scheduledExecutor, null, null, null, ArtemisExecutor.delegate(executor), defaultServer, null);
       queue.addConsumer(groupConsumer);
       queue.addConsumer(noConsumer);
       final MessageReference firstMessageReference = generateReference(queue, 1);
@@ -1494,7 +1492,13 @@ public class QueueImplTest extends ActiveMQTestBase {
    }
 
    private QueueImpl getQueue(SimpleString name, boolean durable, boolean temporary, Filter filter) {
-      return new QueueImpl(1, QueueImplTest.address1, name, filter, null, durable, temporary, false, scheduledExecutor,
-                           new FakePostOffice(), null, null, ArtemisExecutor.delegate(executor), defaultServer, null);
+      return new QueueImpl(QueueConfiguration.of(name)
+                              .setAddress("address1")
+                              .setRoutingType(RoutingType.MULTICAST)
+                              .setId(1L)
+                              .setDurable(durable)
+                              .setTemporary(temporary),
+                           filter, null, null, scheduledExecutor, new FakePostOffice(), null,
+                           null, ArtemisExecutor.delegate(executor), defaultServer, null);
    }
 }

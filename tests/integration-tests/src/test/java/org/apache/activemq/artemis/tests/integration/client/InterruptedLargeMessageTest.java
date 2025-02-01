@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -47,6 +44,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -55,7 +53,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCon
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.QueueConfig;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -75,6 +72,9 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 //Parameters set in superclass
 @ExtendWith(ParameterizedTestExtension.class)
@@ -504,23 +504,18 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
       class NoPostACKQueue extends QueueImpl {
 
-         NoPostACKQueue(long id,
-                        SimpleString address,
-                        SimpleString name,
-                        Filter filter,
-                        SimpleString user,
-                        PageSubscription pageSubscription,
-                        boolean durable,
-                        boolean temporary,
-                        boolean autoCreated,
-                        ScheduledExecutorService scheduledExecutor,
-                        PostOffice postOffice,
-                        StorageManager storageManager,
-                        HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                        ActiveMQServer server,
-                        ArtemisExecutor executor) {
-            super(id, address, name, filter, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor,
-                  postOffice, storageManager, addressSettingsRepository, executor, server, null);
+         NoPostACKQueue(QueueConfiguration queueConfiguration,
+                               Filter filter,
+                               PagingStore pagingStore,
+                               PageSubscription pageSubscription,
+                               ScheduledExecutorService scheduledExecutor,
+                               PostOffice postOffice,
+                               StorageManager storageManager,
+                               HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                               ArtemisExecutor executor,
+                               ActiveMQServer server,
+                               QueueFactory factory) {
+            super(queueConfiguration, filter, pagingStore, pageSubscription, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
          }
 
          @Override
@@ -562,28 +557,9 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          }
 
          @Override
-         public Queue createQueueWith(final QueueConfig config) {
-            return new NoPostACKQueue(config.id(), config.address(), config.name(), config.filter(), config.user(), config.pageSubscription(), config.isDurable(), config.isTemporary(), config.isAutoCreated(), scheduledExecutor, postOffice, storageManager, addressSettingsRepository, server, execFactory.getExecutor());
-         }
-
-         @Override
          public Queue createQueueWith(QueueConfiguration config, PagingManager pagingManager, Filter filter) throws Exception {
-            return new NoPostACKQueue(config.getId(), config.getAddress(), config.getName(), filter, config.getUser(), QueueFactoryImpl.getPageSubscription(config, pagingManager, filter), config.isDurable(), config.isTemporary(), config.isAutoCreated(), scheduledExecutor, postOffice, storageManager, addressSettingsRepository, server, execFactory.getExecutor());
-         }
-
-         @Deprecated
-         @Override
-         public Queue createQueue(long persistenceID,
-                                  SimpleString address,
-                                  SimpleString name,
-                                  Filter filter,
-                                  PageSubscription pageSubscription,
-                                  SimpleString user,
-                                  boolean durable,
-                                  boolean temporary,
-                                  boolean autoCreated) {
-
-            return new NoPostACKQueue(persistenceID, address, name, filter, user, pageSubscription, durable, temporary, autoCreated, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, server, execFactory.getExecutor());
+            PageSubscription pageSubscription = QueueFactoryImpl.getPageSubscription(config, pagingManager, filter);
+            return new NoPostACKQueue(config, filter, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, execFactory.getExecutor(), server, this);
          }
 
          /* (non-Javadoc)

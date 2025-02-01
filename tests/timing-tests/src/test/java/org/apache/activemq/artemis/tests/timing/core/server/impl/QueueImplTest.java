@@ -28,6 +28,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.HandleStatus;
@@ -73,7 +75,7 @@ public class QueueImplTest extends ActiveMQTestBase {
 
    @Test
    public void testScheduledNoConsumer() throws Exception {
-      QueueImpl queue = new QueueImpl(1, SimpleString.of("address1"), SimpleString.of("queue1"), null, null, false, true, false, scheduledExecutor, null, null, null, ArtemisExecutor.delegate(executor), null, null);
+      QueueImpl queue = new QueueImpl(QueueConfiguration.of("address1").setRoutingType(RoutingType.MULTICAST).setDurable(false).setTemporary(true), null, null, null, scheduledExecutor, null, null, null, ArtemisExecutor.delegate(executor), null, null);
 
       // Send one scheduled
 
@@ -138,7 +140,7 @@ public class QueueImplTest extends ActiveMQTestBase {
 
    @Test
    public void testScheduled() throws Exception {
-      QueueImpl queue = new QueueImpl(1, SimpleString.of("address1"), SimpleString.of("queue1"), null, null, false, true, false, scheduledExecutor, null, null, null, ArtemisExecutor.delegate(executor), null, null);
+      QueueImpl queue = new QueueImpl(QueueConfiguration.of("queue1").setAddress("address1").setRoutingType(RoutingType.MULTICAST).setDurable(false).setTemporary(true), null, null, null, scheduledExecutor, null, null, null, ArtemisExecutor.delegate(executor), null, null);
 
       FakeConsumer consumer = null;
 
@@ -236,8 +238,8 @@ public class QueueImplTest extends ActiveMQTestBase {
          public void disconnect() {
          }
       };
-      QueueImpl queue = new QueueImpl(1, SimpleString.of("address1"), QueueImplTest.queue1, null, null, false, true, false, scheduledExecutor, null, null, null,
-                                      ArtemisExecutor.delegate(executor), null, null);
+      QueueImpl queue = new QueueImpl(QueueConfiguration.of(QueueImplTest.queue1).setAddress("address1").setRoutingType(RoutingType.MULTICAST).setDurable(false).setTemporary(true), null, null, null, scheduledExecutor, null, null, null, ArtemisExecutor.delegate(executor), null, null);
+
       MessageReference messageReference = generateReference(queue, 1);
       queue.addConsumer(consumer);
       messageReference.setScheduledDeliveryTime(System.currentTimeMillis() + 200);
