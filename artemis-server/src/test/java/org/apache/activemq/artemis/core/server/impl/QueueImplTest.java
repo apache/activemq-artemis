@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
@@ -83,11 +84,10 @@ public class QueueImplTest {
       // Mock server
       Mockito.doReturn(executorFactory).when(server).getExecutorFactory();
 
-      QueueImpl queue = new QueueImpl(0, address, address, null, null, pageSubscription, null, false,
-                                      false, false, Mockito.mock(ScheduledExecutorService.class),
-                                      Mockito.mock(PostOffice.class), storageManager, null,
-                                      Mockito.mock(ArtemisExecutor.class), server,
-                                      Mockito.mock(QueueFactory.class));
+      QueueImpl queue = new QueueImpl(QueueConfiguration.of(address).setId(0L).setDurable(false), null, null,
+                                      pageSubscription, Mockito.mock(ScheduledExecutorService.class), Mockito.mock(PostOffice.class),
+                                      storageManager, null, Mockito.mock(ArtemisExecutor.class),
+                                      server, Mockito.mock(QueueFactory.class));
 
       Mockito.doReturn(queue).when(pageSubscription).getQueue();
 
