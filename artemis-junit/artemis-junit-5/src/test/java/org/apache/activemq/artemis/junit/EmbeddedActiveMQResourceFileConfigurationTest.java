@@ -35,7 +35,7 @@ public class EmbeddedActiveMQResourceFileConfigurationTest {
    static final String TEST_ADDRESS = "test.address";
 
    @RegisterExtension
-   public EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension("embedded-artemis-server.xml");
+   public static EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension("embedded-artemis-server.xml");
 
    @Test
    public void testConfiguredQueue() {

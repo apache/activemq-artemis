@@ -52,11 +52,11 @@ public class ActiveMQConsumerResourceTest {
 
    @RegisterExtension
    @Order(1)
-   public EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
+   public static EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
 
    @RegisterExtension
    @Order(2)
-   public ActiveMQConsumerExtension consumer = new ActiveMQConsumerExtension(server.getVmURL(), TEST_QUEUE);
+   public static ActiveMQConsumerExtension consumer = new ActiveMQConsumerExtension(server.getVmURL(), TEST_QUEUE);
 
    @Test
    public void testSendBytes() {
