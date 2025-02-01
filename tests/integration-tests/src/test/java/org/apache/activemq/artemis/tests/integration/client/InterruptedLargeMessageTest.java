@@ -519,8 +519,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
                         HierarchicalRepository<AddressSettings> addressSettingsRepository,
                         ActiveMQServer server,
                         ArtemisExecutor executor) {
-            super(id, address, name, filter, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, user, durable, temporary, autoCreated, scheduledExecutor,
-                  postOffice, storageManager, addressSettingsRepository, executor, server, null);
+            super(QueueConfiguration.of(name).setAddress(address).setId(id).setUser(user).setDurable(durable).setTemporary(temporary).setAutoCreated(autoCreated), filter, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, null);
          }
 
          @Override
