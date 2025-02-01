@@ -118,7 +118,7 @@ public class SCRAMTest {
    }
 
    @TestTemplate
-   public void testServerTryTrickClient() throws NoSuchAlgorithmException, ScramException {
+   public void testServerTryTrickClient() throws Exception {
       assertThrows(DecodeException.class, () -> {
          TestSCRAMClientSASL clientSASL = new TestSCRAMClientSASL(mechanism, USERNAME, PASSWORD);
          ScramServerFunctionalityImpl bad =
