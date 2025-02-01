@@ -272,7 +272,7 @@ public class JmsContextTest extends JMSTestBase {
    }
 
    @Test
-   public void testSendStreamMessage() throws JMSException, InterruptedException {
+   public void testSendStreamMessage() throws Exception {
       JmsProducerCompletionListenerTest.CountingCompletionListener cl = new JmsProducerCompletionListenerTest.CountingCompletionListener(1);
       JMSProducer producer = context.createProducer();
       producer.setAsync(cl);

@@ -16,19 +16,9 @@
  */
 package org.apache.activemq.artemis.core.io.util;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -38,6 +28,15 @@ import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class ThreadLocalByteBufferPoolTest {
@@ -173,7 +172,7 @@ public class ThreadLocalByteBufferPoolTest {
    }
 
    @TestTemplate
-   public void shouldBorrowOnlyThreadLocalBuffers() throws ExecutionException, InterruptedException {
+   public void shouldBorrowOnlyThreadLocalBuffers() throws Exception {
       final int size = 32;
       final ByteBuffer buffer = pool.borrow(size, zeroed);
       pool.release(buffer);

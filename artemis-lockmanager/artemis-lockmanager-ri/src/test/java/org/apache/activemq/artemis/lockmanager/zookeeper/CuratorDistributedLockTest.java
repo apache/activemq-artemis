@@ -116,7 +116,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
    }
 
    @Test
-   public void canAcquireLocksFromDifferentNamespace() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void canAcquireLocksFromDifferentNamespace() throws Exception {
       final DistributedLockManager manager1 = createManagedDistributeManager(config -> config.put("namespace", "1"));
       manager1.start();
       final DistributedLockManager manager2 = createManagedDistributeManager(config -> config.put("namespace", "2"));
@@ -126,14 +126,14 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
    }
 
    @Test
-   public void cannotStartManagerWithDisconnectedServer() throws IOException, ExecutionException, InterruptedException {
+   public void cannotStartManagerWithDisconnectedServer() throws Exception {
       final DistributedLockManager manager = createManagedDistributeManager();
       testingServer.close();
       assertFalse(manager.start(1, TimeUnit.SECONDS));
    }
 
    @Test
-   public void cannotAcquireLockWithDisconnectedServer() throws IOException, ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void cannotAcquireLockWithDisconnectedServer() throws Exception {
       assertThrows(UnavailableStateException.class, () -> {
          final DistributedLockManager manager = createManagedDistributeManager();
          manager.start();
@@ -148,7 +148,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
    }
 
    @Test
-   public void cannotTryLockWithDisconnectedServer() throws IOException, ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void cannotTryLockWithDisconnectedServer() throws Exception {
       assertThrows(UnavailableStateException.class, () -> {
          final DistributedLockManager manager = createManagedDistributeManager();
          manager.start();
@@ -159,7 +159,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
    }
 
    @Test
-   public void cannotCheckLockStatusWithDisconnectedServer() throws IOException, ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void cannotCheckLockStatusWithDisconnectedServer() throws Exception {
       assertThrows(UnavailableStateException.class, () -> {
          final DistributedLockManager manager = createManagedDistributeManager();
          manager.start();

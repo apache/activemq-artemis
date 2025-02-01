@@ -16,11 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.Connection;
-import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.Session;
 
@@ -40,6 +36,9 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 public class CloseDestroyedConnectionTest extends JMSTestBase {
 
    private ActiveMQConnectionFactory cf;
@@ -58,7 +57,7 @@ public class CloseDestroyedConnectionTest extends JMSTestBase {
    }
 
    @Test
-   public void testClosingTemporaryTopicDeletesQueue() throws JMSException, ActiveMQException {
+   public void testClosingTemporaryTopicDeletesQueue() throws Exception {
       conn = cf.createConnection();
 
       assertEquals(1, server.getRemotingService().getConnections().size());

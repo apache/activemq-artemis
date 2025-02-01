@@ -125,7 +125,7 @@ public class PropertiesLoginModuleRaceConditionTest extends ArtemisTestCase {
    }
 
    @Test
-   public void raceConditionInUsersAndGroupsLoading() throws InterruptedException, FileNotFoundException, IOException {
+   public void raceConditionInUsersAndGroupsLoading() throws Exception {
       boolean detected = false;
 
       // Brute force approach to increase the likelihood of the race condition occurring
