@@ -43,11 +43,11 @@ public class MultipleEmbeddedActiveMQResourcesTest {
 
    @RegisterExtension
    @Order(1)
-   public EmbeddedActiveMQExtension serverOne = new EmbeddedActiveMQExtension(1);
+   public static EmbeddedActiveMQExtension serverOne = new EmbeddedActiveMQExtension(1);
 
    @RegisterExtension
    @Order(2)
-   public EmbeddedActiveMQExtension serverTwo = new EmbeddedActiveMQExtension(2);
+   public static EmbeddedActiveMQExtension serverTwo = new EmbeddedActiveMQExtension(2);
 
    @BeforeAll
    public void setUp() throws Exception {
