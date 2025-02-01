@@ -23,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -54,75 +53,6 @@ public class LastValueQueue extends QueueImpl {
 
    private final Map<SimpleString, MessageReference> map = new ConcurrentHashMap<>();
    private final SimpleString lastValueKey;
-
-
-   @Deprecated
-   public LastValueQueue(final long persistenceID,
-                         final SimpleString address,
-                         final SimpleString name,
-                         final Filter filter,
-                         final PagingStore pagingStore,
-                         final PageSubscription pageSubscription,
-                         final SimpleString user,
-                         final boolean durable,
-                         final boolean temporary,
-                         final boolean autoCreated,
-                         final RoutingType routingType,
-                         final Integer maxConsumers,
-                         final Boolean exclusive,
-                         final Boolean groupRebalance,
-                         final Integer groupBuckets,
-                         final SimpleString groupFirstKey,
-                         final Integer consumersBeforeDispatch,
-                         final Long delayBeforeDispatch,
-                         final Boolean purgeOnNoConsumers,
-                         final SimpleString lastValueKey,
-                         final Boolean nonDestructive,
-                         final Boolean autoDelete,
-                         final Long autoDeleteDelay,
-                         final Long autoDeleteMessageCount,
-                         final boolean configurationManaged,
-                         final ScheduledExecutorService scheduledExecutor,
-                         final PostOffice postOffice,
-                         final StorageManager storageManager,
-                         final HierarchicalRepository<AddressSettings> addressSettingsRepository,
-                         final ArtemisExecutor executor,
-                         final ActiveMQServer server,
-                         final QueueFactory factory) {
-      this(QueueConfiguration.of(name)
-              .setId(persistenceID)
-              .setAddress(address)
-              .setFilterString(filter.getFilterString())
-              .setUser(user)
-              .setDurable(durable)
-              .setTemporary(temporary)
-              .setAutoCreated(autoCreated)
-              .setRoutingType(routingType)
-              .setMaxConsumers(maxConsumers)
-              .setExclusive(exclusive)
-              .setGroupRebalance(groupRebalance)
-              .setGroupBuckets(groupBuckets)
-              .setGroupFirstKey(groupFirstKey)
-              .setNonDestructive(nonDestructive)
-              .setConsumersBeforeDispatch(consumersBeforeDispatch)
-              .setDelayBeforeDispatch(delayBeforeDispatch)
-              .setPurgeOnNoConsumers(purgeOnNoConsumers)
-              .setAutoDelete(autoDelete)
-              .setAutoDeleteDelay(autoDeleteDelay)
-              .setAutoDeleteMessageCount(autoDeleteMessageCount)
-              .setConfigurationManaged(configurationManaged)
-              .setLastValueKey(lastValueKey),
-           filter,
-           pagingStore,
-           pageSubscription,
-           scheduledExecutor,
-           postOffice,
-           storageManager,
-           addressSettingsRepository,
-           executor,
-           server,
-           factory);
-   }
 
    public LastValueQueue(final QueueConfiguration queueConfiguration,
                          final Filter filter,
