@@ -79,7 +79,7 @@ public class MirroredVersionTest extends ClasspathBase {
    }
 
    @BeforeEach
-   private void beforeEach() {
+   public void beforeEach() {
       deleteFolders();
    }
 
