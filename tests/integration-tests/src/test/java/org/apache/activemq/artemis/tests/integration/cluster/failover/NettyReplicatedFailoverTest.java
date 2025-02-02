@@ -1854,9 +1854,9 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
 
       assertNotNull(sender.e.getCause());
 
-      assertEquals(sender.e.getType(), ActiveMQExceptionType.UNBLOCKED);
+      assertEquals(ActiveMQExceptionType.UNBLOCKED, sender.e.getType());
 
-      assertEquals(((ActiveMQException) sender.e.getCause()).getType(), ActiveMQExceptionType.DISCONNECTED);
+      assertEquals(ActiveMQExceptionType.DISCONNECTED, ((ActiveMQException) sender.e.getCause()).getType());
 
       session.close();
    }

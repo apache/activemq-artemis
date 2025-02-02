@@ -216,7 +216,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       clientSession.start();
       clientSession.deleteQueue(queueName1);
       // the wildcard binding should still exist
-      assertEquals(server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size(), 1);
+      assertEquals(1, server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size());
       producer.send(createTextMessage(clientSession, "m1"));
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
@@ -229,7 +229,7 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       m.acknowledge();
       clientConsumer.close();
       clientSession.deleteQueue(queueName);
-      assertEquals(server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size(), 0);
+      assertEquals(0, server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size());
    }
 
    @Test

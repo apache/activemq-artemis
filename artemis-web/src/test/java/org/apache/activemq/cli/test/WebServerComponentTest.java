@@ -185,7 +185,7 @@ public class WebServerComponentTest extends ArtemisTestCase {
       if (useCustomizer) {
          assertEquals(1, TestCustomizer.count);
       }
-      assertEquals(clientHandler.body.toString(), "12345");
+      assertEquals("12345", clientHandler.body.toString());
       assertNull(clientHandler.serverHeader);
       // Wait for the server to close the connection.
       ch.close();
@@ -832,7 +832,7 @@ public class WebServerComponentTest extends ArtemisTestCase {
 
       File tmpDir = ctxt.getTempDirectory();
       assertTrue(tmpDir.getParentFile().listFiles().length == 1);
-      assertEquals(tmpDir.getName(), warName);
+      assertEquals(warName, tmpDir.getName());
       assertTrue(webServerComponent.isStarted());
 
       webServerComponent.stop(true);

@@ -99,7 +99,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          TextMessage m = (TextMessage) messageConsumer.receive(5000);
          assertNotNull(m);
          assertEquals("msg:1", m.getText());
-         assertEquals(m.getStringProperty("color"), "RED");
+         assertEquals("RED", m.getStringProperty("color"));
       } finally {
          connection.close();
       }
@@ -450,10 +450,10 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       MessageConsumer consumer2 = session.createConsumer(queue);
       TextMessage answer = (TextMessage) consumer1.receive(5000);
       assertNotNull(answer);
-      assertEquals(answer.getText(), "Msg1", "Should have received a message!");
+      assertEquals("Msg1", answer.getText(), "Should have received a message!");
       answer = (TextMessage) consumer2.receive(5000);
       assertNotNull(answer);
-      assertEquals(answer.getText(), "Msg2", "Should have received a message!");
+      assertEquals("Msg2", answer.getText(), "Should have received a message!");
 
       answer = (TextMessage) consumer2.receiveNoWait();
       assertNull(answer, "Should have not received a message!");

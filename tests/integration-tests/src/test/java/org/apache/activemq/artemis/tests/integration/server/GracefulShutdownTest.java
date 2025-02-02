@@ -81,7 +81,7 @@ public class GracefulShutdownTest extends ActiveMQTestBase {
       } catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
          ActiveMQSessionCreationException activeMQSessionCreationException = (ActiveMQSessionCreationException) e;
-         assertEquals(activeMQSessionCreationException.getType(), ActiveMQExceptionType.SESSION_CREATION_REJECTED);
+         assertEquals(ActiveMQExceptionType.SESSION_CREATION_REJECTED, activeMQSessionCreationException.getType());
       }
 
       // close the connection to allow broker shutdown to complete
@@ -139,7 +139,7 @@ public class GracefulShutdownTest extends ActiveMQTestBase {
       } catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
          ActiveMQSessionCreationException activeMQSessionCreationException = (ActiveMQSessionCreationException) e;
-         assertEquals(activeMQSessionCreationException.getType(), ActiveMQExceptionType.SESSION_CREATION_REJECTED);
+         assertEquals(ActiveMQExceptionType.SESSION_CREATION_REJECTED, activeMQSessionCreationException.getType());
       }
 
       Thread.sleep(timeout / 2);

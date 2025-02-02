@@ -375,7 +375,7 @@ public class JDBCSequentialFileFactoryTest extends ArtemisTestCase {
 
       void assertEmpty(int timeout) throws InterruptedException {
          countDownLatch.await(timeout, TimeUnit.SECONDS);
-         assertEquals(countDownLatch.getCount(), 0);
+         assertEquals(0, countDownLatch.getCount());
       }
    }
 }

@@ -161,7 +161,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       try {
          context.login();
       } catch (LoginException le) {
-         assertEquals(le.getCause().getMessage(), "Empty password is not allowed");
+         assertEquals("Empty password is not allowed", le.getCause().getMessage());
          return;
       }
       fail("Should have failed authenticating");

@@ -46,21 +46,21 @@ public class PriorityCollectionTest {
       assertTrue(set.add(new TestPriorityAware(2)));
       assertTrue(set.add(new TestPriorityAware(3)));
 
-      assertEquals(set.size(), 3);
+      assertEquals(3, set.size());
 
       assertTrue(set.contains(new TestPriorityAware(1)));
-      assertEquals(set.size(), 3);
+      assertEquals(3, set.size());
 
       assertTrue(set.remove(new TestPriorityAware(1)));
-      assertEquals(set.size(), 2);
+      assertEquals(2, set.size());
       assertFalse(set.contains(new TestPriorityAware(1)));
       assertFalse(set.contains(new TestPriorityAware(5)));
-      assertEquals(set.size(), 2);
+      assertEquals(2, set.size());
 
       assertTrue(set.add(new TestPriorityAware(1)));
-      assertEquals(set.size(), 3);
+      assertEquals(3, set.size());
       assertFalse(set.add(new TestPriorityAware(1)));
-      assertEquals(set.size(), 3);
+      assertEquals(3, set.size());
    }
 
    @Test
@@ -106,7 +106,7 @@ public class PriorityCollectionTest {
          future.get();
       }
 
-      assertEquals(set.size(), N * nThreads);
+      assertEquals(N * nThreads, set.size());
 
       executor.shutdown();
    }
@@ -147,7 +147,7 @@ public class PriorityCollectionTest {
          future.get();
       }
 
-      assertEquals(set.size(), N * nThreads);
+      assertEquals(N * nThreads, set.size());
 
       executor.shutdown();
    }

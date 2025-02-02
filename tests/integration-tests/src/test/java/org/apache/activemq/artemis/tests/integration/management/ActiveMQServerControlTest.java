@@ -1235,7 +1235,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       AddressSettings info = AddressSettings.fromJSON(returnedSettings);
       assertEquals(addressSettings.getDeadLetterAddress(), info.getDeadLetterAddress());
       assertNull(info.getExpiryAddress());
-      assertEquals(addressSettings.getRedeliveryDelay(), 0);
+      assertEquals(0, addressSettings.getRedeliveryDelay());
 
 
       addressSettings.setExpiryAddress(SimpleString.of("EA"));
@@ -3548,8 +3548,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals("myUser", second.getString("principal"));
       assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
       assertEquals(1, second.getJsonNumber("consumerCount").longValue());
-      assertEquals(second.getJsonObject("metadata").getJsonString("foo").getString(), "bar");
-      assertEquals(second.getJsonObject("metadata").getJsonString("bar").getString(), "baz");
+      assertEquals("bar", second.getJsonObject("metadata").getJsonString("foo").getString());
+      assertEquals("baz", second.getJsonObject("metadata").getJsonString("bar").getString());
    }
 
    @TestTemplate

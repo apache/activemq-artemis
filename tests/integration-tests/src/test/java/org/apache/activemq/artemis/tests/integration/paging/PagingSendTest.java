@@ -411,7 +411,7 @@ public class PagingSendTest extends ActiveMQTestBase {
 
          // the messages reach the limit
          PageCursorProvider cursorProvider = queuePagingStore.getCursorProvider();
-         assertEquals(PageCursorProviderTestAccessor.getNumberOfMessagesOnSubscriptions(cursorProvider), maxMessages);
+         assertEquals(maxMessages, PageCursorProviderTestAccessor.getNumberOfMessagesOnSubscriptions(cursorProvider));
 
          // but pages still under limit
          assertEquals(initPageLimitBytes, queuePagingStore.getPageLimitBytes());
@@ -601,7 +601,7 @@ public class PagingSendTest extends ActiveMQTestBase {
             // however messages reaches limit messages
             cursorProvider = queuePagingStore.getCursorProvider();
             assertEquals(maxMessages, queuePagingStore.getPageLimitMessages());
-            assertEquals(PageCursorProviderTestAccessor.getNumberOfMessagesOnSubscriptions(cursorProvider), maxMessages);
+            assertEquals(maxMessages, PageCursorProviderTestAccessor.getNumberOfMessagesOnSubscriptions(cursorProvider));
          } finally {
             server.stop(true);
          }

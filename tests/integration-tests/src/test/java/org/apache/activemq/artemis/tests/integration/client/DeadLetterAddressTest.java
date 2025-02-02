@@ -75,7 +75,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       ClientMessage m = clientConsumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       // force a cancel
       clientSession.rollback();
       m = clientConsumer.receiveImmediate();
@@ -86,7 +86,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       assertNotNull(m);
       assertEquals("q1", m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
       assertEquals("ad1", m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -144,7 +144,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       ClientMessage m = clientConsumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       // force a cancel
       clientSession.rollback();
       m = clientConsumer.receiveImmediate();
@@ -170,14 +170,14 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       ClientMessage m = clientConsumer.receive(5000);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       // force a cancel
       clientSession.rollback();
       clientSession.start();
       m = clientConsumer.receive(5000);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       // force a cancel
       clientSession.rollback();
       m = clientConsumer.receiveImmediate();
@@ -186,7 +186,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       clientConsumer = clientSession.createConsumer(dlq);
       m = clientConsumer.receive(5000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -206,11 +206,11 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       clientConsumer.setMessageHandler(handler);
       clientSession.start();
       assertTrue(latch.await(5, TimeUnit.SECONDS));
-      assertEquals(handler.count, 2);
+      assertEquals(2, handler.count);
       clientConsumer = clientSession.createConsumer(dlq);
       Message m = clientConsumer.receive(5000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
    }
 
    class TestHandler implements MessageHandler {
@@ -256,7 +256,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       ClientMessage m = clientConsumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       // force a cancel
       clientSession.rollback();
       m = clientConsumer.receiveImmediate();
@@ -266,13 +266,13 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       m = clientConsumer.receive(500);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       clientConsumer.close();
       clientConsumer = clientSession.createConsumer(dlq2);
       m = clientConsumer.receive(500);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       clientConsumer.close();
    }
 
@@ -289,7 +289,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       ClientMessage m = clientConsumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       // force a cancel
       clientSession.rollback();
       m = clientConsumer.receiveImmediate();
@@ -408,7 +408,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       clientConsumer = clientSession.createConsumer(deadLetterQueue);
       m = clientConsumer.receive(500);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -445,7 +445,7 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       clientConsumer = clientSession.createConsumer(deadLetterQueue);
       m = clientConsumer.receive(500);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
    }
 
    @Test

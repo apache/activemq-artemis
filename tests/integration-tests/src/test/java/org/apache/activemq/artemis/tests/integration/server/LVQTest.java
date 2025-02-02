@@ -92,7 +92,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -116,7 +116,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -180,11 +180,11 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       assertNull(consumer.receiveImmediate());
    }
 
@@ -237,7 +237,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       assertNull(consumer.receiveImmediate());
       clientSessionTxReceives.commit();
    }
@@ -257,11 +257,11 @@ public class LVQTest extends ActiveMQTestBase {
       assertNotNull(m);
       producer.send(m2);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -277,7 +277,7 @@ public class LVQTest extends ActiveMQTestBase {
       clientSession.start();
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       producer.send(m2);
       consumer.close();
       consumer = clientSession.createConsumer(qName1);
@@ -311,33 +311,33 @@ public class LVQTest extends ActiveMQTestBase {
       producer.send(m1);
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       producer.send(m2);
       m = consumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       producer.send(m3);
       m = consumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       producer.send(m4);
       m = consumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       producer.send(m5);
       m = consumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m5");
+      assertEquals("m5", m.getBodyBuffer().readString());
       producer.send(m6);
       m = consumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertEquals("m6", m.getBodyBuffer().readString());
       consumer.close();
       consumer = clientSession.createConsumer(qName1);
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertEquals("m6", m.getBodyBuffer().readString());
       m = consumer.receiveImmediate();
       assertNull(m);
    }
@@ -358,7 +358,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -383,11 +383,11 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSessionTxReceives.commit();
       m = consumer.receiveImmediate();
       assertNull(m);
@@ -413,30 +413,30 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       producer.send(m3);
       producer.send(m4);
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSessionTxReceives.rollback();
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -455,7 +455,7 @@ public class LVQTest extends ActiveMQTestBase {
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       assertNull(consumer.receiveImmediate());
    }
 
@@ -531,7 +531,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertEquals("m6", m.getBodyBuffer().readString());
       m = consumer.receiveImmediate();
       assertNull(m);
    }
@@ -570,7 +570,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertEquals("m6", m.getBodyBuffer().readString());
       m = consumer.receiveImmediate();
       assertNull(m);
    }
@@ -605,32 +605,32 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       producer.send(m2);
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       producer.send(m3);
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       producer.send(m4);
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       producer.send(m5);
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m5");
+      assertEquals("m5", m.getBodyBuffer().readString());
       producer.send(m6);
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertEquals("m6", m.getBodyBuffer().readString());
 
       assertEquals(0, queue.getDeliveringCount());
    }
@@ -655,7 +655,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
 
       assertEquals(0, queue.getDeliveringCount());
    }
@@ -691,7 +691,7 @@ public class LVQTest extends ActiveMQTestBase {
       clientSession.start();
       ClientMessage m = consumer.receive(5000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m" + (MESSAGE_COUNT - 1));
+      assertEquals("m" + (MESSAGE_COUNT - 1), m.getBodyBuffer().readString());
       assertEquals(0, queue.getScheduledCount());
    }
 
@@ -713,12 +713,12 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       producer.send(m2);
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
 
       assertEquals(0, queue.getDeliveringCount());
    }
@@ -751,32 +751,32 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       producer.send(m2);
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       producer.send(m3);
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       producer.send(m4);
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       producer.send(m5);
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m5");
+      assertEquals("m5", m.getBodyBuffer().readString());
       producer.send(m6);
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertEquals("m6", m.getBodyBuffer().readString());
       clientSessionTxReceives.commit();
    }
 
@@ -844,13 +844,13 @@ public class LVQTest extends ActiveMQTestBase {
       queue.deleteReference(messageId);
       // Wait for delete tx's afterCommit called
       Wait.assertEquals(0L, () -> queue.getDeliveringSize(), 10_000, 2);
-      assertEquals(queue.getPersistentSize(), 0);
+      assertEquals(0, queue.getPersistentSize());
       assertTrue(((LastValueQueue)queue).getLastValueKeys().isEmpty());
 
       producer.send(m2);
       // Wait for message delivered to queue
       Wait.assertTrue(() -> queue.getPersistentSize() > 10 * 1024, 10_000, 2);
-      assertEquals(queue.getDeliveringSize(), 0);
+      assertEquals(0, queue.getDeliveringSize());
    }
 
    @Test
@@ -873,7 +873,7 @@ public class LVQTest extends ActiveMQTestBase {
       assertTrue(queue.changeReferencePriority(messageId, (byte) 1));
       // Wait for message delivered to queue
       Wait.assertEquals(oldSize, () -> queue.getPersistentSize(), 10_000, 2);
-      assertEquals(queue.getDeliveringSize(), 0);
+      assertEquals(0, queue.getDeliveringSize());
    }
 
    @Test

@@ -90,7 +90,7 @@ public class ActiveMQMessageHandlerSecurityTest extends ActiveMQRATestBase {
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       Binding binding = server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE);
-      assertEquals(((LocalQueueBinding) binding).getQueue().getConsumerCount(), 15);
+      assertEquals(15, ((LocalQueueBinding) binding).getQueue().getConsumerCount());
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();
    }

@@ -519,10 +519,10 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ActiveMQConnectionFactory fac = qResourceAdapter.getConnectionFactory(spec);
       DiscoveryGroupConfiguration dc = fac.getServerLocator().getDiscoveryGroupConfiguration();
       UDPBroadcastEndpointFactory udpDg = (UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory();
-      assertEquals(udpDg.getGroupAddress(), "231.6.6.6");
-      assertEquals(udpDg.getGroupPort(), 1234);
-      assertEquals(dc.getRefreshTimeout(), 1L);
-      assertEquals(dc.getDiscoveryInitialWaitTimeout(), 1L);
+      assertEquals("231.6.6.6", udpDg.getGroupAddress());
+      assertEquals(1234, udpDg.getGroupPort());
+      assertEquals(1L, dc.getRefreshTimeout());
+      assertEquals(1L, dc.getDiscoveryInitialWaitTimeout());
       qResourceAdapter.stop();
    }
 
@@ -547,10 +547,10 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       ActiveMQConnectionFactory fac = qResourceAdapter.getConnectionFactory(spec);
       DiscoveryGroupConfiguration dc = fac.getServerLocator().getDiscoveryGroupConfiguration();
       UDPBroadcastEndpointFactory udpDg = (UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory();
-      assertEquals(udpDg.getGroupAddress(), "231.6.6.6");
-      assertEquals(udpDg.getGroupPort(), 1234);
-      assertEquals(dc.getRefreshTimeout(), 1L);
-      assertEquals(dc.getDiscoveryInitialWaitTimeout(), 1L);
+      assertEquals("231.6.6.6", udpDg.getGroupAddress());
+      assertEquals(1234, udpDg.getGroupPort());
+      assertEquals(1L, dc.getRefreshTimeout());
+      assertEquals(1L, dc.getDiscoveryInitialWaitTimeout());
       qResourceAdapter.stop();
    }
 
@@ -848,10 +848,10 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
    public void testConnectionParameterStringParsing() throws Exception {
       ActiveMQResourceAdapter resourceAdapter = new ActiveMQResourceAdapter();
       resourceAdapter.setConnectionParameters("enabledProtocols=TLS1\\,TLS1.2;sslEnabled=true");
-      assertEquals(resourceAdapter.getProperties().getParsedConnectionParameters().get(0).get("enabledProtocols"), "TLS1,TLS1.2");
+      assertEquals("TLS1,TLS1.2", resourceAdapter.getProperties().getParsedConnectionParameters().get(0).get("enabledProtocols"));
       resourceAdapter.setConnectionParameters("enabledProtocols=TLS1\\,TLS1.2;sslEnabled=true,enabledProtocols=TLS1.3\\,TLS1.4\\,TLS1.5;sslEnabled=true");
-      assertEquals(resourceAdapter.getProperties().getParsedConnectionParameters().get(0).get("enabledProtocols"), "TLS1,TLS1.2");
-      assertEquals(resourceAdapter.getProperties().getParsedConnectionParameters().get(1).get("enabledProtocols"), "TLS1.3,TLS1.4,TLS1.5");
+      assertEquals("TLS1,TLS1.2", resourceAdapter.getProperties().getParsedConnectionParameters().get(0).get("enabledProtocols"));
+      assertEquals("TLS1.3,TLS1.4,TLS1.5", resourceAdapter.getProperties().getParsedConnectionParameters().get(1).get("enabledProtocols"));
 
       try {
          resourceAdapter.setConnectionParameters("enabledProtocols=TLS1,TLS1.2;sslEnabled=true,enabledProtocols=TLS1,TLS1.2;sslEnabled=true");

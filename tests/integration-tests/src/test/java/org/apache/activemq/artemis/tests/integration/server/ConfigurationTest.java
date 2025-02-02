@@ -47,9 +47,9 @@ public class ConfigurationTest extends ActiveMQTestBase {
       try {
          server.start();
          Bindings mytopic_1 = server.getPostOffice().getBindingsForAddress(SimpleString.of("mytopic_1"));
-         assertEquals(mytopic_1.getBindings().size(), 0);
+         assertEquals(0, mytopic_1.getBindings().size());
          Bindings mytopic_2 = server.getPostOffice().getBindingsForAddress(SimpleString.of("mytopic_2"));
-         assertEquals(mytopic_2.getBindings().size(), 3);
+         assertEquals(3, mytopic_2.getBindings().size());
       } finally {
          try {
             server.stop();
@@ -104,12 +104,12 @@ public class ConfigurationTest extends ActiveMQTestBase {
 
          server.start();
          Bindings mytopic_1 = server.getPostOffice().getBindingsForAddress(SimpleString.of("mytopic_1"));
-         assertEquals(mytopic_1.getBindings().size(), 0);
+         assertEquals(0, mytopic_1.getBindings().size());
          Bindings mytopic_2 = server.getPostOffice().getBindingsForAddress(SimpleString.of("mytopic_2"));
-         assertEquals(mytopic_2.getBindings().size(), 3);
+         assertEquals(3, mytopic_2.getBindings().size());
 
          Bindings mytopic_3 = server.getPostOffice().getBindingsForAddress(SimpleString.of("mytopic_3"));
-         assertEquals(mytopic_3.getBindings().size(), 2);
+         assertEquals(2, mytopic_3.getBindings().size());
 
 
          // add new binding from props update

@@ -89,11 +89,11 @@ public class LVQRecoveryTest extends ActiveMQTestBase {
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = consumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -126,27 +126,27 @@ public class LVQRecoveryTest extends ActiveMQTestBase {
       producer.send(m1);
       ClientMessage m = consumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       producer.send(m2);
       m = consumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       producer.send(m3);
       m = consumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       producer.send(m4);
       m = consumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       producer.send(m5);
       m = consumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m5");
+      assertEquals("m5", m.getBodyBuffer().readString());
       producer.send(m6);
       m = consumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertEquals("m6", m.getBodyBuffer().readString());
       clientSessionXa.end(xid, XAResource.TMSUCCESS);
       clientSessionXa.prepare(xid);
 

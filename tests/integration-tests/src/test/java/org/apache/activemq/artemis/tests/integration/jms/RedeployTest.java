@@ -1365,8 +1365,8 @@ public class RedeployTest extends ActiveMQTestBase {
       try {
          latch.await(10, TimeUnit.SECONDS);
 
-         assertEquals(getSecurityRoles(embeddedActiveMQ, "security_address").size(), 1);
-         assertEquals(getSecurityRoles(embeddedActiveMQ, "security_address").iterator().next().getName(), "b");
+         assertEquals(1, getSecurityRoles(embeddedActiveMQ, "security_address").size());
+         assertEquals("b", getSecurityRoles(embeddedActiveMQ, "security_address").iterator().next().getName());
 
          assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getDeadLetterAddress(), SimpleString.of("OriginalDLQ"));
          assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getExpiryAddress(), SimpleString.of("OriginalExpiryQueue"));
@@ -1393,8 +1393,8 @@ public class RedeployTest extends ActiveMQTestBase {
          latch.await(10, TimeUnit.SECONDS);
 
          //Assert that the security settings change applied
-         assertEquals(getSecurityRoles(embeddedActiveMQ, "security_address").size(), 1);
-         assertEquals(getSecurityRoles(embeddedActiveMQ, "security_address").iterator().next().getName(), "c");
+         assertEquals(1, getSecurityRoles(embeddedActiveMQ, "security_address").size());
+         assertEquals("c", getSecurityRoles(embeddedActiveMQ, "security_address").iterator().next().getName());
 
          //Assert that the address settings change applied
          assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getDeadLetterAddress(), SimpleString.of("NewDLQ"));
@@ -1425,8 +1425,8 @@ public class RedeployTest extends ActiveMQTestBase {
          embeddedActiveMQ.start();
 
          //Assert that the security settings changes persist a stop and start server (e.g. like what occurs if network health check stops the node), but JVM remains up.
-         assertEquals(getSecurityRoles(embeddedActiveMQ, "security_address").size(), 1);
-         assertEquals(getSecurityRoles(embeddedActiveMQ, "security_address").iterator().next().getName(), "c");
+         assertEquals(1, getSecurityRoles(embeddedActiveMQ, "security_address").size());
+         assertEquals("c", getSecurityRoles(embeddedActiveMQ, "security_address").iterator().next().getName());
 
          //Assert that the address settings changes persist a stop and start server (e.g. like what occurs if network health check stops the node), but JVM remains up.
          assertEquals(getAddressSettings(embeddedActiveMQ, "address_settings_address").getDeadLetterAddress(), SimpleString.of("NewDLQ"));

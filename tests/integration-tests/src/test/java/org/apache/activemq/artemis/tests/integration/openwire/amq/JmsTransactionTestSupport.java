@@ -586,10 +586,10 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       consumer.setMessageListener(this);
       // wait receive
       waitReceiveUnack();
-      assertEquals(unackMessages.size(), MESSAGE_COUNT);
+      assertEquals(MESSAGE_COUNT, unackMessages.size());
       // resend phase
       waitReceiveAck();
-      assertEquals(ackMessages.size(), MESSAGE_COUNT);
+      assertEquals(MESSAGE_COUNT, ackMessages.size());
       // should no longer re-receive
       consumer.setMessageListener(null);
       assertNull(consumer.receiveNoWait());

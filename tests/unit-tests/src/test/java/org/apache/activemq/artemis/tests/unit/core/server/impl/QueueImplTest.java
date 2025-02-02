@@ -1215,7 +1215,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       queue.addTail(messageReference);
       queue.addTail(messageReference2);
       queue.addTail(messageReference3);
-      assertEquals(getMessagesAdded(queue), 3);
+      assertEquals(3, getMessagesAdded(queue));
    }
 
    /**

@@ -254,7 +254,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
 
       // / The max of an unsigned short
       // (http://en.wikipedia.org/wiki/Unsigned_short)
-      assertEquals(s2, 65535);
+      assertEquals(65535, s2);
    }
 
    @Test

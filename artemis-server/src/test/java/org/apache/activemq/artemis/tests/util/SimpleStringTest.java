@@ -273,7 +273,7 @@ public class SimpleStringTest {
       SimpleString s = createSimpleString("abcdefghi");
       SimpleString[] strings = s.split('.');
       assertNotNull(strings);
-      assertEquals(strings.length, 1);
+      assertEquals(1, strings.length);
       assertEquals(strings[0], s);
    }
 
@@ -282,7 +282,7 @@ public class SimpleStringTest {
       SimpleString s = createSimpleString("abcd.efghi");
       SimpleString[] strings = s.split('.');
       assertNotNull(strings);
-      assertEquals(strings.length, 2);
+      assertEquals(2, strings.length);
       assertEquals(strings[0], createSimpleString("abcd"));
       assertEquals(strings[1], createSimpleString("efghi"));
    }
@@ -292,7 +292,7 @@ public class SimpleStringTest {
       SimpleString s = createSimpleString("abcd.efghi.jklmn.opqrs.tuvw.xyz");
       SimpleString[] strings = s.split('.');
       assertNotNull(strings);
-      assertEquals(strings.length, 6);
+      assertEquals(6, strings.length);
       assertEquals(strings[0], createSimpleString("abcd"));
       assertEquals(strings[1], createSimpleString("efghi"));
       assertEquals(strings[2], createSimpleString("jklmn"));

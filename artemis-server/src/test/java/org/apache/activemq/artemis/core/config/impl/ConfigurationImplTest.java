@@ -1880,22 +1880,22 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       assertTrue(configuration.getStoreConfiguration() instanceof DatabaseStorageConfiguration);
       DatabaseStorageConfiguration dsc = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
-      assertEquals(dsc.getLargeMessageTableName(), "lmtn");
-      assertEquals(dsc.getMessageTableName(), "mtn");
-      assertEquals(dsc.getBindingsTableName(), "btn");
-      assertEquals(dsc.getDataSourceClassName(), "dscn");
-      assertEquals(dsc.getJdbcAllowedTimeDiff(), 123);
-      assertEquals(dsc.getJdbcConnectionUrl(), "url");
-      assertEquals(dsc.getJdbcDriverClassName(), "dcn");
-      assertEquals(dsc.getJdbcJournalSyncPeriodMillis(), 456);
-      assertEquals(dsc.getJdbcLockAcquisitionTimeoutMillis(), 789);
-      assertEquals(dsc.getJdbcLockExpirationMillis(), 321);
-      assertEquals(dsc.getJdbcLockRenewPeriodMillis(), 654);
-      assertEquals(dsc.getJdbcNetworkTimeout(), 987);
-      assertEquals(dsc.getDataSourceProperties().get("password"), "pass");
-      assertEquals(dsc.getJdbcUser(), "user");
-      assertEquals(dsc.getNodeManagerStoreTableName(), "nmtn");
-      assertEquals(dsc.getPageStoreTableName(), "pstn");
+      assertEquals("lmtn", dsc.getLargeMessageTableName());
+      assertEquals("mtn", dsc.getMessageTableName());
+      assertEquals("btn", dsc.getBindingsTableName());
+      assertEquals("dscn", dsc.getDataSourceClassName());
+      assertEquals(123, dsc.getJdbcAllowedTimeDiff());
+      assertEquals("url", dsc.getJdbcConnectionUrl());
+      assertEquals("dcn", dsc.getJdbcDriverClassName());
+      assertEquals(456, dsc.getJdbcJournalSyncPeriodMillis());
+      assertEquals(789, dsc.getJdbcLockAcquisitionTimeoutMillis());
+      assertEquals(321, dsc.getJdbcLockExpirationMillis());
+      assertEquals(654, dsc.getJdbcLockRenewPeriodMillis());
+      assertEquals(987, dsc.getJdbcNetworkTimeout());
+      assertEquals("pass", dsc.getDataSourceProperties().get("password"));
+      assertEquals("user", dsc.getJdbcUser());
+      assertEquals("nmtn", dsc.getNodeManagerStoreTableName());
+      assertEquals("pstn", dsc.getPageStoreTableName());
    }
 
    @Test

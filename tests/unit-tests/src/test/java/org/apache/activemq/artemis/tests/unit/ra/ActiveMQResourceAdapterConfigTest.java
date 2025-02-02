@@ -477,14 +477,14 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
       for (int i = 0; i < nl.getLength(); i++) {
          Element el = (Element) nl.item(i);
          NodeList elementsByTagName = el.getElementsByTagName("config-property-name");
-         assertEquals(elementsByTagName.getLength(), 1, el.toString());
+         assertEquals(1, elementsByTagName.getLength(), el.toString());
          Node configPropertyNameNode = elementsByTagName.item(0);
          String configPropertyName = configPropertyNameNode.getTextContent();
          Method setter = methodList.remove("set" + configPropertyName);
          assertNotNull(setter, "setter " + configPropertyName + " does not exist");
          Class c = lookupType(setter);
          elementsByTagName = el.getElementsByTagName("config-property-type");
-         assertEquals(elementsByTagName.getLength(), 1, "setter " + configPropertyName + " has no type set");
+         assertEquals(1, elementsByTagName.getLength(), "setter " + configPropertyName + " has no type set");
          Node configPropertyTypeNode = elementsByTagName.item(0);
          String configPropertyTypeName = configPropertyTypeNode.getTextContent();
          assertEquals(configPropertyTypeName, c.getName());

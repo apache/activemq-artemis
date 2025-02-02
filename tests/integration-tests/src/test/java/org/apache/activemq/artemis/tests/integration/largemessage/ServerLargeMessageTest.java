@@ -133,7 +133,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
 
          assertNotNull(msg);
 
-         assertEquals(msg.getBodySize(), 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+         assertEquals(2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, msg.getBodySize());
 
          for (int i = 0; i < 2 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE; i++) {
             assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());

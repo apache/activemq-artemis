@@ -166,7 +166,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
       ServerLocatorInternal locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())));
       ClientSessionFactoryInternal csf = locator.connect();
       assertNotNull(csf);
-      assertEquals(csf.numConnections(), 1);
+      assertEquals(1, csf.numConnections());
       locator.close();
    }
 
@@ -176,7 +176,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
       ServerLocatorInternal locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(1, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(2, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(3, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(4, isNetty())));
       ClientSessionFactoryInternal csf = locator.connect();
       assertNotNull(csf);
-      assertEquals(csf.numConnections(), 1);
+      assertEquals(1, csf.numConnections());
       locator.close();
    }
 
@@ -187,7 +187,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
       locator.setReconnectAttempts(15);
       ClientSessionFactoryInternal csf = locator.connect();
       assertNotNull(csf);
-      assertEquals(csf.numConnections(), 1);
+      assertEquals(1, csf.numConnections());
       locator.close();
    }
 

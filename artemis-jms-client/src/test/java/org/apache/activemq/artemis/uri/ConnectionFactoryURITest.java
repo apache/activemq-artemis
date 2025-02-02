@@ -222,8 +222,8 @@ public class ConnectionFactoryURITest {
       ActiveMQConnectionFactory factory = parser.newObject(new URI(sb.toString()), null);
 
       Map<String, Object> params = factory.getStaticConnectors()[0].getParams();
-      assertEquals(params.get("host"), "localhost");
-      assertEquals(params.get("port"), "3030");
+      assertEquals("localhost", params.get("host"));
+      assertEquals("3030", params.get("port"));
       for (Map.Entry<String, Object> entry : params.entrySet()) {
          if (!entry.getKey().equals("host") && !entry.getKey().equals("port")) {
             assertEquals(entry.getValue(), props.get(entry.getKey()));
@@ -405,8 +405,8 @@ public class ConnectionFactoryURITest {
 
       assertTrue(ActiveMQJMSConnectionFactory.class.getName().equals(factory.getClass().getName()));
       JGroupsFileBroadcastEndpointFactory broadcastEndpointFactory = (JGroupsFileBroadcastEndpointFactory) factory.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory();
-      assertEquals(broadcastEndpointFactory.getFile(), "/path/to/some/file/channel-file.xml");
-      assertEquals(broadcastEndpointFactory.getChannelName(), "channel-name");
+      assertEquals("/path/to/some/file/channel-file.xml", broadcastEndpointFactory.getFile());
+      assertEquals("channel-name", broadcastEndpointFactory.getChannelName());
    }
 
    @Test
@@ -458,12 +458,12 @@ public class ConnectionFactoryURITest {
       BroadcastEndpointFactory befc = dgc.getBroadcastEndpointFactory();
       assertNotNull(befc);
       assertTrue(befc instanceof JGroupsFileBroadcastEndpointFactory);
-      assertEquals(dgc.getName(), "foo");
-      assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5678);
-      assertEquals(dgc.getRefreshTimeout(), 12345);
+      assertEquals("foo", dgc.getName());
+      assertEquals(5678, dgc.getDiscoveryInitialWaitTimeout());
+      assertEquals(12345, dgc.getRefreshTimeout());
       JGroupsFileBroadcastEndpointFactory fileBroadcastEndpointFactory = (JGroupsFileBroadcastEndpointFactory) befc;
-      assertEquals(fileBroadcastEndpointFactory.getFile(), "channel-file.xml");
-      assertEquals(fileBroadcastEndpointFactory.getChannelName(), "channel-name");
+      assertEquals("channel-file.xml", fileBroadcastEndpointFactory.getFile());
+      assertEquals("channel-name", fileBroadcastEndpointFactory.getChannelName());
 
       BeanUtilsBean bean = new BeanUtilsBean();
       checkEquals(bean, connectionFactoryWithHA, factory);

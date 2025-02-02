@@ -128,7 +128,7 @@ public class JMSContextTest extends ActiveMQRATestBase {
    public void sessionTransactedTestNoActiveJTATx() throws Exception {
       tsr.setStatus(Status.STATUS_ACTIVE);
       JMSContext context = qraConnectionFactory.createContext(JMSContext.SESSION_TRANSACTED);
-      assertEquals(context.getSessionMode(), JMSContext.AUTO_ACKNOWLEDGE);
+      assertEquals(JMSContext.AUTO_ACKNOWLEDGE, context.getSessionMode());
    }
 
    @Test
@@ -145,7 +145,7 @@ public class JMSContextTest extends ActiveMQRATestBase {
    public void clientAckTestNoActiveJTATx() throws Exception {
       tsr.setStatus(Status.STATUS_ACTIVE);
       JMSContext context = qraConnectionFactory.createContext(JMSContext.CLIENT_ACKNOWLEDGE);
-      assertEquals(context.getSessionMode(), JMSContext.AUTO_ACKNOWLEDGE);
+      assertEquals(JMSContext.AUTO_ACKNOWLEDGE, context.getSessionMode());
    }
 
    @Test
