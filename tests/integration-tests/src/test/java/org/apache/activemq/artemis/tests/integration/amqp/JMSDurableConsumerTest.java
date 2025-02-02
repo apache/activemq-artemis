@@ -46,6 +46,7 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -97,7 +98,7 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
 
          assertTrue(latch.await(10, TimeUnit.SECONDS));
          assertNotNull(received.get(), "Should have received a message by now.");
-         assertTrue(received.get() instanceof TextMessage, "Should be an instance of TextMessage");
+         assertInstanceOf(TextMessage.class, received.get(), "Should be an instance of TextMessage");
       } finally {
          connection.close();
       }
@@ -128,7 +129,7 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
          }, TimeUnit.SECONDS.toMillis(25), TimeUnit.MILLISECONDS.toMillis(200)));
 
          assertNotNull(msg.get(), "Should have received a message by now.");
-         assertTrue(msg.get() instanceof TextMessage, "Should be an instance of TextMessage");
+         assertInstanceOf(TextMessage.class, msg.get(), "Should be an instance of TextMessage");
       } finally {
          connection.close();
       }
@@ -228,11 +229,11 @@ public class JMSDurableConsumerTest extends JMSClientTestSupport {
 
          ObjectMessage msg1 = (ObjectMessage)consumer1.receive(5000);
          assertNotNull(msg1);
-         assertTrue(msg1 instanceof ObjectMessage, "Should be an instance of TextMessage");
+         assertInstanceOf(ObjectMessage.class, msg1, "Should be an instance of TextMessage");
 
          ObjectMessage msg2 = (ObjectMessage)consumer2.receive(5000);
          assertNotNull(msg2, "Should have received a message by now.");
-         assertTrue(msg2 instanceof ObjectMessage, "Should be an instance of TextMessage");
+         assertInstanceOf(ObjectMessage.class, msg2, "Should be an instance of TextMessage");
       } finally {
          connection.close();
       }

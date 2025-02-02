@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.unit.ra;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +44,12 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 public class ResourceAdapterTest extends ActiveMQTestBase {
 
    @Test
@@ -59,7 +59,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       ActiveMQConnectionFactory factory = ra.getDefaultActiveMQConnectionFactory();
       assertEquals(ActiveMQClient.DEFAULT_CALL_TIMEOUT, factory.getCallTimeout());
       assertEquals(ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, factory.getClientFailureCheckPeriod());
-      assertEquals(null, factory.getClientID());
+      assertNull(factory.getClientID());
       assertEquals(ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, factory.getConnectionLoadBalancingPolicyClassName());
       assertEquals(ActiveMQClient.DEFAULT_CONNECTION_TTL, factory.getConnectionTTL());
       assertEquals(ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, factory.getConsumerMaxRate());
@@ -99,7 +99,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
       ActiveMQConnectionFactory factory = ra.getConnectionFactory(new ConnectionFactoryProperties());
       assertEquals(ActiveMQClient.DEFAULT_CALL_TIMEOUT, factory.getCallTimeout());
       assertEquals(ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, factory.getClientFailureCheckPeriod());
-      assertEquals(null, factory.getClientID());
+      assertNull(factory.getClientID());
       assertEquals(ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, factory.getConnectionLoadBalancingPolicyClassName());
       assertEquals(ActiveMQClient.DEFAULT_CONNECTION_TTL, factory.getConnectionTTL());
       assertEquals(ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, factory.getConsumerMaxRate());
@@ -395,10 +395,10 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
 
       final int validMaxSessionValue = 110;
       spec.setMaxSession(validMaxSessionValue);
-      assertTrue(validMaxSessionValue == spec.getMaxSession());
+      assertEquals(validMaxSessionValue, (int) spec.getMaxSession());
 
       spec.setMaxSession(-3);
-      assertTrue(spec.getMaxSession() == 1);
+      assertEquals(1, (int) spec.getMaxSession());
 
       spec = new ActiveMQActivationSpec();
       ActiveMQResourceAdapter adapter = new ActiveMQResourceAdapter();

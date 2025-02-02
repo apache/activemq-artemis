@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +32,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ConnectionLimitTest extends ActiveMQTestBase {
 
@@ -66,7 +66,7 @@ public class ConnectionLimitTest extends ActiveMQTestBase {
          ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();
          fail("creating a session factory here should fail");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQNotConnectedException);
+         assertInstanceOf(ActiveMQNotConnectedException.class, e);
       }
    }
 
@@ -81,7 +81,7 @@ public class ConnectionLimitTest extends ActiveMQTestBase {
          ClientSession extraClientSession = addClientSession(extraClientSessionFactory.createSession());
          fail("creating a session here should fail");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQConnectionTimedOutException);
+         assertInstanceOf(ActiveMQConnectionTimedOutException.class, e);
       }
    }
 }

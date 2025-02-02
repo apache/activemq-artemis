@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.unit.core.config.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,7 +69,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
       ConnectorsService connectorsService = new ConnectorsService(configuration, null, null, null, serviceRegistry);
       connectorsService.start();
 
-      assertTrue(connectorsService.getConnectors().size() == 1);
+      assertEquals(1, connectorsService.getConnectors().size());
       assertTrue(connectorsService.getConnectors().values().contains(connectorServiceFactory.getConnectorService()));
    }
 
@@ -88,7 +89,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
       ConnectorsService connectorsService = new ConnectorsService(configuration, null, null, null, serviceRegistry);
       connectorsService.start();
 
-      assertTrue(connectorsService.getConnectors().size() == 1);
+      assertEquals(1, connectorsService.getConnectors().size());
    }
 
    /**
@@ -111,7 +112,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
       FakeConnectorServiceFactory connectorServiceFactory = new FakeConnectorServiceFactory();
       try {
          connectorsService.createService(connectorServiceConfiguration, connectorServiceFactory);
-         assertTrue(false, "Expected exception when creating service with same name");
+         fail("Expected exception when creating service with same name");
       } catch (Exception e) {
       }
 
@@ -131,7 +132,7 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
       // Destroy non-existing connector service
       try {
          connectorsService.destroyService("myfact");
-         assertTrue(false, "Expected exception when destroying non-existing service");
+         fail("Expected exception when destroying non-existing service");
       } catch (Exception e) {
       }
    }

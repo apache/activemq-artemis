@@ -163,7 +163,7 @@ public class MessageTypeTest extends PTPTestCase {
       try {
          MapMessage message = senderSession.createMapMessage();
          Enumeration<?> e = message.getMapNames();
-         Assert.assertTrue("No map yet defined.\n", !e.hasMoreElements());
+         Assert.assertFalse("No map yet defined.\n", e.hasMoreElements());
          message.setDouble("pi", 3.14159);
          e = message.getMapNames();
          Assert.assertEquals("pi", e.nextElement());

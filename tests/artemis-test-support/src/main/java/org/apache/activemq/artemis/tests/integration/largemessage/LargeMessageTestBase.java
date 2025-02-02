@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.largemessage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -96,7 +97,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
          Message message = ref.getMessage();
 
          assertNotNull(message);
-         assertTrue(message instanceof LargeServerMessage);
+         assertInstanceOf(LargeServerMessage.class, message);
       }
       browserIterator.close();
    }

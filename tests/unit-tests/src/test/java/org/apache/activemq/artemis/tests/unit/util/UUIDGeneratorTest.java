@@ -16,18 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class UUIDGeneratorTest extends ActiveMQTestBase {
 
@@ -59,7 +58,7 @@ public class UUIDGeneratorTest extends ActiveMQTestBase {
    public void testGetHardwareAddress() throws Exception {
       byte[] bytes = UUIDGenerator.getHardwareAddress();
       assertNotNull(bytes);
-      assertTrue(bytes.length == 6);
+      assertEquals(6, bytes.length);
    }
 
    @Test

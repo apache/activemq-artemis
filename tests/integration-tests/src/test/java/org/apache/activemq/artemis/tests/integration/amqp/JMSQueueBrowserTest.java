@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Enumeration;
-import java.util.concurrent.TimeUnit;
-
 import javax.jms.Connection;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -31,6 +23,9 @@ import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.lang.invoke.MethodHandles;
+import java.util.Enumeration;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -40,7 +35,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Tests for various QueueBrowser scenarios with an AMQP JMS client.
@@ -139,7 +138,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       Enumeration<?> enumeration = browser.getEnumeration();
       while (enumeration.hasMoreElements()) {
          Message m = (Message) enumeration.nextElement();
-         assertTrue(m instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, m);
          logger.debug("Browsed message {} from Queue {}", m, queue);
       }
 
@@ -148,7 +147,7 @@ public class JMSQueueBrowserTest extends JMSClientTestSupport {
       MessageConsumer consumer = session.createConsumer(queue);
       Message msg = consumer.receive(5000);
       assertNotNull(msg);
-      assertTrue(msg instanceof TextMessage);
+      assertInstanceOf(TextMessage.class, msg);
    }
 
    @Test

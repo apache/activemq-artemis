@@ -56,7 +56,7 @@ public class MessageBodyTest extends PTPTestCase {
          TextMessage message = senderSession.createTextMessage();
          message.setText("bar");
          message.clearBody();
-         Assert.assertEquals("sec. 3 .11.1 the clearBody method of Message resets the value of the message body " + "to the 'empty' initial message value as set by the message type's create " + "method provided by Session.\n", null, message.getText());
+         Assert.assertNull("sec. 3 .11.1 the clearBody method of Message resets the value of the message body " + "to the 'empty' initial message value as set by the message type's create " + "method provided by Session.\n", message.getText());
       } catch (JMSException e) {
          fail(e);
       }

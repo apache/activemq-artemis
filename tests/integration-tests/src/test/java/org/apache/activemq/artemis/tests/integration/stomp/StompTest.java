@@ -82,6 +82,7 @@ import org.slf4j.LoggerFactory;
 import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -236,8 +237,8 @@ public class StompTest extends StompTestBase {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.CONNECT).addHeader(Stomp.Headers.Connect.LOGIN, defUser).addHeader(Stomp.Headers.Connect.PASSCODE, defPass).addHeader(Stomp.Headers.Connect.REQUEST_ID, "1");
       ClientStompFrame response = conn.sendFrame(frame);
 
-      assertTrue(response.getCommand().equals(Stomp.Responses.CONNECTED));
-      assertTrue(response.getHeader(Stomp.Headers.Connected.RESPONSE_ID).equals("1"));
+      assertEquals(Stomp.Responses.CONNECTED, response.getCommand());
+      assertEquals("1", response.getHeader(Stomp.Headers.Connected.RESPONSE_ID));
    }
 
    @Test
@@ -245,8 +246,8 @@ public class StompTest extends StompTestBase {
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.CONNECT).addHeader(Stomp.Headers.Connect.LOGIN, defUser).addHeader(Stomp.Headers.Connect.PASSCODE, defPass).addHeader(Stomp.Headers.Connect.REQUEST_ID, "1");
       ClientStompFrame response = conn.sendFrame(frame);
 
-      assertTrue(response.getCommand().equals(Stomp.Responses.CONNECTED));
-      assertTrue(response.getHeader(Stomp.Headers.Connected.RESPONSE_ID).equals("1"));
+      assertEquals(Stomp.Responses.CONNECTED, response.getCommand());
+      assertEquals("1", response.getHeader(Stomp.Headers.Connected.RESPONSE_ID));
 
       conn.disconnect();
 
@@ -667,7 +668,7 @@ public class StompTest extends StompTestBase {
       ClientStompFrame error = conn.receiveFrame();
 
       assertNotNull(error);
-      assertTrue(error.getCommand().equals("ERROR"));
+      assertEquals("ERROR", error.getCommand());
    }
 
    @Test
@@ -684,7 +685,7 @@ public class StompTest extends StompTestBase {
       ClientStompFrame error = conn.receiveFrame();
 
       assertNotNull(error);
-      assertTrue(error.getCommand().equals("ERROR"));
+      assertEquals("ERROR", error.getCommand());
    }
 
    @Test
@@ -792,7 +793,7 @@ public class StompTest extends StompTestBase {
       assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader(Stomp.Headers.Send.DESTINATION));
       assertEquals(RoutingType.ANYCAST.toString(), frame.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
-      assertTrue(frame.getHeader(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE.toString()) == null);
+      assertNull(frame.getHeader(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE.toString()));
       assertEquals(getName(), frame.getBody());
 
       conn.disconnect();
@@ -810,7 +811,7 @@ public class StompTest extends StompTestBase {
       assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       assertEquals(getTopicPrefix() + getTopicName(), frame.getHeader(Stomp.Headers.Send.DESTINATION));
       assertEquals(RoutingType.MULTICAST.toString(), frame.getHeader(Stomp.Headers.Send.DESTINATION_TYPE));
-      assertTrue(frame.getHeader(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE.toString()) == null);
+      assertNull(frame.getHeader(org.apache.activemq.artemis.api.core.Message.HDR_ROUTING_TYPE.toString()));
       assertEquals(getName(), frame.getBody());
 
       conn.disconnect();
@@ -937,7 +938,7 @@ public class StompTest extends StompTestBase {
 
       for (int i = 0; i < ctr; ++i) {
          ClientStompFrame frame = conn.receiveFrame(1000);
-         assertTrue(frame.getBody().equals(data[i]), "Message not in order");
+         assertEquals(data[i], frame.getBody(), "Message not in order");
       }
 
       // sleep a while before publishing another set of messages
@@ -950,7 +951,7 @@ public class StompTest extends StompTestBase {
 
       for (int i = 0; i < ctr; ++i) {
          ClientStompFrame frame = conn.receiveFrame(1000);
-         assertTrue(frame.getBody().equals(data[i]), "Message not in order");
+         assertEquals(data[i], frame.getBody(), "Message not in order");
       }
 
       conn.disconnect();
@@ -966,7 +967,7 @@ public class StompTest extends StompTestBase {
 
       ClientStompFrame frame = conn.receiveFrame(10000);
       assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
-      assertTrue(frame.getBody().equals("Real message"), "Should have received the real message but got: " + frame);
+      assertEquals("Real message", frame.getBody(), "Should have received the real message but got: " + frame);
 
       conn.disconnect();
    }
@@ -994,7 +995,7 @@ public class StompTest extends StompTestBase {
 
       ClientStompFrame frame = conn.receiveFrame(10000);
       assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
-      assertTrue(frame.getBody().equals("Real message"), "Should have received the real message but got: " + frame);
+      assertEquals("Real message", frame.getBody(), "Should have received the real message but got: " + frame);
 
       conn.disconnect();
    }
@@ -1009,7 +1010,7 @@ public class StompTest extends StompTestBase {
 
       ClientStompFrame frame = conn.receiveFrame(10000);
       assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
-      assertTrue(frame.getBody().equals("<root><a key='first' num='1'/><b key='second' num='2'>b</b></root>"), "Should have received the real message but got: " + frame);
+      assertEquals("<root><a key='first' num='1'/><b key='second' num='2'>b</b></root>", frame.getBody(), "Should have received the real message but got: " + frame);
 
       conn.disconnect();
    }
@@ -1834,7 +1835,7 @@ public class StompTest extends StompTestBase {
 
       // sending a MULTICAST message should alter the address to support MULTICAST
       frame = send(conn, "/topic/" + ADDRESS, null, "Hello World 1", true);
-      assertFalse(frame.getCommand().equals("ERROR"));
+      assertNotEquals("ERROR", frame.getCommand());
       addressInfo = server.getAddressInfo(SimpleString.of(ADDRESS));
       assertTrue(addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST));
       assertTrue(addressInfo.getRoutingTypes().contains(RoutingType.MULTICAST));
@@ -1845,7 +1846,7 @@ public class StompTest extends StompTestBase {
 
       // sending a message to the ANYCAST queue, should be received
       frame = send(conn, "/queue/" + ADDRESS, null, "Hello World 2", true);
-      assertFalse(frame.getCommand().equals("ERROR"));
+      assertNotEquals("ERROR", frame.getCommand());
       frame = conn.receiveFrame(1000);
       assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       assertEquals("Hello World 2", frame.getBody());
@@ -1866,7 +1867,7 @@ public class StompTest extends StompTestBase {
 
       // send a message which will be routed to the MULTICAST queue
       frame = send(conn, "/topic/" + ADDRESS, null, "Hello World 3", true);
-      assertFalse(frame.getCommand().equals("ERROR"));
+      assertNotEquals("ERROR", frame.getCommand());
 
       // receive that message on the topic subscription
       frame = conn.receiveFrame(1000);
@@ -1912,7 +1913,7 @@ public class StompTest extends StompTestBase {
 
       // sending an ANYCAST message should alter the address to support ANYCAST and create an ANYCAST queue
       frame = send(conn, "/queue/" + ADDRESS, null, "Hello World 1", true);
-      assertFalse(frame.getCommand().equals("ERROR"));
+      assertNotEquals("ERROR", frame.getCommand());
       addressInfo = server.getAddressInfo(SimpleString.of(ADDRESS));
       assertTrue(addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST));
       assertTrue(addressInfo.getRoutingTypes().contains(RoutingType.MULTICAST));
@@ -1924,7 +1925,7 @@ public class StompTest extends StompTestBase {
 
       // sending a message to the MULTICAST queue, should be received
       frame = send(conn, "/topic/" + ADDRESS, null, "Hello World 2", true);
-      assertFalse(frame.getCommand().equals("ERROR"));
+      assertNotEquals("ERROR", frame.getCommand());
       frame = conn.receiveFrame(2000);
       assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       assertEquals("Hello World 2", frame.getBody());
@@ -1934,7 +1935,7 @@ public class StompTest extends StompTestBase {
       assertNull(frame);
 
       frame = unsubscribe(conn, null, "/topic/" + ADDRESS, true, false);
-      assertFalse(frame.getCommand().equals("ERROR"));
+      assertNotEquals("ERROR", frame.getCommand());
 
       // now subscribe to the address in an ANYCAST way
       uuid = UUID.randomUUID().toString();
@@ -2223,7 +2224,7 @@ public class StompTest extends StompTestBase {
       ClientStompFrame frame2 = conn.receiveFrame();
       String secondMessageID = frame2.getHeader(Stomp.Headers.Message.MESSAGE_ID);
       assertNotNull(secondMessageID);
-      assertTrue(!firstMessageID.equals(secondMessageID), firstMessageID + " must not equal " + secondMessageID);
+      assertNotEquals(firstMessageID, secondMessageID, "MessageIDs must not equal");
 
       ack(conn, "sub1", frame1);
       ack(conn, "sub2", frame2);

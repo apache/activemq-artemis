@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.unit.jms;
 
-import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_QUALIFIED_PREFIX;
-import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TOPIC_QUALIFIED_PREFIX;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.Destination;
 import javax.jms.Queue;
 import javax.jms.Topic;
@@ -33,6 +26,14 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
+
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_QUALIFIED_PREFIX;
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TOPIC_QUALIFIED_PREFIX;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ActiveMQDestinationTest extends ActiveMQTestBase {
 
@@ -57,7 +58,7 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       String destinationName = RandomUtil.randomString();
       String address = QUEUE_QUALIFIED_PREFIX + destinationName;
       ActiveMQDestination destination = ActiveMQDestination.fromPrefixedName(address);
-      assertTrue(destination instanceof Queue);
+      assertInstanceOf(Queue.class, destination);
       assertEquals(destinationName, ((Queue) destination).getQueueName());
    }
 
@@ -66,7 +67,7 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       String destinationName = RandomUtil.randomString();
       String address = TOPIC_QUALIFIED_PREFIX + destinationName;
       ActiveMQDestination destination = ActiveMQDestination.fromPrefixedName(address);
-      assertTrue(destination instanceof Topic);
+      assertInstanceOf(Topic.class, destination);
       assertEquals(destinationName, ((Topic) destination).getTopicName());
    }
 
@@ -76,7 +77,7 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       String destinationName = RandomUtil.randomString();
       String address = invalidPrefix + destinationName;
       ActiveMQDestination destination = ActiveMQDestination.fromPrefixedName(address);
-      assertTrue(destination instanceof Destination);
+      assertInstanceOf(Destination.class, destination);
    }
 
    @Test

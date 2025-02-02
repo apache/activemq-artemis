@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -146,7 +147,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, msg);
          assertEquals(type, msg.getJMSType(), "Unexpected JMSType value");
          assertEquals("text + type", ((TextMessage) msg).getText(), "Unexpected message content");
       } finally {
@@ -180,7 +181,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          int count = 0;
          while (enumeration.hasMoreElements()) {
             Message m = (Message) enumeration.nextElement();
-            assertTrue(m instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, m);
             count++;
          }
 
@@ -189,7 +190,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          MessageConsumer consumer = session.createConsumer(queue, "JMSCorrelationID = '" + correlationID + "'");
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, msg);
          assertEquals(correlationID, msg.getJMSCorrelationID(), "Unexpected JMSCorrelationID value");
          assertEquals("JMSCorrelationID", ((TextMessage) msg).getText(), "Unexpected message content");
       } finally {
@@ -220,7 +221,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          int count = 0;
          while (enumeration.hasMoreElements()) {
             Message m = (Message) enumeration.nextElement();
-            assertTrue(m instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, m);
             count++;
          }
 
@@ -229,7 +230,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          MessageConsumer consumer = session.createConsumer(queue, "JMSPriority > 8");
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, msg);
          assertEquals("hello + 9", ((TextMessage) msg).getText());
       } finally {
          connection.close();
@@ -285,11 +286,11 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, msg);
          assertEquals("group 1 - 1", ((TextMessage) msg).getText());
          msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, msg);
          assertEquals("group 1 - 2", ((TextMessage) msg).getText());
       } finally {
          connection.close();
@@ -322,7 +323,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, msg);
          assertEquals(DeliveryMode.PERSISTENT, msg.getJMSDeliveryMode(), "Unexpected JMSDeliveryMode value");
          assertEquals("persistent", ((TextMessage) msg).getText(), "Unexpected message content");
       } finally {
@@ -358,7 +359,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, msg);
          assertEquals(message2.getJMSTimestamp(), msg.getJMSTimestamp(), "Unexpected JMSTimestamp value");
          assertEquals("expected", ((TextMessage) msg).getText(), "Unexpected message content");
       } finally {
@@ -391,7 +392,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
          Message msg = consumer.receive(2000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, msg);
          assertEquals(message2.getJMSExpiration(), msg.getJMSExpiration(), "Unexpected JMSExpiration value");
          assertEquals("expected", ((TextMessage) msg).getText(), "Unexpected message content");
       } finally {
@@ -676,7 +677,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          for (int i = 0; i < numMessages; i++) {
             Message msg = consumer.receive(5000);
             assertNotNull(msg, "" + i);
-            assertTrue(msg instanceof TextMessage, "" + msg);
+            assertInstanceOf(TextMessage.class, msg, "" + msg);
             String text = ((TextMessage) msg).getText();
             // System.out.println("text = " + text);
             assertEquals(text, "msg:" + i);
@@ -791,7 +792,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          Message received = consumer2.receive(100);
 
          assertNotNull(received, "Should have received a message by now.");
-         assertTrue(received instanceof TextMessage, "Should be an instance of TextMessage");
+         assertInstanceOf(TextMessage.class, received, "Should be an instance of TextMessage");
          assertEquals(DeliveryMode.PERSISTENT, received.getJMSDeliveryMode());
 
 
@@ -807,7 +808,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
          Message received2 = consumer2.receive(100);
 
          assertNotNull(received2, "Should have received a message by now.");
-         assertTrue(received2 instanceof TextMessage, "Should be an instance of TextMessage");
+         assertInstanceOf(TextMessage.class, received2, "Should be an instance of TextMessage");
          assertEquals(DeliveryMode.PERSISTENT, received2.getJMSDeliveryMode());
 
 

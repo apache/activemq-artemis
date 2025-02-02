@@ -64,6 +64,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -264,7 +265,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       assertEquals(6000, discoveryGroupConfiguration.getDiscoveryInitialWaitTimeout());
 
       BroadcastEndpoint broadcastEndpoint = cf.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory().createBroadcastEndpoint();
-      assertTrue(broadcastEndpoint instanceof JGroupsFileBroadcastEndpoint);
+      assertInstanceOf(JGroupsFileBroadcastEndpoint.class, broadcastEndpoint);
       broadcastEndpoint.close(false);
    }
 
@@ -445,10 +446,10 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Context ctx = new InitialContext(props);
 
       Destination destination = (Destination) ctx.lookup("myQueue");
-      assertTrue(destination instanceof Queue);
+      assertInstanceOf(Queue.class, destination);
 
       destination = (Destination) ctx.lookup("queues/myQueue");
-      assertTrue(destination instanceof Queue);
+      assertInstanceOf(Queue.class, destination);
    }
 
    @Test
@@ -461,7 +462,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       liveService.getSecurityStore().setSecurityEnabled(false);
 
       Destination destination = (Destination) ctx.lookup(QUEUE);
-      assertTrue(destination instanceof Queue);
+      assertInstanceOf(Queue.class, destination);
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       try (Connection connection = connectionFactory.createConnection()) {
          Session session = connection.createSession();
@@ -481,7 +482,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Context ctx = new InitialContext(props);
 
       Destination destination = (Destination) ctx.lookup("dynamicQueues/myQueue");
-      assertTrue(destination instanceof Queue);
+      assertInstanceOf(Queue.class, destination);
    }
 
    @Test
@@ -493,7 +494,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       liveService.getSecurityStore().setSecurityEnabled(false);
 
       Destination destination = (Destination) ctx.lookup("dynamicQueues/myAddress::" + QUEUE);
-      assertTrue(destination instanceof Queue);
+      assertInstanceOf(Queue.class, destination);
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       try (Connection connection = connectionFactory.createConnection()) {
          Session session = connection.createSession();
@@ -515,10 +516,10 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Context ctx = new InitialContext(props);
 
       Destination destination = (Destination) ctx.lookup("myTopic");
-      assertTrue(destination instanceof Topic);
+      assertInstanceOf(Topic.class, destination);
 
       destination = (Destination) ctx.lookup("topics/myTopic");
-      assertTrue(destination instanceof Topic);
+      assertInstanceOf(Topic.class, destination);
    }
 
    @Test
@@ -531,7 +532,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       liveService.getSecurityStore().setSecurityEnabled(false);
 
       Destination destination = (Destination) ctx.lookup("myTopic");
-      assertTrue(destination instanceof Topic);
+      assertInstanceOf(Topic.class, destination);
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession();
@@ -550,7 +551,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Context ctx = new InitialContext(props);
 
       Destination destination = (Destination) ctx.lookup("dynamicTopics/myTopic");
-      assertTrue(destination instanceof Topic);
+      assertInstanceOf(Topic.class, destination);
    }
 
    @Test
@@ -563,7 +564,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       liveService.getSecurityStore().setSecurityEnabled(false);
 
       Destination destination = (Destination) ctx.lookup("dynamicTopics/myTopic::" + SUBSCRIPTION);
-      assertTrue(destination instanceof Topic);
+      assertInstanceOf(Topic.class, destination);
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession();

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -124,7 +125,7 @@ public class AmqpIngressTimestampTest extends AmqpClientTestSupport {
       logger.info("{}", receive);
       Object ingressTimestampHeader = receive.getMessageAnnotation(AMQPMessageSupport.X_OPT_INGRESS_TIME);
       assertNotNull(ingressTimestampHeader);
-      assertTrue(ingressTimestampHeader instanceof Long);
+      assertInstanceOf(Long.class, ingressTimestampHeader);
       long ingressTimestamp = (Long) ingressTimestampHeader;
       assertTrue(ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend, "Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend);
       receiver.close();

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -201,7 +202,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
       } catch (ActiveMQNotConnectedException nce) {
          //ok
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQException);
+         assertInstanceOf(ActiveMQException.class, e);
          fail("Invalid Exception type:" + ((ActiveMQException) e).getType());
       }
       assertNull(csf);

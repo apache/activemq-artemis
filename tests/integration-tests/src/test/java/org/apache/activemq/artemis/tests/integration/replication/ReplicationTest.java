@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.replication;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -453,7 +454,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
          cc.setClientFailureCheckPeriod(checkPeriodOverride);
       };
       this.setupServer(true, true, configurer);
-      assertTrue(backupServer instanceof ActiveMQServerImpl);
+      assertInstanceOf(ActiveMQServerImpl.class, backupServer);
 
       ClusterController controller = backupServer.getClusterManager().getClusterController();
 

@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.tests.smoke.jmx;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -120,7 +121,7 @@ public class JmxConnectionTest extends SmokeTestBase {
           * messy because I have to use reflection to reach the information.
           */
 
-            assertTrue(jmxConnector instanceof RMIConnector);
+            assertInstanceOf(RMIConnector.class, jmxConnector);
 
             // 1. RMIConnector::connection is expected to be RMIConnectionImpl_Stub
             Field connectionField = RMIConnector.class.getDeclaredField("connection");
@@ -128,7 +129,7 @@ public class JmxConnectionTest extends SmokeTestBase {
             RMIConnection rmiConnection = (RMIConnection) connectionField.get(jmxConnector);
 
             // 2. RMIConnectionImpl_Stub extends RemoteStub which extends RemoteObject
-            assertTrue(rmiConnection instanceof RemoteObject);
+            assertInstanceOf(RemoteObject.class, rmiConnection);
             RemoteObject remoteObject = (RemoteObject) rmiConnection;
 
             // 3. RemoteObject::getRef is hereby expected to return ProxyRef

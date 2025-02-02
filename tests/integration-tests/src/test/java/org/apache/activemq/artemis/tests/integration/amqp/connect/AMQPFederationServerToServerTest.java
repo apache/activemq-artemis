@@ -21,6 +21,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -189,7 +190,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          final Message received = consumerL.receive(5_000);
          assertNotNull(received);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Hello World", ((TextMessage) received).getText());
          assertTrue(message.propertyExists("testProperty"));
          assertEquals("testValue", received.getStringProperty("testProperty"));
@@ -274,7 +275,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          final Message received = consumerL.receive(5_000);
          assertNotNull(received);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Hello World", ((TextMessage) received).getText());
          assertTrue(message.propertyExists("testProperty"));
          assertEquals("testValue", received.getStringProperty("testProperty"));
@@ -344,7 +345,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          final Message received = consumerL.receive(5_000);
          assertNotNull(received);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Hello World", ((TextMessage) received).getText());
          assertTrue(message.propertyExists("testProperty"));
          assertEquals("testValue", received.getStringProperty("testProperty"));
@@ -419,7 +420,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          final Message received = consumerR.receive(5_000);
          assertNotNull(received);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Hello World", ((TextMessage) received).getText());
          assertTrue(message.propertyExists("testProperty"));
          assertEquals("testValue", received.getStringProperty("testProperty"));
@@ -489,7 +490,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          final Message received = consumerR.receive(5_000);
          assertNotNull(received);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Hello World", ((TextMessage) received).getText());
          assertTrue(message.propertyExists("testProperty"));
          assertEquals("testValue", received.getStringProperty("testProperty"));
@@ -575,7 +576,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          producerL.send(message);
 
          final Message received = consumerR.receive(5_000);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Hello World", ((TextMessage) received).getText());
          assertTrue(message.propertyExists("testProperty"));
          assertEquals("testValue", received.getStringProperty("testProperty"));
@@ -671,7 +672,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          final Message received = consumerL.receive(5_000);
          assertNotNull(received);
-         assertTrue(received instanceof BytesMessage);
+         assertInstanceOf(BytesMessage.class, received);
 
          final byte[] receivedBytes = new byte[bodyBytes.length];
          final BytesMessage receivedBytesMsg = (BytesMessage) received;
@@ -768,7 +769,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          final Message received = consumerL.receive(500_000);
          assertNotNull(received);
-         assertTrue(received instanceof BytesMessage);
+         assertInstanceOf(BytesMessage.class, received);
 
          final byte[] receivedBytes = new byte[bodyBytes.length];
          final BytesMessage receivedBytesMsg = (BytesMessage) received;
@@ -888,19 +889,19 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          producer1.send(message1);
          Message received = consumer1.receive(2_000);
          assertNotNull(received);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Message1", ((TextMessage) received).getText());
          assertTrue(received.propertyExists("test"));
          assertEquals("1", received.getStringProperty("test"));
          received = consumer2.receive(2_000);
          assertNotNull(received);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Message1", ((TextMessage) received).getText());
          assertTrue(received.propertyExists("test"));
          assertEquals("1", received.getStringProperty("test"));
          received = consumer3.receive(2_000);
          assertNotNull(received);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Message1", ((TextMessage) received).getText());
          assertTrue(received.propertyExists("test"));
          assertEquals("1", received.getStringProperty("test"));
@@ -912,19 +913,19 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          producer2.send(message2);
          received = consumer1.receive(2_000);
          assertNotNull(received);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Message2", ((TextMessage) received).getText());
          assertTrue(received.propertyExists("test"));
          assertEquals("2", received.getStringProperty("test"));
          received = consumer2.receive(2_000);
          assertNotNull(received);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Message2", ((TextMessage) received).getText());
          assertTrue(received.propertyExists("test"));
          assertEquals("2", received.getStringProperty("test"));
          received = consumer3.receive(2_000);
          assertNotNull(received);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Message2", ((TextMessage) received).getText());
          assertTrue(received.propertyExists("test"));
          assertEquals("2", received.getStringProperty("test"));
@@ -936,19 +937,19 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
          producer3.send(message3);
          received = consumer1.receive(2_000);
          assertNotNull(received);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Message3", ((TextMessage) received).getText());
          assertTrue(received.propertyExists("test"));
          assertEquals("3", received.getStringProperty("test"));
          received = consumer2.receive(2_000);
          assertNotNull(received);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Message3", ((TextMessage) received).getText());
          assertTrue(received.propertyExists("test"));
          assertEquals("3", received.getStringProperty("test"));
          received = consumer3.receive(2_000);
          assertNotNull(received);
-         assertTrue(received instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, received);
          assertEquals("Message3", ((TextMessage) received).getText());
          assertTrue(received.propertyExists("test"));
          assertEquals("3", received.getStringProperty("test"));
@@ -1049,7 +1050,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          final Message received = consumerL.receive(5_000);
          assertNotNull(received);
-         assertTrue(received instanceof BytesMessage);
+         assertInstanceOf(BytesMessage.class, received);
 
          final byte[] receivedBytes = new byte[bodyBytes.length];
          final BytesMessage receivedBytesMsg = (BytesMessage) received;
@@ -1137,14 +1138,14 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          final Message receivedL1 = consumerL1.receive(5_000);
          assertNotNull(receivedL1);
-         assertTrue(receivedL1 instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, receivedL1);
          assertEquals("Hello World 2", ((TextMessage) receivedL1).getText());
          assertTrue(receivedL1.propertyExists("color"));
          assertEquals("red", receivedL1.getStringProperty("color"));
 
          final Message receivedL2 = consumerL2.receive(5_000);
          assertNotNull(receivedL2);
-         assertTrue(receivedL2 instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, receivedL2);
          assertEquals("Hello World 3", ((TextMessage) receivedL2).getText());
          assertTrue(receivedL2.propertyExists("color"));
          assertEquals("blue", receivedL2.getStringProperty("color"));
@@ -1155,7 +1156,7 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          final Message receivedR = consumerR.receive(5_000);
          assertNotNull(receivedR);
-         assertTrue(receivedR instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, receivedR);
          assertEquals("Hello World 1", ((TextMessage) receivedR).getText());
          assertTrue(receivedR.propertyExists("color"));
          assertEquals("green", receivedR.getStringProperty("color"));
@@ -1249,8 +1250,8 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          assertNotNull(messageL1);
          assertNotNull(messageR1);
-         assertTrue(messageL1 instanceof TextMessage);
-         assertTrue(messageR1 instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, messageL1);
+         assertInstanceOf(TextMessage.class, messageR1);
          assertEquals("local", ((TextMessage) messageL1).getText());
          assertEquals("local", ((TextMessage) messageR1).getText());
 
@@ -1261,8 +1262,8 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          assertNotNull(messageL2);
          assertNotNull(messageR2);
-         assertTrue(messageL2 instanceof TextMessage);
-         assertTrue(messageR2 instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, messageL2);
+         assertInstanceOf(TextMessage.class, messageR2);
          assertEquals("remote", ((TextMessage) messageL2).getText());
          assertEquals("remote", ((TextMessage) messageR2).getText());
 
@@ -1368,8 +1369,8 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          assertNotNull(messageL1);
          assertNotNull(messageR1);
-         assertTrue(messageL1 instanceof TextMessage);
-         assertTrue(messageR1 instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, messageL1);
+         assertInstanceOf(TextMessage.class, messageR1);
          assertEquals("local", ((TextMessage) messageL1).getText());
          assertEquals("local", ((TextMessage) messageR1).getText());
 
@@ -1380,8 +1381,8 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          assertNotNull(messageL2);
          assertNotNull(messageR2);
-         assertTrue(messageL2 instanceof TextMessage);
-         assertTrue(messageR2 instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, messageL2);
+         assertInstanceOf(TextMessage.class, messageR2);
          assertEquals("remote", ((TextMessage) messageL2).getText());
          assertEquals("remote", ((TextMessage) messageR2).getText());
 

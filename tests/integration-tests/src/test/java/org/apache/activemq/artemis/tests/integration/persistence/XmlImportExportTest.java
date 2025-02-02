@@ -1269,7 +1269,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       assertNotNull(m);
       assertEquals(payload, m.getBodyBuffer().readString());
-      assertEquals(null, m.getRoutingType());
+      assertNull(m.getRoutingType());
 
       consumer.close();
       session.close();

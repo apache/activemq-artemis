@@ -111,7 +111,7 @@ public class SessionTest extends PTPTestCase {
          senderSession.commit();
 
          m = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
-         Assert.assertTrue(m != null);
+         Assert.assertNotNull(m);
          Assert.assertEquals("testCommitTransactedSession", m.getText());
       } catch (Exception e) {
          fail(e);

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -151,7 +152,7 @@ public class TopicClusterPageStoreSizeTest extends JMSClusteredTestBase {
 
       // stays on server 1
       assertTrue(server1.getPagingManager().getPageStore(SimpleString.of(TOPIC)).getAddressSize() > 0, "some size on 1");
-      assertTrue(server2.getPagingManager().getPageStore(SimpleString.of(TOPIC)).getAddressSize() == 0, "no size on 2");
+      assertEquals(0, server2.getPagingManager().getPageStore(SimpleString.of(TOPIC)).getAddressSize(), "no size on 2");
 
       // duplicate this sub on 2
       conn2 = cf2.createConnection();

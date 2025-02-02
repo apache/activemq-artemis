@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.jms.DeliveryMode;
@@ -85,10 +86,10 @@ public class JmsConsumerResetActiveListenerTest extends BasicOpenWireTest {
 
       assertEquals(2, results.size(), "we have a result");
       Object result = results.get(0);
-      assertTrue(result instanceof TextMessage);
+      assertInstanceOf(TextMessage.class, result);
       assertEquals("First", ((TextMessage) result).getText(), "result is first");
       result = results.get(1);
-      assertTrue(result instanceof TextMessage);
+      assertInstanceOf(TextMessage.class, result);
       assertEquals("Second", ((TextMessage) result).getText(), "result is first");
    }
 
@@ -136,10 +137,10 @@ public class JmsConsumerResetActiveListenerTest extends BasicOpenWireTest {
 
       assertEquals(2, results.size(), "we have a result");
       Object result = results.get(0);
-      assertTrue(result instanceof TextMessage);
+      assertInstanceOf(TextMessage.class, result);
       assertEquals("First", ((TextMessage) result).getText(), "result is first");
       result = results.get(1);
-      assertTrue(result instanceof TextMessage);
+      assertInstanceOf(TextMessage.class, result);
       assertEquals("Second", ((TextMessage) result).getText(), "result is first");
    }
 

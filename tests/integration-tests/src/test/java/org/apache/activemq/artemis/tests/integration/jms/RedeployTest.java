@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
@@ -503,7 +504,7 @@ public class RedeployTest extends ActiveMQTestBase {
 
          Binding bindingAfterChange = embeddedActiveMQ.getActiveMQServer().getPostOffice().getBinding(SimpleString.of("myFilterQueue"));
 
-         assertTrue(binding == bindingAfterChange, "Instance should be the same (as should be non destructive)");
+         assertSame(binding, bindingAfterChange, "Instance should be the same (as should be non destructive)");
          assertEquals(binding.getID(), bindingAfterChange.getID());
 
          //Check that after the config change we can still consume a message that was sent before, ensuring config change was non-destructive of the queue.

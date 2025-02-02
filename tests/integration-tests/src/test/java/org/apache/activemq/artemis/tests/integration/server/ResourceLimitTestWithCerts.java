@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.util.HashMap;
@@ -46,6 +43,9 @@ import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ResourceLimitTestWithCerts extends ActiveMQTestBase {
 
@@ -108,7 +108,7 @@ public class ResourceLimitTestWithCerts extends ActiveMQTestBase {
          ClientSession extraClientSession = extraClientSessionFactory.createSession();
          fail("creating a session factory here should fail");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSessionCreationException);
+         assertInstanceOf(ActiveMQSessionCreationException.class, e);
       }
 
       clientSession.close();
@@ -120,7 +120,7 @@ public class ResourceLimitTestWithCerts extends ActiveMQTestBase {
          ClientSession extraClientSession = extraClientSessionFactory.createSession();
          fail("creating a session factory here should fail");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSessionCreationException);
+         assertInstanceOf(ActiveMQSessionCreationException.class, e);
       }
       clientSession.close();
       cf.close();
@@ -144,7 +144,7 @@ public class ResourceLimitTestWithCerts extends ActiveMQTestBase {
          clientSession.createQueue(QueueConfiguration.of("anotherQueue").setAddress("address").setRoutingType(RoutingType.ANYCAST).setDurable(false));
          fail("Should have thrown an ActiveMQSecurityException");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSecurityException);
+         assertInstanceOf(ActiveMQSecurityException.class, e);
       }
 
       clientSession.deleteQueue("queue");
@@ -155,14 +155,14 @@ public class ResourceLimitTestWithCerts extends ActiveMQTestBase {
          clientSession.createQueue(QueueConfiguration.of("anotherQueue").setAddress("address").setRoutingType(RoutingType.ANYCAST).setDurable(false));
          fail("Should have thrown an ActiveMQSecurityException");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSecurityException);
+         assertInstanceOf(ActiveMQSecurityException.class, e);
       }
 
       try {
          clientSession.createSharedQueue(QueueConfiguration.of("anotherQueue").setAddress("address").setDurable(false));
          fail("Should have thrown an ActiveMQSecurityException");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSecurityException);
+         assertInstanceOf(ActiveMQSecurityException.class, e);
       }
    }
 }

@@ -96,7 +96,7 @@ public class QueueBrowserTest extends PTPTestCase {
          // check that there is no messages in the queue
          // (the two messages have been acknowledged and so removed
          // from the queue)
-         Assert.assertTrue(!enumeration.hasMoreElements());
+         Assert.assertFalse(enumeration.hasMoreElements());
       } catch (JMSException e) {
          fail(e);
       }

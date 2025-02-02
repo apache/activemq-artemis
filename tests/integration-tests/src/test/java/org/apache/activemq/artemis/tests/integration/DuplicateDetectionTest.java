@@ -826,7 +826,7 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       message = consumer.receive(5000);
       assertNotNull(message);
-      assertTrue(message.getStringProperty("key").equals(dupID1.toString()));
+      assertEquals(dupID1.toString(), message.getStringProperty("key"));
    }
 
    /*

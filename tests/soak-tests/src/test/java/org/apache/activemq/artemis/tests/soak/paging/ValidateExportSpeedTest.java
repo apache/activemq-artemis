@@ -17,10 +17,6 @@
 
 package org.apache.activemq.artemis.tests.soak.paging;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -37,12 +33,12 @@ import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataExporter;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataImporter;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,6 +46,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ValidateExportSpeedTest extends SoakTestBase {
 
@@ -134,19 +134,19 @@ public class ValidateExportSpeedTest extends SoakTestBase {
       assertNotNull(message);
       switch (i % 5) {
          case 0: {
-            assertTrue(message instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, message);
             TextMessage textMessage = (TextMessage) message;
             assertEquals("hello" + i, textMessage.getText());
             break;
          }
          case 1: {
-            assertTrue(message instanceof MapMessage);
+            assertInstanceOf(MapMessage.class, message);
             MapMessage mapMessage = (MapMessage) message;
             assertEquals("hello" + i, mapMessage.getString("hello"));
             break;
          }
          case 2: {
-            assertTrue(message instanceof StreamMessage);
+            assertInstanceOf(StreamMessage.class, message);
             StreamMessage streamMessage = (StreamMessage) message;
             assertEquals("string" + i, streamMessage.readString());
             assertEquals((long) i, streamMessage.readLong());
@@ -154,7 +154,7 @@ public class ValidateExportSpeedTest extends SoakTestBase {
             break;
          }
          case 3: {
-            assertTrue(message instanceof BytesMessage);
+            assertInstanceOf(BytesMessage.class, message);
             BytesMessage bytesMessage = (BytesMessage) message;
             int length = (int) bytesMessage.getBodyLength();
             byte[] bytes = new byte[length];
@@ -164,7 +164,7 @@ public class ValidateExportSpeedTest extends SoakTestBase {
             break;
          }
          case 4: {
-            assertTrue(message instanceof ObjectMessage);
+            assertInstanceOf(ObjectMessage.class, message);
             ObjectMessage objectMessage = (ObjectMessage) message;
             String result = (String)objectMessage.getObject();
             assertEquals("hello " + i, result);
@@ -201,7 +201,7 @@ public class ValidateExportSpeedTest extends SoakTestBase {
       for (int i = 0; i < numberOfMessages; i++) {
          logger.info("Receiving {} large message", i);
          Message message = consumer.receive(5000);
-         assertTrue(message instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, message);
          TextMessage textMessage = (TextMessage) message;
          assertEquals(largeString + " Hello " + i, textMessage.getText());
       }

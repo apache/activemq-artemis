@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
@@ -47,6 +42,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
 
@@ -105,7 +105,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
          Message received = consumer2.receive(100);
 
          assertNotNull(received, "Should have received a message by now.");
-         assertTrue(received instanceof TextMessage, "Should be an instance of TextMessage");
+         assertInstanceOf(TextMessage.class, received, "Should be an instance of TextMessage");
          assertEquals(DeliveryMode.PERSISTENT, received.getJMSDeliveryMode());
       } finally {
          connection1.close();
@@ -199,7 +199,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
          Message received = consumer2.receive(100);
 
          assertNotNull(received, "Should have received a message by now.");
-         assertTrue(received instanceof TextMessage, "Should be an instance of TextMessage");
+         assertInstanceOf(TextMessage.class, received, "Should be an instance of TextMessage");
          assertEquals(2, received.getJMSPriority());
       } finally {
          connection1.close();
@@ -300,7 +300,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
          Message received = consumer.receive(1000);
 
          assertNotNull(received, "Should have received a message by now.");
-         assertTrue(received instanceof MapMessage, "Should be an instance of MapMessage");
+         assertInstanceOf(MapMessage.class, received, "Should be an instance of MapMessage");
       } finally {
          senderConnection.close();
          consumerConnection.close();
@@ -383,7 +383,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
          Message received = consumer.receive(1000);
 
          assertNotNull(received, "Should have received a message by now.");
-         assertTrue(received instanceof MapMessage, "Should be an instance of MapMessage");
+         assertInstanceOf(MapMessage.class, received, "Should be an instance of MapMessage");
          MapMessage receivedMapMessage = (MapMessage) received;
 
          assertEquals(BOOLEAN_VALUE, receivedMapMessage.getBoolean(BOOLEAN_KEY));
@@ -394,7 +394,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
          assertEquals(FLOAT_VALUE, receivedMapMessage.getFloat(FLOAT_KEY), 0);
          assertEquals(INT_VALUE, receivedMapMessage.getInt(INT_KEY));
          assertEquals(LONG_VALUE, receivedMapMessage.getLong(LONG_KEY));
-         assertTrue(receivedMapMessage.getObject(OBJECT_KEY) instanceof Boolean);
+         assertInstanceOf(Boolean.class, receivedMapMessage.getObject(OBJECT_KEY));
          assertEquals(OBJECT_VALUE, receivedMapMessage.getObject(OBJECT_KEY));
          assertEquals(SHORT_VALUE, receivedMapMessage.getShort(SHORT_KEY));
          assertEquals(STRING_VALUE, receivedMapMessage.getString(STRING_KEY));

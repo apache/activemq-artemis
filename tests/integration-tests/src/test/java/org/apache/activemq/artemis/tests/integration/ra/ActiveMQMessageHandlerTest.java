@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.ra;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -255,7 +256,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       try {
          Object obj = objMsg.getObject();
          assertTrue(shouldSucceed, "deserialization should fail but got: " + obj);
-         assertTrue(obj instanceof DummySerializable);
+         assertInstanceOf(DummySerializable.class, obj);
       } catch (JMSException e) {
          assertFalse(shouldSucceed, "got unexpected exception: " + e);
       }
@@ -895,7 +896,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
          qResourceAdapter.endpointActivation(endpointFactory, spec);
          fail();
       } catch (Exception e) {
-         assertTrue(e instanceof InvalidPropertyException);
+         assertInstanceOf(InvalidPropertyException.class, e);
          assertEquals("subscriptionName", ((InvalidPropertyException) e).getInvalidPropertyDescriptors()[0].getName());
       }
    }
@@ -922,7 +923,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
          qResourceAdapter.endpointActivation(endpointFactory, spec);
          fail();
       } catch (Exception e) {
-         assertTrue(e instanceof InvalidPropertyException);
+         assertInstanceOf(InvalidPropertyException.class, e);
          assertEquals("destinationType", ((InvalidPropertyException) e).getInvalidPropertyDescriptors()[0].getName());
       }
    }

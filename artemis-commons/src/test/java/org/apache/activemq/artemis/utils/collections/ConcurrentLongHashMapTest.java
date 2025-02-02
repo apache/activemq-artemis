@@ -59,8 +59,8 @@ public class ConcurrentLongHashMapTest {
 
       assertEquals("one", map.remove(1));
       assertEquals(2, map.size());
-      assertEquals(null, map.get(1));
-      assertEquals(null, map.get(5));
+      assertNull(map.get(1));
+      assertNull(map.get(5));
       assertEquals(2, map.size());
 
       assertNull(map.put(1, "one"));
@@ -263,14 +263,14 @@ public class ConcurrentLongHashMapTest {
       int bucket2 = ConcurrentLongHashMap.signSafeMod(ConcurrentLongHashMap.hash(key2), Buckets);
       assertEquals(bucket1, bucket2);
 
-      assertEquals(null, map.put(key1, "value-1"));
-      assertEquals(null, map.put(key2, "value-2"));
+      assertNull(map.put(key1, "value-1"));
+      assertNull(map.put(key2, "value-2"));
       assertEquals(2, map.size());
 
       assertEquals("value-1", map.remove(key1));
       assertEquals(1, map.size());
 
-      assertEquals(null, map.put(key1, "value-1-overwrite"));
+      assertNull(map.put(key1, "value-1-overwrite"));
       assertEquals(2, map.size());
 
       assertEquals("value-1-overwrite", map.remove(key1));
@@ -287,7 +287,7 @@ public class ConcurrentLongHashMapTest {
    @Test
    public void testPutIfAbsent() {
       ConcurrentLongHashMap<String> map = new ConcurrentLongHashMap<>();
-      assertEquals(null, map.putIfAbsent(1, "one"));
+      assertNull(map.putIfAbsent(1, "one"));
       assertEquals("one", map.get(1));
 
       assertEquals("one", map.putIfAbsent(1, "uno"));

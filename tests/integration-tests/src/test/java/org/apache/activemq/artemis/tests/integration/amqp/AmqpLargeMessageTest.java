@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -532,7 +534,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
             sender.send(message);
             fail();
          } catch (IOException e) {
-            assertTrue(e.getCause() instanceof JMSException);
+            assertInstanceOf(JMSException.class, e.getCause());
             assertTrue(e.getMessage().contains("AMQ149005"));
          }
 
@@ -682,7 +684,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          logger.debug("Calling receive");
          Message received = consumer.receive();
          assertNotNull(received);
-         assertTrue(received instanceof BytesMessage);
+         assertInstanceOf(BytesMessage.class, received);
          BytesMessage bytesMessage = (BytesMessage) received;
          assertNotNull(bytesMessage);
          endTime = System.currentTimeMillis();
@@ -690,7 +692,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          logger.debug("Returned from receive after {} ms", endTime - startTime);
          byte[] bytesReceived = new byte[expectedSize];
          assertEquals(expectedSize, bytesMessage.readBytes(bytesReceived, expectedSize));
-         assertTrue(Arrays.equals(payload, bytesReceived));
+         assertArrayEquals(payload, bytesReceived);
          connection.close();
       }
    }
@@ -890,7 +892,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       Section body = message.getWrappedMessage().getBody();
       assertNotNull(body, "No message body for msg " + msgNum);
 
-      assertTrue(body instanceof Data, "Unexpected message body type for msg " + body.getClass());
+      assertInstanceOf(Data.class, body, "Unexpected message body type for msg " + body.getClass());
       assertEquals(new Binary(expectedPayload, 0, expectedPayload.length), ((Data) body).getValue(), "Unexpected body content for msg");
    }
 
@@ -919,9 +921,9 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          assertNotNull(received, "failed to read large AMQP message");
          MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
 
-         assertTrue(wrapped.getBody() instanceof AmqpValue);
+         assertInstanceOf(AmqpValue.class, wrapped.getBody());
          AmqpValue body = (AmqpValue) wrapped.getBody();
-         assertTrue(body.getValue() instanceof Binary);
+         assertInstanceOf(Binary.class, body.getValue());
          Binary payload = (Binary) body.getValue();
          assertEquals(0, payload.getLength());
 
@@ -957,9 +959,9 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          assertNotNull(received, "failed to read large AMQP message");
          MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
 
-         assertTrue(wrapped.getBody() instanceof Data);
+         assertInstanceOf(Data.class, wrapped.getBody());
          Data body = (Data) wrapped.getBody();
-         assertTrue(body.getValue() instanceof Binary);
+         assertInstanceOf(Binary.class, body.getValue());
          Binary payload = body.getValue();
          assertEquals(0, payload.getLength());
 
@@ -999,9 +1001,9 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          assertNotNull(received, "failed to read large AMQP message");
          MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
 
-         assertTrue(wrapped.getBody() instanceof Data);
+         assertInstanceOf(Data.class, wrapped.getBody());
          Data body = (Data) wrapped.getBody();
-         assertTrue(body.getValue() instanceof Binary);
+         assertInstanceOf(Binary.class, body.getValue());
          Binary payload = body.getValue();
          String reconstitutedString = new String(
             payload.getArray(), payload.getArrayOffset(), payload.getLength(), StandardCharsets.UTF_8);
@@ -1046,9 +1048,9 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          assertNotNull(received, "failed to read large AMQP message");
          MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
 
-         assertTrue(wrapped.getBody() instanceof AmqpValue);
+         assertInstanceOf(AmqpValue.class, wrapped.getBody());
          AmqpValue body = (AmqpValue) wrapped.getBody();
-         assertTrue(body.getValue() instanceof List);
+         assertInstanceOf(List.class, body.getValue());
          List<String> payload = (List) body.getValue();
          assertEquals(3, payload.size());
 
@@ -1090,9 +1092,9 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          assertNotNull(received, "failed to read large AMQP message");
          MessageImpl wrapped = (MessageImpl) received.getWrappedMessage();
 
-         assertTrue(wrapped.getBody() instanceof AmqpSequence);
+         assertInstanceOf(AmqpSequence.class, wrapped.getBody());
          AmqpSequence body = (AmqpSequence) wrapped.getBody();
-         assertTrue(body.getValue() instanceof List);
+         assertInstanceOf(List.class, body.getValue());
          List<String> payload = (List) body.getValue();
          assertEquals(3, payload.size());
 

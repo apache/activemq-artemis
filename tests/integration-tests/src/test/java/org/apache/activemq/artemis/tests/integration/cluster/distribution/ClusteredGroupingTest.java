@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -384,7 +384,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       // Validating if it's the right server
       Response response = servers[0].getGroupingHandler().getProposal(groupIDOnConsumer1.concat(".").concat("queue0"), false);
-      assertTrue(response.getClusterName().toString().equals("queue0" + node1ID));
+      assertEquals(response.getClusterName().toString(), "queue0" + node1ID);
 
       stopServers(0, 1, 2);
 
@@ -412,7 +412,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
 
       response = servers[0].getGroupingHandler().getProposal(groupIDOnConsumer1.concat(".").concat("queue0"), false);
 
-      assertFalse(response.getClusterName().toString().equals("queue0" + node1ID), "group should have been reassigned since server is not up yet");
+      assertNotEquals(response.getClusterName().toString(), "queue0" + node1ID, "group should have been reassigned since server is not up yet");
 
       assertNotNull(msg);
       msg.acknowledge();

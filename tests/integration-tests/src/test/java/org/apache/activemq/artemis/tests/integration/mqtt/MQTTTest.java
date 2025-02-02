@@ -20,6 +20,7 @@ import static org.apache.activemq.artemis.utils.collections.IterableStream.itera
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -1664,7 +1665,7 @@ public class MQTTTest extends MQTTTestSupport {
 
          javax.jms.Message message = consumer.receive(2 * 1000);
          assertNotNull(message);
-         assertTrue(message instanceof BytesMessage);
+         assertInstanceOf(BytesMessage.class, message);
          BytesMessage bytesMessage = (BytesMessage) message;
 
          int length = (int) bytesMessage.getBodyLength();
@@ -1746,7 +1747,7 @@ public class MQTTTest extends MQTTTestSupport {
          Message message = connectionSub.receive(5, TimeUnit.SECONDS);
          assertNotNull(message);
          received++;
-         assertTrue(Arrays.equals(payload, message.getPayload()));
+         assertArrayEquals(payload, message.getPayload());
          message.ack();
       }
       connectionSub.disconnect();
@@ -1765,7 +1766,7 @@ public class MQTTTest extends MQTTTestSupport {
             Message message = connectionSub.receive(5, TimeUnit.SECONDS);
             assertNotNull(message);
             received++;
-            assertTrue(Arrays.equals(payload, message.getPayload()));
+            assertArrayEquals(payload, message.getPayload());
             message.ack();
          }
          connectionSub.disconnect();

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -95,7 +96,7 @@ public class JMSSharedConsumerTest extends MultiprotocolJMSClientTestSupport {
             received = message2;
          }
          assertNotNull(received, "Should have received a message by now.");
-         assertTrue(received instanceof TextMessage, "Should be an instance of TextMessage");
+         assertInstanceOf(TextMessage.class, received, "Should be an instance of TextMessage");
 
          String consumerQueueName = "nonDurable.SharedConsumer";
          if (amqpQueueName) {

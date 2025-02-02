@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -29,8 +25,8 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-import java.lang.invoke.MethodHandles;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -65,6 +61,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public abstract class StompTestBase extends ActiveMQTestBase {
 
@@ -541,7 +540,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
 
       if (receipt) {
          assertNotNull(frame, "Requested receipt, but response is null");
-         assertTrue(frame.getHeader(Stomp.Headers.Response.RECEIPT_ID).equals(uuid));
+         assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
       }
 
       return frame;

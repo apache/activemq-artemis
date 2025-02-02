@@ -133,7 +133,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.stop();
 
       server.start();
-      assertTrue(server.locateQueue("sometest") == null);
+      assertNull(server.locateQueue("sometest"));
       Wait.assertTrue(server::isActive);
       server_2.start();
       // if this does not succeed the catch up did not arrive at the other server
@@ -216,7 +216,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       Wait.assertTrue(() -> server_2.locateQueue(queueName) == null);
       Thread.sleep(100);
 
-      assertTrue(server.locateQueue(queueName) != null, "Queue was removed when it was configured to not remove it");
+      assertNotNull(server.locateQueue(queueName), "Queue was removed when it was configured to not remove it");
 
       server_2.stop();
       server.stop();
@@ -262,8 +262,8 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          Wait.assertTrue(() -> server.getAddressInfo(ADDRESS_NAME) != null);
       } else {
          Thread.sleep(250); // things are asynchronous, I need to wait some time to make sure things are transferred over
-         assertTrue(server.locateQueue(ADDRESS_NAME) == null);
-         assertTrue(server.getAddressInfo(ADDRESS_NAME) == null);
+         assertNull(server.locateQueue(ADDRESS_NAME));
+         assertNull(server.getAddressInfo(ADDRESS_NAME));
       }
       server_2.stop();
       server.stop();
@@ -302,8 +302,8 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
 
       server.start();
-      assertTrue(server.locateQueue("sometest") == null);
-      assertTrue(server.locateQueue("ToBeGone") != null);
+      assertNull(server.locateQueue("sometest"));
+      assertNotNull(server.locateQueue("ToBeGone"));
       Wait.assertTrue(server::isActive);
       server_2.start();
       // if this does not succeed the catch up did not arrive at the other server
@@ -344,7 +344,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
 
       server.start();
-      assertTrue(server.locateQueue("sometest") == null);
+      assertNull(server.locateQueue("sometest"));
       Wait.assertTrue(server::isActive);
       server_2.start();
       // if this does not succeed the catch up did not arrive at the other server

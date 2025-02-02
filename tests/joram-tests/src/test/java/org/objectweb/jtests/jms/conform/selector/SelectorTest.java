@@ -45,7 +45,7 @@ public class SelectorTest extends PTPTestCase {
       sender.send(message);
 
       TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
-      Assert.assertTrue("No message was received", msg != null);
+      Assert.assertNotNull("No message was received", msg);
       Assert.assertEquals("testEmptyStringAsSelector", msg.getText());
    }
 
@@ -75,7 +75,7 @@ public class SelectorTest extends PTPTestCase {
       sender.send(message);
 
       TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
-      Assert.assertTrue("No message was received", msg != null);
+      Assert.assertNotNull("No message was received", msg);
       Assert.assertEquals("testStringLiterals:2", msg.getText());
    }
 
@@ -101,7 +101,7 @@ public class SelectorTest extends PTPTestCase {
       sender.send(message, DeliveryMode.PERSISTENT, sender.getPriority(), sender.getTimeToLive());
 
       TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
-      Assert.assertTrue("No message was received", msg != null);
+      Assert.assertNotNull("No message was received", msg);
       // only the message sent in persistent mode should be received.
       Assert.assertEquals(DeliveryMode.PERSISTENT, msg.getJMSDeliveryMode());
       Assert.assertEquals("testJMSDeliveryModeInSelector:2", msg.getText());
@@ -274,7 +274,7 @@ public class SelectorTest extends PTPTestCase {
       sender.send(message);
 
       TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
-      Assert.assertTrue("Message not received", msg != null);
+      Assert.assertNotNull("Message not received", msg);
       Assert.assertTrue("Message of another test: " + msg.getText(), msg.getText().startsWith("testBetween"));
       Assert.assertEquals("testBetween:2", msg.getText());
    }
@@ -304,7 +304,7 @@ public class SelectorTest extends PTPTestCase {
       sender.send(message);
 
       TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
-      Assert.assertTrue("Message not received", msg != null);
+      Assert.assertNotNull("Message not received", msg);
       Assert.assertTrue("Message of another test: " + msg.getText(), msg.getText().startsWith("testIn"));
       Assert.assertEquals("testIn:2", msg.getText());
    }
@@ -334,7 +334,7 @@ public class SelectorTest extends PTPTestCase {
       sender.send(message);
 
       TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
-      Assert.assertTrue("Message not received", msg != null);
+      Assert.assertNotNull("Message not received", msg);
       Assert.assertTrue("Message of another test: " + msg.getText(), msg.getText().startsWith("testLikeEscape"));
       Assert.assertEquals("testLikeEscape:2", msg.getText());
    }
@@ -364,7 +364,7 @@ public class SelectorTest extends PTPTestCase {
       sender.send(message);
 
       TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
-      Assert.assertTrue("Message not received", msg != null);
+      Assert.assertNotNull("Message not received", msg);
       Assert.assertTrue("Message of another test: " + msg.getText(), msg.getText().startsWith("testLike_2"));
       Assert.assertEquals("testLike_2:2", msg.getText());
    }
@@ -394,7 +394,7 @@ public class SelectorTest extends PTPTestCase {
       sender.send(message);
 
       TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
-      Assert.assertTrue("Message not received", msg != null);
+      Assert.assertNotNull("Message not received", msg);
       Assert.assertTrue("Message of another test: " + msg.getText(), msg.getText().startsWith("testLike_1"));
       Assert.assertEquals("testLike_1:2", msg.getText());
    }
@@ -423,7 +423,7 @@ public class SelectorTest extends PTPTestCase {
       sender.send(message);
 
       TextMessage msg = (TextMessage) receiver.receive(TestConfig.TIMEOUT);
-      Assert.assertTrue(msg != null);
+      Assert.assertNotNull(msg);
       Assert.assertEquals("testNull:2", msg.getText());
    }
 }

@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.service.extensions.tests.xa;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.lang.reflect.Method;
 
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class ServiceUtilsTest {
 
@@ -30,6 +30,6 @@ public class ServiceUtilsTest {
       Method method = ServiceUtils.class.getDeclaredMethod("getActiveMQXAResourceWrapperFactory");
       method.setAccessible(true);
       Object o = method.invoke(null);
-      assertTrue(o instanceof MockActiveMQResourceWrapperFactory);
+      assertInstanceOf(MockActiveMQResourceWrapperFactory.class, o);
    }
 }

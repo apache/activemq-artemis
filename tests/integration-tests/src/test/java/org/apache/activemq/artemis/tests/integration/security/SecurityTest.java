@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.security;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -28,12 +23,12 @@ import javax.jms.JMSSecurityException;
 import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
-import java.security.cert.X509Certificate;
 import javax.security.auth.Subject;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,7 +37,6 @@ import java.util.Set;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQSslConnectionFactory;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -86,6 +80,12 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * See the tests/security-resources/build.sh script for details on the security resources used.
@@ -535,7 +535,7 @@ public class SecurityTest extends ActiveMQTestBase {
          cf.createSession();
          fail("Creating session here should fail due to authentication error.");
       } catch (ActiveMQException e) {
-         assertTrue(e.getType() == ActiveMQExceptionType.SECURITY_EXCEPTION);
+         assertInstanceOf(ActiveMQSecurityException.class, e);
       }
    }
 
@@ -703,7 +703,7 @@ public class SecurityTest extends ActiveMQTestBase {
          ClientConsumer consumer = bSession.createConsumer(QUEUE_A);
          fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e instanceof ActiveMQSecurityException);
+         assertInstanceOf(ActiveMQSecurityException.class, e);
       }
 
       // client B CONSUME from queue B
@@ -719,7 +719,7 @@ public class SecurityTest extends ActiveMQTestBase {
          ClientConsumer consumer = aSession.createConsumer(QUEUE_B);
          fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e instanceof ActiveMQSecurityException);
+         assertInstanceOf(ActiveMQSecurityException.class, e);
       }
    }
 
@@ -750,7 +750,7 @@ public class SecurityTest extends ActiveMQTestBase {
          session.createConsumer(QUEUE);
          fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e instanceof ActiveMQSecurityException);
+         assertInstanceOf(ActiveMQSecurityException.class, e);
       }
    }
 
@@ -795,7 +795,7 @@ public class SecurityTest extends ActiveMQTestBase {
          bSession.createConsumer(queueA);
          fail("should throw exception here");
       } catch (JMSException e) {
-         assertTrue(e instanceof JMSSecurityException);
+         assertInstanceOf(JMSSecurityException.class, e);
       }
 
       // client B CONSUME from queue B
@@ -811,7 +811,7 @@ public class SecurityTest extends ActiveMQTestBase {
          aSession.createConsumer(queueB);
          fail("should throw exception here");
       } catch (JMSException e) {
-         assertTrue(e instanceof JMSSecurityException);
+         assertInstanceOf(JMSSecurityException.class, e);
       }
 
       aConnection.close();
