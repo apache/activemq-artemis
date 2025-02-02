@@ -59,7 +59,7 @@ public class NewDeadLetterAddressTest extends ActiveMQTestBase {
       ClientMessage m = clientConsumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
    }
 
    @Override

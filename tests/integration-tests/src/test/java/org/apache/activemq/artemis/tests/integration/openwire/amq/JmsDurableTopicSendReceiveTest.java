@@ -83,9 +83,9 @@ public class JmsDurableTopicSendReceiveTest extends JmsTopicSendReceiveTest {
       consumer2 = consumeSession2.createDurableSubscriber((Topic) consumerDestination2, getName());
       Message msg = consumer2.receive(1000);
       assertNotNull(msg);
-      assertEquals(((TextMessage) msg).getText(), "test");
-      assertEquals(msg.getJMSType(), "test");
-      assertEquals(msg.getStringProperty("test"), "test");
+      assertEquals("test", ((TextMessage) msg).getText());
+      assertEquals("test", msg.getJMSType());
+      assertEquals("test", msg.getStringProperty("test"));
       connection2.stop();
       connection2.close();
    }

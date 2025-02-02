@@ -155,7 +155,7 @@ public class FederatedAddressTest extends FederatedTestBase {
          producer1.send(session1.createTextMessage("hello"));
          Message message = consumer0.receive(1000);
          assertNotNull(message);
-         assertEquals(message.getBooleanProperty(FederatedQueueTest.TestTransformer.TEST_PROPERTY), true);
+         assertEquals(true, message.getBooleanProperty(FederatedQueueTest.TestTransformer.TEST_PROPERTY));
       }
    }
 

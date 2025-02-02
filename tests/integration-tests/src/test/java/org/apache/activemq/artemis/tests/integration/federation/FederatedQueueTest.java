@@ -213,7 +213,7 @@ public class FederatedQueueTest extends FederatedTestBase {
 
          Message message = consumer0.receive(1000);
          assertNotNull(message);
-         assertEquals(message.getBooleanProperty(TestTransformer.TEST_PROPERTY), true);
+         assertEquals(true, message.getBooleanProperty(TestTransformer.TEST_PROPERTY));
       }
    }
 

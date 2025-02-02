@@ -74,9 +74,9 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       ActiveMQConnectionFactory y = deserialize(x, ActiveMQConnectionFactory.class);
       checkEquals(cf, y);
       DiscoveryGroupConfiguration dgc = y.getDiscoveryGroupConfiguration();
-      assertEquals(dgc.getName(), "dg1");
-      assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5000);
-      assertEquals(dgc.getRefreshTimeout(), 5000);
+      assertEquals("dg1", dgc.getName());
+      assertEquals(5000, dgc.getDiscoveryInitialWaitTimeout());
+      assertEquals(5000, dgc.getRefreshTimeout());
       assertTrue(dgc.getBroadcastEndpointFactory() instanceof UDPBroadcastEndpointFactory);
       UDPBroadcastEndpointFactory befc = (UDPBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
       assertEquals(Integer.parseInt(System.getProperty("org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindPort", "-1")), befc.getLocalBindPort());
@@ -96,9 +96,9 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       ActiveMQConnectionFactory y = deserialize(x, ActiveMQConnectionFactory.class);
       checkEquals(cf, y);
       DiscoveryGroupConfiguration dgc = y.getDiscoveryGroupConfiguration();
-      assertEquals(dgc.getName(), "dg1");
-      assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5000);
-      assertEquals(dgc.getRefreshTimeout(), 5000);
+      assertEquals("dg1", dgc.getName());
+      assertEquals(5000, dgc.getDiscoveryInitialWaitTimeout());
+      assertEquals(5000, dgc.getRefreshTimeout());
       assertTrue(dgc.getBroadcastEndpointFactory() instanceof JGroupsFileBroadcastEndpointFactory);
       JGroupsFileBroadcastEndpointFactory befc = (JGroupsFileBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
       assertEquals("myChannel", befc.getChannelName());
@@ -117,7 +117,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       checkEquals(cf, y);
       assertEquals(cf.isHA(), y.isHA());
       TransportConfiguration[] staticConnectors = y.getStaticConnectors();
-      assertEquals(staticConnectors.length, 2);
+      assertEquals(2, staticConnectors.length);
       TransportConfiguration tc0 = cf.getStaticConnectors()[0];
       TransportConfiguration y0 = y.getStaticConnectors()[0];
       Map<String, Object> ctParams = tc0.getParams();

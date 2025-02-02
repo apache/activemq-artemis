@@ -94,7 +94,7 @@ public class DefaultSensitiveStringCodecTest {
          String decoded = codec.decode(maskedText);
          logger.debug("encoded value: {}", maskedText);
 
-         assertEquals(decoded, plainText, "decoded result not match: " + decoded);
+         assertEquals(plainText, decoded, "decoded result not match: " + decoded);
       }
 
       assertTrue(codec.verify(plainText.toCharArray(), maskedText));

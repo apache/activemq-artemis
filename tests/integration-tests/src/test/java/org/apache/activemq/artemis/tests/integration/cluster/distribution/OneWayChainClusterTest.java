@@ -363,7 +363,7 @@ public class OneWayChainClusterTest extends ClusterTestBase {
          }
       }
       assertNotNull(records);
-      assertEquals(records.size(), 1);
+      assertEquals(1, records.size());
       getServer(1).getClusterManager().getClusterConnections();
       assertNotNull(connectionSet);
       assertEquals(1, connectionSet.size());
@@ -371,7 +371,7 @@ public class OneWayChainClusterTest extends ClusterTestBase {
 
       records = ccon.getRecords();
       assertNotNull(records);
-      assertEquals(records.size(), 1);
+      assertEquals(1, records.size());
       getServer(2).getClusterManager().getClusterConnections();
       assertNotNull(connectionSet);
       assertEquals(1, connectionSet.size());
@@ -379,7 +379,7 @@ public class OneWayChainClusterTest extends ClusterTestBase {
 
       records = ccon.getRecords();
       assertNotNull(records);
-      assertEquals(records.size(), 1);
+      assertEquals(1, records.size());
       getServer(3).getClusterManager().getClusterConnections();
       assertNotNull(connectionSet);
       assertEquals(1, connectionSet.size());
@@ -387,7 +387,7 @@ public class OneWayChainClusterTest extends ClusterTestBase {
 
       records = ccon.getRecords();
       assertNotNull(records);
-      assertEquals(records.size(), 1);
+      assertEquals(1, records.size());
 
       getServer(4).getClusterManager().getClusterConnections();
       assertNotNull(connectionSet);
@@ -396,6 +396,6 @@ public class OneWayChainClusterTest extends ClusterTestBase {
 
       records = ccon.getRecords();
       assertNotNull(records);
-      assertEquals(records.size(), 1);
+      assertEquals(1, records.size());
    }
 }

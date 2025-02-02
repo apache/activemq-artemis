@@ -125,11 +125,11 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
       queueConnection.start();
       TextMessage textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.rollback();
       textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.commit();
       textMessage = (TextMessage) consumer.receiveNoWait();
       assertNull(textMessage);
@@ -156,11 +156,11 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
       queueConnection.start();
       TextMessage textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.rollback();
       textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.commit();
       textMessage = (TextMessage) consumer.receiveNoWait();
       assertNull(textMessage);
@@ -187,11 +187,11 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
       queueConnection.start();
       TextMessage textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.rollback();
       textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.commit();
       textMessage = (TextMessage) consumer.receiveNoWait();
       assertNull(textMessage);
@@ -200,7 +200,7 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
    @Test
    public void sessionNotTransactedTestNoActiveJTATx() throws Exception {
       JMSContext context = qraConnectionFactory.createContext(JMSContext.AUTO_ACKNOWLEDGE);
-      assertEquals(context.getSessionMode(), JMSContext.AUTO_ACKNOWLEDGE);
+      assertEquals(JMSContext.AUTO_ACKNOWLEDGE, context.getSessionMode());
    }
 
    @Test
@@ -258,7 +258,7 @@ public class OutgoingConnectionNoJTATest extends ActiveMQRATestBase {
       queueConnection.start();
       TextMessage textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
    }
 
    @Test

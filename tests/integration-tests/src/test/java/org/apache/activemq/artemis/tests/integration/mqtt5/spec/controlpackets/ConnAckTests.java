@@ -493,7 +493,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       boolean found = false;
       // make sure the keep-alive set by the client is used by the server (multiplied by 1500 because the client uses milliseconds instead of seconds and the value is modified by 1.5 per the spec)
       for (ConnectionEntry entry : ((RemotingServiceImpl)getServer().getRemotingService()).getConnectionEntries()) {
-         assertEquals(entry.ttl, KEEP_ALIVE * MQTTUtil.KEEP_ALIVE_ADJUSTMENT);
+         assertEquals(KEEP_ALIVE * MQTTUtil.KEEP_ALIVE_ADJUSTMENT, entry.ttl);
          found = true;
       }
       assertTrue(found);
@@ -519,7 +519,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       assertEquals(SERVER_KEEP_ALIVE, (long) result.getResponseProperties().getServerKeepAlive());
       boolean found = false;
       for (ConnectionEntry entry : ((RemotingServiceImpl)getServer().getRemotingService()).getConnectionEntries()) {
-         assertEquals(entry.ttl, -1);
+         assertEquals(-1, entry.ttl);
          found = true;
       }
       assertTrue(found);
@@ -543,7 +543,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       assertEquals(SERVER_KEEP_ALIVE, (long) result.getResponseProperties().getServerKeepAlive());
       boolean found = false;
       for (ConnectionEntry entry : ((RemotingServiceImpl)getServer().getRemotingService()).getConnectionEntries()) {
-         assertEquals(entry.ttl, SERVER_KEEP_ALIVE * MQTTUtil.KEEP_ALIVE_ADJUSTMENT);
+         assertEquals(SERVER_KEEP_ALIVE * MQTTUtil.KEEP_ALIVE_ADJUSTMENT, entry.ttl);
          found = true;
       }
       assertTrue(found);

@@ -241,7 +241,7 @@ public class SocksProxyTest extends ActiveMQTestBase {
       connector.getBootStrap().register().await().channel().pipeline();
 
       AddressResolverGroup<?> resolver = connector.getBootStrap().config().resolver();
-      assertSame(resolver, NoopAddressResolverGroup.INSTANCE);
+      assertSame(NoopAddressResolverGroup.INSTANCE, resolver);
 
       Connection connection = connector.createConnection(future -> {
          future.awaitUninterruptibly();

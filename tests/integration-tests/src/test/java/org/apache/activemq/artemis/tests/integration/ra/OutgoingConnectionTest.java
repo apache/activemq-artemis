@@ -138,7 +138,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
       resource.end(xid, XAResource.TMSUCCESS);
       resource.commit(xid, true);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
 
       // When I wrote this call, this method was doing an infinite loop.
       // this is just to avoid such thing again

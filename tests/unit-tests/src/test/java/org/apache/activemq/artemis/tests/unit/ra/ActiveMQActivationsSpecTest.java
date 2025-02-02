@@ -62,10 +62,10 @@ public class ActiveMQActivationsSpecTest {
    @Test
    public void validateAcknowledgeMode() {
       assertThrows(IllegalArgumentException.class, () -> {
-         assertEquals(ActiveMQActivationValidationUtils.validateAcknowledgeMode("DUPS_OK_ACKNOWLEDGE"), Session.DUPS_OK_ACKNOWLEDGE);
-         assertEquals(ActiveMQActivationValidationUtils.validateAcknowledgeMode("Dups-ok-acknowledge"), Session.DUPS_OK_ACKNOWLEDGE);
-         assertEquals(ActiveMQActivationValidationUtils.validateAcknowledgeMode("AUTO_ACKNOWLEDGE"), Session.AUTO_ACKNOWLEDGE);
-         assertEquals(ActiveMQActivationValidationUtils.validateAcknowledgeMode("Auto-acknowledge"), Session.AUTO_ACKNOWLEDGE);
+         assertEquals(Session.DUPS_OK_ACKNOWLEDGE, ActiveMQActivationValidationUtils.validateAcknowledgeMode("DUPS_OK_ACKNOWLEDGE"));
+         assertEquals(Session.DUPS_OK_ACKNOWLEDGE, ActiveMQActivationValidationUtils.validateAcknowledgeMode("Dups-ok-acknowledge"));
+         assertEquals(Session.AUTO_ACKNOWLEDGE, ActiveMQActivationValidationUtils.validateAcknowledgeMode("AUTO_ACKNOWLEDGE"));
+         assertEquals(Session.AUTO_ACKNOWLEDGE, ActiveMQActivationValidationUtils.validateAcknowledgeMode("Auto-acknowledge"));
          ActiveMQActivationValidationUtils.validateAcknowledgeMode("Invalid Acknowledge Mode");
       });
    }

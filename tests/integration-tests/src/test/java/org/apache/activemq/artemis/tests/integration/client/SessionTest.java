@@ -210,12 +210,12 @@ public class SessionTest extends ActiveMQTestBase {
       assertTrue(queues.isEmpty());
       resp = clientSession.addressQuery(SimpleString.of("a1"));
       queues = resp.getQueueNames();
-      assertEquals(queues.size(), 2);
+      assertEquals(2, queues.size());
       assertTrue(queues.contains(SimpleString.of("q1")));
       assertTrue(queues.contains(SimpleString.of("q2")));
       resp = clientSession.addressQuery(SimpleString.of("a2"));
       queues = resp.getQueueNames();
-      assertEquals(queues.size(), 3);
+      assertEquals(3, queues.size());
       assertTrue(queues.contains(SimpleString.of("q3")));
       assertTrue(queues.contains(SimpleString.of("q4")));
       assertTrue(queues.contains(SimpleString.of("q5")));

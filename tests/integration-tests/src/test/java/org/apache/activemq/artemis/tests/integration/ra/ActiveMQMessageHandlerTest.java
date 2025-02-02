@@ -90,7 +90,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
+      assertEquals("teststring", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
 
@@ -163,7 +163,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
+      assertEquals("teststring", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
 
@@ -426,7 +426,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
+      assertEquals("teststring", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       server.stop();
 
@@ -484,7 +484,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "teststring");
+      assertEquals("teststring", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();
@@ -520,7 +520,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "red");
+      assertEquals("red", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();
@@ -542,9 +542,9 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       Binding binding = server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE);
-      assertEquals(((LocalQueueBinding) binding).getQueue().getConsumerCount(), 15);
+      assertEquals(15, ((LocalQueueBinding) binding).getQueue().getConsumerCount());
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
-      assertEquals(((LocalQueueBinding) binding).getQueue().getConsumerCount(), 0);
+      assertEquals(0, ((LocalQueueBinding) binding).getQueue().getConsumerCount());
       assertTrue(endpoint.released);
       qResourceAdapter.stop();
    }
@@ -566,7 +566,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       Binding binding = server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE);
-      assertEquals(((LocalQueueBinding) binding).getQueue().getConsumerCount(), 1);
+      assertEquals(1, ((LocalQueueBinding) binding).getQueue().getConsumerCount());
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();
    }
@@ -595,7 +595,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "test");
+      assertEquals("test", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();
@@ -628,7 +628,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "1");
+      assertEquals("1", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
 
@@ -643,7 +643,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "2");
+      assertEquals("2", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
       latch = new CountDownLatch(1);
       endpoint.reset(latch);
       message = session.createMessage(true);
@@ -652,7 +652,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "3");
+      assertEquals("3", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();
    }
@@ -681,7 +681,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "1");
+      assertEquals("1", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
 
@@ -699,7 +699,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "3");
+      assertEquals("3", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();
    }
@@ -730,7 +730,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "1");
+      assertEquals("1", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       ActiveMQActivation activation = lookupActivation(qResourceAdapter);
 
@@ -783,7 +783,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "1");
+      assertEquals("1", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
 
@@ -805,7 +805,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "3");
+      assertEquals("3", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();
    }
@@ -956,7 +956,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "1");
+      assertEquals("1", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
 
@@ -972,7 +972,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "2");
+      assertEquals("2", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();
 

@@ -112,7 +112,7 @@ public class AMQPToOpenwireTest extends ActiveMQTestBase {
          ObjectMessage receive = (ObjectMessage) consumer.receive(5000);
          assertNotNull(receive);
          list = (ArrayList)receive.getObject();
-         assertEquals(list.get(0), "aString");
+         assertEquals("aString", list.get(0));
          connection.close();
       } finally {
          if (connection != null) {

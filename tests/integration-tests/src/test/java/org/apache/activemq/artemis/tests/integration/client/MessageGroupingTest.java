@@ -239,7 +239,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       DummyMessageHandler dummyMessageHandler = new DummyMessageHandler(latch, true);
       consumer.setMessageHandler(dummyMessageHandler);
       assertTrue(latch.await(10, TimeUnit.SECONDS));
-      assertEquals(dummyMessageHandler.list.size(), 100);
+      assertEquals(100, dummyMessageHandler.list.size());
       int i = 0;
       for (ClientMessage message : dummyMessageHandler.list) {
          assertEquals(message.getBodyBuffer().readString(), "m" + i);
@@ -281,13 +281,13 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       consumer2.setMessageHandler(dummyMessageHandler2);
       assertTrue(latch.await(10, TimeUnit.SECONDS));
       clientSession.commit();
-      assertEquals(dummyMessageHandler.list.size(), 50);
+      assertEquals(50, dummyMessageHandler.list.size());
       int i = 0;
       for (ClientMessage message : dummyMessageHandler.list) {
          assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
-      assertEquals(dummyMessageHandler2.list.size(), 50);
+      assertEquals(50, dummyMessageHandler2.list.size());
       i = 1;
       for (ClientMessage message : dummyMessageHandler2.list) {
          assertEquals(message.getBodyBuffer().readString(), "m" + i);
@@ -339,7 +339,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
          assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
-      assertEquals(dummyMessageHandler2.list.size(), 50);
+      assertEquals(50, dummyMessageHandler2.list.size());
       i = 1;
       for (ClientMessage message : dummyMessageHandler2.list) {
          assertEquals(message.getBodyBuffer().readString(), "m" + i);
@@ -350,13 +350,13 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       dummyMessageHandler2.reset(latch);
       clientSession.rollback();
       assertTrue(latch.await(10, TimeUnit.SECONDS));
-      assertEquals(dummyMessageHandler.list.size(), 50);
+      assertEquals(50, dummyMessageHandler.list.size());
       i = 0;
       for (ClientMessage message : dummyMessageHandler.list) {
          assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
-      assertEquals(dummyMessageHandler2.list.size(), 50);
+      assertEquals(50, dummyMessageHandler2.list.size());
       i = 1;
       for (ClientMessage message : dummyMessageHandler2.list) {
          assertEquals(message.getBodyBuffer().readString(), "m" + i);
@@ -401,13 +401,13 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
       clientSession.commit(xid, false);
-      assertEquals(dummyMessageHandler.list.size(), 50);
+      assertEquals(50, dummyMessageHandler.list.size());
       int i = 0;
       for (ClientMessage message : dummyMessageHandler.list) {
          assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
-      assertEquals(dummyMessageHandler2.list.size(), 50);
+      assertEquals(50, dummyMessageHandler2.list.size());
       i = 1;
       for (ClientMessage message : dummyMessageHandler2.list) {
          assertEquals(message.getBodyBuffer().readString(), "m" + i);
@@ -454,13 +454,13 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       consumer2.setMessageHandler(dummyMessageHandler2);
       assertTrue(latch.await(10, TimeUnit.SECONDS));
       clientSession.end(xid, XAResource.TMSUCCESS);
-      assertEquals(dummyMessageHandler.list.size(), 50);
+      assertEquals(50, dummyMessageHandler.list.size());
       int i = 0;
       for (ClientMessage message : dummyMessageHandler.list) {
          assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
-      assertEquals(dummyMessageHandler2.list.size(), 50);
+      assertEquals(50, dummyMessageHandler2.list.size());
       i = 1;
       for (ClientMessage message : dummyMessageHandler2.list) {
          assertEquals(message.getBodyBuffer().readString(), "m" + i);
@@ -475,13 +475,13 @@ public class MessageGroupingTest extends ActiveMQTestBase {
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
       clientSession.commit(xid, false);
-      assertEquals(dummyMessageHandler.list.size(), 50);
+      assertEquals(50, dummyMessageHandler.list.size());
       i = 0;
       for (ClientMessage message : dummyMessageHandler.list) {
          assertEquals(message.getBodyBuffer().readString(), "m" + i);
          i += 2;
       }
-      assertEquals(dummyMessageHandler2.list.size(), 50);
+      assertEquals(50, dummyMessageHandler2.list.size());
       i = 1;
       for (ClientMessage message : dummyMessageHandler2.list) {
          assertEquals(message.getBodyBuffer().readString(), "m" + i);

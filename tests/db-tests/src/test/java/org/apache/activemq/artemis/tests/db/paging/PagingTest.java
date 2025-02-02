@@ -6480,7 +6480,7 @@ public class PagingTest extends ParameterDBTestBase {
       if (rollbackBeforeDelivery) {
          sendMessages(session, producer, numberOfMessages);
          session.rollback();
-         assertEquals(server.getPagingManager().getTransactions().size(), 1);
+         assertEquals(1, server.getPagingManager().getTransactions().size());
          PageTransactionInfo pageTransactionInfo = server.getPagingManager().getTransactions().values().iterator().next();
          // Make sure rollback happens before delivering messages
          Wait.assertTrue(() -> pageTransactionInfo.isRollback(), 1000, 100);
@@ -6493,7 +6493,7 @@ public class PagingTest extends ParameterDBTestBase {
          session.start();
          sendMessages(session, producer, numberOfMessages);
          assertNull(consumer.receiveImmediate());
-         assertEquals(server.getPagingManager().getTransactions().size(), 1);
+         assertEquals(1, server.getPagingManager().getTransactions().size());
          PageTransactionInfo pageTransactionInfo = server.getPagingManager().getTransactions().values().iterator().next();
          session.rollback();
          Wait.assertTrue(() -> pageTransactionInfo.isRollback(), 1000, 100);

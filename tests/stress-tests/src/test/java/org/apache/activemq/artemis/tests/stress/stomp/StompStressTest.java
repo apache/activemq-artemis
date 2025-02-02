@@ -156,7 +156,7 @@ public class StompStressTest extends ActiveMQTestBase {
                byte[] ba = inputBuffer.toByteArray();
                System.out.println(new String(ba, StandardCharsets.UTF_8));
             }
-            assertEquals(c, '\n', "Expecting stomp frame to terminate with \0\n");
+            assertEquals('\n', c, "Expecting stomp frame to terminate with \0\n");
             byte[] ba = inputBuffer.toByteArray();
             inputBuffer.reset();
             return new String(ba, StandardCharsets.UTF_8);

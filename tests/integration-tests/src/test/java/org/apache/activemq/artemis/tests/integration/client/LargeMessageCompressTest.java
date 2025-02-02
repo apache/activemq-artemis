@@ -124,9 +124,9 @@ public class LargeMessageCompressTest extends LargeMessageTestBase {
 
       assertNotNull(browse);
 
-      assertEquals(browse.length, 1);
+      assertEquals(1, browse.length);
 
-      assertEquals(browse[0].get("text"), "[compressed]");
+      assertEquals("[compressed]", browse[0].get("text"));
 
       //clean up
       session = addClientSession(sf.createSession(false, false, false));

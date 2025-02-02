@@ -96,7 +96,7 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest {
       Message unackMessage = consumer.receive(initRedeliveryDelay + 1000);
       assertNotNull(unackMessage);
       String unackId = unackMessage.getJMSMessageID();
-      assertEquals(((TextMessage) unackMessage).getText(), text);
+      assertEquals(text, ((TextMessage) unackMessage).getText());
       assertFalse(unackMessage.getJMSRedelivered());
       // assertEquals(unackMessage.getIntProperty("JMSXDeliveryCount"),1);
 
@@ -106,7 +106,7 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest {
       assertNotNull(ackMessage);
       ackMessage.acknowledge();
       String ackId = ackMessage.getJMSMessageID();
-      assertEquals(((TextMessage) ackMessage).getText(), text);
+      assertEquals(text, ((TextMessage) ackMessage).getText());
       assertTrue(ackMessage.getJMSRedelivered());
       // assertEquals(ackMessage.getIntProperty("JMSXDeliveryCount"),2);
       assertEquals(unackId, ackId);

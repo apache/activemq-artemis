@@ -86,7 +86,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       receiver.flow(2);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(latch2.getCount(), 0);
+      assertEquals(0, latch2.getCount());
       sender.close();
       receiver.close();
       connection.close();
@@ -155,7 +155,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       receiver.flow(2);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNull(amqpMessage);
-      assertEquals(latch.getCount(), 0);
+      assertEquals(0, latch.getCount());
       sender.close();
       receiver.close();
       connection.close();
@@ -252,7 +252,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       receiver.flow(2);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(latch2.getCount(), 0);
+      assertEquals(0, latch2.getCount());
       sender.close();
       receiver.close();
       connection.close();
@@ -298,7 +298,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       receiver.flow(2);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(latch2.getCount(), 0);
+      assertEquals(0, latch2.getCount());
       assertTrue(passed[0], "connection not set");
       sender.close();
       receiver.close();
@@ -367,7 +367,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
 
       final AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
-      assertEquals(departed.getCount(), 0);
+      assertEquals(0, departed.getCount());
       assertTrue(propertyFoundOnDispatch.get());
       assertNotNull(amqpMessage.getApplicationProperty(BYTE_PROPERTY_KEY));
       assertTrue(amqpMessage.getApplicationProperty(BYTE_PROPERTY_KEY) instanceof Binary);

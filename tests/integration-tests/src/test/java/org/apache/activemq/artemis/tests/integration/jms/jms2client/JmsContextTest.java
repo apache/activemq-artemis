@@ -579,8 +579,8 @@ public class JmsContextTest extends JMSTestBase {
          producer.setAsync(listener);
          producer.send(queue1, bMsg);
          assertTrue(latch.await(5, TimeUnit.SECONDS));
-         assertEquals(listener.message.readByte(), (byte) 1);
-         assertEquals(listener.message.readInt(), 22);
+         assertEquals((byte) 1, listener.message.readByte());
+         assertEquals(22, listener.message.readInt());
       } finally {
          context.close();
       }

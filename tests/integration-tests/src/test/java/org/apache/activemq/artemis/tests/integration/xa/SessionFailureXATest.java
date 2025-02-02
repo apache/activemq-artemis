@@ -148,19 +148,19 @@ public class SessionFailureXATest extends ActiveMQTestBase {
       ClientMessage m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       if (xaEnd) {
          // We are validating both cases, where xaEnd succeeded and didn't succeed
          // so this tests is parameterized to validate both cases.

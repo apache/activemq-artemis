@@ -109,7 +109,7 @@ public class MessagePropertyTest extends ActiveMQTestBase {
             assertNull(message.getIngressTimestamp());
 
             assertTrue(message.containsProperty("null-value"));
-            assertEquals(message.getObjectProperty("null-value"), null);
+            assertEquals(null, message.getObjectProperty("null-value"));
 
             message.acknowledge();
          }

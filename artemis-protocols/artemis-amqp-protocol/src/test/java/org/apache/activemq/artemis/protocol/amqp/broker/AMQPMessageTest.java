@@ -331,7 +331,7 @@ public class AMQPMessageTest {
          decodedWithApplicationPropertiesUnmarshalled.setPaged();
       }
 
-      assertEquals(decodedWithApplicationPropertiesUnmarshalled.getStringProperty(TEST_APPLICATION_PROPERTY_KEY), TEST_APPLICATION_PROPERTY_VALUE);
+      assertEquals(TEST_APPLICATION_PROPERTY_VALUE, decodedWithApplicationPropertiesUnmarshalled.getStringProperty(TEST_APPLICATION_PROPERTY_KEY));
 
       if (paged) {
          assertEquals(decodedWithApplicationPropertiesUnmarshalled.getMemoryEstimate(), decoded.getMemoryEstimate());
@@ -1604,8 +1604,8 @@ public class AMQPMessageTest {
 
       assertProtonMessageNotEquals(protonMessage, decoded.getProtonMessage());
 
-      assertEquals(decoded.getStringProperty(TEST_APPLICATION_PROPERTY_KEY), TEST_APPLICATION_PROPERTY_VALUE);
-      assertEquals(decoded.getStringProperty("key-2"), "value-2");
+      assertEquals(TEST_APPLICATION_PROPERTY_VALUE, decoded.getStringProperty(TEST_APPLICATION_PROPERTY_KEY));
+      assertEquals("value-2", decoded.getStringProperty("key-2"));
    }
 
    @Test
@@ -1622,7 +1622,7 @@ public class AMQPMessageTest {
 
       assertProtonMessageNotEquals(protonMessage, decoded.getProtonMessage());
 
-      assertEquals(decoded.getAnnotation(TEST_ANNOTATION), "value-2");
+      assertEquals("value-2", decoded.getAnnotation(TEST_ANNOTATION));
    }
 
    //----- Test handling of message extra properties -------------------------//
@@ -2594,8 +2594,8 @@ public class AMQPMessageTest {
       Map<String, Object> map = decoded.toPropertyMap(-1);
 
       assertEquals(2, map.size());
-      assertEquals(map.get("firstString"), "firstValue");
-      assertEquals(map.get("secondLong"), 1234567L);
+      assertEquals("firstValue", map.get("firstString"));
+      assertEquals(1234567L, map.get("secondLong"));
    }
 
    @Test
