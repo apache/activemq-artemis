@@ -387,7 +387,7 @@ public class SubscribeTests extends MQTT5TestSupport {
       qos0Client.setCallback(new DefaultMqttCallback() {
          @Override
          public void messageArrived(String topic, MqttMessage message) throws Exception {
-            assertTrue(message.getQos() == 0);
+            assertEquals(0, message.getQos());
             qos0Total.incrementAndGet();
             qos0Latch.countDown();
          }

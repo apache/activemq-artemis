@@ -35,6 +35,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_PRIORITY_ADJUSTMENT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -150,8 +151,8 @@ public class AMQPFederationPolicySupportTest {
       assertEquals(ADD_QUEUE_POLICY, message.getAnnotation(SimpleString.of(OPERATION_TYPE.toString())));
 
       assertNotNull(message.getBody());
-      assertTrue(message.getBody() instanceof AmqpValue);
-      assertTrue(((AmqpValue) message.getBody()).getValue() instanceof Map);
+      assertInstanceOf(AmqpValue.class, message.getBody());
+      assertInstanceOf(Map.class, ((AmqpValue) message.getBody()).getValue());
 
       final Map<String, Object> policyMap = (Map<String, Object>) ((AmqpValue) message.getBody()).getValue();
 
@@ -163,7 +164,7 @@ public class AMQPFederationPolicySupportTest {
          assertFalse(policyMap.containsKey(QUEUE_INCLUDES));
       } else {
          assertTrue(policyMap.containsKey(QUEUE_INCLUDES));
-         assertTrue(policyMap.get(QUEUE_INCLUDES) instanceof List);
+         assertInstanceOf(List.class, policyMap.get(QUEUE_INCLUDES));
 
          final List<String> flattenedIncludes = (List<String>) policyMap.get(QUEUE_INCLUDES);
 
@@ -178,7 +179,7 @@ public class AMQPFederationPolicySupportTest {
          assertFalse(policyMap.containsKey(QUEUE_EXCLUDES));
       } else {
          assertTrue(policyMap.containsKey(QUEUE_EXCLUDES));
-         assertTrue(policyMap.get(QUEUE_EXCLUDES) instanceof List);
+         assertInstanceOf(List.class, policyMap.get(QUEUE_EXCLUDES));
 
          final List<String> flattenedExcludes = (List<String>) policyMap.get(QUEUE_EXCLUDES);
 
@@ -193,7 +194,7 @@ public class AMQPFederationPolicySupportTest {
          assertFalse(policyMap.containsKey(POLICY_PROPERTIES_MAP));
       } else {
          assertTrue(policyMap.containsKey(POLICY_PROPERTIES_MAP));
-         assertTrue(policyMap.get(POLICY_PROPERTIES_MAP) instanceof Map);
+         assertInstanceOf(Map.class, policyMap.get(POLICY_PROPERTIES_MAP));
 
          final Map<String, String> encodedProperties = (Map<String, String>) policyMap.get(POLICY_PROPERTIES_MAP);
 
@@ -254,8 +255,8 @@ public class AMQPFederationPolicySupportTest {
       assertEquals(ADD_ADDRESS_POLICY, message.getAnnotation(SimpleString.of(OPERATION_TYPE.toString())));
 
       assertNotNull(message.getBody());
-      assertTrue(message.getBody() instanceof AmqpValue);
-      assertTrue(((AmqpValue) message.getBody()).getValue() instanceof Map);
+      assertInstanceOf(AmqpValue.class, message.getBody());
+      assertInstanceOf(Map.class, ((AmqpValue) message.getBody()).getValue());
 
       final Map<String, Object> policyMap = (Map<String, Object>) ((AmqpValue) message.getBody()).getValue();
 
@@ -270,7 +271,7 @@ public class AMQPFederationPolicySupportTest {
          assertFalse(policyMap.containsKey(ADDRESS_INCLUDES));
       } else {
          assertTrue(policyMap.containsKey(ADDRESS_INCLUDES));
-         assertTrue(policyMap.get(ADDRESS_INCLUDES) instanceof List);
+         assertInstanceOf(List.class, policyMap.get(ADDRESS_INCLUDES));
 
          final List<String> encodedIncludes = (List<String>) policyMap.get(ADDRESS_INCLUDES);
 
@@ -285,7 +286,7 @@ public class AMQPFederationPolicySupportTest {
          assertFalse(policyMap.containsKey(ADDRESS_EXCLUDES));
       } else {
          assertTrue(policyMap.containsKey(ADDRESS_EXCLUDES));
-         assertTrue(policyMap.get(ADDRESS_EXCLUDES) instanceof List);
+         assertInstanceOf(List.class, policyMap.get(ADDRESS_EXCLUDES));
 
          final List<String> encodedExcludes = (List<String>) policyMap.get(ADDRESS_EXCLUDES);
 
@@ -300,7 +301,7 @@ public class AMQPFederationPolicySupportTest {
          assertFalse(policyMap.containsKey(POLICY_PROPERTIES_MAP));
       } else {
          assertTrue(policyMap.containsKey(POLICY_PROPERTIES_MAP));
-         assertTrue(policyMap.get(POLICY_PROPERTIES_MAP) instanceof Map);
+         assertInstanceOf(Map.class, policyMap.get(POLICY_PROPERTIES_MAP));
 
          final Map<String, String> encodedProperties = (Map<String, String>) policyMap.get(POLICY_PROPERTIES_MAP);
 

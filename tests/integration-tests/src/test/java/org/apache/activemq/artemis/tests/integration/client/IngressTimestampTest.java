@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -175,7 +176,7 @@ public class IngressTimestampTest extends ActiveMQTestBase {
                   ingressTimestampHeader = message.getObjectProperty(Message.HDR_INGRESS_TIMESTAMP.toString());
                }
                assertNotNull(ingressTimestampHeader);
-               assertTrue(ingressTimestampHeader instanceof Long);
+               assertInstanceOf(Long.class, ingressTimestampHeader);
                long ingressTimestamp = (Long) ingressTimestampHeader;
                assertTrue(ingressTimestamp >= beforeSend && ingressTimestamp <= afterSend, "Ingress timstamp " + ingressTimestamp + " should be >= " + beforeSend + " and <= " + afterSend);
             }

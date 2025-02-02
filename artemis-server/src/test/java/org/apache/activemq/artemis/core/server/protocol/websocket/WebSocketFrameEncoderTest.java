@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server.protocol.websocket;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.spy;
@@ -184,14 +185,14 @@ public class WebSocketFrameEncoderTest {
 
       offset += maxFramePayloadLength;
       WebSocketFrame second = frames.get(1);
-      assertTrue(second instanceof ContinuationWebSocketFrame);
+      assertInstanceOf(ContinuationWebSocketFrame.class, second);
       assertFalse(second.isFinalFragment());
       assertEquals(content.substring(offset, offset + maxFramePayloadLength),
                    second.content().toString(StandardCharsets.UTF_8));
 
       offset += maxFramePayloadLength;
       WebSocketFrame last = frames.get(2);
-      assertTrue(last instanceof ContinuationWebSocketFrame);
+      assertInstanceOf(ContinuationWebSocketFrame.class, last);
       assertTrue(last.isFinalFragment());
       assertEquals(content.substring(offset), last.content().toString(StandardCharsets.UTF_8));
 

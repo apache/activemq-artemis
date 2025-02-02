@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -317,9 +318,9 @@ public class MqttClusterWildcardTest extends ClusterTestBase {
       assertTrue(payload.contains("message"));
       String topic = message1.getTopic();
       System.err.println("got topic: " + topic);
-      assertTrue(!topic.contains("+"));
-      assertTrue(!topic.contains("*"));
-      assertTrue(!topic.contains("#"));
+      assertFalse(topic.contains("+"));
+      assertFalse(topic.contains("*"));
+      assertFalse(topic.contains("#"));
    }
 
 

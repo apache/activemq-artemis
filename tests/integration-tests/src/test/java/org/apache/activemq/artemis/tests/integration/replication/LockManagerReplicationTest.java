@@ -677,7 +677,7 @@ public class LockManagerReplicationTest extends SharedNothingReplicationTest {
       ClientConsumer consumer = clientSession.createConsumer(addr);
       Message message = consumer.receive(4000);
       assertNotNull(message);
-      assertTrue(message.getStringProperty("K").equals(addr));
+      assertEquals(addr, message.getStringProperty("K"));
       consumer.close();
       clientSession.close();
    }

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -39,7 +40,7 @@ public class DefaultSensitiveStringCodecTest {
    @Test
    public void testDefaultCodec() {
       SensitiveDataCodec<String> codec = PasswordMaskingUtil.getDefaultCodec();
-      assertTrue(codec instanceof DefaultSensitiveStringCodec);
+      assertInstanceOf(DefaultSensitiveStringCodec.class, codec);
    }
 
    @Test

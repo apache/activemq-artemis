@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Random;
-import java.util.UUID;
-
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.Message;
@@ -34,10 +26,17 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.util.Random;
+import java.util.UUID;
 
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class JMSMessageProducerTest extends JMSClientTestSupport {
 
@@ -62,7 +61,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
             p.send(queue, message);
             Message msg = consumer.receive(2000);
             assertNotNull(msg);
-            assertTrue(msg instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, msg);
             assertEquals(getTestName(), ((TextMessage)msg).getText());
             consumer.close();
          }
@@ -91,14 +90,14 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
             MessageConsumer consumer = session.createConsumer(queue1);
             Message msg = consumer.receive(2000);
             assertNotNull(msg);
-            assertTrue(msg instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, msg);
             consumer.close();
          }
          {
             MessageConsumer consumer = session.createConsumer(queue2);
             Message msg = consumer.receive(2000);
             assertNotNull(msg);
-            assertTrue(msg instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, msg);
             consumer.close();
          }
       } finally {
@@ -132,7 +131,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
 
             Message msg = consumer.receive(2000);
             assertNotNull(msg);
-            assertTrue(msg instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, msg);
             assertEquals(getTestName(), ((TextMessage)msg).getText());
             consumer.close();
          }

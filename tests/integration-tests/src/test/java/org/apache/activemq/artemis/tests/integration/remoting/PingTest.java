@@ -44,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PingTest extends ActiveMQTestBase {
@@ -127,7 +128,7 @@ public class PingTest extends ActiveMQTestBase {
 
       RemotingConnection serverConn2 = server.getRemotingService().getConnections().iterator().next();
 
-      assertTrue(serverConn == serverConn2);
+      assertSame(serverConn, serverConn2);
 
       session.close();
 
@@ -179,7 +180,7 @@ public class PingTest extends ActiveMQTestBase {
 
       RemotingConnection serverConn2 = server.getRemotingService().getConnections().iterator().next();
 
-      assertTrue(serverConn == serverConn2);
+      assertSame(serverConn, serverConn2);
 
       session.close();
 

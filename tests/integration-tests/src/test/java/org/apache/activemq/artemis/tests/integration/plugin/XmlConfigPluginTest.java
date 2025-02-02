@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.plugin;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -38,8 +39,8 @@ public class XmlConfigPluginTest extends ActiveMQTestBase {
       try {
          server.start();
          assertEquals(2, server.getBrokerPlugins().size());
-         assertTrue(server.getBrokerPlugins().get(0) instanceof MethodCalledVerifier);
-         assertTrue(server.getBrokerPlugins().get(1) instanceof ConfigurationVerifier);
+         assertInstanceOf(MethodCalledVerifier.class, server.getBrokerPlugins().get(0));
+         assertInstanceOf(ConfigurationVerifier.class, server.getBrokerPlugins().get(1));
          ConfigurationVerifier configurationVerifier = (ConfigurationVerifier) server.getBrokerPlugins().get(1);
          assertEquals("val_1", configurationVerifier.value1, "value1");
          assertEquals("val_2", configurationVerifier.value2, "value2");
@@ -61,7 +62,7 @@ public class XmlConfigPluginTest extends ActiveMQTestBase {
       try {
          server.start();
          assertEquals(1, server.getBrokerPlugins().size(), "only one plugin should be registered");
-         assertTrue(server.getBrokerPlugins().get(0) instanceof LoggingActiveMQServerPlugin, "ensure LoggingActiveMQServerPlugin is registered");
+         assertInstanceOf(LoggingActiveMQServerPlugin.class, server.getBrokerPlugins().get(0), "ensure LoggingActiveMQServerPlugin is registered");
          LoggingActiveMQServerPlugin loggingActiveMQServerPlugin = (LoggingActiveMQServerPlugin) server.getBrokerPlugins().get(0);
          assertTrue(loggingActiveMQServerPlugin.isLogAll(), "check logAll");
          assertTrue(loggingActiveMQServerPlugin.isLogConnectionEvents(), "check logConnectionEvents");
@@ -87,7 +88,7 @@ public class XmlConfigPluginTest extends ActiveMQTestBase {
       try {
          server.start();
          assertEquals(1, server.getBrokerPlugins().size(), "only one plugin should be registered");
-         assertTrue(server.getBrokerPlugins().get(0) instanceof LoggingActiveMQServerPlugin, "ensure LoggingActiveMQServerPlugin is registered");
+         assertInstanceOf(LoggingActiveMQServerPlugin.class, server.getBrokerPlugins().get(0), "ensure LoggingActiveMQServerPlugin is registered");
          LoggingActiveMQServerPlugin loggingActiveMQServerPlugin = (LoggingActiveMQServerPlugin) server.getBrokerPlugins().get(0);
          assertFalse(loggingActiveMQServerPlugin.isLogAll(), "check logAll");
          assertFalse(loggingActiveMQServerPlugin.isLogConnectionEvents(), "check logConnectionEvents");

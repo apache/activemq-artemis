@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -136,7 +137,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
          sendUntilFull(sender);
 
          // This should be -1. A single message is buffered in the client, and 0 credit has been allocated.
-         assertTrue(sender.getSender().getCredit() == -1);
+         assertEquals(-1, sender.getSender().getCredit());
 
          long addressSize = server.getPagingManager().getPageStore(SimpleString.of(getQueueName())).getAddressSize();
          assertTrue(addressSize >= MAX_SIZE_BYTES && addressSize <= MAX_SIZE_BYTES_REJECT_THRESHOLD);
@@ -161,7 +162,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       } catch (ResourceAllocationException rae) {
          e = rae;
       }
-      assertTrue(e instanceof ResourceAllocationException);
+      assertInstanceOf(ResourceAllocationException.class, e);
       assertTrue(e.getMessage().contains("resource-limit-exceeded"));
 
       long addressSize = server.getPagingManager().getPageStore(SimpleString.of(getQueueName())).getAddressSize();

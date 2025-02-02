@@ -795,7 +795,7 @@ public class InterceptorTest extends ActiveMQTestBase {
          fail();
       } catch (ActiveMQException e) {
          // expected exception
-         assertTrue(e.getType().getCode() == ActiveMQExceptionType.INTERCEPTOR_REJECTED_PACKET.getCode());
+         assertEquals(e.getType().getCode(), ActiveMQExceptionType.INTERCEPTOR_REJECTED_PACKET.getCode());
       }
    }
 

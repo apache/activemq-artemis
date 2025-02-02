@@ -52,8 +52,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AMQPToOpenwireTest extends ActiveMQTestBase {
 
@@ -179,7 +179,7 @@ public class AMQPToOpenwireTest extends ActiveMQTestBase {
          connection.start();
          Message receive = consumer.receive(5000);
          assertNotNull(receive);
-         assertTrue(receive.getObjectProperty(binaryPropertyName) instanceof String);
+         assertInstanceOf(String.class, receive.getObjectProperty(binaryPropertyName));
       } finally {
          if (connection != null) {
             connection.close();

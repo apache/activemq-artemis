@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -352,7 +353,7 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
             org.apache.activemq.artemis.api.core.Message message = ref.getMessage();
 
             assertNotNull(message);
-            assertTrue(message instanceof LargeServerMessage);
+            assertInstanceOf(LargeServerMessage.class, message);
          }
          browserIterator.close();
 

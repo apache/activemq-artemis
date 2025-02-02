@@ -151,7 +151,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       try {
          clientSession.commit(xid, true);
       } catch (XAException e) {
-         assertTrue(e.errorCode == XAException.XAER_NOTA);
+         assertEquals(XAException.XAER_NOTA, e.errorCode);
       }
       clientSession.start();
       ClientMessage m = clientConsumer.receiveImmediate();
@@ -199,7 +199,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       try {
          clientSession.commit(xid, true);
       } catch (XAException e) {
-         assertTrue(e.errorCode == XAException.XAER_NOTA);
+         assertEquals(XAException.XAER_NOTA, e.errorCode);
       }
       clientSession.setTransactionTimeout(0);
       clientConsumer.close();
@@ -274,7 +274,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       try {
          clientSession.commit(xid, true);
       } catch (XAException e) {
-         assertTrue(e.errorCode == XAException.XAER_NOTA);
+         assertEquals(XAException.XAER_NOTA, e.errorCode);
       }
       clientSession.setTransactionTimeout(0);
       clientConsumer.close();
@@ -554,7 +554,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       try {
          clientSession.commit(xid, true);
       } catch (XAException e) {
-         assertTrue(e.errorCode == XAException.XAER_NOTA);
+         assertEquals(XAException.XAER_NOTA, e.errorCode);
       }
       clientSession.start();
       ClientMessage m = clientConsumer.receiveImmediate();
@@ -613,7 +613,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
          try {
             clientSessions[i].commit(xids[i], true);
          } catch (XAException e) {
-            assertTrue(e.errorCode == XAException.XAER_NOTA);
+            assertEquals(XAException.XAER_NOTA, e.errorCode);
          }
       }
       for (int i = 50; i < clientSessions.length; i++) {

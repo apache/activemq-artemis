@@ -62,7 +62,7 @@ public class SelectorSyntaxTest extends PTPTestCase {
       try {
          identifier = "1uncorrect";
 
-         Assert.assertTrue(identifier + " starts with an invalid Java identifier start character", !Character.isJavaIdentifierStart(identifier.charAt(0)));
+         Assert.assertFalse(identifier + " starts with an invalid Java identifier start character", Character.isJavaIdentifierStart(identifier.charAt(0)));
          receiver = receiverSession.createReceiver(receiverQueue, identifier + " IS NULL");
          Assert.fail(identifier + " starts with an invalid Java identifier start character");
       } catch (JMSException e) {
@@ -71,7 +71,7 @@ public class SelectorSyntaxTest extends PTPTestCase {
       try {
          identifier = "%uncorrect";
 
-         Assert.assertTrue(identifier + " starts with an invalid Java identifier start character", !Character.isJavaIdentifierStart(identifier.charAt(0)));
+         Assert.assertFalse(identifier + " starts with an invalid Java identifier start character", Character.isJavaIdentifierStart(identifier.charAt(0)));
          receiver = receiverSession.createReceiver(receiverQueue, identifier + " IS NULL");
          Assert.fail(identifier + " starts with an invalid Java identifier start character");
       } catch (JMSException e) {

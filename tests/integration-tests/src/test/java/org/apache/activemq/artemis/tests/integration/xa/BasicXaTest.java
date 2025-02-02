@@ -433,7 +433,7 @@ public class BasicXaTest extends ActiveMQTestBase {
          clientSession.commit(xid, false);
          fail("Exception exptected");
       } catch (XAException e) {
-         assertTrue(e.errorCode == XAException.XA_RETRY);
+         assertEquals(XAException.XA_RETRY, e.errorCode);
       }
    }
 
@@ -483,7 +483,7 @@ public class BasicXaTest extends ActiveMQTestBase {
          clientSession.rollback(xid);
          fail("Exception exptected");
       } catch (XAException e) {
-         assertTrue(e.errorCode == XAException.XAER_RMFAIL);
+         assertEquals(XAException.XAER_RMFAIL, e.errorCode);
       }
    }
 

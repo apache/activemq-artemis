@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StompWithInterceptorsTest extends StompTestBase {
@@ -85,7 +86,7 @@ public class StompWithInterceptorsTest extends StompTestBase {
       sendJmsMessage(getName());
 
       // Something was supposed to be called on sendMessages
-      assertTrue(!CoreInterceptor.incomingInterceptedFrames.isEmpty(), "core interceptor is not working");
+      assertFalse(CoreInterceptor.incomingInterceptedFrames.isEmpty(), "core interceptor is not working");
 
       conn.receiveFrame(10000);
 

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -65,7 +66,7 @@ public class ConfigurationTest extends ActiveMQTestBase {
       try {
          server.getConfiguration().addQueueConfiguration(new CoreQueueConfiguration().setName(QUEUE_NAME.toString()));
          server.start();
-         assertTrue(server.getAddressInfo(QUEUE_NAME) != null);
+         assertNotNull(server.getAddressInfo(QUEUE_NAME));
       } finally {
          try {
             server.stop();

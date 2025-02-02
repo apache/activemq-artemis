@@ -4866,7 +4866,7 @@ public class QueueControlTest extends ManagementTestBase {
       // .. and that the message is now on the original queue with ORIG RoutingType set as RoutingType
       clientMessage = clientConsumer.receive(500);
       clientMessage.acknowledge();
-      assertTrue(clientMessage.getRoutingType() == RoutingType.ANYCAST);
+      assertEquals(RoutingType.ANYCAST, clientMessage.getRoutingType());
       assertNotNull(clientMessage);
 
       assertEquals(sampleText, clientMessage.getBodyBuffer().readString());

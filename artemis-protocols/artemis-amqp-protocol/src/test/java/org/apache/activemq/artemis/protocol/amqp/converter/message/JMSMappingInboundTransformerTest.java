@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.converter.message;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -29,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
@@ -52,7 +48,10 @@ import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.netty.buffer.Unpooled;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class JMSMappingInboundTransformerTest {
 
@@ -457,7 +456,7 @@ public class JMSMappingInboundTransformerTest {
       CoreTextMessageWrapper jmsMessage = (CoreTextMessageWrapper) CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
       jmsMessage.decode();
 
-      assertTrue(jmsMessage instanceof CoreTextMessageWrapper, "Expected TextMessage");
+      assertInstanceOf(CoreTextMessageWrapper.class, jmsMessage, "Expected TextMessage");
       assertEquals(CoreTextMessageWrapper.class, jmsMessage.getClass(), "Unexpected message class type");
 
       CoreTextMessageWrapper textMessage = jmsMessage;
@@ -508,7 +507,7 @@ public class JMSMappingInboundTransformerTest {
       }
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
-      assertTrue(jmsMessage instanceof CoreTextMessageWrapper, "Expected ServerJMSTextMessage");
+      assertInstanceOf(CoreTextMessageWrapper.class, jmsMessage, "Expected ServerJMSTextMessage");
    }
 
    // ----- ReplyTo Conversions ----------------------------------------------//
@@ -554,7 +553,7 @@ public class JMSMappingInboundTransformerTest {
       }
 
       CoreMessageWrapper jmsMessage = CoreMessageWrapper.wrap(encodeAndCreateAMQPMessage(message).toCore());
-      assertTrue(jmsMessage instanceof CoreTextMessageWrapper, "Expected TextMessage");
+      assertInstanceOf(CoreTextMessageWrapper.class, jmsMessage, "Expected TextMessage");
    }
 
    private AMQPStandardMessage encodeAndCreateAMQPMessage(MessageImpl message) {

@@ -128,9 +128,9 @@ public class AMQPTunneledCoreLargeMessageReaderTest {
 
       final DeliveryAnnotations annotations = reader.getDeliveryAnnotations();
 
-      assertTrue(annotations.getValue().get(Symbol.valueOf("a")).equals("a"));
-      assertTrue(annotations.getValue().get(Symbol.valueOf("b")).equals("b"));
-      assertTrue(annotations.getValue().get(Symbol.valueOf("c")).equals("c"));
+      assertEquals("a", annotations.getValue().get(Symbol.valueOf("a")));
+      assertEquals("b", annotations.getValue().get(Symbol.valueOf("b")));
+      assertEquals("c", annotations.getValue().get(Symbol.valueOf("c")));
 
       reader.close();
 
@@ -169,9 +169,9 @@ public class AMQPTunneledCoreLargeMessageReaderTest {
 
       final DeliveryAnnotations annotations = reader.getDeliveryAnnotations();
 
-      assertTrue(annotations.getValue().get(Symbol.valueOf("a")).equals("a"));
-      assertTrue(annotations.getValue().get(Symbol.valueOf("b")).equals("b"));
-      assertTrue(annotations.getValue().get(Symbol.valueOf("c")).equals("c"));
+      assertEquals("a", annotations.getValue().get(Symbol.valueOf("a")));
+      assertEquals("b", annotations.getValue().get(Symbol.valueOf("b")));
+      assertEquals("c", annotations.getValue().get(Symbol.valueOf("c")));
 
       final CoreMessage message = new CoreMessage();
 
@@ -247,9 +247,9 @@ public class AMQPTunneledCoreLargeMessageReaderTest {
 
       final DeliveryAnnotations annotations = reader.getDeliveryAnnotations();
 
-      assertTrue(annotations.getValue().get(Symbol.valueOf("a")).equals("a"));
-      assertTrue(annotations.getValue().get(Symbol.valueOf("b")).equals("b"));
-      assertTrue(annotations.getValue().get(Symbol.valueOf("c")).equals("c"));
+      assertEquals("a", annotations.getValue().get(Symbol.valueOf("a")));
+      assertEquals("b", annotations.getValue().get(Symbol.valueOf("b")));
+      assertEquals("c", annotations.getValue().get(Symbol.valueOf("c")));
 
       final CoreMessage message = new CoreMessage();
 
@@ -329,9 +329,9 @@ public class AMQPTunneledCoreLargeMessageReaderTest {
       if (deliveryAnnotations) {
          final DeliveryAnnotations annotations = reader.getDeliveryAnnotations();
 
-         assertTrue(annotations.getValue().get(Symbol.valueOf("a")).equals("a"));
-         assertTrue(annotations.getValue().get(Symbol.valueOf("b")).equals("b"));
-         assertTrue(annotations.getValue().get(Symbol.valueOf("c")).equals("c"));
+         assertEquals("a", annotations.getValue().get(Symbol.valueOf("a")));
+         assertEquals("b", annotations.getValue().get(Symbol.valueOf("b")));
+         assertEquals("c", annotations.getValue().get(Symbol.valueOf("c")));
       } else {
          assertNull(reader.getDeliveryAnnotations());
       }
@@ -379,9 +379,9 @@ public class AMQPTunneledCoreLargeMessageReaderTest {
 
       final DeliveryAnnotations annotations = reader.getDeliveryAnnotations();
 
-      assertTrue(annotations.getValue().get(Symbol.valueOf("a")).equals("a"));
-      assertTrue(annotations.getValue().get(Symbol.valueOf("b")).equals("b"));
-      assertTrue(annotations.getValue().get(Symbol.valueOf("c")).equals("c"));
+      assertEquals("a", annotations.getValue().get(Symbol.valueOf("a")));
+      assertEquals("b", annotations.getValue().get(Symbol.valueOf("b")));
+      assertEquals("c", annotations.getValue().get(Symbol.valueOf("c")));
 
       assertTrue(readMessage.isDurable());
       assertEquals(42, readMessage.getExpiration());

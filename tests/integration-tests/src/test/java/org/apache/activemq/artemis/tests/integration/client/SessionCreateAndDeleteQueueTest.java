@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -110,7 +111,7 @@ public class SessionCreateAndDeleteQueueTest extends ActiveMQTestBase {
       ClientSession session = createSessionFactory(locator).createSession(false, true, true);
       session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setFilterString("x=y").setDurable(false));
       Binding binding = server.getPostOffice().getBinding(queueName);
-      assertTrue(binding.getBindable() instanceof LastValueQueue);
+      assertInstanceOf(LastValueQueue.class, binding.getBindable());
 
       session.close();
    }

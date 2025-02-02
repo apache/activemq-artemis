@@ -25,7 +25,9 @@ import static org.apache.activemq.artemis.core.security.CheckType.DELETE_DURABLE
 import static org.apache.activemq.artemis.core.security.CheckType.DELETE_NON_DURABLE_QUEUE;
 import static org.apache.activemq.artemis.core.security.CheckType.MANAGE;
 import static org.apache.activemq.artemis.core.security.CheckType.SEND;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -105,25 +107,25 @@ public class RoleTest {
       assertTrue(role.equals(role));
 
       assertTrue(role.equals(sameRole));
-      assertTrue(role.hashCode() == sameRole.hashCode());
+      assertEquals(role.hashCode(), sameRole.hashCode());
 
       assertFalse(role.equals(roleWithDifferentName));
-      assertFalse(role.hashCode() == roleWithDifferentName.hashCode());
+      assertNotEquals(role.hashCode(), roleWithDifferentName.hashCode());
 
       assertFalse(role.equals(roleWithDifferentRead));
-      assertFalse(role.hashCode() == roleWithDifferentRead.hashCode());
+      assertNotEquals(role.hashCode(), roleWithDifferentRead.hashCode());
 
       assertFalse(role.equals(roleWithDifferentWrite));
-      assertFalse(role.hashCode() == roleWithDifferentWrite.hashCode());
+      assertNotEquals(role.hashCode(), roleWithDifferentWrite.hashCode());
 
       assertFalse(role.equals(roleWithDifferentCreate));
-      assertFalse(role.hashCode() == roleWithDifferentCreate.hashCode());
+      assertNotEquals(role.hashCode(), roleWithDifferentCreate.hashCode());
 
       assertFalse(role.equals(roleWithDifferentView));
-      assertFalse(role.hashCode() == roleWithDifferentView.hashCode());
+      assertNotEquals(role.hashCode(), roleWithDifferentView.hashCode());
 
       assertFalse(role.equals(roleWithDifferentUpdate));
-      assertFalse(role.hashCode() == roleWithDifferentUpdate.hashCode());
+      assertNotEquals(role.hashCode(), roleWithDifferentUpdate.hashCode());
 
       assertFalse(role.equals(null));
    }

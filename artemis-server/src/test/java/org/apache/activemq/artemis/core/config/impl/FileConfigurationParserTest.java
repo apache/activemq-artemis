@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -53,6 +54,7 @@ import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.StringPrintStream;
 import org.junit.jupiter.api.Test;
+import org.xml.sax.SAXParseException;
 
 public class FileConfigurationParserTest extends ServerTestBase {
 
@@ -137,7 +139,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
             fail("parsing should have failed for " + filename);
          } catch (java.lang.IllegalStateException e) {
             Throwable cause = e.getCause();
-            assertTrue(cause instanceof org.xml.sax.SAXParseException, "must have been org.xml.sax.SAXParseException");
+            assertInstanceOf(SAXParseException.class, cause, "must have been org.xml.sax.SAXParseException");
          }
       }
    }
@@ -253,7 +255,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
       Configuration config = parser.parseMainConfig(input);
       HAPolicyConfiguration haConfig = config.getHAPolicyConfiguration();
 
-      assertTrue(haConfig instanceof SharedStorePrimaryPolicyConfiguration);
+      assertInstanceOf(SharedStorePrimaryPolicyConfiguration.class, haConfig);
 
       SharedStorePrimaryPolicyConfiguration primaryConfig = (SharedStorePrimaryPolicyConfiguration) haConfig;
 
@@ -501,7 +503,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
       Configuration config = parser.parseMainConfig(input);
 
       HAPolicyConfiguration haConfig = config.getHAPolicyConfiguration();
-      assertTrue(haConfig instanceof PrimaryOnlyPolicyConfiguration);
+      assertInstanceOf(PrimaryOnlyPolicyConfiguration.class, haConfig);
 
       PrimaryOnlyPolicyConfiguration primaryOnlyCfg = (PrimaryOnlyPolicyConfiguration) haConfig;
       ScaleDownConfiguration scaledownCfg = primaryOnlyCfg.getScaleDownConfiguration();

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -370,7 +371,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
       assertEquals(0, departed.getCount());
       assertTrue(propertyFoundOnDispatch.get());
       assertNotNull(amqpMessage.getApplicationProperty(BYTE_PROPERTY_KEY));
-      assertTrue(amqpMessage.getApplicationProperty(BYTE_PROPERTY_KEY) instanceof Binary);
+      assertInstanceOf(Binary.class, amqpMessage.getApplicationProperty(BYTE_PROPERTY_KEY));
 
       final Binary binary = (Binary) amqpMessage.getApplicationProperty(BYTE_PROPERTY_KEY);
       assertEquals(BYTE_PROPERTY_VALUE.length, binary.getLength());
@@ -414,7 +415,7 @@ public class AmqpSendReceiveInterceptorTest extends AmqpClientTestSupport {
 
                // The application property should return the encoded Binary value
                assertNotNull(appProperty);
-               assertTrue(appProperty instanceof Binary);
+               assertInstanceOf(Binary.class, appProperty);
 
                final byte[] payload = message.getBytesProperty(BYTE_PROPERTY_KEY);
 

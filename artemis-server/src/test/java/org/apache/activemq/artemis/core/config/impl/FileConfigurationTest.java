@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -445,7 +446,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
       HAPolicyConfiguration pc = conf.getHAPolicyConfiguration();
       assertNotNull(pc);
-      assertTrue(pc instanceof PrimaryOnlyPolicyConfiguration);
+      assertInstanceOf(PrimaryOnlyPolicyConfiguration.class, pc);
       PrimaryOnlyPolicyConfiguration lopc = (PrimaryOnlyPolicyConfiguration) pc;
       assertNotNull(lopc.getScaleDownConfiguration());
       assertEquals("boo!", lopc.getScaleDownConfiguration().getGroupName());
@@ -495,8 +496,8 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
       assertEquals(2, conf.getAddressSettings().size());
 
-      assertTrue(conf.getAddressSettings().get("a1") != null);
-      assertTrue(conf.getAddressSettings().get("a2") != null);
+      assertNotNull(conf.getAddressSettings().get("a1"));
+      assertNotNull(conf.getAddressSettings().get("a2"));
 
       assertEquals("a1.1", conf.getAddressSettings().get("a1").getDeadLetterAddress().toString());
       assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_DEAD_LETTER_RESOURCES, conf.getAddressSettings().get("a1").isAutoCreateDeadLetterResources());
@@ -651,14 +652,14 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
       // keep test for backwards compatibility
       ActiveMQMetricsPlugin metricsPlugin = conf.getMetricsPlugin();
-      assertTrue(metricsPlugin instanceof SimpleMetricsPlugin);
+      assertInstanceOf(SimpleMetricsPlugin.class, metricsPlugin);
       Map<String, String> options = ((SimpleMetricsPlugin) metricsPlugin).getOptions();
       assertEquals("x", options.get("foo"));
       assertEquals("y", options.get("bar"));
       assertEquals("z", options.get("baz"));
 
       MetricsConfiguration metricsConfiguration = conf.getMetricsConfiguration();
-      assertTrue(metricsConfiguration.getPlugin() instanceof SimpleMetricsPlugin);
+      assertInstanceOf(SimpleMetricsPlugin.class, metricsConfiguration.getPlugin());
       options = ((SimpleMetricsPlugin) metricsPlugin).getOptions();
       assertEquals("x", options.get("foo"));
       assertEquals("y", options.get("bar"));
@@ -761,7 +762,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
       List<SecuritySettingPlugin> securitySettingPlugins = fc.getSecuritySettingPlugins();
       SecuritySettingPlugin securitySettingPlugin = securitySettingPlugins.get(0);
-      assertTrue(securitySettingPlugin instanceof LegacyLDAPSecuritySettingPlugin);
+      assertInstanceOf(LegacyLDAPSecuritySettingPlugin.class, securitySettingPlugin);
       LegacyLDAPSecuritySettingPlugin legacyLDAPSecuritySettingPlugin = (LegacyLDAPSecuritySettingPlugin) securitySettingPlugin;
       assertEquals("testInitialContextFactory", legacyLDAPSecuritySettingPlugin.getInitialContextFactory());
       assertEquals("testConnectionURL", legacyLDAPSecuritySettingPlugin.getConnectionURL());
@@ -775,7 +776,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertEquals("testAdminPermissionValue", legacyLDAPSecuritySettingPlugin.getAdminPermissionValue());
       assertEquals("testReadPermissionValue", legacyLDAPSecuritySettingPlugin.getReadPermissionValue());
       assertEquals("testWritePermissionValue", legacyLDAPSecuritySettingPlugin.getWritePermissionValue());
-      assertEquals(false, legacyLDAPSecuritySettingPlugin.isEnableListener());
+      assertFalse(legacyLDAPSecuritySettingPlugin.isEnableListener());
    }
 
    @TestTemplate
@@ -898,8 +899,8 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
       List<ActiveMQServerBasePlugin> brokerPlugins = fc.getBrokerPlugins();
       assertEquals(2, brokerPlugins.size());
-      assertTrue(brokerPlugins.get(0) instanceof EmptyPlugin1);
-      assertTrue(brokerPlugins.get(1) instanceof EmptyPlugin2);
+      assertInstanceOf(EmptyPlugin1.class, brokerPlugins.get(0));
+      assertInstanceOf(EmptyPlugin2.class, brokerPlugins.get(1));
    }
 
    @TestTemplate
@@ -948,7 +949,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       deploymentManager.readConfiguration();
 
       ActiveMQMetricsPlugin metricPlugin = fc.getMetricsConfiguration().getPlugin();
-      assertTrue(metricPlugin instanceof FakeMetricPlugin);
+      assertInstanceOf(FakeMetricPlugin.class, metricPlugin);
 
       Map<String, String> metricPluginOptions = ((FakeMetricPlugin)metricPlugin).getOptions();
       assertEquals("value1", metricPluginOptions.get("key1"));
@@ -974,7 +975,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertTrue(metricsConfiguration.isUptime());
 
       ActiveMQMetricsPlugin metricPlugin = metricsConfiguration.getPlugin();
-      assertTrue(metricPlugin instanceof FakeMetricPlugin);
+      assertInstanceOf(FakeMetricPlugin.class, metricPlugin);
 
       Map<String, String> metricPluginOptions = ((FakeMetricPlugin)metricPlugin).getOptions();
       assertEquals("value1", metricPluginOptions.get("key1"));
@@ -990,7 +991,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       deploymentManager.readConfiguration();
 
       ActiveMQMetricsPlugin metricPlugin = fc.getMetricsConfiguration().getPlugin();
-      assertTrue(metricPlugin instanceof FakeMetricPlugin);
+      assertInstanceOf(FakeMetricPlugin.class, metricPlugin);
 
       Map<String, String> metricPluginOptions = ((FakeMetricPlugin)metricPlugin).getOptions();
       assertEquals("value1", metricPluginOptions.get("key1"));

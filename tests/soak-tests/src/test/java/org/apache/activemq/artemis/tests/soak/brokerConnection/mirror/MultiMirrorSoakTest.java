@@ -145,7 +145,7 @@ public class MultiMirrorSoakTest extends SoakTestBase {
    public void internalMirror(String producerURI, String consumerURi) throws Exception {
       final int numberOfMessages = 200;
 
-      assertTrue(numberOfMessages % 2 == 0, "numberOfMessages must be even");
+      assertEquals(0, numberOfMessages % 2, "numberOfMessages must be even");
 
       ConnectionFactory producerCF = CFUtil.createConnectionFactory("amqp", producerURI);
 

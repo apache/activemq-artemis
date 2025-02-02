@@ -231,7 +231,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       producer.disconnect();
       producer.close();
 
-      assertTrue(server.getAddressInfo(SimpleString.of(DESTINATION)) == null);
+      assertNull(server.getAddressInfo(SimpleString.of(DESTINATION)));
    }
 
    /*

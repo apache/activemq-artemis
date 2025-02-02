@@ -1432,11 +1432,11 @@ public class PublishTests extends MQTT5TestSupport {
          int sentAs = Integer.parseInt(new String(message.getPayload(), StandardCharsets.UTF_8));
          logger.info("QoS of publish: {}; QoS of subscription: {}; QoS of receive: {}", sentAs, qosOfSubscription, message.getQos());
          if (sentAs == 0) {
-            assertTrue(message.getQos() == 0);
+            assertEquals(0, message.getQos());
          } else if (sentAs == 1) {
-            assertTrue(message.getQos() == (qosOfSubscription == 0 ? 0 : 1));
+            assertEquals((qosOfSubscription == 0 ? 0 : 1), message.getQos());
          } else if (sentAs == 2) {
-            assertTrue(message.getQos() == qosOfSubscription);
+            assertEquals(qosOfSubscription, message.getQos());
          } else {
             fail("invalid qos");
          }

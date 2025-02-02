@@ -27,7 +27,7 @@ import java.util.Properties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class PropertiesLoaderTest {
@@ -48,8 +48,8 @@ class PropertiesLoaderTest {
       options.put("baseDir", file.getParent().toString());
       ReloadableProperties props = underTest.load("", file.toFile().getName(), options, (String v) -> v.toUpperCase(Locale.ROOT));
 
-      assertTrue(props.getProps().getProperty("p1").equals("B"));
-      assertTrue(props.getProps().getProperty("p2").equals("B"));
+      assertEquals("B", props.getProps().getProperty("p1"));
+      assertEquals("B", props.getProps().getProperty("p2"));
       assertFalse(props.getProps().getProperty("p3").contains("B"));
    }
 }

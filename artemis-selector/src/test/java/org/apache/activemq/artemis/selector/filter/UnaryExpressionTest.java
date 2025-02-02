@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.selector.filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
@@ -30,8 +31,8 @@ public class UnaryExpressionTest {
    public void testEquals() throws Exception {
       BooleanExpression expr1 = UnaryExpression.createNOT(SelectorParser.parse("x = 1"));
       BooleanExpression expr2 = UnaryExpression.createNOT(SelectorParser.parse("x = 1"));
-      assertTrue(expr1 instanceof UnaryExpression, "Created unary expression 1");
-      assertTrue(expr2 instanceof UnaryExpression, "Created unary expression 2");
+      assertInstanceOf(UnaryExpression.class, expr1, "Created unary expression 1");
+      assertInstanceOf(UnaryExpression.class, expr2, "Created unary expression 2");
       assertEquals(expr1, expr2, "Unary expressions are equal");
    }
 

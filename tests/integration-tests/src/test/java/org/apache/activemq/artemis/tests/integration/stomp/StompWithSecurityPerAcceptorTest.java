@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConne
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StompWithSecurityPerAcceptorTest extends StompTestBase {
 
@@ -81,13 +81,13 @@ public class StompWithSecurityPerAcceptorTest extends StompTestBase {
    public void testSecurityPerAcceptorPositive() throws Exception {
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       ClientStompFrame frame = conn.connect("first", "secret");
-      assertTrue(frame.getCommand().equals(Stomp.Responses.CONNECTED));
+      assertEquals(Stomp.Responses.CONNECTED, frame.getCommand());
    }
 
    @Test
    public void testSecurityPerAcceptorNegative() throws Exception {
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       ClientStompFrame frame = conn.connect("fail", "secret");
-      assertTrue(frame.getCommand().equals(Stomp.Responses.ERROR));
+      assertEquals(Stomp.Responses.ERROR, frame.getCommand());
    }
 }

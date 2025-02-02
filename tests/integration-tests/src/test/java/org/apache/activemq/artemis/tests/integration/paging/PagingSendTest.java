@@ -710,9 +710,8 @@ public class PagingSendTest extends ActiveMQTestBase {
                   isFull = true;
                }
                assertTrue(isFull);
-               currentPages = queuePagingStore.getNumberOfPages();
                // now current pages should be one more than maxPages
-               assertTrue(currentPages == maxPages + 1);
+               assertEquals(maxPages + 1, queuePagingStore.getNumberOfPages());
 
                // check paging store page full
                assertTrue(queuePagingStore.isPageFull());

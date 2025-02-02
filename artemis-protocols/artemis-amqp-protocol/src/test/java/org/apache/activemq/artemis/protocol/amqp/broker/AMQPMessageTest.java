@@ -16,19 +16,10 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.OpenDataException;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -39,9 +30,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.OpenDataException;
-
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -86,11 +76,20 @@ import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AMQPMessageTest {
 
@@ -1643,8 +1642,8 @@ public class AMQPMessageTest {
       decoded.putExtraBytesProperty(name, value);
       assertFalse(decoded.getExtraProperties().isEmpty());
 
-      assertTrue(Arrays.equals(value, decoded.getExtraBytesProperty(name)));
-      assertTrue(Arrays.equals(value, decoded.removeExtraBytesProperty(name)));
+      assertArrayEquals(value, decoded.getExtraBytesProperty(name));
+      assertArrayEquals(value, decoded.removeExtraBytesProperty(name));
    }
 
    @Test
@@ -1659,7 +1658,7 @@ public class AMQPMessageTest {
       decoded.putExtraBytesProperty(name, original);
 
       ICoreMessage coreMessage = decoded.toCore();
-      assertEquals(original, coreMessage.getBytesProperty(name));
+      assertSame(original, coreMessage.getBytesProperty(name));
 
       ActiveMQBuffer buffer = ActiveMQBuffers.pooledBuffer(10 * 1024);
       try {
@@ -1862,7 +1861,7 @@ public class AMQPMessageTest {
       assertNotNull(buffer);
       assertTrue(buffer.hasArray());
 
-      assertTrue(Arrays.equals(encodedProtonMessage, buffer.array()));
+      assertArrayEquals(encodedProtonMessage, buffer.array());
 
       AMQPStandardMessage copy = new AMQPStandardMessage(0, buffer, null, null);
 
@@ -2211,7 +2210,7 @@ public class AMQPMessageTest {
 
       assertTrue(cd.containsKey(CompositeDataConstants.DURABLE));
       Object durableObj = cd.get(CompositeDataConstants.DURABLE);
-      assertTrue(durableObj instanceof Boolean);
+      assertInstanceOf(Boolean.class, durableObj);
 
       assertEquals(Boolean.FALSE, durableObj);
 
@@ -2224,7 +2223,7 @@ public class AMQPMessageTest {
 
       assertTrue(cd.containsKey(CompositeDataConstants.DURABLE));
       durableObj = cd.get(CompositeDataConstants.DURABLE);
-      assertTrue(durableObj instanceof Boolean);
+      assertInstanceOf(Boolean.class, durableObj);
 
       assertEquals(Boolean.FALSE, durableObj);
 
@@ -2238,7 +2237,7 @@ public class AMQPMessageTest {
 
       assertTrue(cd.containsKey(CompositeDataConstants.DURABLE));
       durableObj = cd.get(CompositeDataConstants.DURABLE);
-      assertTrue(durableObj instanceof Boolean);
+      assertInstanceOf(Boolean.class, durableObj);
 
       assertEquals(Boolean.FALSE, durableObj);
 
@@ -2252,7 +2251,7 @@ public class AMQPMessageTest {
 
       assertTrue(cd.containsKey(CompositeDataConstants.DURABLE));
       durableObj = cd.get(CompositeDataConstants.DURABLE);
-      assertTrue(durableObj instanceof Boolean);
+      assertInstanceOf(Boolean.class, durableObj);
 
       assertEquals(Boolean.TRUE, durableObj);
    }
@@ -2267,7 +2266,7 @@ public class AMQPMessageTest {
 
       assertTrue(cd.containsKey(CompositeDataConstants.PRIORITY));
       Object priorityObj = cd.get(CompositeDataConstants.PRIORITY);
-      assertTrue(priorityObj instanceof Byte);
+      assertInstanceOf(Byte.class, priorityObj);
 
       assertEquals((byte) 4, priorityObj);
 
@@ -2280,7 +2279,7 @@ public class AMQPMessageTest {
 
       assertTrue(cd.containsKey(CompositeDataConstants.PRIORITY));
       priorityObj = cd.get(CompositeDataConstants.PRIORITY);
-      assertTrue(priorityObj instanceof Byte);
+      assertInstanceOf(Byte.class, priorityObj);
 
       assertEquals((byte) 4, priorityObj);
 
@@ -2294,7 +2293,7 @@ public class AMQPMessageTest {
 
       assertTrue(cd.containsKey(CompositeDataConstants.PRIORITY));
       priorityObj = cd.get(CompositeDataConstants.PRIORITY);
-      assertTrue(priorityObj instanceof Byte);
+      assertInstanceOf(Byte.class, priorityObj);
 
       assertEquals((byte) 5, priorityObj);
    }
@@ -2334,7 +2333,7 @@ public class AMQPMessageTest {
 
       assertTrue(cd.containsKey(CompositeDataConstants.PROPERTIES));
       Object propsObject = cd.get(CompositeDataConstants.PROPERTIES);
-      assertTrue(propsObject instanceof String);
+      assertInstanceOf(String.class, propsObject);
       String properties = (String) propsObject;
 
       assertTrue(properties.contains(PROPERTY_MAP_PROPERTIES_PREFIX + "contentType" + "=" + AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE));
@@ -2360,14 +2359,14 @@ public class AMQPMessageTest {
       // The message-id is presented via the 'user id' field, inc an added prefix.
       assertTrue(cd.containsKey(CompositeDataConstants.USER_ID));
       Object messageIdObj = cd.get(CompositeDataConstants.USER_ID);
-      assertTrue(messageIdObj instanceof String);
+      assertInstanceOf(String.class, messageIdObj);
 
       assertEquals(AMQPMessageIdHelper.JMS_ID_PREFIX + testMessageId, messageIdObj);
 
       // The creation-time is duplicated as the 'timestamp' field
       assertTrue(cd.containsKey(CompositeDataConstants.TIMESTAMP));
       Object timestampObj = cd.get(CompositeDataConstants.TIMESTAMP);
-      assertTrue(timestampObj instanceof Long);
+      assertInstanceOf(Long.class, timestampObj);
 
       assertEquals(testCreationTime, timestampObj);
    }
@@ -2389,7 +2388,7 @@ public class AMQPMessageTest {
 
       assertTrue(cd.containsKey(CompositeDataConstants.PROPERTIES));
       Object propsObject = cd.get(CompositeDataConstants.PROPERTIES);
-      assertTrue(propsObject instanceof String);
+      assertInstanceOf(String.class, propsObject);
       String properties = (String) propsObject;
 
       assertTrue(properties.contains(PROPERTY_MAP_APP_PROPERTIES_PREFIX +
@@ -2415,7 +2414,7 @@ public class AMQPMessageTest {
 
       assertTrue(cd.containsKey(CompositeDataConstants.PROPERTIES));
       Object propsObject = cd.get(CompositeDataConstants.PROPERTIES);
-      assertTrue(propsObject instanceof String);
+      assertInstanceOf(String.class, propsObject);
       String properties = (String) propsObject;
 
       assertTrue(properties.contains(PROPERTY_MAP_MESSAGE_ANNOTATIONS_PREFIX +
@@ -2441,7 +2440,7 @@ public class AMQPMessageTest {
 
       assertTrue(cd.containsKey(CompositeDataConstants.PROPERTIES));
       propsObject = cd.get(CompositeDataConstants.PROPERTIES);
-      assertTrue(propsObject instanceof String);
+      assertInstanceOf(String.class, propsObject);
       properties = (String) propsObject;
 
       assertTrue(properties.contains(PROPERTY_MAP_MESSAGE_ANNOTATIONS_PREFIX +
@@ -2466,7 +2465,7 @@ public class AMQPMessageTest {
 
       assertTrue(cd.containsKey(CompositeDataConstants.PROPERTIES));
       Object propsObject = cd.get(CompositeDataConstants.PROPERTIES);
-      assertTrue(propsObject instanceof String);
+      assertInstanceOf(String.class, propsObject);
       String properties = (String) propsObject;
 
       assertTrue(properties.contains(PROPERTY_MAP_EXTRA_PROPERTIES_PREFIX +
@@ -2781,7 +2780,7 @@ public class AMQPMessageTest {
 
       final Object result = message.getObjectProperty("test");
 
-      assertTrue(result instanceof byte[]);
+      assertInstanceOf(byte[].class, result);
       assertArrayEquals(array, (byte[]) result);
    }
 
@@ -3090,7 +3089,7 @@ public class AMQPMessageTest {
          return false;
       }
 
-      assertTrue(left.getClass().equals(right.getClass()));
+      assertEquals(left.getClass(), right.getClass());
 
       if (left instanceof AmqpValue leftValue) {
          AmqpValue rightValue = (AmqpValue) right;

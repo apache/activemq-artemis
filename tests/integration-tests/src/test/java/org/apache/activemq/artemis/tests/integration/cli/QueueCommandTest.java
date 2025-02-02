@@ -285,7 +285,7 @@ public class QueueCommandTest extends JMSTestBase {
       final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
       assertEquals(newMaxConsumers, queueQueryResult.getMaxConsumers(), "maxConsumers");
       assertEquals(newRoutingType, queueQueryResult.getRoutingType(), "routingType");
-      assertTrue(newPurgeOnNoConsumers == queueQueryResult.isPurgeOnNoConsumers(), "purgeOnNoConsumers");
+      assertEquals(newPurgeOnNoConsumers, queueQueryResult.isPurgeOnNoConsumers(), "purgeOnNoConsumers");
    }
 
    @Test
@@ -313,7 +313,7 @@ public class QueueCommandTest extends JMSTestBase {
       final QueueQueryResult queueQueryResult = server.queueQuery(queueNameString);
       assertEquals(oldMaxConsumers, queueQueryResult.getMaxConsumers(), "maxConsumers");
       assertEquals(oldRoutingType, queueQueryResult.getRoutingType(), "routingType");
-      assertTrue(oldPurgeOnNoConsumers == queueQueryResult.isPurgeOnNoConsumers(), "purgeOnNoConsumers");
+      assertEquals(oldPurgeOnNoConsumers, queueQueryResult.isPurgeOnNoConsumers(), "purgeOnNoConsumers");
    }
 
    @Test

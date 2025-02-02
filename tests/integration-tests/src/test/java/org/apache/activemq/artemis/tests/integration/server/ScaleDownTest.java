@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
-import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.management.MBeanServer;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -70,6 +64,12 @@ import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class ScaleDownTest extends ClusterTestBase {
@@ -768,7 +768,7 @@ public class ScaleDownTest extends ClusterTestBase {
       ClientMessage message = consumer.receive(1000);
       assertNotNull(message);
       assertEquals(sampleText, message.getBodyBuffer().readString());
-      assertTrue(message.getRoutingType() == RoutingType.ANYCAST);
+      assertEquals(RoutingType.ANYCAST, message.getRoutingType());
       message.acknowledge();
 
       // force a rollback to DLA
@@ -781,7 +781,7 @@ public class ScaleDownTest extends ClusterTestBase {
       consumer = session.createConsumer(dlq.toString());
       message = consumer.receive(1000);
       assertNotNull(message);
-      assertTrue(message.getRoutingType() == null);
+      assertNull(message.getRoutingType());
 
       //Scale-Down
       servers[0].stop();

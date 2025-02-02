@@ -27,9 +27,9 @@ import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConne
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StompWithMessageIDTest extends StompTestBase {
 
@@ -65,7 +65,7 @@ public class StompWithMessageIDTest extends StompTestBase {
          Message msg = (Message) enu.nextElement();
          String msgId = msg.getStringProperty("amqMessageId");
          assertNotNull(msgId);
-         assertTrue(msgId.indexOf("STOMP") == 0);
+         assertEquals(0, msgId.indexOf("STOMP"));
       }
 
       browser.close();

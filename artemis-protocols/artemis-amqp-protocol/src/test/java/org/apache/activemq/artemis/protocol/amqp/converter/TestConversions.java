@@ -24,6 +24,7 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSup
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -300,7 +301,7 @@ public class TestConversions {
       assertNotNull(newAMQP.getMessageAnnotations().getValue());
       assertTrue(newAMQP.getMessageAnnotations().getValue().containsKey(annotationNameSymbol));
       Object result = newAMQP.getMessageAnnotations().getValue().get(annotationNameSymbol);
-      assertTrue(result instanceof Map);
+      assertInstanceOf(Map.class, result);
       assertEquals(embeddedMap, (Map<String, String>) result);
    }
 
@@ -352,7 +353,7 @@ public class TestConversions {
       assertNotNull(newAMQP.getFooter().getValue());
       assertTrue(newAMQP.getFooter().getValue().containsKey(footerNameSymbol));
       Object result = newAMQP.getFooter().getValue().get(footerNameSymbol);
-      assertTrue(result instanceof Map);
+      assertInstanceOf(Map.class, result);
       assertEquals(embeddedMap, (Map<String, String>) result);
    }
 
@@ -382,7 +383,7 @@ public class TestConversions {
       assertNotNull(newAMQP.getDeliveryAnnotations().getValue());
       assertTrue(newAMQP.getDeliveryAnnotations().getValue().containsKey(annotationNameSymbol));
       Object result = newAMQP.getDeliveryAnnotations().getValue().get(annotationNameSymbol);
-      assertTrue(result instanceof Map);
+      assertInstanceOf(Map.class, result);
       assertEquals(embeddedMap, (Map<String, String>) result);
    }
 

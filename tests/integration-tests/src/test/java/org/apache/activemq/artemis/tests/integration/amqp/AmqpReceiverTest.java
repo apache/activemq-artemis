@@ -20,6 +20,7 @@ import static org.apache.activemq.transport.amqp.AmqpSupport.JMS_SELECTOR_FILTER
 import static org.apache.activemq.transport.amqp.AmqpSupport.NO_LOCAL_FILTER_IDS;
 import static org.apache.activemq.transport.amqp.AmqpSupport.findFilter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -171,7 +172,7 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
          session.createReceiver(getQueueName(), "null = 'f''", true);
          fail("should throw exception");
       } catch (Exception e) {
-         assertTrue(e.getCause() instanceof JMSException);
+         assertInstanceOf(JMSException.class, e.getCause());
       }
 
       connection.close();

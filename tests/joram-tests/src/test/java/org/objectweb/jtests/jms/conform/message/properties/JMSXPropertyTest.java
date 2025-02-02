@@ -117,7 +117,7 @@ public class JMSXPropertyTest extends PTPTestCase {
 
          // we receive a message...
          Message m = receiver.receive(TestConfig.TIMEOUT);
-         Assert.assertTrue(m != null);
+         Assert.assertNotNull(m);
          Assert.assertTrue(m instanceof TextMessage);
          TextMessage msg = (TextMessage) m;
          // ... which is the one which was sent...
@@ -132,7 +132,7 @@ public class JMSXPropertyTest extends PTPTestCase {
 
          // we receive again a message
          m = receiver.receive(TestConfig.TIMEOUT);
-         Assert.assertTrue(m != null);
+         Assert.assertNotNull(m);
          Assert.assertTrue(m instanceof TextMessage);
          msg = (TextMessage) m;
          // ... which is still the one which was sent...

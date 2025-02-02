@@ -16,9 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +28,9 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class ManagementHelperTest {
 
@@ -50,7 +50,7 @@ public class ManagementHelperTest {
       assertEquals(param, parameters[0]);
       Object parameter_2 = parameters[1];
       logger.debug("type {}", parameter_2);
-      assertTrue(parameter_2 instanceof Object[]);
+      assertInstanceOf(Object[].class, parameter_2);
       Object[] retrievedParams = (Object[]) parameter_2;
       assertEquals(params.length, retrievedParams.length);
       for (int i = 0; i < retrievedParams.length; i++) {

@@ -106,6 +106,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -809,7 +810,7 @@ public class WebServerComponentTest extends ArtemisTestCase {
       Thread.sleep(5);
       webServerComponent.start();
       assertTrue(webServerComponent.isStarted());
-      assertFalse(originalLastModified == Files.getLastModifiedTime(Paths.get(ctxt.getTempDirectory().getAbsolutePath())).toMillis());
+      assertNotEquals(originalLastModified, Files.getLastModifiedTime(Paths.get(ctxt.getTempDirectory().getAbsolutePath())).toMillis());
       webServerComponent.stop(true);
       assertFalse(webServerComponent.isStarted());
       assertFalse(Files.exists(Paths.get(ctxt.getTempDirectory().getAbsolutePath())), ctxt.getTempDirectory().getAbsolutePath() + " exists!");
@@ -831,7 +832,7 @@ public class WebServerComponentTest extends ArtemisTestCase {
       webServerComponent.start();
 
       File tmpDir = ctxt.getTempDirectory();
-      assertTrue(tmpDir.getParentFile().listFiles().length == 1);
+      assertEquals(1, tmpDir.getParentFile().listFiles().length);
       assertEquals(warName, tmpDir.getName());
       assertTrue(webServerComponent.isStarted());
 

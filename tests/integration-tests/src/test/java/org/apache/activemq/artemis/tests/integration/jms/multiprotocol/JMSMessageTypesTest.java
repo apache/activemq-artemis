@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -509,8 +510,8 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
       TextMessage received = (TextMessage) messageConsumer.receive(5000);
       assertNotNull(received);
       assertEquals("msg:0", received.getText());
-      assertEquals(true, received.getBooleanProperty("true"));
-      assertEquals(false, received.getBooleanProperty("false"));
+      assertTrue(received.getBooleanProperty("true"));
+      assertFalse(received.getBooleanProperty("false"));
       assertEquals("bar", received.getStringProperty("foo"));
       assertEquals(66.6, received.getDoubleProperty("double"), 0.0001);
       assertEquals(56.789f, received.getFloatProperty("float"), 0.0001);

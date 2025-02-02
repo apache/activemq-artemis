@@ -20,6 +20,7 @@ import static org.apache.activemq.artemis.api.core.management.ResourceNames.ADDR
 import static org.apache.activemq.artemis.api.core.management.ResourceNames.QUEUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -226,7 +227,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
          session.createProducer(queue);
          fail("Sending a message here should throw a JMSSecurityException");
       } catch (Exception e) {
-         assertTrue(e instanceof JMSSecurityException);
+         assertInstanceOf(JMSSecurityException.class, e);
       }
 
       connection.close();
