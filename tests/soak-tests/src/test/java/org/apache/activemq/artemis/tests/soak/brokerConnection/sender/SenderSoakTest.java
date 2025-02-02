@@ -17,9 +17,6 @@
 
 package org.apache.activemq.artemis.tests.soak.brokerConnection.sender;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -32,13 +29,16 @@ import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.util.Properties;
 
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
-import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class SenderSoakTest extends SoakTestBase {
 
@@ -126,7 +126,7 @@ public class SenderSoakTest extends SoakTestBase {
 
       final int numberOfMessages = 1000;
 
-      assertTrue(numberOfMessages % 2 == 0, "numberOfMessages must be even");
+      assertEquals(0, numberOfMessages % 2, "numberOfMessages must be even");
 
       ConnectionFactory connectionFactoryDC1A = CFUtil.createConnectionFactory("amqp", "tcp://localhost:61616");
       ConnectionFactory connectionFactoryDC2A = CFUtil.createConnectionFactory("amqp", "tcp://localhost:61618");

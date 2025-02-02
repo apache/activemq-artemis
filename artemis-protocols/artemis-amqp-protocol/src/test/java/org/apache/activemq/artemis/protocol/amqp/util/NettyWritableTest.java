@@ -16,18 +16,18 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.util;
 
+import java.nio.ByteBuffer;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.apache.qpid.proton.codec.ReadableBuffer;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-
-import org.apache.qpid.proton.codec.ReadableBuffer;
-import org.junit.jupiter.api.Test;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 
 /**
  * Tests for behavior of NettyWritable
@@ -144,7 +144,7 @@ public class NettyWritableTest {
       byte[] check = new byte[5];
       buffer.readBytes(check);
 
-      assertTrue(Arrays.equals(new byte[] {5, 6, 7, 8, 9}, check));
+      assertArrayEquals(new byte[]{5, 6, 7, 8, 9}, check);
    }
 
    private void doPutReadableBufferTestImpl(boolean readOnly) {

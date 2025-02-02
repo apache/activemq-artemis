@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -110,10 +111,10 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
             Wait.assertTrue(blocked::get);
             unblock();
          }
-         assertTrue(e.getCause() instanceof ActiveMQConnectionTimedOutException);
+         assertInstanceOf(ActiveMQConnectionTimedOutException.class, e.getCause());
          //Ensure JMS Connection ExceptionListener was also invoked
          assertTrue(Wait.waitFor(() -> exceptionOnConnection.get() != null, 2000, 100));
-         assertTrue(exceptionOnConnection.get().getCause() instanceof ActiveMQConnectionTimedOutException);
+         assertInstanceOf(ActiveMQConnectionTimedOutException.class, exceptionOnConnection.get().getCause());
       } finally {
          if (connection != null) {
             connection.close();
@@ -165,10 +166,10 @@ public class ExceptionListenerForConnectionTimedOutExceptionTest extends JMSTest
             Wait.assertTrue(blocked::get);
             unblock();
          }
-         assertTrue(e.getCause() instanceof ActiveMQConnectionTimedOutException);
+         assertInstanceOf(ActiveMQConnectionTimedOutException.class, e.getCause());
          //Ensure JMS Connection ExceptionListener was also invoked
          assertTrue(Wait.waitFor(() -> exceptionOnConnection.get() != null, 2000, 100));
-         assertTrue(exceptionOnConnection.get().getCause() instanceof ActiveMQConnectionTimedOutException);
+         assertInstanceOf(ActiveMQConnectionTimedOutException.class, exceptionOnConnection.get().getCause());
 
       } finally {
          if (connection != null) {

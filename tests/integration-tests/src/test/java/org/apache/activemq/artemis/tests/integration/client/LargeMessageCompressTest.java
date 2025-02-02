@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -560,7 +561,7 @@ public class LargeMessageCompressTest extends LargeMessageTestBase {
             assertNotNull(message);
 
             message.getBodyBuffer().readBytes(response);
-            assertTrue(Arrays.equals(payload, response));
+            assertArrayEquals(payload, response);
             message.acknowledge();
          }
       }
@@ -619,9 +620,9 @@ public class LargeMessageCompressTest extends LargeMessageTestBase {
       QueueControl queueControl3 = (QueueControl)server.getManagementService().
          getResource(ResourceNames.QUEUE + address3);
 
-      assertTrue(1 == queueControl1.getMessageCount());
-      assertTrue(1 == queueControl2.getMessageCount());
-      assertTrue(1 == queueControl3.getMessageCount());
+      assertEquals(1, queueControl1.getMessageCount());
+      assertEquals(1, queueControl2.getMessageCount());
+      assertEquals(1, queueControl3.getMessageCount());
       assertTrue(message.getPersistentSize() > queueControl1.getPersistentSize());
       assertTrue(queueControl1.getPersistentSize() > queueControl2.getPersistentSize());
       assertTrue(queueControl2.getPersistentSize() > queueControl3.getPersistentSize());

@@ -290,7 +290,7 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       waitForServerToStart(primaryServer.getServer());
       primaryServer.getServer().waitForActivation(10, TimeUnit.SECONDS);
       assertEquals(1, primaryMoveManager.getNumberOfFolders());
-      assertTrue(!primaryServer.getServer().getHAPolicy().isBackup(), "must be active now");
+      assertFalse(primaryServer.getServer().getHAPolicy().isBackup(), "must be active now");
 
       assertTrue(primaryServer.getServer().waitForActivation(15, TimeUnit.SECONDS), "Fail-back must initialize primary!");
       assertFalse(primaryServer.getServer().getHAPolicy().isBackup(), "must be primary!");

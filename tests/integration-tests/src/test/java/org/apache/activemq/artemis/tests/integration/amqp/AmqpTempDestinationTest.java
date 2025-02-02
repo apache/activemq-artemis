@@ -76,8 +76,8 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
       Target remoteTarget = (Target) sender.getEndpoint().getRemoteTarget();
       assertTrue(remoteTarget.getDynamic());
-      assertTrue(remoteTarget.getDurable().equals(TerminusDurability.NONE));
-      assertTrue(remoteTarget.getExpiryPolicy().equals(TerminusExpiryPolicy.LINK_DETACH));
+      assertEquals(TerminusDurability.NONE, remoteTarget.getDurable());
+      assertEquals(TerminusExpiryPolicy.LINK_DETACH, remoteTarget.getExpiryPolicy());
 
       // Check the dynamic node lifetime-policy
       Map<Symbol, Object> dynamicNodeProperties = remoteTarget.getDynamicNodeProperties();
@@ -149,8 +149,8 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
       Source remoteSource = (Source) receiver.getEndpoint().getRemoteSource();
       assertTrue(remoteSource.getDynamic());
-      assertTrue(remoteSource.getDurable().equals(TerminusDurability.NONE));
-      assertTrue(remoteSource.getExpiryPolicy().equals(TerminusExpiryPolicy.LINK_DETACH));
+      assertEquals(TerminusDurability.NONE, remoteSource.getDurable());
+      assertEquals(TerminusExpiryPolicy.LINK_DETACH, remoteSource.getExpiryPolicy());
 
       // Check the dynamic node lifetime-policy
       Map<Symbol, Object> dynamicNodeProperties = remoteSource.getDynamicNodeProperties();

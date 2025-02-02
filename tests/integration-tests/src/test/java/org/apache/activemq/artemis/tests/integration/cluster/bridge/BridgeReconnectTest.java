@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.bridge;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,6 +72,13 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class BridgeReconnectTest extends BridgeTestBase {
@@ -206,7 +206,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       session0 = csf0.createSession(false, true, true);
       Map<String, Bridge> bridges = server2.getClusterManager().getBridges();
-      assertTrue(!bridges.isEmpty(), "backup must deploy bridge on failover");
+      assertFalse(bridges.isEmpty(), "backup must deploy bridge on failover");
    }
 
    // Fail bridge and reconnecting immediately

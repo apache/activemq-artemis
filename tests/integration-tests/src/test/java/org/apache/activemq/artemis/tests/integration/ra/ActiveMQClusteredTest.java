@@ -215,7 +215,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
 
       assertTrue(primaryQueue.getConsumerCount() < CONSUMER_COUNT);
       assertTrue(secondaryQueue.getConsumerCount() < CONSUMER_COUNT);
-      assertTrue(primaryQueue.getConsumerCount() + secondaryQueue.getConsumerCount() == CONSUMER_COUNT);
+      assertEquals(CONSUMER_COUNT, primaryQueue.getConsumerCount() + secondaryQueue.getConsumerCount());
 
       ClientSession session = addClientSession(locator.createSessionFactory().createSession());
       ClientProducer clientProducer = session.createProducer(MDBQUEUEPREFIXED);

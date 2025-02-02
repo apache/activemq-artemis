@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -132,7 +133,7 @@ public class InterruptedAMQPLargeMessage extends AmqpClientTestSupport {
          Message message = ref.getMessage();
 
          assertNotNull(message);
-         assertTrue(message instanceof LargeServerMessage);
+         assertInstanceOf(LargeServerMessage.class, message);
       }
       browserIterator.close();
 

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -582,8 +583,8 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server.createQueue(QueueConfiguration.of(getQueueName()).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       Wait.assertTrue(() -> server_2.locateQueue(getQueueName()) != null, 5000);
-      assertTrue(server_2.getAddressInfo(SimpleString.of(internalQueueName)) == null);
-      assertTrue(server_2.locateQueue(internalQueueName) == null);
+      assertNull(server_2.getAddressInfo(SimpleString.of(internalQueueName)));
+      assertNull(server_2.locateQueue(internalQueueName));
 
       assertEquals(messagesAddedOnS2, to1.getMessagesAdded());
 
@@ -641,8 +642,8 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       assertTrue(lvqQueue1.isLastValue());
       assertTrue(lvqQueue2.isLastValue());
-      assertTrue(lvqQueue1 instanceof LastValueQueue);
-      assertTrue(lvqQueue2 instanceof LastValueQueue);
+      assertInstanceOf(LastValueQueue.class, lvqQueue1);
+      assertInstanceOf(LastValueQueue.class, lvqQueue2);
       assertEquals("KEY", lvqQueue1.getQueueConfiguration().getLastValueKey().toString());
       assertEquals("KEY", lvqQueue2.getQueueConfiguration().getLastValueKey().toString());
 

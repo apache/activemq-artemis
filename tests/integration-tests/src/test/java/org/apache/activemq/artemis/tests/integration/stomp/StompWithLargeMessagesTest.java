@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,6 +36,9 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Disabled
 @ExtendWith(ParameterizedTestExtension.class)
@@ -103,7 +102,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 
          // Receive STOMP Message
          ClientStompFrame frame = conn.receiveFrame();
-         assertTrue(frame.getBody().equals(payload));
+         assertEquals(payload, frame.getBody());
       } finally {
          conn.disconnect();
       }
@@ -140,8 +139,8 @@ public class StompWithLargeMessagesTest extends StompTestBase {
       for (int i = 0; i < count; i++) {
          ClientStompFrame frame = conn.receiveFrame(60000);
          assertNotNull(frame);
-         assertTrue(frame.getCommand().equals("MESSAGE"));
-         assertTrue(frame.getHeader("destination").equals(getQueuePrefix() + getQueueName()));
+         assertEquals("MESSAGE", frame.getCommand());
+         assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader("destination"));
          int index = frame.getBody().indexOf("AAAA");
          assertEquals(msgSize, (frame.getBody().length() - index));
       }
@@ -151,7 +150,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
       unsubFrame.addHeader("receipt", "567");
       ClientStompFrame response = conn.sendFrame(unsubFrame);
       assertNotNull(response);
-      assertTrue(response.getCommand().equals("RECEIPT"));
+      assertEquals("RECEIPT", response.getCommand());
 
       conn.disconnect();
    }
@@ -183,8 +182,8 @@ public class StompWithLargeMessagesTest extends StompTestBase {
       for (int i = 0; i < count; i++) {
          ClientStompFrame frame = conn.receiveFrame(60000);
          assertNotNull(frame);
-         assertTrue(frame.getCommand().equals("MESSAGE"));
-         assertTrue(frame.getHeader("destination").equals(getQueuePrefix() + getQueueName()));
+         assertEquals("MESSAGE", frame.getCommand());
+         assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader("destination"));
          int index = frame.getBody().indexOf("BBB");
          assertEquals(msgSize, (frame.getBody().length() - index));
       }
@@ -194,7 +193,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
       unsubFrame.addHeader("receipt", "567");
       ClientStompFrame response = conn.sendFrame(unsubFrame);
       assertNotNull(response);
-      assertTrue(response.getCommand().equals("RECEIPT"));
+      assertEquals("RECEIPT", response.getCommand());
 
       conn.disconnect();
    }
@@ -320,7 +319,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
       for (int i = 0; i < count; i++) {
          ClientStompFrame receiveFrame = conn.receiveFrame(30000);
          assertNotNull(receiveFrame);
-         assertTrue(receiveFrame.getCommand().equals("MESSAGE"));
+         assertEquals("MESSAGE", receiveFrame.getCommand());
          assertEquals(receiveFrame.getHeader("destination"), getQueuePrefix() + getQueueName());
          int index = receiveFrame.getBody().indexOf(leadingPart);
          assertEquals(msg.length(), (receiveFrame.getBody().length() - index));
@@ -332,7 +331,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
       unsubFrame.addHeader("receipt", "567");
       ClientStompFrame response = conn.sendFrame(unsubFrame);
       assertNotNull(response);
-      assertTrue(response.getCommand().equals("RECEIPT"));
+      assertEquals("RECEIPT", response.getCommand());
 
       conn.disconnect();
    }
@@ -459,8 +458,8 @@ public class StompWithLargeMessagesTest extends StompTestBase {
             assertNotNull(frame);
             logger.debug(frame.toString());
             logger.debug("part of frame: {}", frame.getBody().substring(0, 250));
-            assertTrue(frame.getCommand().equals("MESSAGE"));
-            assertTrue(frame.getHeader("destination").equals(getQueuePrefix() + getQueueName()));
+            assertEquals("MESSAGE", frame.getCommand());
+            assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader("destination"));
             int index = frame.getBody().indexOf(leadingPart);
             assertEquals(msg.length(), (frame.getBody().length() - index));
          }

@@ -51,7 +51,7 @@ public class TopicConnectionTest extends PubSubTestCase {
             Assert.assertEquals("testSetClientID_1", subscriberConnection.getClientID());
          }
          // now the connection has a client ID (either "testSetClientID_1" or one set by the provider
-         Assert.assertTrue(subscriberConnection.getClientID() != null);
+         Assert.assertNotNull(subscriberConnection.getClientID());
 
          // an attempt to set a client ID should now throw an IllegalStateException
          subscriberConnection.setClientID("another client ID");

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.jms.jms2client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -80,7 +81,7 @@ public class SharedConsumerTest extends JMSTestBase {
          boolean found = false;
          for (Binding binding : server.getPostOffice().getBindingsForAddress(SimpleString.of(topic1.getTopicName())).getBindings()) {
             found = true;
-            assertTrue(binding instanceof LocalQueueBinding);
+            assertInstanceOf(LocalQueueBinding.class, binding);
             assertEquals("mySharedCon", ((LocalQueueBinding)binding).getQueue().getName().toString());
             assertNotNull(((LocalQueueBinding)binding).getQueue().getUser());
             assertEquals("foo", ((LocalQueueBinding)binding).getQueue().getUser().toString());

@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.jms.tests;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Message;
@@ -40,6 +35,7 @@ import javax.jms.XAQueueConnection;
 import javax.jms.XAQueueConnectionFactory;
 import javax.jms.XATopicConnection;
 import javax.jms.XATopicConnectionFactory;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -51,7 +47,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ConnectionFactoryTest extends JMSTestCase {
 
@@ -285,7 +285,7 @@ public class ConnectionFactoryTest extends JMSTestCase {
             }
          }
 
-         assertTrue(fast.processed == numMessages - 2);
+         assertEquals(numMessages - 2, fast.processed);
 
       } finally {
          try {
@@ -325,62 +325,62 @@ public class ConnectionFactoryTest extends JMSTestCase {
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/ConnectionFactory");
 
-      assertTrue(factory instanceof ConnectionFactory);
+      assertInstanceOf(ConnectionFactory.class, factory);
       assertNTypes(factory, 4);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_XA_TRUE");
 
-      assertTrue(factory instanceof XAConnectionFactory);
+      assertInstanceOf(XAConnectionFactory.class, factory);
       assertNTypes(factory, 6);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_XA_FALSE");
 
-      assertTrue(factory instanceof ConnectionFactory);
+      assertInstanceOf(ConnectionFactory.class, factory);
       assertNTypes(factory, 4);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_GENERIC");
 
-      assertTrue(factory instanceof ConnectionFactory);
+      assertInstanceOf(ConnectionFactory.class, factory);
       assertNTypes(factory, 4);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_GENERIC_XA_TRUE");
 
-      assertTrue(factory instanceof XAConnectionFactory);
+      assertInstanceOf(XAConnectionFactory.class, factory);
       assertNTypes(factory, 6);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_GENERIC_XA_FALSE");
 
-      assertTrue(factory instanceof ConnectionFactory);
+      assertInstanceOf(ConnectionFactory.class, factory);
       assertNTypes(factory, 4);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_QUEUE");
 
-      assertTrue(factory instanceof QueueConnectionFactory);
+      assertInstanceOf(QueueConnectionFactory.class, factory);
       assertNTypes(factory, 3);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_QUEUE_XA_TRUE");
 
-      assertTrue(factory instanceof XAQueueConnectionFactory);
+      assertInstanceOf(XAQueueConnectionFactory.class, factory);
       assertNTypes(factory, 4);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_QUEUE_XA_FALSE");
 
-      assertTrue(factory instanceof QueueConnectionFactory);
+      assertInstanceOf(QueueConnectionFactory.class, factory);
       assertNTypes(factory, 3);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_TOPIC");
 
-      assertTrue(factory instanceof TopicConnectionFactory);
+      assertInstanceOf(TopicConnectionFactory.class, factory);
       assertNTypes(factory, 3);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_TOPIC_XA_TRUE");
 
-      assertTrue(factory instanceof XATopicConnectionFactory);
+      assertInstanceOf(XATopicConnectionFactory.class, factory);
       assertNTypes(factory, 4);
 
       factory = (ActiveMQConnectionFactory) ic.lookup("/CF_TOPIC_XA_FALSE");
 
-      assertTrue(factory instanceof TopicConnectionFactory);
+      assertInstanceOf(TopicConnectionFactory.class, factory);
       assertNTypes(factory, 3);
 
       undeployConnectionFactory("ConnectionFactory");
@@ -456,16 +456,16 @@ public class ConnectionFactoryTest extends JMSTestCase {
       if ("generic".equals(type) || "queue".equals(type) || "topic".equals(type)) {
          //generic
          assertFalse(conn instanceof XAConnection);
-         assertTrue(conn instanceof QueueConnection);
+         assertInstanceOf(QueueConnection.class, conn);
          assertFalse(conn instanceof XAQueueConnection);
-         assertTrue(conn instanceof TopicConnection);
+         assertInstanceOf(TopicConnection.class, conn);
          assertFalse(conn instanceof XATopicConnection);
       } else if ("xa".equals(type) || "xa-queue".equals(type) || "xa-topic".equals(type)) {
-         assertTrue(conn instanceof XAConnection);
-         assertTrue(conn instanceof QueueConnection);
-         assertTrue(conn instanceof XAQueueConnection);
-         assertTrue(conn instanceof TopicConnection);
-         assertTrue(conn instanceof XATopicConnection);
+         assertInstanceOf(XAConnection.class, conn);
+         assertInstanceOf(QueueConnection.class, conn);
+         assertInstanceOf(XAQueueConnection.class, conn);
+         assertInstanceOf(TopicConnection.class, conn);
+         assertInstanceOf(XATopicConnection.class, conn);
       } else {
          fail("Unknown connection type: " + type);
       }

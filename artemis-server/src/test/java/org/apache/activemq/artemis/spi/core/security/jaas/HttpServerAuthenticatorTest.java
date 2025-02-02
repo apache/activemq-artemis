@@ -16,20 +16,6 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
-import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.AUTHORIZATION_HEADER_NAME;
-import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.DEFAULT_SUBJECT_ATTRIBUTE;
-import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.REALM_PROPERTY_NAME;
-import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.REQUEST_SUBJECT_ATTRIBUTE_PROPERTY_NAME;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import javax.security.auth.Subject;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -43,6 +29,20 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
+
+import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.AUTHORIZATION_HEADER_NAME;
+import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.DEFAULT_SUBJECT_ATTRIBUTE;
+import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.REALM_PROPERTY_NAME;
+import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.REQUEST_SUBJECT_ATTRIBUTE_PROPERTY_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class HttpServerAuthenticatorTest {
 
@@ -84,7 +84,7 @@ public class HttpServerAuthenticatorTest {
       HttpServerAuthenticator underTest = new HttpServerAuthenticator();
       Authenticator.Result result = underTest.authenticate(httpsExchange);
 
-      assertTrue(result instanceof Authenticator.Success);
+      assertInstanceOf(Authenticator.Success.class, result);
       assertEquals("foo", ((Authenticator.Success) result).getPrincipal().getUsername());
 
       Subject subject = (Subject) httpsExchange.getAttribute(DEFAULT_SUBJECT_ATTRIBUTE);
@@ -115,7 +115,7 @@ public class HttpServerAuthenticatorTest {
       HttpServerAuthenticator underTest = new HttpServerAuthenticator();
       Authenticator.Result result = underTest.authenticate(httpsExchange);
 
-      assertTrue(result instanceof Authenticator.Success);
+      assertInstanceOf(Authenticator.Success.class, result);
       assertEquals("first", ((Authenticator.Success) result).getPrincipal().getUsername());
 
       Subject subject = (Subject) httpsExchange.getAttribute(DEFAULT_SUBJECT_ATTRIBUTE);
@@ -142,7 +142,7 @@ public class HttpServerAuthenticatorTest {
       HttpServerAuthenticator underTest = new HttpServerAuthenticator();
       Authenticator.Result result = underTest.authenticate(httpsExchange);
 
-      assertTrue(result instanceof Authenticator.Failure);
+      assertInstanceOf(Authenticator.Failure.class, result);
       assertNull(httpsExchange.getAttribute(DEFAULT_SUBJECT_ATTRIBUTE), "no subject");
 
       // kube login attempt

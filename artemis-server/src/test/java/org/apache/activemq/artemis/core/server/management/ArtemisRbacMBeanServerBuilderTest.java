@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server.management;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -328,7 +329,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
          }
       });
       assertNotNull(ret);
-      assertTrue(ret instanceof Long);
+      assertInstanceOf(Long.class, ret);
 
 
       // verify failure case
@@ -344,7 +345,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
          }
       });
       assertNotNull(ret);
-      assertTrue(ret instanceof SecurityException);
+      assertInstanceOf(SecurityException.class, ret);
    }
 
 
@@ -379,7 +380,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
          }
       });
       assertNotNull(ret);
-      assertTrue(ret instanceof Boolean);
+      assertInstanceOf(Boolean.class, ret);
 
 
       // verify failure case
@@ -395,7 +396,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
          }
       });
       assertNotNull(ret);
-      assertTrue(ret instanceof SecurityException);
+      assertInstanceOf(SecurityException.class, ret);
    }
 
    @Test
@@ -429,7 +430,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
          }
       });
       assertNotNull(ret);
-      assertTrue(ret instanceof Boolean);
+      assertInstanceOf(Boolean.class, ret);
    }
 
    @Test
@@ -467,7 +468,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
          }
       });
       assertNotNull(ret);
-      assertTrue(ret instanceof SecurityException);
+      assertInstanceOf(SecurityException.class, ret);
       assertTrue(((Exception)ret).getMessage().contains("EDIT"));
 
       // another `is` op is ok with view
@@ -480,7 +481,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
          }
       });
       assertNotNull(ret);
-      assertTrue(ret instanceof Boolean);
+      assertInstanceOf(Boolean.class, ret);
    }
 
    @Test
@@ -522,7 +523,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
          }
       });
       assertNotNull(ret);
-      assertTrue(ret instanceof SecurityException);
+      assertInstanceOf(SecurityException.class, ret);
       assertTrue(((Exception)ret).getMessage().contains("EDIT"));
 
       // with updaters role we can access a specific method
@@ -537,7 +538,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
          }
       });
       assertNotNull(ret);
-      assertTrue(ret instanceof Boolean);
+      assertInstanceOf(Boolean.class, ret);
    }
 
    @Test
@@ -575,7 +576,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
          }
       });
       assertNotNull(result);
-      assertTrue(result instanceof Set);
+      assertInstanceOf(Set.class, result);
    }
 
    @Test

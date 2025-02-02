@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.beans.PropertyDescriptor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,6 +49,9 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+
 public class ConnectionFactorySerializationTest extends JMSTestBase {
 
    protected static ActiveMQConnectionFactory cf;
@@ -77,7 +77,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       assertEquals("dg1", dgc.getName());
       assertEquals(5000, dgc.getDiscoveryInitialWaitTimeout());
       assertEquals(5000, dgc.getRefreshTimeout());
-      assertTrue(dgc.getBroadcastEndpointFactory() instanceof UDPBroadcastEndpointFactory);
+      assertInstanceOf(UDPBroadcastEndpointFactory.class, dgc.getBroadcastEndpointFactory());
       UDPBroadcastEndpointFactory befc = (UDPBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
       assertEquals(Integer.parseInt(System.getProperty("org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindPort", "-1")), befc.getLocalBindPort());
       assertEquals(System.getProperty("org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress"), befc.getLocalBindAddress());
@@ -99,7 +99,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       assertEquals("dg1", dgc.getName());
       assertEquals(5000, dgc.getDiscoveryInitialWaitTimeout());
       assertEquals(5000, dgc.getRefreshTimeout());
-      assertTrue(dgc.getBroadcastEndpointFactory() instanceof JGroupsFileBroadcastEndpointFactory);
+      assertInstanceOf(JGroupsFileBroadcastEndpointFactory.class, dgc.getBroadcastEndpointFactory());
       JGroupsFileBroadcastEndpointFactory befc = (JGroupsFileBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
       assertEquals("myChannel", befc.getChannelName());
       assertEquals("/META-INF/myfile.xml", befc.getFile());

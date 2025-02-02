@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.unit.ra;
 
-import static java.beans.Introspector.getBeanInfo;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +30,12 @@ import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.ConnectionFactoryProperties;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.Test;
+
+import static java.beans.Introspector.getBeanInfo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
 

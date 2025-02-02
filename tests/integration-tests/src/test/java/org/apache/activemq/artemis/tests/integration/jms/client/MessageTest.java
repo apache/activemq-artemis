@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.Connection;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -33,7 +26,6 @@ import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -42,6 +34,13 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MessageTest extends JMSTestBase {
 
@@ -281,17 +280,17 @@ public class MessageTest extends JMSTestBase {
             producer.send(session.createTopic("a.b"), session.createTextMessage("m2"));
 
             Message m = parentConsumer.receive(5_000);
-            assertTrue(m instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, m);
             assertEquals("m1", ((TextMessage) m).getText());
             m = parentConsumer.receive(5_000);
-            assertTrue(m instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, m);
             assertEquals("m2", ((TextMessage) m).getText());
 
             m = childConsumer.receive(5_000);
-            assertTrue(m instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, m);
             assertEquals("m1", ((TextMessage) m).getText());
             m = childConsumer.receive(5_000);
-            assertTrue(m instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, m);
             assertEquals("m2", ((TextMessage) m).getText());
          }
       }

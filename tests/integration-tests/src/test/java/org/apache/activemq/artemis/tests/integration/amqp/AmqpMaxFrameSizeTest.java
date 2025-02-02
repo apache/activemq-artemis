@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -299,7 +300,7 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
       MessageImpl wrapped = (MessageImpl) message.getWrappedMessage();
 
       assertNotNull(wrapped.getBody(), "Message has no body");
-      assertTrue(wrapped.getBody() instanceof Data, "Unexpected body type: " + wrapped.getBody().getClass());
+      assertInstanceOf(Data.class, wrapped.getBody(), "Unexpected body type: " + wrapped.getBody().getClass());
 
       Data data = (Data) wrapped.getBody();
       Binary binary = data.getValue();

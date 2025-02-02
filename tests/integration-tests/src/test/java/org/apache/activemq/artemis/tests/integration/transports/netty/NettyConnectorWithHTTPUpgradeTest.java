@@ -74,6 +74,7 @@ import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnecto
 import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.createExpectedResponse;
 import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -208,8 +209,8 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
       // make sure we failed *before* the HTTP hand-shake timeout elapsed (which is hard-coded to 30 seconds, see org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.HttpUpgradeHandler.awaitHandshake())
       assertTrue((System.currentTimeMillis() - start) < 30000);
       assertNotNull(e);
-      assertTrue(e instanceof ActiveMQNotConnectedException);
-      assertTrue(((ActiveMQException) e).getType() == ActiveMQExceptionType.NOT_CONNECTED);
+      assertInstanceOf(ActiveMQNotConnectedException.class, e);
+      assertEquals(ActiveMQExceptionType.NOT_CONNECTED, ((ActiveMQException) e).getType());
    }
 
    private void startWebServer(int port) throws Exception {

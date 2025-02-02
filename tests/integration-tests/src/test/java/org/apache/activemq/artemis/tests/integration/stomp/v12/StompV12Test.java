@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -1344,7 +1345,7 @@ public class StompV12Test extends StompTestBase {
       beginTransaction(conn, "tx1");
 
       ClientStompFrame f = conn.receiveFrame();
-      assertTrue(f.getCommand().equals(Stomp.Responses.ERROR));
+      assertEquals(Stomp.Responses.ERROR, f.getCommand());
    }
 
    @Test
@@ -1359,9 +1360,9 @@ public class StompV12Test extends StompTestBase {
 
       ClientStompFrame frame = conn.receiveFrame();
       logger.debug("{}", frame);
-      assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       assertNotNull(frame.getHeader(Stomp.Headers.Subscribe.DESTINATION));
-      assertTrue(frame.getBody().equals(text));
+      assertEquals(text, frame.getBody());
 
       conn.disconnect();
    }
@@ -1376,9 +1377,9 @@ public class StompV12Test extends StompTestBase {
 
       ClientStompFrame frame = conn.receiveFrame();
 
-      assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       assertNotNull(frame.getHeader(Stomp.Headers.Message.DESTINATION));
-      assertTrue(frame.getBody().equals(getName()));
+      assertEquals(getName(), frame.getBody());
       assertNotNull(frame.getHeader(Stomp.Headers.Message.MESSAGE_ID));
       assertNotNull(frame.getHeader(Stomp.Headers.Message.ACK));
 
@@ -1446,7 +1447,7 @@ public class StompV12Test extends StompTestBase {
       }
       thr.join();
 
-      assertTrue(count == 0, "Server failed to disconnect.");
+      assertEquals(0, count, "Server failed to disconnect.");
    }
 
    @Test
@@ -1457,7 +1458,7 @@ public class StompV12Test extends StompTestBase {
 
       ClientStompFrame frame = subscribe(conn, "sub1", "client", getName());
 
-      assertTrue(frame.getCommand().equals(Stomp.Responses.ERROR));
+      assertEquals(Stomp.Responses.ERROR, frame.getCommand());
 
       waitDisconnect(conn);
       assertFalse(conn.isConnected(), "Should be disconnected in STOMP 1.2 after ERROR");
@@ -1568,7 +1569,7 @@ public class StompV12Test extends StompTestBase {
       // we must have received the message
       frame = conn.receiveFrame();
 
-      assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       assertNotNull(frame.getHeader(Stomp.Headers.Subscribe.DESTINATION));
       assertEquals(getName(), frame.getBody());
 
@@ -1634,7 +1635,7 @@ public class StompV12Test extends StompTestBase {
 
       for (int i = 0; i < ctr; ++i) {
          frame = conn.receiveFrame();
-         assertTrue(frame.getBody().equals(data[i]), "Message not in order");
+         assertEquals(data[i], frame.getBody(), "Message not in order");
       }
 
       for (int i = 0; i < ctr; ++i) {
@@ -1644,7 +1645,7 @@ public class StompV12Test extends StompTestBase {
 
       for (int i = 0; i < ctr; ++i) {
          frame = conn.receiveFrame();
-         assertTrue(frame.getBody().equals(data[i]), "Message not in order");
+         assertEquals(data[i], frame.getBody(), "Message not in order");
       }
 
       conn.disconnect();
@@ -1661,7 +1662,7 @@ public class StompV12Test extends StompTestBase {
 
       ClientStompFrame frame = conn.receiveFrame();
 
-      assertTrue(frame.getBody().equals("Real message"), "Should have received the real message but got: " + frame);
+      assertEquals("Real message", frame.getBody(), "Should have received the real message but got: " + frame);
 
       conn.disconnect();
    }
@@ -1676,7 +1677,7 @@ public class StompV12Test extends StompTestBase {
 
       ClientStompFrame frame = conn.receiveFrame();
 
-      assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
       conn.disconnect();
 
@@ -1913,9 +1914,9 @@ public class StompV12Test extends StompTestBase {
 
       ClientStompFrame frame = conn.receiveFrame();
 
-      assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
-      assertTrue(frame.getHeader(Stomp.Headers.Subscribe.DESTINATION).equals(getTopicPrefix() + getTopicName()));
-      assertTrue(frame.getBody().equals(getName()));
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      assertEquals(frame.getHeader(Stomp.Headers.Subscribe.DESTINATION), getTopicPrefix() + getTopicName());
+      assertEquals(frame.getBody(), getName());
 
       unsubscribe(conn, "sub1", true);
 
@@ -1945,9 +1946,9 @@ public class StompV12Test extends StompTestBase {
 
       frame = conn.receiveFrame();
 
-      assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
-      assertTrue(frame.getHeader(Stomp.Headers.Subscribe.DESTINATION).equals(getTopicPrefix() + getTopicName()));
-      assertTrue(frame.getBody().equals(getName()));
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      assertEquals(getTopicPrefix() + getTopicName(), frame.getHeader(Stomp.Headers.Subscribe.DESTINATION));
+      assertEquals(getName(), frame.getBody());
 
       unsubscribe(conn, "sub1");
 
@@ -2040,7 +2041,7 @@ public class StompV12Test extends StompTestBase {
 
       ClientStompFrame frame = conn.receiveFrame();
 
-      assertTrue(frame.getHeader(Stomp.Headers.Message.SUBSCRIPTION) != null);
+      assertNotNull(frame.getHeader(Stomp.Headers.Message.SUBSCRIPTION));
 
       conn.disconnect();
    }
@@ -2067,14 +2068,14 @@ public class StompV12Test extends StompTestBase {
       ClientStompFrame frame = conn.receiveFrame();
       assertNotNull(frame);
 
-      assertTrue(frame.getHeader("S") != null);
-      assertTrue(frame.getHeader("n") != null);
-      assertTrue(frame.getHeader("byte") != null);
-      assertTrue(frame.getHeader("d") != null);
-      assertTrue(frame.getHeader("f") != null);
-      assertTrue(frame.getHeader("i") != null);
-      assertTrue(frame.getHeader("l") != null);
-      assertTrue(frame.getHeader("s") != null);
+      assertNotNull(frame.getHeader("S"));
+      assertNotNull(frame.getHeader("n"));
+      assertNotNull(frame.getHeader("byte"));
+      assertNotNull(frame.getHeader("d"));
+      assertNotNull(frame.getHeader("f"));
+      assertNotNull(frame.getHeader("i"));
+      assertNotNull(frame.getHeader("l"));
+      assertNotNull(frame.getHeader("s"));
       assertEquals("Hello World", frame.getBody());
 
       conn.disconnect();
@@ -2197,7 +2198,7 @@ public class StompV12Test extends StompTestBase {
       // receive message from socket
       ClientStompFrame frame = conn.receiveFrame();
 
-      assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
       // remove suscription
       unsubscribe(conn, "sub1", true);
@@ -2223,7 +2224,7 @@ public class StompV12Test extends StompTestBase {
       // receive message from socket
       ClientStompFrame frame = conn.receiveFrame();
 
-      assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
       //now disconnect without unsubscribe
       conn.disconnect();
@@ -2245,7 +2246,7 @@ public class StompV12Test extends StompTestBase {
       frame = conn.receiveFrame();
 
       assertNotNull(frame);
-      assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
       frame = conn.receiveFrame(100);
       assertNull(frame, "not expected: " + frame);
@@ -2285,7 +2286,7 @@ public class StompV12Test extends StompTestBase {
       subscribe(conn, "sub1", null);
 
       frame = conn.receiveFrame();
-      assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
       conn.disconnect();
 
@@ -2299,7 +2300,7 @@ public class StompV12Test extends StompTestBase {
       sendJmsMessage("shouldBeNextMessage");
 
       frame = conn.receiveFrame();
-      assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
+      assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
       assertEquals("shouldBeNextMessage", frame.getBody());
    }
 
@@ -2323,7 +2324,7 @@ public class StompV12Test extends StompTestBase {
 
          frame = conn.sendFrame(frame);
 
-         assertTrue(frame.getCommand().equals(Stomp.Responses.ERROR));
+         assertEquals(Stomp.Responses.ERROR, frame.getCommand());
       } finally {
          //because the last frame is ERROR, the connection
          //might already have closed by the server.
@@ -2544,7 +2545,7 @@ public class StompV12Test extends StompTestBase {
       ClientStompFrame frame2 = conn.receiveFrame();
       String secondAckID = frame2.getHeader(Stomp.Headers.Message.ACK);
       assertNotNull(secondAckID);
-      assertTrue(!firstAckID.equals(secondAckID), firstAckID + " must not equal " + secondAckID);
+      assertNotEquals(firstAckID, secondAckID);
 
       ack(conn, frame1);
       ack(conn, frame2);

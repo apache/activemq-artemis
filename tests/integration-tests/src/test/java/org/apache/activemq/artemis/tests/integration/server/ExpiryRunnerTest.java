@@ -265,7 +265,7 @@ public class ExpiryRunnerTest extends ActiveMQTestBase {
       Wait.assertEquals(1000, artemisExpiryQueue::getMessageCount);
 
       // The system should not burst itself looking for expiration, that would use too many resources from the broker itself
-      assertTrue(maxExpiryHappening.get() == 1, "The System had " + maxExpiryHappening + " threads in parallel scanning for expiration");
+      assertEquals(1, maxExpiryHappening.get(), "The System had " + maxExpiryHappening + " threads in parallel scanning for expiration");
 
    }
 

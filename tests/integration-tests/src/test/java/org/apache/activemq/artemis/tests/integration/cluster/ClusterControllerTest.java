@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQClusterSecurityException;
@@ -37,6 +34,9 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ClusterControllerTest extends ClusterTestBase {
 
@@ -147,7 +147,7 @@ public class ClusterControllerTest extends ClusterTestBase {
             clusterControl.authorize();
             fail("should throw ActiveMQClusterSecurityException");
          } catch (Exception e) {
-            assertTrue(e instanceof ActiveMQClusterSecurityException, "should throw ActiveMQClusterSecurityException");
+            assertInstanceOf(ActiveMQClusterSecurityException.class, e, "should throw ActiveMQClusterSecurityException");
          }
       }
    }

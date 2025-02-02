@@ -16,15 +16,7 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ReadOnlyBufferException;
@@ -40,7 +32,14 @@ import io.netty.util.internal.PlatformDependent;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class ByteUtilTest {
 
@@ -138,12 +137,9 @@ public class ByteUtilTest {
 
    @Test
    public void testTextBytesToLongBytesNegative() {
-      try {
+      assertThrows(IllegalArgumentException.class, () -> {
          ByteUtil.convertTextBytes("x");
-         fail();
-      } catch (Exception e) {
-         assertTrue(e instanceof IllegalArgumentException);
-      }
+      });
    }
 
    private static byte[] duplicateRemaining(ByteBuffer buffer, int offset, int bytes) {

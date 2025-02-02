@@ -74,7 +74,7 @@ public class MessagePropertyTest extends PTPTestCase {
    public void testGetObjectProperty() {
       try {
          Message message = senderSession.createMessage();
-         Assert.assertEquals("sec. 3.5.5 A null value is returned [by the getObjectProperty method] if a property by the specified " + "name does not exits.\n", null, message.getObjectProperty("prop"));
+         Assert.assertNull("sec. 3.5.5 A null value is returned [by the getObjectProperty method] if a property by the specified " + "name does not exits.\n", message.getObjectProperty("prop"));
       } catch (JMSException e) {
          fail(e);
       }
@@ -88,7 +88,7 @@ public class MessagePropertyTest extends PTPTestCase {
    public void testGetStringProperty() {
       try {
          Message message = senderSession.createMessage();
-         Assert.assertEquals("sec. 3.5.5 A null value is returned [by the getStringProperty method] if a property by the specified " + "name does not exits.\n", null, message.getStringProperty("prop"));
+         Assert.assertNull("sec. 3.5.5 A null value is returned [by the getStringProperty method] if a property by the specified " + "name does not exits.\n", message.getStringProperty("prop"));
       } catch (JMSException e) {
          fail(e);
       }
@@ -283,7 +283,7 @@ public class MessagePropertyTest extends PTPTestCase {
          TextMessage message = senderSession.createTextMessage();
          message.setStringProperty("prop", "foo");
          message.clearProperties();
-         Assert.assertEquals("sec. 3.5.7 A message's properties are deleted by the clearProperties method.\n", null, message.getStringProperty("prop"));
+         Assert.assertNull("sec. 3.5.7 A message's properties are deleted by the clearProperties method.\n", message.getStringProperty("prop"));
       } catch (JMSException e) {
          fail(e);
       }

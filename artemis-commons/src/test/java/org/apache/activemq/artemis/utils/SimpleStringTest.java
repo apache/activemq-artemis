@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class SimpleStringTest {
 
@@ -36,6 +36,6 @@ public class SimpleStringTest {
       } catch (IndexOutOfBoundsException iob) {
          e = iob;
       }
-      assertTrue(e instanceof IndexOutOfBoundsException);
+      assertInstanceOf(IndexOutOfBoundsException.class, e);
    }
 }

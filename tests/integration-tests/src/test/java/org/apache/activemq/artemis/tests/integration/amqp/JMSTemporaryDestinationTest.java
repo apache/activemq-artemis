@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -76,7 +77,7 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          final javax.jms.Queue queue = session.createTemporaryQueue();
          assertNotNull(queue);
-         assertTrue(queue instanceof TemporaryQueue);
+         assertInstanceOf(TemporaryQueue.class, queue);
 
          Queue queueView = getProxyToQueue(queue.getQueueName());
          assertNotNull(queueView);
@@ -122,7 +123,7 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          final javax.jms.Topic topic = session.createTemporaryTopic();
          assertNotNull(topic);
-         assertTrue(topic instanceof TemporaryTopic);
+         assertInstanceOf(TemporaryTopic.class, topic);
 
          Queue queueView = getProxyToQueue(topic.getTopicName());
          assertNotNull(queueView);

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.jms.jms2client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -443,7 +444,7 @@ public class JmsContextTest extends JMSTestBase {
 
       assertNotNull(error1);
 
-      assertTrue(error1 instanceof IllegalStateRuntimeException);
+      assertInstanceOf(IllegalStateRuntimeException.class, error1);
 
       context1.close();
 
@@ -466,7 +467,7 @@ public class JmsContextTest extends JMSTestBase {
 
       assertNotNull(error2);
 
-      assertTrue(error2 instanceof IllegalStateRuntimeException);
+      assertInstanceOf(IllegalStateRuntimeException.class, error2);
 
       context2.close();
    }

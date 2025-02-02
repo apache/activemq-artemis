@@ -16,9 +16,7 @@
  */
 package org.apache.activemq.artemis.uri;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,7 +28,8 @@ import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AcceptorParserTest {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -41,7 +40,7 @@ public class AcceptorParserTest {
 
       for (TransportConfiguration config : configs) {
          logger.debug("config: {}", config);
-         assertTrue(config.getExtraParams().get("banana").equals("x"));
+         assertEquals("x", config.getExtraParams().get("banana"));
       }
    }
 
@@ -67,7 +66,7 @@ public class AcceptorParserTest {
       for (TransportConfiguration config : configs) {
          logger.debug("config: {}", config);
          logger.debug("{}", config.getExtraParams().get("virtualTopicConsumerWildcards"));
-         assertTrue(config.getExtraParams().get("virtualTopicConsumerWildcards").equals("Consumer.*.>;2"));
+         assertEquals("Consumer.*.>;2", config.getExtraParams().get("virtualTopicConsumerWildcards"));
       }
    }
 }

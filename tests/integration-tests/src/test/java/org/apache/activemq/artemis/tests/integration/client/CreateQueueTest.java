@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -29,12 +25,12 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
@@ -42,6 +38,10 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class CreateQueueTest extends ActiveMQTestBase {
@@ -95,7 +95,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
          }
          fail("Creating a queue here should fail since the queue routing type differs from what is supported on the address.");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQException);
+         assertInstanceOf(ActiveMQException.class, e);
          ActiveMQException ae = (ActiveMQException) e;
          assertEquals(ActiveMQExceptionType.INTERNAL_ERROR, ae.getType());
       }
@@ -110,7 +110,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
          }
          fail("Creating a queue here should fail since the queue routing type differs from what is supported on the address.");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQException);
+         assertInstanceOf(ActiveMQException.class, e);
          ActiveMQException ae = (ActiveMQException) e;
          assertEquals(ActiveMQExceptionType.INTERNAL_ERROR, ae.getType());
       }
@@ -131,7 +131,7 @@ public class CreateQueueTest extends ActiveMQTestBase {
          }
          fail("Creating a queue here should fail since the queue's address doesn't exist and auto-create-addresses = false.");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQException);
+         assertInstanceOf(ActiveMQException.class, e);
          ActiveMQException ae = (ActiveMQException) e;
          assertEquals(ActiveMQExceptionType.ADDRESS_DOES_NOT_EXIST, ae.getType());
       }

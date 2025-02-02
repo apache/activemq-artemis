@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.jms.jms2client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -130,7 +131,7 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase {
       for (InvalidCompletionListener cl : listeners) {
          assertTrue(cl.latch.await(1, TimeUnit.SECONDS));
          assertNotNull(cl.error);
-         assertTrue(cl.error instanceof IllegalStateRuntimeException);
+         assertInstanceOf(IllegalStateRuntimeException.class, cl.error);
       }
    }
 

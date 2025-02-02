@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -134,7 +135,7 @@ public class NetworkHealthTest {
 
       InetAddress address = InetAddress.getByName(IPV6_LOCAL);
 
-      assertTrue(address instanceof Inet6Address);
+      assertInstanceOf(Inet6Address.class, address);
 
       assertTrue(check.purePing(address));
 

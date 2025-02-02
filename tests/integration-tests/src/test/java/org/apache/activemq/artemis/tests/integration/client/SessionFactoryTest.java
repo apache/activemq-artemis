@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.util.Arrays;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
@@ -38,6 +33,11 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SessionFactoryTest extends ActiveMQTestBase {
 
@@ -347,7 +347,7 @@ public class SessionFactoryTest extends ActiveMQTestBase {
                                     final double retryIntervalMultiplier,
                                     final int reconnectAttempts) {
       if (staticConnectors == null) {
-         assertTrue(Arrays.equals(new String[]{}, locator.getStaticTransportConfigurations()), "no static connectors");
+         assertArrayEquals(new String[]{}, locator.getStaticTransportConfigurations(), "no static connectors");
       } else {
          assertEqualsTransportConfigurations(staticConnectors, locator.getStaticTransportConfigurations());
       }

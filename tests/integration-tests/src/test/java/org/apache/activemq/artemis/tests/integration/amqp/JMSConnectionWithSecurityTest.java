@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
@@ -30,6 +25,8 @@ import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.lang.invoke.MethodHandles;
+import java.net.URI;
 
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.jupiter.api.Test;
@@ -37,8 +34,10 @@ import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
-import java.net.URI;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
 
@@ -165,7 +164,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
          connection.start();
          Message msg = consumer.receive(5000);
          assertNotNull(msg);
-         assertTrue(msg instanceof TextMessage);
+         assertInstanceOf(TextMessage.class, msg);
          TextMessage textMessage = (TextMessage) msg;
          assertEquals(messageText, textMessage.getText());
       } finally {

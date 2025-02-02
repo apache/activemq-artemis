@@ -133,7 +133,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
       byte[] bytesVal = new byte[originVal.length];
       streamMessage.readBytes(bytesVal);
       for (int i = 0; i < bytesVal.length; i++) {
-         assertTrue(bytesVal[i] == originVal[i]);
+         assertEquals(originVal[i], bytesVal[i]);
       }
       char charVal = streamMessage.readChar();
       assertEquals('A', charVal);
@@ -147,7 +147,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
       assertEquals(56652L, longVal);
       Object objectVal = streamMessage.readObject();
       Object origVal = new String("VVVV");
-      assertTrue(objectVal.equals(origVal));
+      assertEquals(origVal, objectVal);
       short shortVal = streamMessage.readShort();
       assertEquals((short) 333, shortVal);
       String strVal = streamMessage.readString();
@@ -224,7 +224,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
       byte[] originVal = TEXT.getBytes();
       assertEquals(originVal.length, bytesVal.length);
       for (int i = 0; i < bytesVal.length; i++) {
-         assertTrue(bytesVal[i] == originVal[i]);
+         assertEquals(originVal[i], bytesVal[i]);
       }
       char charVal = mapMessage.getChar("char-type");
       assertEquals('A', charVal);
@@ -238,7 +238,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
       assertEquals(56652L, longVal);
       Object objectVal = mapMessage.getObject("object-type");
       Object origVal = new String("VVVV");
-      assertTrue(objectVal.equals(origVal));
+      assertEquals(origVal, objectVal);
       short shortVal = mapMessage.getShort("short-type");
       assertEquals((short) 333, shortVal);
       String strVal = mapMessage.getString("string-type");
@@ -262,7 +262,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
 
       byte[] bytes = new byte[TEXT.getBytes(StandardCharsets.UTF_8).length];
       bytesMessage.readBytes(bytes);
-      assertTrue(bytesMessage.readBytes(new byte[255]) == -1);
+      assertEquals(-1, bytesMessage.readBytes(new byte[255]));
 
       String rcvString = new String(bytes, StandardCharsets.UTF_8);
       assertEquals(TEXT, rcvString);

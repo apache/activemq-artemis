@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.jms.server.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -85,7 +86,7 @@ public class JMSConfigurationTest extends ActiveMQTestBase {
       for (String binding : cfConfig.getBindings()) {
          Object o = context.lookup(binding);
          assertNotNull(o);
-         assertTrue(o instanceof ConnectionFactory);
+         assertInstanceOf(ConnectionFactory.class, o);
          ConnectionFactory cf = (ConnectionFactory) o;
          Connection connection = cf.createConnection();
          connection.close();
@@ -94,7 +95,7 @@ public class JMSConfigurationTest extends ActiveMQTestBase {
       for (String binding : queueConfig.getBindings()) {
          Object o = context.lookup(binding);
          assertNotNull(o);
-         assertTrue(o instanceof Queue);
+         assertInstanceOf(Queue.class, o);
          Queue queue = (Queue) o;
          assertEquals(queueConfig.getName(), queue.getQueueName());
       }
@@ -102,7 +103,7 @@ public class JMSConfigurationTest extends ActiveMQTestBase {
       for (String binding : topicConfig.getBindings()) {
          Object o = context.lookup(binding);
          assertNotNull(o);
-         assertTrue(o instanceof Topic);
+         assertInstanceOf(Topic.class, o);
          Topic topic = (Topic) o;
          assertEquals(topicConfig.getName(), topic.getTopicName());
       }

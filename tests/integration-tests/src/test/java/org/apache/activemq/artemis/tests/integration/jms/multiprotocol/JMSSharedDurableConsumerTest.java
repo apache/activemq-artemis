@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
@@ -31,7 +25,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -45,6 +38,12 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class JMSSharedDurableConsumerTest extends MultiprotocolJMSClientTestSupport {
@@ -94,7 +93,7 @@ public class JMSSharedDurableConsumerTest extends MultiprotocolJMSClientTestSupp
             received = message2;
          }
          assertNotNull(received, "Should have received a message by now.");
-         assertTrue(received instanceof TextMessage, "Should be an instance of TextMessage");
+         assertInstanceOf(TextMessage.class, received, "Should be an instance of TextMessage");
 
          consumer1.close();
          consumer2.close();
