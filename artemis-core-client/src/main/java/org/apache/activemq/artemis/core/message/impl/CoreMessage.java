@@ -790,7 +790,8 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          Long.BYTES +                                    // expiration
          Long.BYTES +                                    // timestamp
          Byte.BYTES;                                     // priority
-      synchronized (properties) {
+      properties.getReadLock().lock();
+      try {
          final int propertiesEncodeSize = properties.getEncodeSize();
          final int totalEncodedSize = headersSize + propertiesEncodeSize;
          ensureExactWritable(buffer, totalEncodedSize);
@@ -810,6 +811,8 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          assert buffer.writerIndex() == initialWriterIndex + headersSize : "Bad Headers encode size estimation";
          final int realPropertiesEncodeSize = properties.encode(buffer);
          assert realPropertiesEncodeSize == propertiesEncodeSize : "TypedProperties has a wrong encode size estimation or is being modified concurrently";
+      } finally {
+         properties.getReadLock().unlock();
       }
    }
 
