@@ -160,7 +160,7 @@ public class CreateSubscriptionTest extends JMSTestBase {
                   MessageConsumer messageConsumer = session.createSharedConsumer(topic, "consumer1");
                } else if (queueType.equals("createDurableSubscriber")) {
                   session.createDurableSubscriber(topic, "name", null, false);
-               } else if (queueType.equals("createDurableSubscriber")) {
+               } else if (queueType.equals("createConsumer")) {
                   session.createConsumer(topic);
                }
 
