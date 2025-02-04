@@ -496,8 +496,8 @@ public class NettyAcceptor extends AbstractAcceptor {
       if (tcpSendBufferSize != -1) {
          bootstrap.childOption(ChannelOption.SO_SNDBUF, tcpSendBufferSize);
       }
-      final int writeBufferLowWaterMark = this.writeBufferLowWaterMark != -1 ? this.writeBufferLowWaterMark : WriteBufferWaterMark.DEFAULT.low();
-      final int writeBufferHighWaterMark = this.writeBufferHighWaterMark != -1 ? this.writeBufferHighWaterMark : WriteBufferWaterMark.DEFAULT.high();
+      final int writeBufferLowWaterMark = this.writeBufferLowWaterMark == -1 ? WriteBufferWaterMark.DEFAULT.low() : this.writeBufferLowWaterMark;
+      final int writeBufferHighWaterMark = this.writeBufferHighWaterMark == -1 ? WriteBufferWaterMark.DEFAULT.high() : this.writeBufferHighWaterMark;
       final WriteBufferWaterMark writeBufferWaterMark = new WriteBufferWaterMark(writeBufferLowWaterMark, writeBufferHighWaterMark);
       bootstrap.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, writeBufferWaterMark);
       if (backlog != -1) {

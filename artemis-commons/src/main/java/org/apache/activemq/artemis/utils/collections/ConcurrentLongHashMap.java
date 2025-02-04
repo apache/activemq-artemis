@@ -235,7 +235,7 @@ public class ConcurrentLongHashMap<V> {
                if (!acquiredLock && validate(stamp)) {
                   // The values we have read are consistent
                   if (storedKey == key) {
-                     return storedValue != DeletedValue ? storedValue : null;
+                     return storedValue == DeletedValue ? null : storedValue;
                   } else if (storedValue == EmptyValue) {
                      // Not found
                      return null;
@@ -256,7 +256,7 @@ public class ConcurrentLongHashMap<V> {
                   }
 
                   if (storedKey == key) {
-                     return storedValue != DeletedValue ? storedValue : null;
+                     return storedValue == DeletedValue ? null : storedValue;
                   } else if (storedValue == EmptyValue) {
                      // Not found
                      return null;

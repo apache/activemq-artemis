@@ -582,8 +582,8 @@ public class NettyConnector extends AbstractConnector {
       if (tcpSendBufferSize != -1) {
          bootstrap.option(ChannelOption.SO_SNDBUF, tcpSendBufferSize);
       }
-      final int writeBufferLowWaterMark = this.writeBufferLowWaterMark != -1 ? this.writeBufferLowWaterMark : WriteBufferWaterMark.DEFAULT.low();
-      final int writeBufferHighWaterMark = this.writeBufferHighWaterMark != -1 ? this.writeBufferHighWaterMark : WriteBufferWaterMark.DEFAULT.high();
+      final int writeBufferLowWaterMark = this.writeBufferLowWaterMark == -1 ? WriteBufferWaterMark.DEFAULT.low() : this.writeBufferLowWaterMark;
+      final int writeBufferHighWaterMark = this.writeBufferHighWaterMark == -1 ? WriteBufferWaterMark.DEFAULT.high() : this.writeBufferHighWaterMark;
       final WriteBufferWaterMark writeBufferWaterMark = new WriteBufferWaterMark(writeBufferLowWaterMark, writeBufferHighWaterMark);
       bootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK, writeBufferWaterMark);
       bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
