@@ -512,16 +512,14 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       routingContext.setDuplicateDetection(false); // we do our own duplicate detection here
 
       DuplicateIDCache duplicateIDCache;
-      if (lruDuplicateIDKey != null && lruDuplicateIDKey.equals(internalMirrorID)) {
-         duplicateIDCache = lruduplicateIDCache;
-      } else {
+      if (lruDuplicateIDKey == null || !lruDuplicateIDKey.equals(internalMirrorID)) {
          // we use the number of credits for the duplicate detection, as that means the maximum number of elements you can have pending
          logger.trace("Setting up duplicate detection cache on {}, ServerID={} with {} elements, being the number of credits", ProtonProtocolManager.MIRROR_ADDRESS, internalMirrorID, connection.getAmqpCredits());
 
          lruDuplicateIDKey = internalMirrorID;
          lruduplicateIDCache = server.getPostOffice().getDuplicateIDCache(SimpleString.of(ProtonProtocolManager.MIRROR_ADDRESS + "_" + internalMirrorID), connection.getAmqpCredits());
-         duplicateIDCache = lruduplicateIDCache;
       }
+      duplicateIDCache = lruduplicateIDCache;
 
       byte[] duplicateIDBytes = ByteUtil.longToBytes(internalIDLong);
 

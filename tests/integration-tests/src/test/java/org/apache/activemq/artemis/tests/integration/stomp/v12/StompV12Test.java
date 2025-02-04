@@ -2272,11 +2272,10 @@ public class StompV12Test extends StompTestBase {
 
       if (sendDisconnect) {
          conn.disconnect();
-         conn = (StompClientConnectionV12) StompClientConnectionFactory.createClientConnection(uri);
       } else {
          conn.destroy();
-         conn = (StompClientConnectionV12) StompClientConnectionFactory.createClientConnection(uri);
       }
+      conn = (StompClientConnectionV12) StompClientConnectionFactory.createClientConnection(uri);
 
       // message should be received since message was not acknowledged
       conn.connect(defUser, defPass);

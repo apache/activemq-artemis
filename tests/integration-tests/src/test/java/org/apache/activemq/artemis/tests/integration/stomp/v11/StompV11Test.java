@@ -2289,11 +2289,10 @@ public class StompV11Test extends StompTestBase {
 
       if (sendDisconnect) {
          conn.disconnect();
-         conn = StompClientConnectionFactory.createClientConnection(uri);
       } else {
          conn.destroy();
-         conn = StompClientConnectionFactory.createClientConnection(uri);
       }
+      conn = StompClientConnectionFactory.createClientConnection(uri);
 
       // message should be received since message was not acknowledged
       conn.connect(defUser, defPass);
