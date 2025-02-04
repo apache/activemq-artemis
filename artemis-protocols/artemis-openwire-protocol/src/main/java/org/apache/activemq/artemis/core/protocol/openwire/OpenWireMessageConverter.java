@@ -461,24 +461,16 @@ public final class OpenWireMessageConverter {
    }
 
    public static byte toCoreType(byte amqType) {
-      switch (amqType) {
-         case CommandTypes.ACTIVEMQ_BLOB_MESSAGE:
-            throw new IllegalStateException("We don't support BLOB type yet!");
-         case CommandTypes.ACTIVEMQ_BYTES_MESSAGE:
-            return org.apache.activemq.artemis.api.core.Message.BYTES_TYPE;
-         case CommandTypes.ACTIVEMQ_MAP_MESSAGE:
-            return org.apache.activemq.artemis.api.core.Message.MAP_TYPE;
-         case CommandTypes.ACTIVEMQ_OBJECT_MESSAGE:
-            return org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE;
-         case CommandTypes.ACTIVEMQ_STREAM_MESSAGE:
-            return org.apache.activemq.artemis.api.core.Message.STREAM_TYPE;
-         case CommandTypes.ACTIVEMQ_TEXT_MESSAGE:
-            return org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
-         case CommandTypes.ACTIVEMQ_MESSAGE:
-            return org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE;
-         default:
-            throw new IllegalStateException("Unknown ActiveMQ Artemis message type: " + amqType);
-      }
+      return switch (amqType) {
+         case CommandTypes.ACTIVEMQ_BLOB_MESSAGE -> throw new IllegalStateException("We don't support BLOB type yet!");
+         case CommandTypes.ACTIVEMQ_BYTES_MESSAGE -> org.apache.activemq.artemis.api.core.Message.BYTES_TYPE;
+         case CommandTypes.ACTIVEMQ_MAP_MESSAGE -> org.apache.activemq.artemis.api.core.Message.MAP_TYPE;
+         case CommandTypes.ACTIVEMQ_OBJECT_MESSAGE -> org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE;
+         case CommandTypes.ACTIVEMQ_STREAM_MESSAGE -> org.apache.activemq.artemis.api.core.Message.STREAM_TYPE;
+         case CommandTypes.ACTIVEMQ_TEXT_MESSAGE -> org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
+         case CommandTypes.ACTIVEMQ_MESSAGE -> org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE;
+         default -> throw new IllegalStateException("Unknown ActiveMQ Artemis message type: " + amqType);
+      };
    }
 
    public static MessageDispatch createMessageDispatch(MessageReference reference,
@@ -518,38 +510,36 @@ public final class OpenWireMessageConverter {
       final byte coreType = coreMessage.getType();
       final Boolean compressProp = getObjectProperty(coreMessage, Boolean.class, OpenWireConstants.AMQ_MSG_COMPRESSED);
       final boolean isCompressed = compressProp != null && compressProp;
-      final byte[] bytes;
       final ActiveMQBuffer buffer = coreMessage.getDataBuffer();
       buffer.resetReaderIndex();
 
-      switch (coreType) {
-         case org.apache.activemq.artemis.api.core.Message.BYTES_TYPE:
+      final byte[] bytes = switch (coreType) {
+         case org.apache.activemq.artemis.api.core.Message.BYTES_TYPE -> {
             amqMsg = new EagerActiveMQBytesMessage(0);
-            bytes = toAMQMessageBytesType(buffer, isCompressed);
-            break;
-         case org.apache.activemq.artemis.api.core.Message.MAP_TYPE:
+            yield toAMQMessageBytesType(buffer, isCompressed);
+         }
+         case org.apache.activemq.artemis.api.core.Message.MAP_TYPE -> {
             amqMsg = new ActiveMQMapMessage();
-            bytes = toAMQMessageMapType(buffer, isCompressed);
-            break;
-         case org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE:
+            yield toAMQMessageMapType(buffer, isCompressed);
+         }
+         case org.apache.activemq.artemis.api.core.Message.OBJECT_TYPE -> {
             amqMsg = new ActiveMQObjectMessage();
-            bytes = toAMQMessageObjectType(buffer, isCompressed);
-            break;
-         case org.apache.activemq.artemis.api.core.Message.STREAM_TYPE:
+            yield toAMQMessageObjectType(buffer, isCompressed);
+         }
+         case org.apache.activemq.artemis.api.core.Message.STREAM_TYPE -> {
             amqMsg = new ActiveMQStreamMessage();
-            bytes = toAMQMessageStreamType(buffer, isCompressed);
-            break;
-         case org.apache.activemq.artemis.api.core.Message.TEXT_TYPE:
+            yield toAMQMessageStreamType(buffer, isCompressed);
+         }
+         case org.apache.activemq.artemis.api.core.Message.TEXT_TYPE -> {
             amqMsg = new ActiveMQTextMessage();
-            bytes = toAMQMessageTextType(buffer, isCompressed);
-            break;
-         case org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE:
+            yield toAMQMessageTextType(buffer, isCompressed);
+         }
+         case org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE -> {
             amqMsg = new ActiveMQMessage();
-            bytes = toAMQMessageDefaultType(buffer, isCompressed);
-            break;
-         default:
-            throw new IllegalStateException("Unknown message type: " + coreMessage.getType());
-      }
+            yield toAMQMessageDefaultType(buffer, isCompressed);
+         }
+         default -> throw new IllegalStateException("Unknown message type: " + coreMessage.getType());
+      };
 
       final String type = getObjectProperty(coreMessage, String.class, OpenWireConstants.JMS_TYPE_PROPERTY);
       if (type != null) {

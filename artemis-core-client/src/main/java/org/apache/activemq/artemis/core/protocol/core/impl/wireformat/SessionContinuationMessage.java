@@ -112,9 +112,8 @@ public abstract class SessionContinuationMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionContinuationMessage))
+      if (!(obj instanceof SessionContinuationMessage other))
          return false;
-      SessionContinuationMessage other = (SessionContinuationMessage) obj;
       if (!Arrays.equals(body, other.body))
          return false;
       if (continues != other.continues)

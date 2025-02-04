@@ -159,10 +159,9 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ClusterTopologyChangeMessage_V2)) {
+      if (!(obj instanceof ClusterTopologyChangeMessage_V2 other)) {
          return false;
       }
-      ClusterTopologyChangeMessage_V2 other = (ClusterTopologyChangeMessage_V2) obj;
       if (uniqueEventID != other.uniqueEventID) {
          return false;
       }

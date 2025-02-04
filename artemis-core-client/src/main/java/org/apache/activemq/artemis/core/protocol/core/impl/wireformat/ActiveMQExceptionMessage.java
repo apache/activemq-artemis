@@ -80,10 +80,9 @@ public class ActiveMQExceptionMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ActiveMQExceptionMessage)) {
+      if (!(obj instanceof ActiveMQExceptionMessage other)) {
          return false;
       }
-      ActiveMQExceptionMessage other = (ActiveMQExceptionMessage) obj;
       if (exception == null) {
          if (other.exception != null) {
             return false;

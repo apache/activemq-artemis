@@ -57,20 +57,14 @@ public class CoreMessageWrapper {
    }
 
    public static CoreMessageWrapper wrap(ICoreMessage wrapped) {
-      switch (wrapped.getType()) {
-         case STREAM_TYPE:
-            return new CoreStreamMessageWrapper(wrapped);
-         case BYTES_TYPE:
-            return new CoreBytesMessageWrapper(wrapped);
-         case MAP_TYPE:
-            return new CoreMapMessageWrapper(wrapped);
-         case TEXT_TYPE:
-            return new CoreTextMessageWrapper(wrapped);
-         case OBJECT_TYPE:
-            return new CoreObjectMessageWrapper(wrapped);
-         default:
-            return new CoreMessageWrapper(wrapped);
-      }
+      return switch (wrapped.getType()) {
+         case STREAM_TYPE -> new CoreStreamMessageWrapper(wrapped);
+         case BYTES_TYPE -> new CoreBytesMessageWrapper(wrapped);
+         case MAP_TYPE -> new CoreMapMessageWrapper(wrapped);
+         case TEXT_TYPE -> new CoreTextMessageWrapper(wrapped);
+         case OBJECT_TYPE -> new CoreObjectMessageWrapper(wrapped);
+         default -> new CoreMessageWrapper(wrapped);
+      };
    }
 
    protected short getOrignalEncoding() {

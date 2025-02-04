@@ -44,13 +44,8 @@ public class CompressedInteropTest extends BasicOpenWireTest {
    private static final String LARGE_TEXT;
 
    static {
-      StringBuilder builder = new StringBuilder();
-
-      for (int i = 0; i < 20; i++) {
-         builder.append("The quick red fox jumped over the lazy brown dog. ");
-      }
-      TEXT = builder.toString();
-      LARGE_TEXT = TEXT + TEXT + TEXT + TEXT + TEXT;
+      TEXT = "The quick red fox jumped over the lazy brown dog. ".repeat(20);
+      LARGE_TEXT = TEXT.repeat(5);
    }
 
    @BeforeEach

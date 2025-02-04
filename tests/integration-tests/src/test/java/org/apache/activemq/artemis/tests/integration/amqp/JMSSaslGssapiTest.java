@@ -321,7 +321,7 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
 
    private static void rewriteKrbConfFile(MiniKdc server) throws Exception {
       final Path template = Paths.get(JMSSaslGssapiTest.class.getClassLoader().getResource(KRB5_CONFIG_TEMPLATE).toURI());
-      final String krb5confTemplate = new String(Files.readAllBytes(template), StandardCharsets.UTF_8);
+      final String krb5confTemplate = Files.readString(template);
       final String replacementPort = Integer.toString(server.getPort());
 
       // Replace the port template with the current actual port of the MiniKDC Server instance.

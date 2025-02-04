@@ -36,40 +36,15 @@ public final class JMSExceptionHelper {
    }
 
    public static JMSException convertFromActiveMQException(final ActiveMQException me) {
-      JMSException je;
-      switch (me.getType()) {
-         case CONNECTION_TIMEDOUT:
-         case INTERNAL_ERROR:
-         case NOT_CONNECTED:
-            je = new JMSException(me.getMessage());
-            break;
-
-         case UNSUPPORTED_PACKET:
-         case OBJECT_CLOSED:
-         case ILLEGAL_STATE:
-            je = new javax.jms.IllegalStateException(me.getMessage());
-            break;
-
-         case QUEUE_DOES_NOT_EXIST:
-         case QUEUE_EXISTS:
-            je = new InvalidDestinationException(me.getMessage());
-            break;
-
-         case INVALID_FILTER_EXPRESSION:
-            je = new InvalidSelectorException(me.getMessage());
-            break;
-
-         case SECURITY_EXCEPTION:
-            je = new JMSSecurityException(me.getMessage());
-            break;
-
-         case TRANSACTION_ROLLED_BACK:
-            je = new javax.jms.TransactionRolledBackException(me.getMessage());
-            break;
-
-         default:
-            je = new JMSException(me.getMessage());
-      }
+      JMSException je = switch (me.getType()) {
+         case CONNECTION_TIMEDOUT, INTERNAL_ERROR, NOT_CONNECTED -> new JMSException(me.getMessage());
+         case UNSUPPORTED_PACKET, OBJECT_CLOSED, ILLEGAL_STATE -> new javax.jms.IllegalStateException(me.getMessage());
+         case QUEUE_DOES_NOT_EXIST, QUEUE_EXISTS -> new InvalidDestinationException(me.getMessage());
+         case INVALID_FILTER_EXPRESSION -> new InvalidSelectorException(me.getMessage());
+         case SECURITY_EXCEPTION -> new JMSSecurityException(me.getMessage());
+         case TRANSACTION_ROLLED_BACK -> new javax.jms.TransactionRolledBackException(me.getMessage());
+         default -> new JMSException(me.getMessage());
+      };
 
       je.setStackTrace(me.getStackTrace());
 

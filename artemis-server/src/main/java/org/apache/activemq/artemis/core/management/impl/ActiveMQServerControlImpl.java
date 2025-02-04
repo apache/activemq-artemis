@@ -4440,9 +4440,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void onNotification(org.apache.activemq.artemis.core.server.management.Notification notification) {
-      if (!(notification.getType() instanceof CoreNotificationType))
+      if (!(notification.getType() instanceof CoreNotificationType type))
          return;
-      CoreNotificationType type = (CoreNotificationType) notification.getType();
       if (type == CoreNotificationType.SESSION_CREATED) {
          TypedProperties props = notification.getProperties();
          /*

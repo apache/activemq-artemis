@@ -89,9 +89,8 @@ public class SessionXAGetInDoubtXidsResponseMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionXAGetInDoubtXidsResponseMessage))
+      if (!(obj instanceof SessionXAGetInDoubtXidsResponseMessage other))
          return false;
-      SessionXAGetInDoubtXidsResponseMessage other = (SessionXAGetInDoubtXidsResponseMessage) obj;
       if (xids == null) {
          if (other.xids != null)
             return false;

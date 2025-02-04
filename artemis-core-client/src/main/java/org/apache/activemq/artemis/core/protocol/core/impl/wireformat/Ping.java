@@ -85,10 +85,9 @@ public final class Ping extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof Ping)) {
+      if (!(obj instanceof Ping other)) {
          return false;
       }
-      Ping other = (Ping) obj;
       if (connectionTTL != other.connectionTTL) {
          return false;
       }

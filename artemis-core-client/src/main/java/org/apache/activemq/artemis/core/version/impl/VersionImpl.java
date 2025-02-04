@@ -121,10 +121,9 @@ public class VersionImpl implements Version, Serializable {
       if (obj == null) {
          return false;
       }
-      if (!(obj instanceof VersionImpl)) {
+      if (!(obj instanceof VersionImpl other)) {
          return false;
       }
-      VersionImpl other = (VersionImpl) obj;
       if (!Arrays.equals(compatibleVersionList, other.compatibleVersionList)) {
          return false;
       }

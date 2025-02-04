@@ -425,9 +425,8 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof CreateSharedQueueMessage_V2))
+      if (!(obj instanceof CreateSharedQueueMessage_V2 other))
          return false;
-      CreateSharedQueueMessage_V2 other = (CreateSharedQueueMessage_V2) obj;
       if (address == null) {
          if (other.address != null)
             return false;

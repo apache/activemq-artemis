@@ -79,8 +79,7 @@ public class FederatedQueueConsumerKey implements FederatedConsumerKey {
    @Override
    public boolean equals(Object o) {
       if (this == o) return true;
-      if (!(o instanceof FederatedQueueConsumerKey)) return false;
-      FederatedQueueConsumerKey that = (FederatedQueueConsumerKey) o;
+      if (!(o instanceof FederatedQueueConsumerKey that)) return false;
       return priority == that.priority &&
             Objects.equals(address, that.address) &&
             Objects.equals(queueName, that.queueName) &&

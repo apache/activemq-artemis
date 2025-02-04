@@ -130,9 +130,8 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionReceiveLargeMessage))
+      if (!(obj instanceof SessionReceiveLargeMessage other))
          return false;
-      SessionReceiveLargeMessage other = (SessionReceiveLargeMessage) obj;
       if (consumerID != other.consumerID)
          return false;
       if (deliveryCount != other.deliveryCount)

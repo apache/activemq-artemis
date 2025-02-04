@@ -484,9 +484,8 @@ public class CreateQueueMessage_V2 extends CreateQueueMessage {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof CreateQueueMessage_V2))
+      if (!(obj instanceof CreateQueueMessage_V2 other))
          return false;
-      CreateQueueMessage_V2 other = (CreateQueueMessage_V2) obj;
       if (autoCreated != other.autoCreated)
          return false;
       if (maxConsumers != other.maxConsumers)

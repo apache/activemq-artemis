@@ -31,7 +31,7 @@ public class RunnableCallback implements IOCallback {
       if (ok == null) {
          throw new NullPointerException("ok = null");
       }
-      if (ok == null) {
+      if (error == null) {
          throw new NullPointerException("error = null");
       }
       okCallback = ok;

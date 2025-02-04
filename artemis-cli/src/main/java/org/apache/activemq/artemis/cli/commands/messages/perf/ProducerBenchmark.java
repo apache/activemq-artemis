@@ -184,7 +184,7 @@ public final class ProducerBenchmark implements BenchmarkService {
       // create connections: if shared, one for each event loop, if !shared, one for each producer
       final int totalProducers = destinations.length * producers;
       final IdentityHashMap<EventExecutor, Connection> sharedConnections = this.sharedConnections ? new IdentityHashMap<>() : null;
-      final Connection[] exclusiveConnections = !this.sharedConnections ? new Connection[totalProducers] : null;
+      final Connection[] exclusiveConnections = this.sharedConnections ? null : new Connection[totalProducers];
       if (this.sharedConnections) {
          eventLoopGroup.forEach(eventExecutor -> {
             final Connection connection;

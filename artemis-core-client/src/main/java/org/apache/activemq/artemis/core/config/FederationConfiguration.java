@@ -166,8 +166,7 @@ public class FederationConfiguration implements Serializable {
       @Override
       public boolean equals(Object o) {
          if (this == o) return true;
-         if (!(o instanceof Credentials)) return false;
-         Credentials that = (Credentials) o;
+         if (!(o instanceof Credentials that)) return false;
          return Objects.equals(user, that.user) &&
                Objects.equals(password, that.password);
       }
@@ -191,8 +190,7 @@ public class FederationConfiguration implements Serializable {
    @Override
    public boolean equals(Object o) {
       if (this == o) return true;
-      if (!(o instanceof FederationConfiguration)) return false;
-      FederationConfiguration that = (FederationConfiguration) o;
+      if (!(o instanceof FederationConfiguration that)) return false;
       return Objects.equals(name, that.name) &&
            Objects.equals(credentials, that.credentials) &&
            Objects.equals(upstreamConfigurations, that.upstreamConfigurations) &&

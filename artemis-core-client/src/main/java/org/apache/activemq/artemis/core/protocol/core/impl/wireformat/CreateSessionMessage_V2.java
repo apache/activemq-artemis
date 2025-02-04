@@ -86,10 +86,9 @@ public class CreateSessionMessage_V2 extends CreateSessionMessage {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof CreateSessionMessage_V2)) {
+      if (!(obj instanceof CreateSessionMessage_V2 other)) {
          return false;
       }
-      CreateSessionMessage_V2 other = (CreateSessionMessage_V2) obj;
       if (clientID == null) {
          if (other.clientID != null)
             return false;

@@ -636,7 +636,7 @@ public class JournalFilesRepository {
                                    final boolean init,
                                    final boolean tmpCompact,
                                    final long fileIdPreSet) throws Exception {
-      long fileID = fileIdPreSet != -1 ? fileIdPreSet : generateFileID();
+      long fileID = fileIdPreSet == -1 ? generateFileID() : fileIdPreSet;
 
       final String fileName = createFileName(tmpCompact, fileID);
 

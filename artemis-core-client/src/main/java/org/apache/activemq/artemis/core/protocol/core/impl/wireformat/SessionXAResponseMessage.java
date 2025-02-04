@@ -98,9 +98,8 @@ public class SessionXAResponseMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionXAResponseMessage))
+      if (!(obj instanceof SessionXAResponseMessage other))
          return false;
-      SessionXAResponseMessage other = (SessionXAResponseMessage) obj;
       if (error != other.error)
          return false;
       if (message == null) {

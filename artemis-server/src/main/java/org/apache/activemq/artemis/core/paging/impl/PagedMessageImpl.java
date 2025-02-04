@@ -47,16 +47,11 @@ public class PagedMessageImpl implements PagedMessage {
       private static final byte NOT_CORE = 2;
 
       public static boolean isLargeMessage(byte encodedValue) {
-         switch (encodedValue) {
-            case LargeMessageType.NONE:
-               return false;
-            case LargeMessageType.CORE:
-            case LargeMessageType.OLD_CORE:
-            case LargeMessageType.NOT_CORE:
-               return true;
-            default:
-               throw new IllegalStateException("This largeMessageType isn't supported: " + encodedValue);
-         }
+         return switch (encodedValue) {
+            case LargeMessageType.NONE -> false;
+            case LargeMessageType.CORE, LargeMessageType.OLD_CORE, LargeMessageType.NOT_CORE -> true;
+            default -> throw new IllegalStateException("This largeMessageType isn't supported: " + encodedValue);
+         };
       }
 
       public static boolean isCoreLargeMessage(Message message) {

@@ -81,9 +81,8 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionSendLargeMessage))
+      if (!(obj instanceof SessionSendLargeMessage other))
          return false;
-      SessionSendLargeMessage other = (SessionSendLargeMessage) obj;
       if (largeMessage == null) {
          if (other.largeMessage != null)
             return false;

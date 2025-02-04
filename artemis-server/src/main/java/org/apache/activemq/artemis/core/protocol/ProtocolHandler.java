@@ -159,10 +159,10 @@ public class ProtocolHandler {
                if (stompMaxFramePayloadLength != -1) {
                   ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption(TransportConstants.STOMP_MAX_FRAME_PAYLOAD_LENGTH, TransportConstants.WEB_SOCKET_MAX_FRAME_PAYLOAD_LENGTH);
                }
-               stompMaxFramePayloadLength = stompMaxFramePayloadLength != -1 ? stompMaxFramePayloadLength : TransportConstants.DEFAULT_WEB_SOCKET_MAX_FRAME_PAYLOAD_LENGTH;
+               stompMaxFramePayloadLength = stompMaxFramePayloadLength == -1 ? TransportConstants.DEFAULT_WEB_SOCKET_MAX_FRAME_PAYLOAD_LENGTH : stompMaxFramePayloadLength;
 
                int webSocketMaxFramePayloadLength = ConfigurationHelper.getIntProperty(TransportConstants.WEB_SOCKET_MAX_FRAME_PAYLOAD_LENGTH, -1, nettyAcceptor.getConfiguration());
-               webSocketMaxFramePayloadLength = webSocketMaxFramePayloadLength != -1 ? webSocketMaxFramePayloadLength : stompMaxFramePayloadLength;
+               webSocketMaxFramePayloadLength = webSocketMaxFramePayloadLength == -1 ? stompMaxFramePayloadLength : webSocketMaxFramePayloadLength;
 
                final boolean enableCompression = ConfigurationHelper.getBooleanProperty(
                   TransportConstants.WEB_SOCKET_COMPRESSION_SUPPORTED, TransportConstants.DEFAULT_WEB_SOCKET_COMPRESSION_SUPPORTED, nettyAcceptor.getConfiguration());

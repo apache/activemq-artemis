@@ -43,8 +43,7 @@ public class AMQPLargeMessagesTestUtil {
       try {
          while (totalIterator.hasNext()) {
             MessageReference ref = totalIterator.next();
-            if (ref.getMessage() instanceof AMQPLargeMessage) {
-               AMQPLargeMessage amqpLargeMessage = (AMQPLargeMessage) ref.getMessage();
+            if (ref.getMessage() instanceof AMQPLargeMessage amqpLargeMessage) {
                // Using a Wait.waitFor here as we may have something working with the buffer in parallel
                Wait.waitFor(() -> amqpLargeMessage.inspectTemporaryBuffer() == null, 1000, 10);
                assertNull(amqpLargeMessage.inspectTemporaryBuffer(), "Temporary buffers are being retained");

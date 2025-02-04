@@ -434,7 +434,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
          logger.trace("Working on sasl, length:{}", received);
       }
 
-      byte[] response = chosenMechanism.processSASL(received != -1 ? dataSASL : null);
+      byte[] response = chosenMechanism.processSASL(received == -1 ? null : dataSASL);
       if (response != null) {
          sasl.send(response, 0, response.length);
       }

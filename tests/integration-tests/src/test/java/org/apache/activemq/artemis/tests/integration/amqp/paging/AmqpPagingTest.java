@@ -75,12 +75,7 @@ public class AmqpPagingTest extends AmqpClientTestSupport {
    @TestTemplate
    @Timeout(60)
    public void testPaging() throws Exception {
-      final int MSG_SIZE = 1000;
-      final StringBuilder builder = new StringBuilder();
-      for (int i = 0; i < MSG_SIZE; i++) {
-         builder.append('0');
-      }
-      final String data = builder.toString();
+      final String data = "0".repeat(1000);
       final int MSG_COUNT = 1_000;
 
       AmqpClient client = createAmqpClient();
@@ -125,12 +120,7 @@ public class AmqpPagingTest extends AmqpClientTestSupport {
    @TestTemplate
    @Timeout(60)
    public void testSizeCalculationsForApplicationProperties() throws Exception {
-      final int MSG_SIZE = 1000;
-      final StringBuilder builder = new StringBuilder();
-      for (int i = 0; i < MSG_SIZE; i++) {
-         builder.append('0');
-      }
-      final String data = builder.toString();
+      final String data = "0".repeat(1000);
       final int MSG_COUNT = 1;
 
       AmqpClient client = createAmqpClient();

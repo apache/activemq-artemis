@@ -100,9 +100,8 @@ public class SessionReceiveMessage extends MessagePacket {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionReceiveMessage))
+      if (!(obj instanceof SessionReceiveMessage other))
          return false;
-      SessionReceiveMessage other = (SessionReceiveMessage) obj;
       if (consumerID != other.consumerID)
          return false;
       if (deliveryCount != other.deliveryCount)

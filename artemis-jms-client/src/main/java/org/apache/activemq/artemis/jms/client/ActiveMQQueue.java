@@ -80,11 +80,9 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
          return true;
       }
 
-      if (!(o instanceof ActiveMQQueue)) {
+      if (!(o instanceof ActiveMQQueue that)) {
          return false;
       }
-
-      ActiveMQQueue that = (ActiveMQQueue) o;
 
       return super.getAddress().equals(that.getAddress());
    }

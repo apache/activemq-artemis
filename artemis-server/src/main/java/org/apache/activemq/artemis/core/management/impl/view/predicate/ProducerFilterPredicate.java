@@ -36,29 +36,23 @@ public class ProducerFilterPredicate extends ActiveMQFilterPredicate<ServerProdu
       // Using switch over enum vs string comparison is better for perf.
       if (f == null)
          return true;
-      switch (f) {
-         case ID:
-            return matches(producer.getID());
-         case CONNECTION_ID:
-            return matches(producer.getConnectionID());
-         case SESSION:
-            return matches(producer.getSessionID());
-         case USER:
-            return matches(server.getSessionByID(producer.getSessionID()).getUsername());
-         case VALIDATED_USER:
-            return matches(server.getSessionByID(producer.getSessionID()).getValidatedUser());
-         case ADDRESS:
-            return matches(producer.getAddress() != null ? producer.getAddress() : server.getSessionByID(producer.getSessionID()).getDefaultAddress());
-         case PROTOCOL:
-            return matches(producer.getProtocol());
-         case CLIENT_ID:
-            return matches(server.getSessionByID(producer.getSessionID()).getRemotingConnection().getClientID());
-         case LOCAL_ADDRESS:
-            return matches(server.getSessionByID(producer.getSessionID()).getRemotingConnection().getTransportConnection().getLocalAddress());
-         case REMOTE_ADDRESS:
-            return matches(server.getSessionByID(producer.getSessionID()).getRemotingConnection().getTransportConnection().getRemoteAddress());
-         default: return true;
-      }
+      return switch (f) {
+         case ID -> matches(producer.getID());
+         case CONNECTION_ID -> matches(producer.getConnectionID());
+         case SESSION -> matches(producer.getSessionID());
+         case USER -> matches(server.getSessionByID(producer.getSessionID()).getUsername());
+         case VALIDATED_USER -> matches(server.getSessionByID(producer.getSessionID()).getValidatedUser());
+         case ADDRESS ->
+            matches(producer.getAddress() != null ? producer.getAddress() : server.getSessionByID(producer.getSessionID()).getDefaultAddress());
+         case PROTOCOL -> matches(producer.getProtocol());
+         case CLIENT_ID ->
+            matches(server.getSessionByID(producer.getSessionID()).getRemotingConnection().getClientID());
+         case LOCAL_ADDRESS ->
+            matches(server.getSessionByID(producer.getSessionID()).getRemotingConnection().getTransportConnection().getLocalAddress());
+         case REMOTE_ADDRESS ->
+            matches(server.getSessionByID(producer.getSessionID()).getRemotingConnection().getTransportConnection().getRemoteAddress());
+         default -> true;
+      };
    }
 
    @Override

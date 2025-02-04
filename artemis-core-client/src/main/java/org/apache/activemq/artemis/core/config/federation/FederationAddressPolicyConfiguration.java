@@ -196,8 +196,7 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
       @Override
       public boolean equals(Object o) {
          if (this == o) return true;
-         if (!(o instanceof Matcher)) return false;
-         Matcher matcher = (Matcher) o;
+         if (!(o instanceof Matcher matcher)) return false;
          return Objects.equals(addressMatch, matcher.addressMatch);
       }
 
@@ -219,8 +218,7 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
    @Override
    public boolean equals(Object o) {
       if (this == o) return true;
-      if (!(o instanceof FederationAddressPolicyConfiguration)) return false;
-      FederationAddressPolicyConfiguration that = (FederationAddressPolicyConfiguration) o;
+      if (!(o instanceof FederationAddressPolicyConfiguration that)) return false;
       return maxHops == that.maxHops &&
             Objects.equals(name, that.name) &&
             Objects.equals(includes, that.includes) &&

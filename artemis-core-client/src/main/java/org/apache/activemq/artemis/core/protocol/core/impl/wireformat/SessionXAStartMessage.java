@@ -73,9 +73,8 @@ public class SessionXAStartMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionXAStartMessage))
+      if (!(obj instanceof SessionXAStartMessage other))
          return false;
-      SessionXAStartMessage other = (SessionXAStartMessage) obj;
       if (xid == null) {
          if (other.xid != null)
             return false;

@@ -89,6 +89,7 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.lang.invoke.MethodHandles;
 
 /**
@@ -123,15 +124,12 @@ public final class ReplicationManager implements ActiveMQComponent {
       public abstract byte toRecord();
 
       public static ADD_OPERATION_TYPE toOperation(byte recordType) {
-         switch (recordType) {
-            case 0: // 0: it used to be false, we need to use 0 for compatibility reasons with writeBoolean on the channel
-               return UPDATE;
-            case 1: // 1: it used to be true, we need to use 1 for compatibility reasons with writeBoolean
-               return ADD;
-            case 2: // 2: this represents the new value
-               return EVENT;
-         }
-         return ADD;
+         return switch (recordType) {
+            case 0 -> UPDATE; // 0: it used to be false, we need to use 0 for compatibility reasons with writeBoolean on the channel
+            case 1 -> ADD; // 1: it used to be true, we need to use 1 for compatibility reasons with writeBoolean
+            case 2 -> EVENT; // 2: this represents the new value
+            default -> ADD;
+         };
       }
    }
 
@@ -352,8 +350,7 @@ public final class ReplicationManager implements ActiveMQComponent {
          if (periodNanos > TimeUnit.SECONDS.toNanos(1)) {
             periodNanos = TimeUnit.SECONDS.toNanos(1);
          } else if (periodNanos < TimeUnit.MILLISECONDS.toNanos(100)) {
-            logger.warn("The cluster call timeout is too low ie {} ms: consider raising it to save CPU",
-                         TimeUnit.NANOSECONDS.toMillis(maxAllowedSlownessNanos));
+            logger.warn("The cluster call timeout is too low ie {} ms: consider raising it to save CPU", TimeUnit.NANOSECONDS.toMillis(maxAllowedSlownessNanos));
             periodNanos = TimeUnit.MILLISECONDS.toNanos(100);
          }
          logger.debug("Slow replication checker is running with a period of {} ms", TimeUnit.NANOSECONDS.toMillis(periodNanos));
@@ -362,8 +359,7 @@ public final class ReplicationManager implements ActiveMQComponent {
          // - getting temporarily an un-writable channel is rather common under load and scheduling/cancelling a
          //   timed task is a CPU and GC intensive operation
          // - choosing a period of 100-1000 ms lead to a reasonable and constant CPU utilization while idle too
-         slowReplicationChecker = scheduledExecutorService.scheduleAtFixedRate(this::checkSlowReplication,
-                                                                               periodNanos, periodNanos, TimeUnit.NANOSECONDS);
+         slowReplicationChecker = scheduledExecutorService.scheduleAtFixedRate(this::checkSlowReplication, periodNanos, periodNanos, TimeUnit.NANOSECONDS);
       }
 
       started = true;
@@ -591,10 +587,9 @@ public final class ReplicationManager implements ActiveMQComponent {
    }
 
    private boolean checkEventLoop() {
-      if (!(replicationStream instanceof SingleThreadEventLoop)) {
+      if (!(replicationStream instanceof SingleThreadEventLoop eventLoop)) {
          return true;
       }
-      final SingleThreadEventLoop eventLoop = (SingleThreadEventLoop) replicationStream;
       return eventLoop.inEventLoop();
    }
 
@@ -613,7 +608,6 @@ public final class ReplicationManager implements ActiveMQComponent {
       }
       ctx.replicationDone();
    }
-
 
    private final class ReplicatedSessionFailureListener implements SessionFailureListener {
 
@@ -737,8 +731,7 @@ public final class ReplicationManager implements ActiveMQComponent {
       final ReusableLatch flushed = new ReusableLatch(1);
 
       try {
-         try (FileInputStream fis = new FileInputStream(file.getJavaFile());
-              FileChannel channel = fis.getChannel()) {
+         try (FileInputStream fis = new FileInputStream(file.getJavaFile()); FileChannel channel = fis.getChannel()) {
 
             // We cannot afford having a single buffer here for this entire loop
             // because sendReplicatePacket will encode the packet as a NettyBuffer
@@ -814,7 +807,9 @@ public final class ReplicationManager implements ActiveMQComponent {
     *
     * @param nodeID
     */
-   public void sendSynchronizationDone(String nodeID, long initialReplicationSyncTimeout, IOCriticalErrorListener criticalErrorListener) throws ActiveMQReplicationTimeooutException {
+   public void sendSynchronizationDone(String nodeID,
+                                       long initialReplicationSyncTimeout,
+                                       IOCriticalErrorListener criticalErrorListener) throws ActiveMQReplicationTimeooutException {
       if (started) {
 
          if (logger.isTraceEnabled()) {

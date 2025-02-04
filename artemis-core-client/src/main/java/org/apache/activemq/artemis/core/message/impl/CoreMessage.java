@@ -1380,16 +1380,16 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       CompositeType ct;
       Map<String, Object> fields;
       byte type = getType();
-      switch (type) {
-         case Message.TEXT_TYPE:
+      fields = switch (type) {
+         case Message.TEXT_TYPE -> {
             ct = TEXT_FACTORY.getCompositeType();
-            fields = TEXT_FACTORY.getFields(this, fieldsLimit, deliveryCount);
-            break;
-         default:
+            yield TEXT_FACTORY.getFields(this, fieldsLimit, deliveryCount);
+         }
+         default -> {
             ct = BYTES_FACTORY.getCompositeType();
-            fields = BYTES_FACTORY.getFields(this, fieldsLimit, deliveryCount);
-            break;
-      }
+            yield BYTES_FACTORY.getFields(this, fieldsLimit, deliveryCount);
+         }
+      };
       return new CompositeDataSupport(ct, fields);
 
    }

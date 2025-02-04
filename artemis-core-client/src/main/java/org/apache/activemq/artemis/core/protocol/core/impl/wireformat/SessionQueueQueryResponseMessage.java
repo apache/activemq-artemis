@@ -180,9 +180,8 @@ public class SessionQueueQueryResponseMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionQueueQueryResponseMessage))
+      if (!(obj instanceof SessionQueueQueryResponseMessage other))
          return false;
-      SessionQueueQueryResponseMessage other = (SessionQueueQueryResponseMessage) obj;
       if (address == null) {
          if (other.address != null)
             return false;

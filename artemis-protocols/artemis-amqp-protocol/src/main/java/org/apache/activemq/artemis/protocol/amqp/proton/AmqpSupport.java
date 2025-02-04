@@ -198,8 +198,7 @@ public class AmqpSupport {
       }
 
       for (Map.Entry<Symbol, Object> filter : filters.entrySet()) {
-         if (filter.getValue() instanceof DescribedType) {
-            DescribedType describedType = ((DescribedType) filter.getValue());
+         if (filter.getValue() instanceof DescribedType describedType) {
             Object descriptor = describedType.getDescriptor();
 
             for (Object filterId : filterIds) {

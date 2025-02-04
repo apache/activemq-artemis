@@ -25,32 +25,23 @@ public enum SCRAM {
                    SHA256;
 
    public String getName() {
-      switch (this) {
-         case SHA256:
-            return "SCRAM-SHA-256";
-         case SHA512:
-            return "SCRAM-SHA-512";
-      }
-      throw new UnsupportedOperationException();
+      return switch (this) {
+         case SHA256 -> "SCRAM-SHA-256";
+         case SHA512 -> "SCRAM-SHA-512";
+      };
    }
 
    public String getDigest() {
-      switch (this) {
-         case SHA256:
-            return "SHA-256";
-         case SHA512:
-            return "SHA-512";
-      }
-      throw new UnsupportedOperationException();
+      return switch (this) {
+         case SHA256 -> "SHA-256";
+         case SHA512 -> "SHA-512";
+      };
    }
 
    public String getHmac() {
-      switch (this) {
-         case SHA256:
-            return "HmacSHA256";
-         case SHA512:
-            return "HmacSHA512";
-      }
-      throw new UnsupportedOperationException();
+      return switch (this) {
+         case SHA256 -> "HmacSHA256";
+         case SHA512 -> "HmacSHA512";
+      };
    }
 }
