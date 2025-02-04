@@ -44,9 +44,7 @@ public final class FakeQueueFactory implements QueueFactory {
 
    @Override
    public Queue createQueueWith(final QueueConfig config) {
-      return new QueueImpl(config.id(), config.address(), config.name(), config.filter(), config.getPagingStore(), config.pageSubscription(),
-                           config.user(), config.isDurable(), config.isTemporary(), config.isAutoCreated(),
-                           scheduledExecutor, postOffice, null, null, ArtemisExecutor.delegate(executor), null, this);
+      return new QueueImpl(QueueConfiguration.of(config.name()).setAddress(config.address()).setId(config.id()).setUser(config.user()).setDurable(config.isDurable()).setTemporary(config.isTemporary()), config.filter(), config.getPagingStore(), config.pageSubscription(), scheduledExecutor, postOffice, null, null, ArtemisExecutor.delegate(executor), null, this);
    }
 
    @Override
@@ -66,8 +64,7 @@ public final class FakeQueueFactory implements QueueFactory {
                             final boolean durable,
                             final boolean temporary,
                             final boolean autoCreated) {
-      return new QueueImpl(persistenceID, address, name, filter, subscription != null ? subscription.getPagingStore() : null, subscription, user, durable, temporary, autoCreated,
-                           scheduledExecutor, postOffice, null, null, ArtemisExecutor.delegate(executor), null, this);
+      return new QueueImpl(QueueConfiguration.of(name).setAddress(address).setId(persistenceID).setUser(user).setDurable(durable).setTemporary(temporary).setAutoCreated(autoCreated), filter, subscription != null ? subscription.getPagingStore() : null, subscription, scheduledExecutor, postOffice, null, null, ArtemisExecutor.delegate(executor), null, this);
    }
 
    @Override

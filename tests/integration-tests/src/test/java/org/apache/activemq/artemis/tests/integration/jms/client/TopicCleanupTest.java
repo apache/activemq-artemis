@@ -30,6 +30,8 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -86,12 +88,7 @@ public class TopicCleanupTest extends JMSTestBase {
          for (int i = 0; i < 100; i++) {
             long txid = storage.generateID();
 
-            final Queue queue = new QueueImpl(storage.generateID(), SimpleString.of("topic"),
-                                              SimpleString.of("topic"),
-                                              FilterImpl.createFilter(Filter.GENERIC_IGNORED_FILTER), null,
-                                              true, false, false, server.getScheduledPool(), server.getPostOffice(),
-                                              storage, server.getAddressSettingsRepository(),
-                                              server.getExecutorFactory().getExecutor(), server, null);
+            final Queue queue = new QueueImpl(QueueConfiguration.of("topic").setRoutingType(RoutingType.MULTICAST).setId(storage.generateID()), FilterImpl.createFilter(Filter.GENERIC_IGNORED_FILTER), null, null, server.getScheduledPool(), server.getPostOffice(), storage, server.getAddressSettingsRepository(), server.getExecutorFactory().getExecutor(), server, null);
 
             LocalQueueBinding binding = new LocalQueueBinding(queue.getAddress(), queue, server.getNodeID());
 
