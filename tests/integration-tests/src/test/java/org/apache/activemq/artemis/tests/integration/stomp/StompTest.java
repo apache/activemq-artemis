@@ -1081,12 +1081,9 @@ public class StompTest extends StompTestBase {
 
       if (sendDisconnect) {
          conn.disconnect();
-         conn.destroy();
-         conn = StompClientConnectionFactory.createClientConnection(uri);
-      } else {
-         conn.destroy();
-         conn = StompClientConnectionFactory.createClientConnection(uri);
       }
+      conn.destroy();
+      conn = StompClientConnectionFactory.createClientConnection(uri);
 
       // message should be received since message was not acknowledged
       conn.connect(defUser, defPass);
