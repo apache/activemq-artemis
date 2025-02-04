@@ -117,9 +117,9 @@ public class SessionSendMessage extends MessagePacket {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", requiresResponse=" + requiresResponse);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", requiresResponse=" + requiresResponse);
+      return sb.toString();
    }
 
    @Override

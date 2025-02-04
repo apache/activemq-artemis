@@ -74,9 +74,9 @@ public class SessionBindingQueryResponseMessage_V3 extends SessionBindingQueryRe
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", autoCreateAddresses=" + autoCreateAddresses);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", autoCreateAddresses=" + autoCreateAddresses);
+      return sb.toString();
    }
 
    @Override

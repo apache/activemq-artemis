@@ -107,12 +107,12 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
 
       {
          String randomString = "This is a random String " + RandomUtil.randomString();
-         StringBuffer largeBuffer = new StringBuffer();
-         while (largeBuffer.length() < 1024 * 1024) {
-            largeBuffer.append(randomString);
+         StringBuilder largeSB = new StringBuilder();
+         while (largeSB.length() < 1024 * 1024) {
+            largeSB.append(randomString);
          }
 
-         largeString = largeBuffer.toString();
+         largeString = largeSB.toString();
       }
 
 
@@ -208,12 +208,12 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
 
       {
          String randomString = "This is a random String " + RandomUtil.randomString();
-         StringBuffer largeBuffer = new StringBuffer();
-         while (largeBuffer.length() < 1024 * 1024) {
-            largeBuffer.append(randomString);
+         StringBuilder largeSB = new StringBuilder();
+         while (largeSB.length() < 1024 * 1024) {
+            largeSB.append(randomString);
          }
 
-         largeString = largeBuffer.toString();
+         largeString = largeSB.toString();
       }
 
       executorService.execute(() -> {

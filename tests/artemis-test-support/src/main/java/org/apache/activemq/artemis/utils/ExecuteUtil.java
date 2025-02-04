@@ -111,7 +111,7 @@ public class ExecuteUtil {
    }
 
    private static void logCommand(String[] command) {
-      StringBuffer logCommand = new StringBuffer();
+      StringBuilder logCommand = new StringBuilder();
       for (String c : command) {
          logCommand.append(c + " ");
       }

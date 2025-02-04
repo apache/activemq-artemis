@@ -241,12 +241,12 @@ public class ReplicationStartSyncMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buf = new StringBuffer(super.getPacketString());
-      buf.append(", synchronizationIsFinished=" + synchronizationIsFinished);
-      buf.append(", dataType=" + dataType);
-      buf.append(", nodeID=" + nodeID);
-      buf.append(", ids=" + Arrays.toString(ids));
-      buf.append(", allowsAutoFailBack=" + allowsAutoFailBack);
-      return buf.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", synchronizationIsFinished=" + synchronizationIsFinished);
+      sb.append(", dataType=" + dataType);
+      sb.append(", nodeID=" + nodeID);
+      sb.append(", ids=" + Arrays.toString(ids));
+      sb.append(", allowsAutoFailBack=" + allowsAutoFailBack);
+      return sb.toString();
    }
 }

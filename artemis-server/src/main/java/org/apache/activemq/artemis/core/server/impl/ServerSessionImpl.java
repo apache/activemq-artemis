@@ -2141,24 +2141,24 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public String toString() {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       if (this.metaData != null) {
          for (Map.Entry<String, String> value : metaData.entrySet()) {
-            if (!buffer.isEmpty()) {
-               buffer.append(",");
+            if (!sb.isEmpty()) {
+               sb.append(",");
             }
             Object tmpValue = value.getValue();
             if (tmpValue == null || tmpValue.toString().isEmpty()) {
-               buffer.append(value.getKey() + "=*N/A*");
+               sb.append(value.getKey() + "=*N/A*");
             } else {
-               buffer.append(value.getKey() + "=" + tmpValue);
+               sb.append(value.getKey() + "=" + tmpValue);
             }
          }
       }
       // This will actually appear on some management operations
       // so please don't clog this with debug objects
       // unless you provide a special way for management to translate sessions
-      return "ServerSessionImpl(" + buffer.toString() + ")";
+      return "ServerSessionImpl(" + sb.toString() + ")";
    }
 
    // FailureListener implementation

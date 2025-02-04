@@ -181,7 +181,7 @@ public final class UUID {
        */
 
       if (mDesc == null) {
-         StringBuffer b = new StringBuffer(36);
+         StringBuilder b = new StringBuilder(36);
 
          for (int i = 0; i < 16; ++i) {
             // Need to bypass hyphens:

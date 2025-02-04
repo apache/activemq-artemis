@@ -163,12 +163,12 @@ public class HorizontalPagingTest extends SoakTestBase {
 
          String text;
          {
-            StringBuffer buffer = new StringBuffer();
-            while (buffer.length() < MESSAGE_SIZE) {
-               buffer.append("a big string...");
+            StringBuilder sb = new StringBuilder();
+            while (sb.length() < MESSAGE_SIZE) {
+               sb.append("a big string...");
             }
 
-            text = buffer.toString();
+            text = sb.toString();
          }
 
          ReusableLatch latchDone = new ReusableLatch(0);

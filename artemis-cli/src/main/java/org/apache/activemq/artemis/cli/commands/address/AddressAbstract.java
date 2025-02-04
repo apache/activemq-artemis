@@ -50,7 +50,7 @@ public abstract class AddressAbstract extends ConnectionAbstract {
    }
 
    public String getRoutingTypes(boolean useDefault) {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
 
       if (isAnycast()) {
          buffer.append("ANYCAST");

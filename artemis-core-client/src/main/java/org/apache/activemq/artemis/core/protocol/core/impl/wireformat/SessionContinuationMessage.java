@@ -100,10 +100,10 @@ public abstract class SessionContinuationMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", body=" + Arrays.toString(body));
-      buff.append(", continues=" + continues);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", body=" + Arrays.toString(body));
+      sb.append(", continues=" + continues);
+      return sb.toString();
    }
 
    @Override

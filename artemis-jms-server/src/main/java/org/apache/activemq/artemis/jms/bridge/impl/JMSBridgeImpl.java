@@ -1577,7 +1577,7 @@ public final class JMSBridgeImpl implements JMSBridge {
       if (val == null) {
          val = msg.getJMSMessageID();
       } else {
-         StringBuffer sb = new StringBuffer(val);
+         StringBuilder sb = new StringBuilder(val);
 
          sb.append(",").append(msg.getJMSMessageID());
 

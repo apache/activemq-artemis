@@ -107,25 +107,25 @@ public class SelectorTranslator {
       }
 
       if (!positions.isEmpty()) {
-         StringBuffer buff = new StringBuffer();
+         StringBuilder sb = new StringBuilder();
 
          int startPos = 0;
 
          for (int pos : positions) {
             String substr = input.substring(startPos, pos);
 
-            buff.append(substr);
+            sb.append(substr);
 
-            buff.append(replace);
+            sb.append(replace);
 
             startPos = pos + match.length();
          }
 
          if (startPos < input.length()) {
-            buff.append(input.substring(startPos, input.length()));
+            sb.append(input.substring(startPos, input.length()));
          }
 
-         return buff.toString();
+         return sb.toString();
       } else {
          return input;
       }

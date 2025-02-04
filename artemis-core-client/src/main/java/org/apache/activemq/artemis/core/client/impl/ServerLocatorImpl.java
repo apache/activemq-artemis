@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.security.AccessController;
@@ -75,7 +76,6 @@ import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
 import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * This is the implementation of {@link org.apache.activemq.artemis.api.core.client.ServerLocator} and all
@@ -1944,17 +1944,17 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    private String fromInterceptors(final List<Interceptor> interceptors) {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       boolean first = true;
       for (Interceptor value : interceptors) {
          if (!first) {
-            buffer.append(",");
+            sb.append(",");
          }
          first = false;
-         buffer.append(value.getClass().getName());
+         sb.append(value.getClass().getName());
       }
 
-      return buffer.toString();
+      return sb.toString();
    }
 
    private void feedInterceptors(final List<Interceptor> interceptors, final String interceptorList) {

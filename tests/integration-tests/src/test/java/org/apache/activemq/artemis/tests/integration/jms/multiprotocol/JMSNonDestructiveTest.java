@@ -660,7 +660,7 @@ public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
          logger.info("Messages received with lastval={} ({})", entry.getKey(), values);
       }
       if (!dups.isEmpty()) {
-         StringBuffer sb = new StringBuffer();
+         StringBuilder sb = new StringBuilder();
          for (Map.Entry<String, Integer> stringIntegerEntry : dups.entrySet()) {
             sb.append(stringIntegerEntry.getKey() + "(" + stringIntegerEntry.getValue() + "),");
          }

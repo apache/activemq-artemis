@@ -520,7 +520,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
 
    private String generateMembersURI(boolean flip) {
       String uri;
-      StringBuffer connectedBrokers = new StringBuffer();
+      StringBuilder connectedBrokers = new StringBuilder();
       String separator = "";
 
       synchronized (members) {

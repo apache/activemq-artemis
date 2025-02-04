@@ -424,29 +424,29 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", autoCreated=" + autoCreated);
-      buff.append(", purgeOnNoConsumers=" + purgeOnNoConsumers);
-      buff.append(", routingType=" + routingType);
-      buff.append(", maxConsumers=" + maxConsumers);
-      buff.append(", exclusive=" + exclusive);
-      buff.append(", groupRebalance=" + groupRebalance);
-      buff.append(", groupRebalancePauseDispatch=" + groupRebalancePauseDispatch);
-      buff.append(", groupBuckets=" + groupBuckets);
-      buff.append(", groupFirstKey=" + groupFirstKey);
-      buff.append(", lastValue=" + lastValue);
-      buff.append(", lastValueKey=" + lastValueKey);
-      buff.append(", nonDestructive=" + nonDestructive);
-      buff.append(", consumersBeforeDispatch=" + consumersBeforeDispatch);
-      buff.append(", delayBeforeDispatch=" + delayBeforeDispatch);
-      buff.append(", autoDelete=" + autoDelete);
-      buff.append(", autoDeleteDelay=" + autoDeleteDelay);
-      buff.append(", autoDeleteMessageCount=" + autoDeleteMessageCount);
-      buff.append(", defaultConsumerWindowSize=" + defaultConsumerWindowSize);
-      buff.append(", ringSize=" + ringSize);
-      buff.append(", enabled=" + enabled);
-      buff.append(", configurationManaged=" + configurationManaged);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", autoCreated=" + autoCreated);
+      sb.append(", purgeOnNoConsumers=" + purgeOnNoConsumers);
+      sb.append(", routingType=" + routingType);
+      sb.append(", maxConsumers=" + maxConsumers);
+      sb.append(", exclusive=" + exclusive);
+      sb.append(", groupRebalance=" + groupRebalance);
+      sb.append(", groupRebalancePauseDispatch=" + groupRebalancePauseDispatch);
+      sb.append(", groupBuckets=" + groupBuckets);
+      sb.append(", groupFirstKey=" + groupFirstKey);
+      sb.append(", lastValue=" + lastValue);
+      sb.append(", lastValueKey=" + lastValueKey);
+      sb.append(", nonDestructive=" + nonDestructive);
+      sb.append(", consumersBeforeDispatch=" + consumersBeforeDispatch);
+      sb.append(", delayBeforeDispatch=" + delayBeforeDispatch);
+      sb.append(", autoDelete=" + autoDelete);
+      sb.append(", autoDeleteDelay=" + autoDeleteDelay);
+      sb.append(", autoDeleteMessageCount=" + autoDeleteMessageCount);
+      sb.append(", defaultConsumerWindowSize=" + defaultConsumerWindowSize);
+      sb.append(", ringSize=" + ringSize);
+      sb.append(", enabled=" + enabled);
+      sb.append(", configurationManaged=" + configurationManaged);
+      return sb.toString();
    }
 
    @Override

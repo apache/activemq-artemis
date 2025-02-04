@@ -124,13 +124,13 @@ public class OWLeakTest extends SoakTestBase {
 
 
    private static String createLMBody(int messageSize, int producer, int sequence) {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       String baseString = "A Large body from producer " + producer + ", sequence " + sequence;
 
-      while (buffer.length() < messageSize) {
-         buffer.append(baseString);
+      while (sb.length() < messageSize) {
+         sb.append(baseString);
       }
-      return buffer.toString();
+      return sb.toString();
    }
 
 

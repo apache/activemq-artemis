@@ -402,11 +402,11 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       if (!large) {
          return "Text " + i;
       } else {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < 110 * 1024) {
-            buffer.append("Text " + i + " ");
+         StringBuilder sb = new StringBuilder();
+         while (sb.length() < 110 * 1024) {
+            sb.append("Text " + i + " ");
          }
-         return buffer.toString();
+         return sb.toString();
       }
    }
 

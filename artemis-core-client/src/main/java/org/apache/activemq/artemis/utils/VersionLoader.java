@@ -84,7 +84,7 @@ public final class VersionLoader {
    }
 
    public static String getClasspathString() {
-      StringBuffer classpath = new StringBuffer();
+      StringBuilder classpath = new StringBuilder();
       ClassLoader applicationClassLoader = VersionImpl.class.getClassLoader();
       URL[] urls = ((URLClassLoader) applicationClassLoader).getURLs();
       for (URL url : urls) {

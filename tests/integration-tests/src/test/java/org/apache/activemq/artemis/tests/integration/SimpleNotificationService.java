@@ -68,16 +68,16 @@ public class SimpleNotificationService implements NotificationService {
       }
 
       private static String stringOf(NotificationType[] types) {
-         StringBuilder builder = new StringBuilder();
-         builder.append("types[" + types.length + "] = {");
+         StringBuilder sb = new StringBuilder();
+         sb.append("types[" + types.length + "] = {");
          for (int i = 0; i < types.length; i++) {
-            builder.append(types[i]);
+            sb.append(types[i]);
             if (i + 1 < types.length) {
-               builder.append(",");
+               sb.append(",");
             }
          }
-         builder.append("}");
-         return builder.toString();
+         sb.append("}");
+         return sb.toString();
       }
 
       public synchronized int size() {

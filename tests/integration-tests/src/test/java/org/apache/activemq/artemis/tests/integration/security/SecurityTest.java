@@ -2740,12 +2740,12 @@ public class SecurityTest extends ActiveMQTestBase {
 
       @Override
       public String encode(Object value) throws Exception {
-         return new StringBuffer((String)value).reverse().toString();
+         return new StringBuilder((String)value).reverse().toString();
       }
 
       @Override
       public boolean verify(char[] value, String encodedValue) {
-         return encodedValue.equals(new StringBuffer(String.valueOf(value)).reverse().toString());
+         return encodedValue.equals(new StringBuilder(String.valueOf(value)).reverse().toString());
       }
    }
 }

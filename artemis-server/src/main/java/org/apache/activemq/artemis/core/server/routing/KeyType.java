@@ -22,17 +22,17 @@ public enum KeyType {
    public static final String validValues;
 
    static {
-      StringBuffer stringBuffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       for (KeyType type : KeyType.values()) {
 
-         if (!stringBuffer.isEmpty()) {
-            stringBuffer.append(",");
+         if (!sb.isEmpty()) {
+            sb.append(",");
          }
 
-         stringBuffer.append(type.name());
+         sb.append(type.name());
       }
 
-      validValues = stringBuffer.toString();
+      validValues = sb.toString();
    }
 
    public static KeyType getType(String type) {

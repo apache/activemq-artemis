@@ -146,9 +146,9 @@ public class ClasspathBase {
       String classPathValue = null;
       File file = new File("./target/" + name + ".cp");
       if (file.exists()) {
-         StringBuffer buffer = new StringBuffer();
-         Files.lines(file.toPath()).forEach((str) -> buffer.append(str));
-         classPathValue = buffer.toString();
+         StringBuilder sb = new StringBuilder();
+         Files.lines(file.toPath()).forEach((str) -> sb.append(str));
+         classPathValue = sb.toString();
       }
 
       assertTrue(classPathValue != null && !classPathValue.trim().isEmpty(), "Cannot run compatibility tests, no classpath found on ./target/" + name + ".cp");

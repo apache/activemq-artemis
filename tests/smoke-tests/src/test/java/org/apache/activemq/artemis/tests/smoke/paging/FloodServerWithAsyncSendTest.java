@@ -218,7 +218,7 @@ public class FloodServerWithAsyncSendTest extends SmokeTestBase {
          MessageProducer producer = session.createProducer(queue);
          String randomString;
          {
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             while (buffer.length() < 10000) {
                buffer.append(RandomUtil.randomString());
             }

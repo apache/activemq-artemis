@@ -165,11 +165,11 @@ public class LargeMessageInterruptTest extends SoakTestBase {
       String largebody;
 
       {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < BODY_SIZE) {
-            buffer.append("LOREM IPSUM WHATEVER THEY SAY IN THERE I DON'T REALLY CARE. I'M NOT SURE IF IT'S LOREM, LAUREM, LAUREN, IPSUM OR YPSUM AND I DON'T REALLY CARE ");
+         StringBuilder sb = new StringBuilder();
+         while (sb.length() < BODY_SIZE) {
+            sb.append("LOREM IPSUM WHATEVER THEY SAY IN THERE I DON'T REALLY CARE. I'M NOT SURE IF IT'S LOREM, LAUREM, LAUREN, IPSUM OR YPSUM AND I DON'T REALLY CARE ");
          }
-         largebody = buffer.toString();
+         largebody = sb.toString();
       }
 
       if (paging) {

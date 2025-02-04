@@ -303,10 +303,8 @@ public class SpawnedVMSupport {
 
       try {
          if (!aliveProcess.isEmpty()) {
-            StringBuffer buffer = new StringBuffer();
             for (Process alive : aliveProcess) {
                alive.destroyForcibly();
-               buffer.append(startedProcesses.get(alive) + " ");
             }
             return false;
          }

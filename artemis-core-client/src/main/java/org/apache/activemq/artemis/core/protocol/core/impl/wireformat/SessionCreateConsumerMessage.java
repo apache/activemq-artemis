@@ -55,14 +55,14 @@ public class SessionCreateConsumerMessage extends QueueAbstractPacket {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", queueName=" + queueName);
-      buff.append(", filterString=" + filterString);
-      buff.append(", id=" + id);
-      buff.append(", browseOnly=" + browseOnly);
-      buff.append(", requiresResponse=" + requiresResponse);
-      buff.append(", priority=" + priority);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", queueName=" + queueName);
+      sb.append(", filterString=" + filterString);
+      sb.append(", id=" + id);
+      sb.append(", browseOnly=" + browseOnly);
+      sb.append(", requiresResponse=" + requiresResponse);
+      sb.append(", priority=" + priority);
+      return sb.toString();
    }
 
    public long getID() {

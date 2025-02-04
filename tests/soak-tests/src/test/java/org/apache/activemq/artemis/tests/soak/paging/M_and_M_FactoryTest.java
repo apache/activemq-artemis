@@ -200,12 +200,12 @@ public class M_and_M_FactoryTest extends SoakTestBase {
 
          String largeString;
          {
-            StringBuffer largeStringBuffer = new StringBuffer();
+            StringBuilder largeSB = new StringBuilder();
 
-            while (largeStringBuffer.length() < 10) {
-               largeStringBuffer.append(RandomUtil.randomString());
+            while (largeSB.length() < 10) {
+               largeSB.append(RandomUtil.randomString());
             }
-            largeString = largeStringBuffer.toString();
+            largeString = largeSB.toString();
          }
 
          try {

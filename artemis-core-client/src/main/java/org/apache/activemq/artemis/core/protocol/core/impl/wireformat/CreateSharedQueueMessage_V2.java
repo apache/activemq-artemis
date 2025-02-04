@@ -296,31 +296,31 @@ public class CreateSharedQueueMessage_V2 extends CreateSharedQueueMessage {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", address=" + address);
-      buff.append(", queueName=" + queueName);
-      buff.append(", filterString=" + filterString);
-      buff.append(", durable=" + durable);
-      buff.append(", routingType=" + routingType);
-      buff.append(", maxConsumers=" + maxConsumers);
-      buff.append(", purgeOnNoConsumers=" + purgeOnNoConsumers);
-      buff.append(", exclusive=" + exclusive);
-      buff.append(", groupRebalance=" + groupRebalance);
-      buff.append(", groupRebalancePauseDispatch=" + groupRebalancePauseDispatch);
-      buff.append(", groupBuckets=" + groupBuckets);
-      buff.append(", groupFirstKey=" + groupFirstKey);
-      buff.append(", lastValue=" + lastValue);
-      buff.append(", lastValueKey=" + lastValueKey);
-      buff.append(", nonDestructive=" + nonDestructive);
-      buff.append(", consumersBeforeDispatch=" + consumersBeforeDispatch);
-      buff.append(", delayBeforeDispatch=" + delayBeforeDispatch);
-      buff.append(", autoDelete=" + autoDelete);
-      buff.append(", autoDeleteDelay=" + autoDeleteDelay);
-      buff.append(", autoDeleteMessageCount=" + autoDeleteMessageCount);
-      buff.append(", ringSize=" + ringSize);
-      buff.append(", enabled=" + enabled);
-      buff.append(", requiresResponse=" + requiresResponse);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", address=" + address);
+      sb.append(", queueName=" + queueName);
+      sb.append(", filterString=" + filterString);
+      sb.append(", durable=" + durable);
+      sb.append(", routingType=" + routingType);
+      sb.append(", maxConsumers=" + maxConsumers);
+      sb.append(", purgeOnNoConsumers=" + purgeOnNoConsumers);
+      sb.append(", exclusive=" + exclusive);
+      sb.append(", groupRebalance=" + groupRebalance);
+      sb.append(", groupRebalancePauseDispatch=" + groupRebalancePauseDispatch);
+      sb.append(", groupBuckets=" + groupBuckets);
+      sb.append(", groupFirstKey=" + groupFirstKey);
+      sb.append(", lastValue=" + lastValue);
+      sb.append(", lastValueKey=" + lastValueKey);
+      sb.append(", nonDestructive=" + nonDestructive);
+      sb.append(", consumersBeforeDispatch=" + consumersBeforeDispatch);
+      sb.append(", delayBeforeDispatch=" + delayBeforeDispatch);
+      sb.append(", autoDelete=" + autoDelete);
+      sb.append(", autoDeleteDelay=" + autoDeleteDelay);
+      sb.append(", autoDeleteMessageCount=" + autoDeleteMessageCount);
+      sb.append(", ringSize=" + ringSize);
+      sb.append(", enabled=" + enabled);
+      sb.append(", requiresResponse=" + requiresResponse);
+      return sb.toString();
    }
 
    @Override

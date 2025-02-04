@@ -70,7 +70,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
 
    @Test
    public void testLargeToken() throws Exception {
-      StringBuffer token = new StringBuffer();
+      StringBuilder token = new StringBuilder();
 
       token.append("'");
       token.append("a".repeat(5000));

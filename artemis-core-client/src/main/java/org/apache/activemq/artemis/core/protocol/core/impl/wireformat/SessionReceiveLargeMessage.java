@@ -116,12 +116,12 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", consumerID=" + consumerID);
-      buff.append(", deliveryCount=" + deliveryCount);
-      buff.append(", largeMessageSize=" + largeMessageSize);
-      buff.append(", message=" + message);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", consumerID=" + consumerID);
+      sb.append(", deliveryCount=" + deliveryCount);
+      sb.append(", largeMessageSize=" + largeMessageSize);
+      sb.append(", message=" + message);
+      return sb.toString();
    }
 
    @Override

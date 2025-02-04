@@ -744,30 +744,30 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
     */
    @Override
    public String toString() {
-      StringBuffer buffer = new StringBuffer();
-      buffer.append(ActiveMQActivationSpec.class.getName()).append('(');
-      buffer.append("ra=").append(ra);
+      StringBuilder sb = new StringBuilder();
+      sb.append(ActiveMQActivationSpec.class.getName()).append('(');
+      sb.append("ra=").append(ra);
       if (connectionFactoryLookup != null) {
-         buffer.append(" connectionFactoryLookup=").append(connectionFactoryLookup);
+         sb.append(" connectionFactoryLookup=").append(connectionFactoryLookup);
       }
-      buffer.append(" destination=").append(destination);
-      buffer.append(" destinationType=").append(destinationType);
+      sb.append(" destination=").append(destination);
+      sb.append(" destinationType=").append(destinationType);
       if (messageSelector != null) {
-         buffer.append(" selector=").append(messageSelector);
+         sb.append(" selector=").append(messageSelector);
       }
-      buffer.append(" ack=").append(getAcknowledgeMode());
-      buffer.append(" durable=").append(subscriptionDurability);
-      buffer.append(" clientID=").append(getClientID());
+      sb.append(" ack=").append(getAcknowledgeMode());
+      sb.append(" durable=").append(subscriptionDurability);
+      sb.append(" clientID=").append(getClientID());
       if (subscriptionName != null) {
-         buffer.append(" subscription=").append(subscriptionName);
+         sb.append(" subscription=").append(subscriptionName);
       }
-      buffer.append(" user=").append(user);
+      sb.append(" user=").append(user);
       if (password != null) {
-         buffer.append(" password=").append("****");
+         sb.append(" password=").append("****");
       }
-      buffer.append(" maxSession=").append(maxSession);
-      buffer.append(')');
-      return buffer.toString();
+      sb.append(" maxSession=").append(maxSession);
+      sb.append(')');
+      return sb.toString();
    }
 
    // here for backwards compatibility

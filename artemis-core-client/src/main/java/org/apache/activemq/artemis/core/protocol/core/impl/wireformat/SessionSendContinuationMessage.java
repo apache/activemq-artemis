@@ -148,12 +148,12 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", continues=" + continues);
-      buff.append(", message=" + message);
-      buff.append(", messageBodySize=" + messageBodySize);
-      buff.append(", requiresResponse=" + requiresResponse);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", continues=" + continues);
+      sb.append(", message=" + message);
+      sb.append(", messageBodySize=" + messageBodySize);
+      sb.append(", requiresResponse=" + requiresResponse);
+      return sb.toString();
    }
 
    @Override

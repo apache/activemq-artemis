@@ -352,11 +352,11 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
 
 
    String createBuffer(int msgNumber, int size) {
-      StringBuffer buffer = new StringBuffer();
-      buffer.append("message " + msgNumber + " ");
-      while (buffer.length() < size) {
-         buffer.append(" Lorem Ipsum Whatever it's saying in there... ");
+      StringBuilder sb = new StringBuilder();
+      sb.append("message " + msgNumber + " ");
+      while (sb.length() < size) {
+         sb.append(" Lorem Ipsum Whatever it's saying in there... ");
       }
-      return buffer.toString();
+      return sb.toString();
    }
 }

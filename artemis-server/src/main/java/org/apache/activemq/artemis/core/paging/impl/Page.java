@@ -168,14 +168,14 @@ public final class Page  {
    }
 
    public String debugMessages() throws Exception {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       LinkedListIterator<PagedMessage> iter = getMessages().iterator();
       while (iter.hasNext()) {
          PagedMessage message = iter.next();
-         buffer.append(message.toString() + "\n");
+         sb.append(message.toString() + "\n");
       }
       iter.close();
-      return buffer.toString();
+      return sb.toString();
    }
 
    public synchronized void write(final PagedMessage message) throws Exception {

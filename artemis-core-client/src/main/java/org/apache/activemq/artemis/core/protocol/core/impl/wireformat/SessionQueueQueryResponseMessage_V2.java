@@ -93,9 +93,9 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", autoCreationEnabled=" + autoCreateQueues);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", autoCreationEnabled=" + autoCreateQueues);
+      return sb.toString();
    }
 
    @Override

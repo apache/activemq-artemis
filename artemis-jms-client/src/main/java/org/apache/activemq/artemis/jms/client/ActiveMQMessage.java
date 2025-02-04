@@ -856,7 +856,7 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    @Override
    public String toString() {
-      StringBuffer sb = new StringBuffer("ActiveMQMessage[");
+      StringBuilder sb = new StringBuilder("ActiveMQMessage[");
       if (message != null) {
          sb.append(getJMSMessageID());
          sb.append("]:");

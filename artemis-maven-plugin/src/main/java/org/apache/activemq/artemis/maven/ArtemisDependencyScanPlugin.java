@@ -85,18 +85,18 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
       }
 
       try {
-         StringBuffer buffer = new StringBuffer();
+         StringBuilder sb = new StringBuilder();
          Set<File> filesSet = resolveDependencies(libListWithDeps, libList);
 
          if (variableName != null || file != null) {
             String separatorUsed = "";
             for (File f : filesSet) {
-               buffer.append(separatorUsed);
-               buffer.append(f.getAbsolutePath());
+               sb.append(separatorUsed);
+               sb.append(f.getAbsolutePath());
                separatorUsed = pathSeparator;
             }
 
-            String classPathGenerated = buffer.toString();
+            String classPathGenerated = sb.toString();
             setVariable(classPathGenerated);
 
             if (file != null) {

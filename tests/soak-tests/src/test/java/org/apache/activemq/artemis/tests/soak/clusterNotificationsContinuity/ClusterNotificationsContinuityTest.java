@@ -85,7 +85,7 @@ public class ClusterNotificationsContinuityTest extends SoakTestBase {
          String staticClusterURI;
 
          {
-            StringBuffer urlBuffer = new StringBuffer();
+            StringBuilder urlBuffer = new StringBuilder();
             boolean first = true;
             for (int i = 0; i < NUMBER_OF_SERVERS; i++) {
                if (i != s) {

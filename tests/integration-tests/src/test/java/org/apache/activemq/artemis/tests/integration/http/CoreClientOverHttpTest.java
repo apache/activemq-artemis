@@ -147,7 +147,7 @@ public class CoreClientOverHttpTest extends ActiveMQTestBase {
    }
 
    private String getFixedSizeString(int size) {
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       Random r = new Random();
       for (int i = 0; i < size; i++) {
          char chr = (char) r.nextInt(256);

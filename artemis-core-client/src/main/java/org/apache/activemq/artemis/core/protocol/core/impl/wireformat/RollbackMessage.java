@@ -67,9 +67,9 @@ public class RollbackMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", considerLastMessageAsDelivered=" + considerLastMessageAsDelivered);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", considerLastMessageAsDelivered=" + considerLastMessageAsDelivered);
+      return sb.toString();
    }
 
    @Override

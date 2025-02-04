@@ -1616,7 +1616,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public String destroyConnectionWithSessionMetadata(String metaKey, String parameterValue) throws Exception {
-      StringBuffer operationsExecuted = new StringBuffer();
+      StringBuilder operationsExecuted = new StringBuilder();
 
       try {
          operationsExecuted.append("**************************************************************************************************\n");

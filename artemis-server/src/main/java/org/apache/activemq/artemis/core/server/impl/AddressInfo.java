@@ -307,25 +307,25 @@ public class AddressInfo {
 
    @Override
    public String toString() {
-      StringBuilder buff = new StringBuilder();
-      buff.append("Address [name=").append(name);
-      buff.append(", id=").append(id);
-      buff.append(", routingTypes={");
+      StringBuilder builder = new StringBuilder();
+      builder.append("Address [name=").append(name);
+      builder.append(", id=").append(id);
+      builder.append(", routingTypes={");
       for (RoutingType routingType : getRoutingTypes()) {
-         buff.append(routingType.toString()).append(",");
+         builder.append(routingType.toString()).append(",");
       }
       // delete hanging comma
-      if (buff.charAt(buff.length() - 1) == ',') {
-         buff.deleteCharAt(buff.length() - 1);
+      if (builder.charAt(builder.length() - 1) == ',') {
+         builder.deleteCharAt(builder.length() - 1);
       }
-      buff.append("}");
-      buff.append(", autoCreated=").append(autoCreated);
-      buff.append(", paused=").append(paused);
-      buff.append(", bindingRemovedTimestamp=").append(bindingRemovedTimestamp);
-      buff.append(", swept=").append(swept);
-      buff.append(", createdTimestamp=").append(createdTimestamp);
-      buff.append("]");
-      return buff.toString();
+      builder.append("}");
+      builder.append(", autoCreated=").append(autoCreated);
+      builder.append(", paused=").append(paused);
+      builder.append(", bindingRemovedTimestamp=").append(bindingRemovedTimestamp);
+      builder.append(", swept=").append(swept);
+      builder.append(", createdTimestamp=").append(createdTimestamp);
+      builder.append("]");
+      return builder.toString();
    }
 
    public boolean isInternal() {

@@ -346,7 +346,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       }
 
       try {
-         StringBuffer topologyDiagram = new StringBuffer();
+         StringBuilder topologyDiagram = new StringBuilder();
          for (ActiveMQServer activeMQServer : servers) {
             if (activeMQServer != null) {
                topologyDiagram.append("\n").append(activeMQServer.getIdentity()).append("\n");

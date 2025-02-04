@@ -79,7 +79,7 @@ public class InvalidDestinationTest extends JMSTestBase {
       }
 
       ObjectMessage om = context.createObjectMessage();
-      StringBuffer sb = new StringBuffer(message);
+      StringBuilder sb = new StringBuilder(message);
       om.setObject(sb);
       try {
          producer.send(invalidDestination, om);

@@ -91,10 +91,10 @@ public class SessionBindingQueryResponseMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", exists=" + exists);
-      buff.append(", queueNames=" + queueNames);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", exists=" + exists);
+      sb.append(", queueNames=" + queueNames);
+      return sb.toString();
    }
 
    @Override

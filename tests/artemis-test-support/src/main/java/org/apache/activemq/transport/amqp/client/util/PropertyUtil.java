@@ -102,7 +102,7 @@ public class PropertyUtil {
     */
    public static String createQueryString(Map<String, ?> options) {
       if (!options.isEmpty()) {
-         StringBuffer rc = new StringBuffer();
+         StringBuilder rc = new StringBuilder();
          boolean first = true;
          for (Entry<String, ?> entry : options.entrySet()) {
             if (first) {

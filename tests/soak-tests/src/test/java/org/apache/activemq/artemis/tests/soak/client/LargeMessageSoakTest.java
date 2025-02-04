@@ -83,7 +83,7 @@ public class LargeMessageSoakTest extends ActiveMQTestBase {
       final String largetext;
 
       {
-         StringBuffer buffer = new StringBuffer();
+         StringBuilder buffer = new StringBuilder();
          while (buffer.length() < MESSAGE_SIZE) {
             buffer.append("Lorem Ypsum blablabla blabalbala I don't care whatever it is in that thing...");
          }

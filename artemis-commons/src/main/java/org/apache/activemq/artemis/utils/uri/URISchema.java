@@ -129,12 +129,12 @@ public abstract class URISchema<T, P> {
    }
 
    protected String printQuery(Map<String, String> query) {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       for (Map.Entry<String, String> entry : query.entrySet()) {
-         buffer.append(entry.getKey() + "=" + entry.getValue());
-         buffer.append("\n");
+         sb.append(entry.getKey() + "=" + entry.getValue());
+         sb.append("\n");
       }
 
-      return buffer.toString();
+      return sb.toString();
    }
 }

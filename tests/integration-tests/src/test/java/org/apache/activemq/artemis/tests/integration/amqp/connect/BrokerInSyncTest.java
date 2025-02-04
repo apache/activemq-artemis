@@ -1016,11 +1016,11 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
       String bigString;
       {
-         StringBuffer bigStringBuffer = new StringBuffer();
-         while (bigStringBuffer.length() < 200 * 1024) {
-            bigStringBuffer.append("This is a big string ");
+         StringBuilder bigSB = new StringBuilder();
+         while (bigSB.length() < 200 * 1024) {
+            bigSB.append("This is a big string ");
          }
-         bigString = bigStringBuffer.toString();
+         bigString = bigSB.toString();
       }
 
       ConnectionFactory factory1 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
