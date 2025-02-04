@@ -552,8 +552,6 @@ public final class QueueConfig {
          return false;
       if (delayBeforeDispatch != that.delayBeforeDispatch)
          return false;
-      if (purgeOnNoConsumers != that.purgeOnNoConsumers)
-         return false;
       if (groupRebalance != that.groupRebalance)
          return false;
       if (groupBuckets != that.groupBuckets)
