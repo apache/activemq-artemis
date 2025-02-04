@@ -34,11 +34,7 @@ public class TableOut {
       this.indentation = indentation;
 
       // building the indentation String to be reused
-      StringBuilder indentBuilder = new StringBuilder();
-      for (int i = 0; i < indentation; i++) {
-         indentBuilder.append(' ');
-      }
-      indentationString = indentBuilder.toString();
+      indentationString = " ".repeat(indentation);
    }
 
    public void print(PrintStream stream, String[] columns) {
@@ -76,10 +72,7 @@ public class TableOut {
             }
 
             if (centralize != null && centralize[column] && !cellString.isEmpty()) {
-               int centralAdd = (columnSizes[column] - cellString.length()) / 2;
-               for (int i = 0; i < centralAdd; i++) {
-                  cell.append(' ');
-               }
+               cell.append(" ".repeat((columnSizes[column] - cellString.length()) / 2));
             }
 
             cell.append(cellString);

@@ -125,12 +125,8 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       String largeMessageBody = null;
       for (int i = 0; i < 30; i++) {
          if (i == 0) {
-            StringBuffer buffer = new StringBuffer();
-            for (int s = 0; s < 10024; s++) {
-               buffer.append("*******************************************************************************************************************************");
-            }
-            largeMessageBody = buffer.toString();
-            TextMessage message = session.createTextMessage(buffer.toString());
+            largeMessageBody = "*******************************************************************************************************************************".repeat(10024);
+            TextMessage message = session.createTextMessage(largeMessageBody);
             producer.send(message);
          } else {
             producer.send(session.createMessage());
@@ -208,12 +204,8 @@ public class AMQPBridgeTest extends AmqpClientTestSupport {
       String largeMessageBody = null;
       for (int i = 0; i < 30; i++) {
          if (i == 0) {
-            StringBuffer buffer = new StringBuffer();
-            for (int s = 0; s < 10024; s++) {
-               buffer.append("*******************************************************************************************************************************");
-            }
-            largeMessageBody = buffer.toString();
-            TextMessage message = session.createTextMessage(buffer.toString());
+            largeMessageBody = "*******************************************************************************************************************************".repeat(10024);
+            TextMessage message = session.createTextMessage(largeMessageBody);
             producer.send(message);
          } else {
             producer.send(session.createMessage());

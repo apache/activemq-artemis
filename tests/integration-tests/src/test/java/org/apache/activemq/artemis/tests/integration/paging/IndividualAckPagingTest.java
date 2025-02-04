@@ -113,14 +113,7 @@ public class IndividualAckPagingTest extends ActiveMQTestBase {
    public void testIndividualAck(String protocol, int bodySize) throws Exception {
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
 
-      String extraBody;
-      {
-         StringBuffer buffer = new StringBuffer();
-         for (int i = 0; i < bodySize; i++) {
-            buffer.append("*");
-         }
-         extraBody = buffer.toString();
-      }
+      String extraBody = "*".repeat(bodySize);
 
       Queue queue = server.locateQueue(ADDRESS);
 

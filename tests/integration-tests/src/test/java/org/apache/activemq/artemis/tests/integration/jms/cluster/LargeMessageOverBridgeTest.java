@@ -93,21 +93,17 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
       MessageConsumer cons2 = session2.createConsumer(queue);
       conn2.start();
 
-      StringBuffer buffer = new StringBuffer();
-
-      for (int i = 0; i < 51180; i++) {
-         buffer.append('a');
-      }
+      final String text = "a".repeat(51180);
 
       for (int i = 0; i < 10; i++) {
-         TextMessage msg = session1.createTextMessage(buffer.toString());
+         TextMessage msg = session1.createTextMessage(text);
          prod1.send(msg);
       }
 
       TextMessage msg2 = (TextMessage) cons2.receive(5000);
       assertNotNull(msg2);
 
-      assertEquals(buffer.toString(), msg2.getText());
+      assertEquals(text, msg2.getText());
 
       conn1.close();
       conn2.close();
@@ -133,24 +129,20 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
       MessageConsumer cons2 = session2.createConsumer(queue);
       conn2.start();
 
-      StringBuffer buffer = new StringBuffer();
-
-      for (int i = 0; i < 3810002; i++) {
-         buffer.append('a');
-      }
+      final String body = "a".repeat(3810002);
 
       final int NUMBER_OF_MESSAGES = 1;
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          MapMessage msg = session1.createMapMessage();
-         msg.setString("str", buffer.toString());
+         msg.setString("str", body);
          msg.setIntProperty("i", i);
          prod1.send(msg);
       }
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          MapMessage msg = (MapMessage) cons2.receive(5000);
-         assertEquals(buffer.toString(), msg.getString("str"));
+         assertEquals(body, msg.getString("str"));
       }
 
       assertNull(cons2.receiveNoWait());

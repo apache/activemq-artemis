@@ -99,14 +99,7 @@ public class ReplayTest extends SmokeTestBase {
 
       ActiveMQServerControl serverControl = getServerControl(liveURI, nameBuilder, 5000);
 
-      String bufferStr;
-      {
-         StringBuffer buffer = new StringBuffer();
-         for (int i = 0; i < bodySize; i++) {
-            buffer.append("*");
-         }
-         bufferStr = RandomUtil.randomString() + buffer.toString();
-      }
+      String bufferStr = RandomUtil.randomString() + "*".repeat(bodySize);
 
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       try (Connection connection = factory.createConnection()) {

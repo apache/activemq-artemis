@@ -4529,10 +4529,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       QueueControl queueControl = createManagementControl(address, queue, RoutingType.ANYCAST);
 
-      StringBuffer bufferLarge = new StringBuffer();
-      for (int i = 0; i < 100 * 1024; i++) {
-         bufferLarge.append("*-");
-      }
+      final String text = "*-".repeat(100 * 1024);
 
       { // a namespace
          ConnectionFactory factory = CFUtil.createConnectionFactory("amqp", "tcp://localhost:61616");
@@ -4540,7 +4537,7 @@ public class QueueControlTest extends ManagementTestBase {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageProducer producer =  session.createProducer(session.createQueue(address.toString()));
             producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-            TextMessage message = session.createTextMessage(bufferLarge.toString());
+            TextMessage message = session.createTextMessage(text);
             message.setStringProperty("protocolUsed", "amqp");
             producer.send(message);
          }
@@ -4552,7 +4549,7 @@ public class QueueControlTest extends ManagementTestBase {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageProducer producer =  session.createProducer(session.createQueue(address.toString()));
             producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-            TextMessage message = session.createTextMessage(bufferLarge.toString());
+            TextMessage message = session.createTextMessage(text);
             message.setStringProperty("protocolUsed", "core");
             producer.send(message);
          }

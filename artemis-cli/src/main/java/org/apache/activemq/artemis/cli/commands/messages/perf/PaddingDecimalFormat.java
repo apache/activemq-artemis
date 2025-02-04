@@ -62,10 +62,7 @@ public class PaddingDecimalFormat extends DecimalFormat {
       int numLength = toAppendTo.length() - initLength;
       int padLength = minimumLength - numLength;
       if (padLength > 0) {
-         final int initialPadLength = pad.length();
-         for (int i = initialPadLength; i < padLength; i++) {
-            pad.append(' ');
-         }
+         pad.append(" ".repeat(padLength - pad.length()));
          pad.setLength(padLength);
          toAppendTo.insert(initLength, pad);
       }
