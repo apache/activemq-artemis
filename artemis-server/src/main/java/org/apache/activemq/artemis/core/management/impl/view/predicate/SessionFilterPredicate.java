@@ -32,25 +32,17 @@ public class SessionFilterPredicate extends ActiveMQFilterPredicate<ServerSessio
       // Using switch over enum vs string comparison is better for perf.
       if (f == null)
          return true;
-      switch (f) {
-         case ID:
-            return matches(session.getName());
-         case CONNECTION_ID:
-            return matches(session.getConnectionID());
-         case CONSUMER_COUNT:
-            return matches(session.getServerConsumers().size());
-         case PRODUCER_COUNT:
-            return matches(session.getServerProducers().size());
-         case PROTOCOL:
-            return matches(session.getRemotingConnection().getProtocolName());
-         case CLIENT_ID:
-            return matches(session.getRemotingConnection().getClientID());
-         case LOCAL_ADDRESS:
-            return matches(session.getRemotingConnection().getTransportConnection().getLocalAddress());
-         case REMOTE_ADDRESS:
-            return matches(session.getRemotingConnection().getTransportConnection().getRemoteAddress());
-         default: return true;
-      }
+      return switch (f) {
+         case ID -> matches(session.getName());
+         case CONNECTION_ID -> matches(session.getConnectionID());
+         case CONSUMER_COUNT -> matches(session.getServerConsumers().size());
+         case PRODUCER_COUNT -> matches(session.getServerProducers().size());
+         case PROTOCOL -> matches(session.getRemotingConnection().getProtocolName());
+         case CLIENT_ID -> matches(session.getRemotingConnection().getClientID());
+         case LOCAL_ADDRESS -> matches(session.getRemotingConnection().getTransportConnection().getLocalAddress());
+         case REMOTE_ADDRESS -> matches(session.getRemotingConnection().getTransportConnection().getRemoteAddress());
+         default -> true;
+      };
    }
 
    @Override

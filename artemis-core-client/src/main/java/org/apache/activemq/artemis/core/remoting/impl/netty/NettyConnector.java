@@ -658,17 +658,11 @@ public class NettyConnector extends AbstractConnector {
 
             if (proxyEnabled && (proxyRemoteDNS || !isTargetLocalHost())) {
                InetSocketAddress proxyAddress = new InetSocketAddress(proxyHost, proxyPort);
-               ProxyHandler proxyHandler;
-               switch (proxyVersion) {
-                  case SOCKS5:
-                     proxyHandler = new Socks5ProxyHandler(proxyAddress, proxyUsername, proxyPassword);
-                     break;
-                  case SOCKS4a:
-                     proxyHandler = new Socks4ProxyHandler(proxyAddress, proxyUsername);
-                     break;
-                  default:
-                     throw new IllegalArgumentException("Unknown SOCKS proxy version");
-               }
+               ProxyHandler proxyHandler = switch (proxyVersion) {
+                  case SOCKS5 -> new Socks5ProxyHandler(proxyAddress, proxyUsername, proxyPassword);
+                  case SOCKS4a -> new Socks4ProxyHandler(proxyAddress, proxyUsername);
+                  default -> throw new IllegalArgumentException("Unknown SOCKS proxy version");
+               };
 
                channel.pipeline().addLast(proxyHandler);
 

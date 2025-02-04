@@ -1482,17 +1482,14 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
             result = parameterFactory.createSession(user, pass, false, true, true, true, -1);
          } else {
             // only auto ack and dups ok are supported
-            switch (ackMode) {
-               case Session.AUTO_ACKNOWLEDGE:
-                  result = parameterFactory.createSession(user, pass, false, true, true, false, 0);
-                  break;
-               case Session.DUPS_OK_ACKNOWLEDGE:
+            result = switch (ackMode) {
+               case Session.AUTO_ACKNOWLEDGE -> parameterFactory.createSession(user, pass, false, true, true, false, 0);
+               case Session.DUPS_OK_ACKNOWLEDGE -> {
                   int actDupsOkBatchSize = dupsOkBatchSize != null ? dupsOkBatchSize : ActiveMQClient.DEFAULT_ACK_BATCH_SIZE;
-                  result = parameterFactory.createSession(user, pass, false, true, true, false, actDupsOkBatchSize);
-                  break;
-               default:
-                  throw new IllegalArgumentException("Invalid ackmode: " + ackMode);
-            }
+                  yield parameterFactory.createSession(user, pass, false, true, true, false, actDupsOkBatchSize);
+               }
+               default -> throw new IllegalArgumentException("Invalid ackmode: " + ackMode);
+            };
          }
       }
 

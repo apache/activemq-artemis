@@ -227,16 +227,12 @@ public class SecureConfigurationTest extends ActiveMQTestBase {
 
 
    private ConnectionFactory getConnectionFactory(String user, String password) {
-      switch (protocol) {
-         case "CORE":
-            return getActiveMQConnectionFactory(password, user);
-         case "AMQP":
-            return getAMQPConnectionFactory(password, user);
-         case "OPENWIRE":
-            return getOpenWireConnectionFactory(password, user);
-         default:
-            throw new IllegalStateException("Unsupported Protocol");
-      }
+      return switch (protocol) {
+         case "CORE" -> getActiveMQConnectionFactory(password, user);
+         case "AMQP" -> getAMQPConnectionFactory(password, user);
+         case "OPENWIRE" -> getOpenWireConnectionFactory(password, user);
+         default -> throw new IllegalStateException("Unsupported Protocol");
+      };
    }
 
    private ActiveMQConnectionFactory getActiveMQConnectionFactory(String user, String password) {

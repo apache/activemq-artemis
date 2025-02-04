@@ -1510,17 +1510,13 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    private HAPolicyConfiguration haPolicyPrimaryConfiguration(HAType haType) {
-      switch (haType) {
-         case SharedStore:
-            return new SharedStorePrimaryPolicyConfiguration();
-         case SharedNothingReplication:
-            return new ReplicatedPolicyConfiguration();
-         case PluggableQuorumReplication:
-            return ReplicationPrimaryPolicyConfiguration.withDefault()
-               .setDistributedManagerConfiguration(getOrCreatePluggableQuorumConfiguration());
-         default:
-            throw new AssertionError("Unsupported haType = " + haType);
-      }
+      return switch (haType) {
+         case SharedStore -> new SharedStorePrimaryPolicyConfiguration();
+         case SharedNothingReplication -> new ReplicatedPolicyConfiguration();
+         case PluggableQuorumReplication ->
+            ReplicationPrimaryPolicyConfiguration.withDefault().setDistributedManagerConfiguration(getOrCreatePluggableQuorumConfiguration());
+         default -> throw new AssertionError("Unsupported haType = " + haType);
+      };
    }
 
    /**
@@ -1568,18 +1564,13 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    private HAPolicyConfiguration haPolicyBackupConfiguration(HAType haType) {
-      switch (haType) {
-
-         case SharedStore:
-            return new SharedStoreBackupPolicyConfiguration();
-         case SharedNothingReplication:
-            return new ReplicaPolicyConfiguration();
-         case PluggableQuorumReplication:
-            return ReplicationBackupPolicyConfiguration.withDefault()
-               .setDistributedManagerConfiguration(getOrCreatePluggableQuorumConfiguration());
-         default:
-            throw new AssertionError("Unsupported ha type = " + haType);
-      }
+      return switch (haType) {
+         case SharedStore -> new SharedStoreBackupPolicyConfiguration();
+         case SharedNothingReplication -> new ReplicaPolicyConfiguration();
+         case PluggableQuorumReplication ->
+            ReplicationBackupPolicyConfiguration.withDefault().setDistributedManagerConfiguration(getOrCreatePluggableQuorumConfiguration());
+         default -> throw new AssertionError("Unsupported ha type = " + haType);
+      };
    }
 
    protected void setupPrimaryServerWithDiscovery(final int node,

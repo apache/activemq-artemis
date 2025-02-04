@@ -47,6 +47,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.ADDRESSING_CHANGE_VERSION;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.ARTEMIS_2_18_0_VERSION;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.ARTEMIS_2_29_0_VERSION;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.ARTEMIS_2_37_0_VERSION;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CLUSTER_TOPOLOGY_V2;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CLUSTER_TOPOLOGY_V3;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CLUSTER_TOPOLOGY_V4;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATESESSION_V2;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT_CONSUMER;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT_V2;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DISCONNECT_V3;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.EXCEPTION;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.PACKETS_CONFIRMED;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_BINDINGQUERY_RESP_V2;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_BINDINGQUERY_RESP_V3;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_BINDINGQUERY_RESP_V4;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_BINDINGQUERY_RESP_V5;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_QUEUEQUERY_RESP_V2;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_QUEUEQUERY_RESP_V3;
+
 public final class ChannelImpl implements Channel {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -171,39 +191,22 @@ public final class ChannelImpl implements Channel {
 
    @Override
    public boolean supports(final byte packetType, int version) {
-      switch (packetType) {
-         case PacketImpl.CLUSTER_TOPOLOGY_V2:
-            return version >= 122;
-         case PacketImpl.DISCONNECT_CONSUMER:
-            return version >= 124;
-         case PacketImpl.CLUSTER_TOPOLOGY_V3:
-            return version >= 125;
-         case PacketImpl.DISCONNECT_V2:
-            return version >= 125;
-         case PacketImpl.SESS_QUEUEQUERY_RESP_V2:
-            return version >= 126;
-         case PacketImpl.SESS_BINDINGQUERY_RESP_V2:
-            return version >= 126;
-         case PacketImpl.SESS_BINDINGQUERY_RESP_V3:
-            return version >= 127;
-         case PacketImpl.SESS_QUEUEQUERY_RESP_V3:
-            return version >= 129;
-         case PacketImpl.SESS_BINDINGQUERY_RESP_V4:
-            return version >= 129;
-         case PacketImpl.CLUSTER_TOPOLOGY_V4:
-         case PacketImpl.CREATESESSION_V2:
-         case PacketImpl.DISCONNECT_V3:
-            return version >= PacketImpl.ARTEMIS_2_18_0_VERSION;
-         case PacketImpl.SESS_BINDINGQUERY_RESP_V5:
-            return version >= PacketImpl.ARTEMIS_2_29_0_VERSION;
-         default:
-            return true;
-      }
+      return switch (packetType) {
+         case CLUSTER_TOPOLOGY_V2 -> version >= 122;
+         case DISCONNECT_CONSUMER -> version >= 124;
+         case CLUSTER_TOPOLOGY_V3, DISCONNECT_V2 -> version >= 125;
+         case SESS_QUEUEQUERY_RESP_V2, SESS_BINDINGQUERY_RESP_V2 -> version >= 126;
+         case SESS_BINDINGQUERY_RESP_V3 -> version >= 127;
+         case SESS_QUEUEQUERY_RESP_V3, SESS_BINDINGQUERY_RESP_V4 -> version >= ADDRESSING_CHANGE_VERSION;
+         case CLUSTER_TOPOLOGY_V4, CREATESESSION_V2, DISCONNECT_V3 -> version >= ARTEMIS_2_18_0_VERSION;
+         case SESS_BINDINGQUERY_RESP_V5 -> version >= ARTEMIS_2_29_0_VERSION;
+         default -> true;
+      };
    }
 
    @Override
    public boolean requireSpecialVotingHandling() {
-      return connection.getChannelVersion() < PacketImpl.ARTEMIS_2_37_0_VERSION;
+      return connection.getChannelVersion() < ARTEMIS_2_37_0_VERSION;
    }
 
    @Override
@@ -534,14 +537,14 @@ public final class ChannelImpl implements Channel {
 
             long start = System.currentTimeMillis();
 
-            while (!closed && (response == null || (response.getType() != PacketImpl.EXCEPTION && (response.getType() != expectedPacket || response.getCorrelationID() != packet.getCorrelationID()))) && toWait > 0) {
+            while (!closed && (response == null || (response.getType() != EXCEPTION && (response.getType() != expectedPacket || response.getCorrelationID() != packet.getCorrelationID()))) && toWait > 0) {
                try {
                   sendCondition.await(toWait, TimeUnit.MILLISECONDS);
                } catch (InterruptedException e) {
                   throw new ActiveMQInterruptedException(e);
                }
 
-               if (response != null && response.getType() != PacketImpl.EXCEPTION && response.getType() != expectedPacket && !response.isResponseAsync()) {
+               if (response != null && response.getType() != EXCEPTION && response.getType() != expectedPacket && !response.isResponseAsync()) {
                   ActiveMQClientLogger.LOGGER.packetOutOfOrder(response, new Exception("trace"));
                }
 
@@ -565,13 +568,13 @@ public final class ChannelImpl implements Channel {
                return null;
             }
 
-            if (response == null || (response.getType() != PacketImpl.EXCEPTION && response.getCorrelationID() != packet.getCorrelationID())) {
+            if (response == null || (response.getType() != EXCEPTION && response.getCorrelationID() != packet.getCorrelationID())) {
                ActiveMQException e = ActiveMQClientMessageBundle.BUNDLE.timedOutSendingPacket(timeout, packet.getType());
                connection.asyncFail(e);
                throw e;
             }
 
-            if (response.getType() == PacketImpl.EXCEPTION) {
+            if (response.getType() == EXCEPTION) {
                final ActiveMQExceptionMessage mem = (ActiveMQExceptionMessage) response;
 
                ActiveMQException e = mem.getException();
@@ -823,7 +826,7 @@ public final class ChannelImpl implements Channel {
 
    @Override
    public void handlePacket(final Packet packet) {
-      if (packet.getType() == PacketImpl.PACKETS_CONFIRMED) {
+      if (packet.getType() == PACKETS_CONFIRMED) {
          if (resendCache != null) {
             final PacketsConfirmedMessage msg = (PacketsConfirmedMessage) packet;
 

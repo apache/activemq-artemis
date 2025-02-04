@@ -37,12 +37,12 @@ public enum JournalType {
    }
 
    public static JournalType getType(String type) {
-      switch (type) {
-         case "NIO": return NIO;
-         case "ASYNCIO" : return ASYNCIO;
-         case "MAPPED" : return MAPPED;
-         default: throw new IllegalStateException("Invalid JournalType:" + type + " valid Types: " + validValues);
-      }
+      return switch (type) {
+         case "NIO" -> NIO;
+         case "ASYNCIO" -> ASYNCIO;
+         case "MAPPED" -> MAPPED;
+         default -> throw new IllegalStateException("Invalid JournalType:" + type + " valid Types: " + validValues);
+      };
    }
 
 }

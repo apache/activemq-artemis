@@ -263,16 +263,12 @@ public class AMQPTunneledCoreLargeMessageReader implements MessageReader {
    private static int readNextDataSectionSize(ReadableBuffer buffer) throws ActiveMQException {
       final byte encodingCode = buffer.get();
 
-      switch (encodingCode) {
-         case EncodingCodes.VBIN8:
-            return buffer.get() & 0xFF;
-         case EncodingCodes.VBIN32:
-            return buffer.getInt();
-         case EncodingCodes.NULL:
-            return 0;
-         default:
-            throw new ActiveMQException("Expected Binary type but found encoding: " + encodingCode);
-      }
+      return switch (encodingCode) {
+         case EncodingCodes.VBIN8 -> buffer.get() & 0xFF;
+         case EncodingCodes.VBIN32 -> buffer.getInt();
+         case EncodingCodes.NULL -> 0;
+         default -> throw new ActiveMQException("Expected Binary type but found encoding: " + encodingCode);
+      };
    }
 
    private boolean tryReadHeadersAndProperties(ByteBuf buffer) throws Exception {

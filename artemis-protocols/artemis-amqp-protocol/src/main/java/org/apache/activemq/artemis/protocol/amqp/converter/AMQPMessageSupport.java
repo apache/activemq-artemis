@@ -409,17 +409,15 @@ public final class AMQPMessageSupport {
    }
 
    public static String destination(RoutingType destinationType, String address) {
-      String prefix;
-
       if (destinationType == null) {
          destinationType = RoutingType.ANYCAST;
       }
 
-      switch (destinationType) {
-         case ANYCAST: prefix = QUEUE_QUALIFIED_PREFIX; break;
-         case MULTICAST: prefix = TOPIC_QUALIFIED_PREFIX; break;
-         default: prefix = QUEUE_QUALIFIED_PREFIX; break;
-      }
+      String prefix = switch (destinationType) {
+         case ANYCAST -> QUEUE_QUALIFIED_PREFIX;
+         case MULTICAST -> TOPIC_QUALIFIED_PREFIX;
+         default -> QUEUE_QUALIFIED_PREFIX;
+      };
 
       if (!address.startsWith(prefix)) {
          return prefix + address;

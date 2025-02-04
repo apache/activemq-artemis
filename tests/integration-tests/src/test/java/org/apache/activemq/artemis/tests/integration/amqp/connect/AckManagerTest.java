@@ -248,17 +248,11 @@ public class AckManagerTest extends ActiveMQTestBase {
             Topic topic = session.createTopic(TOPIC_NAME.toString());
             TopicSubscriber subscriber = session.createDurableSubscriber(topic, "s" + i);
 
-            int start;
-            switch (i) {
-               case 1:
-                  start = numberOfAcksC1;
-                  break;
-               case 2:
-                  start = numberOfAcksC2;
-                  break;
-               default:
-                  start = 0;
-            }
+            int start = switch (i) {
+               case 1 -> numberOfAcksC1;
+               case 2 -> numberOfAcksC2;
+               default -> 0;
+            };
 
             logger.debug("receiving messages for {}", i);
 

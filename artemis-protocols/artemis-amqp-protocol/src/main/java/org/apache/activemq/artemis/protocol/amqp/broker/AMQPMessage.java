@@ -1643,14 +1643,11 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final String getStringProperty(String key) throws ActiveMQPropertyConversionException {
-      switch (key) {
-         case MessageUtil.TYPE_HEADER_NAME_STRING:
-            return properties.getSubject();
-         case MessageUtil.CONNECTION_ID_PROPERTY_NAME_STRING:
-            return getConnectionID();
-         default:
-            return (String) getApplicationPropertiesMap(false).get(key);
-      }
+      return switch (key) {
+         case MessageUtil.TYPE_HEADER_NAME_STRING -> properties.getSubject();
+         case MessageUtil.CONNECTION_ID_PROPERTY_NAME_STRING -> getConnectionID();
+         default -> (String) getApplicationPropertiesMap(false).get(key);
+      };
    }
 
    @Override

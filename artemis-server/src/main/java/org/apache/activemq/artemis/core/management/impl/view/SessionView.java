@@ -55,26 +55,17 @@ public class SessionView extends ActiveMQAbstractView<ServerSession> {
    public Object getField(ServerSession session, String fieldName) {
       SessionField field = SessionField.valueOfName(fieldName);
 
-      switch (field) {
-         case ID:
-            return session.getName();
-         case USER:
-            return session.getUsername();
-         case VALIDATED_USER:
-            return session.getValidatedUser();
-         case CREATION_TIME:
-            return new Date(session.getCreationTime());
-         case CONSUMER_COUNT:
-            return session.getConsumerCount();
-         case PRODUCER_COUNT:
-            return session.getProducerCount();
-         case CONNECTION_ID:
-            return session.getConnectionID();
-         case CLIENT_ID:
-            return session.getRemotingConnection().getClientID();
-         default:
-            throw new IllegalArgumentException("Unsupported field, " + fieldName);
-      }
+      return switch (field) {
+         case ID -> session.getName();
+         case USER -> session.getUsername();
+         case VALIDATED_USER -> session.getValidatedUser();
+         case CREATION_TIME -> new Date(session.getCreationTime());
+         case CONSUMER_COUNT -> session.getConsumerCount();
+         case PRODUCER_COUNT -> session.getProducerCount();
+         case CONNECTION_ID -> session.getConnectionID();
+         case CLIENT_ID -> session.getRemotingConnection().getClientID();
+         default -> throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      };
    }
 
    @Override

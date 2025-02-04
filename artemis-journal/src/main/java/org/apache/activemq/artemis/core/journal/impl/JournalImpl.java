@@ -3053,42 +3053,19 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    private static int getRecordSize(final byte recordType, final int journalVersion) {
       // The record size (without the variable portion)
-      int recordSize = 0;
-      switch (recordType) {
-         case ADD_RECORD:
-         case EVENT_RECORD:
-            recordSize = JournalImpl.SIZE_ADD_RECORD;
-            break;
-         case UPDATE_RECORD:
-            recordSize = JournalImpl.SIZE_ADD_RECORD;
-            break;
-         case ADD_RECORD_TX:
-            recordSize = JournalImpl.SIZE_ADD_RECORD_TX;
-            break;
-         case UPDATE_RECORD_TX:
-            recordSize = JournalImpl.SIZE_ADD_RECORD_TX;
-            break;
-         case DELETE_RECORD:
-            recordSize = JournalImpl.SIZE_DELETE_RECORD;
-            break;
-         case DELETE_RECORD_TX:
-            recordSize = JournalImpl.SIZE_DELETE_RECORD_TX;
-            break;
-         case PREPARE_RECORD:
-            recordSize = JournalImpl.SIZE_PREPARE_RECORD;
-            break;
-         case COMMIT_RECORD:
-            recordSize = JournalImpl.SIZE_COMMIT_RECORD;
-            break;
-         case ROLLBACK_RECORD:
-            recordSize = JournalImpl.SIZE_ROLLBACK_RECORD;
-            break;
-         default:
+      int recordSize = switch (recordType) {
+         case ADD_RECORD, EVENT_RECORD, UPDATE_RECORD -> JournalImpl.SIZE_ADD_RECORD;
+         case ADD_RECORD_TX, UPDATE_RECORD_TX -> JournalImpl.SIZE_ADD_RECORD_TX;
+         case DELETE_RECORD -> JournalImpl.SIZE_DELETE_RECORD;
+         case DELETE_RECORD_TX -> JournalImpl.SIZE_DELETE_RECORD_TX;
+         case PREPARE_RECORD -> JournalImpl.SIZE_PREPARE_RECORD;
+         case COMMIT_RECORD -> JournalImpl.SIZE_COMMIT_RECORD;
+         case ROLLBACK_RECORD -> JournalImpl.SIZE_ROLLBACK_RECORD;
+         default ->
             // Sanity check, this was previously tested, nothing different
             // should be on this switch
             throw new IllegalStateException("Record other than expected");
-
-      }
+      };
       if (journalVersion >= 2) {
          return recordSize + 1;
       } else {

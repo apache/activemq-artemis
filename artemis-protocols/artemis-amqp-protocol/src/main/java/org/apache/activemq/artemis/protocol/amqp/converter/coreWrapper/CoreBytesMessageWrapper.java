@@ -27,9 +27,7 @@ import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.amqp.messaging.Section;
 
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_DATA;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_NULL;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_UNKNOWN;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_BINARY;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.EMPTY_BINARY;
 import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesMessageReset;
@@ -82,16 +80,11 @@ public class CoreBytesMessageWrapper extends CoreMessageWrapper {
          payload = EMPTY_BINARY;
       }
 
-      switch (orignalEncoding) {
-         case AMQP_NULL:
-            return null;
-         case AMQP_VALUE_BINARY:
-            return new AmqpValue(payload);
-         case AMQP_DATA:
-         case AMQP_UNKNOWN:
-         default:
-            return new Data(payload);
-      }
+      return switch (orignalEncoding) {
+         case AMQP_NULL -> null;
+         case AMQP_VALUE_BINARY -> new AmqpValue(payload);
+         default -> new Data(payload);
+      };
    }
 
    public long getBodyLength() {

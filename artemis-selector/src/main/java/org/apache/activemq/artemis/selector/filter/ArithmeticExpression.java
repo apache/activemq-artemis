@@ -115,36 +115,27 @@ public abstract class ArithmeticExpression extends BinaryExpression {
    }
 
    protected Number plus(Number left, Number right) {
-      switch (numberType(left, right)) {
-         case INTEGER:
-            return left.intValue() + right.intValue();
-         case LONG:
-            return left.longValue() + right.longValue();
-         default:
-            return left.doubleValue() + right.doubleValue();
-      }
+      return switch (numberType(left, right)) {
+         case INTEGER -> left.intValue() + right.intValue();
+         case LONG -> left.longValue() + right.longValue();
+         default -> left.doubleValue() + right.doubleValue();
+      };
    }
 
    protected Number minus(Number left, Number right) {
-      switch (numberType(left, right)) {
-         case INTEGER:
-            return left.intValue() - right.intValue();
-         case LONG:
-            return left.longValue() - right.longValue();
-         default:
-            return left.doubleValue() - right.doubleValue();
-      }
+      return switch (numberType(left, right)) {
+         case INTEGER -> left.intValue() - right.intValue();
+         case LONG -> left.longValue() - right.longValue();
+         default -> left.doubleValue() - right.doubleValue();
+      };
    }
 
    protected Number multiply(Number left, Number right) {
-      switch (numberType(left, right)) {
-         case INTEGER:
-            return left.intValue() * right.intValue();
-         case LONG:
-            return left.longValue() * right.longValue();
-         default:
-            return left.doubleValue() * right.doubleValue();
-      }
+      return switch (numberType(left, right)) {
+         case INTEGER -> left.intValue() * right.intValue();
+         case LONG -> left.longValue() * right.longValue();
+         default -> left.doubleValue() * right.doubleValue();
+      };
    }
 
    protected Number divide(Number left, Number right) {

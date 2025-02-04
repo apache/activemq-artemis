@@ -78,30 +78,19 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
 
       ProducerField field = ProducerField.valueOfName(fieldName);
 
-      switch (field) {
-         case ID:
-            return producer.getID();
-         case SESSION:
-            return session.getName();
-         case USER:
-            return session.getUsername();
-         case VALIDATED_USER:
-            return session.getValidatedUser();
-         case CLIENT_ID:
-            return session.getRemotingConnection().getClientID();
-         case PROTOCOL:
-            return session.getRemotingConnection().getProtocolName();
-         case ADDRESS:
-            return producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress();
-         case LOCAL_ADDRESS:
-            return session.getRemotingConnection().getTransportConnection().getLocalAddress();
-         case REMOTE_ADDRESS:
-            return session.getRemotingConnection().getTransportConnection().getRemoteAddress();
-         case CREATION_TIME:
-            return producer.getCreationTime();
-         default:
-            throw new IllegalArgumentException("Unsupported field, " + fieldName);
-      }
+      return switch (field) {
+         case ID -> producer.getID();
+         case SESSION -> session.getName();
+         case USER -> session.getUsername();
+         case VALIDATED_USER -> session.getValidatedUser();
+         case CLIENT_ID -> session.getRemotingConnection().getClientID();
+         case PROTOCOL -> session.getRemotingConnection().getProtocolName();
+         case ADDRESS -> producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress();
+         case LOCAL_ADDRESS -> session.getRemotingConnection().getTransportConnection().getLocalAddress();
+         case REMOTE_ADDRESS -> session.getRemotingConnection().getTransportConnection().getRemoteAddress();
+         case CREATION_TIME -> producer.getCreationTime();
+         default -> throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      };
    }
 
    @Override

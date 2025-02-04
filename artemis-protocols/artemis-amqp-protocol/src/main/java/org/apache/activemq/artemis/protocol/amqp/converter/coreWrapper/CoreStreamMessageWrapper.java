@@ -32,8 +32,6 @@ import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.amqp.messaging.Section;
 
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_SEQUENCE;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_UNKNOWN;
-import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.AMQP_VALUE_LIST;
 import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadBoolean;
 import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadByte;
 import static org.apache.activemq.artemis.reader.StreamMessageUtil.streamReadBytes;
@@ -71,14 +69,10 @@ public final class CoreStreamMessageWrapper extends CoreMessageWrapper {
       } catch (MessageEOFException e) {
       }
 
-      switch (getOrignalEncoding()) {
-         case AMQP_SEQUENCE:
-            return new AmqpSequence(list);
-         case AMQP_VALUE_LIST:
-         case AMQP_UNKNOWN:
-         default:
-            return new AmqpValue(list);
-      }
+      return switch (getOrignalEncoding()) {
+         case AMQP_SEQUENCE -> new AmqpSequence(list);
+         default -> new AmqpValue(list);
+      };
    }
 
    public boolean readBoolean() throws MessageEOFException, ConversionException {

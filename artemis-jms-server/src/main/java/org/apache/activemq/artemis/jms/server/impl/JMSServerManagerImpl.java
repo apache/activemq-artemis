@@ -245,23 +245,20 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       List<String> bindings = unRecoveredBindings.get(name);
       if (bindings != null && !bindings.isEmpty()) {
          Map<String, List<String>> mapBindings;
-         Map<String, ?> objects;
-
-         switch (type) {
-            case Queue:
+         Map<String, ?> objects = switch (type) {
+            case Queue -> {
                mapBindings = queueBindings;
-               objects = queues;
-               break;
-            case Topic:
+               yield queues;
+            }
+            case Topic -> {
                mapBindings = topicBindings;
-               objects = topics;
-               break;
-            default:
-            case ConnectionFactory:
+               yield topics;
+            }
+            default -> {
                mapBindings = connectionFactoryBindings;
-               objects = connectionFactories;
-               break;
-         }
+               yield connectionFactories;
+            }
+         };
 
          Object objectToBind = objects.get(name);
 
@@ -291,23 +288,20 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
 
       for (PersistedBindings record : bindingsSpace) {
          Map<String, List<String>> mapBindings;
-         Map<String, ?> objects;
-
-         switch (record.getType()) {
-            case Queue:
+         Map<String, ?> objects = switch (record.getType()) {
+            case Queue -> {
                mapBindings = queueBindings;
-               objects = queues;
-               break;
-            case Topic:
+               yield queues;
+            }
+            case Topic -> {
                mapBindings = topicBindings;
-               objects = topics;
-               break;
-            default:
-            case ConnectionFactory:
+               yield topics;
+            }
+            default -> {
                mapBindings = connectionFactoryBindings;
-               objects = connectionFactories;
-               break;
-         }
+               yield connectionFactories;
+            }
+         };
 
          Object objectToBind = objects.get(record.getName());
          List<String> bindingsList = mapBindings.get(record.getName());

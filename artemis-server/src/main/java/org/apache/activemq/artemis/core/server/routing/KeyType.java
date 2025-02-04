@@ -36,19 +36,13 @@ public enum KeyType {
    }
 
    public static KeyType getType(String type) {
-      switch (type) {
-         case "CLIENT_ID":
-            return CLIENT_ID;
-         case "SNI_HOST":
-            return SNI_HOST;
-         case "SOURCE_IP":
-            return SOURCE_IP;
-         case "USER_NAME":
-            return USER_NAME;
-         case "ROLE_NAME":
-            return ROLE_NAME;
-         default:
-            throw new IllegalStateException("Invalid RedirectKey:" + type + " valid Types: " + validValues);
-      }
+      return switch (type) {
+         case "CLIENT_ID" -> CLIENT_ID;
+         case "SNI_HOST" -> SNI_HOST;
+         case "SOURCE_IP" -> SOURCE_IP;
+         case "USER_NAME" -> USER_NAME;
+         case "ROLE_NAME" -> ROLE_NAME;
+         default -> throw new IllegalStateException("Invalid RedirectKey:" + type + " valid Types: " + validValues);
+      };
    }
 }
