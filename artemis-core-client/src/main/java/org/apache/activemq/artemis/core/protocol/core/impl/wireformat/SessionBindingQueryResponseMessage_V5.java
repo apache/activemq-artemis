@@ -125,10 +125,9 @@ public class SessionBindingQueryResponseMessage_V5 extends SessionBindingQueryRe
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof SessionBindingQueryResponseMessage_V5)) {
+      if (!(obj instanceof SessionBindingQueryResponseMessage_V5 other)) {
          return false;
       }
-      SessionBindingQueryResponseMessage_V5 other = (SessionBindingQueryResponseMessage_V5) obj;
       if (supportsMulticast != other.supportsMulticast) {
          return false;
       }

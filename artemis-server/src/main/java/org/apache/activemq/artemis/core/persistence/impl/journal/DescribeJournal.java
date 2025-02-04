@@ -830,9 +830,8 @@ public final class DescribeJournal {
             return true;
          if (obj == null)
             return false;
-         if (!(obj instanceof ReferenceDescribe))
+         if (!(obj instanceof ReferenceDescribe other))
             return false;
-         ReferenceDescribe other = (ReferenceDescribe) obj;
          if (refEncoding == null) {
             if (other.refEncoding != null)
                return false;

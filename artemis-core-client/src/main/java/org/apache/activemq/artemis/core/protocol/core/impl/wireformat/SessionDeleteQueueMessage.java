@@ -69,9 +69,8 @@ public class SessionDeleteQueueMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionDeleteQueueMessage))
+      if (!(obj instanceof SessionDeleteQueueMessage other))
          return false;
-      SessionDeleteQueueMessage other = (SessionDeleteQueueMessage) obj;
       if (queueName == null) {
          if (other.queueName != null)
             return false;

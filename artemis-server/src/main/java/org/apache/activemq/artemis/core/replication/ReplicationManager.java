@@ -589,10 +589,9 @@ public final class ReplicationManager implements ActiveMQComponent {
    }
 
    private boolean checkEventLoop() {
-      if (!(replicationStream instanceof SingleThreadEventLoop)) {
+      if (!(replicationStream instanceof SingleThreadEventLoop eventLoop)) {
          return true;
       }
-      final SingleThreadEventLoop eventLoop = (SingleThreadEventLoop) replicationStream;
       return eventLoop.inEventLoop();
    }
 

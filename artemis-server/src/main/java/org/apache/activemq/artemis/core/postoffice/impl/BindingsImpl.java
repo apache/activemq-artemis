@@ -382,8 +382,7 @@ public final class BindingsImpl implements Bindings {
       while (buffer.hasRemaining()) {
          long id = buffer.getLong();
          for (Map.Entry<Long, Binding> entry : bindingsIdMap.entrySet()) {
-            if (entry.getValue() instanceof RemoteQueueBinding) {
-               RemoteQueueBinding remoteQueueBinding = (RemoteQueueBinding) entry.getValue();
+            if (entry.getValue() instanceof RemoteQueueBinding remoteQueueBinding) {
                if (remoteQueueBinding.getRemoteQueueID() == id) {
                   message.putExtraBytesProperty(Message.HDR_ROUTE_TO_IDS, ByteBuffer.allocate(8).putLong(remoteQueueBinding.getID()).array());
                }

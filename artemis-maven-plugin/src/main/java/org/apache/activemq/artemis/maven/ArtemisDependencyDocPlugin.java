@@ -228,8 +228,7 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
    private String getURI(ArtifactResult result) {
       Artifact art = result.getArtifact();
       String uri = "";
-      if (result.getRepository() instanceof RemoteRepository) {
-         RemoteRepository remoteRepository = (RemoteRepository) result.getRepository();
+      if (result.getRepository() instanceof RemoteRepository remoteRepository) {
          uri = remoteRepository.getUrl();
       } else {
          uri = defaultRepo;

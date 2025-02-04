@@ -110,10 +110,9 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ClusterTopologyChangeMessage_V3)) {
+      if (!(obj instanceof ClusterTopologyChangeMessage_V3 other)) {
          return false;
       }
-      ClusterTopologyChangeMessage_V3 other = (ClusterTopologyChangeMessage_V3) obj;
       if (scaleDownGroupName == null) {
          if (other.scaleDownGroupName != null) {
             return false;

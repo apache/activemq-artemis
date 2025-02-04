@@ -85,9 +85,8 @@ public class ReattachSessionMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof ReattachSessionMessage))
+      if (!(obj instanceof ReattachSessionMessage other))
          return false;
-      ReattachSessionMessage other = (ReattachSessionMessage) obj;
       if (lastConfirmedCommandID != other.lastConfirmedCommandID)
          return false;
       if (name == null) {

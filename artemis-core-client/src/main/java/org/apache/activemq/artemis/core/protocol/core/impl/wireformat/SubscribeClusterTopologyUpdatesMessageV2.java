@@ -72,9 +72,8 @@ public class SubscribeClusterTopologyUpdatesMessageV2 extends SubscribeClusterTo
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SubscribeClusterTopologyUpdatesMessageV2))
+      if (!(obj instanceof SubscribeClusterTopologyUpdatesMessageV2 other))
          return false;
-      SubscribeClusterTopologyUpdatesMessageV2 other = (SubscribeClusterTopologyUpdatesMessageV2) obj;
       if (clientVersion != other.clientVersion)
          return false;
       return true;

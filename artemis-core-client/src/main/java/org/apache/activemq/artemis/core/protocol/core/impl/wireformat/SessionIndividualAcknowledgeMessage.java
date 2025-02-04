@@ -101,9 +101,8 @@ public class SessionIndividualAcknowledgeMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionIndividualAcknowledgeMessage))
+      if (!(obj instanceof SessionIndividualAcknowledgeMessage other))
          return false;
-      SessionIndividualAcknowledgeMessage other = (SessionIndividualAcknowledgeMessage) obj;
       if (consumerID != other.consumerID)
          return false;
       if (messageID != other.messageID)

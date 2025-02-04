@@ -279,8 +279,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          messageQueue.addConsumer(this);
       }
 
-      if (session.getRemotingConnection() instanceof CoreRemotingConnection) {
-         CoreRemotingConnection coreRemotingConnection = (CoreRemotingConnection) session.getRemotingConnection();
+      if (session.getRemotingConnection() instanceof CoreRemotingConnection coreRemotingConnection) {
          if (session.getMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY) != null && coreRemotingConnection.getChannelVersion() < PacketImpl.ADDRESSING_CHANGE_VERSION) {
             requiresLegacyPrefix = true;
             if (getQueue().getRoutingType().equals(RoutingType.ANYCAST)) {

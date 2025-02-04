@@ -167,8 +167,7 @@ public class FederationQueuePolicyConfiguration implements FederationPolicy<Fede
       @Override
       public boolean equals(Object o) {
          if (this == o) return true;
-         if (!(o instanceof Matcher)) return false;
-         Matcher matcher = (Matcher) o;
+         if (!(o instanceof Matcher matcher)) return false;
          return Objects.equals(queueMatch, matcher.queueMatch) &&
                Objects.equals(addressMatch, matcher.addressMatch);
       }
@@ -192,8 +191,7 @@ public class FederationQueuePolicyConfiguration implements FederationPolicy<Fede
    @Override
    public boolean equals(Object o) {
       if (this == o) return true;
-      if (!(o instanceof FederationQueuePolicyConfiguration)) return false;
-      FederationQueuePolicyConfiguration that = (FederationQueuePolicyConfiguration) o;
+      if (!(o instanceof FederationQueuePolicyConfiguration that)) return false;
       return includeFederated == that.includeFederated &&
             Objects.equals(name, that.name) &&
             Objects.equals(includes, that.includes) &&

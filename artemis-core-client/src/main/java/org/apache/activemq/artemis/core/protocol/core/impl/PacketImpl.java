@@ -461,10 +461,9 @@ public class PacketImpl implements Packet {
       if (this == obj) {
          return true;
       }
-      if (!(obj instanceof PacketImpl)) {
+      if (!(obj instanceof PacketImpl other)) {
          return false;
       }
-      PacketImpl other = (PacketImpl) obj;
       return (channelID == other.channelID) && (size == other.size) && (type != other.type);
    }
 

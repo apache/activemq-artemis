@@ -75,10 +75,9 @@ public class SessionCommitMessage_V2 extends SessionCommitMessage {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof SessionCommitMessage_V2)) {
+      if (!(obj instanceof SessionCommitMessage_V2 other)) {
          return false;
       }
-      SessionCommitMessage_V2 other = (SessionCommitMessage_V2) obj;
       if (correlationID != other.correlationID) {
          return false;
       }

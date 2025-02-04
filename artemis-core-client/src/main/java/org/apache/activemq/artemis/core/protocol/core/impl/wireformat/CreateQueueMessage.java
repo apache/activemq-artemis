@@ -161,9 +161,8 @@ public class CreateQueueMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof CreateQueueMessage))
+      if (!(obj instanceof CreateQueueMessage other))
          return false;
-      CreateQueueMessage other = (CreateQueueMessage) obj;
       if (address == null) {
          if (other.address != null)
             return false;

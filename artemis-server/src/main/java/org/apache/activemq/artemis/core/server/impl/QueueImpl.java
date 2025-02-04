@@ -3064,10 +3064,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (this == other) {
          return true;
       }
-      if (!(other instanceof QueueImpl))
+      if (!(other instanceof QueueImpl qother))
          return false;
-
-      QueueImpl qother = (QueueImpl) other;
 
       return name.equals(qother.name);
    }

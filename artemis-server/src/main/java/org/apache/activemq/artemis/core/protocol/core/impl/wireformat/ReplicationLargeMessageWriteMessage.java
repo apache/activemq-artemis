@@ -103,9 +103,8 @@ public final class ReplicationLargeMessageWriteMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof ReplicationLargeMessageWriteMessage))
+      if (!(obj instanceof ReplicationLargeMessageWriteMessage other))
          return false;
-      ReplicationLargeMessageWriteMessage other = (ReplicationLargeMessageWriteMessage) obj;
       if (!Arrays.equals(body, other.body))
          return false;
       if (messageId != other.messageId)

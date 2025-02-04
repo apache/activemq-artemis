@@ -128,9 +128,8 @@ public class SessionSendMessage extends MessagePacket {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionSendMessage))
+      if (!(obj instanceof SessionSendMessage other))
          return false;
-      SessionSendMessage other = (SessionSendMessage) obj;
       if (requiresResponse != other.requiresResponse)
          return false;
       return true;

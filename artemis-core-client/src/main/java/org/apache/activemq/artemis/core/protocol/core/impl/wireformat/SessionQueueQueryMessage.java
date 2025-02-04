@@ -62,9 +62,8 @@ public class SessionQueueQueryMessage extends QueueAbstractPacket {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionQueueQueryMessage))
+      if (!(obj instanceof SessionQueueQueryMessage other))
          return false;
-      SessionQueueQueryMessage other = (SessionQueueQueryMessage) obj;
       if (queueName == null) {
          if (other.queueName != null)
             return false;

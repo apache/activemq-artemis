@@ -78,9 +78,8 @@ public class SubscribeClusterTopologyUpdatesMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SubscribeClusterTopologyUpdatesMessage))
+      if (!(obj instanceof SubscribeClusterTopologyUpdatesMessage other))
          return false;
-      SubscribeClusterTopologyUpdatesMessage other = (SubscribeClusterTopologyUpdatesMessage) obj;
       if (clusterConnection != other.clusterConnection)
          return false;
       return true;

@@ -92,9 +92,8 @@ public class SessionSendMessage_V2 extends SessionSendMessage {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionSendMessage_V2))
+      if (!(obj instanceof SessionSendMessage_V2 other))
          return false;
-      SessionSendMessage_V2 other = (SessionSendMessage_V2) obj;
       if (correlationID != other.correlationID)
          return false;
       return true;

@@ -332,8 +332,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
       }
 
       if (parameterType instanceof DeclaredType declaredType) {
-         if (declaredType.asElement() instanceof TypeElement) {
-            TypeElement theElement = (TypeElement) declaredType.asElement();
+         if (declaredType.asElement() instanceof TypeElement theElement) {
             if (DEBUG) {
                debug("... ... recursively inspecting super class for Exception on " + parameterClazz + ", looking at superClass " + theElement.getSuperclass());
             }

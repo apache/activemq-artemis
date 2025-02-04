@@ -73,10 +73,9 @@ public class PacketsConfirmedMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof PacketsConfirmedMessage)) {
+      if (!(obj instanceof PacketsConfirmedMessage other)) {
          return false;
       }
-      PacketsConfirmedMessage other = (PacketsConfirmedMessage) obj;
       if (commandID != other.commandID) {
          return false;
       }

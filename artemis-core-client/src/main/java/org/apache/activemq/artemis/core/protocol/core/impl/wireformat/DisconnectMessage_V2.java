@@ -75,10 +75,9 @@ public class DisconnectMessage_V2 extends DisconnectMessage {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof DisconnectMessage_V2)) {
+      if (!(obj instanceof DisconnectMessage_V2 other)) {
          return false;
       }
-      DisconnectMessage_V2 other = (DisconnectMessage_V2) obj;
       if (scaleDownNodeID == null) {
          if (other.scaleDownNodeID != null) {
             return false;

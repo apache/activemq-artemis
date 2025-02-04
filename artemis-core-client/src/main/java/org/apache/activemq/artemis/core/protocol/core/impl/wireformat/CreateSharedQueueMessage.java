@@ -134,9 +134,8 @@ public class CreateSharedQueueMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof CreateSharedQueueMessage))
+      if (!(obj instanceof CreateSharedQueueMessage other))
          return false;
-      CreateSharedQueueMessage other = (CreateSharedQueueMessage) obj;
       if (address == null) {
          if (other.address != null)
             return false;

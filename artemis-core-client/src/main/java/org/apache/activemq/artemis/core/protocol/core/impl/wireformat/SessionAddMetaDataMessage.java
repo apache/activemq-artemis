@@ -87,9 +87,8 @@ public class SessionAddMetaDataMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionAddMetaDataMessage))
+      if (!(obj instanceof SessionAddMetaDataMessage other))
          return false;
-      SessionAddMetaDataMessage other = (SessionAddMetaDataMessage) obj;
       if (data == null) {
          if (other.data != null)
             return false;

@@ -451,8 +451,7 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
          receiver.advance();
 
          Transaction tx = null;
-         if (delivery.getRemoteState() instanceof TransactionalState) {
-            TransactionalState txState = (TransactionalState) delivery.getRemoteState();
+         if (delivery.getRemoteState() instanceof TransactionalState txState) {
             try {
                tx = this.sessionSPI.getTransaction(txState.getTxnId(), false);
             } catch (Exception e) {

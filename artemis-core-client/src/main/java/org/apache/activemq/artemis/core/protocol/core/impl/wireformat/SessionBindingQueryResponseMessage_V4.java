@@ -184,9 +184,8 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionBindingQueryResponseMessage_V4))
+      if (!(obj instanceof SessionBindingQueryResponseMessage_V4 other))
          return false;
-      SessionBindingQueryResponseMessage_V4 other = (SessionBindingQueryResponseMessage_V4) obj;
       if (defaultPurgeOnNoConsumers != other.defaultPurgeOnNoConsumers)
          return false;
       if (defaultMaxConsumers != other.defaultMaxConsumers)

@@ -79,9 +79,8 @@ public class SessionXACommitMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionXACommitMessage))
+      if (!(obj instanceof SessionXACommitMessage other))
          return false;
-      SessionXACommitMessage other = (SessionXACommitMessage) obj;
       if (onePhase != other.onePhase)
          return false;
       if (xid == null) {

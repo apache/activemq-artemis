@@ -149,9 +149,8 @@ public class SessionCreateConsumerMessage extends QueueAbstractPacket {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionCreateConsumerMessage))
+      if (!(obj instanceof SessionCreateConsumerMessage other))
          return false;
-      SessionCreateConsumerMessage other = (SessionCreateConsumerMessage) obj;
       if (browseOnly != other.browseOnly)
          return false;
       if (filterString == null) {

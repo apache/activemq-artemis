@@ -95,9 +95,8 @@ public final class ReplicationCommitMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof ReplicationCommitMessage))
+      if (!(obj instanceof ReplicationCommitMessage other))
          return false;
-      ReplicationCommitMessage other = (ReplicationCommitMessage) obj;
       if (journalID != other.journalID)
          return false;
       if (rollback != other.rollback)

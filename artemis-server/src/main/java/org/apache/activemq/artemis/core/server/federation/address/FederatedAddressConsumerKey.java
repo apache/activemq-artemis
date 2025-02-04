@@ -96,8 +96,7 @@ public class FederatedAddressConsumerKey implements FederatedConsumerKey {
    @Override
    public boolean equals(Object o) {
       if (this == o) return true;
-      if (!(o instanceof FederatedAddressConsumerKey)) return false;
-      FederatedAddressConsumerKey that = (FederatedAddressConsumerKey) o;
+      if (!(o instanceof FederatedAddressConsumerKey that)) return false;
       return Objects.equals(address, that.address) &&
             Objects.equals(queueNameFormat, that.queueNameFormat) &&
             routingType == that.routingType &&

@@ -38,10 +38,10 @@ public class JMSTransactionDetail extends TransactionDetail {
 
    @Override
    public String decodeMessageType(Message msg) {
-      if (!(msg instanceof ICoreMessage)) {
+      if (!(msg instanceof ICoreMessage coreMessage)) {
          return "N/A";
       }
-      return switch (((ICoreMessage) msg).getType()) {
+      return switch (coreMessage.getType()) {
          case ActiveMQMessage.TYPE -> "Default"; // 0
          case ActiveMQObjectMessage.TYPE -> "ObjectMessage"; // 2
          case ActiveMQTextMessage.TYPE -> "TextMessage"; // 3

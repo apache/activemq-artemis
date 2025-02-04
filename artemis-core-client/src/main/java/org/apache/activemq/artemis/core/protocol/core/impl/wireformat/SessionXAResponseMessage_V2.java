@@ -89,10 +89,9 @@ public class SessionXAResponseMessage_V2 extends SessionXAResponseMessage {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof SessionXAResponseMessage_V2)) {
+      if (!(obj instanceof SessionXAResponseMessage_V2 other)) {
          return false;
       }
-      SessionXAResponseMessage_V2 other = (SessionXAResponseMessage_V2) obj;
       if (correlationID != other.correlationID) {
          return false;
       }

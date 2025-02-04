@@ -70,9 +70,8 @@ public abstract class FederationStreamConfiguration <T extends FederationStreamC
    public boolean equals(Object o) {
       if (this == o)
          return true;
-      if (!(o instanceof FederationStreamConfiguration))
+      if (!(o instanceof FederationStreamConfiguration that))
          return false;
-      FederationStreamConfiguration that = (FederationStreamConfiguration) o;
       return Objects.equals(name, that.name) && Objects.equals(connectionConfiguration, that.connectionConfiguration) && Objects.equals(policyRefs, that.policyRefs);
    }
 
