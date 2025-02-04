@@ -84,9 +84,8 @@ public class SessionExpireMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionExpireMessage))
+      if (!(obj instanceof SessionExpireMessage other))
          return false;
-      SessionExpireMessage other = (SessionExpireMessage) obj;
       if (consumerID != other.consumerID)
          return false;
       if (messageID != other.messageID)

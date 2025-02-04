@@ -221,9 +221,8 @@ public class ReplicationStartSyncMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof ReplicationStartSyncMessage))
+      if (!(obj instanceof ReplicationStartSyncMessage other))
          return false;
-      ReplicationStartSyncMessage other = (ReplicationStartSyncMessage) obj;
       if (allowsAutoFailBack != other.allowsAutoFailBack)
          return false;
       if (dataType != other.dataType)

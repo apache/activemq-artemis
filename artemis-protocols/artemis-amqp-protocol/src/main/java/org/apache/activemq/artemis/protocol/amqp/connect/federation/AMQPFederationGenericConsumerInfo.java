@@ -132,11 +132,9 @@ public class AMQPFederationGenericConsumerInfo implements FederationConsumerInfo
          return true;
       }
 
-      if (!(o instanceof AMQPFederationGenericConsumerInfo)) {
+      if (!(o instanceof AMQPFederationGenericConsumerInfo that)) {
          return false;
       }
-
-      final AMQPFederationGenericConsumerInfo that = (AMQPFederationGenericConsumerInfo) o;
 
       return role == that.role &&
              priority == that.priority &&

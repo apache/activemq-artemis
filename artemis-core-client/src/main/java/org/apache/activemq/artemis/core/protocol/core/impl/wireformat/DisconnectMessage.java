@@ -82,10 +82,9 @@ public class DisconnectMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof DisconnectMessage)) {
+      if (!(obj instanceof DisconnectMessage other)) {
          return false;
       }
-      DisconnectMessage other = (DisconnectMessage) obj;
       if (nodeID == null) {
          if (other.nodeID != null) {
             return false;

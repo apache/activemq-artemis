@@ -102,9 +102,8 @@ public final class BackupRegistrationMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof BackupRegistrationMessage))
+      if (!(obj instanceof BackupRegistrationMessage other))
          return false;
-      BackupRegistrationMessage other = (BackupRegistrationMessage) obj;
       if (backupWantsFailBack != other.backupWantsFailBack)
          return false;
       if (clusterPassword == null) {

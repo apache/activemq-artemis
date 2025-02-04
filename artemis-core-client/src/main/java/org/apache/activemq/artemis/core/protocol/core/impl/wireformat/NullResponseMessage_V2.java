@@ -89,10 +89,9 @@ public class NullResponseMessage_V2 extends NullResponseMessage {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof NullResponseMessage_V2)) {
+      if (!(obj instanceof NullResponseMessage_V2 other)) {
          return false;
       }
-      NullResponseMessage_V2 other = (NullResponseMessage_V2) obj;
       if (correlationID != other.correlationID) {
          return false;
       }

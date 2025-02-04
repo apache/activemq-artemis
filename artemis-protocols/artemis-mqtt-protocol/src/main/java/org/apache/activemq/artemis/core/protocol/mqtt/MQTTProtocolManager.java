@@ -156,10 +156,9 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
 
    @Override
    public void onNotification(Notification notification) {
-      if (!(notification.getType() instanceof CoreNotificationType))
+      if (!(notification.getType() instanceof CoreNotificationType type))
          return;
 
-      CoreNotificationType type = (CoreNotificationType) notification.getType();
       if (type != CoreNotificationType.SESSION_CREATED)
          return;
 

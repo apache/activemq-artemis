@@ -82,9 +82,8 @@ public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryRe
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionBindingQueryResponseMessage_V2))
+      if (!(obj instanceof SessionBindingQueryResponseMessage_V2 other))
          return false;
-      SessionBindingQueryResponseMessage_V2 other = (SessionBindingQueryResponseMessage_V2) obj;
       if (autoCreateQueues != other.autoCreateQueues)
          return false;
       return true;

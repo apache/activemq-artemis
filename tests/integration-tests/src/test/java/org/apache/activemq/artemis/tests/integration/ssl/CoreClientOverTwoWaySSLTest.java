@@ -130,8 +130,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (packet.getType() == PacketImpl.SESS_SEND) {
             try {
-               if (connection.getTransportConnection() instanceof NettyConnection) {
-                  NettyConnection nettyConnection = (NettyConnection) connection.getTransportConnection();
+               if (connection.getTransportConnection() instanceof NettyConnection nettyConnection) {
                   SslHandler sslHandler = (SslHandler) nettyConnection.getChannel().pipeline().get("ssl");
                   assertNotNull(sslHandler);
                   assertNotNull(sslHandler.engine().getSession());

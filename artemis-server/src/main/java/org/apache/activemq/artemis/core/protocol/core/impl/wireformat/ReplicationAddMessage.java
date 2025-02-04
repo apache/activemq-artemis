@@ -164,9 +164,8 @@ public final class ReplicationAddMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof ReplicationAddMessage))
+      if (!(obj instanceof ReplicationAddMessage other))
          return false;
-      ReplicationAddMessage other = (ReplicationAddMessage) obj;
       if (encodingData == null) {
          if (other.encodingData != null)
             return false;

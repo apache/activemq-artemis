@@ -162,9 +162,8 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionSendContinuationMessage))
+      if (!(obj instanceof SessionSendContinuationMessage other))
          return false;
-      SessionSendContinuationMessage other = (SessionSendContinuationMessage) obj;
       if (message == null) {
          if (other.message != null)
             return false;

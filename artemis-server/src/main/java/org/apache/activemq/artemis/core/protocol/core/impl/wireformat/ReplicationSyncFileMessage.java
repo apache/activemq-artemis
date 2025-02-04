@@ -239,10 +239,9 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ReplicationSyncFileMessage)) {
+      if (!(obj instanceof ReplicationSyncFileMessage other)) {
          return false;
       }
-      ReplicationSyncFileMessage other = (ReplicationSyncFileMessage) obj;
       if (!Arrays.equals(byteArray, other.byteArray)) {
          return false;
       }

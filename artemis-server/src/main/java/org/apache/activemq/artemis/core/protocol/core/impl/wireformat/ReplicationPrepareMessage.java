@@ -111,10 +111,9 @@ public final class ReplicationPrepareMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ReplicationPrepareMessage)) {
+      if (!(obj instanceof ReplicationPrepareMessage other)) {
          return false;
       }
-      ReplicationPrepareMessage other = (ReplicationPrepareMessage) obj;
       if (encodingData == null) {
          if (other.encodingData != null) {
             return false;

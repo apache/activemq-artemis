@@ -81,9 +81,8 @@ public class SessionProducerCreditsMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionProducerCreditsMessage))
+      if (!(obj instanceof SessionProducerCreditsMessage other))
          return false;
-      SessionProducerCreditsMessage other = (SessionProducerCreditsMessage) obj;
       if (address == null) {
          if (other.address != null)
             return false;

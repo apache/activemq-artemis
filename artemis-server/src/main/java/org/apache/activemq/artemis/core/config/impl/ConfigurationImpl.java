@@ -2730,9 +2730,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
          return true;
       if (obj == null)
          return false;
-      if (!(obj instanceof ConfigurationImpl))
+      if (!(obj instanceof ConfigurationImpl other))
          return false;
-      ConfigurationImpl other = (ConfigurationImpl) obj;
       if (acceptorConfigs == null) {
          if (other.acceptorConfigs != null)
             return false;

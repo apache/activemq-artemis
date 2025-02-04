@@ -967,10 +967,9 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
          public void inspectDeliveryUpdate(Sender sender, Delivery delivery) {
             if (delivery.remotelySettled()) {
                logger.debug("Receiver got delivery update for: {}", delivery);
-               if (!(delivery.getRemoteState() instanceof TransactionalState)) {
+               if (!(delivery.getRemoteState() instanceof TransactionalState txState)) {
                   markAsInvalid("Transactionally acquire work no tagged as being in a transaction.");
                } else {
-                  TransactionalState txState = (TransactionalState) delivery.getRemoteState();
                   if (!(txState.getOutcome() instanceof Accepted)) {
                      markAsInvalid("Transaction state lacks any outcome");
                   } else if (txState.getTxnId() == null) {
@@ -978,10 +977,9 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
                   }
                }
 
-               if (!(delivery.getLocalState() instanceof TransactionalState)) {
+               if (!(delivery.getLocalState() instanceof TransactionalState txState)) {
                   markAsInvalid("Transactionally acquire work no tagged as being in a transaction.");
                } else {
-                  TransactionalState txState = (TransactionalState) delivery.getLocalState();
                   if (!(txState.getOutcome() instanceof Accepted)) {
                      markAsInvalid("Transaction state lacks any outcome");
                   } else if (txState.getTxnId() == null) {

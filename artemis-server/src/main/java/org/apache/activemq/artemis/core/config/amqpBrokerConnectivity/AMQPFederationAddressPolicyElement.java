@@ -178,11 +178,9 @@ public final class AMQPFederationAddressPolicyElement implements Serializable {
       if (this == o) {
          return true;
       }
-      if (!(o instanceof AMQPFederationAddressPolicyElement)) {
+      if (!(o instanceof AMQPFederationAddressPolicyElement that)) {
          return false;
       }
-
-      final AMQPFederationAddressPolicyElement that = (AMQPFederationAddressPolicyElement) o;
 
       return maxHops == that.maxHops &&
              Objects.equals(name, that.name) &&
@@ -235,11 +233,9 @@ public final class AMQPFederationAddressPolicyElement implements Serializable {
             return true;
          }
 
-         if (!(o instanceof AddressMatch)) {
+         if (!(o instanceof AddressMatch matcher)) {
             return false;
          }
-
-         final AddressMatch matcher = (AddressMatch) o;
 
          return Objects.equals(addressMatch, matcher.addressMatch);
       }

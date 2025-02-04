@@ -490,11 +490,9 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
          return true;
       }
 
-      if (!(o instanceof ActiveMQDestination)) {
+      if (!(o instanceof ActiveMQDestination that)) {
          return false;
       }
-
-      ActiveMQDestination that = (ActiveMQDestination) o;
 
       return simpleAddress.equals(that.simpleAddress);
    }

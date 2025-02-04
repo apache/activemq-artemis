@@ -78,9 +78,8 @@ public class RollbackMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof RollbackMessage))
+      if (!(obj instanceof RollbackMessage other))
          return false;
-      RollbackMessage other = (RollbackMessage) obj;
       if (considerLastMessageAsDelivered != other.considerLastMessageAsDelivered)
          return false;
       return true;

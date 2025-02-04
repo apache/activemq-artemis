@@ -677,8 +677,7 @@ public class AmqpMessage {
       if (getWrappedMessage().getBody() == null) {
          return null;
       } else {
-         if (getWrappedMessage().getBody() instanceof AmqpValue) {
-            AmqpValue value = (AmqpValue) getWrappedMessage().getBody();
+         if (getWrappedMessage().getBody() instanceof AmqpValue value) {
 
             if (value.getValue() == null) {
                result = null;

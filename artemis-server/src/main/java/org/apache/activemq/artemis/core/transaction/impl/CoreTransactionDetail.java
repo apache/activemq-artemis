@@ -32,10 +32,10 @@ public class CoreTransactionDetail extends TransactionDetail {
 
    @Override
    public String decodeMessageType(Message msg) {
-      if (!(msg instanceof ICoreMessage)) {
+      if (!(msg instanceof ICoreMessage coreMessage)) {
          return "N/A";
       }
-      return switch (((ICoreMessage) msg).getType()) {
+      return switch (coreMessage.getType()) {
          case Message.DEFAULT_TYPE -> "Default"; // 0
          case Message.OBJECT_TYPE -> "ObjectMessage"; // 2
          case Message.TEXT_TYPE -> "TextMessage"; // 3

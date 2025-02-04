@@ -53,8 +53,7 @@ public class FederationTransformerConfiguration implements Serializable {
    @Override
    public boolean equals(Object o) {
       if (this == o) return true;
-      if (!(o instanceof FederationTransformerConfiguration)) return false;
-      FederationTransformerConfiguration that = (FederationTransformerConfiguration) o;
+      if (!(o instanceof FederationTransformerConfiguration that)) return false;
       return Objects.equals(name, that.name) &&
             Objects.equals(transformerConfiguration, that.transformerConfiguration);
    }

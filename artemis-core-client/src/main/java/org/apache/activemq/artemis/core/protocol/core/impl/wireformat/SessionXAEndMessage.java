@@ -80,9 +80,8 @@ public class SessionXAEndMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionXAEndMessage))
+      if (!(obj instanceof SessionXAEndMessage other))
          return false;
-      SessionXAEndMessage other = (SessionXAEndMessage) obj;
       if (failed != other.failed)
          return false;
       if (xid == null) {

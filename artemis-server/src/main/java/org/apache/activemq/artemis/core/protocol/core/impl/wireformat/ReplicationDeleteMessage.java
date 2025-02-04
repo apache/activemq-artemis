@@ -88,9 +88,8 @@ public final class ReplicationDeleteMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof ReplicationDeleteMessage))
+      if (!(obj instanceof ReplicationDeleteMessage other))
          return false;
-      ReplicationDeleteMessage other = (ReplicationDeleteMessage) obj;
       if (id != other.id)
          return false;
       if (journalID != other.journalID)
