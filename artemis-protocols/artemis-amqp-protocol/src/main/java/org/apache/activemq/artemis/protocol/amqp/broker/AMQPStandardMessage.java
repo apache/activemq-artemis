@@ -289,18 +289,12 @@ public class AMQPStandardMessage extends AMQPMessage {
                   decoder.readBoolean(false); // Discard durable for now, it is computed elsewhere.
 
                   final byte encodingCode = data.get();
-                  final int priority;
-
-                  switch (encodingCode) {
-                     case EncodingCodes.UBYTE:
-                        priority = data.get() & 0xff;
-                        break;
-                     case EncodingCodes.NULL:
-                        priority = DEFAULT_MESSAGE_PRIORITY;
-                        break;
-                     default:
+                  final int priority = switch (encodingCode) {
+                     case EncodingCodes.UBYTE -> data.get() & 0xff;
+                     case EncodingCodes.NULL -> DEFAULT_MESSAGE_PRIORITY;
+                     default ->
                         throw new DecodeException("Expected UnsignedByte type but found encoding: " + EncodingCodes.toString(encodingCode));
-                  }
+                  };
 
                   // Scaled here so do not call setPriority as that will store the set value in the AMQP header
                   // and we don't want to create that Header instance at this stage.

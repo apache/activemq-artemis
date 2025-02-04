@@ -116,21 +116,12 @@ public class PageSizeTest extends ParameterDBTestBase {
       String tableName = queue.getPagingStore().getFolderName();
 
       try (java.sql.Connection sqlConn = database.getConnection()) {
-         String sql = null;
-         switch (database) {
-            case MSSQL:
-               sql = "SELECT MAX(LEN(DATA)) FROM " + tableName;
-               break;
-            case ORACLE:
-            case DB2:
-            case DERBY:
-            case MYSQL:
-               sql = "SELECT MAX(LENGTH(DATA)) FROM " + tableName;
-               break;
-            case POSTGRES:
-               sql = "SELECT MAX(OCTET_LENGTH(lo_get(DATA))) FROM  " + tableName;
-               break;
-         }
+         String sql = switch (database) {
+            case MSSQL -> "SELECT MAX(LEN(DATA)) FROM " + tableName;
+            case ORACLE, DB2, DERBY, MYSQL -> "SELECT MAX(LENGTH(DATA)) FROM " + tableName;
+            case POSTGRES -> "SELECT MAX(OCTET_LENGTH(lo_get(DATA))) FROM  " + tableName;
+            default -> null;
+         };
          logger.debug("query: {}", sql);
          if (sql != null) {
             ResultSet resultSet = null;

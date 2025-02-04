@@ -21,24 +21,18 @@ public enum RoutingType {
    MULTICAST, ANYCAST;
 
    public byte getType() {
-      switch (this) {
-         case MULTICAST:
-            return 0;
-         case ANYCAST:
-            return 1;
-         default:
-            return -1;
-      }
+      return switch (this) {
+         case MULTICAST -> 0;
+         case ANYCAST -> 1;
+         default -> -1;
+      };
    }
 
    public static RoutingType getType(byte type) {
-      switch (type) {
-         case 0:
-            return MULTICAST;
-         case 1:
-            return ANYCAST;
-         default:
-            return null;
-      }
+      return switch (type) {
+         case 0 -> MULTICAST;
+         case 1 -> ANYCAST;
+         default -> null;
+      };
    }
 }

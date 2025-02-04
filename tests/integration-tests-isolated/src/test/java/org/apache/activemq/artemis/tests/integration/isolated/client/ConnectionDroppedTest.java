@@ -406,22 +406,18 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
       CountDownLatch received = new CountDownLatch(1);
 
       executorService.execute(() -> {
-         ConnectionFactory connectionFactory;
-
-         switch (protocol) {
-            case "AMQP":
-               connectionFactory = CFUtil.createConnectionFactory(protocol, "failover:(amqp://localhost:61616)?failover.maxReconnectAttempts=20");
-               break;
-            case "OPENWIRE":
-               connectionFactory = new org.apache.activemq.ActiveMQConnectionFactory("failover:(tcp://localhost:61616)?maxReconnectAttempts=20");
-               break;
-            case "CORE":
-               connectionFactory = new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory("tcp://localhost:61616?ha=true;reconnectAttempts=20;callTimeout=1000");
-               break;
-            default:
+         ConnectionFactory connectionFactory = switch (protocol) {
+            case "AMQP" ->
+               CFUtil.createConnectionFactory(protocol, "failover:(amqp://localhost:61616)?failover.maxReconnectAttempts=20");
+            case "OPENWIRE" ->
+               new org.apache.activemq.ActiveMQConnectionFactory("failover:(tcp://localhost:61616)?maxReconnectAttempts=20");
+            case "CORE" ->
+               new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory("tcp://localhost:61616?ha=true;reconnectAttempts=20;callTimeout=1000");
+            default -> {
                logger.warn("Invalid protocol {}", protocol);
-               connectionFactory = null;
-         }
+               yield null;
+            }
+         };
 
          try (Connection connection = connectionFactory.createConnection()) {
             logger.info("Connected on thread..");

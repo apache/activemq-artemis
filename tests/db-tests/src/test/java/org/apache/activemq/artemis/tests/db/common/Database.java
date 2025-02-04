@@ -56,14 +56,11 @@ public enum Database {
    }
 
    public Connection getConnection() throws Exception {
-      switch (this) {
-         case DERBY:
-            return DriverManager.getConnection(getJdbcURI());
-         case JOURNAL:
-            return null;
-         default:
-            return getDriver().connect(getJdbcURI(), null);
-      }
+      return switch (this) {
+         case DERBY -> DriverManager.getConnection(getJdbcURI());
+         case JOURNAL -> null;
+         default -> getDriver().connect(getJdbcURI(), null);
+      };
    }
 
    // There is one artemis server for each database we provide on the tests

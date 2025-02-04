@@ -143,18 +143,13 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
    public Packet decode(final ActiveMQBuffer in, CoreRemotingConnection connection) {
       final byte packetType = in.readByte();
       //optimized for the most common cases: hottest and commons methods will be inlined and this::decode too due to the byte code size
-      switch (packetType) {
-         case SESS_SEND:
-            return decodeSessionSendMessage(in, connection);
-         case SESS_ACKNOWLEDGE:
-            return decodeSessionAcknowledgeMessage(in, connection);
-         case SESS_PRODUCER_REQUEST_CREDITS:
-            return decodeRequestProducerCreditsMessage(in, connection);
-         case SESS_FLOWTOKEN:
-            return decodeSessionConsumerFlowCreditMessage(in, connection);
-         default:
-            return slowPathDecode(in, packetType, connection);
-      }
+      return switch (packetType) {
+         case SESS_SEND -> decodeSessionSendMessage(in, connection);
+         case SESS_ACKNOWLEDGE -> decodeSessionAcknowledgeMessage(in, connection);
+         case SESS_PRODUCER_REQUEST_CREDITS -> decodeRequestProducerCreditsMessage(in, connection);
+         case SESS_FLOWTOKEN -> decodeSessionConsumerFlowCreditMessage(in, connection);
+         default -> slowPathDecode(in, packetType, connection);
+      };
    }
 
 

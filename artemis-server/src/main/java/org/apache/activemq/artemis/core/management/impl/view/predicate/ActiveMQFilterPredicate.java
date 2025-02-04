@@ -68,20 +68,14 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
 
    public boolean matches(Object field) {
       if (operation != null) {
-         switch (operation) {
-            case EQUALS:
-               return equals(field, value);
-            case NOT_EQUALS:
-               return !equals(field, value);
-            case CONTAINS:
-               return contains(field, value);
-            case NOT_CONTAINS:
-               return !contains(field, value);
-            case GREATER_THAN:
-               return false;
-            case LESS_THAN:
-               return false;
-         }
+         return switch (operation) {
+            case EQUALS -> equals(field, value);
+            case NOT_EQUALS -> !equals(field, value);
+            case CONTAINS -> contains(field, value);
+            case NOT_CONTAINS -> !contains(field, value);
+            case GREATER_THAN -> false;
+            case LESS_THAN -> false;
+         };
       }
       return true;
    }
@@ -109,20 +103,14 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
             }
          }
 
-         switch (operation) {
-            case EQUALS:
-               return field == longValue;
-            case NOT_EQUALS:
-               return field != longValue;
-            case CONTAINS:
-               return false;
-            case NOT_CONTAINS:
-               return true;
-            case LESS_THAN:
-               return field < longValue;
-            case GREATER_THAN:
-               return field > longValue;
-         }
+         return switch (operation) {
+            case EQUALS -> field == longValue;
+            case NOT_EQUALS -> field != longValue;
+            case CONTAINS -> false;
+            case NOT_CONTAINS -> true;
+            case LESS_THAN -> field < longValue;
+            case GREATER_THAN -> field > longValue;
+         };
       }
       return true;
    }
@@ -142,20 +130,14 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
             }
          }
 
-         switch (operation) {
-            case EQUALS:
-               return field == intValue;
-            case NOT_EQUALS:
-               return field != intValue;
-            case CONTAINS:
-               return false;
-            case NOT_CONTAINS:
-               return true;
-            case LESS_THAN:
-               return field < intValue;
-            case GREATER_THAN:
-               return field > intValue;
-         }
+         return switch (operation) {
+            case EQUALS -> field == intValue;
+            case NOT_EQUALS -> field != intValue;
+            case CONTAINS -> false;
+            case NOT_CONTAINS -> true;
+            case LESS_THAN -> field < intValue;
+            case GREATER_THAN -> field > intValue;
+         };
       }
       return true;
    }
@@ -175,20 +157,14 @@ public class ActiveMQFilterPredicate<T> implements Predicate<T> {
             }
          }
 
-         switch (operation) {
-            case EQUALS:
-               return field == floatValue;
-            case NOT_EQUALS:
-               return field != floatValue;
-            case CONTAINS:
-               return false;
-            case NOT_CONTAINS:
-               return true;
-            case LESS_THAN:
-               return field < floatValue;
-            case GREATER_THAN:
-               return field > floatValue;
-         }
+         return switch (operation) {
+            case EQUALS -> field == floatValue;
+            case NOT_EQUALS -> field != floatValue;
+            case CONTAINS -> false;
+            case NOT_CONTAINS -> true;
+            case LESS_THAN -> field < floatValue;
+            case GREATER_THAN -> field > floatValue;
+         };
       }
       return true;
    }

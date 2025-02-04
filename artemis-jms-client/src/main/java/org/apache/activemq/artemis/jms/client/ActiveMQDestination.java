@@ -78,20 +78,14 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
          return new ActiveMQTopic(name.substring(TEMP_TOPIC_QUALIFED_PREFIX.length()), true);
       }
 
-      switch (defaultType) {
-         case QUEUE:
-            return new ActiveMQQueue(name);
-         case TOPIC:
-            return new ActiveMQTopic(name);
-         case TEMP_QUEUE:
-            return new ActiveMQQueue(name, true);
-         case TEMP_TOPIC:
-            return new ActiveMQTopic(name, true);
-         case DESTINATION:
-            return new ActiveMQDestination(name, TYPE.DESTINATION, null);
-         default:
-            throw new IllegalArgumentException("Invalid default destination type: " + defaultType);
-      }
+      return switch (defaultType) {
+         case QUEUE -> new ActiveMQQueue(name);
+         case TOPIC -> new ActiveMQTopic(name);
+         case TEMP_QUEUE -> new ActiveMQQueue(name, true);
+         case TEMP_TOPIC -> new ActiveMQTopic(name, true);
+         case DESTINATION -> new ActiveMQDestination(name, TYPE.DESTINATION, null);
+         default -> throw new IllegalArgumentException("Invalid default destination type: " + defaultType);
+      };
    }
 
    public static ActiveMQDestination fromPrefixedName(final String name) {
@@ -528,37 +522,25 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       DESTINATION; // unknown
 
       public byte getType() {
-         switch (this) {
-            case QUEUE:
-               return 0;
-            case TOPIC:
-               return 1;
-            case TEMP_QUEUE:
-               return 2;
-            case TEMP_TOPIC:
-               return 3;
-            case DESTINATION:
-               return 4;
-            default:
-               return -1;
-         }
+         return switch (this) {
+            case QUEUE -> 0;
+            case TOPIC -> 1;
+            case TEMP_QUEUE -> 2;
+            case TEMP_TOPIC -> 3;
+            case DESTINATION -> 4;
+            default -> -1;
+         };
       }
 
       public static TYPE getType(byte type) {
-         switch (type) {
-            case 0:
-               return QUEUE;
-            case 1:
-               return TOPIC;
-            case 2:
-               return TEMP_QUEUE;
-            case 3:
-               return TEMP_TOPIC;
-            case 4:
-               return DESTINATION;
-            default:
-               return null;
-         }
+         return switch (type) {
+            case 0 -> QUEUE;
+            case 1 -> TOPIC;
+            case 2 -> TEMP_QUEUE;
+            case 3 -> TEMP_TOPIC;
+            case 4 -> DESTINATION;
+            default -> null;
+         };
       }
 
       public static boolean isQueue(TYPE type) {

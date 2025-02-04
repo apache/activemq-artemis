@@ -20,28 +20,20 @@ public enum PersistedType {
    ConnectionFactory, Topic, Queue;
 
    public byte getType() {
-      switch (this) {
-         case ConnectionFactory:
-            return 0;
-         case Topic:
-            return 1;
-         case Queue:
-            return 2;
-         default:
-            return -1;
-      }
+      return switch (this) {
+         case ConnectionFactory -> 0;
+         case Topic -> 1;
+         case Queue -> 2;
+         default -> -1;
+      };
    }
 
    public static PersistedType getType(byte type) {
-      switch (type) {
-         case 0:
-            return ConnectionFactory;
-         case 1:
-            return Topic;
-         case 2:
-            return Queue;
-         default:
-            return null;
-      }
+      return switch (type) {
+         case 0 -> ConnectionFactory;
+         case 1 -> Topic;
+         case 2 -> Queue;
+         default -> null;
+      };
    }
 }

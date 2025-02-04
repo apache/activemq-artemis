@@ -54,15 +54,11 @@ public class InputAbstract extends ActionAbstract {
       do {
          String value = input(propertyName, prompt + ", valid values are Y, N, True, False", Boolean.toString(silentDefault));
 
-         switch (value.toUpperCase().trim()) {
-            case "TRUE":
-            case "Y":
-               booleanValue = Boolean.TRUE; break;
-
-            case "FALSE":
-            case "N":
-               booleanValue = Boolean.FALSE; break;
-         }
+         booleanValue = switch (value.toUpperCase().trim()) {
+            case "TRUE", "Y" -> Boolean.TRUE;
+            case "FALSE", "N" -> Boolean.FALSE;
+            default -> booleanValue;
+         };
       }
       while (booleanValue == null);
 

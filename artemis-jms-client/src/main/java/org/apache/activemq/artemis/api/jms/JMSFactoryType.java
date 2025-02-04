@@ -193,56 +193,26 @@ public enum JMSFactoryType {
    };
 
    public int intValue() {
-      int val = 0;
-      switch (this) {
-         case CF:
-            val = 0;
-            break;
-         case QUEUE_CF:
-            val = 1;
-            break;
-         case TOPIC_CF:
-            val = 2;
-            break;
-         case XA_CF:
-            val = 3;
-            break;
-         case QUEUE_XA_CF:
-            val = 4;
-            break;
-         case TOPIC_XA_CF:
-            val = 5;
-            break;
-      }
-      return val;
+      return switch (this) {
+         case CF -> 0;
+         case QUEUE_CF -> 1;
+         case TOPIC_CF -> 2;
+         case XA_CF -> 3;
+         case QUEUE_XA_CF -> 4;
+         case TOPIC_XA_CF -> 5;
+      };
    }
 
    public static JMSFactoryType valueOf(int val) {
-      JMSFactoryType type;
-      switch (val) {
-         case 0:
-            type = CF;
-            break;
-         case 1:
-            type = QUEUE_CF;
-            break;
-         case 2:
-            type = TOPIC_CF;
-            break;
-         case 3:
-            type = XA_CF;
-            break;
-         case 4:
-            type = QUEUE_XA_CF;
-            break;
-         case 5:
-            type = TOPIC_XA_CF;
-            break;
-         default:
-            type = XA_CF;
-            break;
-      }
-      return type;
+      return switch (val) {
+         case 0 -> CF;
+         case 1 -> QUEUE_CF;
+         case 2 -> TOPIC_CF;
+         case 3 -> XA_CF;
+         case 4 -> QUEUE_XA_CF;
+         case 5 -> TOPIC_XA_CF;
+         default -> XA_CF;
+      };
    }
 
    /**

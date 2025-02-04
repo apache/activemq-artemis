@@ -145,18 +145,16 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
    void testTXCheck(String protocol, boolean killTarget, boolean useStop) throws Exception {
 
       ConnectionFactory pair0;
-      ConnectionFactory pair1;
-
-      switch(protocol) {
-         case "AMQP":
+      ConnectionFactory pair1 = switch (protocol) {
+         case "AMQP" -> {
             pair0 = new JmsConnectionFactory("failover:(amqp://localhost:61000,amqp://localhost:61100)");
-            pair1 = new JmsConnectionFactory("amqp://localhost:61001");
-            break;
-         case "CORE":
-         default:
+            yield new JmsConnectionFactory("amqp://localhost:61001");
+         }
+         default -> {
             pair0 = new ActiveMQConnectionFactory("tcp://localhost:61000?ha=true&reconnectAttempts=-1");
-            pair1 = new ActiveMQConnectionFactory("tcp://localhost:61001");
-      }
+            yield new ActiveMQConnectionFactory("tcp://localhost:61001");
+         }
+      };
 
       ConnectionFactory sourceCF;
       ConnectionFactory targetCF;

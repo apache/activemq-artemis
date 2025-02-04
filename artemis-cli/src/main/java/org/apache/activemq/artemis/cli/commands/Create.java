@@ -1184,14 +1184,11 @@ public class Create extends InstallAbstract {
 
       public static SecurityManagerType getType(String type) {
          type = type.toLowerCase();
-         switch (type) {
-            case "jaas":
-               return JAAS;
-            case "basic":
-               return BASIC;
-            default:
-               return null;
-         }
+         return switch (type) {
+            case "jaas" -> JAAS;
+            case "basic" -> BASIC;
+            default -> null;
+         };
       }
    }
 }

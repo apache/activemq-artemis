@@ -23,13 +23,10 @@ public enum WebSocketFrameEncoderType {
    BINARY, TEXT;
 
    public static WebSocketFrameEncoderType valueOfType(String type) {
-      switch (type) {
-         case "binary":
-            return BINARY;
-         case "text":
-            return TEXT;
-         default:
-            throw ActiveMQMessageBundle.BUNDLE.invalidWebSocketEncoderType(type);
-      }
+      return switch (type) {
+         case "binary" -> BINARY;
+         case "text" -> TEXT;
+         default -> throw ActiveMQMessageBundle.BUNDLE.invalidWebSocketEncoderType(type);
+      };
    }
 }

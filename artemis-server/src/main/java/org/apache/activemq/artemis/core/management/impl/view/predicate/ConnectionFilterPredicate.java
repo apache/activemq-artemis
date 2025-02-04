@@ -41,29 +41,18 @@ public class ConnectionFilterPredicate extends ActiveMQFilterPredicate<RemotingC
       // Using switch over enum vs string comparison is better for perf.
       if (f == null)
          return true;
-      switch (f) {
-         case CONNECTION_ID:
-            return matches(connection.getID());
-         case CLIENT_ID:
-            return matches(connection.getClientID());
-         case USERS:
-            return matchAny(collectFromSessions(connection.getID().toString(), s-> s.getUsername()));
-         case PROTOCOL:
-            return matches(connection.getProtocolName());
-         case SESSION_COUNT:
-            return matches(server.getSessions(connection.getID().toString()).size());
-         case REMOTE_ADDRESS:
-            return matches(connection.getTransportConnection().getRemoteAddress());
-         case LOCAL_ADDRESS:
-            return matches(connection.getTransportConnection().getLocalAddress());
-         case SESSION_ID:
-            return matchAny(server.getSessions(connection.getID().toString()));
-         case CREATION_TIME:
-            return matches(connection.getCreationTime());
-         case IMPLEMENTATION:
-            return matches(connection.getClass().getSimpleName());
-      }
-      return true;
+      return switch (f) {
+         case CONNECTION_ID -> matches(connection.getID());
+         case CLIENT_ID -> matches(connection.getClientID());
+         case USERS -> matchAny(collectFromSessions(connection.getID().toString(), s -> s.getUsername()));
+         case PROTOCOL -> matches(connection.getProtocolName());
+         case SESSION_COUNT -> matches(server.getSessions(connection.getID().toString()).size());
+         case REMOTE_ADDRESS -> matches(connection.getTransportConnection().getRemoteAddress());
+         case LOCAL_ADDRESS -> matches(connection.getTransportConnection().getLocalAddress());
+         case SESSION_ID -> matchAny(server.getSessions(connection.getID().toString()));
+         case CREATION_TIME -> matches(connection.getCreationTime());
+         case IMPLEMENTATION -> matches(connection.getClass().getSimpleName());
+      };
    }
 
    Set<String> collectFromSessions(String connectionId, Function<ServerSession, String> getter) {

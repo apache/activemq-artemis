@@ -99,20 +99,19 @@ public abstract class ParameterDBTestBase extends DBTestBase {
    }
 
    public int dropDatabase() {
-      switch (database) {
-         case JOURNAL:
-            return 0;
-         case DERBY:
+      return switch (database) {
+         case JOURNAL -> 0;
+         case DERBY -> {
             try {
                logger.info("Drop derby");
                dropDerby();
             } catch (Exception e) {
                logger.debug("Error dropping derby db: {}", e.getMessage());
             }
-            return 1;
-         default:
-            return dropTables("MESSAGE", "LARGE_MESSAGE", "PAGE_STORE", "NODE_MANAGER", "BINDING");
-      }
+            yield 1;
+         }
+         default -> dropTables("MESSAGE", "LARGE_MESSAGE", "PAGE_STORE", "NODE_MANAGER", "BINDING");
+      };
    }
 
 

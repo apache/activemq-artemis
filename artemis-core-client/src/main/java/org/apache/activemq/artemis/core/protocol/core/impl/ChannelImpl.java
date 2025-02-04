@@ -171,34 +171,21 @@ public final class ChannelImpl implements Channel {
 
    @Override
    public boolean supports(final byte packetType, int version) {
-      switch (packetType) {
-         case PacketImpl.CLUSTER_TOPOLOGY_V2:
-            return version >= 122;
-         case PacketImpl.DISCONNECT_CONSUMER:
-            return version >= 124;
-         case PacketImpl.CLUSTER_TOPOLOGY_V3:
-            return version >= 125;
-         case PacketImpl.DISCONNECT_V2:
-            return version >= 125;
-         case PacketImpl.SESS_QUEUEQUERY_RESP_V2:
-            return version >= 126;
-         case PacketImpl.SESS_BINDINGQUERY_RESP_V2:
-            return version >= 126;
-         case PacketImpl.SESS_BINDINGQUERY_RESP_V3:
-            return version >= 127;
-         case PacketImpl.SESS_QUEUEQUERY_RESP_V3:
-            return version >= 129;
-         case PacketImpl.SESS_BINDINGQUERY_RESP_V4:
-            return version >= 129;
-         case PacketImpl.CLUSTER_TOPOLOGY_V4:
-         case PacketImpl.CREATESESSION_V2:
-         case PacketImpl.DISCONNECT_V3:
-            return version >= PacketImpl.ARTEMIS_2_18_0_VERSION;
-         case PacketImpl.SESS_BINDINGQUERY_RESP_V5:
-            return version >= PacketImpl.ARTEMIS_2_29_0_VERSION;
-         default:
-            return true;
-      }
+      return switch (packetType) {
+         case PacketImpl.CLUSTER_TOPOLOGY_V2 -> version >= 122;
+         case PacketImpl.DISCONNECT_CONSUMER -> version >= 124;
+         case PacketImpl.CLUSTER_TOPOLOGY_V3 -> version >= 125;
+         case PacketImpl.DISCONNECT_V2 -> version >= 125;
+         case PacketImpl.SESS_QUEUEQUERY_RESP_V2 -> version >= 126;
+         case PacketImpl.SESS_BINDINGQUERY_RESP_V2 -> version >= 126;
+         case PacketImpl.SESS_BINDINGQUERY_RESP_V3 -> version >= 127;
+         case PacketImpl.SESS_QUEUEQUERY_RESP_V3 -> version >= 129;
+         case PacketImpl.SESS_BINDINGQUERY_RESP_V4 -> version >= 129;
+         case PacketImpl.CLUSTER_TOPOLOGY_V4, PacketImpl.CREATESESSION_V2, PacketImpl.DISCONNECT_V3 ->
+            version >= PacketImpl.ARTEMIS_2_18_0_VERSION;
+         case PacketImpl.SESS_BINDINGQUERY_RESP_V5 -> version >= PacketImpl.ARTEMIS_2_29_0_VERSION;
+         default -> true;
+      };
    }
 
    @Override

@@ -74,14 +74,11 @@ public class EmbedMessageUtil {
    }
 
    public static Message extractEmbedded(ICoreMessage message, StorageManager storageManager) {
-      switch (message.getType()) {
-         case Message.EMBEDDED_TYPE:
-            return extractRegularMessage(message, storageManager);
-         case Message.LARGE_EMBEDDED_TYPE:
-            return extractLargeMessage(message, storageManager);
-         default:
-            return message;
-      }
+      return switch (message.getType()) {
+         case Message.EMBEDDED_TYPE -> extractRegularMessage(message, storageManager);
+         case Message.LARGE_EMBEDDED_TYPE -> extractLargeMessage(message, storageManager);
+         default -> message;
+      };
    }
 
    private static Message extractRegularMessage(ICoreMessage message, StorageManager storageManager) {

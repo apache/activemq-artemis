@@ -86,18 +86,14 @@ public class ClusterVerifyTest {
          @Override
          protected JsonArray fetchTopology(String uri) throws Exception {
             if (fail) {
-               switch (uri) {
-                  case "tcp://A:1":
-                  case "tcp://B:1":
-                     return read("[{\"nodeID\":\"A1\",\"primary\":\"A:1\", \"backup\":\"B:1\"}, {\"nodeID\":\"A2\",\"primary\":\"A:2\", \"backup\":\"B:2\"}, {\"nodeID\":\"A3\",\"primary\":\"A:3\", \"backup\":\"B:3\"}]");
-                  case "tcp://A:2":
-                  case "tcp://B:2":
-                     return read("[{\"nodeID\":\"A1\",\"primary\":\"A:1\"}, {\"nodeID\":\"A2\",\"primary\":\"A:2\"}, {\"nodeID\":\"A3\",\"primary\":\"A:3\"}]");
-                  case "tcp://A:3":
-                  case "tcp://B:3":
-                  default:
-                     return read("[{\"nodeID\":\"A1\",\"primary\":\"A:1\", \"backup\":\"B:1\"}, {\"nodeID\":\"A2\",\"primary\":\"A:2\", \"backup\":\"B:2\"}]");
-               }
+               return switch (uri) {
+                  case "tcp://A:1", "tcp://B:1" ->
+                     read("[{\"nodeID\":\"A1\",\"primary\":\"A:1\", \"backup\":\"B:1\"}, {\"nodeID\":\"A2\",\"primary\":\"A:2\", \"backup\":\"B:2\"}, {\"nodeID\":\"A3\",\"primary\":\"A:3\", \"backup\":\"B:3\"}]");
+                  case "tcp://A:2", "tcp://B:2" ->
+                     read("[{\"nodeID\":\"A1\",\"primary\":\"A:1\"}, {\"nodeID\":\"A2\",\"primary\":\"A:2\"}, {\"nodeID\":\"A3\",\"primary\":\"A:3\"}]");
+                  default ->
+                     read("[{\"nodeID\":\"A1\",\"primary\":\"A:1\", \"backup\":\"B:1\"}, {\"nodeID\":\"A2\",\"primary\":\"A:2\", \"backup\":\"B:2\"}]");
+               };
             } else {
                return fetchMainTopology();
             }

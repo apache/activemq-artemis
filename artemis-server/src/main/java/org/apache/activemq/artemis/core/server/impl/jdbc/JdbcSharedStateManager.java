@@ -287,33 +287,23 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
       if (s == null) {
          return State.NOT_STARTED;
       }
-      switch (s) {
-         case "L":
-            return State.ACTIVE;
-         case "F":
-            return State.FAILING_BACK;
-         case "P":
-            return State.PAUSED;
-         case "N":
-            return State.NOT_STARTED;
-         default:
-            throw new IllegalStateException("unknown state [" + s + "]");
-      }
+      return switch (s) {
+         case "L" -> State.ACTIVE;
+         case "F" -> State.FAILING_BACK;
+         case "P" -> State.PAUSED;
+         case "N" -> State.NOT_STARTED;
+         default -> throw new IllegalStateException("unknown state [" + s + "]");
+      };
    }
 
    private static String encodeState(State state) {
-      switch (state) {
-         case ACTIVE:
-            return "L";
-         case FAILING_BACK:
-            return "F";
-         case PAUSED:
-            return "P";
-         case NOT_STARTED:
-            return "N";
-         default:
-            throw new IllegalStateException("unknown state [" + state + "]");
-      }
+      return switch (state) {
+         case ACTIVE -> "L";
+         case FAILING_BACK -> "F";
+         case PAUSED -> "P";
+         case NOT_STARTED -> "N";
+         default -> throw new IllegalStateException("unknown state [" + state + "]");
+      };
    }
 
    @Override

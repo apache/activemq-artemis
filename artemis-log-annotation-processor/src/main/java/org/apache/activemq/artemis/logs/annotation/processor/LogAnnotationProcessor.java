@@ -447,37 +447,25 @@ public class LogAnnotationProcessor extends AbstractProcessor {
    }
 
    private static String getLoggerOutputMethodName(LogMessage messageAnnotation) {
-      switch (messageAnnotation.level()) {
-         case WARN:
-            return "warn";
-         case INFO:
-            return "info";
-         case ERROR:
-            return "error";
-         case DEBUG:
-            return "debug";
-         case TRACE:
-            return  "trace";
-         default:
-            throw new IllegalStateException("Illegal log level: " + messageAnnotation.level());
-      }
+      return switch (messageAnnotation.level()) {
+         case WARN -> "warn";
+         case INFO -> "info";
+         case ERROR -> "error";
+         case DEBUG -> "debug";
+         case TRACE -> "trace";
+         default -> throw new IllegalStateException("Illegal log level: " + messageAnnotation.level());
+      };
    }
 
    private static String getLoggerIsEnabledMethodName(LogMessage messageAnnotation) {
-      switch (messageAnnotation.level()) {
-         case WARN:
-            return "isWarnEnabled";
-         case INFO:
-            return "isInfoEnabled";
-         case ERROR:
-            return "isErrorEnabled";
-         case DEBUG:
-            return "isDebugEnabled";
-         case TRACE:
-            return "isTraceEnabled";
-         default:
-            throw new IllegalStateException("Illegal log level: " + messageAnnotation.level());
-      }
+      return switch (messageAnnotation.level()) {
+         case WARN -> "isWarnEnabled";
+         case INFO -> "isInfoEnabled";
+         case ERROR -> "isErrorEnabled";
+         case DEBUG -> "isDebugEnabled";
+         case TRACE -> "isTraceEnabled";
+         default -> throw new IllegalStateException("Illegal log level: " + messageAnnotation.level());
+      };
    }
 
    private static void tupples(String arg, char open, char close, Consumer<String> stringConsumer) {

@@ -127,19 +127,16 @@ public class BasicOpenWireTest extends OpenWireTestBase {
          return createDestination(session, type);
       }
 
-      switch (type) {
-         case ActiveMQDestination.QUEUE_TYPE:
+      return switch (type) {
+         case ActiveMQDestination.QUEUE_TYPE -> {
             makeSureCoreQueueExist(name);
-            return (ActiveMQDestination) session.createQueue(name);
-         case ActiveMQDestination.TOPIC_TYPE:
-            return (ActiveMQDestination) session.createTopic(name);
-         case ActiveMQDestination.TEMP_QUEUE_TYPE:
-            return (ActiveMQDestination) session.createTemporaryQueue();
-         case ActiveMQDestination.TEMP_TOPIC_TYPE:
-            return (ActiveMQDestination) session.createTemporaryTopic();
-         default:
-            throw new IllegalArgumentException("type: " + type);
-      }
+            yield (ActiveMQDestination) session.createQueue(name);
+         }
+         case ActiveMQDestination.TOPIC_TYPE -> (ActiveMQDestination) session.createTopic(name);
+         case ActiveMQDestination.TEMP_QUEUE_TYPE -> (ActiveMQDestination) session.createTemporaryQueue();
+         case ActiveMQDestination.TEMP_TOPIC_TYPE -> (ActiveMQDestination) session.createTemporaryTopic();
+         default -> throw new IllegalArgumentException("type: " + type);
+      };
    }
 
    public void makeSureCoreQueueExist(String qname) throws Exception {
@@ -152,33 +149,23 @@ public class BasicOpenWireTest extends OpenWireTestBase {
    }
 
    public ActiveMQDestination createDestination(Session session, byte type) throws JMSException {
-      switch (type) {
-         case ActiveMQDestination.QUEUE_TYPE:
-            return (ActiveMQDestination) session.createQueue(queueName);
-         case ActiveMQDestination.TOPIC_TYPE:
-            return (ActiveMQDestination) session.createTopic(topicName);
-         case ActiveMQDestination.TEMP_QUEUE_TYPE:
-            return (ActiveMQDestination) session.createTemporaryQueue();
-         case ActiveMQDestination.TEMP_TOPIC_TYPE:
-            return (ActiveMQDestination) session.createTemporaryTopic();
-         default:
-            throw new IllegalArgumentException("type: " + type);
-      }
+      return switch (type) {
+         case ActiveMQDestination.QUEUE_TYPE -> (ActiveMQDestination) session.createQueue(queueName);
+         case ActiveMQDestination.TOPIC_TYPE -> (ActiveMQDestination) session.createTopic(topicName);
+         case ActiveMQDestination.TEMP_QUEUE_TYPE -> (ActiveMQDestination) session.createTemporaryQueue();
+         case ActiveMQDestination.TEMP_TOPIC_TYPE -> (ActiveMQDestination) session.createTemporaryTopic();
+         default -> throw new IllegalArgumentException("type: " + type);
+      };
    }
 
    protected ActiveMQDestination createDestination2(Session session, byte type) throws JMSException {
-      switch (type) {
-         case ActiveMQDestination.QUEUE_TYPE:
-            return (ActiveMQDestination) session.createQueue(queueName2);
-         case ActiveMQDestination.TOPIC_TYPE:
-            return (ActiveMQDestination) session.createTopic(topicName2);
-         case ActiveMQDestination.TEMP_QUEUE_TYPE:
-            return (ActiveMQDestination) session.createTemporaryQueue();
-         case ActiveMQDestination.TEMP_TOPIC_TYPE:
-            return (ActiveMQDestination) session.createTemporaryTopic();
-         default:
-            throw new IllegalArgumentException("type: " + type);
-      }
+      return switch (type) {
+         case ActiveMQDestination.QUEUE_TYPE -> (ActiveMQDestination) session.createQueue(queueName2);
+         case ActiveMQDestination.TOPIC_TYPE -> (ActiveMQDestination) session.createTopic(topicName2);
+         case ActiveMQDestination.TEMP_QUEUE_TYPE -> (ActiveMQDestination) session.createTemporaryQueue();
+         case ActiveMQDestination.TEMP_TOPIC_TYPE -> (ActiveMQDestination) session.createTemporaryTopic();
+         default -> throw new IllegalArgumentException("type: " + type);
+      };
    }
 
    protected void sendMessages(Session session, Destination destination, int count) throws JMSException {

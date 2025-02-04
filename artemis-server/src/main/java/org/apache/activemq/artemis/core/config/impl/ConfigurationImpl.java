@@ -902,26 +902,16 @@ public class ConfigurationImpl implements Configuration, Serializable {
             HAPolicyConfiguration.TYPE haPolicyType =
                HAPolicyConfiguration.TYPE.valueOf(value.toString());
 
-            switch (haPolicyType) {
-               case PRIMARY_ONLY:
-                  return (T) new LiveOnlyPolicyConfiguration();
-               case REPLICATION_PRIMARY_QUORUM_VOTING:
-                  return (T) new ReplicatedPolicyConfiguration();
-               case REPLICATION_BACKUP_QUORUM_VOTING:
-                  return (T) new ReplicaPolicyConfiguration();
-               case SHARED_STORE_PRIMARY:
-                  return (T) new SharedStorePrimaryPolicyConfiguration();
-               case SHARED_STORE_BACKUP:
-                  return (T) new SharedStoreBackupPolicyConfiguration();
-               case COLOCATED:
-                  return (T) new ColocatedPolicyConfiguration();
-               case REPLICATION_PRIMARY_LOCK_MANAGER:
-                  return (T) ReplicationPrimaryPolicyConfiguration.withDefault();
-               case REPLICATION_BACKUP_LOCK_MANAGER:
-                  return (T) ReplicationBackupPolicyConfiguration.withDefault();
-            }
-
-            throw ActiveMQMessageBundle.BUNDLE.unsupportedHAPolicyPropertyType(value.toString());
+            return switch (haPolicyType) {
+               case PRIMARY_ONLY -> (T) new LiveOnlyPolicyConfiguration();
+               case REPLICATION_PRIMARY_QUORUM_VOTING -> (T) new ReplicatedPolicyConfiguration();
+               case REPLICATION_BACKUP_QUORUM_VOTING -> (T) new ReplicaPolicyConfiguration();
+               case SHARED_STORE_PRIMARY -> (T) new SharedStorePrimaryPolicyConfiguration();
+               case SHARED_STORE_BACKUP -> (T) new SharedStoreBackupPolicyConfiguration();
+               case COLOCATED -> (T) new ColocatedPolicyConfiguration();
+               case REPLICATION_PRIMARY_LOCK_MANAGER -> (T) ReplicationPrimaryPolicyConfiguration.withDefault();
+               case REPLICATION_BACKUP_LOCK_MANAGER -> (T) ReplicationBackupPolicyConfiguration.withDefault();
+            };
          }
       }, HAPolicyConfiguration.class);
 

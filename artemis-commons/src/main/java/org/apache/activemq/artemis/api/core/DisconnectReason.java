@@ -53,21 +53,14 @@ public enum DisconnectReason {
    }
 
    public static DisconnectReason getType(byte type) {
-      switch (type) {
-         case 0:
-            return REDIRECT;
-         case 1:
-            return REDIRECT_ON_CRITICAL_ERROR;
-         case 2:
-            return SCALE_DOWN;
-         case 3:
-            return SCALE_DOWN_ON_CRITICAL_ERROR;
-         case 4:
-            return SHUT_DOWN;
-         case 5:
-            return SHUT_DOWN_ON_CRITICAL_ERROR;
-         default:
-            return null;
-      }
+      return switch (type) {
+         case 0 -> REDIRECT;
+         case 1 -> REDIRECT_ON_CRITICAL_ERROR;
+         case 2 -> SCALE_DOWN;
+         case 3 -> SCALE_DOWN_ON_CRITICAL_ERROR;
+         case 4 -> SHUT_DOWN;
+         case 5 -> SHUT_DOWN_ON_CRITICAL_ERROR;
+         default -> null;
+      };
    }
 }

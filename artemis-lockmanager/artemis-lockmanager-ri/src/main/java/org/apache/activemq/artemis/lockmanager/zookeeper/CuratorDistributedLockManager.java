@@ -53,16 +53,10 @@ public class CuratorDistributedLockManager implements DistributedLockManager, Co
          if (primitive == null) {
             return null;
          }
-         boolean valid = false;
-         switch (primitive.getId().type) {
-
-            case lock:
-               valid = primitive instanceof CuratorDistributedLock;
-               break;
-            case mutableLong:
-               valid = primitive instanceof CuratorMutableLong;
-               break;
-         }
+         boolean valid = switch (primitive.getId().type) {
+            case lock -> primitive instanceof CuratorDistributedLock;
+            case mutableLong -> primitive instanceof CuratorMutableLong;
+         };
          if (!valid) {
             throw new AssertionError("Implementation error: " + primitive.getClass() + " is wrongly considered " + primitive.getId().type);
          }
