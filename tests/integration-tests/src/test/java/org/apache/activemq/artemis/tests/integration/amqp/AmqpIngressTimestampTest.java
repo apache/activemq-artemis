@@ -155,15 +155,6 @@ public class AmqpIngressTimestampTest extends AmqpClientTestSupport {
    }
 
    private byte[] getMessagePayload() {
-      StringBuilder result = new StringBuilder();
-      if (large) {
-         for (int i = 0; i < ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 20; i++) {
-            result.append("AB");
-         }
-      } else {
-         result.append("AB");
-      }
-
-      return result.toString().getBytes();
+      return large ? "AB".repeat(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 20).getBytes() : "AB".getBytes();
    }
 }

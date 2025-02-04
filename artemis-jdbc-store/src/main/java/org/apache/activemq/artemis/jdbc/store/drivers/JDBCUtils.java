@@ -88,9 +88,7 @@ public class JDBCUtils {
       int level = 0;
       do {
          errorMessage.append('\n');
-         for (int i = 0; i < level; i++) {
-            errorMessage.append(' ');
-         }
+         errorMessage.append(" ".repeat(level));
          formatSqlException(errorMessage, nextEx);
          nextEx = nextEx.getNextException();
          level++;

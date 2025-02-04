@@ -205,14 +205,7 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
       ConnectionFactory server1CF = CFUtil.createConnectionFactory(protocol, sendURI);
       ConnectionFactory server2CF = CFUtil.createConnectionFactory(protocol, consumerURI);
 
-      String bodyBuffer;
-      {
-         StringBuffer buffer = new StringBuffer();
-         for (int i = 0; i < messageSize; i++) {
-            buffer.append("*");
-         }
-         bodyBuffer = buffer.toString();
-      }
+      String bodyBuffer = "*".repeat(messageSize);
 
       int NUMBER_OF_MESSAGES = 200;
 

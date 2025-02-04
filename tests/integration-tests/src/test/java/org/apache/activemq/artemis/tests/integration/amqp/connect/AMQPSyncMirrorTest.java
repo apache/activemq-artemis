@@ -232,14 +232,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
 
          producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         final String bodyMessage;
-         {
-            StringBuffer buffer = new StringBuffer();
-            for (int i = 0; i < messageSize; i++) {
-               buffer.append("large Buffer...");
-            }
-            bodyMessage = buffer.toString();
-         }
+         final String bodyMessage = "large Buffer...".repeat(messageSize);
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             logger.debug("===>>> send message {}", i);
@@ -570,14 +563,7 @@ public class AMQPSyncMirrorTest extends AmqpClientTestSupport {
 
       producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-      final String bodyMessage;
-      {
-         StringBuffer buffer = new StringBuffer();
-         for (int i = 0; i < messageSize; i++) {
-            buffer.append("large Buffer...");
-         }
-         bodyMessage = buffer.toString();
-      }
+      final String bodyMessage = "large Buffer...".repeat(messageSize);
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          int theI = i;

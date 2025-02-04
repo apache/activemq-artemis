@@ -129,9 +129,7 @@ public class LargeHeadersClusterTest extends ClusterTestBase {
          MessageProducer pd = sn.createProducer(sn.createQueue(queueName.toString()));
 
          StringBuffer bufferString = new StringBuffer();
-         for (int i = 0; i < 9_500; i++) {
-            bufferString.append("-");
-         }
+         bufferString.append("-".repeat(9_500));
 
          int i = 0;
 

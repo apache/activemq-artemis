@@ -151,15 +151,7 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
    public void testSendReceive(String protocol, int numberOfMessages, int numberOfMessageSecondWave, int pagingInterval, int bodySize) throws Exception {
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
 
-      String extraBody;
-      {
-         StringBuffer buffer = new StringBuffer();
-         for (int i = 0; i < bodySize; i++) {
-            buffer.append("*");
-         }
-         extraBody = buffer.toString();
-      }
-
+      String extraBody = "*".repeat(bodySize);
 
       Consumer[] consumers = new Consumer[NUMBER_OF_QUEUES];
 

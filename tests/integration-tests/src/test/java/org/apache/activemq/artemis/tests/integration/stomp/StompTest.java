@@ -585,16 +585,24 @@ public class StompTest extends StompTestBase {
 
    @Test
    public void testSendMessageWithLongHeaders() throws Exception {
+      final int headerSize = 1024;
       MessageConsumer consumer = session.createConsumer(queue);
 
       conn.connect(defUser, defPass);
 
-      StringBuffer buffer = new StringBuffer();
-      for (int i = 0; i < 1024; i++) {
-         buffer.append("a");
-      }
+      String longHeader = "a".repeat(headerSize);
 
-      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND).addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName()).addHeader("foo", "abc").addHeader("bar", "123").addHeader("correlation-id", "c123").addHeader("persistent", "true").addHeader("type", "t345").addHeader("JMSXGroupID", "abc").addHeader("priority", "3").addHeader("longHeader", buffer.toString()).setBody("Hello World");
+      ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND)
+         .addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName())
+         .addHeader("foo", "abc")
+         .addHeader("bar", "123")
+         .addHeader("correlation-id", "c123")
+         .addHeader("persistent", "true")
+         .addHeader("type", "t345")
+         .addHeader("JMSXGroupID", "abc")
+         .addHeader("priority", "3")
+         .addHeader("longHeader", longHeader)
+         .setBody("Hello World");
       conn.sendFrame(frame);
 
       TextMessage message = (TextMessage) consumer.receive(1000);
@@ -605,7 +613,7 @@ public class StompTest extends StompTestBase {
       assertEquals(3, message.getJMSPriority(), "getJMSPriority");
       assertEquals(javax.jms.DeliveryMode.PERSISTENT, message.getJMSDeliveryMode());
       assertEquals("abc", message.getStringProperty("foo"), "foo");
-      assertEquals(1024, message.getStringProperty("longHeader").length(), "longHeader");
+      assertEquals(headerSize, message.getStringProperty("longHeader").length(), "longHeader");
 
       assertEquals("abc", message.getStringProperty("JMSXGroupID"), "JMSXGroupID");
    }

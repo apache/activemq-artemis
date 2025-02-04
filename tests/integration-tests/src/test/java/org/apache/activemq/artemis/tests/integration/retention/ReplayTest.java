@@ -71,12 +71,7 @@ public class ReplayTest extends ActiveMQTestBase {
    }
 
    protected void testReplay(String protocol, int size, boolean paging) throws Exception {
-
-      StringBuffer buffer = new StringBuffer();
-      buffer.append(RandomUtil.randomString());
-      for (int i = 0; i < size; i++) {
-         buffer.append("*");
-      }
+      String buffer = RandomUtil.randomString() + "*".repeat(size);
 
       if (paging) {
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue("t1");
@@ -92,7 +87,7 @@ public class ReplayTest extends ActiveMQTestBase {
 
          MessageProducer producer = session.createProducer(null);
 
-         producer.send(queue, session.createTextMessage(buffer.toString()));
+         producer.send(queue, session.createTextMessage(buffer));
 
          connection.start();
 
@@ -112,7 +107,7 @@ public class ReplayTest extends ActiveMQTestBase {
 
          assertNotNull(receivedMessage);
 
-         assertEquals(buffer.toString(), receivedMessage.getText());
+         assertEquals(buffer, receivedMessage.getText());
 
          assertNull(consumert2.receiveNoWait());
 

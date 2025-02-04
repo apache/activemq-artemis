@@ -181,11 +181,7 @@ public class WebServerComponentTest {
       // Prepare the HTTP request.
       HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
       request.headers().set(HttpHeaderNames.HOST, "localhost");
-      StringBuilder foo = new StringBuilder();
-      for (int i = 0; i < defaultRequestHeaderSize + 1; i++) {
-         foo.append("a");
-      }
-      request.headers().set("foo", foo.toString());
+      request.headers().set("foo", "a".repeat(defaultRequestHeaderSize + 1));
 
       // Send the HTTP request.
       ch.writeAndFlush(request);

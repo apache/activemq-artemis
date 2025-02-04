@@ -86,12 +86,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
          server.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
 
          // STOMP default is UTF-8 == 1 byte per char.
-         int largeMessageStringSize = 10 * 1024 * 1024; // 10MB
-         StringBuilder b = new StringBuilder(largeMessageStringSize);
-         for (int i = 0; i < largeMessageStringSize; i++) {
-            b.append('t');
-         }
-         String payload = b.toString();
+         String payload = "t".repeat(10 * 1024 * 1024); // 10MB
 
          // Set up STOMP subscription
          conn.connect(defUser, defPass);

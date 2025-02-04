@@ -430,17 +430,11 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
          ClientSessionFactory coreFactory = locator.createSessionFactory();
          ClientSession clientSession = coreFactory.createSession();
          ClientProducer producer = clientSession.createProducer(queueName);
+         String largeBody = " ".repeat(10 * 1024);
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             ClientMessage message = clientSession.createMessage((byte)0, true);
-            StringBuffer stringbuffer = new StringBuffer();
-            stringbuffer.append("hello");
-            if (i % 3 == 0) {
-               // making 1/3 of the messages to be large message
-               for (int j = 0; j < 10 * 1024; j++) {
-                  stringbuffer.append(" ");
-               }
-            }
-            message.getBodyBuffer().writeUTF(stringbuffer.toString());
+            // making 1/3 of the messages to be large
+            message.getBodyBuffer().writeUTF(i % 3 == 0 ? largeBody : "hello");
             producer.send(message);
          }
          coreFactory.close();

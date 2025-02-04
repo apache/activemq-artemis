@@ -132,14 +132,7 @@ public class LargeMessageRetentionTest extends SoakTestBase {
       final CountDownLatch latchReceiver = new CountDownLatch(1);
       final CountDownLatch latchSender = new CountDownLatch(producers);
 
-      String bufferStr;
-      {
-         StringBuffer buffer = new StringBuffer();
-         for (int i = 0; i < bodySize; i++) {
-            buffer.append("*");
-         }
-         bufferStr = RandomUtil.randomString() + buffer;
-      }
+      String bufferStr = RandomUtil.randomString() + "*".repeat(bodySize);
 
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
 
