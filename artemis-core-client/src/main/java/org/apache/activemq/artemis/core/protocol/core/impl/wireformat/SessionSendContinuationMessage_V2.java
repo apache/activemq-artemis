@@ -94,14 +94,14 @@ public class SessionSendContinuationMessage_V2 extends SessionSendContinuationMe
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", continues=" + continues);
-      buff.append(", message=" + message);
-      buff.append(", messageBodySize=" + messageBodySize);
-      buff.append(", requiresResponse=" + requiresResponse);
-      buff.append(", correlationID=" + correlationID);
-      buff.append("]");
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", continues=" + continues);
+      sb.append(", message=" + message);
+      sb.append(", messageBodySize=" + messageBodySize);
+      sb.append(", requiresResponse=" + requiresResponse);
+      sb.append(", correlationID=" + correlationID);
+      sb.append("]");
+      return sb.toString();
    }
 
    @Override

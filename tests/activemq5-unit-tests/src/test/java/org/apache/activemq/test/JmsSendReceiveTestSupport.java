@@ -93,11 +93,11 @@ public abstract class JmsSendReceiveTestSupport extends org.apache.activemq.Test
    }
 
    protected String createMessageBodyText() {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       for (int i = 0; i < largeMessageLoopSize; i++) {
-         buffer.append("0123456789");
+         sb.append("0123456789");
       }
-      return buffer.toString();
+      return sb.toString();
    }
 
    /**

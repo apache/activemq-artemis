@@ -75,12 +75,12 @@ public final class XMLUtil {
 
    public static String readerToString(final Reader r) throws Exception {
       // Read into string
-      StringBuilder buff = new StringBuilder();
+      StringBuilder builder = new StringBuilder();
       int c;
       while ((c = r.read()) != -1) {
-         buff.append((char) c);
+         builder.append((char) c);
       }
-      return buff.toString();
+      return builder.toString();
    }
 
    public static Element readerToElement(final Reader r) throws Exception {
@@ -106,7 +106,7 @@ public final class XMLUtil {
          return "";
       }
 
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       sb.append('<').append(name);
 
       NamedNodeMap attrs = n.getAttributes();
@@ -153,7 +153,7 @@ public final class XMLUtil {
     */
    public static String getTextContent(final Node n) {
       if (n.hasChildNodes()) {
-         StringBuffer sb = new StringBuffer();
+         StringBuilder sb = new StringBuilder();
          NodeList nl = n.getChildNodes();
          for (int i = 0; i < nl.getLength(); i++) {
             sb.append(XMLUtil.elementToString(nl.item(i)));

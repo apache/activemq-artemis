@@ -23,17 +23,17 @@ public enum JournalType {
    public static final String validValues;
 
    static {
-      StringBuffer stringBuffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       for (JournalType type : JournalType.values()) {
 
-         if (!stringBuffer.isEmpty()) {
-            stringBuffer.append(",");
+         if (!sb.isEmpty()) {
+            sb.append(",");
          }
 
-         stringBuffer.append(type.name());
+         sb.append(type.name());
       }
 
-      validValues = stringBuffer.toString();
+      validValues = sb.toString();
    }
 
    public static JournalType getType(String type) {

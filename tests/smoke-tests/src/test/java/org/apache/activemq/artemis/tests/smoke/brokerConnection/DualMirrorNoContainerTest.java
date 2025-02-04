@@ -207,11 +207,11 @@ public class DualMirrorNoContainerTest extends SmokeTestBase {
       String largeBuffer = "";
 
       if (isLarge) {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < 200 * 1024) {
-            buffer.append("This is large ");
+         StringBuilder sb = new StringBuilder();
+         while (sb.length() < 200 * 1024) {
+            sb.append("This is large ");
          }
-         largeBuffer = buffer.toString();
+         largeBuffer = sb.toString();
       }
 
       int NUMBER_OF_MESSAGES = isLarge ? 100 : 1_000;

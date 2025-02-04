@@ -161,11 +161,11 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    }
 
    public static Pair<String, String> decomposeQueueNameForDurableSubscription(final String queueName) {
-      StringBuffer[] parts = new StringBuffer[2];
+      StringBuilder[] parts = new StringBuilder[2];
       int currentPart = 0;
 
-      parts[0] = new StringBuffer();
-      parts[1] = new StringBuffer();
+      parts[0] = new StringBuilder();
+      parts[1] = new StringBuilder();
 
       int pos = 0;
       while (pos < queueName.length()) {
@@ -198,7 +198,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
           * in the wrong position in the array so we need to move it.
           */
          parts[1] = parts[0];
-         parts[0] = new StringBuffer();
+         parts[0] = new StringBuilder();
       }
 
       Pair<String, String> pair = new Pair<>(parts[0].toString(), parts[1].toString());

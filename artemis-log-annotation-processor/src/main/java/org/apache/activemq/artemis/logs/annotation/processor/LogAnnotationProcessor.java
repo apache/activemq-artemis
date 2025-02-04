@@ -248,7 +248,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
       VariableElement exceptionParameter = null;
 
       // the one that will be used on the call
-      StringBuffer callList = new StringBuffer();
+      StringBuilder callList = new StringBuilder();
       while (parameters.hasNext()) {
          hasParameters = true;
          VariableElement parameter = parameters.next();
@@ -412,10 +412,10 @@ public class LogAnnotationProcessor extends AbstractProcessor {
 
       writerOutput.println(") {");
 
-      StringBuffer callList = null;
+      StringBuilder callList = null;
       if (hasParameters) {
          // the one that will be used on the logger call
-         callList = new StringBuffer();
+         callList = new StringBuilder();
 
          parameters = parametersList.iterator();
          while (parameters.hasNext()) {

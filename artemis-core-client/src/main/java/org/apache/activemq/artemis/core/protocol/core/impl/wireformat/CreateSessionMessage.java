@@ -214,20 +214,20 @@ public class CreateSessionMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", autoCommitAcks=" + autoCommitAcks);
-      buff.append(", autoCommitSends=" + autoCommitSends);
-      buff.append(", defaultAddress=" + defaultAddress);
-      buff.append(", minLargeMessageSize=" + minLargeMessageSize);
-      buff.append(", name=" + name);
-      buff.append(", password=****");
-      buff.append(", preAcknowledge=" + preAcknowledge);
-      buff.append(", sessionChannelID=" + sessionChannelID);
-      buff.append(", username=" + username);
-      buff.append(", version=" + version);
-      buff.append(", windowSize=" + windowSize);
-      buff.append(", xa=" + xa);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", autoCommitAcks=" + autoCommitAcks);
+      sb.append(", autoCommitSends=" + autoCommitSends);
+      sb.append(", defaultAddress=" + defaultAddress);
+      sb.append(", minLargeMessageSize=" + minLargeMessageSize);
+      sb.append(", name=" + name);
+      sb.append(", password=****");
+      sb.append(", preAcknowledge=" + preAcknowledge);
+      sb.append(", sessionChannelID=" + sessionChannelID);
+      sb.append(", username=" + username);
+      sb.append(", version=" + version);
+      sb.append(", windowSize=" + windowSize);
+      sb.append(", xa=" + xa);
+      return sb.toString();
    }
 
    @Override

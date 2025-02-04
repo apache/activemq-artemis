@@ -170,7 +170,7 @@ public class ProducerThread extends Thread {
                if (read.length() == textMessageSize) {
                   messageText = read;
                } else {
-                  StringBuffer buffer = new StringBuffer(read);
+                  StringBuilder buffer = new StringBuilder(read);
                   while (buffer.length() < textMessageSize) {
                      buffer.append(read);
                   }

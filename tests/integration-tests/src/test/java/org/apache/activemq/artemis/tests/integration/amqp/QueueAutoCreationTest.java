@@ -214,12 +214,12 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
 
          m.setJMSDeliveryMode(DeliveryMode.PERSISTENT);
 
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < msgSize) {
-            buffer.append(UUIDGenerator.getInstance().generateStringUUID());
+         StringBuilder sb = new StringBuilder();
+         while (sb.length() < msgSize) {
+            sb.append(UUIDGenerator.getInstance().generateStringUUID());
          }
 
-         final String originalString = buffer.toString();
+         final String originalString = sb.toString();
 
          m.setText(originalString);
 

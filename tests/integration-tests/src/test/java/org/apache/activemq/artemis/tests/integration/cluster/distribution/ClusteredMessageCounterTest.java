@@ -204,11 +204,11 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
    }
 
    private String dumpResults(List<MessageCounterInfo> results) {
-      StringBuilder builder = new StringBuilder("\n");
+      StringBuilder sb = new StringBuilder("\n");
       for (int i = 0; i < results.size(); i++) {
-         builder.append("result[" + i + "]: " + results.get(i).getCountDelta() + " " + results.get(i).getCount() + "\n");
+         sb.append("result[" + i + "]: " + results.get(i).getCountDelta() + " " + results.get(i).getCount() + "\n");
       }
-      return builder.toString();
+      return sb.toString();
    }
 
    //Periodically read the counter

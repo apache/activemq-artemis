@@ -59,9 +59,9 @@ public class SubscribeClusterTopologyUpdatesMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", clusterConnection=" + clusterConnection);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", clusterConnection=" + clusterConnection);
+      return sb.toString();
    }
 
    @Override

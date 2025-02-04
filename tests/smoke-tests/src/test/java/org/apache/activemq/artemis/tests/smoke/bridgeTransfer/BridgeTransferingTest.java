@@ -126,11 +126,11 @@ public class BridgeTransferingTest extends SmokeTestBase {
       String body;
 
       {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < messageSize) {
-            buffer.append(" ");
+         StringBuilder sb = new StringBuilder();
+         while (sb.length() < messageSize) {
+            sb.append(" ");
          }
-         body = buffer.toString();
+         body = sb.toString();
       }
 
       {

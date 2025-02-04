@@ -69,7 +69,7 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame {
 
    @Override
    public String toString() {
-      StringBuffer sb = new StringBuffer("Frame: <" + command + ">" + "\n");
+      StringBuilder sb = new StringBuilder("Frame: <" + command + ">" + "\n");
       Iterator<Header> iter = headers.iterator();
       while (iter.hasNext()) {
          Header h = iter.next();
@@ -101,7 +101,7 @@ public abstract class AbstractClientStompFrame implements ClientStompFrame {
    }
 
    public ByteBuffer toByteBufferInternal(String str) {
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       sb.append(command + EOL);
       int n = headers.size();
       for (int i = 0; i < n; i++) {

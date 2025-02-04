@@ -70,9 +70,9 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", largeMessage=" + largeMessage);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", largeMessage=" + largeMessage);
+      return sb.toString();
    }
 
    @Override

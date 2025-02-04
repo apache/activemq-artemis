@@ -111,10 +111,10 @@ public class SessionBindingQueryResponseMessage_V5 extends SessionBindingQueryRe
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", supportsMulticast=" + supportsMulticast);
-      buff.append(", supportsAnycast=" + supportsAnycast);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", supportsMulticast=" + supportsMulticast);
+      sb.append(", supportsAnycast=" + supportsAnycast);
+      return sb.toString();
    }
 
    @Override

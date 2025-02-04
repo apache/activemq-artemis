@@ -80,10 +80,10 @@ public class SessionSendMessage_V2 extends SessionSendMessage {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", correlationID=" + correlationID);
-      buff.append(", requiresResponse=" + super.isRequiresResponse());
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", correlationID=" + correlationID);
+      sb.append(", requiresResponse=" + super.isRequiresResponse());
+      return sb.toString();
    }
 
    @Override

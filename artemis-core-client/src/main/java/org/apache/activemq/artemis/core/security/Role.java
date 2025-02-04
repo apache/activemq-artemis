@@ -239,7 +239,7 @@ public class Role implements Serializable {
 
    @Override
    public String toString() {
-      StringBuffer stringReturn = new StringBuffer("Role {name=" + name + "; allows=[");
+      StringBuilder stringReturn = new StringBuilder("Role {name=" + name + "; allows=[");
 
       if (send) {
          stringReturn.append(" send ");

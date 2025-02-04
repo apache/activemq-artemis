@@ -128,8 +128,8 @@ public class LargeHeadersClusterTest extends ClusterTestBase {
          Session sn = cn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer pd = sn.createProducer(sn.createQueue(queueName.toString()));
 
-         StringBuffer bufferString = new StringBuffer();
-         bufferString.append("-".repeat(9_500));
+         StringBuilder sb = new StringBuilder();
+         sb.append("-".repeat(9_500));
 
          int i = 0;
 
@@ -140,12 +140,12 @@ public class LargeHeadersClusterTest extends ClusterTestBase {
                      logger.info("Sent {} messages", i);
                   }
                   TextMessage message = sn.createTextMessage("hello " + i);
-                  message.setStringProperty("large", bufferString.toString());
+                  message.setStringProperty("large", sb.toString());
                   message.setBooleanProperty("newSender", false);
                   // we need to send two, one for each server to exercise the load balancing
                   pd.send(message);
                   pd.send(message);
-                  bufferString.append("-"); // growing the header
+                  sb.append("-"); // growing the header
                }
             } catch (Throwable e) {
                logger.warn("error at {}", i, e);

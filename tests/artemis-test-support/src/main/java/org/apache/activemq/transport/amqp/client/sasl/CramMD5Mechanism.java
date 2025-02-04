@@ -58,7 +58,7 @@ public class CramMD5Mechanism extends AbstractMechanism {
 
             byte[] bytes = mac.doFinal(challenge);
 
-            StringBuffer hash = new StringBuffer(getUsername());
+            StringBuilder hash = new StringBuilder(getUsername());
             hash.append(' ');
             for (byte b : bytes) {
                String hex = Integer.toHexString(0xFF & b);

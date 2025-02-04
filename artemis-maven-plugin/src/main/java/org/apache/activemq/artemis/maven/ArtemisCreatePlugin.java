@@ -364,12 +364,12 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    }
 
    private String getCommandline(List<String> listCommands) {
-      StringBuffer buffer = new StringBuffer();
-      buffer.append(home.getAbsolutePath() + "/bin/artemis ");
+      StringBuilder sb = new StringBuilder();
+      sb.append(home.getAbsolutePath() + "/bin/artemis ");
       for (String string : listCommands) {
-         buffer.append(string + " ");
+         sb.append(string + " ");
       }
-      return buffer.toString();
+      return sb.toString();
    }
 
    private void copyToDir(String destination, File projectLib, PrintStream commandLineStream) throws IOException {

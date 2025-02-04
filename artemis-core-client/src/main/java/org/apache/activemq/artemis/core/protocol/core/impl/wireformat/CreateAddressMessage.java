@@ -51,11 +51,11 @@ public class CreateAddressMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", address=" + address);
-      buff.append(", routingTypes=" + routingTypes);
-      buff.append(", autoCreated=" + autoCreated);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", address=" + address);
+      sb.append(", routingTypes=" + routingTypes);
+      sb.append(", autoCreated=" + autoCreated);
+      return sb.toString();
    }
 
    public SimpleString getAddress() {

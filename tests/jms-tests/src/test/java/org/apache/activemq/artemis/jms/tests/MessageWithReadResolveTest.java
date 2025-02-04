@@ -92,7 +92,7 @@ public class MessageWithReadResolveTest extends JMSTestCase {
 
       @Override
       public String toString() {
-         StringBuffer sb = new StringBuffer();
+         StringBuilder sb = new StringBuilder();
          sb.append("TestMessage(");
          sb.append("id=" + id);
          sb.append(", clazz=" + clazz);

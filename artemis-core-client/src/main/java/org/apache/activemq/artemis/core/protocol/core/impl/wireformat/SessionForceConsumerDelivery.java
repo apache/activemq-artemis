@@ -60,10 +60,10 @@ public class SessionForceConsumerDelivery extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buf = new StringBuffer(super.getPacketString());
-      buf.append(", consumerID=" + consumerID);
-      buf.append(", sequence=" + sequence);
-      return buf.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", consumerID=" + consumerID);
+      sb.append(", sequence=" + sequence);
+      return sb.toString();
    }
 
    @Override

@@ -353,7 +353,7 @@ public final class DescribeJournal {
 
       journal.start();
 
-      final StringBuffer bufferFailingTransactions = new StringBuffer();
+      final StringBuilder bufferFailingTransactions = new StringBuilder();
 
       final class Count {
 
@@ -785,16 +785,16 @@ public final class DescribeJournal {
 
       @Override
       public String toString() {
-         StringBuffer buffer = new StringBuffer();
-         buffer.append(msg.isLargeMessage() ? "LargeMessage(" : "Message(");
-         buffer.append("messageID=" + msg.getMessageID());
+         StringBuilder sb = new StringBuilder();
+         sb.append(msg.isLargeMessage() ? "LargeMessage(" : "Message(");
+         sb.append("messageID=" + msg.getMessageID());
          if (msg.getUserID() != null) {
-            buffer.append(";userMessageID=" + msg.getUserID().toString());
+            sb.append(";userMessageID=" + msg.getUserID().toString());
          }
 
-         buffer.append(";msg=" + msg.toString());
+         sb.append(";msg=" + msg.toString());
 
-         return buffer.toString();
+         return sb.toString();
       }
 
       public Message getMsg() {

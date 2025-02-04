@@ -169,17 +169,17 @@ public class AmqpProtocolHeaderHandlingTest extends AmqpClientTestSupport {
 
       @Override
       public String toString() {
-         StringBuilder builder = new StringBuilder();
+         StringBuilder sb = new StringBuilder();
          for (int i = 0; i < buffer.length(); ++i) {
             char value = (char) buffer.get(i);
             if (Character.isLetter(value)) {
-               builder.append(value);
+               sb.append(value);
             } else {
-               builder.append(",");
-               builder.append((int) value);
+               sb.append(",");
+               sb.append((int) value);
             }
          }
-         return builder.toString();
+         return sb.toString();
       }
    }
 }

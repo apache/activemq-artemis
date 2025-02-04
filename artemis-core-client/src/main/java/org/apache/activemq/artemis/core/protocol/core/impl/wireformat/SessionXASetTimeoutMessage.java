@@ -57,9 +57,9 @@ public class SessionXASetTimeoutMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", timeoutSeconds=" + timeoutSeconds);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", timeoutSeconds=" + timeoutSeconds);
+      return sb.toString();
    }
 
    @Override

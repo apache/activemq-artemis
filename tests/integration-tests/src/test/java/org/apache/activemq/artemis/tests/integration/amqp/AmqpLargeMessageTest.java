@@ -557,11 +557,11 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
       String largeString;
       {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < 1024 * 1024) {
-            buffer.append("This is a large string ");
+         StringBuilder sb = new StringBuilder();
+         while (sb.length() < 1024 * 1024) {
+            sb.append("This is a large string ");
          }
-         largeString = buffer.toString();
+         largeString = sb.toString();
       }
 
       String smallString = "small string";

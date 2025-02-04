@@ -108,11 +108,11 @@ public class DualMirrorWithContainerTest extends E2ETestBase {
       int FAILURE_INTERVAL = 500;
       String extraBody = "message ";
       if (largemessage) {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < 200 * 1024) {
-            buffer.append("This is large ");
+         StringBuilder sb = new StringBuilder();
+         while (sb.length() < 200 * 1024) {
+            sb.append("This is large ");
          }
-         extraBody = buffer.toString();
+         extraBody = sb.toString();
       }
 
       try (Connection connectionA = cfA.createConnection("artemis", "artemis")) {

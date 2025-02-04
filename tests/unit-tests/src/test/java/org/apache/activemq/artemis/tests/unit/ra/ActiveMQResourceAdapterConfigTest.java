@@ -490,7 +490,7 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
          assertEquals(configPropertyTypeName, c.getName());
       }
       if (!methodList.isEmpty()) {
-         StringBuffer newConfig = new StringBuffer(commentedOutConfigs);
+         StringBuilder newConfig = new StringBuilder(commentedOutConfigs);
          newConfig.append("\n");
          for (Method method : methodList.values()) {
             newConfig.append("         \"      <config-property>\" + \n");

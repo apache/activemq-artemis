@@ -97,11 +97,11 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
       String body;
       {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < 10 * 1024 * 1024) {
-            buffer.append("Not so big, but big!!");
+         StringBuilder sb = new StringBuilder();
+         while (sb.length() < 10 * 1024 * 1024) {
+            sb.append("Not so big, but big!!");
          }
-         body = buffer.toString();
+         body = sb.toString();
       }
 
       try (Connection connection = regularfactory.createConnection()) {
@@ -192,11 +192,11 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
       String body;
       {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < 300 * 1024) {
-            buffer.append("BLA BLA BLA... BLAH BLAH BLAH ... ");
+         StringBuilder sb = new StringBuilder();
+         while (sb.length() < 300 * 1024) {
+            sb.append("BLA BLA BLA... BLAH BLAH BLAH ... ");
          }
-         body = buffer.toString();
+         body = sb.toString();
       }
 
       MessageProducer producer = session.createProducer(queue);
@@ -276,11 +276,11 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
       String body;
       {
-         StringBuffer buffer = new StringBuffer();
-         while (buffer.length() < 10 * 1024 * 1024) {
-            buffer.append("Not so big, but big!!");
+         StringBuilder sb = new StringBuilder();
+         while (sb.length() < 10 * 1024 * 1024) {
+            sb.append("Not so big, but big!!");
          }
-         body = buffer.toString();
+         body = sb.toString();
       }
 
       try (Connection connection = regularCF.createConnection()) {

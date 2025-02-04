@@ -99,11 +99,11 @@ public class ClusteredLargeMessageInterruptTest extends SoakTestBase {
    static final int BODY_SIZE = 500 * 1024;
 
    private static String createBody() {
-      StringBuffer buffer = new StringBuffer();
-      while (buffer.length() < BODY_SIZE) {
-         buffer.append("LOREM IPSUM WHATEVER THEY SAY IN THERE I DON'T REALLY CARE. I'M NOT SURE IF IT'S LOREM, LAUREM, LAUREN, IPSUM OR YPSUM AND I DON'T REALLY CARE ");
+      StringBuilder sb = new StringBuilder();
+      while (sb.length() < BODY_SIZE) {
+         sb.append("LOREM IPSUM WHATEVER THEY SAY IN THERE I DON'T REALLY CARE. I'M NOT SURE IF IT'S LOREM, LAUREM, LAUREN, IPSUM OR YPSUM AND I DON'T REALLY CARE ");
       }
-      return buffer.toString();
+      return sb.toString();
    }
 
    Process serverProcess;

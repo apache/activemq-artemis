@@ -16,15 +16,14 @@
  */
 package org.apache.activemq.artemis.ra.inflow;
 
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.Topic;
 import javax.resource.spi.InvalidPropertyException;
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 
@@ -75,7 +74,7 @@ public final class ActiveMQActivationValidationUtils {
    private static void buildAndThrowExceptionIfNeeded(List<PropertyDescriptor> propsNotSet, List<String> errorMessages)
          throws InvalidPropertyException {
       if (!propsNotSet.isEmpty()) {
-         StringBuffer b = new StringBuffer();
+         StringBuilder b = new StringBuilder();
          b.append("Invalid settings:");
          for (String errorMessage : errorMessages) {
             b.append(" ");

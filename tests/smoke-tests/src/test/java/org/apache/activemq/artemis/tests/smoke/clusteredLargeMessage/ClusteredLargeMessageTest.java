@@ -119,7 +119,7 @@ public class ClusteredLargeMessageTest extends SmokeTestBase {
       String largeBody;
 
       {
-         StringBuffer largeBodyBuffer = new StringBuffer();
+         StringBuilder largeBodyBuffer = new StringBuilder();
          while (largeBodyBuffer.length() < 2_000_000) {
             largeBodyBuffer.append("This is large ");
          }
@@ -162,11 +162,11 @@ public class ClusteredLargeMessageTest extends SmokeTestBase {
 
       String largeBody;
       {
-         StringBuffer largeBodyBuffer = new StringBuffer();
-         while (largeBodyBuffer.length() < 1024 * 1024) {
-            largeBodyBuffer.append("This is large ");
+         StringBuilder largeSB = new StringBuilder();
+         while (largeSB.length() < 1024 * 1024) {
+            largeSB.append("This is large ");
          }
-         largeBody = largeBodyBuffer.toString();
+         largeBody = largeSB.toString();
       }
 
       int NMESSAGES = 10;

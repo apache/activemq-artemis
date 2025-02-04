@@ -158,16 +158,16 @@ public class SessionQueueQueryResponseMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", address=" + address);
-      buff.append(", name=" + name);
-      buff.append(", consumerCount=" + consumerCount);
-      buff.append(", filterString=" + filterString);
-      buff.append(", durable=" + durable);
-      buff.append(", exists=" + exists);
-      buff.append(", temporary=" + temporary);
-      buff.append(", messageCount=" + messageCount);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", address=" + address);
+      sb.append(", name=" + name);
+      sb.append(", consumerCount=" + consumerCount);
+      sb.append(", filterString=" + filterString);
+      sb.append(", durable=" + durable);
+      sb.append(", exists=" + exists);
+      sb.append(", temporary=" + temporary);
+      sb.append(", messageCount=" + messageCount);
+      return sb.toString();
    }
 
    public ClientSession.QueueQuery toQueueQuery() {

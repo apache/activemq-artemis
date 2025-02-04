@@ -448,9 +448,9 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
          MessageProducer pd = sn.createProducer(sn.createQueue(queueName.toString()));
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
-            StringBuffer stringbuffer = new StringBuffer();
-            stringbuffer.append("hello");
-            Message message = sn.createTextMessage(stringbuffer.toString());
+            StringBuilder sb = new StringBuilder();
+            sb.append("hello");
+            Message message = sn.createTextMessage(sb.toString());
             pd.send(message);
          }
 

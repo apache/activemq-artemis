@@ -647,41 +647,41 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
    public static String dumpBytes(final byte[] bytes) {
-      StringBuffer buff = new StringBuffer();
+      StringBuilder builder = new StringBuilder();
 
-      buff.append(System.identityHashCode(bytes) + ", size: " + bytes.length + " [");
+      builder.append(System.identityHashCode(bytes) + ", size: " + bytes.length + " [");
 
       for (int i = 0; i < bytes.length; i++) {
-         buff.append(bytes[i]);
+         builder.append(bytes[i]);
 
          if (i != bytes.length - 1) {
-            buff.append(", ");
+            builder.append(", ");
          }
       }
 
-      buff.append("]");
+      builder.append("]");
 
-      return buff.toString();
+      return builder.toString();
    }
 
    public static String dumpBytesHex(final byte[] buffer, final int bytesPerLine) {
 
-      StringBuffer buff = new StringBuffer();
+      StringBuilder builder = new StringBuilder();
 
-      buff.append("[");
+      builder.append("[");
 
       for (int i = 0; i < buffer.length; i++) {
-         buff.append(String.format("%1$2X", buffer[i]));
+         builder.append(String.format("%1$2X", buffer[i]));
          if (i + 1 < buffer.length) {
-            buff.append(", ");
+            builder.append(", ");
          }
          if ((i + 1) % bytesPerLine == 0) {
-            buff.append("\n ");
+            builder.append("\n ");
          }
       }
-      buff.append("]");
+      builder.append("]");
 
-      return buff.toString();
+      return builder.toString();
    }
 
    public static void assertEqualsTransportConfigurations(final TransportConfiguration[] expected,

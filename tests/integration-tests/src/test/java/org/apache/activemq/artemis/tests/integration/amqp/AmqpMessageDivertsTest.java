@@ -47,11 +47,11 @@ public class AmqpMessageDivertsTest extends AmqpClientTestSupport implements Tra
    String largeString = createLargeString();
 
    protected String createLargeString() {
-      StringBuffer bufferLarge = new StringBuffer();
+      StringBuilder sbLarge = new StringBuilder();
       for (int i = 0; i < 500 * 1024; i++) {
-         bufferLarge.append((char) ('a' + (i % 20)));
+         sbLarge.append((char) ('a' + (i % 20)));
       }
-      String largeString = bufferLarge.toString();
+      String largeString = sbLarge.toString();
       return largeString;
    }
 

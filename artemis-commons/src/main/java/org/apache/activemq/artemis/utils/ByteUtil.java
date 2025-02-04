@@ -77,28 +77,28 @@ public class ByteUtil {
    }
 
    public static String formatGroup(String str, int groupSize, int lineBreak) {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
 
       int line = 1;
-      buffer.append("/*  0 */ \"");
+      sb.append("/*  0 */ \"");
       for (int i = 0; i < str.length(); i += groupSize) {
-         buffer.append(str.substring(i, i + Math.min(str.length() - i, groupSize)));
+         sb.append(str.substring(i, i + Math.min(str.length() - i, groupSize)));
 
          if ((i + groupSize) % lineBreak == 0) {
-            buffer.append("\" +\n/* ");
+            sb.append("\" +\n/* ");
             line++;
             if (line < 10) {
-               buffer.append(" ");
+               sb.append(" ");
             }
-            buffer.append(Integer.toString(i) + " */ \"");
+            sb.append(Integer.toString(i) + " */ \"");
          } else if ((i + groupSize) % groupSize == 0 && str.length() - i > groupSize) {
-            buffer.append("\" + \"");
+            sb.append("\" + \"");
          }
       }
 
-      buffer.append("\";");
+      sb.append("\";");
 
-      return buffer.toString();
+      return sb.toString();
 
    }
 

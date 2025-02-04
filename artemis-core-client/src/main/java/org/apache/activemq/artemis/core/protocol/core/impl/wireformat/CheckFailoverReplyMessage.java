@@ -49,9 +49,9 @@ public class CheckFailoverReplyMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", okToFailover=" + okToFailover);
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", okToFailover=" + okToFailover);
+      return sb.toString();
    }
 
    public boolean isOkToFailover() {

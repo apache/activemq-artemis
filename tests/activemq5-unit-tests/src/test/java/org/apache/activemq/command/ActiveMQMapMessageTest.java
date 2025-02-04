@@ -84,7 +84,7 @@ public class ActiveMQMapMessageTest extends TestCase {
       msg.setString("string", "string");
 
       // Test with a 1Meg String
-      StringBuffer bigSB = new StringBuffer(1024 * 1024);
+      StringBuilder bigSB = new StringBuilder(1024 * 1024);
       for (int i = 0; i < 1024 * 1024; i++) {
          bigSB.append('a' + i % 26);
       }

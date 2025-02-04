@@ -51,10 +51,10 @@ public class SessionBindingQueryMessage extends QueueAbstractPacket {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", address=" + address);
-      buff.append("]");
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", address=" + address);
+      sb.append("]");
+      return sb.toString();
    }
 
    @Override

@@ -37,7 +37,7 @@ public class JVMArgumentParser {
    public static String parseNewLine(String prefix, String endOfLine, String newLine, String[] keepingPrefixes, Map<String, String> originalArgs) {
       String spacesBeginning = newLine.substring(0, newLine.indexOf(prefix));
       newLine = newLine.trim();
-      StringBuffer output = new StringBuffer();
+      StringBuilder output = new StringBuilder();
       String line = newLine.substring(prefix.length(), newLine.length() - endOfLine.length());
       String[] split = line.split(" ");
       for (String s : split) {

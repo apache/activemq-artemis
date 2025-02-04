@@ -126,11 +126,11 @@ public abstract class UdpTestSupport extends TestCase implements TransportListen
    }
 
    protected String createMessageBodyText(int loopSize) {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       for (int i = 0; i < loopSize; i++) {
-         buffer.append("0123456789");
+         sb.append("0123456789");
       }
-      return buffer.toString();
+      return sb.toString();
    }
 
    @Override

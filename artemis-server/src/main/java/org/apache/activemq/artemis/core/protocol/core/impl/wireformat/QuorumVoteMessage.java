@@ -74,9 +74,9 @@ public class QuorumVoteMessage extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", vote=" + vote);
-      buff.append(", handler=" + handler);
-      return buff.toString();
+      StringBuilder builder = new StringBuilder(super.getPacketString());
+      builder.append(", vote=" + vote);
+      builder.append(", handler=" + handler);
+      return builder.toString();
    }
 }

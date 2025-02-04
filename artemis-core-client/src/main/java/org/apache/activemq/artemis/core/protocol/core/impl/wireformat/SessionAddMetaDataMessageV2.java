@@ -99,12 +99,12 @@ public class SessionAddMetaDataMessageV2 extends PacketImpl {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", key=" + key);
-      buff.append(", data=" + data);
-      buff.append(", requiresConfirmation=" + requiresConfirmation);
-      buff.append("]");
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", key=" + key);
+      sb.append(", data=" + data);
+      sb.append(", requiresConfirmation=" + requiresConfirmation);
+      sb.append("]");
+      return sb.toString();
    }
 
    @Override

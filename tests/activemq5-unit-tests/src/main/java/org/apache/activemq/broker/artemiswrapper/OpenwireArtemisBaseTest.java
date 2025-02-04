@@ -157,14 +157,14 @@ public class OpenwireArtemisBaseTest {
    }
 
    public void deployClusterConfiguration(Configuration config, Integer... targetIDs) throws Exception {
-      StringBuffer stringBuffer = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       String separator = "";
       for (int x : targetIDs) {
-         stringBuffer.append(separator + newURI(x));
+         sb.append(separator + newURI(x));
          separator = ",";
       }
 
-      String ccURI = "static://(" + stringBuffer.toString() + ")?connectorName=netty-connector;retryInterval=500;messageLoadBalancingType=STRICT;maxHops=1";
+      String ccURI = "static://(" + sb.toString() + ")?connectorName=netty-connector;retryInterval=500;messageLoadBalancingType=STRICT;maxHops=1";
 
       config.addClusterConfiguration("clusterCC", ccURI);
    }

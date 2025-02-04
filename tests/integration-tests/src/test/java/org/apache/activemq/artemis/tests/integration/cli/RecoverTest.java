@@ -131,16 +131,15 @@ public class RecoverTest extends JMSTestBase {
       MessageProducer producer = session.createProducer(queue);
       String messageBody;
       {
-         StringBuffer stringBuffer = new StringBuffer();
+         StringBuilder sb = new StringBuilder();
          if (large) {
-            while (stringBuffer.length() < 110 * 1024) {
-               //stringBuffer.append("this is " + (i++));
-               stringBuffer.append(" ");
+            while (sb.length() < 110 * 1024) {
+               sb.append(" ");
             }
          } else {
-            stringBuffer.append("hello");
+            sb.append("hello");
          }
-         messageBody = stringBuffer.toString();
+         messageBody = sb.toString();
       }
       int maxMessage = large ? 10 : 1000;
       for (int i = 0; i < maxMessage; i++) {

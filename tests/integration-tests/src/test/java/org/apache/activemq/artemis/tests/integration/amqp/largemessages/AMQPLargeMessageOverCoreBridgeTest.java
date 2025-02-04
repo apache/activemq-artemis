@@ -123,7 +123,7 @@ public class AMQPLargeMessageOverCoreBridgeTest extends AmqpClientTestSupport {
       }
       server2.deployBridge(new BridgeConfiguration().setName(getTestName()).setQueueName(getQueueName(1)).setForwardingAddress(getQueueName(2)).setConfirmationWindowSize(10).setStaticConnectors(Arrays.asList("otherside")));
 
-      StringBuffer largeText = new StringBuffer();
+      StringBuilder largeText = new StringBuilder();
       while (largeText.length() < 300 * 1024) {
          largeText.append("Some large stuff ");
       }

@@ -87,11 +87,11 @@ public class SessionReceiveMessage extends MessagePacket {
 
    @Override
    protected String getPacketString() {
-      StringBuffer buff = new StringBuffer(super.getPacketString());
-      buff.append(", consumerID=" + consumerID);
-      buff.append(", deliveryCount=" + deliveryCount);
-      buff.append("]");
-      return buff.toString();
+      StringBuilder sb = new StringBuilder(super.getPacketString());
+      sb.append(", consumerID=" + consumerID);
+      sb.append(", deliveryCount=" + deliveryCount);
+      sb.append("]");
+      return sb.toString();
    }
 
    @Override
