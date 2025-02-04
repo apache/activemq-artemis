@@ -63,9 +63,8 @@ For a 4 node cluster this would be 3 affirmatives and so on.
 
 ==== Backup Voting
 
-By default, if a backup loses its replication connection to its primary it will activate automatically.
-However, it can be configured via the `vote-on-replication-failure` property to initiate a quorum vote in order to decide whether to activate or not.
-If this is done then the backup will keep voting until it either receives a vote allowing it to start or it detects that the primary is still active.
+If a backup loses its replication connection to its primary it will initiate a quorum vote in order to decide whether to activate or not.
+It will keep voting until it either receives a vote allowing it to start or it detects that the primary is still active.
 In the latter case it will then restart as a backup.
 
 See the section on xref:ha.adoc#replication-configuration[Replication Configuration] for more details on configuration.
