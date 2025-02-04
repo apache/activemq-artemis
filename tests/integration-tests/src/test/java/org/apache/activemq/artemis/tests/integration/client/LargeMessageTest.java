@@ -1882,18 +1882,15 @@ public class LargeMessageTest extends LargeMessageTestBase {
             clientMessage.acknowledge();
 
             if (isXA) {
+               session.end(xid, XAResource.TMSUCCESS);
                if (i == 0) {
-                  session.end(xid, XAResource.TMSUCCESS);
                   session.prepare(xid);
                   session.rollback(xid);
-                  xid = newXID();
-                  session.start(xid, XAResource.TMNOFLAGS);
                } else {
-                  session.end(xid, XAResource.TMSUCCESS);
                   session.commit(xid, true);
-                  xid = newXID();
-                  session.start(xid, XAResource.TMNOFLAGS);
                }
+               xid = newXID();
+               session.start(xid, XAResource.TMNOFLAGS);
             } else {
                if (i == 0) {
                   session.rollback();

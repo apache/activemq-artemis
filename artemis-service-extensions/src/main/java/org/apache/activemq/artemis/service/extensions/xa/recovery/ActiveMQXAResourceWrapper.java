@@ -235,26 +235,20 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       if (result == null) {
          // we should always throw a retry for certain methods commit etc, if not the tx is marked as a heuristic and
          // all chaos is let loose
+         XAException xae;
          if (retry) {
-            XAException xae = new XAException("Connection unavailable for xa recovery");
+            xae = new XAException("Connection unavailable for xa recovery");
             xae.errorCode = XAException.XA_RETRY;
-            if (error != null) {
-               xae.initCause(error);
-            }
-            logger.debug("Cannot get connectionFactory XAResource", xae);
-
-            throw xae;
          } else {
-            XAException xae = new XAException("Error trying to connect to any providers for xa recovery");
+            xae = new XAException("Error trying to connect to any providers for xa recovery");
             xae.errorCode = XAException.XAER_RMFAIL;
-            if (error != null) {
-               xae.initCause(error);
-            }
-            logger.debug("Cannot get connectionFactory XAResource", xae);
-
-            throw xae;
          }
 
+         if (error != null) {
+            xae.initCause(error);
+         }
+         logger.debug("Cannot get connectionFactory XAResource", xae);
+         throw xae;
       }
 
       return result;

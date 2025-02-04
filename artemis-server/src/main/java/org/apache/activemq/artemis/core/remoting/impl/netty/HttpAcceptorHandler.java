@@ -154,13 +154,11 @@ public class HttpAcceptorHandler extends ChannelDuplexHandler {
          while (responseHolder == null);
          if (!bogusResponse) {
             piggyBackResponses(responseHolder.response.content());
-            responseHolder.response.headers().set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(responseHolder.response.content().readableBytes()));
-            channel.writeAndFlush(responseHolder.response, promise);
          } else {
             responseHolder.response.content().writeBytes(buffer);
-            responseHolder.response.headers().set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(responseHolder.response.content().readableBytes()));
-            channel.writeAndFlush(responseHolder.response, promise);
          }
+         responseHolder.response.headers().set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(responseHolder.response.content().readableBytes()));
+         channel.writeAndFlush(responseHolder.response, promise);
 
          buffer.release();
 
