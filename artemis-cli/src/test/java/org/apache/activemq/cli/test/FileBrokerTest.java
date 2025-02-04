@@ -16,16 +16,8 @@
  */
 package org.apache.activemq.cli.test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +36,12 @@ import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class FileBrokerTest {
 
@@ -203,10 +201,9 @@ public class FileBrokerTest {
 
    private void replacePatternInFile(String file, String regex, String replacement) throws IOException {
       Path path = Paths.get(file);
-      Charset charset = StandardCharsets.UTF_8;
-      String content = new String(Files.readAllBytes(path), charset);
+      String content = Files.readString(path);
       String replaced = content.replaceAll(regex, replacement);
-      Files.write(path, replaced.getBytes(charset));
+      Files.writeString(path, replaced);
       Files.setLastModifiedTime(path, FileTime.fromMillis(System.currentTimeMillis()));
    }
 }
