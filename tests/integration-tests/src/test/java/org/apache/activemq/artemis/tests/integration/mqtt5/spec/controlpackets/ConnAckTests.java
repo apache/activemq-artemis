@@ -340,12 +340,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       setAcceptorProperty("maximumPacketSize=" + SIZE);
       final String TOPIC = RandomUtil.randomString();
       final CountDownLatch latch = new CountDownLatch(1);
-      StringBuilder builder = new StringBuilder(SIZE * 2);
-
-      for (int i = 0; i < SIZE * 2; i++) {
-         builder.append("=");
-      }
-      byte[] bytes = builder.toString().getBytes(StandardCharsets.UTF_8);
+      byte[] bytes = "=".repeat(SIZE * 2).getBytes(StandardCharsets.UTF_8);
 
       MqttClient producer = createPahoClient(RandomUtil.randomString());
       producer.connect();

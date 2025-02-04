@@ -92,14 +92,7 @@ public class PagedMirrorSmokeTest extends SmokeTestBase {
       ConnectionFactory consumeCF = CFUtil.createConnectionFactory(protocol, consumeURI);
       ConnectionFactory secondConsumeCF = CFUtil.createConnectionFactory(protocol, secondConsumeURI);
 
-      String bodyBuffer;
-      {
-         StringBuffer buffer = new StringBuffer();
-         for (int i = 0; i < 1024; i++) {
-            buffer.append("*");
-         }
-         bodyBuffer = buffer.toString();
-      }
+      String bodyBuffer = "*".repeat(1024);
 
       int NUMBER_OF_MESSAGES = 200;
       int ACK_I = 77;

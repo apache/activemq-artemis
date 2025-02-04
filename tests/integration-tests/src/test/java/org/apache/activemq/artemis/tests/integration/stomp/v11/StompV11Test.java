@@ -1832,14 +1832,12 @@ public class StompV11Test extends StompTestBase {
 
    @Test
    public void testSendMessageWithLongHeaders() throws Exception {
+      final int headerSize = 2048;
       MessageConsumer consumer = session.createConsumer(queue);
 
       conn.connect(defUser, defPass);
 
-      StringBuffer buffer = new StringBuffer();
-      for (int i = 0; i < 2048; i++) {
-         buffer.append("a");
-      }
+      String longHeader = "a".repeat(headerSize);
 
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND)
                                    .addHeader(Stomp.Headers.Send.DESTINATION, getQueuePrefix() + getQueueName())
@@ -1849,7 +1847,7 @@ public class StompV11Test extends StompTestBase {
                                    .addHeader(Stomp.Headers.Message.TYPE, "t345")
                                    .addHeader("JMSXGroupID", "abc")
                                    .addHeader("foo", "abc")
-                                   .addHeader("longHeader", buffer.toString())
+                                   .addHeader("longHeader", longHeader)
                                    .setBody("Hello World");
 
       frame = conn.sendFrame(frame);
@@ -1862,7 +1860,7 @@ public class StompV11Test extends StompTestBase {
       assertEquals(3, message.getJMSPriority(), "getJMSPriority");
       assertEquals(javax.jms.DeliveryMode.PERSISTENT, message.getJMSDeliveryMode());
       assertEquals("abc", message.getStringProperty("foo"), "foo");
-      assertEquals(2048, message.getStringProperty("longHeader").length(), "longHeader");
+      assertEquals(headerSize, message.getStringProperty("longHeader").length(), "longHeader");
 
       assertEquals("abc", message.getStringProperty("JMSXGroupID"), "JMSXGroupID");
 

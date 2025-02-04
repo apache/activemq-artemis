@@ -185,16 +185,7 @@ public class IngressTimestampTest extends ActiveMQTestBase {
    }
 
    private String getMessagePayload() {
-      StringBuilder result = new StringBuilder();
-      if (large) {
-         for (int i = 0; i < ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 20; i++) {
-            result.append("AB");
-         }
-      } else {
-         result.append("AB");
-      }
-
-      return result.toString();
+      return large ? "AB".repeat(ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 20) : "AB";
    }
 
    private ConnectionFactory createFactory(Protocol protocol) {

@@ -63,12 +63,7 @@ public class AmqpMaxReadPagingTest extends AmqpClientTestSupport {
    @Test
    @Timeout(60)
    public void testMaxReadPage() throws Exception {
-      final int MSG_SIZE = 1000;
-      final StringBuilder builder = new StringBuilder();
-      for (int i = 0; i < MSG_SIZE; i++) {
-         builder.append('0');
-      }
-      final String data = builder.toString();
+      final String data = "0".repeat(1000);
       final int MSG_COUNT = 100;
 
       AmqpClient client = createAmqpClient();

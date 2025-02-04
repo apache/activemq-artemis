@@ -73,9 +73,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
       StringBuffer token = new StringBuffer();
 
       token.append("'");
-      for (int i = 0; i < 5000; i++) {
-         token.append("a");
-      }
+      token.append("a".repeat(5000));
       token.append("'");
 
       // The server would fail to create this consumer if HORNETQ-545 wasn't solved

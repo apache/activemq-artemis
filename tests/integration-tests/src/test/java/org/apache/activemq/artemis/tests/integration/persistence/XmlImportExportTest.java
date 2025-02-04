@@ -282,10 +282,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
    @Test
    public void testTextMessage() throws Exception {
-      StringBuilder data = new StringBuilder();
-      for (int i = 0; i < 2608; i++) {
-         data.append("X");
-      }
+      String data = "X".repeat(2608);
 
       ClientSession session = basicSetUp();
 
@@ -293,7 +290,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
       ClientMessage msg = session.createMessage(Message.TEXT_TYPE, true);
-      msg.getBodyBuffer().writeString(data.toString());
+      msg.getBodyBuffer().writeString(data);
       producer.send(msg);
 
       session.close();
@@ -324,15 +321,12 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       msg = consumer.receive(CONSUMER_TIMEOUT);
       assertEquals(Message.TEXT_TYPE, msg.getType());
-      assertEquals(data.toString(), msg.getBodyBuffer().readString());
+      assertEquals(data, msg.getBodyBuffer().readString());
    }
 
    @Test
    public void testBytesMessage() throws Exception {
-      StringBuilder data = new StringBuilder();
-      for (int i = 0; i < 2610; i++) {
-         data.append("X");
-      }
+      String data = "X".repeat(2610);
 
       ClientSession session = basicSetUp();
 
@@ -340,7 +334,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       ClientProducer producer = session.createProducer(QUEUE_NAME);
       ClientMessage msg = session.createMessage(Message.BYTES_TYPE, true);
-      msg.getBodyBuffer().writeBytes(data.toString().getBytes());
+      msg.getBodyBuffer().writeBytes(data.getBytes());
       producer.send(msg);
 
       session.close();
@@ -373,7 +367,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       assertEquals(Message.BYTES_TYPE, msg.getType());
       byte[] result = new byte[msg.getBodySize()];
       msg.getBodyBuffer().readBytes(result);
-      assertEquals(data.toString().getBytes().length, result.length);
+      assertEquals(data.getBytes().length, result.length);
    }
 
    @Test

@@ -964,16 +964,12 @@ public class Create extends InstallAbstract {
    }
 
    private void printStar(String message) {
-      int size = Math.min(message.length(), 80);
-      StringBuffer buffer = new StringBuffer(size);
-      for (int i = 0; i < size; i++) {
-         buffer.append("*");
-      }
-      getActionContext().out.println(buffer.toString());
+      String separator = "*".repeat(Math.min(message.length(), 80));
+      getActionContext().out.println(separator);
       getActionContext().out.println();
       getActionContext().out.println(message);
       getActionContext().out.println();
-      getActionContext().out.println(buffer.toString());
+      getActionContext().out.println(separator);
    }
 
    private void setupJournalType() {

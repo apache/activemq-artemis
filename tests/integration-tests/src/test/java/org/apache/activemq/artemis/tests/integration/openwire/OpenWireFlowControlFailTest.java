@@ -62,10 +62,7 @@ public class OpenWireFlowControlFailTest extends OpenWireTestBase {
       server.addAddressInfo(addressInfo);
       server.createQueue(QueueConfiguration.of(addressInfo.getName()).setRoutingType(RoutingType.ANYCAST));
 
-      StringBuffer textBody = new StringBuffer();
-      for (int i = 0; i < 10; i++) {
-         textBody.append(" ");
-      }
+      String textBody = " ".repeat(10);
       ConnectionFactory factory = new ActiveMQConnectionFactory(urlString);
       int numberOfMessage = 0;
       try (Connection connection = factory.createConnection()) {
@@ -75,7 +72,7 @@ public class OpenWireFlowControlFailTest extends OpenWireTestBase {
          boolean failed = false;
          try {
             for (int i = 0; i < 1000; i++) {
-               TextMessage message = session.createTextMessage(textBody.toString());
+               TextMessage message = session.createTextMessage(textBody);
                message.setIntProperty("i", i);
 
                producer.send(message);
@@ -85,7 +82,7 @@ public class OpenWireFlowControlFailTest extends OpenWireTestBase {
             e.printStackTrace(System.out);
             failed = true;
             try {
-               producer.send(session.createTextMessage(textBody.toString()));
+               producer.send(session.createTextMessage(textBody));
                fail("Exception expected");
             } catch (JMSException expected) {
                expected.printStackTrace();
@@ -105,7 +102,7 @@ public class OpenWireFlowControlFailTest extends OpenWireTestBase {
          for (int i = 0; i < numberOfMessage; i++) {
             TextMessage message = (TextMessage) consumer.receive(5000);
             assertNotNull(message);
-            assertEquals(textBody.toString(), message.getText());
+            assertEquals(textBody, message.getText());
          }
 
          TextMessage msg = (TextMessage)consumer.receive(500);

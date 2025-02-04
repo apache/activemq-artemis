@@ -2214,11 +2214,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
                 0,
                 System.currentTimeMillis(),
                 (byte)4);
-      StringBuilder builder = new StringBuilder();
-      for (int i = 0; i < numChars; i++) {
-         builder.append('a');
-      }
-      message.getBodyBuffer().writeString(builder.toString());
+      message.getBodyBuffer().writeString("a".repeat(numChars));
       return message;
    }
 
