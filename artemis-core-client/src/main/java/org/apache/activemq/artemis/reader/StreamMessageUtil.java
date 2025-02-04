@@ -32,15 +32,14 @@ public class StreamMessageUtil extends MessageUtil {
    public static boolean streamReadBoolean(ActiveMQBuffer buff) {
       byte type = buff.readByte();
 
-      switch (type) {
-         case DataConstants.BOOLEAN:
-            return buff.readBoolean();
-         case DataConstants.STRING:
+      return switch (type) {
+         case DataConstants.BOOLEAN -> buff.readBoolean();
+         case DataConstants.STRING -> {
             String s = buff.readNullableString();
-            return Boolean.valueOf(s);
-         default:
-            throw new IllegalStateException("Invalid conversion, type byte was " + type);
-      }
+            yield Boolean.valueOf(s);
+         }
+         default -> throw new IllegalStateException("Invalid conversion, type byte was " + type);
+      };
 
    }
 
@@ -48,15 +47,14 @@ public class StreamMessageUtil extends MessageUtil {
       int index = buff.readerIndex();
       try {
          byte type = buff.readByte();
-         switch (type) {
-            case DataConstants.BYTE:
-               return buff.readByte();
-            case DataConstants.STRING:
+         return switch (type) {
+            case DataConstants.BYTE -> buff.readByte();
+            case DataConstants.STRING -> {
                String s = buff.readNullableString();
-               return Byte.parseByte(s);
-            default:
-               throw new IllegalStateException("Invalid conversion");
-         }
+               yield Byte.parseByte(s);
+            }
+            default -> throw new IllegalStateException("Invalid conversion");
+         };
       } catch (NumberFormatException e) {
          buff.readerIndex(index);
          throw e;
@@ -66,17 +64,15 @@ public class StreamMessageUtil extends MessageUtil {
 
    public static short streamReadShort(ActiveMQBuffer buff) {
       byte type = buff.readByte();
-      switch (type) {
-         case DataConstants.BYTE:
-            return buff.readByte();
-         case DataConstants.SHORT:
-            return buff.readShort();
-         case DataConstants.STRING:
+      return switch (type) {
+         case DataConstants.BYTE -> buff.readByte();
+         case DataConstants.SHORT -> buff.readShort();
+         case DataConstants.STRING -> {
             String s = buff.readNullableString();
-            return Short.parseShort(s);
-         default:
-            throw new IllegalStateException("Invalid conversion");
-      }
+            yield Short.parseShort(s);
+         }
+         default -> throw new IllegalStateException("Invalid conversion");
+      };
    }
 
    public static char streamReadChar(ActiveMQBuffer buff) {
@@ -99,92 +95,72 @@ public class StreamMessageUtil extends MessageUtil {
 
    public static int streamReadInteger(ActiveMQBuffer buff) {
       byte type = buff.readByte();
-      switch (type) {
-         case DataConstants.BYTE:
-            return buff.readByte();
-         case DataConstants.SHORT:
-            return buff.readShort();
-         case DataConstants.INT:
-            return buff.readInt();
-         case DataConstants.STRING:
+      return switch (type) {
+         case DataConstants.BYTE -> buff.readByte();
+         case DataConstants.SHORT -> buff.readShort();
+         case DataConstants.INT -> buff.readInt();
+         case DataConstants.STRING -> {
             String s = buff.readNullableString();
-            return Integer.parseInt(s);
-         default:
-            throw new IllegalStateException("Invalid conversion");
-      }
+            yield Integer.parseInt(s);
+         }
+         default -> throw new IllegalStateException("Invalid conversion");
+      };
    }
 
    public static long streamReadLong(ActiveMQBuffer buff) {
       byte type = buff.readByte();
-      switch (type) {
-         case DataConstants.BYTE:
-            return buff.readByte();
-         case DataConstants.SHORT:
-            return buff.readShort();
-         case DataConstants.INT:
-            return buff.readInt();
-         case DataConstants.LONG:
-            return buff.readLong();
-         case DataConstants.STRING:
+      return switch (type) {
+         case DataConstants.BYTE -> buff.readByte();
+         case DataConstants.SHORT -> buff.readShort();
+         case DataConstants.INT -> buff.readInt();
+         case DataConstants.LONG -> buff.readLong();
+         case DataConstants.STRING -> {
             String s = buff.readNullableString();
-            return Long.parseLong(s);
-         default:
-            throw new IllegalStateException("Invalid conversion");
-      }
+            yield Long.parseLong(s);
+         }
+         default -> throw new IllegalStateException("Invalid conversion");
+      };
    }
 
    public static float streamReadFloat(ActiveMQBuffer buff) {
       byte type = buff.readByte();
-      switch (type) {
-         case DataConstants.FLOAT:
-            return Float.intBitsToFloat(buff.readInt());
-         case DataConstants.STRING:
+      return switch (type) {
+         case DataConstants.FLOAT -> Float.intBitsToFloat(buff.readInt());
+         case DataConstants.STRING -> {
             String s = buff.readNullableString();
-            return Float.parseFloat(s);
-         default:
-            throw new IllegalStateException("Invalid conversion");
-      }
+            yield Float.parseFloat(s);
+         }
+         default -> throw new IllegalStateException("Invalid conversion");
+      };
    }
 
    public static double streamReadDouble(ActiveMQBuffer buff) {
       byte type = buff.readByte();
-      switch (type) {
-         case DataConstants.FLOAT:
-            return Float.intBitsToFloat(buff.readInt());
-         case DataConstants.DOUBLE:
-            return Double.longBitsToDouble(buff.readLong());
-         case DataConstants.STRING:
+      return switch (type) {
+         case DataConstants.FLOAT -> Float.intBitsToFloat(buff.readInt());
+         case DataConstants.DOUBLE -> Double.longBitsToDouble(buff.readLong());
+         case DataConstants.STRING -> {
             String s = buff.readNullableString();
-            return Double.parseDouble(s);
-         default:
-            throw new IllegalStateException("Invalid conversion: " + type);
-      }
+            yield Double.parseDouble(s);
+         }
+         default -> throw new IllegalStateException("Invalid conversion: " + type);
+      };
    }
 
    public static String streamReadString(ActiveMQBuffer buff) {
       byte type = buff.readByte();
-      switch (type) {
-         case DataConstants.BOOLEAN:
-            return String.valueOf(buff.readBoolean());
-         case DataConstants.BYTE:
-            return String.valueOf(buff.readByte());
-         case DataConstants.SHORT:
-            return String.valueOf(buff.readShort());
-         case DataConstants.CHAR:
-            return String.valueOf((char) buff.readShort());
-         case DataConstants.INT:
-            return String.valueOf(buff.readInt());
-         case DataConstants.LONG:
-            return String.valueOf(buff.readLong());
-         case DataConstants.FLOAT:
-            return String.valueOf(Float.intBitsToFloat(buff.readInt()));
-         case DataConstants.DOUBLE:
-            return String.valueOf(Double.longBitsToDouble(buff.readLong()));
-         case DataConstants.STRING:
-            return buff.readNullableString();
-         default:
-            throw new IllegalStateException("Invalid conversion");
-      }
+      return switch (type) {
+         case DataConstants.BOOLEAN -> String.valueOf(buff.readBoolean());
+         case DataConstants.BYTE -> String.valueOf(buff.readByte());
+         case DataConstants.SHORT -> String.valueOf(buff.readShort());
+         case DataConstants.CHAR -> String.valueOf((char) buff.readShort());
+         case DataConstants.INT -> String.valueOf(buff.readInt());
+         case DataConstants.LONG -> String.valueOf(buff.readLong());
+         case DataConstants.FLOAT -> String.valueOf(Float.intBitsToFloat(buff.readInt()));
+         case DataConstants.DOUBLE -> String.valueOf(Double.longBitsToDouble(buff.readLong()));
+         case DataConstants.STRING -> buff.readNullableString();
+         default -> throw new IllegalStateException("Invalid conversion");
+      };
    }
 
    /**

@@ -20,13 +20,10 @@ public enum DeletionPolicy {
    OFF, FORCE;
 
    public static DeletionPolicy getType(int type) {
-      switch (type) {
-         case 0:
-            return OFF;
-         case 1:
-            return FORCE;
-         default:
-            return null;
-      }
+      return switch (type) {
+         case 0 -> OFF;
+         case 1 -> FORCE;
+         default -> null;
+      };
    }
 }

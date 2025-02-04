@@ -189,12 +189,12 @@ public class IngressTimestampTest extends ActiveMQTestBase {
    }
 
    private ConnectionFactory createFactory(Protocol protocol) {
-      switch (protocol) {
-         case CORE: return new ActiveMQConnectionFactory(); // core protocol
-         case AMQP: return new JmsConnectionFactory("amqp://localhost:61616"); // amqp
-         case OPENWIRE: return new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"); // openwire
-         default: return null;
-      }
+      return switch (protocol) {
+         case CORE -> new ActiveMQConnectionFactory(); // core protocol
+         case AMQP -> new JmsConnectionFactory("amqp://localhost:61616"); // amqp
+         case OPENWIRE -> new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"); // openwire
+         default -> null;
+      };
    }
 
    private enum Protocol {

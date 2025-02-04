@@ -152,30 +152,25 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    @Override
    public JMSContext createContext(int sessionMode) {
       boolean inJtaTx = inJtaTransaction();
-      int sessionModeToUse;
-      switch (sessionMode) {
-         case Session.AUTO_ACKNOWLEDGE:
-         case Session.DUPS_OK_ACKNOWLEDGE:
-         case ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE:
-         case ActiveMQJMSConstants.PRE_ACKNOWLEDGE:
-            sessionModeToUse = sessionMode;
-            break;
+      int sessionModeToUse = switch (sessionMode) {
+         case Session.AUTO_ACKNOWLEDGE, Session.DUPS_OK_ACKNOWLEDGE, ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE,
+              ActiveMQJMSConstants.PRE_ACKNOWLEDGE -> sessionMode;
+
          //these are prohibited in JEE unless not in a JTA tx where they should be ignored and auto_ack used
-         case Session.CLIENT_ACKNOWLEDGE:
+         case Session.CLIENT_ACKNOWLEDGE -> {
             if (!inJtaTx) {
                throw ActiveMQRABundle.BUNDLE.invalidSessionTransactedModeRuntime();
             }
-            sessionModeToUse = Session.AUTO_ACKNOWLEDGE;
-            break;
-         case Session.SESSION_TRANSACTED:
+            yield Session.AUTO_ACKNOWLEDGE;
+         }
+         case Session.SESSION_TRANSACTED -> {
             if (!inJtaTx) {
                throw ActiveMQRABundle.BUNDLE.invalidClientAcknowledgeModeRuntime();
             }
-            sessionModeToUse = Session.AUTO_ACKNOWLEDGE;
-            break;
-         default:
-            throw ActiveMQRABundle.BUNDLE.invalidAcknowledgeMode(sessionMode);
-      }
+            yield Session.AUTO_ACKNOWLEDGE;
+         }
+         default -> throw ActiveMQRABundle.BUNDLE.invalidAcknowledgeMode(sessionMode);
+      };
       incrementRefCounter();
 
       return new ActiveMQRAJMSContext(this, sessionModeToUse, threadAwareContext);

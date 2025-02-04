@@ -28,33 +28,23 @@ public enum SlowConsumerThresholdMeasurementUnit {
    }
 
    public static SlowConsumerThresholdMeasurementUnit valueOf(int measurementUnitInSeconds) {
-      switch (measurementUnitInSeconds) {
-         case 1:
-            return MESSAGES_PER_SECOND;
-         case 60:
-            return MESSAGES_PER_MINUTE;
-         case 3600:
-            return MESSAGES_PER_HOUR;
-         case 3600 * 24:
-            return MESSAGES_PER_DAY;
-         default:
-            return null;
-      }
+      return switch (measurementUnitInSeconds) {
+         case 1 -> MESSAGES_PER_SECOND;
+         case 60 -> MESSAGES_PER_MINUTE;
+         case 3600 -> MESSAGES_PER_HOUR;
+         case 3600 * 24 -> MESSAGES_PER_DAY;
+         default -> null;
+      };
    }
 
    public static TimeUnit unitOf(int measurementUnitInSeconds) {
-      switch (measurementUnitInSeconds) {
-         case 1:
-            return TimeUnit.SECONDS;
-         case 60:
-            return TimeUnit.MINUTES;
-         case 3600:
-            return TimeUnit.HOURS;
-         case 3600 * 24:
-            return TimeUnit.DAYS;
-         default:
-            return null;
-      }
+      return switch (measurementUnitInSeconds) {
+         case 1 -> TimeUnit.SECONDS;
+         case 60 -> TimeUnit.MINUTES;
+         case 3600 -> TimeUnit.HOURS;
+         case 3600 * 24 -> TimeUnit.DAYS;
+         default -> null;
+      };
    }
 
    public int getValue() {

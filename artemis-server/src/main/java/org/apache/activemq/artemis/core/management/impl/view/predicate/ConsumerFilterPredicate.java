@@ -36,43 +36,30 @@ public class ConsumerFilterPredicate extends ActiveMQFilterPredicate<ServerConsu
       // Using switch over enum vs string comparison is better for perf.
       if (f == null)
          return true;
-      switch (f) {
-         case ID:
-            return matches(consumer.getSequentialID());
-         case SESSION:
-            return matches(consumer.getSessionID());
-         case USER:
-            return matches(server.getSessionByID(consumer.getSessionID()).getUsername());
-         case VALIDATED_USER:
-            return matches(server.getSessionByID(consumer.getSessionID()).getValidatedUser());
-         case ADDRESS:
-            return matches(consumer.getQueue().getAddress());
-         case QUEUE:
-            return matches(consumer.getQueue().getName());
-         case FILTER:
-            return matches(consumer.getFilterString());
-         case PROTOCOL:
-            return matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getProtocolName());
-         case CLIENT_ID:
-            return matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getClientID());
-         case LOCAL_ADDRESS:
-            return matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getTransportConnection().getLocalAddress());
-         case REMOTE_ADDRESS:
-            return matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getTransportConnection().getRemoteAddress());
-         case MESSAGES_IN_TRANSIT:
-            return matches(consumer.getMessagesInTransit());
-         case MESSAGES_IN_TRANSIT_SIZE:
-            return matches(consumer.getMessagesInTransitSize());
-         case MESSAGES_DELIVERED:
-            return matches(consumer.getDeliveringMessages());
-         case MESSAGES_DELIVERED_SIZE:
-            return matches(consumer.getMessagesDeliveredSize());
-         case MESSAGES_ACKNOWLEDGED:
-            return matches(consumer.getMessagesAcknowledged());
-         case MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT:
-            return matches(consumer.getMessagesAcknowledgedAwaitingCommit());
-      }
-      return true;
+      return switch (f) {
+         case ID -> matches(consumer.getSequentialID());
+         case SESSION -> matches(consumer.getSessionID());
+         case USER -> matches(server.getSessionByID(consumer.getSessionID()).getUsername());
+         case VALIDATED_USER -> matches(server.getSessionByID(consumer.getSessionID()).getValidatedUser());
+         case ADDRESS -> matches(consumer.getQueue().getAddress());
+         case QUEUE -> matches(consumer.getQueue().getName());
+         case FILTER -> matches(consumer.getFilterString());
+         case PROTOCOL ->
+            matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getProtocolName());
+         case CLIENT_ID ->
+            matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getClientID());
+         case LOCAL_ADDRESS ->
+            matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getTransportConnection().getLocalAddress());
+         case REMOTE_ADDRESS ->
+            matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getTransportConnection().getRemoteAddress());
+         case MESSAGES_IN_TRANSIT -> matches(consumer.getMessagesInTransit());
+         case MESSAGES_IN_TRANSIT_SIZE -> matches(consumer.getMessagesInTransitSize());
+         case MESSAGES_DELIVERED -> matches(consumer.getDeliveringMessages());
+         case MESSAGES_DELIVERED_SIZE -> matches(consumer.getMessagesDeliveredSize());
+         case MESSAGES_ACKNOWLEDGED -> matches(consumer.getMessagesAcknowledged());
+         case MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT -> matches(consumer.getMessagesAcknowledgedAwaitingCommit());
+         default -> true;
+      };
    }
 
    @Override

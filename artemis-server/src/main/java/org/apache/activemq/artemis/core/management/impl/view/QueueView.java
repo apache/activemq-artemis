@@ -88,76 +88,42 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
 
       QueueField field = QueueField.valueOfName(fieldName);
 
-      switch (field) {
-         case ID:
-            return queue.getID();
-         case NAME:
-            return queue.getName();
-         case ADDRESS:
-            return queue.getAddress();
-         case FILTER:
-            return queue.getFilter();
-         case DURABLE:
-            return queue.isDurable();
-         case PAUSED:
-            return q.isPaused();
-         case TEMPORARY:
-            return queue.isTemporary();
-         case PURGE_ON_NO_CONSUMERS:
-            return queue.isPurgeOnNoConsumers();
-         case CONSUMER_COUNT:
-            return queue.getConsumerCount();
-         case MAX_CONSUMERS:
-            return queue.getMaxConsumers();
-         case AUTO_CREATED:
-            return q.isAutoCreated();
-         case USER:
-            return q.getUser();
-         case ROUTING_TYPE:
-            return queue.getRoutingType();
-         case MESSAGES_ADDED:
-            return queue.getMessagesAdded();
-         case MESSAGE_COUNT:
-            return queue.getMessageCount();
-         case MESSAGES_ACKED:
-            return queue.getMessagesAcknowledged();
-         case MESSAGES_EXPIRED:
-            return queue.getMessagesExpired();
-         case DELIVERING_COUNT:
-            return queue.getDeliveringCount();
-         case MESSAGES_KILLED:
-            return queue.getMessagesKilled();
-         case DIRECT_DELIVER:
-            return q.isDirectDeliver();
-         case EXCLUSIVE:
-            return q.isExclusive();
-         case LAST_VALUE:
-            return q.isLastValue();
-         case LAST_VALUE_KEY:
-            return q.getLastValueKey();
-         case SCHEDULED_COUNT:
-            return q.getScheduledCount();
-         case GROUP_REBALANCE:
-            return queue.isGroupRebalance();
-         case GROUP_REBALANCE_PAUSE_DISPATCH:
-            return queue.isGroupRebalancePauseDispatch();
-         case GROUP_BUCKETS:
-            return queue.getGroupBuckets();
-         case GROUP_FIRST_KEY:
-            return queue.getGroupFirstKey();
-         case ENABLED:
-            return q.isEnabled();
-         case RING_SIZE:
-            return q.getRingSize();
-         case CONSUMERS_BEFORE_DISPATCH:
-            return q.getConsumersBeforeDispatch();
-         case DELAY_BEFORE_DISPATCH:
-            return q.getDelayBeforeDispatch();
-         case INTERNAL_QUEUE:
-            return q.isInternalQueue();
-         default:
-            throw new IllegalArgumentException("Unsupported field, " + fieldName);
-      }
+      return switch (field) {
+         case ID -> queue.getID();
+         case NAME -> queue.getName();
+         case ADDRESS -> queue.getAddress();
+         case FILTER -> queue.getFilter();
+         case DURABLE -> queue.isDurable();
+         case PAUSED -> q.isPaused();
+         case TEMPORARY -> queue.isTemporary();
+         case PURGE_ON_NO_CONSUMERS -> queue.isPurgeOnNoConsumers();
+         case CONSUMER_COUNT -> queue.getConsumerCount();
+         case MAX_CONSUMERS -> queue.getMaxConsumers();
+         case AUTO_CREATED -> q.isAutoCreated();
+         case USER -> q.getUser();
+         case ROUTING_TYPE -> queue.getRoutingType();
+         case MESSAGES_ADDED -> queue.getMessagesAdded();
+         case MESSAGE_COUNT -> queue.getMessageCount();
+         case MESSAGES_ACKED -> queue.getMessagesAcknowledged();
+         case MESSAGES_EXPIRED -> queue.getMessagesExpired();
+         case DELIVERING_COUNT -> queue.getDeliveringCount();
+         case MESSAGES_KILLED -> queue.getMessagesKilled();
+         case DIRECT_DELIVER -> q.isDirectDeliver();
+         case EXCLUSIVE -> q.isExclusive();
+         case LAST_VALUE -> q.isLastValue();
+         case LAST_VALUE_KEY -> q.getLastValueKey();
+         case SCHEDULED_COUNT -> q.getScheduledCount();
+         case GROUP_REBALANCE -> queue.isGroupRebalance();
+         case GROUP_REBALANCE_PAUSE_DISPATCH -> queue.isGroupRebalancePauseDispatch();
+         case GROUP_BUCKETS -> queue.getGroupBuckets();
+         case GROUP_FIRST_KEY -> queue.getGroupFirstKey();
+         case ENABLED -> q.isEnabled();
+         case RING_SIZE -> q.getRingSize();
+         case CONSUMERS_BEFORE_DISPATCH -> q.getConsumersBeforeDispatch();
+         case DELAY_BEFORE_DISPATCH -> q.getDelayBeforeDispatch();
+         case INTERNAL_QUEUE -> q.isInternalQueue();
+         default -> throw new IllegalArgumentException("Unsupported field, " + fieldName);
+      };
    }
 
    @Override

@@ -130,28 +130,15 @@ public class XMLMessageImporter {
    }
 
    private Byte getMessageType(String value) {
-      Byte type = Message.DEFAULT_TYPE;
-      switch (value) {
-         case XmlDataConstants.DEFAULT_TYPE_PRETTY:
-            type = Message.DEFAULT_TYPE;
-            break;
-         case XmlDataConstants.BYTES_TYPE_PRETTY:
-            type = Message.BYTES_TYPE;
-            break;
-         case XmlDataConstants.MAP_TYPE_PRETTY:
-            type = Message.MAP_TYPE;
-            break;
-         case XmlDataConstants.OBJECT_TYPE_PRETTY:
-            type = Message.OBJECT_TYPE;
-            break;
-         case XmlDataConstants.STREAM_TYPE_PRETTY:
-            type = Message.STREAM_TYPE;
-            break;
-         case XmlDataConstants.TEXT_TYPE_PRETTY:
-            type = Message.TEXT_TYPE;
-            break;
-      }
-      return type;
+      return switch (value) {
+         case XmlDataConstants.DEFAULT_TYPE_PRETTY -> Message.DEFAULT_TYPE;
+         case XmlDataConstants.BYTES_TYPE_PRETTY -> Message.BYTES_TYPE;
+         case XmlDataConstants.MAP_TYPE_PRETTY -> Message.MAP_TYPE;
+         case XmlDataConstants.OBJECT_TYPE_PRETTY -> Message.OBJECT_TYPE;
+         case XmlDataConstants.STREAM_TYPE_PRETTY -> Message.STREAM_TYPE;
+         case XmlDataConstants.TEXT_TYPE_PRETTY -> Message.TEXT_TYPE;
+         default -> Message.DEFAULT_TYPE;
+      };
    }
 
    private void processMessageQueues(List<String> queues) {

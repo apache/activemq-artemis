@@ -523,29 +523,21 @@ public class MQTTSessionState {
       NOT_SENT, SENT, SENDING;
 
       public byte getStatus() {
-         switch (this) {
-            case NOT_SENT:
-               return 0;
-            case SENT:
-               return 1;
-            case SENDING:
-               return 2;
-            default:
-               return -1;
-         }
+         return switch (this) {
+            case NOT_SENT -> 0;
+            case SENT -> 1;
+            case SENDING -> 2;
+            default -> -1;
+         };
       }
 
       public static WillStatus getStatus(byte status) {
-         switch (status) {
-            case 0:
-               return NOT_SENT;
-            case 1:
-               return SENT;
-            case 2:
-               return SENDING;
-            default:
-               return null;
-         }
+         return switch (status) {
+            case 0 -> NOT_SENT;
+            case 1 -> SENT;
+            case 2 -> SENDING;
+            default -> null;
+         };
       }
    }
 }

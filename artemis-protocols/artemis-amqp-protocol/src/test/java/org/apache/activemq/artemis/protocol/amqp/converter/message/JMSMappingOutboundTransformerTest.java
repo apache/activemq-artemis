@@ -526,15 +526,10 @@ public class JMSMappingOutboundTransformerTest {
    private String createDestination(byte destType) {
       String prefix = PrefixUtil.getURIPrefix(TEST_ADDRESS);
       String address = PrefixUtil.removePrefix(TEST_ADDRESS, prefix);
-      switch (destType) {
-         case QUEUE_TYPE:
-         case TOPIC_TYPE:
-         case TEMP_QUEUE_TYPE:
-         case TEMP_TOPIC_TYPE:
-            return address;
-         default:
-            throw new IllegalArgumentException("Invliad Destination Type given/");
-      }
+      return switch (destType) {
+         case QUEUE_TYPE, TOPIC_TYPE, TEMP_QUEUE_TYPE, TEMP_TOPIC_TYPE -> address;
+         default -> throw new IllegalArgumentException("Invliad Destination Type given/");
+      };
    }
 
    private CoreMessageWrapper createMessage() {
