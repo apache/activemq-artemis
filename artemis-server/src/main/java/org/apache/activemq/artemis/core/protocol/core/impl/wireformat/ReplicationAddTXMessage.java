@@ -176,9 +176,8 @@ public class ReplicationAddTXMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof ReplicationAddTXMessage))
+      if (!(obj instanceof ReplicationAddTXMessage other))
          return false;
-      ReplicationAddTXMessage other = (ReplicationAddTXMessage) obj;
       if (encodingData == null) {
          if (other.encodingData != null)
             return false;

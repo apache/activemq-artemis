@@ -71,9 +71,8 @@ public class SessionXAJoinMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionXAJoinMessage))
+      if (!(obj instanceof SessionXAJoinMessage other))
          return false;
-      SessionXAJoinMessage other = (SessionXAJoinMessage) obj;
       if (xid == null) {
          if (other.xid != null)
             return false;

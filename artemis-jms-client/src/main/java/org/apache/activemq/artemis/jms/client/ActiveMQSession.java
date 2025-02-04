@@ -467,11 +467,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          throw new InvalidDestinationException("Cannot create a consumer with a null destination");
       }
 
-      if (!(destination instanceof ActiveMQDestination)) {
+      if (!(destination instanceof ActiveMQDestination jbdest)) {
          throw new InvalidDestinationException("Not an ActiveMQDestination:" + destination);
       }
-
-      ActiveMQDestination jbdest = (ActiveMQDestination) destination;
 
       if (jbdest.isTemporary() && !connection.containsTemporaryQueue(jbdest.getSimpleAddress())) {
          throw new JMSException("Can not create consumer for temporary destination " + destination +
@@ -586,14 +584,12 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          throw new IllegalStateException("Cannot create a durable subscriber on a QueueSession");
       }
       checkTopic(topic);
-      if (!(topic instanceof ActiveMQDestination)) {
+      if (!(topic instanceof ActiveMQDestination jbdest)) {
          throw new InvalidDestinationException("Not an ActiveMQTopic:" + topic);
       }
       if ("".equals(messageSelector)) {
          messageSelector = null;
       }
-
-      ActiveMQDestination jbdest = (ActiveMQDestination) topic;
 
       if (jbdest.isQueue()) {
          throw new InvalidDestinationException("Cannot create a subscriber on a queue");
@@ -983,7 +979,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       if (queue == null) {
          throw new InvalidDestinationException("Cannot create a browser with a null queue");
       }
-      if (!(queue instanceof ActiveMQDestination)) {
+      if (!(queue instanceof ActiveMQDestination activeMQDestination)) {
          throw new InvalidDestinationException("Not an ActiveMQQueue:" + queue);
       }
       if ("".equals(filterString)) {
@@ -998,8 +994,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       } catch (FilterException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(ActiveMQJMSClientBundle.BUNDLE.invalidFilter(SimpleString.of(filterString), e));
       }
-
-      ActiveMQDestination activeMQDestination = (ActiveMQDestination) queue;
 
       if (!activeMQDestination.isQueue()) {
          throw new InvalidDestinationException("Cannot create a browser on a topic");

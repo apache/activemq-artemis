@@ -148,11 +148,9 @@ public final class AMQPFederationQueuePolicyElement implements Serializable {
       if (this == o) {
          return true;
       }
-      if (!(o instanceof AMQPFederationQueuePolicyElement)) {
+      if (!(o instanceof AMQPFederationQueuePolicyElement that)) {
          return false;
       }
-
-      final AMQPFederationQueuePolicyElement that = (AMQPFederationQueuePolicyElement) o;
 
       return includeFederated == that.includeFederated &&
              Objects.equals(name, that.name) &&
@@ -213,11 +211,9 @@ public final class AMQPFederationQueuePolicyElement implements Serializable {
             return true;
          }
 
-         if (!(o instanceof QueueMatch)) {
+         if (!(o instanceof QueueMatch matcher)) {
             return false;
          }
-
-         final QueueMatch matcher = (QueueMatch) o;
 
          return Objects.equals(queueMatch, matcher.queueMatch) &&
                 Objects.equals(addressMatch, matcher.addressMatch);

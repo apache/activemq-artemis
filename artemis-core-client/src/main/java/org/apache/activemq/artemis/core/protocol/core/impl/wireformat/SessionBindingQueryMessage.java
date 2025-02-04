@@ -63,9 +63,8 @@ public class SessionBindingQueryMessage extends QueueAbstractPacket {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionBindingQueryMessage))
+      if (!(obj instanceof SessionBindingQueryMessage other))
          return false;
-      SessionBindingQueryMessage other = (SessionBindingQueryMessage) obj;
       if (address == null) {
          if (other.address != null)
             return false;

@@ -113,10 +113,9 @@ public class DisconnectMessage_V3 extends DisconnectMessage {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof DisconnectMessage_V3)) {
+      if (!(obj instanceof DisconnectMessage_V3 other)) {
          return false;
       }
-      DisconnectMessage_V3 other = (DisconnectMessage_V3) obj;
       if (reason == null) {
          if (other.reason != null)
             return false;

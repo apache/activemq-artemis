@@ -80,10 +80,9 @@ public class ActiveMQExceptionMessage_V2 extends ActiveMQExceptionMessage {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ActiveMQExceptionMessage_V2)) {
+      if (!(obj instanceof ActiveMQExceptionMessage_V2 other)) {
          return false;
       }
-      ActiveMQExceptionMessage_V2 other = (ActiveMQExceptionMessage_V2) obj;
       if (correlationID != other.correlationID) {
          return false;
       }

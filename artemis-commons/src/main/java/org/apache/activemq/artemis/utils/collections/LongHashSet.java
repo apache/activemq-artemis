@@ -473,11 +473,10 @@ public class LongHashSet extends AbstractSet<Long> implements Serializable {
          return otherSet.containsMissingValue == containsMissingValue && otherSet.sizeOfArrayValues == sizeOfArrayValues && containsAll(otherSet);
       }
 
-      if (!(other instanceof Set)) {
+      if (!(other instanceof Set<?> c)) {
          return false;
       }
 
-      final Set<?> c = (Set<?>) other;
       if (c.size() != size()) {
          return false;
       }

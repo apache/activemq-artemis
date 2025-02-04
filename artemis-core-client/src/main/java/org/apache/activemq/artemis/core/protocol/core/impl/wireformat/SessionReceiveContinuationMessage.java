@@ -110,9 +110,8 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionReceiveContinuationMessage))
+      if (!(obj instanceof SessionReceiveContinuationMessage other))
          return false;
-      SessionReceiveContinuationMessage other = (SessionReceiveContinuationMessage) obj;
       if (consumerID != other.consumerID)
          return false;
       return true;

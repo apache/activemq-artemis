@@ -460,9 +460,8 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionQueueQueryResponseMessage_V3))
+      if (!(obj instanceof SessionQueueQueryResponseMessage_V3 other))
          return false;
-      SessionQueueQueryResponseMessage_V3 other = (SessionQueueQueryResponseMessage_V3) obj;
       if (autoCreated != other.autoCreated)
          return false;
       if (purgeOnNoConsumers != other.purgeOnNoConsumers)

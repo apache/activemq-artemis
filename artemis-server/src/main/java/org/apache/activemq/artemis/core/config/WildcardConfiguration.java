@@ -52,11 +52,9 @@ public class WildcardConfiguration implements Serializable {
       if (this == o) {
          return true;
       }
-      if (!(o instanceof WildcardConfiguration)) {
+      if (!(o instanceof WildcardConfiguration that)) {
          return false;
       }
-
-      WildcardConfiguration that = (WildcardConfiguration) o;
 
       if (routingEnabled != that.routingEnabled) {
          return false;

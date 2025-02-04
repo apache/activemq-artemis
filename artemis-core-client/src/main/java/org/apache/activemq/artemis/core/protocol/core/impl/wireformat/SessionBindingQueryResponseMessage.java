@@ -103,9 +103,8 @@ public class SessionBindingQueryResponseMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionBindingQueryResponseMessage))
+      if (!(obj instanceof SessionBindingQueryResponseMessage other))
          return false;
-      SessionBindingQueryResponseMessage other = (SessionBindingQueryResponseMessage) obj;
       if (exists != other.exists)
          return false;
       if (queueNames == null) {

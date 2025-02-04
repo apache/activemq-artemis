@@ -71,9 +71,8 @@ public class SessionXAForgetMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionXAForgetMessage))
+      if (!(obj instanceof SessionXAForgetMessage other))
          return false;
-      SessionXAForgetMessage other = (SessionXAForgetMessage) obj;
       if (xid == null) {
          if (other.xid != null)
             return false;

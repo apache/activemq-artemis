@@ -502,11 +502,10 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       switch (msg.getFileType()) {
          case LARGE_MESSAGE: {
             ReplicatedLargeMessage largeMessage = lookupLargeMessage(id, false, false);
-            if (!(largeMessage instanceof LargeServerMessageInSync)) {
+            if (!(largeMessage instanceof LargeServerMessageInSync largeMessageInSync)) {
                ActiveMQServerLogger.LOGGER.largeMessageIncompatible();
                return;
             }
-            LargeServerMessageInSync largeMessageInSync = (LargeServerMessageInSync) largeMessage;
             channel1 = largeMessageInSync.getSyncFile();
             break;
          }

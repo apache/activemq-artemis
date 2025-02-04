@@ -81,9 +81,8 @@ public class SessionForceConsumerDelivery extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionForceConsumerDelivery))
+      if (!(obj instanceof SessionForceConsumerDelivery other))
          return false;
-      SessionForceConsumerDelivery other = (SessionForceConsumerDelivery) obj;
       if (consumerID != other.consumerID)
          return false;
       if (sequence != other.sequence)

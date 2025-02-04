@@ -123,9 +123,8 @@ public class CreateAddressMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof CreateAddressMessage))
+      if (!(obj instanceof CreateAddressMessage other))
          return false;
-      CreateAddressMessage other = (CreateAddressMessage) obj;
       if (address == null) {
          if (other.address != null)
             return false;

@@ -412,7 +412,7 @@ public class AMQPStandardMessage extends AMQPMessage {
    @Override
    public String getStringBody() {
       final Section body = getBody();
-      if (body instanceof AmqpValue value && ((AmqpValue) body).getValue() instanceof String) {
+      if (body instanceof AmqpValue value && value.getValue() instanceof String) {
          return (String) value.getValue();
       } else {
          return null;

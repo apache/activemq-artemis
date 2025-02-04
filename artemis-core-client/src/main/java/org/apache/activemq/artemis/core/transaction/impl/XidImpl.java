@@ -115,10 +115,9 @@ public class XidImpl implements Xid, Serializable {
       if (this == other) {
          return true;
       }
-      if (!(other instanceof Xid)) {
+      if (!(other instanceof Xid xother)) {
          return false;
       }
-      Xid xother = (Xid) other;
       if (xother.getFormatId() != formatId) {
          return false;
       }

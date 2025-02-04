@@ -321,10 +321,9 @@ public class PageReadWriter {
 
 
    private static boolean validateLargeMessageStorageManager(PagedMessage msg) {
-      if (!(msg.getMessage() instanceof LargeServerMessage)) {
+      if (!(msg.getMessage() instanceof LargeServerMessage largeServerMessage)) {
          return true;
       }
-      LargeServerMessage largeServerMessage = ((LargeServerMessage) msg.getMessage());
 
       boolean storageManager = largeServerMessage.getStorageManager() != null;
       if (!storageManager) {

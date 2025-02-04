@@ -39,11 +39,9 @@ public class ActiveMQTemporaryTopic extends ActiveMQTopic implements TemporaryTo
          return true;
       }
 
-      if (!(o instanceof ActiveMQTemporaryTopic)) {
+      if (!(o instanceof ActiveMQTemporaryTopic that)) {
          return false;
       }
-
-      ActiveMQTemporaryTopic that = (ActiveMQTemporaryTopic) o;
 
       return super.getAddress().equals(that.getAddress());
    }

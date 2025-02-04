@@ -271,12 +271,10 @@ public final class AMQPFederationPolicySupport {
    public static FederationReceiveFromQueuePolicy decodeReceiveFromQueuePolicy(AMQPMessage message, WildcardConfiguration wildcardConfig) throws ActiveMQException {
       final Section body = message.getBody();
 
-      if (!(body instanceof AmqpValue)) {
+      if (!(body instanceof AmqpValue bodyValue)) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.malformedFederationControlMessage(
             "Message body was not an AmqpValue type");
       }
-
-      final AmqpValue bodyValue = (AmqpValue) body;
 
       if (bodyValue.getValue() == null || !(bodyValue.getValue() instanceof Map)) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.malformedFederationControlMessage(
@@ -386,12 +384,10 @@ public final class AMQPFederationPolicySupport {
    public static FederationReceiveFromAddressPolicy decodeReceiveFromAddressPolicy(AMQPMessage message, WildcardConfiguration wildcardConfig) throws ActiveMQException {
       final Section body = message.getBody();
 
-      if (!(body instanceof AmqpValue)) {
+      if (!(body instanceof AmqpValue bodyValue)) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.malformedFederationControlMessage(
             "Message body was not an AmqpValue type");
       }
-
-      final AmqpValue bodyValue = (AmqpValue) body;
 
       if (bodyValue.getValue() == null || !(bodyValue.getValue() instanceof Map)) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.malformedFederationControlMessage(

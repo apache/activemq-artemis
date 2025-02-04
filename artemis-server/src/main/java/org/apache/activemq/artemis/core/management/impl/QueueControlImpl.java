@@ -1915,8 +1915,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
             for (Map.Entry<SimpleString, Consumer> group : groups.entrySet()) {
 
-               if (group.getValue() instanceof ServerConsumer) {
-                  ServerConsumer serverConsumer = (ServerConsumer) group.getValue();
+               if (group.getValue() instanceof ServerConsumer serverConsumer) {
 
                   JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("groupID", group.getKey().toString()).add("consumerID", serverConsumer.getID()).add("connectionID", serverConsumer.getConnectionID().toString()).add("sessionID", serverConsumer.getSessionID()).add("browseOnly", serverConsumer.isBrowseOnly()).add("creationTime", serverConsumer.getCreationTime());
 

@@ -326,9 +326,8 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
             AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
             assertNotNull(message, "failed at " + i);
             MessageImpl wrapped = (MessageImpl) message.getWrappedMessage();
-            if (wrapped.getBody() instanceof Data) {
+            if (wrapped.getBody() instanceof Data data) {
                // converters can change this to AmqValue
-               Data data = (Data) wrapped.getBody();
                logger.debug("received : message: {}", data.getValue().getLength());
                assertEquals(payload, data.getValue().getLength());
             }
@@ -382,8 +381,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
          assertNotNull(message, "Failed to read message with embedded map in annotations");
          MessageImpl wrapped = (MessageImpl) message.getWrappedMessage();
-         if (wrapped.getBody() instanceof Data) {
-            Data data = (Data) wrapped.getBody();
+         if (wrapped.getBody() instanceof Data data) {
             logger.debug("received : message: {}", data.getValue().getLength());
             assertEquals(payload, data.getValue().getLength());
          }

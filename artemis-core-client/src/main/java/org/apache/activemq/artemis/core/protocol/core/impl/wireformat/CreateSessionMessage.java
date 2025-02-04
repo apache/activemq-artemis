@@ -236,9 +236,8 @@ public class CreateSessionMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof CreateSessionMessage))
+      if (!(obj instanceof CreateSessionMessage other))
          return false;
-      CreateSessionMessage other = (CreateSessionMessage) obj;
       if (autoCommitAcks != other.autoCommitAcks)
          return false;
       if (autoCommitSends != other.autoCommitSends)

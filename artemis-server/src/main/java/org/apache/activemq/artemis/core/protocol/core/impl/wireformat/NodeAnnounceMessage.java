@@ -172,10 +172,9 @@ public class NodeAnnounceMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof NodeAnnounceMessage)) {
+      if (!(obj instanceof NodeAnnounceMessage other)) {
          return false;
       }
-      NodeAnnounceMessage other = (NodeAnnounceMessage) obj;
       if (backup != other.backup) {
          return false;
       }

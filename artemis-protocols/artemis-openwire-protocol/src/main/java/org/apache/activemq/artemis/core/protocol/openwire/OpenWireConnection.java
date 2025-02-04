@@ -1090,8 +1090,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
       @Override
       public void onSlowConsumer(ServerConsumer consumer) {
-         if (consumer.getProtocolData() != null && consumer.getProtocolData() instanceof AMQConsumer) {
-            AMQConsumer amqConsumer = (AMQConsumer) consumer.getProtocolData();
+         if (consumer.getProtocolData() != null && consumer.getProtocolData() instanceof AMQConsumer amqConsumer) {
             ActiveMQTopic topic = AdvisorySupport.getSlowConsumerAdvisoryTopic(amqConsumer.getOpenwireDestination());
             ActiveMQMessage advisoryMessage = new ActiveMQMessage();
             try {

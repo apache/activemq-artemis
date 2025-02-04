@@ -408,8 +408,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       link.setTarget(link.getRemoteTarget());
 
       if (link instanceof Receiver receiver) {
-         if (link.getRemoteTarget() instanceof Coordinator) {
-            Coordinator coordinator = (Coordinator) link.getRemoteTarget();
+         if (link.getRemoteTarget() instanceof Coordinator coordinator) {
             protonSession.addTransactionHandler(coordinator, receiver);
          } else if (isReplicaTarget(receiver)) {
             handleReplicaTargetLinkOpened(protonSession, receiver);

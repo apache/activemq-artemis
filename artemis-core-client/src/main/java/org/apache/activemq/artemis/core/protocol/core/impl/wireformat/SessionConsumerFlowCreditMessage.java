@@ -74,9 +74,8 @@ public class SessionConsumerFlowCreditMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionConsumerFlowCreditMessage))
+      if (!(obj instanceof SessionConsumerFlowCreditMessage other))
          return false;
-      SessionConsumerFlowCreditMessage other = (SessionConsumerFlowCreditMessage) obj;
       if (consumerID != other.consumerID)
          return false;
       if (credits != other.credits)

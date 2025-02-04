@@ -71,9 +71,8 @@ public class SessionXAPrepareMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionXAPrepareMessage))
+      if (!(obj instanceof SessionXAPrepareMessage other))
          return false;
-      SessionXAPrepareMessage other = (SessionXAPrepareMessage) obj;
       if (xid == null) {
          if (other.xid != null)
             return false;

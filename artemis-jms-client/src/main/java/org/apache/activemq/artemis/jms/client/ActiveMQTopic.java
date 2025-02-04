@@ -79,11 +79,9 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
          return true;
       }
 
-      if (!(o instanceof ActiveMQTopic)) {
+      if (!(o instanceof ActiveMQTopic that)) {
          return false;
       }
-
-      ActiveMQTopic that = (ActiveMQTopic) o;
 
       return super.getAddress().equals(that.getAddress());
    }

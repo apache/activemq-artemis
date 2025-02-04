@@ -66,9 +66,8 @@ public class SessionConsumerCloseMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionConsumerCloseMessage))
+      if (!(obj instanceof SessionConsumerCloseMessage other))
          return false;
-      SessionConsumerCloseMessage other = (SessionConsumerCloseMessage) obj;
       if (consumerID != other.consumerID)
          return false;
       return true;

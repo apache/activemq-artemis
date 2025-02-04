@@ -71,9 +71,8 @@ public class SessionXAResumeMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionXAResumeMessage))
+      if (!(obj instanceof SessionXAResumeMessage other))
          return false;
-      SessionXAResumeMessage other = (SessionXAResumeMessage) obj;
       if (xid == null) {
          if (other.xid != null)
             return false;

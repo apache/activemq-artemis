@@ -71,9 +71,8 @@ public class CreateSessionResponseMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof CreateSessionResponseMessage))
+      if (!(obj instanceof CreateSessionResponseMessage other))
          return false;
-      CreateSessionResponseMessage other = (CreateSessionResponseMessage) obj;
       if (serverVersion != other.serverVersion)
          return false;
       return true;

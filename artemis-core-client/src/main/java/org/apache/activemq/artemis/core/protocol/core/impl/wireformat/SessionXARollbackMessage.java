@@ -71,9 +71,8 @@ public class SessionXARollbackMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionXARollbackMessage))
+      if (!(obj instanceof SessionXARollbackMessage other))
          return false;
-      SessionXARollbackMessage other = (SessionXARollbackMessage) obj;
       if (xid == null) {
          if (other.xid != null)
             return false;

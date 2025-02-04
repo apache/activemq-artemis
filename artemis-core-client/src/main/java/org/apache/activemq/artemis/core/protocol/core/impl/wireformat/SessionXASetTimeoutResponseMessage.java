@@ -73,9 +73,8 @@ public class SessionXASetTimeoutResponseMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionXASetTimeoutResponseMessage))
+      if (!(obj instanceof SessionXASetTimeoutResponseMessage other))
          return false;
-      SessionXASetTimeoutResponseMessage other = (SessionXASetTimeoutResponseMessage) obj;
       if (ok != other.ok)
          return false;
       return true;

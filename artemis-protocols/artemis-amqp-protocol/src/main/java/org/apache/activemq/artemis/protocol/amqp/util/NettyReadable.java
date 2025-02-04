@@ -238,11 +238,10 @@ public class NettyReadable implements ReadableBuffer {
          return true;
       }
 
-      if (!(other instanceof ReadableBuffer)) {
+      if (!(other instanceof ReadableBuffer readable)) {
          return false;
       }
 
-      ReadableBuffer readable = (ReadableBuffer) other;
       if (this.remaining() != readable.remaining()) {
          return false;
       }

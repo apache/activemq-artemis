@@ -157,10 +157,9 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof ClusterTopologyChangeMessage)) {
+      if (!(obj instanceof ClusterTopologyChangeMessage other)) {
          return false;
       }
-      ClusterTopologyChangeMessage other = (ClusterTopologyChangeMessage) obj;
       if (exit != other.exit) {
          return false;
       }

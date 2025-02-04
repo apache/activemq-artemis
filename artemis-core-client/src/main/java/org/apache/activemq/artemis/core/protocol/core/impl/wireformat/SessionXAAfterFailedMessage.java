@@ -76,9 +76,8 @@ public class SessionXAAfterFailedMessage extends PacketImpl {
          return true;
       if (!super.equals(obj))
          return false;
-      if (!(obj instanceof SessionXAAfterFailedMessage))
+      if (!(obj instanceof SessionXAAfterFailedMessage other))
          return false;
-      SessionXAAfterFailedMessage other = (SessionXAAfterFailedMessage) obj;
       if (xid == null) {
          if (other.xid != null)
             return false;

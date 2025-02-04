@@ -140,12 +140,10 @@ public final class AMQPFederationEventSupport {
    public static Map<String, Object> decodeQueueAddedEvent(AMQPMessage message) throws ActiveMQException {
       final Section body = message.getBody();
 
-      if (!(body instanceof AmqpValue)) {
+      if (!(body instanceof AmqpValue bodyValue)) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.malformedFederationControlMessage(
             "Message body was not an AmqpValue type");
       }
-
-      final AmqpValue bodyValue = (AmqpValue) body;
 
       if (!(bodyValue.getValue() instanceof Map)) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.malformedFederationControlMessage(
@@ -190,12 +188,10 @@ public final class AMQPFederationEventSupport {
    public static Map<String, Object> decodeAddressAddedEvent(AMQPMessage message) throws ActiveMQException {
       final Section body = message.getBody();
 
-      if (!(body instanceof AmqpValue)) {
+      if (!(body instanceof AmqpValue bodyValue)) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.malformedFederationControlMessage(
             "Message body was not an AmqpValue type");
       }
-
-      final AmqpValue bodyValue = (AmqpValue) body;
 
       if (!(bodyValue.getValue() instanceof Map)) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.malformedFederationControlMessage(
