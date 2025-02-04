@@ -549,21 +549,17 @@ public class ActiveMQActivation {
                   throw ActiveMQRABundle.BUNDLE.noDestinationName();
                }
 
+               // If there is no binding on naming, we will just create a new instance
                String calculatedDestinationName = destinationName.substring(destinationName.lastIndexOf('/') + 1);
                if (isTopic) {
                   calculatedDestinationName = getTopicWithPrefix(calculatedDestinationName);
-               } else if (!isTopic) {
+                  destination = ActiveMQDestination.createTopic(calculatedDestinationName);
+               } else {
                   calculatedDestinationName = getQueueWithPrefix(calculatedDestinationName);
+                  destination = ActiveMQDestination.createQueue(calculatedDestinationName);
                }
 
                ActiveMQRALogger.LOGGER.unableToRetrieveDestinationName(destinationName, destinationType.getName(), calculatedDestinationName);
-
-               // If there is no binding on naming, we will just create a new instance
-               if (isTopic) {
-                  destination = ActiveMQDestination.createTopic(calculatedDestinationName);
-               } else {
-                  destination = ActiveMQDestination.createQueue(calculatedDestinationName);
-               }
             }
          } else {
             logger.debug("Destination type not defined in MDB activation configuration.");
