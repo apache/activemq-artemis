@@ -21,9 +21,10 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.interactions.Actions;
 
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.MESSAGE_TEXT_EDITOR_LOCATOR;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.USE_LOGIN_LOCATOR;
+
 public class SendMessagePage extends ArtemisPage {
-   private By messageTextLocator = By.cssSelector("span[role='presentation']");
-   private By messageTextEditorLocator = By.cssSelector("div[hawtio-editor='$ctrl.message.message']");
 
    public SendMessagePage(WebDriver driver) {
       super(driver);
@@ -32,7 +33,7 @@ public class SendMessagePage extends ArtemisPage {
    public void clearMessageText() {
       while (!getMessageText().isEmpty()) {
          Actions actions = new Actions(driver);
-         actions.click(driver.findElement(messageTextEditorLocator));
+         actions.click(driver.findElement(MESSAGE_TEXT_EDITOR_LOCATOR));
          actions.sendKeys(Keys.BACK_SPACE);
          actions.sendKeys(Keys.DELETE);
          actions.perform();
@@ -40,36 +41,36 @@ public class SendMessagePage extends ArtemisPage {
    }
 
    public boolean isUseCurrentLogonUserSelected() {
-      return driver.findElement(By.id("useCurrentLogonUser")).isSelected();
+      return driver.findElement(USE_LOGIN_LOCATOR).isSelected();
    }
 
 
    public void selectUseCurrentLogonUser() {
       if (!isUseCurrentLogonUserSelected()) {
-         driver.findElement(By.id("useCurrentLogonUser")).click();
+         driver.findElement(USE_LOGIN_LOCATOR).click();
       }
    }
 
    public void unselectUseCurrentLogonUser() {
       if (isUseCurrentLogonUserSelected()) {
-         driver.findElement(By.id("useCurrentLogonUser")).click();
+         driver.findElement(USE_LOGIN_LOCATOR).click();
       }
    }
 
    public void appendMessageText(String text) {
       Actions actions = new Actions(driver);
-      actions.click(driver.findElement(messageTextEditorLocator));
+      actions.click(driver.findElement(MESSAGE_TEXT_EDITOR_LOCATOR));
       actions.sendKeys(text);
       actions.perform();
    }
 
    public String getMessageText() {
-      return driver.findElement(messageTextLocator).getText();
+      return driver.findElement(MESSAGE_TEXT_EDITOR_LOCATOR).getText();
    }
 
    public void sendMessage() {
-      driver.findElement(By.xpath("//button[contains(text(),'Send Message')]")).click();
+      driver.findElement(By.xpath("//button[contains(text(),'Send')]")).click();
 
-      driver.findElement(By.xpath("//button[@class='close']")).click();
+      driver.findElement(By.xpath("//button[contains(text(),'Cancel')]")).click();
    }
 }
