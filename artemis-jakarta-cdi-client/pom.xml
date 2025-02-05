@@ -27,8 +27,22 @@
    </parent>
    <modelVersion>4.0.0</modelVersion>
 
-   <artifactId>artemis-cdi-client</artifactId>
-   <name>ActiveMQ Artemis CDI Integration</name>
+   <artifactId>artemis-jakarta-cdi-client</artifactId>
+   <name>ActiveMQ Artemis Jakarta CDI Integration</name>
+
+   <properties>
+      <jakarta.inject-api.version>${jakarta.inject-api.version.alt}</jakarta.inject-api.version>
+      <jakarta.annotation-api.version>${jakarta.annotation-api.version.alt}</jakarta.annotation-api.version>
+      <jakarta.enterprise.cdi-api.version>${jakarta.enterprise.cdi-api.version.alt}</jakarta.enterprise.cdi-api.version>
+      <jakarta.jms-api.version>${jakarta.jms-api.version.alt}</jakarta.jms-api.version>
+      <jakarta.transaction-api.version>${jakarta.transaction-api.version.alt}</jakarta.transaction-api.version>
+      <!-- the following is needed because of a transitive dependency of arquillian -->
+      <jakarta.ejb-api.version>${jakarta.ejb-api.version.alt}</jakarta.ejb-api.version>
+
+      <weld.version>${weld.version.alt}</weld.version>
+      <arquillian-weld-embedded.version>${arquillian-weld-embedded.version.alt}</arquillian-weld-embedded.version>
+      <owb.version>${owb.version.alt}</owb.version>
+   </properties>
 
    <dependencies>
       <!-- logging -->
@@ -53,11 +67,11 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-jms-client</artifactId>
+         <artifactId>artemis-jakarta-client</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-server</artifactId>
+         <artifactId>artemis-jakarta-server</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -122,6 +136,50 @@
                <argLine>--add-opens java.base/java.lang=ALL-UNNAMED ${activemq-surefire-argline}</argLine>
             </configuration>
          </plugin>
+         <plugin>
+            <groupId>org.wildfly.extras.batavia</groupId>
+            <artifactId>transformer-tools-mvn</artifactId>
+            <executions>
+               <execution>
+                  <id>transform-sources</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>transform-sources</goal>
+                  </goals>
+                  <configuration>
+                     <source-project>${project.basedir}/../artemis-cdi-client</source-project>
+                  </configuration>
+               </execution>
+            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>org.wildfly.extras.batavia</groupId>
+                  <artifactId>transformer-impl-eclipse</artifactId>
+                  <version>${version.batavia}</version>
+               </dependency>
+            </dependencies>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-clean-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>remove-old-services-file</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                     <goal>clean</goal>
+                  </goals>
+                  <configuration>
+                     <filesets>
+                        <fileset>
+                           <directory>${project.build.directory}/generated-resources/transformed/META-INF/services/</directory>
+                        </fileset>
+                     </filesets>
+                     <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
       </plugins>
    </build>
 
@@ -154,16 +212,8 @@
                <artifactId>openwebbeans-spi</artifactId>
             </dependency>
             <dependency>
-               <groupId>org.apache.openwebbeans</groupId>
-               <artifactId>openwebbeans-resource</artifactId>
-            </dependency>
-            <dependency>
                <groupId>org.apache.openwebbeans.arquillian</groupId>
                <artifactId>owb-arquillian-standalone</artifactId>
-            </dependency>
-            <dependency>
-               <groupId>jakarta.annotation</groupId>
-               <artifactId>jakarta.annotation-api</artifactId>
             </dependency>
          </dependencies>
       </profile>
