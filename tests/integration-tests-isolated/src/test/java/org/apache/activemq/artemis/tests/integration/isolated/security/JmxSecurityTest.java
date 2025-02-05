@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.isolated.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -315,7 +316,7 @@ public class JmxSecurityTest {
          assertEquals(Long.valueOf(0), Subject.doAs(subjectB, (PrivilegedExceptionAction<Long>) () -> queueControlA.countMessages()));
          fail("should throw exception here");
       } catch (Exception e) {
-         assertTrue(e instanceof SecurityException);
+         assertInstanceOf(SecurityException.class, e);
       }
 
       // client B View queue B
@@ -327,7 +328,7 @@ public class JmxSecurityTest {
          assertEquals(Long.valueOf(0), Subject.doAs(subjectA, (PrivilegedExceptionAction<Long>) () -> queueControlB.countMessages()));
          fail("should throw exception here");
       } catch (Exception e) {
-         assertTrue(e instanceof SecurityException);
+         assertInstanceOf(SecurityException.class, e);
       }
    }
 

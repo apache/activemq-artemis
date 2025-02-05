@@ -71,7 +71,7 @@ public class TopicSessionTest extends PubSubTestCase {
 
          // we receive it
          Message msg1 = subscriber.receive(TestConfig.TIMEOUT);
-         Assert.assertTrue("no message received", msg1 != null);
+         Assert.assertNotNull("no message received", msg1);
          Assert.assertTrue(msg1 instanceof TextMessage);
          Assert.assertEquals("testRollbackReceivedMessage", ((TextMessage) msg1).getText());
 
@@ -80,7 +80,7 @@ public class TopicSessionTest extends PubSubTestCase {
 
          // we expect to receive a second time the message
          Message msg2 = subscriber.receive(TestConfig.TIMEOUT);
-         Assert.assertTrue("no message received after rollbacking subscriber session.", msg2 != null);
+         Assert.assertNotNull("no message received after rollbacking subscriber session.", msg2);
          Assert.assertTrue(msg2 instanceof TextMessage);
          Assert.assertEquals("testRollbackReceivedMessage", ((TextMessage) msg2).getText());
 
@@ -113,7 +113,7 @@ public class TopicSessionTest extends PubSubTestCase {
          subscriberConnection.start();
 
          TextMessage m = (TextMessage) subscriber.receive(TestConfig.TIMEOUT);
-         Assert.assertTrue(m != null);
+         Assert.assertNotNull(m);
          Assert.assertEquals("test", m.getText());
          subscriber.close();
          subscriberSession.unsubscribe("testTopic");

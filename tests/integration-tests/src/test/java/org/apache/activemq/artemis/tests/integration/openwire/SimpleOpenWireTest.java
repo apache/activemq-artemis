@@ -946,6 +946,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    @Test
    public void testAutoDestinationCreationOnProducerSend() throws JMSException {
+      final String sentMessageText = "bar";
       AddressSettings addressSetting = new AddressSettings();
       addressSetting.setAutoCreateQueues(true);
       addressSetting.setAutoCreateAddresses(true);
@@ -956,19 +957,20 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      TextMessage message = session.createTextMessage("bar");
+      TextMessage sentMessage = session.createTextMessage(sentMessageText);
       Queue queue = new ActiveMQQueue(address);
 
       MessageProducer producer = session.createProducer(null);
-      producer.send(queue, message);
+      producer.send(queue, sentMessage);
 
       MessageConsumer consumer = session.createConsumer(queue);
-      TextMessage message1 = (TextMessage) consumer.receive(1000);
-      assertTrue(message1.getText().equals(message.getText()));
+      TextMessage receivedMessage = (TextMessage) consumer.receive(1000);
+      assertEquals(sentMessageText, receivedMessage.getText());
    }
 
    @Test
    public void testAutoDestinationCreationAndDeletionOnConsumer() throws Exception {
+      final String sentMessageText = "bar";
       AddressSettings addressSetting = new AddressSettings();
       addressSetting.setAutoCreateQueues(true);
       addressSetting.setAutoCreateAddresses(true);
@@ -981,7 +983,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      TextMessage message = session.createTextMessage("bar");
+      TextMessage sentMessage = session.createTextMessage(sentMessageText);
       Queue queue = new ActiveMQQueue(address);
 
       MessageConsumer consumer = session.createConsumer(queue);
@@ -990,10 +992,10 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
       assertTrue(Wait.waitFor(() -> (server.getAddressInfo(SimpleString.of("foo")) != null), 2000, 100));
 
       MessageProducer producer = session.createProducer(null);
-      producer.send(queue, message);
+      producer.send(queue, sentMessage);
 
-      TextMessage message1 = (TextMessage) consumer.receive(1000);
-      assertTrue(message1.getText().equals(message.getText()));
+      TextMessage receivedMessage = (TextMessage) consumer.receive(1000);
+      assertEquals(sentMessageText, receivedMessage.getText());
 
       assertNotNull(server.locateQueue(SimpleString.of("foo")));
 

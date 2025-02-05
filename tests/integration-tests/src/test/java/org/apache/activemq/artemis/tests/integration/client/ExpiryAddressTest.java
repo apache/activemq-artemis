@@ -79,7 +79,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       assertEquals(qName.toString(), m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
       assertEquals(adSend.toString(), m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       m.acknowledge();
    }
 
@@ -125,7 +125,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       assertEquals(qName.toString(), m.getStringProperty(Message.HDR_ORIGINAL_QUEUE));
       assertEquals(adSend.toString(), m.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       m.acknowledge();
    }
 
@@ -175,7 +175,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientConsumer = clientSession.createConsumer(expiryQueue2);
       m = clientConsumer.receive(500);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       m.acknowledge();
    }
 
@@ -215,7 +215,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
       m.acknowledge();
 
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
 
       clientConsumer.close();
 
@@ -230,7 +230,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
 
       m.acknowledge();
 
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
 
       clientConsumer.close();
 
@@ -333,7 +333,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientConsumer = clientSession.createConsumer(eq);
       m = clientConsumer.receive(500);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       m.acknowledge();
    }
 
@@ -361,7 +361,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientConsumer = clientSession.createConsumer(eq);
       m = clientConsumer.receive(500);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       m.acknowledge();
    }
 
@@ -402,7 +402,7 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
       clientConsumer = clientSession.createConsumer(specificExpiryQueue);
       m = clientConsumer.receive(500);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "heyho!");
+      assertEquals("heyho!", m.getBodyBuffer().readString());
       m.acknowledge();
    }
 

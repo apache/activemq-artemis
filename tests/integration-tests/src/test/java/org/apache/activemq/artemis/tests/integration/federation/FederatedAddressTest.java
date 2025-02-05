@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.federation;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -44,6 +39,10 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Federated Address Test
@@ -155,7 +154,7 @@ public class FederatedAddressTest extends FederatedTestBase {
          producer1.send(session1.createTextMessage("hello"));
          Message message = consumer0.receive(1000);
          assertNotNull(message);
-         assertEquals(message.getBooleanProperty(FederatedQueueTest.TestTransformer.TEST_PROPERTY), true);
+         assertTrue(message.getBooleanProperty(FederatedQueueTest.TestTransformer.TEST_PROPERTY));
       }
    }
 

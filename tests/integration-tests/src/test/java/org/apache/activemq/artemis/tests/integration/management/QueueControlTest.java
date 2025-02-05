@@ -170,7 +170,7 @@ public class QueueControlTest extends ManagementTestBase {
       String queueControlResourceName = ResourceNames.QUEUE + "testQueue";
       Object resource = server.getManagementService().getResource(queueControlResourceName);
       QueueControl queueControl = (QueueControl) resource;
-      assertEquals(queueControl.getMessageCount(), TOTAL_MESSAGES);
+      assertEquals(TOTAL_MESSAGES, queueControl.getMessageCount());
 
       // move messages to DLQ
       int count = queueControl.moveMessages(5, "", DLA, false, 10);
@@ -1969,7 +1969,7 @@ public class QueueControlTest extends ManagementTestBase {
       clientMessage.acknowledge();
       assertNotNull(clientMessage);
 
-      assertEquals(clientMessage.getBodyBuffer().readString(), sampleText);
+      assertEquals(sampleText, clientMessage.getBodyBuffer().readString());
 
       // force a rollback to DLQ
       session.rollback();
@@ -2024,7 +2024,7 @@ public class QueueControlTest extends ManagementTestBase {
       clientMessage.acknowledge();
       assertNotNull(clientMessage);
 
-      assertEquals(clientMessage.getBodyBuffer().readString(), sampleText);
+      assertEquals(sampleText, clientMessage.getBodyBuffer().readString());
 
       // force a rollback to DLQ
       session.rollback();
@@ -2138,7 +2138,7 @@ public class QueueControlTest extends ManagementTestBase {
       clientMessage.acknowledge();
       assertNotNull(clientMessage);
 
-      assertEquals(clientMessage.getBodyBuffer().readString(), sampleText);
+      assertEquals(sampleText, clientMessage.getBodyBuffer().readString());
 
       // force a rollback to DLQ
       session.rollback();
@@ -2207,7 +2207,7 @@ public class QueueControlTest extends ManagementTestBase {
          ClientMessage clientMessage = clientConsumer.receive(500);
          clientMessage.acknowledge();
          assertNotNull(clientMessage);
-         assertEquals(clientMessage.getBodyBuffer().readString(), sampleText);
+         assertEquals(sampleText, clientMessage.getBodyBuffer().readString());
          session.rollback();
       }
 
@@ -2235,7 +2235,7 @@ public class QueueControlTest extends ManagementTestBase {
          ClientMessage clientMessage = clientConsumer.receive(500);
          clientMessage.acknowledge();
          assertNotNull(clientMessage);
-         assertEquals(clientMessage.getBodyBuffer().readString(), sampleText);
+         assertEquals(sampleText, clientMessage.getBodyBuffer().readString());
       }
 
       clientConsumer.close();
@@ -4437,13 +4437,13 @@ public class QueueControlTest extends ManagementTestBase {
 
       assertNotNull(body);
 
-      assertEquals(new String(body), "theBody");
+      assertEquals("theBody", new String(body));
 
       body = (byte[]) browse[1].get(BODY);
 
       assertNotNull(body);
 
-      assertEquals(new String(body), "theBody");
+      assertEquals("theBody", new String(body));
    }
 
 
@@ -4602,7 +4602,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       assertNotNull(body);
 
-      assertEquals(new String(body), "theBody");
+      assertEquals("theBody", new String(body));
 
       body = (byte[]) browse[1].get(BODY);
 
@@ -4612,7 +4612,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       assertNotNull(body);
 
-      assertEquals(new String(body), "theBody");
+      assertEquals("theBody", new String(body));
    }
 
    @TestTemplate
@@ -4662,13 +4662,13 @@ public class QueueControlTest extends ManagementTestBase {
 
       assertNotNull(body);
 
-      assertEquals(new String(body), "theBody");
+      assertEquals("theBody", new String(body));
 
       body = (byte[]) browse[1].get(BODY);
 
       assertNotNull(body);
 
-      assertEquals(new String(body), "theBody");
+      assertEquals("theBody", new String(body));
    }
 
    @TestTemplate
@@ -4845,7 +4845,7 @@ public class QueueControlTest extends ManagementTestBase {
       clientMessage.acknowledge();
       assertNotNull(clientMessage);
 
-      assertEquals(clientMessage.getBodyBuffer().readString(), sampleText);
+      assertEquals(sampleText, clientMessage.getBodyBuffer().readString());
 
       // force a rollback to DLQ
       session.rollback();
@@ -4866,7 +4866,7 @@ public class QueueControlTest extends ManagementTestBase {
       // .. and that the message is now on the original queue with ORIG RoutingType set as RoutingType
       clientMessage = clientConsumer.receive(500);
       clientMessage.acknowledge();
-      assertTrue(clientMessage.getRoutingType() == RoutingType.ANYCAST);
+      assertEquals(RoutingType.ANYCAST, clientMessage.getRoutingType());
       assertNotNull(clientMessage);
 
       assertEquals(sampleText, clientMessage.getBodyBuffer().readString());
@@ -4901,7 +4901,7 @@ public class QueueControlTest extends ManagementTestBase {
       clientMessage.acknowledge();
       assertNotNull(clientMessage);
 
-      assertEquals(clientMessage.getBodyBuffer().readString(), sampleText);
+      assertEquals(sampleText, clientMessage.getBodyBuffer().readString());
 
       // force a rollback to DLQ
       session.rollback();

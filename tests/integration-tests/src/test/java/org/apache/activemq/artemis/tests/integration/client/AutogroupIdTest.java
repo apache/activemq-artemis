@@ -149,9 +149,9 @@ public class AutogroupIdTest extends ActiveMQTestBase {
 
       session.close();
 
-      assertEquals(myMessageHandler.messagesReceived, 100);
-      assertEquals(myMessageHandler2.messagesReceived, 100);
-      assertEquals(myMessageHandler3.messagesReceived, 0);
+      assertEquals(100, myMessageHandler.messagesReceived);
+      assertEquals(100, myMessageHandler2.messagesReceived);
+      assertEquals(0, myMessageHandler3.messagesReceived);
    }
 
    /*

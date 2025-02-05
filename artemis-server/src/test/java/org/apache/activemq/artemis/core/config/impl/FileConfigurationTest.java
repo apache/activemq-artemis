@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -350,46 +351,46 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertEquals(6, conf.getConnectionRouters().size());
       for (ConnectionRouterConfiguration bc : conf.getConnectionRouters()) {
          if (bc.getName().equals("simple-local")) {
-            assertEquals(bc.getKeyType(), KeyType.CLIENT_ID);
+            assertEquals(KeyType.CLIENT_ID, bc.getKeyType());
             assertNotNull(bc.getLocalTargetFilter());
             assertNotNull(bc.getKeyFilter());
             assertNull(bc.getPolicyConfiguration());
          } else if (bc.getName().equals("simple-local-with-transformer")) {
-            assertEquals(bc.getKeyType(), KeyType.CLIENT_ID);
+            assertEquals(KeyType.CLIENT_ID, bc.getKeyType());
             assertNotNull(bc.getLocalTargetFilter());
             assertNotNull(bc.getKeyFilter());
             assertNotNull(bc.getPolicyConfiguration());
             assertNotNull(bc.getPolicyConfiguration().getProperties().get(ConsistentHashModuloPolicy.MODULO));
          } else if (bc.getName().equals("simple-router")) {
-            assertEquals(bc.getKeyType(), KeyType.USER_NAME);
+            assertEquals(KeyType.USER_NAME, bc.getKeyType());
             assertNull(bc.getLocalTargetFilter());
-            assertEquals(bc.getPolicyConfiguration().getName(), FirstElementPolicy.NAME);
+            assertEquals(FirstElementPolicy.NAME, bc.getPolicyConfiguration().getName());
             assertFalse(bc.getPoolConfiguration().isLocalTargetEnabled());
             assertEquals("connector1", bc.getPoolConfiguration().getStaticConnectors().get(0));
             assertNull(bc.getPoolConfiguration().getDiscoveryGroupName());
          } else if (bc.getName().equals("simple-router-connector2")) {
-            assertEquals(bc.getKeyType(), KeyType.USER_NAME);
+            assertEquals(KeyType.USER_NAME, bc.getKeyType());
             assertNull(bc.getLocalTargetFilter());
-            assertEquals(bc.getPolicyConfiguration().getName(), FirstElementPolicy.NAME);
+            assertEquals(FirstElementPolicy.NAME, bc.getPolicyConfiguration().getName());
             assertFalse(bc.getPoolConfiguration().isLocalTargetEnabled());
             assertEquals("connector2", bc.getPoolConfiguration().getStaticConnectors().get(0));
             assertNull(bc.getPoolConfiguration().getDiscoveryGroupName());
          } else if (bc.getName().equals("consistent-hash-router")) {
-            assertEquals(bc.getKeyType(), KeyType.SNI_HOST);
-            assertEquals(bc.getKeyFilter(), "^[^.]+");
-            assertEquals(bc.getLocalTargetFilter(), "DEFAULT");
-            assertEquals(bc.getPolicyConfiguration().getName(), ConsistentHashPolicy.NAME);
+            assertEquals(KeyType.SNI_HOST, bc.getKeyType());
+            assertEquals("^[^.]+", bc.getKeyFilter());
+            assertEquals("DEFAULT", bc.getLocalTargetFilter());
+            assertEquals(ConsistentHashPolicy.NAME, bc.getPolicyConfiguration().getName());
             assertEquals(1000, bc.getPoolConfiguration().getCheckPeriod());
             assertTrue(bc.getPoolConfiguration().isLocalTargetEnabled());
             assertNull(bc.getPoolConfiguration().getStaticConnectors());
             assertEquals("dg1", bc.getPoolConfiguration().getDiscoveryGroupName());
          } else {
-            assertEquals(bc.getKeyType(), KeyType.SOURCE_IP);
+            assertEquals(KeyType.SOURCE_IP, bc.getKeyType());
             assertEquals("least-connections-router", bc.getName());
             assertNotNull(bc.getCacheConfiguration());
             assertTrue(bc.getCacheConfiguration().isPersisted());
             assertEquals(60000, bc.getCacheConfiguration().getTimeout());
-            assertEquals(bc.getPolicyConfiguration().getName(), LeastConnectionsPolicy.NAME);
+            assertEquals(LeastConnectionsPolicy.NAME, bc.getPolicyConfiguration().getName());
             assertEquals(3000, bc.getPoolConfiguration().getCheckPeriod());
             assertEquals(2, bc.getPoolConfiguration().getQuorumSize());
             assertEquals(1000, bc.getPoolConfiguration().getQuorumTimeout());
@@ -445,11 +446,11 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
       HAPolicyConfiguration pc = conf.getHAPolicyConfiguration();
       assertNotNull(pc);
-      assertTrue(pc instanceof PrimaryOnlyPolicyConfiguration);
+      assertInstanceOf(PrimaryOnlyPolicyConfiguration.class, pc);
       PrimaryOnlyPolicyConfiguration lopc = (PrimaryOnlyPolicyConfiguration) pc;
       assertNotNull(lopc.getScaleDownConfiguration());
-      assertEquals(lopc.getScaleDownConfiguration().getGroupName(), "boo!");
-      assertEquals(lopc.getScaleDownConfiguration().getDiscoveryGroup(), "dg1");
+      assertEquals("boo!", lopc.getScaleDownConfiguration().getGroupName());
+      assertEquals("dg1", lopc.getScaleDownConfiguration().getDiscoveryGroup());
 
       for (ClusterConnectionConfiguration ccc : conf.getClusterConfigurations()) {
          if (ccc.getName().equals("cluster-connection3")) {
@@ -495,8 +496,8 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
       assertEquals(2, conf.getAddressSettings().size());
 
-      assertTrue(conf.getAddressSettings().get("a1") != null);
-      assertTrue(conf.getAddressSettings().get("a2") != null);
+      assertNotNull(conf.getAddressSettings().get("a1"));
+      assertNotNull(conf.getAddressSettings().get("a2"));
 
       assertEquals("a1.1", conf.getAddressSettings().get("a1").getDeadLetterAddress().toString());
       assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_DEAD_LETTER_RESOURCES, conf.getAddressSettings().get("a1").isAutoCreateDeadLetterResources());
@@ -651,14 +652,14 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
       // keep test for backwards compatibility
       ActiveMQMetricsPlugin metricsPlugin = conf.getMetricsPlugin();
-      assertTrue(metricsPlugin instanceof SimpleMetricsPlugin);
+      assertInstanceOf(SimpleMetricsPlugin.class, metricsPlugin);
       Map<String, String> options = ((SimpleMetricsPlugin) metricsPlugin).getOptions();
       assertEquals("x", options.get("foo"));
       assertEquals("y", options.get("bar"));
       assertEquals("z", options.get("baz"));
 
       MetricsConfiguration metricsConfiguration = conf.getMetricsConfiguration();
-      assertTrue(metricsConfiguration.getPlugin() instanceof SimpleMetricsPlugin);
+      assertInstanceOf(SimpleMetricsPlugin.class, metricsConfiguration.getPlugin());
       options = ((SimpleMetricsPlugin) metricsPlugin).getOptions();
       assertEquals("x", options.get("foo"));
       assertEquals("y", options.get("bar"));
@@ -761,21 +762,21 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
       List<SecuritySettingPlugin> securitySettingPlugins = fc.getSecuritySettingPlugins();
       SecuritySettingPlugin securitySettingPlugin = securitySettingPlugins.get(0);
-      assertTrue(securitySettingPlugin instanceof LegacyLDAPSecuritySettingPlugin);
+      assertInstanceOf(LegacyLDAPSecuritySettingPlugin.class, securitySettingPlugin);
       LegacyLDAPSecuritySettingPlugin legacyLDAPSecuritySettingPlugin = (LegacyLDAPSecuritySettingPlugin) securitySettingPlugin;
-      assertEquals(legacyLDAPSecuritySettingPlugin.getInitialContextFactory(), "testInitialContextFactory");
-      assertEquals(legacyLDAPSecuritySettingPlugin.getConnectionURL(), "testConnectionURL");
-      assertEquals(legacyLDAPSecuritySettingPlugin.getConnectionUsername(), "testConnectionUsername");
-      assertEquals(legacyLDAPSecuritySettingPlugin.getConnectionPassword(), "testConnectionPassword");
-      assertEquals(legacyLDAPSecuritySettingPlugin.getConnectionProtocol(), "testConnectionProtocol");
-      assertEquals(legacyLDAPSecuritySettingPlugin.getAuthentication(), "testAuthentication");
-      assertEquals(legacyLDAPSecuritySettingPlugin.getDestinationBase(), "testDestinationBase");
-      assertEquals(legacyLDAPSecuritySettingPlugin.getFilter(), "testFilter");
-      assertEquals(legacyLDAPSecuritySettingPlugin.getRoleAttribute(), "testRoleAttribute");
-      assertEquals(legacyLDAPSecuritySettingPlugin.getAdminPermissionValue(), "testAdminPermissionValue");
-      assertEquals(legacyLDAPSecuritySettingPlugin.getReadPermissionValue(), "testReadPermissionValue");
-      assertEquals(legacyLDAPSecuritySettingPlugin.getWritePermissionValue(), "testWritePermissionValue");
-      assertEquals(legacyLDAPSecuritySettingPlugin.isEnableListener(), false);
+      assertEquals("testInitialContextFactory", legacyLDAPSecuritySettingPlugin.getInitialContextFactory());
+      assertEquals("testConnectionURL", legacyLDAPSecuritySettingPlugin.getConnectionURL());
+      assertEquals("testConnectionUsername", legacyLDAPSecuritySettingPlugin.getConnectionUsername());
+      assertEquals("testConnectionPassword", legacyLDAPSecuritySettingPlugin.getConnectionPassword());
+      assertEquals("testConnectionProtocol", legacyLDAPSecuritySettingPlugin.getConnectionProtocol());
+      assertEquals("testAuthentication", legacyLDAPSecuritySettingPlugin.getAuthentication());
+      assertEquals("testDestinationBase", legacyLDAPSecuritySettingPlugin.getDestinationBase());
+      assertEquals("testFilter", legacyLDAPSecuritySettingPlugin.getFilter());
+      assertEquals("testRoleAttribute", legacyLDAPSecuritySettingPlugin.getRoleAttribute());
+      assertEquals("testAdminPermissionValue", legacyLDAPSecuritySettingPlugin.getAdminPermissionValue());
+      assertEquals("testReadPermissionValue", legacyLDAPSecuritySettingPlugin.getReadPermissionValue());
+      assertEquals("testWritePermissionValue", legacyLDAPSecuritySettingPlugin.getWritePermissionValue());
+      assertFalse(legacyLDAPSecuritySettingPlugin.isEnableListener());
    }
 
    @TestTemplate
@@ -898,8 +899,8 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
       List<ActiveMQServerBasePlugin> brokerPlugins = fc.getBrokerPlugins();
       assertEquals(2, brokerPlugins.size());
-      assertTrue(brokerPlugins.get(0) instanceof EmptyPlugin1);
-      assertTrue(brokerPlugins.get(1) instanceof EmptyPlugin2);
+      assertInstanceOf(EmptyPlugin1.class, brokerPlugins.get(0));
+      assertInstanceOf(EmptyPlugin2.class, brokerPlugins.get(1));
    }
 
    @TestTemplate
@@ -948,7 +949,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       deploymentManager.readConfiguration();
 
       ActiveMQMetricsPlugin metricPlugin = fc.getMetricsConfiguration().getPlugin();
-      assertTrue(metricPlugin instanceof FakeMetricPlugin);
+      assertInstanceOf(FakeMetricPlugin.class, metricPlugin);
 
       Map<String, String> metricPluginOptions = ((FakeMetricPlugin)metricPlugin).getOptions();
       assertEquals("value1", metricPluginOptions.get("key1"));
@@ -974,7 +975,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertTrue(metricsConfiguration.isUptime());
 
       ActiveMQMetricsPlugin metricPlugin = metricsConfiguration.getPlugin();
-      assertTrue(metricPlugin instanceof FakeMetricPlugin);
+      assertInstanceOf(FakeMetricPlugin.class, metricPlugin);
 
       Map<String, String> metricPluginOptions = ((FakeMetricPlugin)metricPlugin).getOptions();
       assertEquals("value1", metricPluginOptions.get("key1"));
@@ -990,7 +991,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       deploymentManager.readConfiguration();
 
       ActiveMQMetricsPlugin metricPlugin = fc.getMetricsConfiguration().getPlugin();
-      assertTrue(metricPlugin instanceof FakeMetricPlugin);
+      assertInstanceOf(FakeMetricPlugin.class, metricPlugin);
 
       Map<String, String> metricPluginOptions = ((FakeMetricPlugin)metricPlugin).getOptions();
       assertEquals("value1", metricPluginOptions.get("key1"));

@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.routing;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -36,16 +32,21 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashPolicy;
 import org.apache.activemq.artemis.core.server.routing.policies.FirstElementPolicy;
 import org.apache.activemq.artemis.core.server.routing.policies.LeastConnectionsPolicy;
 import org.apache.activemq.artemis.core.server.routing.policies.RoundRobinPolicy;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
-import org.apache.activemq.artemis.core.server.routing.KeyType;
-import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class RedirectTest extends RoutingTestBase {
@@ -276,7 +277,7 @@ public class RedirectTest extends RoutingTestBase {
 
       startServers(0, 1);
 
-      assertTrue(getServer(0).getNodeID() != getServer(1).getNodeID());
+      assertNotEquals(getServer(0).getNodeID(), getServer(1).getNodeID());
 
       getServer(0).createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
       getServer(1).createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
@@ -314,7 +315,7 @@ public class RedirectTest extends RoutingTestBase {
       assertTrue((queueControl0.countMessages() == 0 && queueControl1.countMessages() == 1) ||
           (queueControl0.countMessages() == 1 && queueControl1.countMessages() == 0));
 
-      assertTrue(getServer(0).getNodeID() != getServer(1).getNodeID());
+      assertNotEquals(getServer(0).getNodeID(), getServer(1).getNodeID());
 
       ConnectionFactory connectionFactory1 = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
           TransportConstants.DEFAULT_PORT + 1, null, "admin", "admin");

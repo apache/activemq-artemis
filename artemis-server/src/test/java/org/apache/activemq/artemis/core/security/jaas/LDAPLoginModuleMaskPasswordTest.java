@@ -90,7 +90,7 @@ public class LDAPLoginModuleMaskPasswordTest extends AbstractLdapTestUnit {
       try {
          context.login();
       } catch (FailedLoginException le) {
-         assertEquals(le.getMessage(), "Password does not match for user: first");
+         assertEquals("Password does not match for user: first", le.getMessage());
          return;
       }
       fail("Should have failed authenticating");
@@ -148,7 +148,7 @@ public class LDAPLoginModuleMaskPasswordTest extends AbstractLdapTestUnit {
       try {
          context.login();
       } catch (FailedLoginException le) {
-         assertEquals(le.getMessage(), "Password does not match for user: first");
+         assertEquals("Password does not match for user: first", le.getMessage());
          return;
       }
       fail("Should have failed authenticating");

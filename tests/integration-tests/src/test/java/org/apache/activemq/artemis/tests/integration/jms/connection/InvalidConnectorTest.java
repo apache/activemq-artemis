@@ -56,7 +56,7 @@ public class InvalidConnectorTest extends JMSTestBase {
 
       TransportConfiguration tc = tcs[0];
 
-      assertNotSame(tc.getParams().get(TransportConstants.HOST_PROP_NAME), "0.0.0.0");
+      assertNotSame("0.0.0.0", tc.getParams().get(TransportConstants.HOST_PROP_NAME));
       assertEquals(tc.getParams().get(TransportConstants.HOST_PROP_NAME), InetAddress.getLocalHost().getHostName());
    }
 }

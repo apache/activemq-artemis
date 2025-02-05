@@ -53,7 +53,7 @@ public class RepositoryTest extends ServerTestBase {
       securityRepository.setDefault(new HashSet<>());
       Set<Role> roles = securityRepository.getMatch("queues.something");
 
-      assertEquals(roles.size(), 0);
+      assertEquals(0, roles.size());
    }
 
    @Test
@@ -178,7 +178,7 @@ public class RepositoryTest extends ServerTestBase {
    public void testSingleMatch() {
       securityRepository.addMatch("queues.*", new HashSet<>());
       Set<Role> hashSet = securityRepository.getMatch("queues.something");
-      assertEquals(hashSet.size(), 0);
+      assertEquals(0, hashSet.size());
    }
 
    @Test
@@ -195,7 +195,7 @@ public class RepositoryTest extends ServerTestBase {
       securityRepository.addMatch("queues.another.andanother", roles2);
 
       Set<Role> hashSet = securityRepository.getMatch("queues.another.andanother");
-      assertEquals(hashSet.size(), 3);
+      assertEquals(3, hashSet.size());
    }
 
    @Test
@@ -206,7 +206,7 @@ public class RepositoryTest extends ServerTestBase {
       roles.add(new Role("test2", true, true, true, true, true, true, true, true, true, true, false, false));
       securityRepository.addMatch("queues.2.aq", roles);
       Set<Role> hashSet = securityRepository.getMatch("queues.2.aq");
-      assertEquals(hashSet.size(), 2);
+      assertEquals(2, hashSet.size());
    }
 
    @Test

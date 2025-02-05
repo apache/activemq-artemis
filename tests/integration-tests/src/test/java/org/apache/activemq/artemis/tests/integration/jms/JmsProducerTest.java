@@ -205,7 +205,7 @@ public class JmsProducerTest extends JMSTestBase {
             byte value1 = producer.getByteProperty("testGetNonExistentProperties");
 
             if (expected == null) {
-               assertTrue(value1 == value0, "value0: " + value0 + " value1: " + value1);
+               assertEquals(value1, value0, "value0: " + value0 + " value1: " + value1);
             } else {
                fail("non existent byte property expects exception, but got value: " + value1);
             }
@@ -261,7 +261,7 @@ public class JmsProducerTest extends JMSTestBase {
             double value1 = producer.getDoubleProperty("testGetNonExistentProperties");
 
             if (expected == null) {
-               assertTrue(value1 == value0, "value0: " + value0 + " value1: " + value1);
+               assertEquals(value1, value0, "value0: " + value0 + " value1: " + value1);
             } else {
                fail("non existent double property expects exception, but got value: " + value1);
             }
@@ -289,7 +289,7 @@ public class JmsProducerTest extends JMSTestBase {
             float value1 = producer.getFloatProperty("testGetNonExistentProperties");
 
             if (expected == null) {
-               assertTrue(value1 == value0, "value0: " + value0 + " value1: " + value1);
+               assertEquals(value1, value0, "value0: " + value0 + " value1: " + value1);
             } else {
                fail("non existent double property expects exception, but got value: " + value1);
             }
@@ -317,7 +317,7 @@ public class JmsProducerTest extends JMSTestBase {
             int value1 = producer.getIntProperty("testGetNonExistentProperties");
 
             if (expected == null) {
-               assertTrue(value1 == value0, "value0: " + value0 + " value1: " + value1);
+               assertEquals(value1, value0, "value0: " + value0 + " value1: " + value1);
             } else {
                fail("non existent double property expects exception, but got value: " + value1);
             }
@@ -373,7 +373,7 @@ public class JmsProducerTest extends JMSTestBase {
             short value1 = producer.getShortProperty("testGetNonExistentProperties");
 
             if (expected == null) {
-               assertTrue(value1 == value0, "value0: " + value0 + " value1: " + value1);
+               assertEquals(value1, value0, "value0: " + value0 + " value1: " + value1);
             } else {
                fail("non existent double property expects exception, but got value: " + value1);
             }

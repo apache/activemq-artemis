@@ -202,7 +202,7 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       journal.sync();
 
       done.await(5, TimeUnit.SECONDS);
-      assertEquals(done.getCount(), 0);
+      assertEquals(0, done.getCount());
    }
 
    @TestTemplate

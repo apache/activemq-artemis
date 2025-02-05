@@ -103,7 +103,7 @@ public class MessageHeaderTest extends PTPTestCase {
       try {
          Message message = senderSession.createMessage();
          sender.send(message);
-         Assert.assertTrue("sec. 3.4.3 When the send method returns it contains a provider-assigned value.\n", message.getJMSMessageID() != null);
+         Assert.assertNotNull("sec. 3.4.3 When the send method returns it contains a provider-assigned value.\n", message.getJMSMessageID());
          Assert.assertTrue("sec. 3.4.3 All JMSMessageID values must start with the prefix 'ID:'.\n", message.getJMSMessageID().startsWith("ID:"));
 
          Message msg = receiver.receive(TestConfig.TIMEOUT);
@@ -123,7 +123,7 @@ public class MessageHeaderTest extends PTPTestCase {
          Message message = senderSession.createMessage();
          message.setJMSMessageID("ID:foo");
          sender.send(message);
-         Assert.assertTrue("sec. 3.4.3 When a message is sent this value is ignored.\n", !message.getJMSMessageID().equals("ID:foo"));
+         Assert.assertNotEquals("sec. 3.4.3 When a message is sent this value is ignored.\n", "ID:foo", message.getJMSMessageID());
          receiver.receive(TestConfig.TIMEOUT);
       } catch (JMSException e) {
          fail(e);
@@ -170,13 +170,13 @@ public class MessageHeaderTest extends PTPTestCase {
 
          Context ctx = new InitialContext(props);
          Queue anotherQueue = (Queue) ctx.lookup("anotherQueue");
-         Assert.assertTrue(anotherQueue != senderQueue);
+         Assert.assertNotSame(anotherQueue, senderQueue);
 
          // set the JMSDestination header field to the anotherQueue Destination
          Message message = senderSession.createMessage();
          message.setJMSDestination(anotherQueue);
          sender.send(message);
-         Assert.assertTrue("sec. 3.4.1 When a message is sent this value is ignored.\n", message.getJMSDestination() != anotherQueue);
+         Assert.assertNotSame("sec. 3.4.1 When a message is sent this value is ignored.\n", message.getJMSDestination(), anotherQueue);
          Assert.assertEquals("sec. 3.4.1 After completion of the send it holds the destination object specified " + "by the sending method.\n", senderQueue, message.getJMSDestination());
 
          Message msg = receiver.receive(TestConfig.TIMEOUT);

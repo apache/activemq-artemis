@@ -16,16 +16,16 @@
  */
 package org.apache.activemq.artemis.core.version.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class VersionImplTest {
 
@@ -73,7 +73,7 @@ public class VersionImplTest {
       ObjectInputStream ois = new ObjectInputStream(bais);
       VersionImpl version2 = (VersionImpl) ois.readObject();
 
-      assertTrue(version.equals(version2));
+      assertEquals(version, version2);
    }
 
 

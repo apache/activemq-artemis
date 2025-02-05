@@ -17,8 +17,10 @@
 package org.apache.activemq.artemis.tests.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -959,7 +961,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
          action.run();
          fail(message);
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQException);
+         assertInstanceOf(ActiveMQException.class, e);
          assertEquals(errorCode, ((ActiveMQException) e).getType());
       }
    }
@@ -973,7 +975,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
          action.run();
          fail("must throw a XAException with the expected errorCode: " + errorCode);
       } catch (Exception e) {
-         assertTrue(e instanceof XAException);
+         assertInstanceOf(XAException.class, e);
          assertEquals(errorCode, ((XAException) e).errorCode);
       }
    }
@@ -2170,7 +2172,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
          MessageReference o1 = iter1.next();
          MessageReference o2 = iter2.next();
 
-         assertTrue(o1 == o2, "expected " + o1 + " but was " + o2);
+         assertSame(o1, o2, "expected " + o1 + " but was " + o2);
       }
    }
 

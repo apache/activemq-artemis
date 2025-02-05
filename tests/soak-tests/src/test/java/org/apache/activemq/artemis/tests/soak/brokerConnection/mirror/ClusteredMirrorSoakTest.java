@@ -292,7 +292,7 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
 
       final int numberOfMessages = 200;
 
-      assertTrue(numberOfMessages % 2 == 0, "numberOfMessages must be even");
+      assertEquals(0, numberOfMessages % 2, "numberOfMessages must be even");
 
       ConnectionFactory connectionFactoryDC1A = CFUtil.createConnectionFactory("amqp", DC1_NODEA_URI);
       ConnectionFactory connectionFactoryDC2A = CFUtil.createConnectionFactory("amqp", DC2_NODEA_URI);
@@ -515,7 +515,7 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
 
       final int numberOfMessages = 200;
 
-      assertTrue(numberOfMessages % 2 == 0, "numberOfMessages must be even");
+      assertEquals(0, numberOfMessages % 2, "numberOfMessages must be even");
 
       String clientIDA = "nodeA";
       String clientIDB = "nodeB";

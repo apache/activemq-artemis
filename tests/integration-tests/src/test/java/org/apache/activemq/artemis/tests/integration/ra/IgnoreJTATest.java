@@ -118,11 +118,11 @@ public class IgnoreJTATest extends ActiveMQRATestBase {
       queueConnection.start();
       TextMessage textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.rollback();
       textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.commit();
    }
 

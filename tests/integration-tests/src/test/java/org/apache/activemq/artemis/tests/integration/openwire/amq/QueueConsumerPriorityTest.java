@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -30,6 +26,9 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 public class QueueConsumerPriorityTest extends BasicOpenWireTest {
 
    @Override
@@ -39,7 +38,7 @@ public class QueueConsumerPriorityTest extends BasicOpenWireTest {
       this.makeSureCoreQueueExist("QUEUE.A");
    }
    @Test
-   public void testQueueConsumerPriority() throws JMSException, InterruptedException {
+   public void testQueueConsumerPriority() throws Exception {
       connection.start();
       Session consumerLowPriority = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Session consumerHighPriority = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

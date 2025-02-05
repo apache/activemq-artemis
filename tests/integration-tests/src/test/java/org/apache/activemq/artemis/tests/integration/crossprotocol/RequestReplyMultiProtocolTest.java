@@ -17,11 +17,6 @@
 
 package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
-import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -51,6 +46,11 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class RequestReplyMultiProtocolTest extends OpenWireTestBase {
@@ -167,9 +167,9 @@ public class RequestReplyMultiProtocolTest extends OpenWireTestBase {
             logger.debug("Destination::{}", received.getJMSDestination());
 
             if (useTopic) {
-               assertTrue(received.getJMSDestination() instanceof Topic,  "JMSDestination type is " + received.getJMSDestination().getClass());
+               assertInstanceOf(Topic.class, received.getJMSDestination(), "JMSDestination type is " + received.getJMSDestination().getClass());
             } else {
-               assertTrue(received.getJMSDestination() instanceof Queue,  "JMSDestination type is " + received.getJMSDestination().getClass());
+               assertInstanceOf(Queue.class, received.getJMSDestination(), "JMSDestination type is " + received.getJMSDestination().getClass());
             }
 
             assertNotNull(received.getJMSReplyTo());
@@ -178,19 +178,19 @@ public class RequestReplyMultiProtocolTest extends OpenWireTestBase {
             logger.debug("received {} and {}", received.getText(), received.getJMSReplyTo());
 
             if (destination instanceof Queue queue) {
-               assertTrue(received.getJMSReplyTo() instanceof Queue, "Type is " + received.getJMSReplyTo().getClass().toString());
+               assertInstanceOf(Queue.class, received.getJMSReplyTo(), "Type is " + received.getJMSReplyTo().getClass().toString());
                assertEquals(queue.getQueueName(), ((Queue)received.getJMSReplyTo()).getQueueName());
             }
             if (destination instanceof Topic topic) {
-               assertTrue(received.getJMSReplyTo() instanceof Topic, "Type is " + received.getJMSReplyTo().getClass().toString());
+               assertInstanceOf(Topic.class, received.getJMSReplyTo(), "Type is " + received.getJMSReplyTo().getClass().toString());
                assertEquals(topic.getTopicName(), ((Topic)received.getJMSReplyTo()).getTopicName());
             }
             if (destination instanceof TemporaryQueue temporaryQueue) {
-               assertTrue(received.getJMSReplyTo() instanceof TemporaryQueue, "Type is " + received.getJMSReplyTo().getClass().toString());
+               assertInstanceOf(TemporaryQueue.class, received.getJMSReplyTo(), "Type is " + received.getJMSReplyTo().getClass().toString());
                assertEquals(temporaryQueue.getQueueName(), ((TemporaryQueue)received.getJMSReplyTo()).getQueueName());
             }
             if (destination instanceof TemporaryTopic temporaryTopic) {
-               assertTrue(received.getJMSReplyTo() instanceof TemporaryTopic, "Type is " + received.getJMSReplyTo().getClass().toString());
+               assertInstanceOf(TemporaryTopic.class, received.getJMSReplyTo(), "Type is " + received.getJMSReplyTo().getClass().toString());
                assertEquals(temporaryTopic.getTopicName(), ((TemporaryTopic)received.getJMSReplyTo()).getTopicName());
             }
          }

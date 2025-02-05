@@ -42,7 +42,7 @@ public class AddressSettingsTest extends ServerTestBase {
       assertNull(addressSettings.getDeadLetterAddress());
       assertNull(addressSettings.getExpiryAddress());
       assertEquals(AddressSettings.DEFAULT_MAX_DELIVERY_ATTEMPTS, addressSettings.getMaxDeliveryAttempts());
-      assertEquals(addressSettings.getMaxSizeBytes(), AddressSettings.DEFAULT_MAX_SIZE_BYTES);
+      assertEquals(AddressSettings.DEFAULT_MAX_SIZE_BYTES, addressSettings.getMaxSizeBytes());
       assertEquals(AddressSettings.DEFAULT_PAGE_SIZE, addressSettings.getPageSizeBytes());
       assertEquals(AddressSettings.DEFAULT_MESSAGE_COUNTER_HISTORY_DAY_LIMIT, addressSettings.getMessageCounterHistoryDayLimit());
       assertEquals(AddressSettings.DEFAULT_REDELIVER_DELAY, addressSettings.getRedeliveryDelay());
@@ -104,14 +104,14 @@ public class AddressSettingsTest extends ServerTestBase {
       }
       assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
       assertEquals(addressSettings.getExpiryAddress(), exp);
-      assertEquals(addressSettings.getMaxDeliveryAttempts(), 1000);
-      assertEquals(addressSettings.getMaxSizeBytes(), 1001);
-      assertEquals(addressSettings.getMaxSizeMessages(), 101);
-      assertEquals(addressSettings.getMessageCounterHistoryDayLimit(), 1002);
-      assertEquals(addressSettings.getRedeliveryDelay(), 1003);
-      assertEquals(addressSettings.getPageSizeBytes(), 1004);
+      assertEquals(1000, addressSettings.getMaxDeliveryAttempts());
+      assertEquals(1001, addressSettings.getMaxSizeBytes());
+      assertEquals(101, addressSettings.getMaxSizeMessages());
+      assertEquals(1002, addressSettings.getMessageCounterHistoryDayLimit());
+      assertEquals(1003, addressSettings.getRedeliveryDelay());
+      assertEquals(1004, addressSettings.getPageSizeBytes());
       assertEquals(AddressFullMessagePolicy.DROP, addressSettings.getAddressFullMessagePolicy());
-      assertEquals(addressSettings.getMaxSizeBytesRejectThreshold(), 10 * 1024);
+      assertEquals(10 * 1024, addressSettings.getMaxSizeBytesRejectThreshold());
       assertEquals(DeletionPolicy.FORCE, addressSettings.getConfigDeleteDiverts());
       assertEquals(Long.valueOf(999), addressSettings.getExpiryDelay());
       assertEquals(Long.valueOf(888), addressSettings.getMinExpiryDelay());
@@ -164,13 +164,13 @@ public class AddressSettingsTest extends ServerTestBase {
 
       assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
       assertEquals(addressSettings.getExpiryAddress(), exp);
-      assertEquals(addressSettings.getMaxDeliveryAttempts(), 1000);
-      assertEquals(addressSettings.getMaxSizeBytes(), 1001);
-      assertEquals(addressSettings.getMessageCounterHistoryDayLimit(), 1002);
-      assertEquals(addressSettings.getRedeliveryDelay(), 2003);
-      assertEquals(addressSettings.getRedeliveryMultiplier(), 2.5, 0.000001);
+      assertEquals(1000, addressSettings.getMaxDeliveryAttempts());
+      assertEquals(1001, addressSettings.getMaxSizeBytes());
+      assertEquals(1002, addressSettings.getMessageCounterHistoryDayLimit());
+      assertEquals(2003, addressSettings.getRedeliveryDelay());
+      assertEquals(2.5, addressSettings.getRedeliveryMultiplier(), 0.000001);
       assertEquals(AddressFullMessagePolicy.DROP, addressSettings.getAddressFullMessagePolicy());
-      assertEquals(addressSettings.getMaxSizeBytesRejectThreshold(), 10 * 1024);
+      assertEquals(10 * 1024, addressSettings.getMaxSizeBytesRejectThreshold());
       assertTrue(addressSettings.isNoExpiry());
    }
 
@@ -221,12 +221,12 @@ public class AddressSettingsTest extends ServerTestBase {
 
       assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
       assertEquals(addressSettings.getExpiryAddress(), exp);
-      assertEquals(addressSettings.getMaxDeliveryAttempts(), 2000);
-      assertEquals(addressSettings.getMaxSizeBytes(), 1001);
-      assertEquals(addressSettings.getMessageCounterHistoryDayLimit(), 2002);
-      assertEquals(addressSettings.getRedeliveryDelay(), 1003);
-      assertEquals(addressSettings.getRedeliveryMultiplier(), 1.0, 0.000001);
-      assertEquals(addressSettings.getMaxRedeliveryDelay(), 5000);
+      assertEquals(2000, addressSettings.getMaxDeliveryAttempts());
+      assertEquals(1001, addressSettings.getMaxSizeBytes());
+      assertEquals(2002, addressSettings.getMessageCounterHistoryDayLimit());
+      assertEquals(1003, addressSettings.getRedeliveryDelay());
+      assertEquals(1.0, addressSettings.getRedeliveryMultiplier(), 0.000001);
+      assertEquals(5000, addressSettings.getMaxRedeliveryDelay());
       assertEquals(AddressFullMessagePolicy.DROP, addressSettings.getAddressFullMessagePolicy());
    }
 

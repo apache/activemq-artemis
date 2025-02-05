@@ -202,7 +202,7 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
       session.deleteQueue(queue);
 
       Thread.sleep(1000); // waiting some time so the delay would kick in if misconfigured
-      assertTrue(server.getAddressInfo(address) != null);
+      assertNotNull(server.getAddressInfo(address));
    }
 
    @Test
@@ -220,7 +220,7 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
       session.deleteQueue(queue);
 
       Thread.sleep(1000); // waiting some time so the delay would kick in if misconfigured
-      assertTrue(server.getAddressInfo(address) != null);
+      assertNotNull(server.getAddressInfo(address));
    }
 
    @Override

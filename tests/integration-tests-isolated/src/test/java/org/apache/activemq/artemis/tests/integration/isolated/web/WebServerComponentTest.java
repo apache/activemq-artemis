@@ -121,7 +121,6 @@ public class WebServerComponentTest {
       ch.writeAndFlush(request);
       assertTrue(latch.await(5, TimeUnit.SECONDS));
       assertEquals("12345", clientHandler.body.toString());
-      assertEquals(clientHandler.body.toString(), "12345");
       assertNull(clientHandler.serverHeader);
       // Wait for the server to close the connection.
       ch.close();

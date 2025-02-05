@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -142,7 +143,7 @@ public class AmqpOutboundConnectionTest extends AmqpClientTestSupport {
          Wait.assertEquals(0, remote::getConnectionCount);
          assertTrue(remotingConnection.isDestroyed());
          if (!closeFromClient) {
-            assertTrue(ex.get() instanceof ActiveMQRemoteDisconnectException);
+            assertInstanceOf(ActiveMQRemoteDisconnectException.class, ex.get());
          } else {
             assertNull(ex.get());
          }

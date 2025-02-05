@@ -17,10 +17,6 @@
 
 package org.apache.activemq.artemis.tests.smoke.checkTest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageProducer;
@@ -39,6 +35,7 @@ import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.check.NodeCheck;
 import org.apache.activemq.artemis.cli.commands.check.QueueCheck;
+import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
@@ -46,13 +43,16 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class CheckTest extends SmokeTestBase {
 
@@ -136,7 +136,7 @@ public class CheckTest extends SmokeTestBase {
 
          fail("CLIException expected.");
       } catch (Exception e) {
-         assertTrue(e instanceof CLIException, "CLIException expected.");
+         assertInstanceOf(CLIException.class, e, "CLIException expected.");
       }
 
       nodeCheck = new NodeCheck();
@@ -154,7 +154,7 @@ public class CheckTest extends SmokeTestBase {
 
          fail("CLIException expected.");
       } catch (Exception e) {
-         assertTrue(e instanceof CLIException, "CLIException expected.");
+         assertInstanceOf(CLIException.class, e, "CLIException expected.");
       }
    }
 
@@ -179,7 +179,7 @@ public class CheckTest extends SmokeTestBase {
 
          fail("CLIException expected.");
       } catch (Exception e) {
-         assertTrue(e instanceof CLIException, "CLIException expected.");
+         assertInstanceOf(CLIException.class, e, "CLIException expected.");
       }
 
       nodeCheck = new NodeCheck();
@@ -197,7 +197,7 @@ public class CheckTest extends SmokeTestBase {
 
          fail("CLIException expected.");
       } catch (Exception e) {
-         assertTrue(e instanceof CLIException, "CLIException expected.");
+         assertInstanceOf(CLIException.class, e, "CLIException expected.");
       }
 
       backupProcess = startServer(SERVER_NAME_2, 0, 0);
@@ -249,7 +249,7 @@ public class CheckTest extends SmokeTestBase {
 
          fail("CLIException expected.");
       } catch (Exception e) {
-         assertTrue(e instanceof CLIException, "CLIException expected.");
+         assertInstanceOf(CLIException.class, e, "CLIException expected.");
       }
 
       ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
@@ -268,7 +268,7 @@ public class CheckTest extends SmokeTestBase {
 
          fail("CLIException expected.");
       } catch (Exception e) {
-         assertTrue(e instanceof CLIException, "CLIException expected.");
+         assertInstanceOf(CLIException.class, e, "CLIException expected.");
       }
 
 

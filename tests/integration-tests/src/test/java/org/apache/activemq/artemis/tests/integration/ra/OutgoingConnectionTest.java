@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.ra;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.Connection;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
@@ -64,6 +58,13 @@ import org.apache.activemq.artemis.utils.VersionLoader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class OutgoingConnectionTest extends ActiveMQRATestBase {
 
@@ -138,7 +139,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
       resource.end(xid, XAResource.TMSUCCESS);
       resource.commit(xid, true);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
 
       // When I wrote this call, this method was doing an infinite loop.
       // this is just to avoid such thing again
@@ -305,12 +306,12 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
       XASession s = queueConnection.createXASession();
 
       XAResource resource = s.getXAResource();
-      assertTrue(resource instanceof ActiveMQXAResourceWrapper);
+      assertInstanceOf(ActiveMQXAResourceWrapper.class, resource);
 
       ActiveMQXAResourceWrapperImpl xaResourceWrapper = (ActiveMQXAResourceWrapperImpl) resource;
-      assertTrue(xaResourceWrapper.getJndiName().equals("java://jmsXA NodeId:" + server.getNodeID()));
-      assertTrue(xaResourceWrapper.getProductVersion().equals(VersionLoader.getVersion().getFullVersion()));
-      assertTrue(xaResourceWrapper.getProductName().equals(ActiveMQResourceAdapter.PRODUCT_NAME));
+      assertEquals("java://jmsXA NodeId:" + server.getNodeID(), xaResourceWrapper.getJndiName());
+      assertEquals(VersionLoader.getVersion().getFullVersion(), xaResourceWrapper.getProductVersion());
+      assertEquals(ActiveMQResourceAdapter.PRODUCT_NAME, xaResourceWrapper.getProductName());
    }
 
    @Test
@@ -342,7 +343,7 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
          ActiveMQConnectionFactory cf2 = mc2.getConnectionFactory();
 
          // we're not testing equality so don't use equals(); we're testing if they are actually the *same* object
-         assertTrue(cf1 == cf2);
+         assertSame(cf1, cf2);
       } finally {
          if (s != null) {
             s.close();

@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class NettyAcceptorFactoryTest extends ActiveMQTestBase {
 
@@ -70,6 +70,6 @@ public class NettyAcceptorFactoryTest extends ActiveMQTestBase {
 
       Acceptor acceptor = factory.createAcceptor("netty", null, params, handler, listener, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), new HashMap<>());
 
-      assertTrue(acceptor instanceof NettyAcceptor);
+      assertInstanceOf(NettyAcceptor.class, acceptor);
    }
 }

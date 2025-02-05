@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.openwire.amq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -551,7 +552,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       assertNotNull(message, "Should have received a message!");
       assertEquals("abc", message.getStringProperty("foo"), "foo header");
 
-      assertTrue(message instanceof ObjectMessage, "Should be an object message but was: " + message);
+      assertInstanceOf(ObjectMessage.class, message, "Should be an object message but was: " + message);
       ObjectMessage objectMessage = (ObjectMessage) message;
       List<String> body = (List<String>) objectMessage.getObject();
 
@@ -586,10 +587,10 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
       consumer.setMessageListener(this);
       // wait receive
       waitReceiveUnack();
-      assertEquals(unackMessages.size(), MESSAGE_COUNT);
+      assertEquals(MESSAGE_COUNT, unackMessages.size());
       // resend phase
       waitReceiveAck();
-      assertEquals(ackMessages.size(), MESSAGE_COUNT);
+      assertEquals(MESSAGE_COUNT, ackMessages.size());
       // should no longer re-receive
       consumer.setMessageListener(null);
       assertNull(consumer.receiveNoWait());

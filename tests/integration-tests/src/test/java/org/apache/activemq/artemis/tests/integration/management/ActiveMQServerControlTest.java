@@ -240,7 +240,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(conf.getJournalCompactPercentage(), serverControl.getJournalCompactPercentage());
       assertEquals(conf.isPersistenceEnabled(), serverControl.isPersistenceEnabled());
       assertEquals(conf.getJournalPoolFiles(), serverControl.getJournalPoolFiles());
-      assertEquals(null, conf.getHAPolicyConfiguration());
+      assertNull(conf.getHAPolicyConfiguration());
       assertEquals(conf.getHAPolicyConfiguration(), serverControl.getHAPolicy());
       assertTrue(serverControl.isActive());
    }
@@ -1235,7 +1235,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       AddressSettings info = AddressSettings.fromJSON(returnedSettings);
       assertEquals(addressSettings.getDeadLetterAddress(), info.getDeadLetterAddress());
       assertNull(info.getExpiryAddress());
-      assertEquals(addressSettings.getRedeliveryDelay(), 0);
+      assertEquals(0, addressSettings.getRedeliveryDelay());
 
 
       addressSettings.setExpiryAddress(SimpleString.of("EA"));
@@ -3548,8 +3548,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals("myUser", second.getString("principal"));
       assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
       assertEquals(1, second.getJsonNumber("consumerCount").longValue());
-      assertEquals(second.getJsonObject("metadata").getJsonString("foo").getString(), "bar");
-      assertEquals(second.getJsonObject("metadata").getJsonString("bar").getString(), "baz");
+      assertEquals("bar", second.getJsonObject("metadata").getJsonString("foo").getString());
+      assertEquals("baz", second.getJsonObject("metadata").getJsonString("bar").getString());
    }
 
    @TestTemplate
@@ -4440,7 +4440,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          sessionsAsJsonObject = JsonUtil.readJsonObject(sessionsAsJsonString);
          array = (JsonArray) sessionsAsJsonObject.get("data");
 
-         assertTrue(3 == array.size(), "number of sessions returned from query");
+         assertEquals(3, array.size(), "number of sessions returned from query");
          assertEquals(session1.getName(), array.getJsonObject(0).getString("id"), "session1 ordered by consumer");
          assertEquals(session3.getName(), array.getJsonObject(1).getString("id"), "session3 ordered by consumer");
          assertEquals(session2.getName(), array.getJsonObject(2).getString("id"), "session2 ordered by consumer");
@@ -4451,7 +4451,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          sessionsAsJsonObject = JsonUtil.readJsonObject(sessionsAsJsonString);
          array = (JsonArray) sessionsAsJsonObject.get("data");
 
-         assertTrue(3 == array.size(), "number of sessions returned from query");
+         assertEquals(3, array.size(), "number of sessions returned from query");
          assertEquals(session1.getName(), array.getJsonObject(0).getString("id"), "session1 ordered by consumer");
          assertEquals(session3.getName(), array.getJsonObject(1).getString("id"), "session3 ordered by consumer");
          assertEquals(session2.getName(), array.getJsonObject(2).getString("id"), "session2 ordered by consumer");
@@ -4462,7 +4462,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          sessionsAsJsonObject = JsonUtil.readJsonObject(sessionsAsJsonString);
          array = (JsonArray) sessionsAsJsonObject.get("data");
 
-         assertTrue(3 == array.size(), "number of sessions returned from query");
+         assertEquals(3, array.size(), "number of sessions returned from query");
          assertEquals(session3.getName(), array.getJsonObject(0).getString("id"), "session3 ordered by creationTime");
          assertEquals(session2.getName(), array.getJsonObject(1).getString("id"), "session2 ordered by creationTime");
          assertEquals(session1.getName(), array.getJsonObject(2).getString("id"), "session1 ordered by creationTime");

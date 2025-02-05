@@ -50,6 +50,7 @@ import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessa
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -1620,7 +1621,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
             final Message message = consumer.receive(5_000);
             assertNotNull(message);
-            assertTrue(message instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, message);
             assertEquals("test-message", ((TextMessage) message).getText());
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
@@ -1765,7 +1766,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
             final Message message = consumer.receive(5_000);
             assertNotNull(message);
-            assertTrue(message instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, message);
             assertEquals("test-message", ((TextMessage) message).getText());
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
@@ -1833,7 +1834,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
             final Message message = consumer.receive(5_000);
             assertNotNull(message);
-            assertTrue(message instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, message);
             assertEquals("test-message", ((TextMessage) message).getText());
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
@@ -1906,7 +1907,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
             final Message message = consumer.receive(5_000);
             assertNotNull(message);
-            assertTrue(message instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, message);
             assertEquals("test-message", ((TextMessage) message).getText());
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
@@ -1981,7 +1982,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
             final Message message = consumer.receive(5_000);
             assertNotNull(message);
-            assertTrue(message instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, message);
             assertEquals("test-message", ((TextMessage) message).getText());
             assertEquals("value1", message.getStringProperty("key1"));
             assertEquals("value2", message.getStringProperty("key2"));
@@ -2285,7 +2286,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
             final Message message = consumer.receive(5_000);
             assertNotNull(message);
-            assertTrue(message instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, message);
             assertEquals("test-message", ((TextMessage) message).getText());
             assertEquals("one", message.getStringProperty("appProperty1"));
             assertEquals("two", message.getStringProperty("appProperty2"));

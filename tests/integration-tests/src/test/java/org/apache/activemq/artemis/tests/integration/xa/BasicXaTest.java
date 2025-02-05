@@ -325,16 +325,16 @@ public class BasicXaTest extends ActiveMQTestBase {
       ClientConsumer clientConsumer = clientSession.createConsumer(atestq);
       ClientMessage m = clientConsumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
    }
 
    @TestTemplate
@@ -358,19 +358,19 @@ public class BasicXaTest extends ActiveMQTestBase {
       ClientMessage m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
@@ -409,19 +409,19 @@ public class BasicXaTest extends ActiveMQTestBase {
       ClientMessage m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSession.end(xid, XAResource.TMSUCCESS);
 
       StorageManager journalStorageManager = messagingService.getStorageManager();
@@ -433,7 +433,7 @@ public class BasicXaTest extends ActiveMQTestBase {
          clientSession.commit(xid, false);
          fail("Exception exptected");
       } catch (XAException e) {
-         assertTrue(e.errorCode == XAException.XA_RETRY);
+         assertEquals(XAException.XA_RETRY, e.errorCode);
       }
    }
 
@@ -459,19 +459,19 @@ public class BasicXaTest extends ActiveMQTestBase {
       ClientMessage m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = clientConsumer.receive(1000);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSession.end(xid, XAResource.TMSUCCESS);
 
       StorageManager journalStorageManager = messagingService.getStorageManager();
@@ -483,7 +483,7 @@ public class BasicXaTest extends ActiveMQTestBase {
          clientSession.rollback(xid);
          fail("Exception exptected");
       } catch (XAException e) {
-         assertTrue(e.errorCode == XAException.XAER_RMFAIL);
+         assertEquals(XAException.XAER_RMFAIL, e.errorCode);
       }
    }
 

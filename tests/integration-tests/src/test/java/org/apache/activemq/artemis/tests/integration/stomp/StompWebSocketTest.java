@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConne
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /*
  * This is a sanity check to ensure a client can connect via WebSocket. Only basic connectivity is tested here because
@@ -49,8 +49,8 @@ public class StompWebSocketTest extends StompTestBase {
    public void testConnect() throws Exception {
       ClientStompFrame response = conn.sendFrame(conn.createFrame(Stomp.Commands.CONNECT).addHeader(Stomp.Headers.Connect.LOGIN, defUser).addHeader(Stomp.Headers.Connect.PASSCODE, defPass).addHeader(Stomp.Headers.Connect.REQUEST_ID, "1"));
 
-      assertTrue(response.getCommand().equals(Stomp.Responses.CONNECTED));
-      assertTrue(response.getHeader(Stomp.Headers.Connected.RESPONSE_ID).equals("1"));
+      assertEquals(Stomp.Responses.CONNECTED, response.getCommand());
+      assertEquals("1", response.getHeader(Stomp.Headers.Connected.RESPONSE_ID));
 
       conn.disconnect();
    }

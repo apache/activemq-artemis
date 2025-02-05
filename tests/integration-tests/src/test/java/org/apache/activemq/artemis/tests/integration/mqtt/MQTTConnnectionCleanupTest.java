@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -36,9 +36,9 @@ import org.fusesource.mqtt.client.Topic;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MQTTConnnectionCleanupTest extends MQTTTestSupport {
 
@@ -79,7 +79,7 @@ public class MQTTConnnectionCleanupTest extends MQTTTestSupport {
       //now simulate a bad client by manually fail the server connection
       RemotingConnection conn = server.getRemotingService().getConnections().iterator().next();
 
-      assertTrue(conn instanceof MQTTConnection);
+      assertInstanceOf(MQTTConnection.class, conn);
 
       conn.fail(new ActiveMQException("testBadClient"));
 

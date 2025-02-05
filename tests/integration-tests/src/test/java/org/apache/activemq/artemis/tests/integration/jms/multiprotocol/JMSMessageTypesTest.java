@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -400,7 +401,7 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
       assertNotNull(objectMessage);
       @SuppressWarnings("unchecked")
       List<String> received = (ArrayList<String>) objectMessage.getObject();
-      assertEquals(received.get(0), "aString");
+      assertEquals("aString", received.get(0));
 
       consumerConnection.close();
    }
@@ -509,13 +510,13 @@ public class JMSMessageTypesTest extends MultiprotocolJMSClientTestSupport {
       TextMessage received = (TextMessage) messageConsumer.receive(5000);
       assertNotNull(received);
       assertEquals("msg:0", received.getText());
-      assertEquals(received.getBooleanProperty("true"), true);
-      assertEquals(received.getBooleanProperty("false"), false);
-      assertEquals(received.getStringProperty("foo"), "bar");
-      assertEquals(received.getDoubleProperty("double"), 66.6, 0.0001);
-      assertEquals(received.getFloatProperty("float"), 56.789f, 0.0001);
-      assertEquals(received.getIntProperty("int"), 8);
-      assertEquals(received.getByteProperty("byte"), (byte) 10);
+      assertTrue(received.getBooleanProperty("true"));
+      assertFalse(received.getBooleanProperty("false"));
+      assertEquals("bar", received.getStringProperty("foo"));
+      assertEquals(66.6, received.getDoubleProperty("double"), 0.0001);
+      assertEquals(56.789f, received.getFloatProperty("float"), 0.0001);
+      assertEquals(8, received.getIntProperty("int"));
+      assertEquals((byte) 10, received.getByteProperty("byte"));
 
       received = (TextMessage) messageConsumer.receive(5000);
       assertNotNull(received);

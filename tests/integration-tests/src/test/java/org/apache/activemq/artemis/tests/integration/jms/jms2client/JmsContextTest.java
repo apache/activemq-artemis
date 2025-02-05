@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.jms.jms2client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -272,7 +273,7 @@ public class JmsContextTest extends JMSTestBase {
    }
 
    @Test
-   public void testSendStreamMessage() throws JMSException, InterruptedException {
+   public void testSendStreamMessage() throws Exception {
       JmsProducerCompletionListenerTest.CountingCompletionListener cl = new JmsProducerCompletionListenerTest.CountingCompletionListener(1);
       JMSProducer producer = context.createProducer();
       producer.setAsync(cl);
@@ -443,7 +444,7 @@ public class JmsContextTest extends JMSTestBase {
 
       assertNotNull(error1);
 
-      assertTrue(error1 instanceof IllegalStateRuntimeException);
+      assertInstanceOf(IllegalStateRuntimeException.class, error1);
 
       context1.close();
 
@@ -466,7 +467,7 @@ public class JmsContextTest extends JMSTestBase {
 
       assertNotNull(error2);
 
-      assertTrue(error2 instanceof IllegalStateRuntimeException);
+      assertInstanceOf(IllegalStateRuntimeException.class, error2);
 
       context2.close();
    }
@@ -579,8 +580,8 @@ public class JmsContextTest extends JMSTestBase {
          producer.setAsync(listener);
          producer.send(queue1, bMsg);
          assertTrue(latch.await(5, TimeUnit.SECONDS));
-         assertEquals(listener.message.readByte(), (byte) 1);
-         assertEquals(listener.message.readInt(), 22);
+         assertEquals((byte) 1, listener.message.readByte());
+         assertEquals(22, listener.message.readInt());
       } finally {
          context.close();
       }

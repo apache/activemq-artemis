@@ -47,6 +47,7 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -829,7 +830,7 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
 
             final Message message = consumer.receive(5_000);
             assertNotNull(message);
-            assertTrue(message instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, message);
             assertEquals("test-message", ((TextMessage) message).getText());
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
@@ -885,7 +886,7 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
 
             final Message message = consumer.receive(5_000);
             assertNotNull(message);
-            assertTrue(message instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, message);
             assertEquals("test-message", ((TextMessage) message).getText());
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
@@ -980,7 +981,7 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
 
             final Message message = consumer.receive(5_000);
             assertNotNull(message);
-            assertTrue(message instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, message);
             assertEquals("test-message", ((TextMessage) message).getText());
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
@@ -1036,7 +1037,7 @@ class AMQPFederationManagementTest extends AmqpClientTestSupport {
 
             final Message message = consumer.receive(5_000);
             assertNotNull(message);
-            assertTrue(message instanceof TextMessage);
+            assertInstanceOf(TextMessage.class, message);
             assertEquals("test-message", ((TextMessage) message).getText());
 
             peer.waitForScriptToComplete(5, TimeUnit.SECONDS);

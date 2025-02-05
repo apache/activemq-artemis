@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -59,6 +53,12 @@ import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * ActiveMQConnectionFactoryTest
@@ -249,64 +249,64 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       String denyList = null;
       String allowList = null;
       Object obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue(obj instanceof TestClass1, "Object is " + obj);
+      assertInstanceOf(TestClass1.class, obj, "Object is " + obj);
 
       //not in the allow list
       denyList = "java.lang";
       allowList = "some.other.package1";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue(obj instanceof JMSException, "Object is " + obj);
+      assertInstanceOf(JMSException.class, obj, "Object is " + obj);
       //but String always trusted
       obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), useJndi, useBrowser);
-      assertTrue("hello".equals(obj), "java.lang.String always trusted ");
+      assertEquals("hello", obj, "java.lang.String always trusted ");
 
       //in the denylist
       denyList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
       allowList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue(obj instanceof JMSException, "Object is " + obj);
+      assertInstanceOf(JMSException.class, obj, "Object is " + obj);
 
       //deny list parent package
       denyList = "org.apache.activemq.artemis";
       allowList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue(obj instanceof JMSException, "Object is " + obj);
+      assertInstanceOf(JMSException.class, obj, "Object is " + obj);
 
       //in allow list
       denyList = "some.other.package";
       allowList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue(obj instanceof TestClass1, "Object is " + obj);
+      assertInstanceOf(TestClass1.class, obj, "Object is " + obj);
 
       //parent in allow list
       denyList = "some.other.package";
       allowList = "org.apache.activemq.artemis.tests.integration.jms";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue(obj instanceof TestClass1, "Object is " + obj);
+      assertInstanceOf(TestClass1.class, obj, "Object is " + obj);
 
       //sub package in allow list
       denyList = "some.other.package";
       allowList = "org.apache.activemq.artemis.tests.integration.jms.serializables.pkg1";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue(obj instanceof JMSException, "Object is " + obj);
+      assertInstanceOf(JMSException.class, obj, "Object is " + obj);
 
       //wild card allow list but deny listed
       denyList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
       allowList = "*";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue(obj instanceof JMSException, "Object is " + obj);
+      assertInstanceOf(JMSException.class, obj, "Object is " + obj);
 
       //wild card allow list and not deny listed
       denyList = "some.other.package";
       allowList = "*";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue(obj instanceof TestClass1, "Object is " + obj);
+      assertInstanceOf(TestClass1.class, obj, "Object is " + obj);
 
       //wild card deny list
       denyList = "*";
       allowList = "*";
       obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
-      assertTrue(obj instanceof JMSException, "Object is " + obj);
+      assertInstanceOf(JMSException.class, obj, "Object is " + obj);
    }
 
    @Test
@@ -321,19 +321,19 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
          String denyList = null;
          String allowList = null;
          Object obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), false, false);
-         assertTrue(obj instanceof JMSException, "Object is " + obj);
+         assertInstanceOf(JMSException.class, obj, "Object is " + obj);
          //but String always trusted
          obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), false, false);
-         assertTrue("hello".equals(obj), "java.lang.String always trusted " + obj);
+         assertEquals("hello", obj, "java.lang.String always trusted " + obj);
 
          //override
          denyList = "some.other.package";
          allowList = "org.apache.activemq.artemis.tests.integration";
          obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), false, false);
-         assertTrue(obj instanceof TestClass1, "Object is " + obj);
+         assertInstanceOf(TestClass1.class, obj, "Object is " + obj);
          //but String always trusted
          obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), false, false);
-         assertTrue("hello".equals(obj), "java.lang.String always trusted " + obj);
+         assertEquals("hello", obj, "java.lang.String always trusted " + obj);
       } finally {
          System.clearProperty(ObjectInputStreamWithClassLoader.BLACKLIST_PROPERTY);
          System.clearProperty(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY);
@@ -352,19 +352,19 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
          String denyList = null;
          String allowList = null;
          Object obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), false, false);
-         assertTrue(obj instanceof JMSException, "Object is " + obj);
+         assertInstanceOf(JMSException.class, obj, "Object is " + obj);
          //but String always trusted
          obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), false, false);
-         assertTrue("hello".equals(obj), "java.lang.String always trusted " + obj);
+         assertEquals("hello", obj, "java.lang.String always trusted " + obj);
 
          //override
          denyList = "some.other.package";
          allowList = "org.apache.activemq.artemis.tests.integration";
          obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), false, false);
-         assertTrue(obj instanceof TestClass1, "Object is " + obj);
+         assertInstanceOf(TestClass1.class, obj, "Object is " + obj);
          //but String always trusted
          obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), false, false);
-         assertTrue("hello".equals(obj), "java.lang.String always trusted " + obj);
+         assertEquals("hello", obj, "java.lang.String always trusted " + obj);
       } finally {
          System.clearProperty(ObjectInputStreamWithClassLoader.DENYLIST_PROPERTY);
          System.clearProperty(ObjectInputStreamWithClassLoader.ALLOWLIST_PROPERTY);

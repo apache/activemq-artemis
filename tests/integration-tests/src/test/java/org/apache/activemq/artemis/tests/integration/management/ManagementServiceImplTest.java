@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.management;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -149,13 +150,13 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
 
       Object[] addresses = managementService.getResources(AddressControl.class);
       assertEquals(1, addresses.length);
-      assertTrue(addresses[0] instanceof AddressControl);
+      assertInstanceOf(AddressControl.class, addresses[0]);
       AddressControl addressControl = (AddressControl) addresses[0];
       assertEquals(address.toString(), addressControl.getAddress());
 
       Object[] queues = managementService.getResources(QueueControl.class);
       assertEquals(1, queues.length);
-      assertTrue(queues[0] instanceof QueueControl);
+      assertInstanceOf(QueueControl.class, queues[0]);
       QueueControl queueControl = (QueueControl) queues[0];
       assertEquals(queue.getName().toString(), queueControl.getName());
    }

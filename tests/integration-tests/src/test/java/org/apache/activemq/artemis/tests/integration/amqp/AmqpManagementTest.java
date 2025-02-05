@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.createMapMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -75,9 +76,9 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
          assertNotNull(response);
          assertNotNull(response);
          Object section = response.getWrappedMessage().getBody();
-         assertTrue(section instanceof AmqpValue);
+         assertInstanceOf(AmqpValue.class, section);
          Object value = ((AmqpValue) section).getValue();
-         assertTrue(value instanceof String);
+         assertInstanceOf(String.class, value);
          assertFalse(((String) value).isEmpty());
          assertTrue(((String) value).contains(destinationAddress));
          response.accept();
@@ -97,22 +98,22 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
       Map<String, Object> map = new LinkedHashMap<>();
       map.put("sequence", new UnsignedInteger(sequence));
       CoreMapMessageWrapper msg = createMapMessage(1, map, null);
-      assertEquals(msg.getInt("sequence"), sequence);
+      assertEquals(sequence, msg.getInt("sequence"));
 
       map.clear();
       map.put("sequence", new UnsignedLong(sequence));
       msg = createMapMessage(1, map, null);
-      assertEquals(msg.getLong("sequence"), sequence);
+      assertEquals(sequence, msg.getLong("sequence"));
 
       map.clear();
       map.put("sequence", new UnsignedShort((short)sequence));
       msg = createMapMessage(1, map, null);
-      assertEquals(msg.getShort("sequence"), sequence);
+      assertEquals(sequence, msg.getShort("sequence"));
 
       map.clear();
       map.put("sequence", new UnsignedByte((byte) sequence));
       msg = createMapMessage(1, map, null);
-      assertEquals(msg.getByte("sequence"), sequence);
+      assertEquals(sequence, msg.getByte("sequence"));
    }
 
    @Test

@@ -366,13 +366,13 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + j, tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+         assertEquals(groupID1, tm.getStringProperty("JMSXGroupID"));
 
          tm = (TextMessage) consumer2.receive(10000);
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + (j + 10), tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+         assertEquals(groupID2, tm.getStringProperty("JMSXGroupID"));
 
          assertNull(consumer3.receiveNoWait());
       }
@@ -383,7 +383,7 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + j, tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+         assertEquals(groupID3, tm.getStringProperty("JMSXGroupID"));
 
          assertNull(consumer2.receiveNoWait());
          assertNull(consumer3.receiveNoWait());
@@ -442,7 +442,7 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + j, tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+         assertEquals(groupID1, tm.getStringProperty("JMSXGroupID"));
       }
 
       //Second set of msgs should go to the second consumers only
@@ -455,7 +455,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+         assertEquals(groupID2, tm.getStringProperty("JMSXGroupID"));
       }
 
       //Third set of msgs should go to the first consumer only
@@ -468,7 +468,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+         assertEquals(groupID3, tm.getStringProperty("JMSXGroupID"));
       }
       ctx.commit();
 
@@ -492,7 +492,7 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + j, tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+         assertEquals(groupID1, tm.getStringProperty("JMSXGroupID"));
       }
 
       //Second set of msgs should go to the second consumers only
@@ -505,7 +505,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+         assertEquals(groupID2, tm.getStringProperty("JMSXGroupID"));
       }
 
       //Third set of msgs should now go to the third consumer now
@@ -518,7 +518,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+         assertEquals(groupID3, tm.getStringProperty("JMSXGroupID"));
       }
 
       ctx.commit();
@@ -579,7 +579,7 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + j, tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+         assertEquals(groupID1, tm.getStringProperty("JMSXGroupID"));
       }
       ctx.commit();
 
@@ -594,7 +594,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+         assertEquals(groupID2, tm.getStringProperty("JMSXGroupID"));
       }
       ctx.commit();
 
@@ -628,7 +628,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+         assertEquals(groupID3, tm.getStringProperty("JMSXGroupID"));
       }
       ctx.commit();
 
@@ -640,7 +640,7 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + j, tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+         assertEquals(groupID1, tm.getStringProperty("JMSXGroupID"));
       }
 
       //Second set of msgs should go to the second consumers only
@@ -653,7 +653,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+         assertEquals(groupID2, tm.getStringProperty("JMSXGroupID"));
       }
 
       //Third set of msgs should now go to the third consumer now
@@ -666,7 +666,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+         assertEquals(groupID3, tm.getStringProperty("JMSXGroupID"));
       }
 
       ctx.commit();
@@ -723,7 +723,7 @@ public class GroupingTest extends JMSTestBase {
          assertNotNull(tm);
          tm.acknowledge();
          assertEquals("Message" + j, tm.getText());
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID1);
+         assertEquals(groupID1, tm.getStringProperty("JMSXGroupID"));
          if (j == 0) {
             assertTrue(tm.getBooleanProperty(customFirstGroupKey));
          } else {
@@ -741,7 +741,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID2);
+         assertEquals(groupID2, tm.getStringProperty("JMSXGroupID"));
 
          if (j == 10) {
             assertTrue(tm.getBooleanProperty(customFirstGroupKey));
@@ -760,7 +760,7 @@ public class GroupingTest extends JMSTestBase {
 
          assertEquals("Message" + j, tm.getText());
 
-         assertEquals(tm.getStringProperty("JMSXGroupID"), groupID3);
+         assertEquals(groupID3, tm.getStringProperty("JMSXGroupID"));
 
          if (j == 20) {
             assertTrue(tm.getBooleanProperty(customFirstGroupKey));

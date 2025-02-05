@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -80,7 +81,7 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       assertEquals(HAPolicyConfiguration.TYPE.PRIMARY_ONLY, server.getConfiguration().getHAPolicyConfiguration().getType());
       try {
          server.start();
-         assertTrue(server.getNodeManager() instanceof FileLockNodeManager, server.getNodeManager() + " is not an instance of FileLockNodeManager");
+         assertInstanceOf(FileLockNodeManager.class, server.getNodeManager(), server.getNodeManager() + " is not an instance of FileLockNodeManager");
       } finally {
          server.stop();
       }
@@ -93,17 +94,17 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof PrimaryOnlyActivation);
+         assertInstanceOf(PrimaryOnlyActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof PrimaryOnlyPolicy);
+         assertInstanceOf(PrimaryOnlyPolicy.class, haPolicy);
          PrimaryOnlyPolicy primaryOnlyPolicy = (PrimaryOnlyPolicy) haPolicy;
          ScaleDownPolicy scaleDownPolicy = primaryOnlyPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
-         assertEquals(scaleDownPolicy.getGroupName(), "boo!");
-         assertEquals(scaleDownPolicy.getDiscoveryGroup(), "wahey");
+         assertEquals("boo!", scaleDownPolicy.getGroupName());
+         assertEquals("wahey", scaleDownPolicy.getDiscoveryGroup());
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
-         assertEquals(connectors.size(), 0);
+         assertEquals(0, connectors.size());
       } finally {
          server.stop();
       }
@@ -116,18 +117,18 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof PrimaryOnlyActivation);
+         assertInstanceOf(PrimaryOnlyActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof PrimaryOnlyPolicy);
+         assertInstanceOf(PrimaryOnlyPolicy.class, haPolicy);
          PrimaryOnlyPolicy primaryOnlyPolicy = (PrimaryOnlyPolicy) haPolicy;
          ScaleDownPolicy scaleDownPolicy = primaryOnlyPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
          assertFalse(scaleDownPolicy.isEnabled());
-         assertEquals(scaleDownPolicy.getGroupName(), "boo!");
-         assertEquals(scaleDownPolicy.getDiscoveryGroup(), null);
+         assertEquals("boo!", scaleDownPolicy.getGroupName());
+         assertNull(scaleDownPolicy.getDiscoveryGroup());
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
-         assertEquals(connectors.size(), 2);
+         assertEquals(2, connectors.size());
          assertTrue(connectors.contains("sd-connector1"));
          assertTrue(connectors.contains("sd-connector2"));
       } finally {
@@ -157,9 +158,9 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof PrimaryOnlyActivation);
+         assertInstanceOf(PrimaryOnlyActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof PrimaryOnlyPolicy);
+         assertInstanceOf(PrimaryOnlyPolicy.class, haPolicy);
       } finally {
          server.stop();
       }
@@ -323,9 +324,9 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof ReplicationPrimaryActivation);
+         assertInstanceOf(ReplicationPrimaryActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ReplicationPrimaryPolicy);
+         assertInstanceOf(ReplicationPrimaryPolicy.class, haPolicy);
          ReplicationPrimaryPolicy policy = (ReplicationPrimaryPolicy) haPolicy;
          assertFalse(policy.isAllowAutoFailBack());
          assertEquals(9876, policy.getInitialReplicationSyncTimeout());
@@ -359,7 +360,7 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
          DistributedLockManager manager = ((ReplicationPrimaryActivation) activation).getDistributedManager();
          assertNotNull(manager);
          assertEquals(FakeDistributedLockManager.class.getName(), manager.getClass().getName());
-         assertTrue(manager instanceof FakeDistributedLockManager, manager + " is not an instance of FakeDistributedLockManager");
+         assertInstanceOf(FakeDistributedLockManager.class, manager, manager + " is not an instance of FakeDistributedLockManager");
          FakeDistributedLockManager forwardingManager = (FakeDistributedLockManager) manager;
          // validate manager config
          validateManagerConfig(forwardingManager.getConfig());
@@ -375,9 +376,9 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof ReplicationBackupActivation);
+         assertInstanceOf(ReplicationBackupActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ReplicationBackupPolicy);
+         assertInstanceOf(ReplicationBackupPolicy.class, haPolicy);
          ReplicationBackupPolicy policy = (ReplicationBackupPolicy) haPolicy;
          assertEquals("tiddles", policy.getGroupName());
          assertEquals("tiddles", policy.getBackupGroupName());
@@ -415,7 +416,7 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
          DistributedLockManager manager = ((ReplicationBackupActivation) activation).getDistributedManager();
          assertNotNull(manager);
          assertEquals(FakeDistributedLockManager.class.getName(), manager.getClass().getName());
-         assertTrue(manager instanceof FakeDistributedLockManager);
+         assertInstanceOf(FakeDistributedLockManager.class, manager);
          FakeDistributedLockManager forwardingManager = (FakeDistributedLockManager) manager;
          // validate manager config
          validateManagerConfig(forwardingManager.getConfig());
@@ -431,16 +432,16 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedNothingPrimaryActivation);
+         assertInstanceOf(SharedNothingPrimaryActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ReplicatedPolicy);
+         assertInstanceOf(ReplicatedPolicy.class, haPolicy);
          ReplicatedPolicy replicatedPolicy = (ReplicatedPolicy) haPolicy;
-         assertEquals(replicatedPolicy.getGroupName(), "purple");
+         assertEquals("purple", replicatedPolicy.getGroupName());
          assertTrue(replicatedPolicy.isCheckForPrimaryServer());
-         assertEquals(replicatedPolicy.getClusterName(), "abcdefg");
-         assertEquals(replicatedPolicy.getInitialReplicationSyncTimeout(), 9876);
-         assertEquals(replicatedPolicy.getRetryReplicationWait(), 12345);
-         assertEquals(replicatedPolicy.getMaxSavedReplicatedJournalsSize(), 73);
+         assertEquals("abcdefg", replicatedPolicy.getClusterName());
+         assertEquals(9876, replicatedPolicy.getInitialReplicationSyncTimeout());
+         assertEquals(12345, replicatedPolicy.getRetryReplicationWait());
+         assertEquals(73, replicatedPolicy.getMaxSavedReplicatedJournalsSize());
       } finally {
          server.stop();
       }
@@ -453,24 +454,24 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedNothingBackupActivation);
+         assertInstanceOf(SharedNothingBackupActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ReplicaPolicy);
+         assertInstanceOf(ReplicaPolicy.class, haPolicy);
          ReplicaPolicy replicaPolicy = (ReplicaPolicy) haPolicy;
-         assertEquals(replicaPolicy.getGroupName(), "tiddles");
-         assertEquals(replicaPolicy.getMaxSavedReplicatedJournalsSize(), 22);
-         assertEquals(replicaPolicy.getClusterName(), "33rrrrr");
+         assertEquals("tiddles", replicaPolicy.getGroupName());
+         assertEquals(22, replicaPolicy.getMaxSavedReplicatedJournalsSize());
+         assertEquals("33rrrrr", replicaPolicy.getClusterName());
          assertFalse(replicaPolicy.isRestartBackup());
          assertTrue(replicaPolicy.isAllowFailback());
-         assertEquals(replicaPolicy.getInitialReplicationSyncTimeout(), 9876);
-         assertEquals(replicaPolicy.getRetryReplicationWait(), 12345);
+         assertEquals(9876, replicaPolicy.getInitialReplicationSyncTimeout());
+         assertEquals(12345, replicaPolicy.getRetryReplicationWait());
          ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
-         assertEquals(scaleDownPolicy.getGroupName(), "boo!");
-         assertEquals(scaleDownPolicy.getDiscoveryGroup(), "wahey");
+         assertEquals("boo!", scaleDownPolicy.getGroupName());
+         assertEquals("wahey", scaleDownPolicy.getDiscoveryGroup());
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
-         assertEquals(connectors.size(), 0);
+         assertEquals(0, connectors.size());
       } finally {
          server.stop();
       }
@@ -483,21 +484,21 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedNothingBackupActivation);
+         assertInstanceOf(SharedNothingBackupActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ReplicaPolicy);
+         assertInstanceOf(ReplicaPolicy.class, haPolicy);
          ReplicaPolicy replicaPolicy = (ReplicaPolicy) haPolicy;
-         assertEquals(replicaPolicy.getGroupName(), "tiddles");
-         assertEquals(replicaPolicy.getMaxSavedReplicatedJournalsSize(), 22);
-         assertEquals(replicaPolicy.getClusterName(), "33rrrrr");
+         assertEquals("tiddles", replicaPolicy.getGroupName());
+         assertEquals(22, replicaPolicy.getMaxSavedReplicatedJournalsSize());
+         assertEquals("33rrrrr", replicaPolicy.getClusterName());
          assertFalse(replicaPolicy.isRestartBackup());
          ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
-         assertEquals(scaleDownPolicy.getGroupName(), "boo!");
-         assertEquals(scaleDownPolicy.getDiscoveryGroup(), null);
+         assertEquals("boo!", scaleDownPolicy.getGroupName());
+         assertNull(scaleDownPolicy.getDiscoveryGroup());
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
-         assertEquals(connectors.size(), 2);
+         assertEquals(2, connectors.size());
          assertTrue(connectors.contains("sd-connector1"));
          assertTrue(connectors.contains("sd-connector2"));
       } finally {
@@ -512,13 +513,13 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedNothingBackupActivation);
+         assertInstanceOf(SharedNothingBackupActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ReplicaPolicy);
+         assertInstanceOf(ReplicaPolicy.class, haPolicy);
          ReplicaPolicy replicaPolicy = (ReplicaPolicy) haPolicy;
-         assertEquals(replicaPolicy.getGroupName(), "tiddles");
-         assertEquals(replicaPolicy.getMaxSavedReplicatedJournalsSize(), 22);
-         assertEquals(replicaPolicy.getClusterName(), "33rrrrr");
+         assertEquals("tiddles", replicaPolicy.getGroupName());
+         assertEquals(22, replicaPolicy.getMaxSavedReplicatedJournalsSize());
+         assertEquals("33rrrrr", replicaPolicy.getClusterName());
          assertFalse(replicaPolicy.isRestartBackup());
          ScaleDownPolicy scaleDownPolicy = replicaPolicy.getScaleDownPolicy();
          assertNull(scaleDownPolicy);
@@ -534,9 +535,9 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedStorePrimaryActivation);
+         assertInstanceOf(SharedStorePrimaryActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof SharedStorePrimaryPolicy);
+         assertInstanceOf(SharedStorePrimaryPolicy.class, haPolicy);
          SharedStorePrimaryPolicy primaryPolicy = (SharedStorePrimaryPolicy) haPolicy;
          assertFalse(primaryPolicy.isFailoverOnServerShutdown());
       } finally {
@@ -551,19 +552,19 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedStoreBackupActivation);
+         assertInstanceOf(SharedStoreBackupActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof SharedStoreBackupPolicy);
+         assertInstanceOf(SharedStoreBackupPolicy.class, haPolicy);
          SharedStoreBackupPolicy sharedStoreBackupPolicy = (SharedStoreBackupPolicy) haPolicy;
          assertFalse(sharedStoreBackupPolicy.isFailoverOnServerShutdown());
          assertFalse(sharedStoreBackupPolicy.isRestartBackup());
          ScaleDownPolicy scaleDownPolicy = sharedStoreBackupPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
-         assertEquals(scaleDownPolicy.getGroupName(), "boo!");
-         assertEquals(scaleDownPolicy.getDiscoveryGroup(), "wahey");
+         assertEquals("boo!", scaleDownPolicy.getGroupName());
+         assertEquals("wahey", scaleDownPolicy.getDiscoveryGroup());
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
-         assertEquals(connectors.size(), 0);
+         assertEquals(0, connectors.size());
       } finally {
          server.stop();
       }
@@ -576,19 +577,19 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedStoreBackupActivation);
+         assertInstanceOf(SharedStoreBackupActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof SharedStoreBackupPolicy);
+         assertInstanceOf(SharedStoreBackupPolicy.class, haPolicy);
          SharedStoreBackupPolicy sharedStoreBackupPolicy = (SharedStoreBackupPolicy) haPolicy;
          assertTrue(sharedStoreBackupPolicy.isFailoverOnServerShutdown());
          assertTrue(sharedStoreBackupPolicy.isRestartBackup());
          ScaleDownPolicy scaleDownPolicy = sharedStoreBackupPolicy.getScaleDownPolicy();
          assertNotNull(scaleDownPolicy);
-         assertEquals(scaleDownPolicy.getGroupName(), "boo!");
-         assertEquals(scaleDownPolicy.getDiscoveryGroup(), null);
+         assertEquals("boo!", scaleDownPolicy.getGroupName());
+         assertNull(scaleDownPolicy.getDiscoveryGroup());
          List<String> connectors = scaleDownPolicy.getConnectors();
          assertNotNull(connectors);
-         assertEquals(connectors.size(), 2);
+         assertEquals(2, connectors.size());
          assertTrue(connectors.contains("sd-connector1"));
          assertTrue(connectors.contains("sd-connector2"));
       } finally {
@@ -603,9 +604,9 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof SharedStoreBackupActivation);
+         assertInstanceOf(SharedStoreBackupActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof SharedStoreBackupPolicy);
+         assertInstanceOf(SharedStoreBackupPolicy.class, haPolicy);
          SharedStoreBackupPolicy sharedStoreBackupPolicy = (SharedStoreBackupPolicy) haPolicy;
          assertTrue(sharedStoreBackupPolicy.isFailoverOnServerShutdown());
          assertTrue(sharedStoreBackupPolicy.isRestartBackup());
@@ -623,21 +624,21 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof ColocatedActivation);
+         assertInstanceOf(ColocatedActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ColocatedPolicy);
+         assertInstanceOf(ColocatedPolicy.class, haPolicy);
          ColocatedPolicy colocatedPolicy = (ColocatedPolicy) haPolicy;
          ReplicatedPolicy primaryPolicy = (ReplicatedPolicy) colocatedPolicy.getPrimaryPolicy();
          assertNotNull(primaryPolicy);
 
-         assertEquals(primaryPolicy.getGroupName(), "purple");
+         assertEquals("purple", primaryPolicy.getGroupName());
          assertTrue(primaryPolicy.isCheckForPrimaryServer());
-         assertEquals(primaryPolicy.getClusterName(), "abcdefg");
+         assertEquals("abcdefg", primaryPolicy.getClusterName());
          ReplicaPolicy backupPolicy = (ReplicaPolicy) colocatedPolicy.getBackupPolicy();
          assertNotNull(backupPolicy);
-         assertEquals(backupPolicy.getGroupName(), "tiddles");
-         assertEquals(backupPolicy.getMaxSavedReplicatedJournalsSize(), 22);
-         assertEquals(backupPolicy.getClusterName(), "33rrrrr");
+         assertEquals("tiddles", backupPolicy.getGroupName());
+         assertEquals(22, backupPolicy.getMaxSavedReplicatedJournalsSize());
+         assertEquals("33rrrrr", backupPolicy.getClusterName());
          assertFalse(backupPolicy.isRestartBackup());
       } finally {
          server.stop();
@@ -651,18 +652,18 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof ColocatedActivation);
+         assertInstanceOf(ColocatedActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ColocatedPolicy);
+         assertInstanceOf(ColocatedPolicy.class, haPolicy);
          ColocatedPolicy colocatedPolicy = (ColocatedPolicy) haPolicy;
          ReplicatedPolicy primaryPolicy = (ReplicatedPolicy) colocatedPolicy.getPrimaryPolicy();
          assertNotNull(primaryPolicy);
 
-         assertEquals(primaryPolicy.getGroupName(), "purple");
+         assertEquals("purple", primaryPolicy.getGroupName());
          assertEquals(primaryPolicy.getGroupName(), primaryPolicy.getBackupGroupName());
          assertEquals(primaryPolicy.getBackupGroupName(), haPolicy.getBackupGroupName());
          assertTrue(primaryPolicy.isCheckForPrimaryServer());
-         assertEquals(primaryPolicy.getClusterName(), "abcdefg");
+         assertEquals("abcdefg", primaryPolicy.getClusterName());
          ReplicaPolicy backupPolicy = (ReplicaPolicy) colocatedPolicy.getBackupPolicy();
          assertNotNull(backupPolicy);
       } finally {
@@ -677,9 +678,9 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof ColocatedActivation);
+         assertInstanceOf(ColocatedActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ColocatedPolicy);
+         assertInstanceOf(ColocatedPolicy.class, haPolicy);
          ColocatedPolicy colocatedPolicy = (ColocatedPolicy) haPolicy;
          SharedStorePrimaryPolicy primaryPolicy = (SharedStorePrimaryPolicy) colocatedPolicy.getPrimaryPolicy();
          assertNotNull(primaryPolicy);
@@ -701,9 +702,9 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof ColocatedActivation);
+         assertInstanceOf(ColocatedActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof ColocatedPolicy);
+         assertInstanceOf(ColocatedPolicy.class, haPolicy);
          ColocatedPolicy colocatedPolicy = (ColocatedPolicy) haPolicy;
          SharedStorePrimaryPolicy primaryPolicy = (SharedStorePrimaryPolicy) colocatedPolicy.getPrimaryPolicy();
          assertNotNull(primaryPolicy);
@@ -722,9 +723,9 @@ public class HAPolicyConfigurationTest extends ServerTestBase {
       try {
          server.start();
          Activation activation = server.getActivation();
-         assertTrue(activation instanceof PrimaryOnlyActivation);
+         assertInstanceOf(PrimaryOnlyActivation.class, activation);
          HAPolicy haPolicy = server.getHAPolicy();
-         assertTrue(haPolicy instanceof PrimaryOnlyPolicy);
+         assertInstanceOf(PrimaryOnlyPolicy.class, haPolicy);
          PrimaryOnlyPolicy primaryOnlyPolicy = (PrimaryOnlyPolicy) haPolicy;
          ScaleDownPolicy scaleDownPolicy = primaryOnlyPolicy.getScaleDownPolicy();
          assertNull(scaleDownPolicy);

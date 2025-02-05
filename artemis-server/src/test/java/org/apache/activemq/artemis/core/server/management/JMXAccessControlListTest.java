@@ -94,7 +94,7 @@ public class JMXAccessControlListTest {
       JMXAccessControlList controlList = new JMXAccessControlList();
       controlList.addToRoleAccess("org.myDomain", null, "listSomething", "admin");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:*"), "listSomething");
-      assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(new String[]{"admin"}, roles.toArray());
    }
 
    @Test
@@ -103,7 +103,7 @@ public class JMXAccessControlListTest {
       controlList.addToRoleAccess("org.myDomain", "type=foo", "listSomething", "admin");
       controlList.addToRoleAccess("org.myDomain", null, "listSomething", "view");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:type=foo"), "listSomething");
-      assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(new String[]{"admin"}, roles.toArray());
    }
 
    @Test
@@ -112,7 +112,7 @@ public class JMXAccessControlListTest {
       controlList.addToRoleAccess("org.myDomain", "type=foo", "listSomething", "admin");
       controlList.addToRoleAccess("org.myDomain", null, "listSomething", "view");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:type=\"foo\""), "listSomething");
-      assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(new String[]{"admin"}, roles.toArray());
    }
 
    @Test
@@ -121,7 +121,7 @@ public class JMXAccessControlListTest {
       controlList.addToRoleAccess("org.myDomain", "type=*", "listSomething", "admin");
       controlList.addToRoleAccess("org.myDomain", null, "listSomething", "view");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:type=foo"), "listSomething");
-      assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(new String[]{"admin"}, roles.toArray());
    }
 
    @Test
@@ -131,10 +131,10 @@ public class JMXAccessControlListTest {
       controlList.addToRoleAccess("org.myDomain", "type=bar*", "listSomething", "browse");
       controlList.addToRoleAccess("org.myDomain", "type=foo.bar*", "listSomething", "admin");
       controlList.addToRoleAccess("org.myDomain", null, "listSomething", "view");
-      assertArrayEquals(controlList.getRolesForObject(new ObjectName("org.myDomain:type=foo.bar.test"),
-         "listSomething").toArray(), new String[]{"admin"});
-      assertArrayEquals(controlList.getRolesForObject(new ObjectName("org.myDomain:type=bar.test"),
-         "listSomething").toArray(), new String[]{"browse"});
+      assertArrayEquals(new String[]{"admin"}, controlList.getRolesForObject(new ObjectName("org.myDomain:type=foo.bar.test"),
+                                                                             "listSomething").toArray());
+      assertArrayEquals(new String[]{"browse"}, controlList.getRolesForObject(new ObjectName("org.myDomain:type=bar.test"),
+                                                                              "listSomething").toArray());
    }
 
    @Test
@@ -142,7 +142,7 @@ public class JMXAccessControlListTest {
       JMXAccessControlList controlList = new JMXAccessControlList();
       controlList.addToRoleAccess("org.myDomain", null, "listSomething", "admin", "view", "update");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:*"), "listSomething");
-      assertArrayEquals(roles.toArray(), new String[]{"admin", "view", "update"});
+      assertArrayEquals(new String[]{"admin", "view", "update"}, roles.toArray());
    }
 
    @Test
@@ -150,7 +150,7 @@ public class JMXAccessControlListTest {
       JMXAccessControlList controlList = new JMXAccessControlList();
       controlList.addToRoleAccess("org.myDomain", null, "list*", "admin");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:*"), "listSomething");
-      assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(new String[]{"admin"}, roles.toArray());
    }
 
    @Test
@@ -159,9 +159,9 @@ public class JMXAccessControlListTest {
       controlList.addToRoleAccess("org.myDomain", null, "listSomething", "admin");
       controlList.addToRoleAccess("org.myDomain", null, "list*", "view");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain:*"), "listSomething");
-      assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(new String[]{"admin"}, roles.toArray());
       roles = controlList.getRolesForObject(new ObjectName("org.myDomain:*"), "listSomethingMore");
-      assertArrayEquals(roles.toArray(), new String[]{"view"});
+      assertArrayEquals(new String[]{"view"}, roles.toArray());
    }
 
    @Test
@@ -170,7 +170,7 @@ public class JMXAccessControlListTest {
       controlList.addToDefaultAccess("setSomething", "admin");
       controlList.addToRoleAccess("org.myDomain", null, "list*", "view");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:*"), "setSomething");
-      assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(new String[]{"admin"}, roles.toArray());
    }
 
    @Test
@@ -180,7 +180,7 @@ public class JMXAccessControlListTest {
       controlList.addToDefaultAccess("set*", "admin");
       controlList.addToRoleAccess("org.myDomain", null, "list*", "view");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:*"), "setSomethingMore");
-      assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(new String[]{"admin"}, roles.toArray());
    }
 
    @Test
@@ -190,7 +190,7 @@ public class JMXAccessControlListTest {
       controlList.addToDefaultAccess("*", "admin");
       controlList.addToRoleAccess("org.myDomain", null, "list*", "view");
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:*"), "setSomethingMore");
-      assertArrayEquals(roles.toArray(), new String[]{"admin"});
+      assertArrayEquals(new String[]{"admin"}, roles.toArray());
    }
 
    @Test
@@ -204,31 +204,31 @@ public class JMXAccessControlListTest {
 
       List<String> roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "listFoo");
       assertNotNull(roles);
-      assertEquals(roles.size(), 2);
-      assertEquals(roles.get(0), "amq");
-      assertEquals(roles.get(1), "monitor");
+      assertEquals(2, roles.size());
+      assertEquals("amq", roles.get(0));
+      assertEquals("monitor", roles.get(1));
 
       roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "getFoo");
       assertNotNull(roles);
-      assertEquals(roles.size(), 2);
-      assertEquals(roles.get(0), "amq");
-      assertEquals(roles.get(1), "monitor");
+      assertEquals(2, roles.size());
+      assertEquals("amq", roles.get(0));
+      assertEquals("monitor", roles.get(1));
 
       roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "isFoo");
       assertNotNull(roles);
-      assertEquals(roles.size(), 2);
-      assertEquals(roles.get(0), "amq");
-      assertEquals(roles.get(1), "monitor");
+      assertEquals(2, roles.size());
+      assertEquals("amq", roles.get(0));
+      assertEquals("monitor", roles.get(1));
 
       roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "setFoo");
       assertNotNull(roles);
-      assertEquals(roles.size(), 1);
-      assertEquals(roles.get(0), "amq");
+      assertEquals(1, roles.size());
+      assertEquals("amq", roles.get(0));
 
       roles = controlList.getRolesForObject(new ObjectName("org.myDomain.foo:foo=bar"), "createFoo");
       assertNotNull(roles);
-      assertEquals(roles.size(), 1);
-      assertEquals(roles.get(0), "amq");
+      assertEquals(1, roles.size());
+      assertEquals("amq", roles.get(0));
 
    }
 }

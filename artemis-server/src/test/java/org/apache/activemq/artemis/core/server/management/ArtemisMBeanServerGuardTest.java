@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.core.server.management;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.management.ObjectName;
 import javax.security.auth.Subject;

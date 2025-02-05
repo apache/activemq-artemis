@@ -122,11 +122,11 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
       queueConnection.start();
       TextMessage textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.rollback();
       textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
       s.commit();
    }
 
@@ -157,7 +157,7 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
       try {
          s = queueConnection.createSession(false, Session.SESSION_TRANSACTED);
          if (inTx) {
-            assertEquals(s.getAcknowledgeMode(), Session.SESSION_TRANSACTED);
+            assertEquals(Session.SESSION_TRANSACTED, s.getAcknowledgeMode());
          } else {
             fail("didn't get expected exception creating session with SESSION_TRANSACTED mode ");
          }
@@ -171,7 +171,7 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
       try {
          s = queueConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
          if (inTx) {
-            assertEquals(s.getAcknowledgeMode(), Session.SESSION_TRANSACTED);
+            assertEquals(Session.SESSION_TRANSACTED, s.getAcknowledgeMode());
          } else {
             fail("didn't get expected exception creating session with CLIENT_ACKNOWLEDGE mode");
          }
@@ -227,7 +227,7 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
       queueConnection.start();
       TextMessage textMessage = (TextMessage) consumer.receive(1000);
       assertNotNull(textMessage);
-      assertEquals(textMessage.getText(), "test");
+      assertEquals("test", textMessage.getText());
    }
 
    @Test

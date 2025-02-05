@@ -617,7 +617,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
 
       queueProducer.send(m1);
       Message m2 = queueConsumer.receive(1000);
-      assertEquals(m2.getObjectProperty("key"), Boolean.TRUE, "key should be true");
+      assertEquals(Boolean.TRUE, m2.getObjectProperty("key"), "key should be true");
       assertNull(m2.getObjectProperty("key2"), "key2 should be null");
       assertNull(m2.getObjectProperty("key3"), "key3 should be null");
    }

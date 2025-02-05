@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Queue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,6 +37,11 @@ import org.jgroups.JChannel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase {
 
@@ -106,7 +106,7 @@ public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase {
       ActiveMQConnectionFactory jmsCf2Copy = deserialize(x, ActiveMQConnectionFactory.class);
       assertNotNull(jmsCf2Copy);
       BroadcastEndpointFactory broadcastEndpoint = jmsCf2Copy.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory();
-      assertTrue(broadcastEndpoint instanceof JGroupsFileBroadcastEndpointFactory);
+      assertInstanceOf(JGroupsFileBroadcastEndpointFactory.class, broadcastEndpoint);
    }
 
    @Test

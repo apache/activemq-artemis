@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.protocol.amqp.sasl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -85,7 +87,7 @@ public class SCRAMTest {
       assertNull(serverSASL.result());
       byte[] clientFinal = clientSASL.getResponse(serverFirst);
       assertNotNull(clientFinal);
-      assertFalse(clientFinal.length == 0);
+      assertNotEquals(0, clientFinal.length);
       byte[] serverFinal = serverSASL.processSASL(clientFinal);
       assertNotNull(serverFinal);
       assertNotNull(serverSASL.result());
@@ -95,7 +97,7 @@ public class SCRAMTest {
       assertTrue(serverSASL.result().isSuccess());
       byte[] clientCheck = clientSASL.getResponse(serverFinal);
       assertNotNull(clientCheck);
-      assertTrue(clientCheck.length == 0);
+      assertEquals(0, clientCheck.length);
    }
 
    @TestTemplate
@@ -109,16 +111,16 @@ public class SCRAMTest {
       assertNull(serverSASL.result());
       byte[] clientFinal = clientSASL.getResponse(serverFirst);
       assertNotNull(clientFinal);
-      assertFalse(clientFinal.length == 0);
+      assertNotEquals(0, clientFinal.length);
       byte[] serverFinal = serverSASL.processSASL(clientFinal);
       assertNull(serverFinal);
       assertNotNull(serverSASL.result());
       assertFalse(serverSASL.result().isSuccess());
-      assertTrue(serverSASL.exception instanceof ScramException, serverSASL.exception + " is not an instance of ScramException");
+      assertInstanceOf(ScramException.class, serverSASL.exception, serverSASL.exception + " is not an instance of ScramException");
    }
 
    @TestTemplate
-   public void testServerTryTrickClient() throws NoSuchAlgorithmException, ScramException {
+   public void testServerTryTrickClient() throws Exception {
       assertThrows(DecodeException.class, () -> {
          TestSCRAMClientSASL clientSASL = new TestSCRAMClientSASL(mechanism, USERNAME, PASSWORD);
          ScramServerFunctionalityImpl bad =
@@ -130,7 +132,7 @@ public class SCRAMTest {
             bad.prepareFirstMessage(generateUserData(mechanism, "bad")).getBytes(StandardCharsets.US_ASCII);
          byte[] clientFinal = clientSASL.getResponse(serverFirst);
          assertNotNull(clientFinal);
-         assertFalse(clientFinal.length == 0);
+         assertNotEquals(0, clientFinal.length);
          byte[] serverFinal = bad.prepareFinalMessageUnchecked(new String(clientFinal, StandardCharsets.US_ASCII))
             .getBytes(StandardCharsets.US_ASCII);
          clientSASL.getResponse(serverFinal);

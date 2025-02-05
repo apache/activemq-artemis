@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.jms;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
-import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -65,6 +64,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -102,7 +102,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testMultipleConnectionFactories() throws NamingException, JMSException {
+   public void testMultipleConnectionFactories() throws Exception {
       Hashtable<String, Object> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.VmConnectionFactory", "vm://0");
@@ -118,7 +118,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testVMCF0() throws NamingException, JMSException {
+   public void testVMCF0() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.ConnectionFactory", "vm://0");
@@ -131,7 +131,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testEmptyConnectionFactoryString() throws NamingException, JMSException {
+   public void testEmptyConnectionFactoryString() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.ConnectionFactory", "vm://0");
@@ -143,7 +143,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testVMCF1() throws NamingException, JMSException {
+   public void testVMCF1() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.ConnectionFactory", "vm://1");
@@ -155,7 +155,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testXACF() throws NamingException, JMSException {
+   public void testXACF() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "vm://0?type=XA_CF");
@@ -167,7 +167,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testQueueCF() throws NamingException, JMSException {
+   public void testQueueCF() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "vm://0?type=QUEUE_CF");
@@ -179,7 +179,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testQueueXACF() throws NamingException, JMSException {
+   public void testQueueXACF() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "vm://0?type=QUEUE_XA_CF");
@@ -191,7 +191,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testTopicCF() throws NamingException, JMSException {
+   public void testTopicCF() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "vm://0?type=TOPIC_CF");
@@ -203,7 +203,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testTopicXACF() throws NamingException, JMSException {
+   public void testTopicXACF() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "vm://0?type=TOPIC_XA_CF");
@@ -215,7 +215,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testRemoteCFWithTCP() throws NamingException, JMSException {
+   public void testRemoteCFWithTCP() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:61616");
@@ -227,7 +227,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testRemoteCFWithTCPandHA() throws NamingException, JMSException {
+   public void testRemoteCFWithTCPandHA() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:61616?ha=true");
@@ -265,12 +265,12 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       assertEquals(6000, discoveryGroupConfiguration.getDiscoveryInitialWaitTimeout());
 
       BroadcastEndpoint broadcastEndpoint = cf.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory().createBroadcastEndpoint();
-      assertTrue(broadcastEndpoint instanceof JGroupsFileBroadcastEndpoint);
+      assertInstanceOf(JGroupsFileBroadcastEndpoint.class, broadcastEndpoint);
       broadcastEndpoint.close(false);
    }
 
    @Test
-   public void testRemoteCFWithUDP() throws NamingException, JMSException {
+   public void testRemoteCFWithUDP() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "udp://" + getUDPDiscoveryAddress() + ":" + getUDPDiscoveryPort());
@@ -284,7 +284,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testRemoteCFWithUDPWithTransportConfig() throws NamingException, JMSException {
+   public void testRemoteCFWithUDPWithTransportConfig() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
       props.put("connectionFactory.myConnectionFactory", "udp://" + getUDPDiscoveryAddress() + ":" + getUDPDiscoveryPort() + "?" +
@@ -311,7 +311,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testRemoteCFWithMultipleHosts() throws NamingException, JMSException {
+   public void testRemoteCFWithMultipleHosts() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:61616/httpEnabled=true&foo=bar,tcp://127.0.0.2:61617?httpEnabled=false?clientID=myClientID");
@@ -324,7 +324,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testRemoteCFWithTransportConfig() throws NamingException, JMSException {
+   public void testRemoteCFWithTransportConfig() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("connectionFactory.myConnectionFactory", "tcp://127.0.0.1:61616?" +
@@ -365,37 +365,37 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       Map<String, Object> parametersFromJNDI = cf.getServerLocator().getStaticTransportConfigurations()[0].getParams();
 
-      assertEquals(parametersFromJNDI.get(TransportConstants.SSL_ENABLED_PROP_NAME), "mySSLEnabledPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_ENABLED_PROP_NAME), "myHTTPEnabledPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME), "myHTTPClientIdlePropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_CLIENT_IDLE_SCAN_PERIOD), "myHTTPClientIdleScanPeriodValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_REQUIRES_SESSION_ID), "myHTTPRequiresSessionIDValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME), "myHTTPUpgradeEnabledPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME), "myHTTPUpgradeEndpointPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.USE_SERVLET_PROP_NAME), "myUseServletPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.SERVLET_PATH), "myServletPathValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.USE_NIO_PROP_NAME), "myUseNIOPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME), "myUseNIOGlobalWorkerPoolPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.LOCAL_ADDRESS_PROP_NAME), "myLocalAddressPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.LOCAL_PORT_PROP_NAME), "myLocalPortPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME), "myKeystoreProviderPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_TYPE_PROP_NAME), "myKeystoreTypePropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_PATH_PROP_NAME), "myKeystorePathPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME), "myKeystorePasswordPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME), "myTruststoreProviderPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME), "myTruststoreTypePropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PATH_PROP_NAME), "myTruststorePathPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME), "myTruststorePasswordPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME), "myEnabledCipherSuitesPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME), "myEnabledProtocolsPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.TCP_NODELAY_PROPNAME), "myTCPNoDelayPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME), "myTCPSendbufferSizePropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME), "myTCPReceivebufferSizePropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.NIO_REMOTING_THREADS_PROPNAME), "myNIORemotingThreadsPropValue");
-      assertEquals(parametersFromJNDI.get(TransportConstants.BATCH_DELAY), "myBatchDelay");
-      assertEquals(parametersFromJNDI.get(ActiveMQDefaultConfiguration.getPropMaskPassword()), "myPropMaskPassword");
-      assertEquals(parametersFromJNDI.get(ActiveMQDefaultConfiguration.getPropPasswordCodec()), "myPropPasswordCodec");
-      assertEquals(parametersFromJNDI.get(TransportConstants.NETTY_CONNECT_TIMEOUT), "myNettyConnectTimeout");
+      assertEquals("mySSLEnabledPropValue", parametersFromJNDI.get(TransportConstants.SSL_ENABLED_PROP_NAME));
+      assertEquals("myHTTPEnabledPropValue", parametersFromJNDI.get(TransportConstants.HTTP_ENABLED_PROP_NAME));
+      assertEquals("myHTTPClientIdlePropValue", parametersFromJNDI.get(TransportConstants.HTTP_CLIENT_IDLE_PROP_NAME));
+      assertEquals("myHTTPClientIdleScanPeriodValue", parametersFromJNDI.get(TransportConstants.HTTP_CLIENT_IDLE_SCAN_PERIOD));
+      assertEquals("myHTTPRequiresSessionIDValue", parametersFromJNDI.get(TransportConstants.HTTP_REQUIRES_SESSION_ID));
+      assertEquals("myHTTPUpgradeEnabledPropValue", parametersFromJNDI.get(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME));
+      assertEquals("myHTTPUpgradeEndpointPropValue", parametersFromJNDI.get(TransportConstants.HTTP_UPGRADE_ENDPOINT_PROP_NAME));
+      assertEquals("myUseServletPropValue", parametersFromJNDI.get(TransportConstants.USE_SERVLET_PROP_NAME));
+      assertEquals("myServletPathValue", parametersFromJNDI.get(TransportConstants.SERVLET_PATH));
+      assertEquals("myUseNIOPropValue", parametersFromJNDI.get(TransportConstants.USE_NIO_PROP_NAME));
+      assertEquals("myUseNIOGlobalWorkerPoolPropValue", parametersFromJNDI.get(TransportConstants.USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME));
+      assertEquals("myLocalAddressPropValue", parametersFromJNDI.get(TransportConstants.LOCAL_ADDRESS_PROP_NAME));
+      assertEquals("myLocalPortPropValue", parametersFromJNDI.get(TransportConstants.LOCAL_PORT_PROP_NAME));
+      assertEquals("myKeystoreProviderPropValue", parametersFromJNDI.get(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME));
+      assertEquals("myKeystoreTypePropValue", parametersFromJNDI.get(TransportConstants.KEYSTORE_TYPE_PROP_NAME));
+      assertEquals("myKeystorePathPropValue", parametersFromJNDI.get(TransportConstants.KEYSTORE_PATH_PROP_NAME));
+      assertEquals("myKeystorePasswordPropValue", parametersFromJNDI.get(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME));
+      assertEquals("myTruststoreProviderPropValue", parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME));
+      assertEquals("myTruststoreTypePropValue", parametersFromJNDI.get(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME));
+      assertEquals("myTruststorePathPropValue", parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PATH_PROP_NAME));
+      assertEquals("myTruststorePasswordPropValue", parametersFromJNDI.get(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME));
+      assertEquals("myEnabledCipherSuitesPropValue", parametersFromJNDI.get(TransportConstants.ENABLED_CIPHER_SUITES_PROP_NAME));
+      assertEquals("myEnabledProtocolsPropValue", parametersFromJNDI.get(TransportConstants.ENABLED_PROTOCOLS_PROP_NAME));
+      assertEquals("myTCPNoDelayPropValue", parametersFromJNDI.get(TransportConstants.TCP_NODELAY_PROPNAME));
+      assertEquals("myTCPSendbufferSizePropValue", parametersFromJNDI.get(TransportConstants.TCP_SENDBUFFER_SIZE_PROPNAME));
+      assertEquals("myTCPReceivebufferSizePropValue", parametersFromJNDI.get(TransportConstants.TCP_RECEIVEBUFFER_SIZE_PROPNAME));
+      assertEquals("myNIORemotingThreadsPropValue", parametersFromJNDI.get(TransportConstants.NIO_REMOTING_THREADS_PROPNAME));
+      assertEquals("myBatchDelay", parametersFromJNDI.get(TransportConstants.BATCH_DELAY));
+      assertEquals("myPropMaskPassword", parametersFromJNDI.get(ActiveMQDefaultConfiguration.getPropMaskPassword()));
+      assertEquals("myPropPasswordCodec", parametersFromJNDI.get(ActiveMQDefaultConfiguration.getPropPasswordCodec()));
+      assertEquals("myNettyConnectTimeout", parametersFromJNDI.get(TransportConstants.NETTY_CONNECT_TIMEOUT));
       ctx.close();
    }
 
@@ -438,7 +438,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testQueue() throws NamingException, JMSException {
+   public void testQueue() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("queue.myQueue", "myQueue");
@@ -446,10 +446,10 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Context ctx = new InitialContext(props);
 
       Destination destination = (Destination) ctx.lookup("myQueue");
-      assertTrue(destination instanceof Queue);
+      assertInstanceOf(Queue.class, destination);
 
       destination = (Destination) ctx.lookup("queues/myQueue");
-      assertTrue(destination instanceof Queue);
+      assertInstanceOf(Queue.class, destination);
    }
 
    @Test
@@ -462,7 +462,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       liveService.getSecurityStore().setSecurityEnabled(false);
 
       Destination destination = (Destination) ctx.lookup(QUEUE);
-      assertTrue(destination instanceof Queue);
+      assertInstanceOf(Queue.class, destination);
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       try (Connection connection = connectionFactory.createConnection()) {
          Session session = connection.createSession();
@@ -476,13 +476,13 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testDynamicQueue() throws NamingException, JMSException {
+   public void testDynamicQueue() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       Context ctx = new InitialContext(props);
 
       Destination destination = (Destination) ctx.lookup("dynamicQueues/myQueue");
-      assertTrue(destination instanceof Queue);
+      assertInstanceOf(Queue.class, destination);
    }
 
    @Test
@@ -494,7 +494,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       liveService.getSecurityStore().setSecurityEnabled(false);
 
       Destination destination = (Destination) ctx.lookup("dynamicQueues/myAddress::" + QUEUE);
-      assertTrue(destination instanceof Queue);
+      assertInstanceOf(Queue.class, destination);
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       try (Connection connection = connectionFactory.createConnection()) {
          Session session = connection.createSession();
@@ -508,7 +508,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testTopic() throws NamingException, JMSException {
+   public void testTopic() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put("topic.myTopic", "myTopic");
@@ -516,10 +516,10 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Context ctx = new InitialContext(props);
 
       Destination destination = (Destination) ctx.lookup("myTopic");
-      assertTrue(destination instanceof Topic);
+      assertInstanceOf(Topic.class, destination);
 
       destination = (Destination) ctx.lookup("topics/myTopic");
-      assertTrue(destination instanceof Topic);
+      assertInstanceOf(Topic.class, destination);
    }
 
    @Test
@@ -532,7 +532,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       liveService.getSecurityStore().setSecurityEnabled(false);
 
       Destination destination = (Destination) ctx.lookup("myTopic");
-      assertTrue(destination instanceof Topic);
+      assertInstanceOf(Topic.class, destination);
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession();
@@ -545,13 +545,13 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testDynamicTopic() throws NamingException, JMSException {
+   public void testDynamicTopic() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       Context ctx = new InitialContext(props);
 
       Destination destination = (Destination) ctx.lookup("dynamicTopics/myTopic");
-      assertTrue(destination instanceof Topic);
+      assertInstanceOf(Topic.class, destination);
    }
 
    @Test
@@ -564,7 +564,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       liveService.getSecurityStore().setSecurityEnabled(false);
 
       Destination destination = (Destination) ctx.lookup("dynamicTopics/myTopic::" + SUBSCRIPTION);
-      assertTrue(destination instanceof Topic);
+      assertInstanceOf(Topic.class, destination);
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
       Connection connection = connectionFactory.createConnection();
       Session session = connection.createSession();
@@ -638,7 +638,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
 
    @Test
-   public void testProviderUrlDefault() throws NamingException, JMSException {
+   public void testProviderUrlDefault() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put(Context.PROVIDER_URL, "vm://0");
@@ -653,7 +653,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testProviderUrlCF() throws NamingException, JMSException {
+   public void testProviderUrlCF() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put(Context.PROVIDER_URL, "vm://0?type=CF");
@@ -668,7 +668,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testProviderUrlXACF() throws NamingException, JMSException {
+   public void testProviderUrlXACF() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put(Context.PROVIDER_URL, "vm://0?type=XA_CF");
@@ -683,7 +683,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testProviderUrlQueueCF() throws NamingException, JMSException {
+   public void testProviderUrlQueueCF() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put(Context.PROVIDER_URL, "vm://0?type=QUEUE_CF");
@@ -698,7 +698,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testProviderUrlQueueXACF() throws NamingException, JMSException {
+   public void testProviderUrlQueueXACF() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put(Context.PROVIDER_URL, "vm://0?type=QUEUE_XA_CF");
@@ -713,7 +713,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testProviderUrlTopicCF() throws NamingException, JMSException {
+   public void testProviderUrlTopicCF() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put(Context.PROVIDER_URL, "vm://0?type=TOPIC_CF");
@@ -728,7 +728,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testProviderUrlTopicXACF() throws NamingException, JMSException {
+   public void testProviderUrlTopicXACF() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put(Context.PROVIDER_URL, "vm://0?type=TOPIC_XA_CF");
@@ -743,7 +743,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testProviderUrlDefaultAndCustom() throws NamingException, JMSException {
+   public void testProviderUrlDefaultAndCustom() throws Exception {
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
       props.put(Context.PROVIDER_URL, "vm://0");
@@ -762,7 +762,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void test1xNaming() throws NamingException, JMSException {
+   public void test1xNaming() throws Exception {
       liveService.getSecurityStore().setSecurityEnabled(false);
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
@@ -809,7 +809,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void test1xNamingNegative() throws NamingException, JMSException {
+   public void test1xNamingNegative() throws Exception {
       liveService.getSecurityStore().setSecurityEnabled(false);
       Hashtable<String, String> props = new Hashtable<>();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");

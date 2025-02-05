@@ -161,7 +161,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
          consumer.receiveImmediate();
          fail();
       } catch (ActiveMQObjectClosedException e) {
-         assertEquals(e.getType(), ActiveMQExceptionType.OBJECT_CLOSED);
+         assertEquals(ActiveMQExceptionType.OBJECT_CLOSED, e.getType());
       }
    }
 
@@ -192,7 +192,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
          consumer.receiveImmediate();
          fail();
       } catch (ActiveMQObjectClosedException e) {
-         assertEquals(e.getType(), ActiveMQExceptionType.OBJECT_CLOSED);
+         assertEquals(ActiveMQExceptionType.OBJECT_CLOSED, e.getType());
       }
    }
 
@@ -412,7 +412,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
          consumer.receiveImmediate();
          fail();
       } catch (ActiveMQObjectClosedException e) {
-         assertEquals(e.getType(), ActiveMQExceptionType.OBJECT_CLOSED);
+         assertEquals(ActiveMQExceptionType.OBJECT_CLOSED, e.getType());
       }
    }
 

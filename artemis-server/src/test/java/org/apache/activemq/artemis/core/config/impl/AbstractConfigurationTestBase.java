@@ -445,7 +445,7 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
       // This will use serialization to perform a deep copy of the object
       Configuration conf2 = configuration.copy();
 
-      assertTrue(configuration.equals(conf2));
+      assertEquals(configuration, conf2);
    }
 
    // Utility method, not itself a test; call it from actual test method

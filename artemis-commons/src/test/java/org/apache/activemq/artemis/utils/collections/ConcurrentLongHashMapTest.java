@@ -52,21 +52,21 @@ public class ConcurrentLongHashMapTest {
       assertNull(map.put(2, "two"));
       assertNull(map.put(3, "three"));
 
-      assertEquals(map.size(), 3);
+      assertEquals(3, map.size());
 
-      assertEquals(map.get(1), "one");
-      assertEquals(map.size(), 3);
+      assertEquals("one", map.get(1));
+      assertEquals(3, map.size());
 
-      assertEquals(map.remove(1), "one");
-      assertEquals(map.size(), 2);
-      assertEquals(map.get(1), null);
-      assertEquals(map.get(5), null);
-      assertEquals(map.size(), 2);
+      assertEquals("one", map.remove(1));
+      assertEquals(2, map.size());
+      assertNull(map.get(1));
+      assertNull(map.get(5));
+      assertEquals(2, map.size());
 
       assertNull(map.put(1, "one"));
-      assertEquals(map.size(), 3);
-      assertEquals(map.put(1, "uno"), "one");
-      assertEquals(map.size(), 3);
+      assertEquals(3, map.size());
+      assertEquals("one", map.put(1, "uno"));
+      assertEquals(3, map.size());
    }
 
    @Test
@@ -103,23 +103,23 @@ public class ConcurrentLongHashMapTest {
    public void testRehashing() {
       int n = 16;
       ConcurrentLongHashMap<Integer> map = new ConcurrentLongHashMap<>(n / 2, 1);
-      assertEquals(map.capacity(), n);
-      assertEquals(map.size(), 0);
+      assertEquals(n, map.capacity());
+      assertEquals(0, map.size());
 
       for (int i = 0; i < n; i++) {
          map.put(i, i);
       }
 
-      assertEquals(map.capacity(), 2 * n);
-      assertEquals(map.size(), n);
+      assertEquals(2 * n, map.capacity());
+      assertEquals(n, map.size());
    }
 
    @Test
    public void testRehashingWithDeletes() {
       int n = 16;
       ConcurrentLongHashMap<Integer> map = new ConcurrentLongHashMap<>(n / 2, 1);
-      assertEquals(map.capacity(), n);
-      assertEquals(map.size(), 0);
+      assertEquals(n, map.capacity());
+      assertEquals(0, map.size());
 
       for (int i = 0; i < n / 2; i++) {
          map.put(i, i);
@@ -133,8 +133,8 @@ public class ConcurrentLongHashMapTest {
          map.put(i, i);
       }
 
-      assertEquals(map.capacity(), 2 * n);
-      assertEquals(map.size(), n);
+      assertEquals(2 * n, map.capacity());
+      assertEquals(n, map.size());
    }
 
    @Test
@@ -167,7 +167,7 @@ public class ConcurrentLongHashMapTest {
          future.get();
       }
 
-      assertEquals(map.size(), N * nThreads);
+      assertEquals(N * nThreads, map.size());
 
       executor.shutdown();
    }
@@ -202,7 +202,7 @@ public class ConcurrentLongHashMapTest {
          future.get();
       }
 
-      assertEquals(map.size(), N * nThreads);
+      assertEquals(N * nThreads, map.size());
 
       executor.shutdown();
    }
@@ -263,35 +263,35 @@ public class ConcurrentLongHashMapTest {
       int bucket2 = ConcurrentLongHashMap.signSafeMod(ConcurrentLongHashMap.hash(key2), Buckets);
       assertEquals(bucket1, bucket2);
 
-      assertEquals(map.put(key1, "value-1"), null);
-      assertEquals(map.put(key2, "value-2"), null);
-      assertEquals(map.size(), 2);
+      assertNull(map.put(key1, "value-1"));
+      assertNull(map.put(key2, "value-2"));
+      assertEquals(2, map.size());
 
-      assertEquals(map.remove(key1), "value-1");
-      assertEquals(map.size(), 1);
+      assertEquals("value-1", map.remove(key1));
+      assertEquals(1, map.size());
 
-      assertEquals(map.put(key1, "value-1-overwrite"), null);
-      assertEquals(map.size(), 2);
+      assertNull(map.put(key1, "value-1-overwrite"));
+      assertEquals(2, map.size());
 
-      assertEquals(map.remove(key1), "value-1-overwrite");
-      assertEquals(map.size(), 1);
+      assertEquals("value-1-overwrite", map.remove(key1));
+      assertEquals(1, map.size());
 
-      assertEquals(map.put(key2, "value-2-overwrite"), "value-2");
-      assertEquals(map.get(key2), "value-2-overwrite");
+      assertEquals("value-2", map.put(key2, "value-2-overwrite"));
+      assertEquals("value-2-overwrite", map.get(key2));
 
-      assertEquals(map.size(), 1);
-      assertEquals(map.remove(key2), "value-2-overwrite");
+      assertEquals(1, map.size());
+      assertEquals("value-2-overwrite", map.remove(key2));
       assertTrue(map.isEmpty());
    }
 
    @Test
    public void testPutIfAbsent() {
       ConcurrentLongHashMap<String> map = new ConcurrentLongHashMap<>();
-      assertEquals(map.putIfAbsent(1, "one"), null);
-      assertEquals(map.get(1), "one");
+      assertNull(map.putIfAbsent(1, "one"));
+      assertEquals("one", map.get(1));
 
-      assertEquals(map.putIfAbsent(1, "uno"), "one");
-      assertEquals(map.get(1), "one");
+      assertEquals("one", map.putIfAbsent(1, "uno"));
+      assertEquals("one", map.get(1));
    }
 
    @Test
@@ -300,17 +300,17 @@ public class ConcurrentLongHashMapTest {
       AtomicInteger counter = new AtomicInteger();
       LongFunction<Integer> provider = key -> counter.getAndIncrement();
 
-      assertEquals(map.computeIfAbsent(0, provider).intValue(), 0);
-      assertEquals(map.get(0).intValue(), 0);
+      assertEquals(0, map.computeIfAbsent(0, provider).intValue());
+      assertEquals(0, map.get(0).intValue());
 
-      assertEquals(map.computeIfAbsent(1, provider).intValue(), 1);
-      assertEquals(map.get(1).intValue(), 1);
+      assertEquals(1, map.computeIfAbsent(1, provider).intValue());
+      assertEquals(1, map.get(1).intValue());
 
-      assertEquals(map.computeIfAbsent(1, provider).intValue(), 1);
-      assertEquals(map.get(1).intValue(), 1);
+      assertEquals(1, map.computeIfAbsent(1, provider).intValue());
+      assertEquals(1, map.get(1).intValue());
 
-      assertEquals(map.computeIfAbsent(2, provider).intValue(), 2);
-      assertEquals(map.get(2).intValue(), 2);
+      assertEquals(2, map.computeIfAbsent(2, provider).intValue());
+      assertEquals(2, map.get(2).intValue());
    }
 
    int Iterations = 1;

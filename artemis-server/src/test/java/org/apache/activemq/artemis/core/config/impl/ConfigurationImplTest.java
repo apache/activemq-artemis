@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.config.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -391,7 +392,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertFalse(connectConfiguration.isAutostart());
       assertEquals(1, connectConfiguration.getConnectionElements().size());
       AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
-      assertTrue(amqpBrokerConnectionElement instanceof AMQPMirrorBrokerConnectionElement);
+      assertInstanceOf(AMQPMirrorBrokerConnectionElement.class, amqpBrokerConnectionElement);
       AMQPMirrorBrokerConnectionElement amqpMirrorBrokerConnectionElement = (AMQPMirrorBrokerConnectionElement) amqpBrokerConnectionElement;
       assertEquals("mirror", amqpMirrorBrokerConnectionElement.getName());
       assertTrue(amqpMirrorBrokerConnectionElement.isMessageAcknowledgements());
@@ -453,7 +454,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertFalse(connectConfiguration.isAutostart());
       assertEquals(1, connectConfiguration.getFederations().size());
       AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
-      assertTrue(amqpBrokerConnectionElement instanceof AMQPFederatedBrokerConnectionElement);
+      assertInstanceOf(AMQPFederatedBrokerConnectionElement.class, amqpBrokerConnectionElement);
       AMQPFederatedBrokerConnectionElement amqpFederationBrokerConnectionElement = (AMQPFederatedBrokerConnectionElement) amqpBrokerConnectionElement;
       assertEquals("abc", amqpFederationBrokerConnectionElement.getName());
 
@@ -578,7 +579,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertFalse(connectConfiguration.isAutostart());
       assertEquals(1, connectConfiguration.getFederations().size());
       AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
-      assertTrue(amqpBrokerConnectionElement instanceof AMQPFederatedBrokerConnectionElement);
+      assertInstanceOf(AMQPFederatedBrokerConnectionElement.class, amqpBrokerConnectionElement);
       AMQPFederatedBrokerConnectionElement amqpFederationBrokerConnectionElement = (AMQPFederatedBrokerConnectionElement) amqpBrokerConnectionElement;
       assertEquals("abc", amqpFederationBrokerConnectionElement.getName());
 
@@ -1878,24 +1879,24 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       assertTrue(configuration.getStatus().contains("\"errors\":[]"));
 
-      assertTrue(configuration.getStoreConfiguration() instanceof DatabaseStorageConfiguration);
+      assertInstanceOf(DatabaseStorageConfiguration.class, configuration.getStoreConfiguration());
       DatabaseStorageConfiguration dsc = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
-      assertEquals(dsc.getLargeMessageTableName(), "lmtn");
-      assertEquals(dsc.getMessageTableName(), "mtn");
-      assertEquals(dsc.getBindingsTableName(), "btn");
-      assertEquals(dsc.getDataSourceClassName(), "dscn");
-      assertEquals(dsc.getJdbcAllowedTimeDiff(), 123);
-      assertEquals(dsc.getJdbcConnectionUrl(), "url");
-      assertEquals(dsc.getJdbcDriverClassName(), "dcn");
-      assertEquals(dsc.getJdbcJournalSyncPeriodMillis(), 456);
-      assertEquals(dsc.getJdbcLockAcquisitionTimeoutMillis(), 789);
-      assertEquals(dsc.getJdbcLockExpirationMillis(), 321);
-      assertEquals(dsc.getJdbcLockRenewPeriodMillis(), 654);
-      assertEquals(dsc.getJdbcNetworkTimeout(), 987);
-      assertEquals(dsc.getDataSourceProperties().get("password"), "pass");
-      assertEquals(dsc.getJdbcUser(), "user");
-      assertEquals(dsc.getNodeManagerStoreTableName(), "nmtn");
-      assertEquals(dsc.getPageStoreTableName(), "pstn");
+      assertEquals("lmtn", dsc.getLargeMessageTableName());
+      assertEquals("mtn", dsc.getMessageTableName());
+      assertEquals("btn", dsc.getBindingsTableName());
+      assertEquals("dscn", dsc.getDataSourceClassName());
+      assertEquals(123, dsc.getJdbcAllowedTimeDiff());
+      assertEquals("url", dsc.getJdbcConnectionUrl());
+      assertEquals("dcn", dsc.getJdbcDriverClassName());
+      assertEquals(456, dsc.getJdbcJournalSyncPeriodMillis());
+      assertEquals(789, dsc.getJdbcLockAcquisitionTimeoutMillis());
+      assertEquals(321, dsc.getJdbcLockExpirationMillis());
+      assertEquals(654, dsc.getJdbcLockRenewPeriodMillis());
+      assertEquals(987, dsc.getJdbcNetworkTimeout());
+      assertEquals("pass", dsc.getDataSourceProperties().get("password"));
+      assertEquals("user", dsc.getJdbcUser());
+      assertEquals("nmtn", dsc.getNodeManagerStoreTableName());
+      assertEquals("pstn", dsc.getPageStoreTableName());
    }
 
    @Test
@@ -2064,8 +2065,8 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
    private void testSimpleConfig(Configuration configuration) {
       assertEquals(25 * 1024, configuration.getGlobalMaxSize());
-      assertEquals(true, configuration.isGracefulShutdownEnabled());
-      assertEquals(false, configuration.isSecurityEnabled());
+      assertTrue(configuration.isGracefulShutdownEnabled());
+      assertFalse(configuration.isSecurityEnabled());
       assertEquals(123, configuration.getMaxRedeliveryRecords());
 
       assertEquals(1, configuration.getAddressConfigurations().size());

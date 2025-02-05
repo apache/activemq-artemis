@@ -381,7 +381,7 @@ public class NettyReadableTest {
       ByteBuf byteBuffer = Unpooled.wrappedBuffer(data);
       NettyReadable buffer = new NettyReadable(byteBuffer);
 
-      assertEquals(buffer.position(), 0);
+      assertEquals(0, buffer.position());
       for (int i = 0; i < data.length; i++) {
          assertEquals(buffer.position(), i);
          assertEquals(data[i], buffer.get());

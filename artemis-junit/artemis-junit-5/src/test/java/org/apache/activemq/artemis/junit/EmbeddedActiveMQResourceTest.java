@@ -52,7 +52,7 @@ public class EmbeddedActiveMQResourceTest {
    }
 
    @RegisterExtension
-   public EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
+   public static EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
 
    @BeforeAll
    public void setUp() {

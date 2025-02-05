@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
-import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -50,6 +44,12 @@ import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class RequestReplyNonJMSTest extends OpenWireTestBase {
@@ -120,7 +120,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          javax.jms.Message receivedMessage = consumer.receive(5000);
          assertNotNull(receivedMessage);
          assertEquals(replyQueue, receivedMessage.getJMSReplyTo());
-         assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Queue);
+         assertInstanceOf(Queue.class, receivedMessage.getJMSReplyTo());
 
          assertNull(consumer.receiveNoWait());
       } catch (Throwable e) {
@@ -169,7 +169,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          javax.jms.Message receivedMessage = consumer.receive(5000);
          assertNotNull(receivedMessage);
          assertEquals(replyQueue, receivedMessage.getJMSReplyTo());
-         assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Queue);
+         assertInstanceOf(Queue.class, receivedMessage.getJMSReplyTo());
 
          assertNull(consumer.receiveNoWait());
       } catch (Throwable e) {
@@ -219,7 +219,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          javax.jms.Message receivedMessage = consumer.receive(5000);
          assertNotNull(receivedMessage);
          assertEquals(replyQueue, receivedMessage.getJMSReplyTo());
-         assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Queue);
+         assertInstanceOf(Queue.class, receivedMessage.getJMSReplyTo());
 
          assertNull(consumer.receiveNoWait());
       } catch (Throwable e) {
@@ -269,7 +269,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          javax.jms.Message receivedMessage = consumer.receive(5000);
          assertNotNull(receivedMessage);
          assertEquals(replyQueue, receivedMessage.getJMSReplyTo());
-         assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Queue);
+         assertInstanceOf(Queue.class, receivedMessage.getJMSReplyTo());
 
          assertNull(consumer.receiveNoWait());
       } catch (Throwable e) {
@@ -319,7 +319,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          javax.jms.Message receivedMessage = consumer.receive(5000);
          assertNotNull(receivedMessage);
          assertEquals(replyTopic, receivedMessage.getJMSReplyTo());
-         assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.Topic);
+         assertInstanceOf(Topic.class, receivedMessage.getJMSReplyTo());
 
          assertNull(consumer.receiveNoWait());
       } catch (Throwable e) {
@@ -369,7 +369,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          consumerConn.start();
          javax.jms.Message receivedMessage = consumer.receive(5000);
          assertNotNull(receivedMessage);
-         assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.TemporaryTopic);
+         assertInstanceOf(TemporaryTopic.class, receivedMessage.getJMSReplyTo());
          assertEquals(replyToName, ((TemporaryTopic) receivedMessage.getJMSReplyTo()).getTopicName());
 
          assertNull(consumer.receiveNoWait());
@@ -420,7 +420,7 @@ public class RequestReplyNonJMSTest extends OpenWireTestBase {
          consumerConn.start();
          javax.jms.Message receivedMessage = consumer.receive(5000);
          assertNotNull(receivedMessage);
-         assertTrue(receivedMessage.getJMSReplyTo() instanceof javax.jms.TemporaryQueue);
+         assertInstanceOf(TemporaryQueue.class, receivedMessage.getJMSReplyTo());
          assertEquals(replyToName, ((TemporaryQueue) receivedMessage.getJMSReplyTo()).getQueueName());
 
          assertNull(consumer.receiveNoWait());

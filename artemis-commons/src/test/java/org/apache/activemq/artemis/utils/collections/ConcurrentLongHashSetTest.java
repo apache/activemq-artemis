@@ -45,21 +45,21 @@ public class ConcurrentLongHashSetTest {
       assertTrue(set.add(2));
       assertTrue(set.add(3));
 
-      assertEquals(set.size(), 3);
+      assertEquals(3, set.size());
 
       assertTrue(set.contains(1));
-      assertEquals(set.size(), 3);
+      assertEquals(3, set.size());
 
       assertTrue(set.remove(1));
-      assertEquals(set.size(), 2);
+      assertEquals(2, set.size());
       assertFalse(set.contains(1));
       assertFalse(set.contains(5));
-      assertEquals(set.size(), 2);
+      assertEquals(2, set.size());
 
       assertTrue(set.add(1));
-      assertEquals(set.size(), 3);
+      assertEquals(3, set.size());
       assertFalse(set.add(1));
-      assertEquals(set.size(), 3);
+      assertEquals(3, set.size());
    }
 
    @Test
@@ -80,23 +80,23 @@ public class ConcurrentLongHashSetTest {
    public void testRehashing() {
       int n = 16;
       ConcurrentLongHashSet set = new ConcurrentLongHashSet(n / 2, 1);
-      assertEquals(set.capacity(), n);
-      assertEquals(set.size(), 0);
+      assertEquals(n, set.capacity());
+      assertEquals(0, set.size());
 
       for (int i = 0; i < n; i++) {
          set.add(i);
       }
 
-      assertEquals(set.capacity(), 2 * n);
-      assertEquals(set.size(), n);
+      assertEquals(2 * n, set.capacity());
+      assertEquals(n, set.size());
    }
 
    @Test
    public void testRehashingWithDeletes() {
       int n = 16;
       ConcurrentLongHashSet set = new ConcurrentLongHashSet(n / 2, 1);
-      assertEquals(set.capacity(), n);
-      assertEquals(set.size(), 0);
+      assertEquals(n, set.capacity());
+      assertEquals(0, set.size());
 
       for (int i = 0; i < n / 2; i++) {
          set.add(i);
@@ -110,8 +110,8 @@ public class ConcurrentLongHashSetTest {
          set.add(i);
       }
 
-      assertEquals(set.capacity(), 2 * n);
-      assertEquals(set.size(), n);
+      assertEquals(2 * n, set.capacity());
+      assertEquals(n, set.size());
    }
 
    @Test
@@ -143,7 +143,7 @@ public class ConcurrentLongHashSetTest {
          future.get();
       }
 
-      assertEquals(set.size(), N * nThreads);
+      assertEquals(N * nThreads, set.size());
 
       executor.shutdown();
    }
@@ -177,7 +177,7 @@ public class ConcurrentLongHashSetTest {
          future.get();
       }
 
-      assertEquals(map.size(), N * nThreads);
+      assertEquals(N * nThreads, map.size());
 
       executor.shutdown();
    }
@@ -223,21 +223,21 @@ public class ConcurrentLongHashSetTest {
 
       assertTrue(set.add(key1));
       assertTrue(set.add(key2));
-      assertEquals(set.size(), 2);
+      assertEquals(2, set.size());
 
       assertTrue(set.remove(key1));
-      assertEquals(set.size(), 1);
+      assertEquals(1, set.size());
 
       assertTrue(set.add(key1));
-      assertEquals(set.size(), 2);
+      assertEquals(2, set.size());
 
       assertTrue(set.remove(key1));
-      assertEquals(set.size(), 1);
+      assertEquals(1, set.size());
 
       assertFalse(set.add(key2));
       assertTrue(set.contains(key2));
 
-      assertEquals(set.size(), 1);
+      assertEquals(1, set.size());
       assertTrue(set.remove(key2));
       assertTrue(set.isEmpty());
    }

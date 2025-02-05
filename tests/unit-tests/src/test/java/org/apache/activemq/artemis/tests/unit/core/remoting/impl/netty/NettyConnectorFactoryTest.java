@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
@@ -32,21 +33,21 @@ public class NettyConnectorFactoryTest {
    public void testCreateConnectorSetsDefaults() {
       // Test defaults are added when TransportConfig params are empty
       TransportConfiguration tc = new TransportConfiguration(NettyConnectorFactory.class.getName(), new HashMap<>());
-      assertTrue(tc.getParams().equals(NettyConnector.DEFAULT_CONFIG));
+      assertEquals(NettyConnector.DEFAULT_CONFIG, tc.getParams());
 
       // Test defaults are added when TransportConfig params are null
       tc = new TransportConfiguration(NettyConnectorFactory.class.getName(), null);
-      assertTrue(tc.getParams().equals(NettyConnector.DEFAULT_CONFIG));
+      assertEquals(NettyConnector.DEFAULT_CONFIG, tc.getParams());
 
       // Test defaults are added when TransportConfig params are null
       tc = new TransportConfiguration(NettyConnectorFactory.class.getName());
-      assertTrue(tc.getParams().equals(NettyConnector.DEFAULT_CONFIG));
+      assertEquals(NettyConnector.DEFAULT_CONFIG, tc.getParams());
 
       // Test defaults are not set when TransportConfig params are not empty
       Map<String, Object> params = new HashMap<>();
       params.put("Foo", "Bar");
       tc = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
-      assertTrue(tc.getParams().size() == 1);
+      assertEquals(1, tc.getParams().size());
       assertTrue(tc.getParams().containsKey("Foo"));
    }
 }

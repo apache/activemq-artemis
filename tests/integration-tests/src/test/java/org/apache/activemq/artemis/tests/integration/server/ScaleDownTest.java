@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
-import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.management.MBeanServer;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -70,6 +64,12 @@ import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class ScaleDownTest extends ClusterTestBase {
@@ -407,7 +407,7 @@ public class ScaleDownTest extends ClusterTestBase {
       // trigger scaleDown from node 0 to node 1
       servers[0].stop();
 
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName))).getBindable()).getRoutingType(), RoutingType.ANYCAST);
+      assertEquals(RoutingType.ANYCAST, ((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName))).getBindable()).getRoutingType());
       // get the 1 message from queue 2
       addConsumer(0, 1, queueName, null);
       ClientMessage clientMessage = consumers[0].getConsumer().receive(250);
@@ -448,7 +448,7 @@ public class ScaleDownTest extends ClusterTestBase {
       // trigger scaleDown from node 0 to node 1
       servers[0].stop();
 
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName))).getBindable()).getRoutingType(), RoutingType.ANYCAST);
+      assertEquals(RoutingType.ANYCAST, ((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName))).getBindable()).getRoutingType());
       // get the 1 message from queue 2
       addConsumer(0, 1, queueName, null);
       ClientMessage clientMessage = consumers[0].getConsumer().receive(250);
@@ -471,17 +471,17 @@ public class ScaleDownTest extends ClusterTestBase {
       // send messages to node 0
       sendAMQPMessages(addressName, TEST_SIZE, false);
 
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName1))).getBindable()).getMessageCount(), 2);
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName2))).getBindable()).getMessageCount(), 2);
+      assertEquals(2, ((QueueImpl)((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName1))).getBindable()).getMessageCount());
+      assertEquals(2, ((QueueImpl)((LocalQueueBinding) servers[0].getPostOffice().getBinding(SimpleString.of(queueName2))).getBindable()).getMessageCount());
 
       // trigger scaleDown from node 0 to node 1
       servers[0].stop();
 
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName1))).getBindable()).getRoutingType(), RoutingType.MULTICAST);
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName2))).getBindable()).getRoutingType(), RoutingType.MULTICAST);
+      assertEquals(RoutingType.MULTICAST, ((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName1))).getBindable()).getRoutingType());
+      assertEquals(RoutingType.MULTICAST, ((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName2))).getBindable()).getRoutingType());
 
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName1))).getBindable()).getMessageCount(), 2);
-      assertEquals(((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName2))).getBindable()).getMessageCount(), 2);
+      assertEquals(2, ((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName1))).getBindable()).getMessageCount());
+      assertEquals(2, ((QueueImpl)((LocalQueueBinding) servers[1].getPostOffice().getBinding(SimpleString.of(queueName2))).getBindable()).getMessageCount());
 
       // get the 1 message from queue 1
       addConsumer(0, 1, queueName1, null);
@@ -547,7 +547,7 @@ public class ScaleDownTest extends ClusterTestBase {
          byte[] body = new byte[msg.getBodySize()];
          msg.getBodyBuffer().readBytes(body);
          assertTrue(new String(body).contains("Bob the giant pig " + i));
-         assertEquals(msg.getBooleanProperty("myBooleanProperty"), Boolean.TRUE);
+         assertEquals(Boolean.TRUE, msg.getBooleanProperty("myBooleanProperty"));
          assertEquals(msg.getByteProperty("myByteProperty"), Byte.valueOf("0"));
          byte[] bytes = msg.getBytesProperty("myBytesProperty");
          for (int j = 0; j < 5; j++) {
@@ -767,8 +767,8 @@ public class ScaleDownTest extends ClusterTestBase {
       ClientConsumer consumer = session.createConsumer(queueName);
       ClientMessage message = consumer.receive(1000);
       assertNotNull(message);
-      assertEquals(message.getBodyBuffer().readString(), sampleText);
-      assertTrue(message.getRoutingType() == RoutingType.ANYCAST);
+      assertEquals(sampleText, message.getBodyBuffer().readString());
+      assertEquals(RoutingType.ANYCAST, message.getRoutingType());
       message.acknowledge();
 
       // force a rollback to DLA
@@ -781,7 +781,7 @@ public class ScaleDownTest extends ClusterTestBase {
       consumer = session.createConsumer(dlq.toString());
       message = consumer.receive(1000);
       assertNotNull(message);
-      assertTrue(message.getRoutingType() == null);
+      assertNull(message.getRoutingType());
 
       //Scale-Down
       servers[0].stop();

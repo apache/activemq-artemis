@@ -16,16 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
+import javax.jms.JMSSecurityException;
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
-
-import javax.jms.JMSSecurityException;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -44,6 +38,11 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test that AMQP senders and receivers can send to and receive from FQQN addresses when
@@ -209,7 +208,7 @@ public class AmqpTargetedFQQNSecurityTest extends AmqpClientTestSupport {
          fail("Should not be able to attach to FQQN assigned to another user.");
       } catch (IOException e) {
          assertNotNull(e.getCause());
-         assertTrue(e.getCause() instanceof JMSSecurityException);
+         assertInstanceOf(JMSSecurityException.class, e.getCause());
       }
 
       Wait.assertEquals(1, queue::getMessageCount);
@@ -263,7 +262,7 @@ public class AmqpTargetedFQQNSecurityTest extends AmqpClientTestSupport {
          fail("Should not be able to attach to FQQN assigned to another user.");
       } catch (IOException e) {
          assertNotNull(e.getCause());
-         assertTrue(e.getCause() instanceof JMSSecurityException);
+         assertInstanceOf(JMSSecurityException.class, e.getCause());
       }
    }
 
@@ -292,7 +291,7 @@ public class AmqpTargetedFQQNSecurityTest extends AmqpClientTestSupport {
          fail("Should not be able to send to FQQN assigned to another user.");
       } catch (IOException e) {
          assertNotNull(e.getCause());
-         assertTrue(e.getCause() instanceof JMSSecurityException);
+         assertInstanceOf(JMSSecurityException.class, e.getCause());
       }
    }
 
@@ -316,7 +315,7 @@ public class AmqpTargetedFQQNSecurityTest extends AmqpClientTestSupport {
          fail("Should not be able to attach to FQQN as sender from read only user.");
       } catch (IOException e) {
          assertNotNull(e.getCause());
-         assertTrue(e.getCause() instanceof JMSSecurityException);
+         assertInstanceOf(JMSSecurityException.class, e.getCause());
       }
 
       try {
@@ -324,7 +323,7 @@ public class AmqpTargetedFQQNSecurityTest extends AmqpClientTestSupport {
          fail("Should not be able to attach to FQQN as sender from read only user.");
       } catch (IOException e) {
          assertNotNull(e.getCause());
-         assertTrue(e.getCause() instanceof JMSSecurityException);
+         assertInstanceOf(JMSSecurityException.class, e.getCause());
       }
    }
 
@@ -348,7 +347,7 @@ public class AmqpTargetedFQQNSecurityTest extends AmqpClientTestSupport {
          fail("Should not be able to attach to FQQN as receiver from write only user.");
       } catch (IOException e) {
          assertNotNull(e.getCause());
-         assertTrue(e.getCause() instanceof JMSSecurityException);
+         assertInstanceOf(JMSSecurityException.class, e.getCause());
       }
 
       try {
@@ -356,7 +355,7 @@ public class AmqpTargetedFQQNSecurityTest extends AmqpClientTestSupport {
          fail("Should not be able to attach to FQQN as receiver from write only user.");
       } catch (IOException e) {
          assertNotNull(e.getCause());
-         assertTrue(e.getCause() instanceof JMSSecurityException);
+         assertInstanceOf(JMSSecurityException.class, e.getCause());
       }
    }
 }

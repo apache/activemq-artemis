@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -79,9 +80,9 @@ public class GracefulShutdownTest extends ActiveMQTestBase {
          sf.createSession();
          fail("Creating a session here should fail because the acceptors should be paused");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSessionCreationException);
+         assertInstanceOf(ActiveMQSessionCreationException.class, e);
          ActiveMQSessionCreationException activeMQSessionCreationException = (ActiveMQSessionCreationException) e;
-         assertEquals(activeMQSessionCreationException.getType(), ActiveMQExceptionType.SESSION_CREATION_REJECTED);
+         assertEquals(ActiveMQExceptionType.SESSION_CREATION_REJECTED, activeMQSessionCreationException.getType());
       }
 
       // close the connection to allow broker shutdown to complete
@@ -137,9 +138,9 @@ public class GracefulShutdownTest extends ActiveMQTestBase {
          sf.createSession();
          fail("Creating a session here should fail because the acceptors should be paused");
       } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQSessionCreationException);
+         assertInstanceOf(ActiveMQSessionCreationException.class, e);
          ActiveMQSessionCreationException activeMQSessionCreationException = (ActiveMQSessionCreationException) e;
-         assertEquals(activeMQSessionCreationException.getType(), ActiveMQExceptionType.SESSION_CREATION_REJECTED);
+         assertEquals(ActiveMQExceptionType.SESSION_CREATION_REJECTED, activeMQSessionCreationException.getType());
       }
 
       Thread.sleep(timeout / 2);

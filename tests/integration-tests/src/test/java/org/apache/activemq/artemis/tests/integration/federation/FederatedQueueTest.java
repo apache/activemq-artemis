@@ -213,7 +213,7 @@ public class FederatedQueueTest extends FederatedTestBase {
 
          Message message = consumer0.receive(1000);
          assertNotNull(message);
-         assertEquals(message.getBooleanProperty(TestTransformer.TEST_PROPERTY), true);
+         assertTrue(message.getBooleanProperty(TestTransformer.TEST_PROPERTY));
       }
    }
 
@@ -517,7 +517,7 @@ public class FederatedQueueTest extends FederatedTestBase {
          if (shared) {
             assertFalse(Wait.waitFor(() -> getServer(1).getConnectionCount() == server1ConsumerCount - 1,
                     500, 100));
-            assertTrue(server1ConsumerCount == getServer(1).getConnectionCount());
+            assertEquals(server1ConsumerCount, getServer(1).getConnectionCount());
          }
 
          MessageConsumer consumer1 = session1.createConsumer(queue1);

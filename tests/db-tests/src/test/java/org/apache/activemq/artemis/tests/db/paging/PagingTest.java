@@ -3214,7 +3214,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       final int MAX_TX = 10;
 
-      assertTrue(MAX_TX % 2 == 0, "MAX_TX needs to be even");
+      assertEquals(MAX_TX % 2, 0, "MAX_TX needs to be even");
 
       for (int i = 0; i < MAX_TX; i++) {
          ClientMessage message = sessionNonTX.createMessage(true);
@@ -6416,7 +6416,7 @@ public class PagingTest extends ParameterDBTestBase {
          for (int i = 0; i < num; i++) {
             msgReceivedCons = cons.receive(5000);
             assertNotNull(msgReceivedCons);
-            assertTrue(msgReceivedCons.getIntProperty("index") == i);
+            assertEquals(i, (int) msgReceivedCons.getIntProperty("index"));
             msgReceivedCons.acknowledge();
 
             session.commit();
@@ -6430,7 +6430,7 @@ public class PagingTest extends ParameterDBTestBase {
 
          msgReceivedCons = cons.receive(5000);
          assertNotNull(msgReceivedCons);
-         assertTrue(msgReceivedCons.getIntProperty("index") == num);
+         assertEquals(num, (int) msgReceivedCons.getIntProperty("index"));
          msgReceivedCons.acknowledge();
 
          assertNull(cons.receiveImmediate());
@@ -6480,7 +6480,7 @@ public class PagingTest extends ParameterDBTestBase {
       if (rollbackBeforeDelivery) {
          sendMessages(session, producer, numberOfMessages);
          session.rollback();
-         assertEquals(server.getPagingManager().getTransactions().size(), 1);
+         assertEquals(1, server.getPagingManager().getTransactions().size());
          PageTransactionInfo pageTransactionInfo = server.getPagingManager().getTransactions().values().iterator().next();
          // Make sure rollback happens before delivering messages
          Wait.assertTrue(() -> pageTransactionInfo.isRollback(), 1000, 100);
@@ -6493,7 +6493,7 @@ public class PagingTest extends ParameterDBTestBase {
          session.start();
          sendMessages(session, producer, numberOfMessages);
          assertNull(consumer.receiveImmediate());
-         assertEquals(server.getPagingManager().getTransactions().size(), 1);
+         assertEquals(1, server.getPagingManager().getTransactions().size());
          PageTransactionInfo pageTransactionInfo = server.getPagingManager().getTransactions().values().iterator().next();
          session.rollback();
          Wait.assertTrue(() -> pageTransactionInfo.isRollback(), 1000, 100);

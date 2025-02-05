@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
-import static org.junit.Assume.assumeTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class FileXIncludeSchemaConfigurationTest extends FileConfigurationTest {
 

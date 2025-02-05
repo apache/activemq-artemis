@@ -129,7 +129,7 @@ public class BridgeConfigurationTest {
       assertNotNull(deserializedConfiguration);
 
       // the deserialized object should return the same default values as a newly instantiated object
-      assertEquals(deserializedConfiguration, new BridgeConfiguration("name"));
+      assertEquals(new BridgeConfiguration("name"), deserializedConfiguration);
    }
 
    @Test

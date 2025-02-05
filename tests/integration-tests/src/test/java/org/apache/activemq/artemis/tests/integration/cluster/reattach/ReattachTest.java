@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -54,7 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -153,7 +152,7 @@ public class ReattachTest extends ActiveMQTestBase {
 
       session.start();
 
-      assertFalse(Objects.equals(((ServerSession)server.getSessions().toArray()[0]).getConnectionID(), originalConnectionID));
+      assertNotEquals(((ServerSession) server.getSessions().toArray()[0]).getConnectionID(), originalConnectionID);
 
       session.close();
       sf.close();
@@ -184,7 +183,7 @@ public class ReattachTest extends ActiveMQTestBase {
       session.start();
       secondSession.start();
 
-      assertFalse(Objects.equals(((ServerSession) server.getSessions().toArray()[0]).getConnectionID(), originalConnectionID));
+      assertNotEquals(((ServerSession) server.getSessions().toArray()[0]).getConnectionID(), originalConnectionID);
 
       // ensure sessions were removed as failure listeners of old connection and are now failure listeners of new connection
       assertTrue(originalServerSessions.stream().noneMatch(oldConnection.getFailureListeners()::contains));

@@ -18,8 +18,10 @@ package org.apache.activemq.artemis.tests.integration.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.invoke.MethodHandles;
@@ -492,7 +494,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
          ClientProducerCredits newCredits = ((ClientProducerInternal) prod).getProducerCredits();
 
          if (credits != null) {
-            assertTrue(newCredits == credits);
+            assertSame(newCredits, credits);
          }
 
          credits = newCredits;
@@ -522,7 +524,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
          ClientProducerCredits newCredits = ((ClientProducerInternal) prod).getProducerCredits();
 
          if (credits != null) {
-            assertTrue(newCredits == credits);
+            assertSame(newCredits, credits);
          }
 
          credits = newCredits;
@@ -555,7 +557,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
          ClientProducerCredits newCredits = ((ClientProducerInternal) prod).getProducerCredits();
 
          if (credits != null) {
-            assertFalse(newCredits == credits);
+            assertNotSame(newCredits, credits);
          }
 
          credits = newCredits;
@@ -585,7 +587,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
          ClientProducerCredits newCredits = ((ClientProducerInternal) prod).getProducerCredits();
 
          if (credits != null) {
-            assertFalse(newCredits == credits);
+            assertNotSame(newCredits, credits);
          }
 
          credits = newCredits;
@@ -620,7 +622,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
          ClientProducerCredits newCredits = ((ClientProducerInternal) prod).getProducerCredits();
 
          if (credits != null) {
-            assertFalse(newCredits == credits);
+            assertNotSame(newCredits, credits);
          }
 
          credits = newCredits;
@@ -638,7 +640,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
          ClientProducerCredits newCredits = ((ClientProducerInternal) prod).getProducerCredits();
 
-         assertTrue(newCredits == iter.next());
+         assertSame(newCredits, iter.next());
 
          assertEquals(ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
          assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());

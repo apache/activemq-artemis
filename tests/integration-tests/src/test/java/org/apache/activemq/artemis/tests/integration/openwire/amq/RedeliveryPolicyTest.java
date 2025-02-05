@@ -367,7 +367,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       assertEquals("2nd", m.getText());
       session.commit();
 
-      assertTrue(policy.getNextRedeliveryDelay(Long.MAX_VALUE) == 1000);
+      assertEquals(1000, policy.getNextRedeliveryDelay(Long.MAX_VALUE));
    }
 
    /**

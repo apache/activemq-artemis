@@ -426,7 +426,7 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
       crash(session);
       endLatch.await(60, TimeUnit.SECONDS);
       t.join();
-      assertTrue(received.size() == 500, "received only " + received.size());
+      assertEquals(500, received.size(), "received only " + received.size());
 
       session.close();
    }
@@ -741,7 +741,7 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
 
       logger.debug("now last: {}", last);
       logger.debug("now current: {}", current);
-      assertTrue(current.equals(initialPrimary));
+      assertEquals(current, initialPrimary);
 
       ClientSession session = createSession(sf, true, true);
 
@@ -759,7 +759,7 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
       logger.debug("now after primary crashed last: {}", last);
       logger.debug("now current: {}", current);
 
-      assertTrue(current.equals(initialBackup));
+      assertEquals(current, initialBackup);
 
       //fail back
       beforeRestart(primaryServer);
@@ -1854,9 +1854,9 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
 
       assertNotNull(sender.e.getCause());
 
-      assertEquals(sender.e.getType(), ActiveMQExceptionType.UNBLOCKED);
+      assertEquals(ActiveMQExceptionType.UNBLOCKED, sender.e.getType());
 
-      assertEquals(((ActiveMQException) sender.e.getCause()).getType(), ActiveMQExceptionType.DISCONNECTED);
+      assertEquals(ActiveMQExceptionType.DISCONNECTED, ((ActiveMQException) sender.e.getCause()).getType());
 
       session.close();
    }

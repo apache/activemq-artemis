@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.openwire;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -119,7 +120,7 @@ public class OpenWireMessageConverterTest {
 
       MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID, 0);
 
-      assertTrue(messageDispatch.getMessage().getProperty(bytesPropertyKey) instanceof String);
+      assertInstanceOf(String.class, messageDispatch.getMessage().getProperty(bytesPropertyKey));
    }
 
    @Test

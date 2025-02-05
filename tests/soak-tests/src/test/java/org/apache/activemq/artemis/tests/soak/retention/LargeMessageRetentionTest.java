@@ -122,7 +122,7 @@ public class LargeMessageRetentionTest extends SoakTestBase {
    }
 
    private void testRetention(String protocol, int NUMBER_OF_MESSAGES, int backlog, int bodySize, int producers) throws Throwable {
-      assertTrue(NUMBER_OF_MESSAGES % producers == 0); // checking that it is a multiple
+      assertEquals(0, NUMBER_OF_MESSAGES % producers); // checking that it is a multiple
 
       ActiveMQServerControl serverControl = getServerControl(liveURI, nameBuilder, 5000);
 

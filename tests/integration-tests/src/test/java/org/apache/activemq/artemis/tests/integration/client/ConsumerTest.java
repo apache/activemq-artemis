@@ -80,6 +80,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -348,7 +349,7 @@ public class ConsumerTest extends ActiveMQTestBase {
             }
          }
 
-         assertTrue(serverConsumer.getProtocolContext() instanceof ProtonServerSenderContext);
+         assertInstanceOf(ProtonServerSenderContext.class, serverConsumer.getProtocolContext());
 
          final AMQPSessionContext sessionContext = ((ProtonServerSenderContext)
             serverConsumer.getProtocolContext()).getSessionContext();

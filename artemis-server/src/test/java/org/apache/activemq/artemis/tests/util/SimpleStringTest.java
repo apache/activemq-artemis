@@ -16,14 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +25,15 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SimpleStringTest {
 
@@ -224,8 +225,8 @@ public class SimpleStringTest {
       SimpleString sameStr = createSimpleString("abcdef");
       SimpleString differentStr = createSimpleString("ghijk");
 
-      assertTrue(str.hashCode() == sameStr.hashCode());
-      assertFalse(str.hashCode() == differentStr.hashCode());
+      assertEquals(str.hashCode(), sameStr.hashCode());
+      assertNotEquals(str.hashCode(), differentStr.hashCode());
    }
 
    @Test
@@ -273,7 +274,7 @@ public class SimpleStringTest {
       SimpleString s = createSimpleString("abcdefghi");
       SimpleString[] strings = s.split('.');
       assertNotNull(strings);
-      assertEquals(strings.length, 1);
+      assertEquals(1, strings.length);
       assertEquals(strings[0], s);
    }
 
@@ -282,7 +283,7 @@ public class SimpleStringTest {
       SimpleString s = createSimpleString("abcd.efghi");
       SimpleString[] strings = s.split('.');
       assertNotNull(strings);
-      assertEquals(strings.length, 2);
+      assertEquals(2, strings.length);
       assertEquals(strings[0], createSimpleString("abcd"));
       assertEquals(strings[1], createSimpleString("efghi"));
    }
@@ -292,7 +293,7 @@ public class SimpleStringTest {
       SimpleString s = createSimpleString("abcd.efghi.jklmn.opqrs.tuvw.xyz");
       SimpleString[] strings = s.split('.');
       assertNotNull(strings);
-      assertEquals(strings.length, 6);
+      assertEquals(6, strings.length);
       assertEquals(strings[0], createSimpleString("abcd"));
       assertEquals(strings[1], createSimpleString("efghi"));
       assertEquals(strings[2], createSimpleString("jklmn"));

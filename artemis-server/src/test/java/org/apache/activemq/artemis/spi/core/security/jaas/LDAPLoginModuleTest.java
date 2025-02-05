@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -161,7 +162,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       try {
          context.login();
       } catch (LoginException le) {
-         assertEquals(le.getCause().getMessage(), "Empty password is not allowed");
+         assertEquals("Empty password is not allowed", le.getCause().getMessage());
          return;
       }
       fail("Should have failed authenticating");
@@ -341,7 +342,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
 
       // module config keys should not be passed to environment
       for (LDAPLoginModule.ConfigKey configKey: LDAPLoginModule.ConfigKey.values()) {
-         assertEquals("value should not be set for key: " + configKey.getName(), null, environment.get(configKey.getName()));
+         assertNull("value should not be set for key: " + configKey.getName(), environment.get(configKey.getName()));
       }
 
       // extra, non-module configs should be passed to environment
@@ -349,8 +350,8 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
       assertEquals("value should be set for key: " + "randomConfig", "some-value", environment.get("randomConfig"));
 
       // non-string configs should not be passed to environment
-      assertEquals("value should not be set for key: " + "non.string.1", null, environment.get("non.string.1"));
-      assertEquals("value should not be set for key: " + "non.string.2", null, environment.get("non.string.2"));
+      assertNull("value should not be set for key: " + "non.string.1", environment.get("non.string.1"));
+      assertNull("value should not be set for key: " + "non.string.2", environment.get("non.string.2"));
 
       // environment configs should be set
       assertEquals("value should be set for key: " + Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory", environment.get(Context.INITIAL_CONTEXT_FACTORY));

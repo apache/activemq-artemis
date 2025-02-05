@@ -170,7 +170,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
          byte[] body = new byte[msg.getBodySize()];
          msg.getBodyBuffer().readBytes(body);
          assertTrue(new String(body).contains("Bob the giant pig " + i));
-         assertEquals(msg.getBooleanProperty("myBooleanProperty"), Boolean.TRUE);
+         assertEquals(Boolean.TRUE, msg.getBooleanProperty("myBooleanProperty"));
          assertEquals(msg.getByteProperty("myByteProperty"), Byte.valueOf("0"));
          byte[] bytes = msg.getBytesProperty("myBytesProperty");
          for (int j = 0; j < 5; j++) {
@@ -1227,8 +1227,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       m.acknowledge();
 
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), payload);
-      assertEquals(m.getRoutingType(), RoutingType.ANYCAST);
+      assertEquals(payload, m.getBodyBuffer().readString());
+      assertEquals(RoutingType.ANYCAST, m.getRoutingType());
 
       // Rollback to place ANYCAST message on DLA (MULTICAST)
       session.rollback();
@@ -1268,8 +1268,8 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       m = consumer.receive(5000);
 
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), payload);
-      assertEquals(m.getRoutingType(), null);
+      assertEquals(payload, m.getBodyBuffer().readString());
+      assertNull(m.getRoutingType());
 
       consumer.close();
       session.close();

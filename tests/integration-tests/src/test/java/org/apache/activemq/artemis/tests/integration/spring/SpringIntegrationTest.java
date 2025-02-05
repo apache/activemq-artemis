@@ -40,7 +40,7 @@ public class SpringIntegrationTest extends ActiveMQTestBase {
          sender.send("Hello world");
          ExampleListener.latch.await(10, TimeUnit.SECONDS);
          Thread.sleep(500);
-         assertEquals(ExampleListener.lastMessage, "Hello world");
+         assertEquals("Hello world", ExampleListener.lastMessage);
          ((ActiveMQConnectionFactory) sender.getConnectionFactory()).close();
       } finally {
          try {

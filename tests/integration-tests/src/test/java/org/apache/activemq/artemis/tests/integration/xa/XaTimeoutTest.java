@@ -151,7 +151,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       try {
          clientSession.commit(xid, true);
       } catch (XAException e) {
-         assertTrue(e.errorCode == XAException.XAER_NOTA);
+         assertEquals(XAException.XAER_NOTA, e.errorCode);
       }
       clientSession.start();
       ClientMessage m = clientConsumer.receiveImmediate();
@@ -179,19 +179,19 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       ClientMessage m = clientConsumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(500);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = clientConsumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSession.end(xid, XAResource.TMSUCCESS);
       CountDownLatch latch = new CountDownLatch(1);
       server.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
@@ -199,7 +199,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       try {
          clientSession.commit(xid, true);
       } catch (XAException e) {
-         assertTrue(e.errorCode == XAException.XAER_NOTA);
+         assertEquals(XAException.XAER_NOTA, e.errorCode);
       }
       clientSession.setTransactionTimeout(0);
       clientConsumer.close();
@@ -209,19 +209,19 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       m = consumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = consumer.receive(500);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = consumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = consumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSession2.close();
    }
 
@@ -254,19 +254,19 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       ClientMessage m = clientConsumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(500);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = clientConsumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSession.end(xid, XAResource.TMSUCCESS);
       CountDownLatch latch = new CountDownLatch(1);
       server.getResourceManager().getTransaction(xid).addOperation(new RollbackCompleteOperation(latch));
@@ -274,7 +274,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       try {
          clientSession.commit(xid, true);
       } catch (XAException e) {
-         assertTrue(e.errorCode == XAException.XAER_NOTA);
+         assertEquals(XAException.XAER_NOTA, e.errorCode);
       }
       clientSession.setTransactionTimeout(0);
       clientConsumer.close();
@@ -284,19 +284,19 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       m = consumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = consumer.receive(500);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = consumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = consumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       m = consumer.receiveImmediate();
       assertNull(m);
       clientSession2.close();
@@ -331,19 +331,19 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       ClientMessage m = clientConsumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m1");
+      assertEquals("m1", m.getBodyBuffer().readString());
       m = clientConsumer.receive(500);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m2");
+      assertEquals("m2", m.getBodyBuffer().readString());
       m = clientConsumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m3");
+      assertEquals("m3", m.getBodyBuffer().readString());
       m = clientConsumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m4");
+      assertEquals("m4", m.getBodyBuffer().readString());
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
       CountDownLatch latch = new CountDownLatch(1);
@@ -359,19 +359,19 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       m = consumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m5");
+      assertEquals("m5", m.getBodyBuffer().readString());
       m = consumer.receive(500);
       assertNotNull(m);
       m.acknowledge();
-      assertEquals(m.getBodyBuffer().readString(), "m6");
+      assertEquals("m6", m.getBodyBuffer().readString());
       m = consumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m7");
+      assertEquals("m7", m.getBodyBuffer().readString());
       m = consumer.receive(500);
       m.acknowledge();
       assertNotNull(m);
-      assertEquals(m.getBodyBuffer().readString(), "m8");
+      assertEquals("m8", m.getBodyBuffer().readString());
       m = consumer.receiveImmediate();
       assertNull(m);
       clientSession2.close();
@@ -554,7 +554,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       try {
          clientSession.commit(xid, true);
       } catch (XAException e) {
-         assertTrue(e.errorCode == XAException.XAER_NOTA);
+         assertEquals(XAException.XAER_NOTA, e.errorCode);
       }
       clientSession.start();
       ClientMessage m = clientConsumer.receiveImmediate();
@@ -613,7 +613,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
          try {
             clientSessions[i].commit(xids[i], true);
          } catch (XAException e) {
-            assertTrue(e.errorCode == XAException.XAER_NOTA);
+            assertEquals(XAException.XAER_NOTA, e.errorCode);
          }
       }
       for (int i = 50; i < clientSessions.length; i++) {

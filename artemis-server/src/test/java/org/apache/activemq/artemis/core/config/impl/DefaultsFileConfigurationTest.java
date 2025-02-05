@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Collections;
 
 import org.apache.activemq.artemis.ArtemisConstants;
@@ -27,6 +24,9 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class DefaultsFileConfigurationTest extends AbstractConfigurationTestBase {
 
@@ -142,7 +142,7 @@ public class DefaultsFileConfigurationTest extends AbstractConfigurationTestBase
 
       assertEquals(ActiveMQDefaultConfiguration.getDefaultAddressQueueScanPeriod(), conf.getAddressQueueScanPeriod());
 
-      assertTrue(conf.getHAPolicyConfiguration() instanceof PrimaryOnlyPolicyConfiguration);
+      assertInstanceOf(PrimaryOnlyPolicyConfiguration.class, conf.getHAPolicyConfiguration());
 
       assertEquals(ActiveMQDefaultConfiguration.isDefaultGracefulShutdownEnabled(), conf.isGracefulShutdownEnabled());
 

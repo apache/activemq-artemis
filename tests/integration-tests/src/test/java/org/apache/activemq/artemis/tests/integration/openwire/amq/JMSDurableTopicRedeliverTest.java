@@ -58,7 +58,7 @@ public class JMSDurableTopicRedeliverTest extends JmsTopicRedeliverTest {
       String unackId = unackMessage.getJMSMessageID();
       assertEquals(((TextMessage) unackMessage).getText(), text);
       assertFalse(unackMessage.getJMSRedelivered());
-      assertEquals(unackMessage.getIntProperty("JMSXDeliveryCount"), 1);
+      assertEquals(1, unackMessage.getIntProperty("JMSXDeliveryCount"));
       consumeSession.close();
       consumer.close();
 

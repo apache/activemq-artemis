@@ -54,6 +54,7 @@ import static org.apache.activemq.artemis.tests.util.Jmx.withPrimary;
 import static org.apache.activemq.artemis.tests.util.Jmx.withMembers;
 import static org.apache.activemq.artemis.tests.util.Jmx.withNodes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -268,7 +269,7 @@ public abstract class LockManagerSinglePairTest extends SmokeTestBase {
       primaryInstance = primary.startServer(this, 0);
       logger.info("started primary");
       Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
-      assertTrue(!primary.isBackup().get());
+      assertFalse(primary.isBackup().get());
       for (BrokerControl broker : brokers) {
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                        containsExactNodeIds(nodeID)

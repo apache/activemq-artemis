@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.connection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.beans.PropertyDescriptor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,6 +49,9 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+
 public class ConnectionFactorySerializationTest extends JMSTestBase {
 
    protected static ActiveMQConnectionFactory cf;
@@ -74,10 +74,10 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       ActiveMQConnectionFactory y = deserialize(x, ActiveMQConnectionFactory.class);
       checkEquals(cf, y);
       DiscoveryGroupConfiguration dgc = y.getDiscoveryGroupConfiguration();
-      assertEquals(dgc.getName(), "dg1");
-      assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5000);
-      assertEquals(dgc.getRefreshTimeout(), 5000);
-      assertTrue(dgc.getBroadcastEndpointFactory() instanceof UDPBroadcastEndpointFactory);
+      assertEquals("dg1", dgc.getName());
+      assertEquals(5000, dgc.getDiscoveryInitialWaitTimeout());
+      assertEquals(5000, dgc.getRefreshTimeout());
+      assertInstanceOf(UDPBroadcastEndpointFactory.class, dgc.getBroadcastEndpointFactory());
       UDPBroadcastEndpointFactory befc = (UDPBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
       assertEquals(Integer.parseInt(System.getProperty("org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindPort", "-1")), befc.getLocalBindPort());
       assertEquals(System.getProperty("org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress"), befc.getLocalBindAddress());
@@ -96,10 +96,10 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       ActiveMQConnectionFactory y = deserialize(x, ActiveMQConnectionFactory.class);
       checkEquals(cf, y);
       DiscoveryGroupConfiguration dgc = y.getDiscoveryGroupConfiguration();
-      assertEquals(dgc.getName(), "dg1");
-      assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5000);
-      assertEquals(dgc.getRefreshTimeout(), 5000);
-      assertTrue(dgc.getBroadcastEndpointFactory() instanceof JGroupsFileBroadcastEndpointFactory);
+      assertEquals("dg1", dgc.getName());
+      assertEquals(5000, dgc.getDiscoveryInitialWaitTimeout());
+      assertEquals(5000, dgc.getRefreshTimeout());
+      assertInstanceOf(JGroupsFileBroadcastEndpointFactory.class, dgc.getBroadcastEndpointFactory());
       JGroupsFileBroadcastEndpointFactory befc = (JGroupsFileBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
       assertEquals("myChannel", befc.getChannelName());
       assertEquals("/META-INF/myfile.xml", befc.getFile());
@@ -117,7 +117,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       checkEquals(cf, y);
       assertEquals(cf.isHA(), y.isHA());
       TransportConfiguration[] staticConnectors = y.getStaticConnectors();
-      assertEquals(staticConnectors.length, 2);
+      assertEquals(2, staticConnectors.length);
       TransportConfiguration tc0 = cf.getStaticConnectors()[0];
       TransportConfiguration y0 = y.getStaticConnectors()[0];
       Map<String, Object> ctParams = tc0.getParams();

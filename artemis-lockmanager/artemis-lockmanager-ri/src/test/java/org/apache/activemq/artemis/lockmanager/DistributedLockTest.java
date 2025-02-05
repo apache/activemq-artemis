@@ -16,27 +16,25 @@
  */
 package org.apache.activemq.artemis.lockmanager;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class DistributedLockTest {
 
@@ -80,14 +78,14 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void managerReturnsSameLockIfNotClosed() throws ExecutionException, InterruptedException, TimeoutException {
+   public void managerReturnsSameLockIfNotClosed() throws Exception {
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       assertSame(manager.getDistributedLock("a"), manager.getDistributedLock("a"));
    }
 
    @Test
-   public void managerReturnsDifferentLocksIfClosed() throws ExecutionException, InterruptedException, TimeoutException {
+   public void managerReturnsDifferentLocksIfClosed() throws Exception {
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLock closedLock = manager.getDistributedLock("a");
@@ -96,7 +94,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void managerReturnsDifferentLocksOnRestart() throws ExecutionException, InterruptedException, TimeoutException {
+   public void managerReturnsDifferentLocksOnRestart() throws Exception {
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLock closedLock = manager.getDistributedLock("a");
@@ -106,7 +104,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void managerCannotGetLockIfNotStarted() throws ExecutionException, InterruptedException, TimeoutException {
+   public void managerCannotGetLockIfNotStarted() throws Exception {
       assertThrows(IllegalStateException.class, () -> {
          DistributedLockManager manager = createManagedDistributeManager();
          manager.getDistributedLock("a");
@@ -114,7 +112,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void managerCannotGetLockWithNullLockId() throws ExecutionException, InterruptedException, TimeoutException {
+   public void managerCannotGetLockWithNullLockId() throws Exception {
       assertThrows(NullPointerException.class, () -> {
          DistributedLockManager manager = createManagedDistributeManager();
          manager.start();
@@ -123,7 +121,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void closingLockUnlockIt() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void closingLockUnlockIt() throws Exception {
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLock closedLock = manager.getDistributedLock("a");
@@ -133,7 +131,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void managerStopUnlockLocks() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void managerStopUnlockLocks() throws Exception {
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       assertTrue(manager.getDistributedLock("a").tryLock());
@@ -145,7 +143,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void acquireAndReleaseLock() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void acquireAndReleaseLock() throws Exception {
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLock lock = manager.getDistributedLock("a");
@@ -157,7 +155,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void cannotAcquireSameLockTwice() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void cannotAcquireSameLockTwice() throws Exception {
       assertThrows(IllegalStateException.class, () -> {
          DistributedLockManager manager = createManagedDistributeManager();
          manager.start();
@@ -168,7 +166,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void heldLockIsVisibleByDifferentManagers() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void heldLockIsVisibleByDifferentManagers() throws Exception {
       DistributedLockManager ownerManager = createManagedDistributeManager();
       DistributedLockManager observerManager = createManagedDistributeManager();
       ownerManager.start();
@@ -179,7 +177,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void unlockedLockIsVisibleByDifferentManagers() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void unlockedLockIsVisibleByDifferentManagers() throws Exception {
       DistributedLockManager ownerManager = createManagedDistributeManager();
       DistributedLockManager observerManager = createManagedDistributeManager();
       ownerManager.start();
@@ -192,7 +190,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void cannotAcquireSameLockFromDifferentManagers() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void cannotAcquireSameLockFromDifferentManagers() throws Exception {
       DistributedLockManager ownerManager = createManagedDistributeManager();
       DistributedLockManager notOwnerManager = createManagedDistributeManager();
       ownerManager.start();
@@ -202,7 +200,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void cannotUnlockFromNotOwnerManager() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void cannotUnlockFromNotOwnerManager() throws Exception {
       DistributedLockManager ownerManager = createManagedDistributeManager();
       DistributedLockManager notOwnerManager = createManagedDistributeManager();
       ownerManager.start();
@@ -214,7 +212,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void timedTryLockSucceedWithShortTimeout() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void timedTryLockSucceedWithShortTimeout() throws Exception {
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLock backgroundLock = manager.getDistributedLock("a");
@@ -222,7 +220,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void timedTryLockFailAfterTimeout() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void timedTryLockFailAfterTimeout() throws Exception {
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLockManager otherManager = createManagedDistributeManager();
@@ -236,7 +234,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void timedTryLockSuccess() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void timedTryLockSuccess() throws Exception {
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLockManager otherManager = createManagedDistributeManager();
@@ -264,7 +262,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void interruptStopTimedTryLock() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void interruptStopTimedTryLock() throws Exception {
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLockManager otherManager = createManagedDistributeManager();
@@ -293,7 +291,7 @@ public abstract class DistributedLockTest {
    }
 
    @Test
-   public void lockAndMutableLongWithSameIdCanExistsTogether() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
+   public void lockAndMutableLongWithSameIdCanExistsTogether() throws Exception {
       DistributedLockManager manager = createManagedDistributeManager();
       manager.start();
       final String id = "a";

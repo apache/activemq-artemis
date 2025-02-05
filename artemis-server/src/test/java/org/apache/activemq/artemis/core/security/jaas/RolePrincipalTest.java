@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.artemis.core.security.jaas;
 
+import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-
-import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
-import org.junit.jupiter.api.Test;
 
 public class RolePrincipalTest {
 

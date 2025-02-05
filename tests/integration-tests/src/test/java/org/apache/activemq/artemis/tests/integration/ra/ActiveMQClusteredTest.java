@@ -73,7 +73,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
       DummyMessageEndpointFactory endpointFactory = new DummyMessageEndpointFactory(endpoint, false);
       qResourceAdapter.endpointActivation(endpointFactory, spec);
       //make sure that activation didn't start, i.e. no MDB consumers
-      assertEquals(((Queue) server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE).getBindable()).getConsumerCount(), 0);
+      assertEquals(0, ((Queue) server.getPostOffice().getBinding(MDBQUEUEPREFIXEDSIMPLE).getBindable()).getConsumerCount());
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
 
       qResourceAdapter.stop();
@@ -117,7 +117,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "test");
+      assertEquals("test", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();
@@ -215,7 +215,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
 
       assertTrue(primaryQueue.getConsumerCount() < CONSUMER_COUNT);
       assertTrue(secondaryQueue.getConsumerCount() < CONSUMER_COUNT);
-      assertTrue(primaryQueue.getConsumerCount() + secondaryQueue.getConsumerCount() == CONSUMER_COUNT);
+      assertEquals(CONSUMER_COUNT, primaryQueue.getConsumerCount() + secondaryQueue.getConsumerCount());
 
       ClientSession session = addClientSession(locator.createSessionFactory().createSession());
       ClientProducer clientProducer = session.createProducer(MDBQUEUEPREFIXED);
@@ -226,7 +226,7 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
       latch.await(5, TimeUnit.SECONDS);
 
       assertNotNull(endpoint.lastMessage);
-      assertEquals(endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString(), "test");
+      assertEquals("test", endpoint.lastMessage.getCoreMessage().getBodyBuffer().readString());
 
       try {
          for (int i = 0; i < 10; i++) {

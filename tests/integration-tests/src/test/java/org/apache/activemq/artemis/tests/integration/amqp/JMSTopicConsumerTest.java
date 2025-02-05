@@ -228,12 +228,12 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
-         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")) != null);
+         assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")));
          myDurSub.close();
          session.unsubscribe("myDurSub");
          session.close();
          connection.close();
-         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")) == null);
+         assertNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")));
       } finally {
          connection.close();
       }
@@ -250,7 +250,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
          MessageConsumer myDurSub2 = session2.createSharedDurableConsumer(topic, "myDurSub");
-         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")) != null);
+         assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")));
          myDurSub.close();
          try {
             session.unsubscribe("myDurSub");
@@ -262,7 +262,7 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          session.unsubscribe("myDurSub");
          session.close();
          connection.close();
-         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")) == null);
+         assertNull(server.getPostOffice().getBinding(SimpleString.of("myClientId.myDurSub")));
       } finally {
          connection.close();
       }
@@ -277,12 +277,12 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
-         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")) != null);
+         assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")));
          myDurSub.close();
          session.unsubscribe("myDurSub");
          session.close();
          connection.close();
-         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")) == null);
+         assertNull(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")));
       } finally {
          connection.close();
       }
@@ -300,17 +300,17 @@ public class JMSTopicConsumerTest extends JMSClientTestSupport {
          Topic topic = session.createTopic(getTopicName());
          MessageConsumer myDurSub = session.createSharedDurableConsumer(topic, "myDurSub");
          MessageConsumer myDurSub2 = session2.createSharedDurableConsumer(topic, "myDurSub");
-         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")) != null);
+         assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")));
          myDurSub.close();
          session.unsubscribe("myDurSub");
          session.close();
          connection.close();
-         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")) != null);
+         assertNotNull(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")));
          myDurSub2.close();
          session2.unsubscribe("myDurSub");
          session2.close();
          connection2.close();
-         assertTrue(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")) == null);
+         assertNull(server.getPostOffice().getBinding(SimpleString.of("myDurSub:global")));
       } finally {
          connection.close();
       }

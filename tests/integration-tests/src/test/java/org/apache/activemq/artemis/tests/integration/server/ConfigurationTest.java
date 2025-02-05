@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -47,9 +48,9 @@ public class ConfigurationTest extends ActiveMQTestBase {
       try {
          server.start();
          Bindings mytopic_1 = server.getPostOffice().getBindingsForAddress(SimpleString.of("mytopic_1"));
-         assertEquals(mytopic_1.getBindings().size(), 0);
+         assertEquals(0, mytopic_1.getBindings().size());
          Bindings mytopic_2 = server.getPostOffice().getBindingsForAddress(SimpleString.of("mytopic_2"));
-         assertEquals(mytopic_2.getBindings().size(), 3);
+         assertEquals(3, mytopic_2.getBindings().size());
       } finally {
          try {
             server.stop();
@@ -65,7 +66,7 @@ public class ConfigurationTest extends ActiveMQTestBase {
       try {
          server.getConfiguration().addQueueConfiguration(new CoreQueueConfiguration().setName(QUEUE_NAME.toString()));
          server.start();
-         assertTrue(server.getAddressInfo(QUEUE_NAME) != null);
+         assertNotNull(server.getAddressInfo(QUEUE_NAME));
       } finally {
          try {
             server.stop();
@@ -104,12 +105,12 @@ public class ConfigurationTest extends ActiveMQTestBase {
 
          server.start();
          Bindings mytopic_1 = server.getPostOffice().getBindingsForAddress(SimpleString.of("mytopic_1"));
-         assertEquals(mytopic_1.getBindings().size(), 0);
+         assertEquals(0, mytopic_1.getBindings().size());
          Bindings mytopic_2 = server.getPostOffice().getBindingsForAddress(SimpleString.of("mytopic_2"));
-         assertEquals(mytopic_2.getBindings().size(), 3);
+         assertEquals(3, mytopic_2.getBindings().size());
 
          Bindings mytopic_3 = server.getPostOffice().getBindingsForAddress(SimpleString.of("mytopic_3"));
-         assertEquals(mytopic_3.getBindings().size(), 2);
+         assertEquals(2, mytopic_3.getBindings().size());
 
 
          // add new binding from props update

@@ -38,11 +38,12 @@ public class EmbeddedActiveMQResourceCustomConfigurationTest {
    static final String TEST_QUEUE = "test.queue";
    static final String TEST_ADDRESS = "test.address";
 
-   QueueConfiguration queueConfiguration = QueueConfiguration.of(TEST_QUEUE).setAddress(TEST_ADDRESS);
-   Configuration customConfiguration = new ConfigurationImpl().setPersistenceEnabled(false).setSecurityEnabled(true).addQueueConfiguration(queueConfiguration);
-
    @RegisterExtension
-   public EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension(customConfiguration);
+   public static EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension(new ConfigurationImpl()
+                                                                                        .setPersistenceEnabled(false)
+                                                                                        .setSecurityEnabled(true)
+                                                                                        .addQueueConfiguration(QueueConfiguration.of(TEST_QUEUE)
+                                                                                                                  .setAddress(TEST_ADDRESS)));
 
    @Test
    public void testCustomConfiguration() {

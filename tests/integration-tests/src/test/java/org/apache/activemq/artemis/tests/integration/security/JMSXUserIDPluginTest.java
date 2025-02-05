@@ -77,7 +77,7 @@ public class JMSXUserIDPluginTest extends ActiveMQTestBase {
       session.start();
       ClientMessage clientMessage = consumer.receiveImmediate();
       assertNotNull(clientMessage);
-      assertEquals(clientMessage.getValidatedUserID(), "testuser");
+      assertEquals("testuser", clientMessage.getValidatedUserID());
    }
 
    @Test
@@ -99,7 +99,7 @@ public class JMSXUserIDPluginTest extends ActiveMQTestBase {
       MessageConsumer consumer = session.createConsumer(queue);
       Message message = consumer.receive(5000);
       assertNotNull(message);
-      assertEquals(message.getStringProperty("_AMQ_VALIDATED_USER"), "testuser");
+      assertEquals("testuser", message.getStringProperty("_AMQ_VALIDATED_USER"));
       connection.close();
    }
 

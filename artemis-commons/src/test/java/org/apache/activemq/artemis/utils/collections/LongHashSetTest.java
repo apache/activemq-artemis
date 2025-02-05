@@ -290,7 +290,7 @@ public class LongHashSetTest {
    public void toArraySupportsEmptyCollection() {
       final Long[] result = testSet.toArray(new Long[testSet.size()]);
 
-      assertArrayEquals(result, new Long[]{});
+      assertArrayEquals(new Long[]{}, result);
    }
 
    // Test case from usage bug.
@@ -708,7 +708,7 @@ public class LongHashSetTest {
       }
 
       final String mapAsAString = "{1, 19, 11, 7, 3, 12, -2}";
-      assertEquals(testSet.toString(), mapAsAString);
+      assertEquals(mapAsAString, testSet.toString());
    }
 
    @Test
