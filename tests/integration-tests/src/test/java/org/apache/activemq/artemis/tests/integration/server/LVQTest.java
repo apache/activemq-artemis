@@ -912,7 +912,7 @@ public class LVQTest extends ActiveMQTestBase {
       consumerThread.start();
 
       ClientProducer producer = clientSessionTxSends.createProducer(address);
-      SimpleString lastValue = RandomUtil.randomSimpleString();
+      SimpleString lastValue = RandomUtil.randomUUIDSimpleString();
       AtomicBoolean produce = new AtomicBoolean(true);
       Thread producerThread = new Thread(() -> {
          for (int i = 0; !cme.get() && produce.get(); i++) {

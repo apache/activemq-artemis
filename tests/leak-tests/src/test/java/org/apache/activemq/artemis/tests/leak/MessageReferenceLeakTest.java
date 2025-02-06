@@ -76,8 +76,8 @@ public class MessageReferenceLeakTest extends AbstractLeakTest {
    @Test
    public void testScheduledMessageReferenceLeak() throws Exception {
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       Queue serverQueue = server.locateQueue(queue);

@@ -208,7 +208,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       String oldProperty = System.getProperty("artemis.instance");
 
       try {
-         System.setProperty("artemis.instance", "/tmp/" + RandomUtil.randomString());
+         System.setProperty("artemis.instance", "/tmp/" + RandomUtil.randomUUIDString());
          ConfigurationImpl configuration = new ConfigurationImpl();
          configuration.setJournalDirectory("./data-journal");
          File journalLocation = configuration.getJournalLocation();
@@ -237,7 +237,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       File tempFolder = null;
       try {
-         System.setProperty("artemis.instance", "/tmp/" + RandomUtil.randomString());
+         System.setProperty("artemis.instance", "/tmp/" + RandomUtil.randomUUIDString());
          tempFolder = File.createTempFile("journal-folder", "", temporaryFolder);
          tempFolder.delete();
 
@@ -1426,7 +1426,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       Properties properties = new Properties();
 
-      String randomString = RandomUtil.randomString();
+      String randomString = RandomUtil.randomUUIDString();
 
       properties.put("addressSettings.#.expiryAddress", randomString);
       properties.put("addressSettings.#.pageLimitMessages", "300");
@@ -1456,7 +1456,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       Properties properties = new Properties();
 
-      String randomString = RandomUtil.randomString();
+      String randomString = RandomUtil.randomUUIDString();
 
       // not setting pageFullMessagePolicy
       properties.put("addressSettings.#.expiryAddress", randomString);
@@ -1488,7 +1488,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       Properties properties = new Properties();
 
-      String randomString = RandomUtil.randomString();
+      String randomString = RandomUtil.randomUUIDString();
 
       // pageLimitBytes and pageFullMessagePolicy not set on purpose
       properties.put("addressSettings.#.expiryAddress", randomString);
@@ -1518,7 +1518,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       Properties properties = new Properties();
 
-      String randomString = RandomUtil.randomString();
+      String randomString = RandomUtil.randomUUIDString();
 
       // pageLimitMessages and pageFullMessagePolicy not set on purpose
       properties.put("addressSettings.#.expiryAddress", randomString);
@@ -1548,7 +1548,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       Properties properties = new Properties();
 
-      String randomString = RandomUtil.randomString();
+      String randomString = RandomUtil.randomUUIDString();
 
       // leaving out pageLimitMessages and pageLimitBytes
       properties.put("addressSettings.#.expiryAddress", randomString);
@@ -1577,7 +1577,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       Properties properties = new Properties();
 
-      String randomString = RandomUtil.randomString();
+      String randomString = RandomUtil.randomUUIDString();
 
       properties.put("addressSettings.#.expiryAddress", randomString);
       properties.put("addressSettings.#.pageLimitMessages", "-1"); // this should make the PagingStore to parse it as null
@@ -1605,7 +1605,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       Properties properties = new Properties();
 
-      String randomString = RandomUtil.randomString();
+      String randomString = RandomUtil.randomUUIDString();
 
       properties.put("addressSettings.#.expiryAddress", randomString);
       properties.put("addressSettings.#.prefetchPageMessages", "333");
@@ -1630,7 +1630,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       Properties properties = new Properties();
 
-      String randomString = RandomUtil.randomString();
+      String randomString = RandomUtil.randomUUIDString();
 
       properties.put("addressSettings.#.maxReadPageMessages", "333");
       properties.put("addressSettings.#.maxReadPageBytes", "777");
@@ -1840,7 +1840,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       ConfigurationImpl configuration = new ConfigurationImpl();
       Properties properties = new Properties();
 
-      final String newKeyName = RandomUtil.randomString();
+      final String newKeyName = RandomUtil.randomUUIDString();
       final String valueFromSysProp = "VV";
       System.setProperty(newKeyName, valueFromSysProp);
 

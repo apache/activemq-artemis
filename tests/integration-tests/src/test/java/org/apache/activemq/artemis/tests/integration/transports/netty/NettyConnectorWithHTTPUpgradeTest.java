@@ -72,7 +72,7 @@ import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnecto
 import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_ACCEPT;
 import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.SEC_ACTIVEMQ_REMOTING_KEY;
 import static org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnector.createExpectedResponse;
-import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
+import static org.apache.activemq.artemis.utils.RandomUtil.randomUUIDString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -122,7 +122,7 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
       // This prop controls the usage of HTTP Get + Upgrade from Netty connector
       httpAcceptorParams.put(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, true);
       httpAcceptorParams.put(TransportConstants.PORT_PROP_NAME, HTTP_PORT);
-      acceptorName = randomString();
+      acceptorName = randomUUIDString();
 
       conf = createDefaultNettyConfig().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, httpAcceptorParams, acceptorName));
 

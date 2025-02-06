@@ -38,10 +38,10 @@ public class ManagementHelperTest {
 
    @Test
    public void testArrayOfStringParameter() throws Exception {
-      String resource = RandomUtil.randomString();
-      String operationName = RandomUtil.randomString();
-      String param = RandomUtil.randomString();
-      String[] params = new String[]{RandomUtil.randomString(), RandomUtil.randomString(), RandomUtil.randomString()};
+      String resource = RandomUtil.randomUUIDString();
+      String operationName = RandomUtil.randomUUIDString();
+      String param = RandomUtil.randomUUIDString();
+      String[] params = new String[]{RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString()};
       ClientMessage msg = new ClientMessageImpl((byte) 0, false, 0, 0, (byte) 4, 1000);
       ManagementHelper.putOperationInvocation(msg, resource, operationName, param, params);
 
@@ -60,24 +60,24 @@ public class ManagementHelperTest {
 
    @Test
    public void testParams() throws Exception {
-      String resource = RandomUtil.randomString();
-      String operationName = RandomUtil.randomString();
+      String resource = RandomUtil.randomUUIDString();
+      String operationName = RandomUtil.randomUUIDString();
 
       long i = RandomUtil.randomInt();
-      String s = RandomUtil.randomString();
+      String s = RandomUtil.randomUUIDString();
       double d = RandomUtil.randomDouble();
       boolean b = RandomUtil.randomBoolean();
       long l = RandomUtil.randomLong();
       Map<String, Object> map = new HashMap<>();
-      String key1 = RandomUtil.randomString();
+      String key1 = RandomUtil.randomUUIDString();
       int value1 = RandomUtil.randomInt();
-      String key2 = RandomUtil.randomString();
+      String key2 = RandomUtil.randomUUIDString();
       double value2 = RandomUtil.randomDouble();
-      String key3 = RandomUtil.randomString();
-      String value3 = RandomUtil.randomString();
-      String key4 = RandomUtil.randomString();
+      String key3 = RandomUtil.randomUUIDString();
+      String value3 = RandomUtil.randomUUIDString();
+      String key4 = RandomUtil.randomUUIDString();
       boolean value4 = RandomUtil.randomBoolean();
-      String key5 = RandomUtil.randomString();
+      String key5 = RandomUtil.randomUUIDString();
       long value5 = RandomUtil.randomLong();
       map.put(key1, value1);
       map.put(key2, value2);
@@ -86,15 +86,15 @@ public class ManagementHelperTest {
       map.put(key5, value5);
 
       Map<String, Object> map2 = new HashMap<>();
-      String key2_1 = RandomUtil.randomString();
+      String key2_1 = RandomUtil.randomUUIDString();
       int value2_1 = RandomUtil.randomInt();
-      String key2_2 = RandomUtil.randomString();
+      String key2_2 = RandomUtil.randomUUIDString();
       double value2_2 = RandomUtil.randomDouble();
-      String key2_3 = RandomUtil.randomString();
-      String value2_3 = RandomUtil.randomString();
-      String key2_4 = RandomUtil.randomString();
+      String key2_3 = RandomUtil.randomUUIDString();
+      String value2_3 = RandomUtil.randomUUIDString();
+      String key2_4 = RandomUtil.randomUUIDString();
       boolean value2_4 = RandomUtil.randomBoolean();
-      String key2_5 = RandomUtil.randomString();
+      String key2_5 = RandomUtil.randomUUIDString();
       long value2_5 = RandomUtil.randomLong();
       map2.put(key2_1, value2_1);
       map2.put(key2_2, value2_2);
@@ -103,15 +103,15 @@ public class ManagementHelperTest {
       map2.put(key2_5, value2_5);
 
       Map<String, Object> map3 = new HashMap<>();
-      String key3_1 = RandomUtil.randomString();
+      String key3_1 = RandomUtil.randomUUIDString();
       int value3_1 = RandomUtil.randomInt();
-      String key3_2 = RandomUtil.randomString();
+      String key3_2 = RandomUtil.randomUUIDString();
       double value3_2 = RandomUtil.randomDouble();
-      String key3_3 = RandomUtil.randomString();
-      String value3_3 = RandomUtil.randomString();
-      String key3_4 = RandomUtil.randomString();
+      String key3_3 = RandomUtil.randomUUIDString();
+      String value3_3 = RandomUtil.randomUUIDString();
+      String key3_4 = RandomUtil.randomUUIDString();
       boolean value3_4 = RandomUtil.randomBoolean();
-      String key3_5 = RandomUtil.randomString();
+      String key3_5 = RandomUtil.randomUUIDString();
       long value3_5 = RandomUtil.randomLong();
       map3.put(key3_1, value3_1);
       map3.put(key3_2, value3_2);
@@ -121,9 +121,9 @@ public class ManagementHelperTest {
 
       Map[] maps = new Map[]{map2, map3};
 
-      String strElem0 = RandomUtil.randomString();
-      String strElem1 = RandomUtil.randomString();
-      String strElem2 = RandomUtil.randomString();
+      String strElem0 = RandomUtil.randomUUIDString();
+      String strElem1 = RandomUtil.randomUUIDString();
+      String strElem2 = RandomUtil.randomUUIDString();
 
       String[] strArray = new String[]{strElem0, strElem1, strElem2};
 
@@ -176,18 +176,18 @@ public class ManagementHelperTest {
 
    @Test
    public void testMapWithArrayValues() throws Exception {
-      String resource = RandomUtil.randomString();
-      String operationName = RandomUtil.randomString();
+      String resource = RandomUtil.randomUUIDString();
+      String operationName = RandomUtil.randomUUIDString();
 
       Map<String, Object> map = new HashMap<>();
-      String key1 = RandomUtil.randomString();
+      String key1 = RandomUtil.randomUUIDString();
       String[] val1 = new String[]{"a", "b", "c"};
 
       if (logger.isDebugEnabled()) {
          logger.debug("val1 type is {}", Arrays.toString(val1));
       }
 
-      String key2 = RandomUtil.randomString();
+      String key2 = RandomUtil.randomUUIDString();
       Long[] val2 = new Long[]{1L, 2L, 3L, 4L, 5L};
 
       if (logger.isDebugEnabled()) {

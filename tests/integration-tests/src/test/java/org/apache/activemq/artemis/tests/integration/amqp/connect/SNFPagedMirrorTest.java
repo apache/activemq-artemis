@@ -42,7 +42,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManagerProvider;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -127,7 +127,7 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
       server1.setIdentity("server1");
       server2.setIdentity("server2");
 
-      String QUEUE_NAME = "q" + RandomUtil.randomString();
+      String QUEUE_NAME = "q" + RandomUtil.randomUUIDString();
       String server2URI = "tcp://localhost:61617";
 
       Wait.waitFor(() -> server1.locateQueue("$ACTIVEMQ_ARTEMIS_MIRROR_other") != null);
@@ -174,7 +174,7 @@ public class SNFPagedMirrorTest extends ActiveMQTestBase {
       server1.setIdentity("server1");
       server2.setIdentity("server2");
 
-      String QUEUE_NAME = "q" + RandomUtil.randomString();
+      String QUEUE_NAME = "q" + RandomUtil.randomUUIDString();
       String sendURI = "tcp://localhost:61616";
       String consumerURI = "tcp://localhost:61617";
 

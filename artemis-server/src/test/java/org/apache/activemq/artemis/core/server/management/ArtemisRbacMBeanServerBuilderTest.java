@@ -173,9 +173,9 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
             for (int i = 0; i < args.length; i++) {
                Class<?> type = m.getParameterTypes()[i];
                if (type == String.class) {
-                  args[i] = RandomUtil.randomString();
+                  args[i] = RandomUtil.randomUUIDString();
                } else  if (SimpleString.class == type) {
-                  args[i] = RandomUtil.randomSimpleString();
+                  args[i] = RandomUtil.randomUUIDSimpleString();
                } else if (RoutingType.class == type) {
                   args[i] = RoutingType.ANYCAST;
                }

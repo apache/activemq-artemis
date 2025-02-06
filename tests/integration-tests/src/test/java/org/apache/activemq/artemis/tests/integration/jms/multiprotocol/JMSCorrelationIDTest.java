@@ -27,7 +27,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -130,7 +130,7 @@ public class JMSCorrelationIDTest extends MultiprotocolJMSClientTestSupport {
    }
 
    private void testCorrelationIDAsStringSendReceive(Connection producerConnection, Connection consumerConnection) throws Throwable {
-      final String correlationId = RandomUtil.randomString();
+      final String correlationId = RandomUtil.randomUUIDString();
 
       Session session = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Queue queue = session.createQueue(getQueueName());

@@ -170,7 +170,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       boolean blockOnNonDurableSend = RandomUtil.randomBoolean();
       boolean autoGroup = RandomUtil.randomBoolean();
       boolean preAcknowledge = RandomUtil.randomBoolean();
-      String loadBalancingPolicyClassName = RandomUtil.randomString();
+      String loadBalancingPolicyClassName = RandomUtil.randomUUIDString();
       boolean useGlobalPools = RandomUtil.randomBoolean();
       int scheduledThreadPoolMaxSize = RandomUtil.randomPositiveInt();
       int threadPoolMaxSize = RandomUtil.randomPositiveInt();
@@ -449,7 +449,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
 
    private void testSettersThrowException(final ActiveMQConnectionFactory cf) {
 
-      String clientID = RandomUtil.randomString();
+      String clientID = RandomUtil.randomUUIDString();
       long clientFailureCheckPeriod = RandomUtil.randomPositiveLong();
       long connectionTTL = RandomUtil.randomPositiveLong();
       long callTimeout = RandomUtil.randomPositiveLong();
@@ -463,7 +463,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       boolean blockOnNonDurableSend = RandomUtil.randomBoolean();
       boolean autoGroup = RandomUtil.randomBoolean();
       boolean preAcknowledge = RandomUtil.randomBoolean();
-      String loadBalancingPolicyClassName = RandomUtil.randomString();
+      String loadBalancingPolicyClassName = RandomUtil.randomUUIDString();
       int dupsOKBatchSize = RandomUtil.randomPositiveInt();
       int transactionBatchSize = RandomUtil.randomPositiveInt();
       boolean useGlobalPools = RandomUtil.randomBoolean();

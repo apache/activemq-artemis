@@ -193,8 +193,8 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
    public void testReadData() throws Exception {
       ActiveMQBuffer dynamic = ActiveMQBuffers.dynamicBuffer(1);
 
-      String str1 = RandomUtil.randomString();
-      String str2 = RandomUtil.randomString();
+      String str1 = RandomUtil.randomUUIDString();
+      String str2 = RandomUtil.randomUUIDString();
       double d1 = RandomUtil.randomDouble();
       float f1 = RandomUtil.randomFloat();
 
@@ -221,8 +221,8 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
 
       ActiveMQBuffer dynamic = ActiveMQBuffers.dynamicBuffer(1);
 
-      String str1 = RandomUtil.randomString();
-      String str2 = RandomUtil.randomString();
+      String str1 = RandomUtil.randomUUIDString();
+      String str2 = RandomUtil.randomUUIDString();
       double d1 = RandomUtil.randomDouble();
       float f1 = RandomUtil.randomFloat();
 

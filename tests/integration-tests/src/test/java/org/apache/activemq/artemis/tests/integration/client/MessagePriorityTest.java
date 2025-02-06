@@ -55,8 +55,8 @@ public class MessagePriorityTest extends ActiveMQTestBase {
 
    @Test
    public void testMessagePriority() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
@@ -91,8 +91,8 @@ public class MessagePriorityTest extends ActiveMQTestBase {
     */
    @Test
    public void testMessagePriorityWithClientSidePrioritization() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
@@ -128,8 +128,8 @@ public class MessagePriorityTest extends ActiveMQTestBase {
 
    @Test
    public void testMessageOrderWithSamePriority() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
@@ -196,8 +196,8 @@ public class MessagePriorityTest extends ActiveMQTestBase {
    // https://jira.jboss.org/jira/browse/HORNETQ-275
    @Test
    public void testOutOfOrderAcknowledgement() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
@@ -254,8 +254,8 @@ public class MessagePriorityTest extends ActiveMQTestBase {
 
    @Test
    public void testManyMessages() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 

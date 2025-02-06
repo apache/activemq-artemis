@@ -79,8 +79,8 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testConsumeFromTemporaryQueue() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
 
@@ -104,8 +104,8 @@ public class TemporaryQueueTest extends SingleServerTestBase {
    @Test
    public void testMemoryLeakOnAddressSettingForTemporaryQueue() throws Exception {
       for (int i = 0; i < 1000; i++) {
-         SimpleString queue = RandomUtil.randomSimpleString();
-         SimpleString address = RandomUtil.randomSimpleString();
+         SimpleString queue = RandomUtil.randomUUIDSimpleString();
+         SimpleString address = RandomUtil.randomUUIDSimpleString();
          session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
 
          session.close();
@@ -121,8 +121,8 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testPaginStoreIsRemovedWhenQueueIsDeleted() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
 
@@ -149,8 +149,8 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testConsumeFromTemporaryQueueCreatedByOtherSession() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
 
@@ -170,8 +170,8 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testDeleteTemporaryQueueAfterConnectionIsClosed() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
       RemotingConnectionImpl conn = (RemotingConnectionImpl) server.getRemotingService().getConnections().iterator().next();
@@ -201,8 +201,8 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testPreserveNonTemporaryAddressAfterConnectionIsClosed() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setAutoDeleteAddresses(false));
 
       server.addAddressInfo(new AddressInfo(address).setTemporary(false).setAutoCreated(true));
@@ -303,8 +303,8 @@ public class TemporaryQueueTest extends SingleServerTestBase {
 
    @Test
    public void testDeleteTemporaryQueueAfterConnectionIsClosed_2() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address));
       assertEquals(1, server.getConnectionCount());
@@ -461,8 +461,8 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       session.close();
       sf.close();
 
-      final SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      final SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       // server must received at least one ping from the client to pass
       // so that the server connection TTL is configured with the client value

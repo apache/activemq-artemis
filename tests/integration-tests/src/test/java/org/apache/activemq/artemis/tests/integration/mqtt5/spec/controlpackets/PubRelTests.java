@@ -52,7 +52,7 @@ public class PubRelTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPubRelReasonCode() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final CountDownLatch latch = new CountDownLatch(2);
 
       MQTTInterceptor outgoingInterceptor = (packet, connection) -> {

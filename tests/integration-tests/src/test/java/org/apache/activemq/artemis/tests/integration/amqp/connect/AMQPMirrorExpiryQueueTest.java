@@ -37,7 +37,7 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.Test;
 
@@ -86,7 +86,7 @@ public class AMQPMirrorExpiryQueueTest extends ActiveMQTestBase {
          serverA.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      String queueName = getTestMethodName() + "_" + RandomUtil.randomString();
+      String queueName = getTestMethodName() + "_" + RandomUtil.randomUUIDString();
 
       serverA.setIdentity(getTestMethodName() + "_A");
       serverA.start();

@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -172,7 +172,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
    @TestTemplate
    @Timeout(60)
    public void testSessionPresentWithCleanSession() throws Exception {
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectOptions options = new MqttConnectOptions();
       options.setCleanSession(true);
       IMqttToken result = client.connectWithResult(options);
@@ -183,7 +183,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
    @TestTemplate
    @Timeout(60)
    public void testSessionPresent() throws Exception {
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectOptions options = new MqttConnectOptions();
       options.setCleanSession(false);
       IMqttToken result = client.connectWithResult(options);

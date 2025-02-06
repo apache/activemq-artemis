@@ -199,8 +199,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetPreparedTransactionMessageCount() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -244,10 +244,10 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetPreparedTransactionMessageCountDifferentQueues() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString address2 = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString queue2 = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString address2 = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue2 = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -304,8 +304,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetPreparedTransactionMessageCountNoTX() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -320,8 +320,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testAttributes() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       SimpleString filter = SimpleString.of("color = 'blue'");
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setFilterString(filter).setDurable(durable));
@@ -338,7 +338,7 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testRegisterInternalQueues() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       server.createQueue(QueueConfiguration.of(queue).setDurable(durable).setInternal(true));
 
@@ -358,8 +358,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testAutoDeleteAttribute() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
@@ -387,8 +387,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGroupAttributes() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(address, RoutingType.MULTICAST, queue);
 
@@ -402,7 +402,7 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testRetroactiveResourceAttribute() throws Exception {
-      SimpleString baseAddress = RandomUtil.randomSimpleString();
+      SimpleString baseAddress = RandomUtil.randomUUIDSimpleString();
       String internalNamingPrefix = server.getInternalNamingPrefix();
       String delimiter = server.getConfiguration().getWildcardConfiguration().getDelimiterString();
       SimpleString address = ResourceNames.getRetroactiveResourceAddressName(internalNamingPrefix, delimiter, baseAddress);
@@ -423,8 +423,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetNullFilter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -437,9 +437,9 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetDeadLetterAddress() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      final SimpleString deadLetterAddress = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      final SimpleString deadLetterAddress = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -454,9 +454,9 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testSetDeadLetterAddress() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      String deadLetterAddress = RandomUtil.randomString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      String deadLetterAddress = RandomUtil.randomUUIDString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -472,9 +472,9 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetExpiryAddress() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      final SimpleString expiryAddress = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      final SimpleString expiryAddress = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -490,9 +490,9 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testSetExpiryAddress() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      String expiryAddress = RandomUtil.randomString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      String expiryAddress = RandomUtil.randomUUIDString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -511,8 +511,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetConsumerCount() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -531,8 +531,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetConsumerJSON() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -564,8 +564,8 @@ public class QueueControlTest extends ManagementTestBase {
    @TestTemplate
    public void testGetConsumerWithMessagesJSON() throws Exception {
       long currentTime = System.currentTimeMillis();
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -674,7 +674,7 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    public void testGetConsumerMessageCountsAutoAck(ConnectionFactory factory, boolean usePriority) throws Exception {
-      SimpleString queueName = RandomUtil.randomSimpleString();
+      SimpleString queueName = RandomUtil.randomUUIDSimpleString();
       this.session.createQueue(QueueConfiguration.of(queueName).setAddress(queueName).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
 
       QueueControl queueControl = createManagementControl(queueName, queueName, RoutingType.ANYCAST);
@@ -754,7 +754,7 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    public void testGetConsumerMessageCountsClientAck(ConnectionFactory factory, boolean usePriority) throws Exception {
-      SimpleString queueName = RandomUtil.randomSimpleString();
+      SimpleString queueName = RandomUtil.randomUUIDSimpleString();
       this.session.createQueue(QueueConfiguration.of(queueName).setAddress(queueName).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
 
       QueueControl queueControl = createManagementControl(queueName, queueName, RoutingType.ANYCAST);
@@ -835,7 +835,7 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    public void testGetConsumerMessageCountsTransacted(ConnectionFactory factory, boolean usePriority) throws Exception {
-      SimpleString queueName = RandomUtil.randomSimpleString();
+      SimpleString queueName = RandomUtil.randomUUIDSimpleString();
       this.session.createQueue(QueueConfiguration.of(queueName).setAddress(queueName).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
 
       QueueControl queueControl = createManagementControl(queueName, queueName, RoutingType.ANYCAST);
@@ -909,7 +909,7 @@ public class QueueControlTest extends ManagementTestBase {
       testGetConsumerMessageCountsTransactedXA(new org.apache.activemq.ActiveMQXAConnectionFactory("tcp://localhost:61616"), false);
    }
    public void testGetConsumerMessageCountsTransactedXA(XAConnectionFactory factory, boolean usePriority) throws Exception {
-      SimpleString queueName = RandomUtil.randomSimpleString();
+      SimpleString queueName = RandomUtil.randomUUIDSimpleString();
       this.session.createQueue(QueueConfiguration.of(queueName).setAddress(queueName).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
 
       QueueControl queueControl = createManagementControl(queueName, queueName, RoutingType.ANYCAST);
@@ -999,8 +999,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetMessageCount() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1020,8 +1020,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetFirstMessage() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1048,8 +1048,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testPeekFirstMessage() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1058,7 +1058,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       assertEquals("null", queueControl.peekFirstMessageAsJSON());
 
-      String fooValue = RandomUtil.randomString();
+      String fooValue = RandomUtil.randomUUIDString();
       ClientProducer producer = session.createProducer(address);
       producer.send(session.createMessage(false).putStringProperty("foo", fooValue));
       Wait.assertEquals(1, queueControl::getMessageCount);
@@ -1071,8 +1071,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testPeekFirstScheduledMessage() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1119,8 +1119,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testMessageAttributeLimits() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       AddressSettings addressSettings = new AddressSettings().setManagementMessageAttributeSizeLimit(100);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
@@ -1199,8 +1199,8 @@ public class QueueControlTest extends ManagementTestBase {
    @TestTemplate
    public void testBytesMessageBodyWithoutLimits() throws Exception {
       final int BYTE_COUNT = 2048;
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       AddressSettings addressSettings = new AddressSettings().setManagementMessageAttributeSizeLimit(-1);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
@@ -1240,8 +1240,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testTextMessageAttributeLimits() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       AddressSettings addressSettings = new AddressSettings().setManagementMessageAttributeSizeLimit(10);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
@@ -1278,8 +1278,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetMessagesAdded() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1301,8 +1301,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetMessagesAcknowledged() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
@@ -1326,8 +1326,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetMessagesAcknowledgedOnXARollback() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1372,8 +1372,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetMessagesAcknowledgedOnRegularRollback() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1413,8 +1413,8 @@ public class QueueControlTest extends ManagementTestBase {
    @TestTemplate
    public void testGetScheduledCount() throws Exception {
       long delay = 500;
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1461,8 +1461,8 @@ public class QueueControlTest extends ManagementTestBase {
          transSession.addMetaData("resource-adapter", "inbound");
          transSession.addMetaData("jms-session", "");
 
-         SimpleString address = RandomUtil.randomSimpleString();
-         queue = RandomUtil.randomSimpleString();
+         SimpleString address = RandomUtil.randomUUIDSimpleString();
+         queue = RandomUtil.randomUUIDSimpleString();
 
          transSession.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1542,8 +1542,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListDeliveringMessages() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       int intValue = RandomUtil.randomInt();
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1584,8 +1584,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListDeliveringMessagesOnClosedConsumer() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       int intValue = RandomUtil.randomInt();
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1620,8 +1620,8 @@ public class QueueControlTest extends ManagementTestBase {
    @TestTemplate
    public void testListScheduledMessages() throws Exception {
       long delay = 2000;
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       int intValue = RandomUtil.randomInt();
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1654,8 +1654,8 @@ public class QueueControlTest extends ManagementTestBase {
    @TestTemplate
    public void testListScheduledMessagesAsJSON() throws Exception {
       long delay = 2000;
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       int intValue = RandomUtil.randomInt();
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1690,8 +1690,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetDeliveringCount() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1725,8 +1725,8 @@ public class QueueControlTest extends ManagementTestBase {
       ExecutorService producerExecutor = Executors.newFixedThreadPool(THREAD_COUNT);
       ExecutorService consumerExecutor = Executors.newFixedThreadPool(THREAD_COUNT);
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       try {
          session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
@@ -1796,8 +1796,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListMessagesAsJSONWithNullFilter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       int intValue = RandomUtil.randomInt();
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -1833,8 +1833,8 @@ public class QueueControlTest extends ManagementTestBase {
       long unmatchingValue = matchingValue + 1;
       String filter = key + " =" + matchingValue;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       QueueControl queueControl = createManagementControl(address, queue);
@@ -1863,8 +1863,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListMessagesWithNullFilter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       QueueControl queueControl = createManagementControl(address, queue);
@@ -1884,8 +1884,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListMessagesWithEmptyFilter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       QueueControl queueControl = createManagementControl(address, queue);
@@ -1910,8 +1910,8 @@ public class QueueControlTest extends ManagementTestBase {
       long unmatchingValue = matchingValue + 1;
       String filter = key + " =" + matchingValue;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       QueueControl queueControl = createManagementControl(address, queue);
@@ -2341,10 +2341,10 @@ public class QueueControlTest extends ManagementTestBase {
     */
    @TestTemplate
    public void testMoveMessages() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString otherAddress = RandomUtil.randomSimpleString();
-      SimpleString otherQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString otherAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString otherQueue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       session.createQueue(QueueConfiguration.of(otherQueue).setAddress(otherAddress).setDurable(durable));
@@ -2352,7 +2352,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       // send on queue
       ClientMessage message = session.createMessage(durable);
-      SimpleString key = RandomUtil.randomSimpleString();
+      SimpleString key = RandomUtil.randomUUIDSimpleString();
       long value = RandomUtil.randomLong();
       message.putLongProperty(key, value);
       producer.send(message);
@@ -2391,7 +2391,7 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testMoveMessages2() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       SimpleString queueA = SimpleString.of("A");
       SimpleString queueB = SimpleString.of("B");
       SimpleString queueC = SimpleString.of("C");
@@ -2455,16 +2455,16 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testMoveMessagesToUnknownQueue() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString unknownQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString unknownQueue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
 
       // send on queue
       ClientMessage message = session.createMessage(durable);
-      SimpleString key = RandomUtil.randomSimpleString();
+      SimpleString key = RandomUtil.randomUUIDSimpleString();
       long value = RandomUtil.randomLong();
       message.putLongProperty(key, value);
       producer.send(message);
@@ -2500,10 +2500,10 @@ public class QueueControlTest extends ManagementTestBase {
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString otherAddress = RandomUtil.randomSimpleString();
-      SimpleString otherQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString otherAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString otherQueue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       session.createQueue(QueueConfiguration.of(otherQueue).setAddress(otherAddress).setDurable(durable));
@@ -2547,10 +2547,10 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testMoveMessagesWithMessageCount() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString otherAddress = RandomUtil.randomSimpleString();
-      SimpleString otherQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString otherAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString otherQueue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       session.createQueue(QueueConfiguration.of(otherQueue).setAddress(otherAddress).setDurable(durable));
@@ -2558,7 +2558,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       for (int i = 0; i < 10; i++) {
          ClientMessage message = session.createMessage(durable);
-         SimpleString key = RandomUtil.randomSimpleString();
+         SimpleString key = RandomUtil.randomUUIDSimpleString();
          long value = RandomUtil.randomLong();
          message.putLongProperty(key, value);
          producer.send(message);
@@ -2585,10 +2585,10 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testMoveMessage() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString otherAddress = RandomUtil.randomSimpleString();
-      SimpleString otherQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString otherAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString otherQueue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       session.createQueue(QueueConfiguration.of(otherQueue).setAddress(otherAddress).setDurable(durable));
@@ -2941,9 +2941,9 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testMoveMessageToUnknownQueue() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString unknownQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString unknownQueue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3027,8 +3027,8 @@ public class QueueControlTest extends ManagementTestBase {
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3071,8 +3071,8 @@ public class QueueControlTest extends ManagementTestBase {
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3111,8 +3111,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testRemoveMessagesWithNullFilter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3134,8 +3134,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testRemoveAllMessages() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3163,8 +3163,8 @@ public class QueueControlTest extends ManagementTestBase {
       PagingManagerTestAccessor.resetMaxSize(server.getPagingManager(), 10240, 0);
       clearDataRecreateServerDirs();
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queueName = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queueName = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queueName).setAddress(address).setDurable(durable));
 
@@ -3208,8 +3208,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testRemoveMessagesWithEmptyFilter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3231,8 +3231,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testRemoveMessage() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3262,8 +3262,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testRemoveScheduledMessage() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3303,8 +3303,8 @@ public class QueueControlTest extends ManagementTestBase {
    @TestTemplate
    public void testRemoveScheduledMessageRestart() throws Exception {
       assumeTrue(durable);
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3340,8 +3340,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testRemoveMessage2() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3392,8 +3392,8 @@ public class QueueControlTest extends ManagementTestBase {
       long matchingValue = RandomUtil.randomPositiveLong();
       long unmatchingValue = matchingValue + 1;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       ClientProducer producer = session.createProducer(address);
@@ -3428,8 +3428,8 @@ public class QueueControlTest extends ManagementTestBase {
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       ClientProducer producer = session.createProducer(address);
@@ -3460,8 +3460,8 @@ public class QueueControlTest extends ManagementTestBase {
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       ClientProducer producer = session.createProducer(address);
@@ -3498,8 +3498,8 @@ public class QueueControlTest extends ManagementTestBase {
       String valueGroup1 = "group_1";
       String valueGroup2 = "group_2";
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       ClientProducer producer = session.createProducer(address);
@@ -3537,8 +3537,8 @@ public class QueueControlTest extends ManagementTestBase {
       long valueGroup1 = RandomUtil.randomLong();
       long valueGroup2 = valueGroup1 + 1;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       ClientProducer producer = session.createProducer(address);
@@ -3577,8 +3577,8 @@ public class QueueControlTest extends ManagementTestBase {
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3608,8 +3608,8 @@ public class QueueControlTest extends ManagementTestBase {
       String matchingValue = "MATCH";
       String nonMatchingValue = "DIFFERENT";
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3655,8 +3655,8 @@ public class QueueControlTest extends ManagementTestBase {
       String valueGroup1 = "group_1";
       String valueGroup2 = "group_2";
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       ClientProducer producer = session.createProducer(address);
@@ -3688,15 +3688,15 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCountMessagesPropertyWithNullFilter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       ClientProducer producer = session.createProducer(address);
 
       for (int i = 0; i < 100; i++) {
          ClientMessage msg = session.createMessage(false);
-         msg.putStringProperty(RandomUtil.randomString(), RandomUtil.randomString());
+         msg.putStringProperty(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString());
          producer.send(msg);
       }
 
@@ -3715,8 +3715,8 @@ public class QueueControlTest extends ManagementTestBase {
       long matchingValue = RandomUtil.randomLong();
       long unmatchingValue = matchingValue + 1;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3755,10 +3755,10 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testExpireMessage() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString expiryAddress = RandomUtil.randomSimpleString();
-      SimpleString expiryQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString expiryAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString expiryQueue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       session.createQueue(QueueConfiguration.of(expiryQueue).setAddress(expiryAddress).setDurable(durable));
@@ -3796,10 +3796,10 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testSendMessageToDeadLetterAddress() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString deadLetterAddress = RandomUtil.randomSimpleString();
-      SimpleString deadLetterQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString deadLetterAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString deadLetterQueue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       session.createQueue(QueueConfiguration.of(deadLetterQueue).setAddress(deadLetterAddress).setDurable(durable));
@@ -3843,8 +3843,8 @@ public class QueueControlTest extends ManagementTestBase {
       byte originalPriority = (byte) 1;
       byte newPriority = (byte) 8;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3877,8 +3877,8 @@ public class QueueControlTest extends ManagementTestBase {
    public void testChangeMessagePriorityWithInvalidValue() throws Exception {
       byte invalidPriority = (byte) 23;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       ClientProducer producer = session.createProducer(address);
@@ -3911,8 +3911,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListMessageCounter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       QueueControl queueControl = createManagementControl(address, queue);
@@ -3973,8 +3973,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testResetMessageCounter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       QueueControl queueControl = createManagementControl(address, queue);
@@ -4025,8 +4025,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListMessageCounterAsHTML() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       QueueControl queueControl = createManagementControl(address, queue);
@@ -4040,8 +4040,8 @@ public class QueueControlTest extends ManagementTestBase {
    @TestTemplate
    public void testListMessageCounterHistory() throws Exception {
       long counterPeriod = 1000;
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       QueueControl queueControl = createManagementControl(address, queue);
@@ -4060,8 +4060,8 @@ public class QueueControlTest extends ManagementTestBase {
    @TestTemplate
    public void testListMessageCounterHistoryAsHTML() throws Exception {
       long counterPeriod = 1000;
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
       QueueControl queueControl = createManagementControl(address, queue);
@@ -4217,8 +4217,8 @@ public class QueueControlTest extends ManagementTestBase {
    @TestTemplate
    public void testPauseAndResume() {
       long counterPeriod = 1000;
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       try {
          session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
@@ -4239,8 +4239,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testResetMessagesAdded() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -4266,8 +4266,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testResetMessagesAcknowledged() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -4291,8 +4291,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testResetMessagesExpired() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -4336,8 +4336,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testResetMessagesKilled() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -4416,8 +4416,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testSendMessage() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -4574,8 +4574,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testSendMessageWithMessageId() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -4614,8 +4614,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testSendMessageToQueueWithFilter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable).setFilterString("foo = 'foo'"));
 
@@ -4629,8 +4629,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testSendMessageWithProperties() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -4670,8 +4670,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testBrowseLimitOnListBrowseAndFilteredCount() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       AddressSettings addressSettings = new AddressSettings().setManagementBrowsePageSize(5);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
@@ -4704,14 +4704,14 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testBrowseWithNullPropertyValue() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage m = session.createMessage(true);
-      m.putStringProperty(RandomUtil.randomString(), null);
+      m.putStringProperty(RandomUtil.randomUUIDString(), null);
       producer.send(m);
       producer.close();
 
@@ -4724,8 +4724,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testBrowseWithNullPropertyValueWithAMQP() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
 
@@ -4747,8 +4747,8 @@ public class QueueControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testResetGroups() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -4785,8 +4785,8 @@ public class QueueControlTest extends ManagementTestBase {
    @TestTemplate
    public void testGetScheduledCountOnRemove() throws Exception {
       long delay = Integer.MAX_VALUE;
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 

@@ -92,7 +92,7 @@ public class ClusterConnectionControl2Test extends ManagementTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      String discoveryName = RandomUtil.randomString();
+      String discoveryName = RandomUtil.randomUUIDString();
       String groupAddress = getUDPDiscoveryAddress();
       int groupPort = getUDPDiscoveryPort();
 
@@ -105,7 +105,7 @@ public class ClusterConnectionControl2Test extends ManagementTestBase {
       TransportConfiguration connectorConfig_1 = new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY, acceptorParams_1);
       TransportConfiguration connectorConfig_0 = new TransportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY);
 
-      QueueConfiguration queueConfig = QueueConfiguration.of(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration queueConfig = QueueConfiguration.of(RandomUtil.randomUUIDString()).setDurable(false);
       List<String> connectorInfos = new ArrayList<>();
       connectorInfos.add("netty");
 

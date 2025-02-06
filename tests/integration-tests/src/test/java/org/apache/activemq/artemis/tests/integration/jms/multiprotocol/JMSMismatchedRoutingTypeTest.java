@@ -36,13 +36,13 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
 
 public class JMSMismatchedRoutingTypeTest extends MultiprotocolJMSClientTestSupport {
 
-   protected final String ANYCAST_ADDRESS = RandomUtil.randomString();
-   protected final String MULTICAST_ADDRESS = RandomUtil.randomString();
+   protected final String ANYCAST_ADDRESS = RandomUtil.randomUUIDString();
+   protected final String MULTICAST_ADDRESS = RandomUtil.randomUUIDString();
 
    @Override
    protected boolean isAutoCreateAddresses() {
@@ -57,10 +57,10 @@ public class JMSMismatchedRoutingTypeTest extends MultiprotocolJMSClientTestSupp
    @Override
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
       server.addAddressInfo(new AddressInfo(SimpleString.of(ANYCAST_ADDRESS), RoutingType.ANYCAST));
-      server.createQueue(QueueConfiguration.of(RandomUtil.randomString()).setAddress(ANYCAST_ADDRESS).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(RandomUtil.randomUUIDString()).setAddress(ANYCAST_ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
       server.addAddressInfo(new AddressInfo(SimpleString.of(MULTICAST_ADDRESS), RoutingType.MULTICAST));
-      server.createQueue(QueueConfiguration.of(RandomUtil.randomString()).setAddress(MULTICAST_ADDRESS).setRoutingType(RoutingType.MULTICAST));
+      server.createQueue(QueueConfiguration.of(RandomUtil.randomUUIDString()).setAddress(MULTICAST_ADDRESS).setRoutingType(RoutingType.MULTICAST));
    }
 
    @Test

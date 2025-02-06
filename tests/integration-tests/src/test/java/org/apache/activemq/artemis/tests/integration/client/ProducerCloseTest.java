@@ -40,7 +40,7 @@ public class ProducerCloseTest extends ActiveMQTestBase {
 
    @Test
    public void testCanNotUseAClosedProducer() throws Exception {
-      final ClientProducer producer = session.createProducer(RandomUtil.randomSimpleString());
+      final ClientProducer producer = session.createProducer(RandomUtil.randomUUIDSimpleString());
 
       assertFalse(producer.isClosed());
 

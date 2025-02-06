@@ -368,11 +368,11 @@ public class ExpiryAddressTest extends ActiveMQTestBase {
    @Test
    public void testExpireWithOverridenSublevelAddressSettings() throws Exception {
       SimpleString address = SimpleString.of("prefix.address");
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString defaultExpiryAddress = RandomUtil.randomSimpleString();
-      SimpleString defaultExpiryQueue = RandomUtil.randomSimpleString();
-      SimpleString specificExpiryAddress = RandomUtil.randomSimpleString();
-      SimpleString specificExpiryQueue = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString defaultExpiryAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString defaultExpiryQueue = RandomUtil.randomUUIDSimpleString();
+      SimpleString specificExpiryAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString specificExpiryQueue = RandomUtil.randomUUIDSimpleString();
 
       AddressSettings defaultAddressSettings = new AddressSettings().setExpiryAddress(defaultExpiryAddress);
       server.getAddressSettingsRepository().addMatch("prefix.*", defaultAddressSettings);

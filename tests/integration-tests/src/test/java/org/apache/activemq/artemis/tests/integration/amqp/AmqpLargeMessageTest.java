@@ -64,7 +64,7 @@ import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -551,19 +551,11 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    private void testLargeHeaderTX(boolean largeBody) throws Exception {
-      String testQueueName = RandomUtil.randomString();
+      String testQueueName = RandomUtil.randomUUIDString();
       server.createQueue(QueueConfiguration.of(testQueueName).setRoutingType(RoutingType.ANYCAST));
       ConnectionFactory cf = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:5672");
 
-      String largeString;
-      {
-         StringBuilder sb = new StringBuilder();
-         while (sb.length() < 1024 * 1024) {
-            sb.append("This is a large string ");
-         }
-         largeString = sb.toString();
-      }
-
+      String largeString = RandomUtil.randomAlphaNumericString(1024 * 1024);
       String smallString = "small string";
 
       String body = largeBody ? largeString : smallString;

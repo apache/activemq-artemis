@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
@@ -98,7 +98,7 @@ public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
    @TestTemplate
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSimpleSendReceive() throws Exception {
-      final String topic = RandomUtil.randomString();
+      final String topic = RandomUtil.randomUUIDString();
       final String clientId = "subscriber";
       byte[] body = RandomUtil.randomBytes(32);
 

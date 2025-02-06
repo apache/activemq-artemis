@@ -77,7 +77,7 @@ public class PageSizeTest extends ParameterDBTestBase {
       DatabaseStorageConfiguration dbstoreConfig = (DatabaseStorageConfiguration) server.getConfiguration().getStoreConfiguration();
       dbstoreConfig.setMaxPageSizeBytes(30 * 1024);
       server.start();
-      String addressName = "Q" + RandomUtil.randomString();
+      String addressName = "Q" + RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(addressName).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(QueueConfiguration.of(addressName).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 

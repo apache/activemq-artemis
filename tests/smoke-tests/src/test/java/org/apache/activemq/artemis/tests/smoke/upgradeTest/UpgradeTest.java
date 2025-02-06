@@ -62,7 +62,7 @@ public class UpgradeTest extends SmokeTestBase {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageConsumer consumer = session.createConsumer(session.createQueue(getName()));
          MessageProducer producer = session.createProducer(session.createQueue(getName()));
-         String randomString = "Hello " + RandomUtil.randomString();
+         String randomString = "Hello " + RandomUtil.randomUUIDString();
          producer.send(session.createTextMessage(randomString));
          TextMessage message = (TextMessage)consumer.receive(5000);
          assertNotNull(message);

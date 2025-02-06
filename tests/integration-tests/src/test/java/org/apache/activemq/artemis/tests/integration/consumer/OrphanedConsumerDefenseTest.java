@@ -114,11 +114,11 @@ public class OrphanedConsumerDefenseTest extends ActiveMQTestBase {
       BufferHandler bufferHandler = Mockito.mock(BufferHandler.class);
       InVMConnection inVMConnection = new InVMConnection(1, bufferHandler, Mockito.mock(BaseConnectionLifeCycleListener.class), artemisExecutor);
 
-      RemotingConnectionImpl remotingConnection = new RemotingConnectionImpl(new ServerPacketDecoder(storageManager), inVMConnection, new ArrayList<>(), new ArrayList<>(), RandomUtil.randomSimpleString(), artemisExecutor);
+      RemotingConnectionImpl remotingConnection = new RemotingConnectionImpl(new ServerPacketDecoder(storageManager), inVMConnection, new ArrayList<>(), new ArrayList<>(), RandomUtil.randomUUIDSimpleString(), artemisExecutor);
       remotingConnection.destroy();
-      ServerSessionImpl session = new ServerSessionImpl(RandomUtil.randomString(), RandomUtil.randomString(), RandomUtil.randomString(),
-                                                        RandomUtil.randomString(), 1000, true, true, true, true, true,
-                                                        remotingConnection, storageManager, Mockito.mock(PostOffice.class), Mockito.mock(ResourceManager.class), Mockito.mock(SecurityStore.class), Mockito.mock(ManagementService.class), mockServer, RandomUtil.randomSimpleString(), RandomUtil.randomSimpleString(), Mockito.mock(SessionCallback.class), Mockito.mock(OperationContext.class), Mockito.mock(PagingManager.class), new HashMap<>(), "securityDomain", false);
+      ServerSessionImpl session = new ServerSessionImpl(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(),
+                                                        RandomUtil.randomUUIDString(), 1000, true, true, true, true, true,
+                                                        remotingConnection, storageManager, Mockito.mock(PostOffice.class), Mockito.mock(ResourceManager.class), Mockito.mock(SecurityStore.class), Mockito.mock(ManagementService.class), mockServer, RandomUtil.randomUUIDSimpleString(), RandomUtil.randomUUIDSimpleString(), Mockito.mock(SessionCallback.class), Mockito.mock(OperationContext.class), Mockito.mock(PagingManager.class), new HashMap<>(), "securityDomain", false);
 
       try {
          new ServerConsumerImpl(1, session, null, null, 1, true, false, new NullStorageManager(), sessionCallback, true, true, managementService, false, 0, server);

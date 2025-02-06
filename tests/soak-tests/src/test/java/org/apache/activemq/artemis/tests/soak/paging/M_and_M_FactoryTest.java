@@ -198,15 +198,7 @@ public class M_and_M_FactoryTest extends SoakTestBase {
          Topic controlTopic = session.createTopic("MMControl");
 
 
-         String largeString;
-         {
-            StringBuilder largeSB = new StringBuilder();
-
-            while (largeSB.length() < 10) {
-               largeSB.append(RandomUtil.randomString());
-            }
-            largeString = largeSB.toString();
-         }
+         String largeString = RandomUtil.randomAlphaNumericString(10);
 
          try {
             for (int run = countStart; run <= countEnd; run++) {

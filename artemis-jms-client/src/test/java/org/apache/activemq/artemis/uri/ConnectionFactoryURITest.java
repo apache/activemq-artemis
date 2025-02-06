@@ -292,7 +292,7 @@ public class ConnectionFactoryURITest {
                                         StringBuilder sb) {
       for (String allowableConnectorKey : allowableConnectorKeys) {
          if (!allowableConnectorKey.equals("host") && !allowableConnectorKey.equals("port")) {
-            String value = RandomUtil.randomString();
+            String value = RandomUtil.randomUUIDString();
             props.put(allowableConnectorKey, value);
             sb.append("&").append(allowableConnectorKey).append("=").append(value);
          }
@@ -493,7 +493,7 @@ public class ConnectionFactoryURITest {
          logger.info("name::{}", descriptor.getName());
          if (descriptor.getWriteMethod() != null && descriptor.getReadMethod() != null) {
             if (descriptor.getPropertyType() == String.class) {
-               String value = RandomUtil.randomString();
+               String value = RandomUtil.randomUUIDString();
                bean.setProperty(factory, descriptor.getName(), value);
                sb.append("&").append(descriptor.getName()).append("=").append(value);
             } else if (descriptor.getPropertyType() == int.class) {

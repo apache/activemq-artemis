@@ -61,7 +61,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTemporaryTopic;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -118,8 +118,8 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
    public void testAutoCreateOnSendToFQQN() throws Exception {
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      String queueName = RandomUtil.randomString();
-      String addressName = RandomUtil.randomString();
+      String queueName = RandomUtil.randomUUIDString();
+      String addressName = RandomUtil.randomUUIDString();
 
       javax.jms.Queue queue = ActiveMQJMSClient.createQueue(CompositeAddress.toFullyQualified(addressName, queueName));
 
@@ -182,8 +182,8 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
    public void testAutoCreateOnSendToFQQNAnonymousProducer() throws Exception {
       Connection connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      String queueName = RandomUtil.randomString();
-      String addressName = RandomUtil.randomString();
+      String queueName = RandomUtil.randomUUIDString();
+      String addressName = RandomUtil.randomUUIDString();
 
       javax.jms.Queue queue = ActiveMQJMSClient.createQueue(CompositeAddress.toFullyQualified(addressName, queueName));
 
@@ -273,8 +273,8 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       Connection connection = null;
       connection = cf.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      String queueName = RandomUtil.randomString();
-      String addressName = RandomUtil.randomString();
+      String queueName = RandomUtil.randomUUIDString();
+      String addressName = RandomUtil.randomUUIDString();
 
       javax.jms.Queue queue = ActiveMQJMSClient.createQueue(CompositeAddress.toFullyQualified(addressName, queueName));
 

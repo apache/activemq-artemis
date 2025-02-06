@@ -69,13 +69,13 @@ public class DivertControlTest extends ManagementTestBase {
 
    @Test
    public void testRetroactiveResourceAttribute() throws Exception {
-      String address = RandomUtil.randomString();
-      QueueConfiguration queueConfig = QueueConfiguration.of(RandomUtil.randomString()).setDurable(false);
-      QueueConfiguration forwardQueueConfig = QueueConfiguration.of(RandomUtil.randomString()).setAddress(address).setDurable(false);
+      String address = RandomUtil.randomUUIDString();
+      QueueConfiguration queueConfig = QueueConfiguration.of(RandomUtil.randomUUIDString()).setDurable(false);
+      QueueConfiguration forwardQueueConfig = QueueConfiguration.of(RandomUtil.randomUUIDString()).setAddress(address).setDurable(false);
 
       divertConfig = new DivertConfiguration()
          .setName(ResourceNames.getRetroactiveResourceDivertName(server.getInternalNamingPrefix(), server.getConfiguration().getWildcardConfiguration().getDelimiterString(), SimpleString.of(address)).toString())
-         .setRoutingName(RandomUtil.randomString()).setAddress(queueConfig.getAddress().toString())
+         .setRoutingName(RandomUtil.randomUUIDString()).setAddress(queueConfig.getAddress().toString())
          .setForwardingAddress(forwardQueueConfig.getAddress().toString())
          .setExclusive(RandomUtil.randomBoolean())
          .setTransformerConfiguration(new TransformerConfiguration(AddHeadersTransformer.class.getName()));
@@ -96,12 +96,12 @@ public class DivertControlTest extends ManagementTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      QueueConfiguration queueConfig = QueueConfiguration.of(RandomUtil.randomString()).setDurable(false);
-      QueueConfiguration forwardQueueConfig = QueueConfiguration.of(RandomUtil.randomString()).setDurable(false);
+      QueueConfiguration queueConfig = QueueConfiguration.of(RandomUtil.randomUUIDString()).setDurable(false);
+      QueueConfiguration forwardQueueConfig = QueueConfiguration.of(RandomUtil.randomUUIDString()).setDurable(false);
 
       divertConfig = new DivertConfiguration()
-         .setName(RandomUtil.randomString())
-         .setRoutingName(RandomUtil.randomString())
+         .setName(RandomUtil.randomUUIDString())
+         .setRoutingName(RandomUtil.randomUUIDString())
          .setAddress(queueConfig.getAddress().toString())
          .setForwardingAddress(forwardQueueConfig.getAddress().toString())
          .setExclusive(RandomUtil.randomBoolean())

@@ -136,7 +136,7 @@ public class AllClassesTest {
             } else if (constructorParameter.getType().isAssignableFrom(long.class)) {
                initArg = RandomUtil.randomLong();
             } else if (constructorParameter.getType().isAssignableFrom(String.class)) {
-               initArg = RandomUtil.randomString();
+               initArg = RandomUtil.randomUUIDString();
             } else {
                initArg = null;
             }

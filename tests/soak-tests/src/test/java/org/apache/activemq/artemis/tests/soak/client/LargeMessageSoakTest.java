@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -80,15 +81,7 @@ public class LargeMessageSoakTest extends ActiveMQTestBase {
       runAfter(connectionProducer::close);
       runAfter(connectionConsumer::close);
 
-      final String largetext;
-
-      {
-         StringBuilder buffer = new StringBuilder();
-         while (buffer.length() < MESSAGE_SIZE) {
-            buffer.append("Lorem Ypsum blablabla blabalbala I don't care whatever it is in that thing...");
-         }
-         largetext = buffer.toString();
-      }
+      final String largetext = RandomUtil.randomAlphaNumericString(MESSAGE_SIZE);
 
       CountDownLatch done = new CountDownLatch(THREADS * 2);
 

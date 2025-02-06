@@ -137,7 +137,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSL() throws Exception {
       createCustomSslServer();
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
@@ -165,7 +165,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLwithSNI() throws Exception {
       createCustomSslServer("myhost\\.com");
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
@@ -234,7 +234,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLwithSNIOnlyOnTheClient() throws Exception {
       createCustomSslServer();
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
@@ -263,7 +263,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLwithSNIOnlyOnTheBroker() throws Exception {
       createCustomSslServer("myhost\\.com");
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
@@ -291,7 +291,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLwithTrustManagerPlugin() throws Exception {
       createCustomSslServer(null, null, false, null, TestTrustManagerFactoryPlugin.class.getName());
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
@@ -322,7 +322,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLwithURL() throws Exception {
       createCustomSslServer();
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       String url = "tcp://127.0.0.1:61616?sslEnabled=true;trustStorePath=" + CLIENT_SIDE_TRUSTSTORE + ";trustStorePassword=" + PASSWORD;
       if (storeProvider != null && !storeProvider.equals(TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER)) {
@@ -352,7 +352,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLwithURLandMaskedPasswordProperty() throws Exception {
       createCustomSslServer();
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
 
@@ -384,7 +384,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLwithURLandMaskedPasswordENCSyntax() throws Exception {
       createCustomSslServer();
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       DefaultSensitiveStringCodec codec = PasswordMaskingUtil.getDefaultCodec();
 
@@ -418,7 +418,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLUsingDefaultSslContext() throws Exception {
       createCustomSslServer();
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.USE_DEFAULT_SSL_CONTEXT_PROP_NAME, true);
@@ -451,7 +451,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLVerifyHost() throws Exception {
       createCustomSslServer();
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
@@ -480,7 +480,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLVerifyHostNegative() throws Exception {
       createCustomSslServer(true);
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
@@ -503,7 +503,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    public void testOneWaySSLReloaded() throws Exception {
       createCustomSslServer();
       server.createQueue(QueueConfiguration.of(CoreClientOverOneWaySSLTest.QUEUE).setRoutingType(RoutingType.ANYCAST).setDurable(false));
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       // create a valid SSL connection and keep it for use later
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -701,7 +701,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLWithGoodClientCipherSuite() throws Exception {
       createCustomSslServer();
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
@@ -737,7 +737,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLWithGoodServerCipherSuite() throws Exception {
       createCustomSslServer(getSuitableCipherSuite(), null);
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
@@ -772,7 +772,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLWithGoodClientProtocol() throws Exception {
       createCustomSslServer();
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
@@ -808,7 +808,7 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
    @TestTemplate
    public void testOneWaySSLWithGoodServerProtocol() throws Exception {
       createCustomSslServer(null, "TLSv1.2");
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);

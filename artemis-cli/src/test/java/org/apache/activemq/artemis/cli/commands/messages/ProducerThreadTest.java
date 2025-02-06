@@ -36,7 +36,7 @@ public class ProducerThreadTest {
 
    @BeforeEach
    public void setUp() {
-      producer = new ProducerThread(null, ActiveMQDestination.createQueue(RandomUtil.randomString()), 0, null);
+      producer = new ProducerThread(null, ActiveMQDestination.createQueue(RandomUtil.randomUUIDString()), 0, null);
       mockMessage = Mockito.mock(Message.class);
    }
 
@@ -203,7 +203,7 @@ public class ProducerThreadTest {
 
    private void doStringPropertyTestImpl(String type) throws JMSException {
       String key = "myString";
-      String value = RandomUtil.randomString();
+      String value = RandomUtil.randomUUIDString();
 
       producer.setProperties(createJsonProperty(type, key, value));
       producer.applyProperties(mockMessage);
@@ -220,7 +220,7 @@ public class ProducerThreadTest {
    @Test
    public void testBadMessagePropertyType() throws Exception {
       TestActionContext context = new TestActionContext();
-      producer = new ProducerThread(null, ActiveMQDestination.createQueue(RandomUtil.randomString()), 0, context);
+      producer = new ProducerThread(null, ActiveMQDestination.createQueue(RandomUtil.randomUUIDString()), 0, context);
 
       producer.setProperties(createJsonProperty("myType", "myKey", "myValue"));
       producer.applyProperties(mockMessage);

@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Timeout;
 
 public class MQTTSecurityManagerTest extends MQTTTestSupport {
 
-   private String clientID = "new-" + RandomUtil.randomString();
+   private String clientID = "new-" + RandomUtil.randomUUIDString();
    private boolean rejectClientId = false;
 
    @Override
@@ -96,7 +96,7 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
    public void testSecurityManagerModifyClientID() throws Exception {
       BlockingConnection connection = null;
       try {
-         MQTT mqtt = createMQTTConnection(RandomUtil.randomString(), true);
+         MQTT mqtt = createMQTTConnection(RandomUtil.randomUUIDString(), true);
          mqtt.setUserName(fullUser);
          mqtt.setPassword(fullPass);
          mqtt.setConnectAttemptsMax(1);
@@ -127,7 +127,7 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
    public void testSecurityManagerModifyClientIDAndStealConnection() throws Exception {
       BlockingConnection connection1 = null;
       BlockingConnection connection2 = null;
-      final String CLIENT_ID = "old-" + RandomUtil.randomString();
+      final String CLIENT_ID = "old-" + RandomUtil.randomUUIDString();
       try {
          MQTT mqtt = createMQTTConnection(CLIENT_ID, true);
          mqtt.setUserName(fullUser);
@@ -172,7 +172,7 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
       rejectClientId = true;
       BlockingConnection connection = null;
       try {
-         MQTT mqtt = createMQTTConnection(RandomUtil.randomString(), true);
+         MQTT mqtt = createMQTTConnection(RandomUtil.randomUUIDString(), true);
          mqtt.setUserName(fullUser);
          mqtt.setPassword(fullPass);
          mqtt.setConnectAttemptsMax(1);

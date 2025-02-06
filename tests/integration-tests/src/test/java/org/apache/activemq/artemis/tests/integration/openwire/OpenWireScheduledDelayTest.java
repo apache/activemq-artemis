@@ -33,7 +33,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ScheduledMessage;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
 
 public class OpenWireScheduledDelayTest extends OpenWireTestBase {
@@ -45,11 +45,11 @@ public class OpenWireScheduledDelayTest extends OpenWireTestBase {
 
    @Test
    public void testScheduledDelay() throws Exception {
-      final String QUEUE_NAME = RandomUtil.randomString();
+      final String QUEUE_NAME = RandomUtil.randomUUIDString();
       final long DELAY = 2000;
-      final String PROP_NAME = RandomUtil.randomString();
-      final String FIRST = RandomUtil.randomString();
-      final String SECOND = RandomUtil.randomString();
+      final String PROP_NAME = RandomUtil.randomUUIDString();
+      final String FIRST = RandomUtil.randomUUIDString();
+      final String SECOND = RandomUtil.randomUUIDString();
 
       ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://127.0.0.1:61616");
       Connection connection = connectionFactory.createConnection();

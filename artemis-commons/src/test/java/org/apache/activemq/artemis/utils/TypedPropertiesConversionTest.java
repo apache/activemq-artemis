@@ -40,7 +40,7 @@ public class TypedPropertiesConversionTest {
 
    @BeforeEach
    public void setUp() throws Exception {
-      key = RandomUtil.randomSimpleString();
+      key = RandomUtil.randomUUIDSimpleString();
       props = new TypedProperties();
    }
 
@@ -273,7 +273,7 @@ public class TypedPropertiesConversionTest {
 
    @Test
    public void testSimpleStringProperty() throws Exception {
-      SimpleString strVal = RandomUtil.randomSimpleString();
+      SimpleString strVal = RandomUtil.randomUUIDSimpleString();
       props.putSimpleStringProperty(key, strVal);
       assertEquals(strVal, props.getSimpleStringProperty(key));
    }

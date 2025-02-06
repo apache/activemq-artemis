@@ -32,12 +32,12 @@ public class PredicateTest {
 
    @Test
    public void testBasePredicateEquals() {
-      String string = RandomUtil.randomString();
+      String string = RandomUtil.randomUUIDString();
       ActiveMQFilterPredicate<String> predicate = new ActiveMQFilterPredicate<>();
       predicate.setOperation(EQUALS.name());
       predicate.setValue(string);
       assertTrue(predicate.matches(string));
-      assertFalse(predicate.matches(RandomUtil.randomString()));
+      assertFalse(predicate.matches(RandomUtil.randomUUIDString()));
       assertFalse(predicate.matches(0L));
       assertFalse(predicate.matches(0f));
       assertFalse(predicate.matches(0));
@@ -45,12 +45,12 @@ public class PredicateTest {
 
    @Test
    public void testBasePredicateNotEquals() {
-      String string = RandomUtil.randomString();
+      String string = RandomUtil.randomUUIDString();
       ActiveMQFilterPredicate<String> predicate = new ActiveMQFilterPredicate<>();
       predicate.setOperation(NOT_EQUALS.name());
       predicate.setValue(string);
       assertFalse(predicate.matches(string));
-      assertTrue(predicate.matches(RandomUtil.randomString()));
+      assertTrue(predicate.matches(RandomUtil.randomUUIDString()));
       assertTrue(predicate.matches(0L));
       assertTrue(predicate.matches(0f));
       assertTrue(predicate.matches(0));

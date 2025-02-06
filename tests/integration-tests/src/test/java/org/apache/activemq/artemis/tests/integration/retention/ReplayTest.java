@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -71,7 +71,7 @@ public class ReplayTest extends ActiveMQTestBase {
    }
 
    protected void testReplay(String protocol, int size, boolean paging) throws Exception {
-      String buffer = RandomUtil.randomString() + "*".repeat(size);
+      String buffer = RandomUtil.randomUUIDString() + "*".repeat(size);
 
       if (paging) {
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue("t1");

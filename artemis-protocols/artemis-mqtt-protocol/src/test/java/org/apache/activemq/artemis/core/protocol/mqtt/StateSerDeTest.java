@@ -35,11 +35,11 @@ public class StateSerDeTest {
    @Timeout(30)
    public void testSerDe() throws Exception {
       for (int i = 0; i < 500; i++) {
-         String clientId = RandomUtil.randomString();
+         String clientId = RandomUtil.randomUUIDString();
          MQTTSessionState unserialized = new MQTTSessionState(clientId);
          Integer subscriptionIdentifier = RandomUtil.randomPositiveIntOrNull();
          for (int j = 0; j < RandomUtil.randomInterval(1, 50); j++) {
-            MqttTopicSubscription sub = new MqttTopicSubscription(RandomUtil.randomString(),
+            MqttTopicSubscription sub = new MqttTopicSubscription(RandomUtil.randomUUIDString(),
                                                                   new MqttSubscriptionOption(MqttQoS.valueOf(RandomUtil.randomInterval(0, 3)),
                                                                                              RandomUtil.randomBoolean(),
                                                                                              RandomUtil.randomBoolean(),

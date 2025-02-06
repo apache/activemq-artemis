@@ -93,7 +93,7 @@ public class RealServerDatabasePagingTest extends ParameterDBTestBase {
    private void testPaging(String protocol, int messages, int messageSize) throws Exception {
       logger.info("performing paging test on protocol={} and db={}", protocol, database);
 
-      final String queueName = "QUEUE_" + RandomUtil.randomString() + "_" + protocol + "_" + database;
+      final String queueName = "QUEUE_" + RandomUtil.randomUUIDString() + "_" + protocol + "_" + database;
 
       ConnectionFactory connectionFactory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
 

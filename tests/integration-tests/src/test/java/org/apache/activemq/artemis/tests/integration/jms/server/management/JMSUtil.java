@@ -132,7 +132,7 @@ public class JMSUtil {
       MessageProducer producer = s.createProducer(destination);
 
       for (int i = 0; i < messagesToSend; i++) {
-         Message m = s.createTextMessage(RandomUtil.randomString());
+         Message m = s.createTextMessage(RandomUtil.randomUUIDString());
          producer.send(m);
          messageIDs[i] = m.getJMSMessageID();
       }

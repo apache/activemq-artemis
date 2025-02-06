@@ -257,8 +257,8 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
       server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
-      address = RandomUtil.randomSimpleString();
-      queue = RandomUtil.randomSimpleString();
+      address = RandomUtil.randomUUIDSimpleString();
+      queue = RandomUtil.randomUUIDSimpleString();
 
       locator = createInVMNonHALocator();
 

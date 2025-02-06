@@ -44,9 +44,9 @@ public class ObjectFactoryTest {
       // Create sample connection factory
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://0");
 
-      String clientID = RandomUtil.randomString();
-      String user = RandomUtil.randomString();
-      String password = RandomUtil.randomString();
+      String clientID = RandomUtil.randomUUIDString();
+      String user = RandomUtil.randomUUIDString();
+      String password = RandomUtil.randomUUIDString();
       long clientFailureCheckPeriod = RandomUtil.randomPositiveLong();
       long connectionTTL = RandomUtil.randomPositiveLong();
       long callTimeout = RandomUtil.randomPositiveLong();
@@ -60,7 +60,7 @@ public class ObjectFactoryTest {
       boolean blockOnNonDurableSend = RandomUtil.randomBoolean();
       boolean autoGroup = RandomUtil.randomBoolean();
       boolean preAcknowledge = RandomUtil.randomBoolean();
-      String loadBalancingPolicyClassName = RandomUtil.randomString();
+      String loadBalancingPolicyClassName = RandomUtil.randomUUIDString();
       boolean useGlobalPools = RandomUtil.randomBoolean();
       int scheduledThreadPoolMaxSize = RandomUtil.randomPositiveInt();
       int threadPoolMaxSize = RandomUtil.randomPositiveInt();
@@ -131,7 +131,7 @@ public class ObjectFactoryTest {
    @Timeout(1)
    public void testDestination() throws Exception {
       // Create sample destination
-      ActiveMQDestination dest = (ActiveMQDestination) ActiveMQJMSClient.createQueue(RandomUtil.randomString());
+      ActiveMQDestination dest = (ActiveMQDestination) ActiveMQJMSClient.createQueue(RandomUtil.randomUUIDString());
 
       // Create reference
       Reference ref = JNDIReferenceFactory.createReference(dest.getClass().getName(), dest);

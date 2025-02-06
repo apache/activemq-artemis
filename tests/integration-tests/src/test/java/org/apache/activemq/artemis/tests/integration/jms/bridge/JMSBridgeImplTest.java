@@ -51,9 +51,9 @@ import org.mockito.Mockito;
 
 public class JMSBridgeImplTest extends ActiveMQTestBase {
 
-   private static final String SOURCE = RandomUtil.randomString();
+   private static final String SOURCE = RandomUtil.randomUUIDString();
 
-   private static final String TARGET = RandomUtil.randomString();
+   private static final String TARGET = RandomUtil.randomUUIDString();
 
    private ActiveMQServer server;
 

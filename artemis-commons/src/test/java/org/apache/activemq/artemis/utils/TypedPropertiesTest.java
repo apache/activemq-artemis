@@ -68,7 +68,7 @@ public class TypedPropertiesTest {
 
    @Test
    public void testCopyContructor() throws Exception {
-      props.putSimpleStringProperty(key, RandomUtil.randomSimpleString());
+      props.putSimpleStringProperty(key, RandomUtil.randomUUIDSimpleString());
 
       TypedProperties copy = new TypedProperties(props);
 
@@ -81,7 +81,7 @@ public class TypedPropertiesTest {
 
    @Test
    public void testRemove() throws Exception {
-      props.putSimpleStringProperty(key, RandomUtil.randomSimpleString());
+      props.putSimpleStringProperty(key, RandomUtil.randomUUIDSimpleString());
 
       assertTrue(props.containsProperty(key));
       assertNotNull(props.getProperty(key));
@@ -94,7 +94,7 @@ public class TypedPropertiesTest {
 
    @Test
    public void testClear() throws Exception {
-      props.putSimpleStringProperty(key, RandomUtil.randomSimpleString());
+      props.putSimpleStringProperty(key, RandomUtil.randomUUIDSimpleString());
 
       assertTrue(props.containsProperty(key));
       assertNotNull(props.getProperty(key));
@@ -151,10 +151,10 @@ public class TypedPropertiesTest {
 
    @Test
    public void testTypedProperties() throws Exception {
-      SimpleString longKey = RandomUtil.randomSimpleString();
+      SimpleString longKey = RandomUtil.randomUUIDSimpleString();
       long longValue = RandomUtil.randomLong();
-      SimpleString simpleStringKey = RandomUtil.randomSimpleString();
-      SimpleString simpleStringValue = RandomUtil.randomSimpleString();
+      SimpleString simpleStringKey = RandomUtil.randomUUIDSimpleString();
+      SimpleString simpleStringValue = RandomUtil.randomUUIDSimpleString();
       TypedProperties otherProps = new TypedProperties();
       otherProps.putLongProperty(longKey, longValue);
       otherProps.putSimpleStringProperty(simpleStringKey, simpleStringValue);
@@ -187,20 +187,20 @@ public class TypedPropertiesTest {
 
    @Test
    public void testEncodeDecode() throws Exception {
-      props.putByteProperty(RandomUtil.randomSimpleString(), RandomUtil.randomByte());
-      props.putBytesProperty(RandomUtil.randomSimpleString(), RandomUtil.randomBytes());
-      props.putBytesProperty(RandomUtil.randomSimpleString(), null);
-      props.putBooleanProperty(RandomUtil.randomSimpleString(), RandomUtil.randomBoolean());
-      props.putShortProperty(RandomUtil.randomSimpleString(), RandomUtil.randomShort());
-      props.putIntProperty(RandomUtil.randomSimpleString(), RandomUtil.randomInt());
-      props.putLongProperty(RandomUtil.randomSimpleString(), RandomUtil.randomLong());
-      props.putFloatProperty(RandomUtil.randomSimpleString(), RandomUtil.randomFloat());
-      props.putDoubleProperty(RandomUtil.randomSimpleString(), RandomUtil.randomDouble());
-      props.putCharProperty(RandomUtil.randomSimpleString(), RandomUtil.randomChar());
-      props.putSimpleStringProperty(RandomUtil.randomSimpleString(), RandomUtil.randomSimpleString());
-      props.putSimpleStringProperty(RandomUtil.randomSimpleString(), null);
-      SimpleString keyToRemove = RandomUtil.randomSimpleString();
-      props.putSimpleStringProperty(keyToRemove, RandomUtil.randomSimpleString());
+      props.putByteProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomByte());
+      props.putBytesProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomBytes());
+      props.putBytesProperty(RandomUtil.randomUUIDSimpleString(), null);
+      props.putBooleanProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomBoolean());
+      props.putShortProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomShort());
+      props.putIntProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomInt());
+      props.putLongProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomLong());
+      props.putFloatProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomFloat());
+      props.putDoubleProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomDouble());
+      props.putCharProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomChar());
+      props.putSimpleStringProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomUUIDSimpleString());
+      props.putSimpleStringProperty(RandomUtil.randomUUIDSimpleString(), null);
+      SimpleString keyToRemove = RandomUtil.randomUUIDSimpleString();
+      props.putSimpleStringProperty(keyToRemove, RandomUtil.randomUUIDSimpleString());
 
       ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(1024);
       props.encode(buffer.byteBuf());
@@ -286,20 +286,20 @@ public class TypedPropertiesTest {
    @Test
    public void testSearchAllProperties() {
       TypedProperties props = new TypedProperties();
-      props.putByteProperty(RandomUtil.randomSimpleString(), RandomUtil.randomByte());
-      props.putBytesProperty(RandomUtil.randomSimpleString(), RandomUtil.randomBytes());
-      props.putBytesProperty(RandomUtil.randomSimpleString(), null);
-      props.putBooleanProperty(RandomUtil.randomSimpleString(), RandomUtil.randomBoolean());
-      props.putShortProperty(RandomUtil.randomSimpleString(), RandomUtil.randomShort());
-      props.putIntProperty(RandomUtil.randomSimpleString(), RandomUtil.randomInt());
-      props.putLongProperty(RandomUtil.randomSimpleString(), RandomUtil.randomLong());
-      props.putFloatProperty(RandomUtil.randomSimpleString(), RandomUtil.randomFloat());
-      props.putDoubleProperty(RandomUtil.randomSimpleString(), RandomUtil.randomDouble());
-      props.putCharProperty(RandomUtil.randomSimpleString(), RandomUtil.randomChar());
-      props.putSimpleStringProperty(RandomUtil.randomSimpleString(), RandomUtil.randomSimpleString());
-      props.putSimpleStringProperty(RandomUtil.randomSimpleString(), null);
-      final SimpleString value = RandomUtil.randomSimpleString();
-      props.putSimpleStringProperty(RandomUtil.randomSimpleString(), value);
+      props.putByteProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomByte());
+      props.putBytesProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomBytes());
+      props.putBytesProperty(RandomUtil.randomUUIDSimpleString(), null);
+      props.putBooleanProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomBoolean());
+      props.putShortProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomShort());
+      props.putIntProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomInt());
+      props.putLongProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomLong());
+      props.putFloatProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomFloat());
+      props.putDoubleProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomDouble());
+      props.putCharProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomChar());
+      props.putSimpleStringProperty(RandomUtil.randomUUIDSimpleString(), RandomUtil.randomUUIDSimpleString());
+      props.putSimpleStringProperty(RandomUtil.randomUUIDSimpleString(), null);
+      final SimpleString value = RandomUtil.randomUUIDSimpleString();
+      props.putSimpleStringProperty(RandomUtil.randomUUIDSimpleString(), value);
       ByteBuf buf = Unpooled.buffer();
       props.encode(buf);
       buf.resetReaderIndex();
@@ -373,7 +373,7 @@ public class TypedPropertiesTest {
    @BeforeEach
    public void setUp() throws Exception {
       props = new TypedProperties();
-      key = RandomUtil.randomSimpleString();
+      key = RandomUtil.randomUUIDSimpleString();
    }
 
    @Test

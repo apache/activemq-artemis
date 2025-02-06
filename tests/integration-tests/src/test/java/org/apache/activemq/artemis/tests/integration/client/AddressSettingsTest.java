@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
 
 public class AddressSettingsTest extends ActiveMQTestBase {
@@ -119,11 +119,11 @@ public class AddressSettingsTest extends ActiveMQTestBase {
 
    @Test
    public void testLiteralMatch() throws Exception {
-      final SimpleString defaultDLA = RandomUtil.randomSimpleString();
-      final SimpleString defaultEA = RandomUtil.randomSimpleString();
-      final SimpleString fooDefaultDLA = RandomUtil.randomSimpleString();
-      final SimpleString fooChildrenDLA = RandomUtil.randomSimpleString();
-      final SimpleString fooLiteralDLA = RandomUtil.randomSimpleString();
+      final SimpleString defaultDLA = RandomUtil.randomUUIDSimpleString();
+      final SimpleString defaultEA = RandomUtil.randomUUIDSimpleString();
+      final SimpleString fooDefaultDLA = RandomUtil.randomUUIDSimpleString();
+      final SimpleString fooChildrenDLA = RandomUtil.randomUUIDSimpleString();
+      final SimpleString fooLiteralDLA = RandomUtil.randomUUIDSimpleString();
 
       Configuration configuration = createDefaultConfig(false);
       configuration.setLiteralMatchMarkers("()");

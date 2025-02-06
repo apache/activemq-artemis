@@ -159,7 +159,7 @@ public class JMSSaslExternalTest extends ActiveMQTestBase {
          MessageConsumer consumer = session.createConsumer(queue);
          MessageProducer producer = session.createProducer(queue);
 
-         final String text = RandomUtil.randomString();
+         final String text = RandomUtil.randomUUIDString();
          producer.send(session.createTextMessage(text));
 
          TextMessage m = (TextMessage) consumer.receive(1000);

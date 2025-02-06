@@ -39,13 +39,13 @@ public class RemoteQueueBindImplTest extends ActiveMQTestBase {
                                                 int size,
                                                 int expectedSize) throws Exception {
       final long id = RandomUtil.randomLong();
-      final SimpleString address = RandomUtil.randomSimpleString();
-      final SimpleString uniqueName = RandomUtil.randomSimpleString();
-      final SimpleString routingName = RandomUtil.randomSimpleString();
+      final SimpleString address = RandomUtil.randomUUIDSimpleString();
+      final SimpleString uniqueName = RandomUtil.randomUUIDSimpleString();
+      final SimpleString routingName = RandomUtil.randomUUIDSimpleString();
       final Long remoteQueueID = RandomUtil.randomLong();
       final SimpleString filterString = SimpleString.of("A>B");
       final Queue storeAndForwardQueue = new FakeQueue(null);
-      final SimpleString bridgeName = RandomUtil.randomSimpleString();
+      final SimpleString bridgeName = RandomUtil.randomUUIDSimpleString();
       final int distance = 0;
       RemoteQueueBindingImpl binding = new RemoteQueueBindingImpl(id, address, uniqueName, routingName, remoteQueueID, filterString, storeAndForwardQueue, bridgeName, distance, MessageLoadBalancingType.ON_DEMAND);
 
@@ -88,13 +88,13 @@ public class RemoteQueueBindImplTest extends ActiveMQTestBase {
    @Test
    public void testIsHighAcceptPriority() throws Exception {
       final long id = RandomUtil.randomLong();
-      final SimpleString address = RandomUtil.randomSimpleString();
-      final SimpleString uniqueName = RandomUtil.randomSimpleString();
-      final SimpleString routingName = RandomUtil.randomSimpleString();
+      final SimpleString address = RandomUtil.randomUUIDSimpleString();
+      final SimpleString uniqueName = RandomUtil.randomUUIDSimpleString();
+      final SimpleString routingName = RandomUtil.randomUUIDSimpleString();
       final Long remoteQueueID = RandomUtil.randomLong();
       final SimpleString filterString = SimpleString.of("A>B");
       final Queue storeAndForwardQueue = new FakeQueue(null);
-      final SimpleString bridgeName = RandomUtil.randomSimpleString();
+      final SimpleString bridgeName = RandomUtil.randomUUIDSimpleString();
       final int distance = 0;
       RemoteQueueBindingImpl bindingOff = new RemoteQueueBindingImpl(id, address, uniqueName, routingName, remoteQueueID, filterString, storeAndForwardQueue, bridgeName, distance, MessageLoadBalancingType.OFF);
       bindingOff.addConsumer(null);

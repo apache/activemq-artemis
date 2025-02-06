@@ -112,7 +112,7 @@ public class FilterTest extends SilentTestCase {
 
    @Test
    public void testAMQSize() throws Exception {
-      message.setAddress(RandomUtil.randomSimpleString());
+      message.setAddress(RandomUtil.randomUUIDSimpleString());
 
       int encodeSize = message.getEncodeSize();
 

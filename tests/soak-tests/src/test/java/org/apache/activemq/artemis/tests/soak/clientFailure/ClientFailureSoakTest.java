@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedT
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.BeforeAll;
@@ -159,15 +160,7 @@ public class ClientFailureSoakTest extends SoakTestBase {
          Queue queue = session.createQueue(QUEUE_NAME);
          MessageProducer producer = session.createProducer(queue);
 
-         String largeBody;
-
-         {
-            StringBuilder builder = new StringBuilder();
-            while (builder.length() < 150 * 1024) {
-               builder.append("This is a large string... LOREM IPSUM WHATEVER IT SAYS IN THAT THING... ");
-            }
-            largeBody = builder.toString();
-         }
+         String largeBody = RandomUtil.randomAlphaNumericString(150 * 1024);
 
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
             Message message;

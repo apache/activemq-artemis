@@ -49,10 +49,10 @@ public class RequestorTest extends ActiveMQTestBase {
 
    @Test
    public void testRequest() throws Exception {
-      final SimpleString key = RandomUtil.randomSimpleString();
+      final SimpleString key = RandomUtil.randomUUIDSimpleString();
       long value = RandomUtil.randomLong();
       SimpleString requestAddress = SimpleString.of("AdTest");
-      SimpleString requestQueue = RandomUtil.randomSimpleString();
+      SimpleString requestQueue = RandomUtil.randomUUIDSimpleString();
 
       final ClientSession session = sf.createSession(false, true, true);
 
@@ -77,7 +77,7 @@ public class RequestorTest extends ActiveMQTestBase {
 
    @Test
    public void testManyRequestsOverBlocked() throws Exception {
-      final SimpleString key = RandomUtil.randomSimpleString();
+      final SimpleString key = RandomUtil.randomUUIDSimpleString();
       long value = RandomUtil.randomLong();
 
       AddressSettings settings = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setMaxSizeBytes(1024);
@@ -119,10 +119,10 @@ public class RequestorTest extends ActiveMQTestBase {
 
    @Test
    public void testTwoRequests() throws Exception {
-      final SimpleString key = RandomUtil.randomSimpleString();
+      final SimpleString key = RandomUtil.randomUUIDSimpleString();
       long value = RandomUtil.randomLong();
-      SimpleString requestAddress = RandomUtil.randomSimpleString();
-      SimpleString requestQueue = RandomUtil.randomSimpleString();
+      SimpleString requestAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString requestQueue = RandomUtil.randomUUIDSimpleString();
 
       ClientSessionFactory sf = createSessionFactory(locator);
       final ClientSession session = sf.createSession(false, true, true);
@@ -154,8 +154,8 @@ public class RequestorTest extends ActiveMQTestBase {
 
    @Test
    public void testRequestWithRequestConsumerWhichDoesNotReply() throws Exception {
-      SimpleString requestAddress = RandomUtil.randomSimpleString();
-      SimpleString requestQueue = RandomUtil.randomSimpleString();
+      SimpleString requestAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString requestQueue = RandomUtil.randomUUIDSimpleString();
 
       ClientSessionFactory sf = createSessionFactory(locator);
       final ClientSession session = sf.createSession(false, true, true);
@@ -181,7 +181,7 @@ public class RequestorTest extends ActiveMQTestBase {
 
    @Test
    public void testClientRequestorConstructorWithClosedSession() throws Exception {
-      final SimpleString requestAddress = RandomUtil.randomSimpleString();
+      final SimpleString requestAddress = RandomUtil.randomUUIDSimpleString();
 
       ClientSessionFactory sf = createSessionFactory(locator);
       final ClientSession session = sf.createSession(false, true, true);
@@ -195,10 +195,10 @@ public class RequestorTest extends ActiveMQTestBase {
 
    @Test
    public void testClose() throws Exception {
-      final SimpleString key = RandomUtil.randomSimpleString();
+      final SimpleString key = RandomUtil.randomUUIDSimpleString();
       long value = RandomUtil.randomLong();
-      SimpleString requestAddress = RandomUtil.randomSimpleString();
-      SimpleString requestQueue = RandomUtil.randomSimpleString();
+      SimpleString requestAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString requestQueue = RandomUtil.randomUUIDSimpleString();
 
       ClientSessionFactory sf = createSessionFactory(locator);
       final ClientSession session = sf.createSession(false, true, true);

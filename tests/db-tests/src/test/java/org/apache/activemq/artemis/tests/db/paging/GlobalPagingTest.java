@@ -71,7 +71,7 @@ public class GlobalPagingTest extends ParameterDBTestBase {
       server.getConfiguration().getAddressSettings().put("#", new AddressSettings().setMaxSizeMessages(10));
       server.getConfiguration().setGlobalMaxMessages(5);
       server.start();
-      String addressName = "Q" + RandomUtil.randomString();
+      String addressName = "Q" + RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(addressName).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(QueueConfiguration.of(addressName).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
@@ -108,7 +108,7 @@ public class GlobalPagingTest extends ParameterDBTestBase {
       server.getConfiguration().getAddressSettings().put("#", new AddressSettings().setMaxSizeMessages(5));
       server.getConfiguration().setGlobalMaxMessages(500);
       server.start();
-      String addressName = "Q" + RandomUtil.randomString();
+      String addressName = "Q" + RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(addressName).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(QueueConfiguration.of(addressName).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
@@ -145,7 +145,7 @@ public class GlobalPagingTest extends ParameterDBTestBase {
       server.getConfiguration().getAddressSettings().put("#", new AddressSettings().setMaxSizeMessages(10000).setMaxSizeBytes(100 * 1024 * 1024));
       server.getConfiguration().setGlobalMaxSize(50 * 1024);
       server.start();
-      String addressName = "Q" + RandomUtil.randomString();
+      String addressName = "Q" + RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(addressName).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(QueueConfiguration.of(addressName).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
@@ -184,7 +184,7 @@ public class GlobalPagingTest extends ParameterDBTestBase {
       server.getConfiguration().getAddressSettings().put("#", new AddressSettings().setMaxSizeMessages(10000).setMaxSizeBytes(50 * 1024));
       server.getConfiguration().setGlobalMaxSize(10 * 1024 * 1024);
       server.start();
-      String addressName = "Q" + RandomUtil.randomString();
+      String addressName = "Q" + RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(addressName).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(QueueConfiguration.of(addressName).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 

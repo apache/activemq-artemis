@@ -86,7 +86,7 @@ public class MessageSerializerTest extends CliTestBase {
    private List<Message> generateTextMessages(Session session, Destination destination) throws Exception {
       List<Message> messages = new ArrayList<>(TEST_MESSAGE_COUNT);
       for (int i = 0; i < TEST_MESSAGE_COUNT; i++) {
-         messages.add(session.createTextMessage(RandomUtil.randomString()));
+         messages.add(session.createTextMessage(RandomUtil.randomUUIDString()));
       }
 
       sendMessages(session, destination, messages);
@@ -248,7 +248,7 @@ public class MessageSerializerTest extends CliTestBase {
       List<Message> sent = new ArrayList<>(TEST_MESSAGE_COUNT);
       for (int i = 0; i < TEST_MESSAGE_COUNT; i++) {
          MapMessage m = session.createMapMessage();
-         m.setString(key, RandomUtil.randomString());
+         m.setString(key, RandomUtil.randomUUIDString());
          sent.add(m);
       }
 

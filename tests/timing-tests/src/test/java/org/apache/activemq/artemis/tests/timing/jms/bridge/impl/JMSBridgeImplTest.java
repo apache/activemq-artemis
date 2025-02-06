@@ -83,9 +83,9 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
    private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
-   private static final String SOURCE = RandomUtil.randomString();
+   private static final String SOURCE = RandomUtil.randomUUIDString();
 
-   private static final String TARGET = RandomUtil.randomString();
+   private static final String TARGET = RandomUtil.randomUUIDString();
 
    private ActiveMQServer server;
 

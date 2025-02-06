@@ -249,7 +249,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
          producer.send(createTextMessage(session, "m" + i));
       }
 
-      SimpleString notifQueue = RandomUtil.randomSimpleString();
+      SimpleString notifQueue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false));
 

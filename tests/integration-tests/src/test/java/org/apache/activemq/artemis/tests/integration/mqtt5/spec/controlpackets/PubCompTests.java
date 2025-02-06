@@ -47,7 +47,7 @@ public class PubCompTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testPubCompReasonCode() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final CountDownLatch latch = new CountDownLatch(1);
 
       MQTTInterceptor outgoingInterceptor = (packet, connection) -> {

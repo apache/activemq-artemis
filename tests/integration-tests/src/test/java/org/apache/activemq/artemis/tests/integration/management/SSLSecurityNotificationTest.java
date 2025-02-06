@@ -115,8 +115,8 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
    @Test
    public void testCONSUMER_CREATED() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       Role role = new Role("notif", true, true, true, true, false, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
@@ -210,7 +210,7 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
       server.start();
 
-      notifQueue = RandomUtil.randomSimpleString();
+      notifQueue = RandomUtil.randomUUIDSimpleString();
 
       Role role = new Role("notif", true, true, true, true, true, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();

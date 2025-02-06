@@ -40,7 +40,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -55,13 +55,13 @@ public class JMSNotificationTest extends MultiprotocolJMSClientTestSupport {
    public void setUp() throws Exception {
       super.setUp();
 
-      clientID = RandomUtil.randomString();
+      clientID = RandomUtil.randomUUIDString();
 
       ServerLocator locator = addServerLocator(createInVMNonHALocator());
       ClientSessionFactory sf = addSessionFactory(locator.createSessionFactory());
       ClientSession session = addClientSession(sf.createSession(false, true, true));
       session.start();
-      SimpleString notificationQueue = RandomUtil.randomSimpleString();
+      SimpleString notificationQueue = RandomUtil.randomUUIDSimpleString();
       session.createQueue(QueueConfiguration.of(notificationQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false));
       notificationConsumer = addClientConsumer(session.createConsumer(notificationQueue));
    }

@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -45,8 +45,8 @@ public class ConnectorStorageTest extends StorageManagerTestBase {
 
    @TestTemplate
    public void testStoreConnector() throws Exception {
-      final String NAME = RandomUtil.randomString();
-      final String URL = RandomUtil.randomString();
+      final String NAME = RandomUtil.randomUUIDString();
+      final String URL = RandomUtil.randomUUIDString();
 
       PersistedConnector connector = new PersistedConnector(NAME, URL);
 

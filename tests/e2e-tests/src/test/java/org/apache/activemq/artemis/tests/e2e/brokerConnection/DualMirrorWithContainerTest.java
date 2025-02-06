@@ -32,6 +32,7 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.tests.e2e.common.ContainerService;
 import org.apache.activemq.artemis.tests.e2e.common.E2ETestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -106,14 +107,7 @@ public class DualMirrorWithContainerTest extends E2ETestBase {
 
       int NUMBER_OF_MESSAGES = 1_000;
       int FAILURE_INTERVAL = 500;
-      String extraBody = "message ";
-      if (largemessage) {
-         StringBuilder sb = new StringBuilder();
-         while (sb.length() < 200 * 1024) {
-            sb.append("This is large ");
-         }
-         extraBody = sb.toString();
-      }
+      String extraBody = largemessage ?  RandomUtil.randomAlphaNumericString(200 * 1024) : "message ";
 
       try (Connection connectionA = cfA.createConnection("artemis", "artemis")) {
 

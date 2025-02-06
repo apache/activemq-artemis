@@ -55,7 +55,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.Wait;
@@ -445,7 +445,7 @@ public class ClusteredMirrorSoakTest extends SoakTestBase {
       createRealServers(false);
       startServers();
 
-      String queueName = "testqueue" + RandomUtil.randomString();
+      String queueName = "testqueue" + RandomUtil.randomUUIDString();
 
       final int numberOfMessages = 50;
 

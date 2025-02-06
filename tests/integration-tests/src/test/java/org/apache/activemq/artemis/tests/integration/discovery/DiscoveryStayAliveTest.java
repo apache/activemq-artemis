@@ -65,7 +65,7 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
       final int groupPort = getUDPDiscoveryPort();
       final int timeout = 500;
 
-      final DiscoveryGroup dg = newDiscoveryGroup(RandomUtil.randomString(), RandomUtil.randomString(), InetAddress.getByName("localhost"), groupAddress, groupPort, timeout);
+      final DiscoveryGroup dg = newDiscoveryGroup(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), InetAddress.getByName("localhost"), groupAddress, groupPort, timeout);
 
       final AtomicInteger errors = new AtomicInteger(0);
       Thread t = new Thread(() -> {
@@ -83,7 +83,7 @@ public class DiscoveryStayAliveTest extends DiscoveryBaseTest {
 
       try {
 
-         bg = new BroadcastGroupImpl(new FakeNodeManager("test-nodeID"), RandomUtil.randomString(), 1, scheduledExecutorService, new UDPBroadcastEndpointFactory().setGroupAddress(address1).
+         bg = new BroadcastGroupImpl(new FakeNodeManager("test-nodeID"), RandomUtil.randomUUIDString(), 1, scheduledExecutorService, new UDPBroadcastEndpointFactory().setGroupAddress(address1).
             setGroupPort(groupPort));
 
          bg.start();

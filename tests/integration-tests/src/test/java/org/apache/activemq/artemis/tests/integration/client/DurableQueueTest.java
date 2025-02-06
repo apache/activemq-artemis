@@ -49,8 +49,8 @@ public class DurableQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testConsumeFromDurableQueue() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
@@ -69,8 +69,8 @@ public class DurableQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testConsumeFromDurableQueueAfterServerRestart() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
@@ -101,8 +101,8 @@ public class DurableQueueTest extends ActiveMQTestBase {
       session.close();
       session = sf.createSession(userName, "myPass", false, true, true, false, 0);
 
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
@@ -116,8 +116,8 @@ public class DurableQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testProduceAndConsumeFromDurableQueueAfterServerRestart() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 

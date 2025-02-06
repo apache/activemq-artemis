@@ -60,7 +60,7 @@ import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManager;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManagerProvider;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -180,7 +180,7 @@ public class RepeatStartBackupTest extends ActiveMQTestBase {
    @Test
    public void testAckManagerRepetition() throws Exception {
 
-      String queueName = "queue_" + RandomUtil.randomString();
+      String queueName = "queue_" + RandomUtil.randomUUIDString();
 
       // some extremely large retry settings
       // just to make sure these records will never be removed

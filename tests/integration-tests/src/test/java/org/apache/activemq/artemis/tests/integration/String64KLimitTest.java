@@ -64,8 +64,8 @@ public class String64KLimitTest extends ActiveMQTestBase {
 
    @Test
    public void test64KLimitWithWriteString() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
@@ -128,8 +128,8 @@ public class String64KLimitTest extends ActiveMQTestBase {
 
    @Test
    public void test64KLimitWithWriteUTF() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 

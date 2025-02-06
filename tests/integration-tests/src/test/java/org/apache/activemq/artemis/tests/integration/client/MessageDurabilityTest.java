@@ -53,8 +53,8 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
    public void testNonDurableMessageOnNonDurableQueue() throws Exception {
       boolean durable = true;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(!durable));
 
@@ -77,8 +77,8 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
    public void testNonDurableMessageOnDurableQueue() throws Exception {
       boolean durable = true;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -99,8 +99,8 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
    public void testDurableMessageOnDurableQueue() throws Exception {
       boolean durable = true;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
 
@@ -124,8 +124,8 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
    public void testDurableMessageOnNonDurableQueue() throws Exception {
       boolean durable = true;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      final SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      final SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(!durable));
 
@@ -146,8 +146,8 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
    public void testDurableMessageOnTemporaryQueue() throws Exception {
       boolean durable = true;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      final SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      final SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
 

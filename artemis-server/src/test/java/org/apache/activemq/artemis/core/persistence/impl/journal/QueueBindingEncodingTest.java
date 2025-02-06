@@ -29,19 +29,19 @@ public class QueueBindingEncodingTest {
 
    @Test
    public void testEncodeDecode() {
-      final SimpleString name = RandomUtil.randomSimpleString();
-      final SimpleString address = RandomUtil.randomSimpleString();
-      final SimpleString filterString = RandomUtil.randomSimpleString();
-      final SimpleString user = RandomUtil.randomSimpleString();
+      final SimpleString name = RandomUtil.randomUUIDSimpleString();
+      final SimpleString address = RandomUtil.randomUUIDSimpleString();
+      final SimpleString filterString = RandomUtil.randomUUIDSimpleString();
+      final SimpleString user = RandomUtil.randomUUIDSimpleString();
       final boolean autoCreated = RandomUtil.randomBoolean();
       final int maxConsumers = RandomUtil.randomInt();
       final boolean purgeOnNoConsumers = RandomUtil.randomBoolean();
       final boolean exclusive = RandomUtil.randomBoolean();
       final boolean groupRebalance = RandomUtil.randomBoolean();
       final int groupBuckets = RandomUtil.randomInt();
-      final SimpleString groupFirstKey = RandomUtil.randomSimpleString();
+      final SimpleString groupFirstKey = RandomUtil.randomUUIDSimpleString();
       final boolean lastValue = RandomUtil.randomBoolean();
-      final SimpleString lastValueKey = RandomUtil.randomSimpleString();
+      final SimpleString lastValueKey = RandomUtil.randomUUIDSimpleString();
       final boolean nonDestructive = RandomUtil.randomBoolean();
       final int consumersBeforeDispatch = RandomUtil.randomInt();
       final long delayBeforeDispatch = RandomUtil.randomLong();

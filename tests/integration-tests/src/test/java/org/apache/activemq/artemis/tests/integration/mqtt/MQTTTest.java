@@ -69,6 +69,7 @@ import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -138,12 +139,7 @@ public class MQTTTest extends MQTTTestSupport {
    @Test
    @Timeout(60)
    public void testSendAndReceiveMQTTHugePayload() throws Exception {
-      StringBuilder builder = new StringBuilder();
-      builder.append("/");
-      while (builder.length() < 110 * 1024) {
-         builder.append("huge payload huge payload huge payload huge payload ");
-      }
-      testSendAndReceiveMQTT(builder.toString());
+      testSendAndReceiveMQTT(RandomUtil.randomAlphaNumericString(110 * 1024));
    }
 
    public void testSendAndReceiveMQTT(String extraPayload) throws Exception {

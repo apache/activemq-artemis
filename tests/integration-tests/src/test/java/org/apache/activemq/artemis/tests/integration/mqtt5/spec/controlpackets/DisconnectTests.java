@@ -30,7 +30,7 @@ import io.netty.handler.codec.mqtt.MqttReasonCodeAndPropertiesVariableHeader;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
@@ -101,7 +101,7 @@ public class DisconnectTests  extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillMessageRemovedOnDisconnect() throws Exception {
-      final String CLIENT_ID = org.apache.activemq.artemis.tests.util.RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
       final byte[] WILL = RandomUtil.randomBytes();
 
       MqttClient client = createPahoClient(CLIENT_ID);

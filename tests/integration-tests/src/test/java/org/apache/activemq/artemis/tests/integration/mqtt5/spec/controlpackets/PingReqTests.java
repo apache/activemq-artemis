@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 import io.netty.handler.codec.mqtt.MqttMessageType;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ public class PingReqTests  extends MQTT5TestSupport {
       };
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setKeepAliveInterval(1);
       client.connect(options);

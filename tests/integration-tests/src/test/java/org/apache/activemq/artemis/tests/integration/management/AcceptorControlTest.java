@@ -48,7 +48,7 @@ public class AcceptorControlTest extends ManagementTestBase {
 
    @Test
    public void testAttributes() throws Exception {
-      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), new HashMap<>(), RandomUtil.randomString());
+      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), new HashMap<>(), RandomUtil.randomUUIDString());
       acceptorConfig.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "password");
 
       Configuration config = createBasicConfig().addAcceptorConfiguration(acceptorConfig);
@@ -66,7 +66,7 @@ public class AcceptorControlTest extends ManagementTestBase {
 
    @Test
    public void testStartStop() throws Exception {
-      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), new HashMap<>(), RandomUtil.randomString());
+      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), new HashMap<>(), RandomUtil.randomUUIDString());
       Configuration config = createBasicConfig().addAcceptorConfiguration(acceptorConfig);
       ActiveMQServer service = createServer(false, config);
       service.setMBeanServer(mbeanServer);
@@ -116,8 +116,8 @@ public class AcceptorControlTest extends ManagementTestBase {
 
    @Test
    public void testNotifications() throws Exception {
-      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), new HashMap<>(), RandomUtil.randomString());
-      TransportConfiguration acceptorConfig2 = new TransportConfiguration(NettyAcceptorFactory.class.getName(), new HashMap<>(), RandomUtil.randomString());
+      TransportConfiguration acceptorConfig = new TransportConfiguration(InVMAcceptorFactory.class.getName(), new HashMap<>(), RandomUtil.randomUUIDString());
+      TransportConfiguration acceptorConfig2 = new TransportConfiguration(NettyAcceptorFactory.class.getName(), new HashMap<>(), RandomUtil.randomUUIDString());
       Configuration config = createBasicConfig().addAcceptorConfiguration(acceptorConfig).addAcceptorConfiguration(acceptorConfig2);
       ActiveMQServer service = createServer(false, config);
       service.setMBeanServer(mbeanServer);

@@ -25,12 +25,12 @@ import org.junit.jupiter.api.Test;
 public class ValidatorsTest {
 
    private static void success(final Validators.Validator validator, final Object value) {
-      validator.validate(RandomUtil.randomString(), value);
+      validator.validate(RandomUtil.randomUUIDString(), value);
    }
 
    private static void failure(final Validators.Validator validator, final Object value) {
       try {
-         validator.validate(RandomUtil.randomString(), value);
+         validator.validate(RandomUtil.randomUUIDString(), value);
          fail(validator + " must not validate '" + value + "'");
       } catch (IllegalArgumentException e) {
 
@@ -86,7 +86,7 @@ public class ValidatorsTest {
    public void testNOT_NULL_OR_EMPTY() throws Exception {
       ValidatorsTest.failure(Validators.NOT_NULL_OR_EMPTY, null);
       ValidatorsTest.failure(Validators.NOT_NULL_OR_EMPTY, "");
-      ValidatorsTest.success(Validators.NOT_NULL_OR_EMPTY, RandomUtil.randomString());
+      ValidatorsTest.success(Validators.NOT_NULL_OR_EMPTY, RandomUtil.randomUUIDString());
    }
 
    @Test
@@ -96,7 +96,7 @@ public class ValidatorsTest {
       }
       ValidatorsTest.failure(Validators.JOURNAL_TYPE, null);
       ValidatorsTest.failure(Validators.JOURNAL_TYPE, "");
-      ValidatorsTest.failure(Validators.JOURNAL_TYPE, RandomUtil.randomString());
+      ValidatorsTest.failure(Validators.JOURNAL_TYPE, RandomUtil.randomUUIDString());
    }
 
    @Test

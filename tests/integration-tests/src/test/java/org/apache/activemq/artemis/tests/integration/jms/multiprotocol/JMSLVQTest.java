@@ -33,7 +33,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
 
 public class JMSLVQTest extends MultiprotocolJMSClientTestSupport {
@@ -175,7 +175,7 @@ public class JMSLVQTest extends MultiprotocolJMSClientTestSupport {
 
    @Test
    public void testNonDestructiveWithSelector() throws Exception {
-      final String MY_QUEUE = RandomUtil.randomString();
+      final String MY_QUEUE = RandomUtil.randomUUIDString();
       final boolean NON_DESTRUCTIVE = true;
       server.createQueue(QueueConfiguration.of(MY_QUEUE).setRoutingType(RoutingType.ANYCAST).setNonDestructive(NON_DESTRUCTIVE).setLastValue(true));
 

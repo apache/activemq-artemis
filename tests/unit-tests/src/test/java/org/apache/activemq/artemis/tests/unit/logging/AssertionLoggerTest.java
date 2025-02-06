@@ -54,7 +54,7 @@ public class AssertionLoggerTest {
    }
 
    private void validateLogging(Class<?> clazz) throws Exception {
-      String randomLogging = RandomUtil.randomString();
+      String randomLogging = RandomUtil.randomUUIDString();
       Logger logging = LoggerFactory.getLogger(clazz);
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          logging.warn(randomLogging);

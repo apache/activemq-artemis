@@ -23,7 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
@@ -50,7 +50,7 @@ public class MessageReceiptTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMessageReceipt() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final String CONSUMER_ID = "consumer";
       final int CONSUMER_COUNT = 25;
       final MqttClient[] consumers = new MqttClient[CONSUMER_COUNT];

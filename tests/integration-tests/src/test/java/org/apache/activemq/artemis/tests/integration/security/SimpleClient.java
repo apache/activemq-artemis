@@ -41,8 +41,8 @@ final class SimpleClient {
 
          String connectorFactoryClassName = args[0];
 
-         String queueName = RandomUtil.randomString();
-         String messageText = RandomUtil.randomString();
+         String queueName = RandomUtil.randomUUIDString();
+         String messageText = RandomUtil.randomUUIDString();
 
          ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(connectorFactoryClassName)).setReconnectAttempts(1).setInitialConnectAttempts(1);
          try {

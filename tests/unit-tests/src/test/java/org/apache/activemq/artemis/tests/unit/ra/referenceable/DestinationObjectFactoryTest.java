@@ -35,7 +35,7 @@ public class DestinationObjectFactoryTest extends ActiveMQTestBase {
 
    @Test
    public void testReference() throws Exception {
-      ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue(RandomUtil.randomString());
+      ActiveMQDestination queue = (ActiveMQDestination) ActiveMQJMSClient.createQueue(RandomUtil.randomUUIDString());
       Reference reference = queue.getReference();
       String factoryName = reference.getFactoryClassName();
       ObjectFactory factory = (ObjectFactory) Class.forName(factoryName).getDeclaredConstructor().newInstance();

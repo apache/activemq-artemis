@@ -419,7 +419,7 @@ public class LinkedListTest extends ActiveMQTestBase {
          LinkedListImpl<ObservableNode> objs = new LinkedListImpl<>();
          ListNodeStore nodeStore = new ListNodeStore();
          objs.setNodeStore(nodeStore);
-         final String serverID = RandomUtil.randomString();
+         final String serverID = RandomUtil.randomUUIDString();
 
          for (int i = 0; i < elements; i++) {
             objs.addHead(new ObservableNode(serverID, i));

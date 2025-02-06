@@ -74,7 +74,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -1805,9 +1805,9 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    @Test
    public void testPropertyConversions() throws Exception {
-      final String BROKER_PATH = RandomUtil.randomString();
-      final String CLUSTER = RandomUtil.randomString();
-      final String USER_ID = RandomUtil.randomString();
+      final String BROKER_PATH = RandomUtil.randomUUIDString();
+      final String CLUSTER = RandomUtil.randomUUIDString();
+      final String USER_ID = RandomUtil.randomUUIDString();
 
       try (Connection connection = factory.createConnection()) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

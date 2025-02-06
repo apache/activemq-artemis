@@ -52,8 +52,8 @@ public class RefCountMessageLeakTest extends AbstractLeakTest {
 
    @Test
    public void testLeakRefCount() throws Exception {
-      String strMessage = RandomUtil.randomString();
-      String strMessageFired = RandomUtil.randomString();
+      String strMessage = RandomUtil.randomUUIDString();
+      String strMessageFired = RandomUtil.randomUUIDString();
 
       ReusableLatch latchLeaked = new ReusableLatch(1);
       DebugMessage message = new DebugMessage(strMessage);

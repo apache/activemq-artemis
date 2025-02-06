@@ -47,8 +47,8 @@ public class TransientQueueTest extends SingleServerTestBase {
 
    @Test
    public void testSimpleTransientQueue() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createSharedQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       assertEquals(1, server.getConnectionCount());
@@ -150,11 +150,11 @@ public class TransientQueueTest extends SingleServerTestBase {
 
    @Test
    public void testQueueDifferentConfigs() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       server.locateQueue(queue);
-      SimpleString address2 = RandomUtil.randomSimpleString();
+      SimpleString address2 = RandomUtil.randomUUIDSimpleString();
 
       session.createSharedQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
       assertEquals(1, server.getConnectionCount());

@@ -41,7 +41,7 @@ public class TransportConfigurationEncodingSupportTest {
    public void testTransportConfiguration() throws Exception {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.PORT_PROP_NAME, 5665);
-      params.put(TransportConstants.HOST_PROP_NAME, RandomUtil.randomString());
+      params.put(TransportConstants.HOST_PROP_NAME, RandomUtil.randomUUIDString());
       TransportConfiguration config = new TransportConfiguration(NettyConnectorFactory.class.getName(), params);
 
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(TransportConfigurationEncodingSupport.getEncodeSize(config));

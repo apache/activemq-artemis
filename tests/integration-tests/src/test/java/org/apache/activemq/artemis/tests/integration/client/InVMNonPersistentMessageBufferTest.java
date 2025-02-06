@@ -64,7 +64,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
    public void testSimpleSendReceive() throws Exception {
       ClientMessage message = session.createMessage(false);
 
-      final String body = RandomUtil.randomString();
+      final String body = RandomUtil.randomUUIDString();
 
       message.getBodyBuffer().writeString(body);
 
@@ -90,7 +90,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
    public void testSendSameMessageMultipleTimes() throws Exception {
       ClientMessage message = session.createMessage(false);
 
-      final String body = RandomUtil.randomString();
+      final String body = RandomUtil.randomUUIDString();
 
       message.getBodyBuffer().writeString(body);
 
@@ -113,7 +113,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
    public void testSendMessageResetSendAgainDifferentBody() throws Exception {
       ClientMessage message = session.createMessage(false);
 
-      String body = RandomUtil.randomString();
+      String body = RandomUtil.randomUUIDString();
 
       for (int i = 0; i < 10; i++) {
          // Make the body a bit longer each time
@@ -145,7 +145,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
    public void testCannotReadPastEndOfMessageBody() throws Exception {
       ClientMessage message = session.createMessage(false);
 
-      final String body = RandomUtil.randomString();
+      final String body = RandomUtil.randomUUIDString();
 
       message.getBodyBuffer().writeString(body);
 
@@ -192,7 +192,7 @@ public class InVMNonPersistentMessageBufferTest extends ActiveMQTestBase {
    public void testCanReReadBodyAfterReaderReset() throws Exception {
       ClientMessage message = session.createMessage(false);
 
-      final String body = RandomUtil.randomString();
+      final String body = RandomUtil.randomUUIDString();
 
       message.getBodyBuffer().writeString(body);
 

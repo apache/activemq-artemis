@@ -28,7 +28,7 @@ public class AdressInfoJSonTest {
 
    @Test
    public void testJSONparsing() {
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
 
       AddressInfo info = new AddressInfo(name);
       info.setAutoCreated(RandomUtil.randomBoolean());

@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.Test;
 
@@ -92,8 +92,8 @@ public class AMQPMirrorOneSideDisconnectedTest extends ActiveMQTestBase {
          serverB.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      String queueName = "queue" + RandomUtil.randomString();
-      String divertedQueue = "queue" + RandomUtil.randomString();
+      String queueName = "queue" + RandomUtil.randomUUIDString();
+      String divertedQueue = "queue" + RandomUtil.randomUUIDString();
 
       serverA.getConfiguration().addDivertConfiguration(new DivertConfiguration().setAddress(queueName).setForwardingAddress(divertedQueue).setExclusive(false).setName("divertOne"));
       serverB.getConfiguration().addDivertConfiguration(new DivertConfiguration().setAddress(queueName).setForwardingAddress(divertedQueue).setExclusive(false).setName("divertOne"));

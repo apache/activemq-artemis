@@ -40,7 +40,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      itemName = RandomUtil.randomString();
+      itemName = RandomUtil.randomUUIDString();
    }
 
 
@@ -573,7 +573,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
    @Test
    public void testGetStringFromString() throws Exception {
-      String value = RandomUtil.randomString();
+      String value = RandomUtil.randomUUIDString();
 
       ActiveMQMapMessage message = new ActiveMQMapMessage();
       message.setString(itemName, value);
@@ -655,7 +655,7 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
 
    @Test
    public void testSetObjectFromString() throws Exception {
-      doTestSetObject(RandomUtil.randomString());
+      doTestSetObject(RandomUtil.randomUUIDString());
    }
 
    @Test

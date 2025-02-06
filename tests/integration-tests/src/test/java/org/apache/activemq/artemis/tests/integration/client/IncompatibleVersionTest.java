@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.apache.activemq.artemis.utils.RandomUtil.randomString;
+import static org.apache.activemq.artemis.utils.RandomUtil.randomUUIDString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -143,7 +143,7 @@ public class IncompatibleVersionTest extends SpawnedTestBase {
       if (!compatible) {
          version = -1;
       }
-      Packet request = new CreateSessionMessage(randomString(), sessionChannelID, version, null, null, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, false, true, true, false, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, null);
+      Packet request = new CreateSessionMessage(randomUUIDString(), sessionChannelID, version, null, null, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, false, true, true, false, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, null);
 
       if (compatible) {
          CreateSessionResponseMessage packet = (CreateSessionResponseMessage) channel1.sendBlocking(request, PacketImpl.CREATESESSION_RESP);

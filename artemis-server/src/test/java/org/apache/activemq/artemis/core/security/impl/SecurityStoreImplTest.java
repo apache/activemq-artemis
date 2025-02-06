@@ -71,23 +71,23 @@ public class SecurityStoreImplTest {
 
    @Test
    public void zeroCacheSizeTest() throws Exception {
-      final String user = RandomUtil.randomString();
+      final String user = RandomUtil.randomUUIDString();
       SecurityStoreImpl securityStore = new SecurityStoreImpl(new HierarchicalObjectRepository<>(), securityManager, 999, true, "", null, null, 0, 0);
       assertNull(securityStore.getAuthenticationCache());
-      assertEquals(user, securityStore.authenticate(user, RandomUtil.randomString(), null));
+      assertEquals(user, securityStore.authenticate(user, RandomUtil.randomUUIDString(), null));
       assertEquals(0, securityStore.getAuthenticationCacheSize());
       securityStore.invalidateAuthenticationCache(); // ensure this doesn't throw an NPE
 
       assertNull(securityStore.getAuthorizationCache());
-      securityStore.check(RandomUtil.randomSimpleString(), CheckType.SEND, new SecurityAuth() {
+      securityStore.check(RandomUtil.randomUUIDSimpleString(), CheckType.SEND, new SecurityAuth() {
          @Override
          public String getUsername() {
-            return RandomUtil.randomString();
+            return RandomUtil.randomUUIDString();
          }
 
          @Override
          public String getPassword() {
-            return RandomUtil.randomString();
+            return RandomUtil.randomUUIDString();
          }
 
          @Override

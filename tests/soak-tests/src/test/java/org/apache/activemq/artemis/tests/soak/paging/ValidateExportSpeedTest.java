@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataExporter;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataImporter;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -180,11 +181,7 @@ public class ValidateExportSpeedTest extends SoakTestBase {
 
    private void sendLargeMessages(Session session, MessageProducer producer, int numberOfMessages) throws Exception {
 
-      StringBuilder builder = new StringBuilder();
-      while (builder.length() < 200 * 1024) {
-         builder.append("Every breath you take!!! I will be watching ya!!! Ever and ever!!!");
-      }
-      largeString = builder.toString();
+      largeString = RandomUtil.randomAlphaNumericString(200 * 1024);
 
       for (int i = 0; i < numberOfMessages; i++) {
          logger.info("Sending {} large message", i);

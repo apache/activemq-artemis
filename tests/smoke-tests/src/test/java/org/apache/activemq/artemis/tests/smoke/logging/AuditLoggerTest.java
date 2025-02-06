@@ -80,7 +80,7 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
       MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
       String brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
       ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, true);
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       final AddressControl addressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(address), AddressControl.class, false);
@@ -97,7 +97,7 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
       assertTrue(findLogRecord(getAuditLog(), "sending a message", uniqueStr));
 
       //failure log
-      address = RandomUtil.randomSimpleString();
+      address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       final AddressControl addressControl2 = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(address), AddressControl.class, false);
@@ -147,7 +147,7 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
       MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
       String brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
       ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, true);
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       final AddressControl addressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(address), AddressControl.class, false);
@@ -155,7 +155,7 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
       assertEquals(0, addressControl.getQueueNames().length);
       session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST));
       assertEquals(1, addressControl.getQueueNames().length);
-      String uniqueStr = RandomUtil.randomString();
+      String uniqueStr = RandomUtil.randomUUIDString();
 
       session.close();
 

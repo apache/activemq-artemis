@@ -101,7 +101,7 @@ public class SslPEMTest extends ActiveMQTestBase {
       producerSession.createQueue(QueueConfiguration.of(QUEUE).setDurable(false));
       ClientProducer producer = producerSession.createProducer(QUEUE);
 
-      ClientMessage message = createTextMessage(producerSession, RandomUtil.randomString());
+      ClientMessage message = createTextMessage(producerSession, RandomUtil.randomUUIDString());
       producer.send(message);
 
       ServerLocator consumerLocator = addServerLocator(ActiveMQClient.createServerLocator("tcp://localhost:61616"));

@@ -56,7 +56,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.ProtonAbstractReceiver;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -95,7 +95,7 @@ public class AckManagerTest extends ActiveMQTestBase {
 
       String protocol = "AMQP";
 
-      SimpleString TOPIC_NAME = SimpleString.of("tp" + RandomUtil.randomString());
+      SimpleString TOPIC_NAME = SimpleString.of("tp" + RandomUtil.randomUUIDString());
 
       server1.addAddressInfo(new AddressInfo(TOPIC_NAME).addRoutingType(RoutingType.MULTICAST));
 
@@ -295,7 +295,7 @@ public class AckManagerTest extends ActiveMQTestBase {
    public void testLogUnack() throws Throwable {
       String protocol = "AMQP";
 
-      SimpleString TOPIC_NAME = SimpleString.of("tp" + RandomUtil.randomString());
+      SimpleString TOPIC_NAME = SimpleString.of("tp" + RandomUtil.randomUUIDString());
 
       server1.addAddressInfo(new AddressInfo(TOPIC_NAME).addRoutingType(RoutingType.MULTICAST));
 
@@ -344,7 +344,7 @@ public class AckManagerTest extends ActiveMQTestBase {
 
       String protocol = "AMQP";
 
-      SimpleString TOPIC_NAME = SimpleString.of("tp" + RandomUtil.randomString());
+      SimpleString TOPIC_NAME = SimpleString.of("tp" + RandomUtil.randomUUIDString());
 
       server1.addAddressInfo(new AddressInfo(TOPIC_NAME).addRoutingType(RoutingType.MULTICAST));
 

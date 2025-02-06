@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
@@ -49,8 +49,8 @@ public class ConnectTestsWithSecurity extends MQTT5TestSupport {
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAuthenticationFailureWithBadCredentials() throws Exception {
       testAuthentication(new MqttConnectionOptionsBuilder()
-                            .username(RandomUtil.randomString())
-                            .password(RandomUtil.randomString().getBytes(StandardCharsets.UTF_8))
+                            .username(RandomUtil.randomUUIDString())
+                            .password(RandomUtil.randomUUIDString().getBytes(StandardCharsets.UTF_8))
                             .build());
    }
 
@@ -66,7 +66,7 @@ public class ConnectTestsWithSecurity extends MQTT5TestSupport {
    }
 
    private void testAuthentication(MqttConnectionOptions options) throws Exception {
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
 
       MqttClient client = createPahoClient(CLIENT_ID);
       try {
@@ -83,7 +83,7 @@ public class ConnectTestsWithSecurity extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAuthenticationSuccess() throws Exception {
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
          .username(fullUser)
          .password(fullPass.getBytes(StandardCharsets.UTF_8))

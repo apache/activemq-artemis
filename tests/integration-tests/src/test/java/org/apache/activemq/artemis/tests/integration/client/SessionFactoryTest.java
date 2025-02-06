@@ -111,7 +111,7 @@ public class SessionFactoryTest extends ActiveMQTestBase {
       boolean blockOnNonDurableSend = RandomUtil.randomBoolean();
       boolean autoGroup = RandomUtil.randomBoolean();
       boolean preAcknowledge = RandomUtil.randomBoolean();
-      String loadBalancingPolicyClassName = RandomUtil.randomString();
+      String loadBalancingPolicyClassName = RandomUtil.randomUUIDString();
       int ackBatchSize = RandomUtil.randomPositiveInt();
       boolean useGlobalPools = RandomUtil.randomBoolean();
       int scheduledThreadPoolMaxSize = RandomUtil.randomPositiveInt();
@@ -161,7 +161,7 @@ public class SessionFactoryTest extends ActiveMQTestBase {
       boolean blockOnNonDurableSend = RandomUtil.randomBoolean();
       boolean autoGroup = RandomUtil.randomBoolean();
       boolean preAcknowledge = RandomUtil.randomBoolean();
-      String loadBalancingPolicyClassName = RandomUtil.randomString();
+      String loadBalancingPolicyClassName = RandomUtil.randomUUIDString();
       int ackBatchSize = RandomUtil.randomPositiveInt();
       boolean useGlobalPools = RandomUtil.randomBoolean();
       int scheduledThreadPoolMaxSize = RandomUtil.randomPositiveInt();

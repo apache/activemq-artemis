@@ -122,7 +122,7 @@ public class FloodServerWithAsyncSendTest extends SmokeTestBase {
 
          MessageProducer producer = session.createProducer(queue);
 
-         String random = RandomUtil.randomString();
+         String random = RandomUtil.randomUUIDString();
 
          producer.send(session.createTextMessage(random));
          TextMessage message = (TextMessage) consumer.receive(1000);
@@ -216,14 +216,7 @@ public class FloodServerWithAsyncSendTest extends SmokeTestBase {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Queue queue = session.createQueue(queueName);
          MessageProducer producer = session.createProducer(queue);
-         String randomString;
-         {
-            StringBuilder buffer = new StringBuilder();
-            while (buffer.length() < 10000) {
-               buffer.append(RandomUtil.randomString());
-            }
-            randomString = buffer.toString();
-         }
+         String randomString = RandomUtil.randomAlphaNumericString(10_000);
 
          while (running) {
             if (++produced % 10 == 0) {

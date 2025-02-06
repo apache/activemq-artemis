@@ -72,7 +72,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
 
    @Test
    public void testSECURITY_AUTHENTICATION_VIOLATION() throws Exception {
-      String unknownUser = RandomUtil.randomString();
+      String unknownUser = RandomUtil.randomUUIDString();
 
       SecurityNotificationTest.flush(notifConsumer);
 
@@ -81,7 +81,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
 
       long start = System.currentTimeMillis();
       try {
-         sf.createSession(unknownUser, RandomUtil.randomString(), false, true, true, false, 1);
+         sf.createSession(unknownUser, RandomUtil.randomUUIDString(), false, true, true, false, 1);
          fail("authentication must fail and a notification of security violation must be sent");
       } catch (Exception e) {
       }
@@ -98,8 +98,8 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
 
    @Test
    public void testSECURITY_PERMISSION_VIOLATION() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       // guest can not create queue
       Role role = new Role("roleCanNotCreateQueue", true, true, false, true, false, true, true, true, true, true, false, false);
@@ -183,8 +183,8 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
 
    @Test
    public void testCONSUMER_CREATED() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       Role role = new Role("role", true, true, true, true, false, true, true, true, true, true, false, false);
       Set<Role> roles = new HashSet<>();
@@ -227,7 +227,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       server = addServer(ActiveMQServers.newActiveMQServer(config, false));
       server.start();
 
-      notifQueue = RandomUtil.randomSimpleString();
+      notifQueue = RandomUtil.randomUUIDSimpleString();
 
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("admin", "admin");

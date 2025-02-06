@@ -49,7 +49,7 @@ public class SubAckTests extends MQTT5TestSupport {
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscribeAck() throws Exception {
       final int SUBSCRIPTION_COUNT = 30;
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       SimpleString[] topicNames = new SimpleString[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
          topicNames[i] = SimpleString.of(i + "-" + TOPIC);

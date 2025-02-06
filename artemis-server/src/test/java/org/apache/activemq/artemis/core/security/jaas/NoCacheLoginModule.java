@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 import org.apache.activemq.artemis.utils.RandomUtil;
 
 public class NoCacheLoginModule implements LoginModule {
-   public static final String MESSAGE = RandomUtil.randomString();
+   public static final String MESSAGE = RandomUtil.randomUUIDString();
 
    @Override
    public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> map, Map<String, ?> map1) {

@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.junit.jupiter.api.BeforeAll;
@@ -116,15 +117,7 @@ public class ClusteredLargeMessageTest extends SmokeTestBase {
       Queue queue1 = session1.createQueue("testQueue");
       MessageProducer producer1 = session1.createProducer(queue1);
 
-      String largeBody;
-
-      {
-         StringBuilder largeBodyBuffer = new StringBuilder();
-         while (largeBodyBuffer.length() < 2_000_000) {
-            largeBodyBuffer.append("This is large ");
-         }
-         largeBody = largeBodyBuffer.toString();
-      }
+      String largeBody = RandomUtil.randomAlphaNumericString(2_000_000);
 
       for (int i = 0; i < 10; i++) {
          TextMessage message = session1.createTextMessage(largeBody);
@@ -160,14 +153,7 @@ public class ClusteredLargeMessageTest extends SmokeTestBase {
       // a consumer that we should keep to induce message redistribution
       MessageConsumer keepConsumer = keepConsumerSession.createConsumer(keepConsumerSession.createQueue("testQueue"));
 
-      String largeBody;
-      {
-         StringBuilder largeSB = new StringBuilder();
-         while (largeSB.length() < 1024 * 1024) {
-            largeSB.append("This is large ");
-         }
-         largeBody = largeSB.toString();
-      }
+      String largeBody = RandomUtil.randomAlphaNumericString(1024 * 1024);
 
       int NMESSAGES = 10;
 

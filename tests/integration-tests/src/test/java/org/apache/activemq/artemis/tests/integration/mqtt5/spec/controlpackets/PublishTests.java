@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttAsyncClient;
@@ -93,7 +93,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testDupFlag() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final AtomicBoolean intercepted = new AtomicBoolean(false);
 
@@ -155,7 +155,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testDupFlagQoSZero() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -191,7 +191,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testDupFlagNotPropagated() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -228,7 +228,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainFlag() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       MqttClient producer = createPahoClient("producer");
@@ -269,7 +269,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainFlagWithEmptyMessage() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       assertNull(getRetainedMessageQueue(TOPIC));
@@ -312,10 +312,10 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainFlagFalse() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
-      final String RETAINED_PAYLOAD = RandomUtil.randomString();
-      final String UNRETAINED_PAYLOAD = RandomUtil.randomString();
+      final String RETAINED_PAYLOAD = RandomUtil.randomUUIDString();
+      final String UNRETAINED_PAYLOAD = RandomUtil.randomUUIDString();
 
       assertNull(getRetainedMessageQueue(TOPIC));
 
@@ -404,7 +404,7 @@ public class PublishTests extends MQTT5TestSupport {
 
    public void internalTestRetainHandlingZero(boolean filter, int subscriptionCount) throws Exception {
       final int SUBSCRIPTION_COUNT = subscriptionCount;
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String PREFIX = "myTopic/";
       String[] topicNames = new String[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
@@ -412,7 +412,7 @@ public class PublishTests extends MQTT5TestSupport {
       }
       String[] retainedPayloads = new String[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
-         retainedPayloads[i] = RandomUtil.randomString();
+         retainedPayloads[i] = RandomUtil.randomUUIDString();
       }
 
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
@@ -480,7 +480,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainHandlingOne() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       assertNull(getRetainedMessageQueue(TOPIC));
@@ -547,7 +547,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainHandlingTwo() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       assertNull(getRetainedMessageQueue(TOPIC));
@@ -590,7 +590,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainAsPublishedZeroOnEstablishedSubscription() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       // create consumer
@@ -634,7 +634,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRetainAsPublishedOneOnEstablishedSubscription() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       // create consumer
@@ -693,7 +693,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testTopicFilter() throws Exception {
       final String PREFIX = "myTopic/";
-      final String TOPIC = PREFIX + RandomUtil.randomString();
+      final String TOPIC = PREFIX + RandomUtil.randomUUIDString();
       final String TOPIC_FILTER = PREFIX + "#";
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -733,7 +733,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testX() throws Exception {
       final String PREFIX = "";
-      final String TOPIC = PREFIX + RandomUtil.randomString();
+      final String TOPIC = PREFIX + RandomUtil.randomUUIDString();
 
       final CountDownLatch latch = new CountDownLatch(1);
       MqttClient consumer = createPahoClient("consumer");
@@ -783,7 +783,7 @@ public class PublishTests extends MQTT5TestSupport {
    }
 
    private void internalTestPayloadFormatIndicator(boolean payloadFormatIndicator) throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -831,7 +831,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMessageExpiryIntervalElapsed() throws Exception {
       server.createQueue(QueueConfiguration.of(EXPIRY_ADDRESS).setRoutingType(RoutingType.ANYCAST));
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -879,7 +879,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMessageExpiryIntervalReturnValue() throws Exception {
       server.createQueue(QueueConfiguration.of(EXPIRY_ADDRESS).setRoutingType(RoutingType.ANYCAST));
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final long EXPIRY_INTERVAL = 5L;
       final long SLEEP = 1000;
@@ -932,7 +932,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testClientTopicAliasMaxFromServer() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final int MESSAGE_COUNT = 25;
       final int ALIAS_MAX = 5;
@@ -1025,7 +1025,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testServerTopicAliasMax() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final int MESSAGE_COUNT = 25;
       final int ALIAS_MAX = 5;
@@ -1134,7 +1134,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testResponseTopicUnaltered() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final String RESPONSE_TOPIC = "myResponseTopic/a";
 
@@ -1173,7 +1173,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCorrelationDataUnaltered() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final byte[] CORRELATION_DATA = "myCorrelationData".getBytes(StandardCharsets.UTF_8);
 
@@ -1214,12 +1214,12 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUserProperties() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final int USER_PROPERTY_COUNT = 10;
       List<UserProperty> userProperties = new ArrayList<>();
       for (int i = 0; i < USER_PROPERTY_COUNT; i++) {
-         userProperties.add(new UserProperty(RandomUtil.randomString(), RandomUtil.randomString()));
+         userProperties.add(new UserProperty(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString()));
       }
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -1261,7 +1261,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testContentTypeUnaltered() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final String CONTENT_TYPE = "myContentType";
 
@@ -1387,17 +1387,17 @@ public class PublishTests extends MQTT5TestSupport {
 
       final CountDownLatch consumerLatch = new CountDownLatch(9);
 
-      MqttClient consumer2 = createPahoClient(RandomUtil.randomString());
+      MqttClient consumer2 = createPahoClient(RandomUtil.randomUUIDString());
       consumer2.connect();
       consumer2.setCallback(new TestCallback(consumerLatch, 2));
       consumer2.subscribe("foo/a/b/#", 2);
 
-      MqttClient consumer1 = createPahoClient(RandomUtil.randomString());
+      MqttClient consumer1 = createPahoClient(RandomUtil.randomUUIDString());
       consumer1.connect();
       consumer1.setCallback(new TestCallback(consumerLatch, 1));
       consumer1.subscribe("foo/a/#", 1);
 
-      MqttClient consumer0 = createPahoClient(RandomUtil.randomString());
+      MqttClient consumer0 = createPahoClient(RandomUtil.randomUUIDString());
       consumer0.connect();
       consumer0.setCallback(new TestCallback(consumerLatch, 0));
       consumer0.subscribe("foo/#", 0);
@@ -1462,7 +1462,7 @@ public class PublishTests extends MQTT5TestSupport {
       // even though only 3 messages are sent, 6 messages will be received due to the overlapping subscriptions
       final CountDownLatch consumerLatch = new CountDownLatch(6);
 
-      MqttAsyncClient consumer = createAsyncPahoClient(RandomUtil.randomString());
+      MqttAsyncClient consumer = createAsyncPahoClient(RandomUtil.randomUUIDString());
       consumer.connect().waitForCompletion();
       consumer.setCallback(new DefaultMqttCallback() {
          @Override
@@ -1537,7 +1537,7 @@ public class PublishTests extends MQTT5TestSupport {
    public void testSubscriptionIdentifierSingleLevel() throws Exception {
       final CountDownLatch consumerLatch = new CountDownLatch(3);
 
-      MqttAsyncClient consumer = createAsyncPahoClient(RandomUtil.randomString());
+      MqttAsyncClient consumer = createAsyncPahoClient(RandomUtil.randomUUIDString());
       consumer.connect().waitForCompletion();
       consumer.setCallback(new DefaultMqttCallback() {
          @Override

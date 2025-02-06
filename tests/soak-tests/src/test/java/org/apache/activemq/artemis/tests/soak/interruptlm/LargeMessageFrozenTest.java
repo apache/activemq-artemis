@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.TcpProxy;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -95,14 +96,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
       org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
-      String body;
-      {
-         StringBuilder sb = new StringBuilder();
-         while (sb.length() < 10 * 1024 * 1024) {
-            sb.append("Not so big, but big!!");
-         }
-         body = sb.toString();
-      }
+      String body = RandomUtil.randomAlphaNumericString(10 * 1024 * 1024);
 
       try (Connection connection = regularfactory.createConnection()) {
          runAfter(connection::close);
@@ -190,14 +184,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       Queue queue = session.createQueue(getName());
 
-      String body;
-      {
-         StringBuilder sb = new StringBuilder();
-         while (sb.length() < 300 * 1024) {
-            sb.append("BLA BLA BLA... BLAH BLAH BLAH ... ");
-         }
-         body = sb.toString();
-      }
+      String body = RandomUtil.randomAlphaNumericString(300 * 1024);
 
       MessageProducer producer = session.createProducer(queue);
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
@@ -274,14 +261,7 @@ public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
       org.apache.activemq.artemis.core.server.Queue serverQueue = server.createQueue(QueueConfiguration.of(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
 
-      String body;
-      {
-         StringBuilder sb = new StringBuilder();
-         while (sb.length() < 10 * 1024 * 1024) {
-            sb.append("Not so big, but big!!");
-         }
-         body = sb.toString();
-      }
+      String body = RandomUtil.randomAlphaNumericString(10 * 1024 * 1024);
 
       try (Connection connection = regularCF.createConnection()) {
          runAfter(connection::close);

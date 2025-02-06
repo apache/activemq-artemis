@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -96,7 +96,7 @@ public class StompAuditLoggingTest extends StompTestBase {
 
       ClientStompFrame frame = conn.createFrame(Stomp.Commands.SEND);
       frame.addHeader(Stomp.Headers.Subscribe.DESTINATION, getQueuePrefix() + getQueueName());
-      frame.setBody(RandomUtil.randomString());
+      frame.setBody(RandomUtil.randomUUIDString());
 
       try {
          conn.sendFrame(frame);

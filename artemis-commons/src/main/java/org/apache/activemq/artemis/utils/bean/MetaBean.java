@@ -141,9 +141,9 @@ public class MetaBean<T> {
             int randomInt = RandomUtil.randomInterval(0, enumValues.length - 1);
             setter.accept(randomObject, enumValues[randomInt]);
          } else if (type == String.class) {
-            setter.accept(randomObject, RandomUtil.randomString());
+            setter.accept(randomObject, RandomUtil.randomUUIDString());
          } else if (type == SimpleString.class) {
-            setter.accept(randomObject, RandomUtil.randomSimpleString());
+            setter.accept(randomObject, RandomUtil.randomUUIDSimpleString());
          } else if (type == Integer.class) {
             setter.accept(randomObject, RandomUtil.randomPositiveInt());
          } else if (type == Long.class) {

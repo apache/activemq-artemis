@@ -18,28 +18,28 @@ package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
 
 public class JMSClientIDTest extends MultiprotocolJMSClientTestSupport {
 
    @Test
    public void testAMQPJmsClientIdSetOnBroker() throws Exception {
-      String testClientId = RandomUtil.randomString();
+      String testClientId = RandomUtil.randomUUIDString();
       createConnection(testClientId);
       assertEquals(testClientId, server.getRemotingService().getConnections().iterator().next().getClientID());
    }
 
    @Test
    public void testOpenWireJmsClientIdSetOnBroker() throws Exception {
-      String testClientId = RandomUtil.randomString();
+      String testClientId = RandomUtil.randomUUIDString();
       createOpenWireConnection(testClientId);
       assertEquals(testClientId, server.getRemotingService().getConnections().iterator().next().getClientID());
    }
 
    @Test
    public void testCoreJmsClientIdSetOnBroker() throws Exception {
-      String testClientId = RandomUtil.randomString();
+      String testClientId = RandomUtil.randomUUIDString();
       createCoreConnection(testClientId);
       assertEquals(testClientId, server.getRemotingService().getConnections().iterator().next().getClientID());
    }

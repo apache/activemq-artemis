@@ -33,14 +33,14 @@ public class TempQueueNamespaceTest extends SingleServerTestBase {
    @Test
    public void testTempQueueNamespace() throws Exception {
       final String TEMP_QUEUE_NAMESPACE = "temp";
-      final SimpleString DLA = RandomUtil.randomSimpleString();
-      final SimpleString EA = RandomUtil.randomSimpleString();
+      final SimpleString DLA = RandomUtil.randomUUIDSimpleString();
+      final SimpleString EA = RandomUtil.randomUUIDSimpleString();
       final int RING_SIZE = 10;
 
       server.getConfiguration().setTemporaryQueueNamespace(TEMP_QUEUE_NAMESPACE);
       server.getAddressSettingsRepository().addMatch(TEMP_QUEUE_NAMESPACE + ".#", new AddressSettings().setDefaultRingSize(RING_SIZE).setDeadLetterAddress(DLA).setExpiryAddress(EA));
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
 
@@ -54,8 +54,8 @@ public class TempQueueNamespaceTest extends SingleServerTestBase {
 
    @Test
    public void testTempQueueNamespaceNegative() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false).setTemporary(true));
 

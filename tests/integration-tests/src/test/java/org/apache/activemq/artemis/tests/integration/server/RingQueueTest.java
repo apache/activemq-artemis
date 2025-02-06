@@ -204,7 +204,7 @@ public class RingQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testDefaultAddressSetting() throws Exception {
-      SimpleString random = RandomUtil.randomSimpleString();
+      SimpleString random = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setDefaultRingSize(100));
 
       ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");

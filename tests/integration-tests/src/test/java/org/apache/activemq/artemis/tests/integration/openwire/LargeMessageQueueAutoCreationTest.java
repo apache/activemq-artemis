@@ -16,27 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.openwire;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
-import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
-import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
-import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.Timeout;
-import org.junit.jupiter.api.extension.ExtendWith;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -51,6 +30,27 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
+
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
+import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 //adapted from https://issues.apache.org/jira/browse/ARTEMIS-1416
 @ExtendWith(ParameterizedTestExtension.class)
@@ -129,12 +129,7 @@ public class LargeMessageQueueAutoCreationTest extends BasicOpenWireTest {
 
          m.setJMSDeliveryMode(DeliveryMode.PERSISTENT);
 
-         StringBuilder sb = new StringBuilder();
-         while (sb.length() < msgSize) {
-            sb.append(UUIDGenerator.getInstance().generateStringUUID());
-         }
-
-         final String originalString = sb.toString();
+         final String originalString = RandomUtil.randomAlphaNumericString(msgSize);
 
          m.setText(originalString);
 

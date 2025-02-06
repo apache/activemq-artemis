@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 public class ClientExitTest extends ClientTestBase {
 
 
-   private static final String MESSAGE_TEXT = RandomUtil.randomString();
+   private static final String MESSAGE_TEXT = RandomUtil.randomUUIDString();
 
    private static final SimpleString QUEUE = SimpleString.of("ClientExitTestQueue");
 
