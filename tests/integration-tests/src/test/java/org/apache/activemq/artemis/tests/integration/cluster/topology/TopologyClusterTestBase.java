@@ -156,7 +156,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
 
    protected ClientSession checkSessionOrReconnect(ClientSession session, ServerLocator locator) throws Exception {
       try {
-         String rand = RandomUtil.randomString();
+         String rand = RandomUtil.randomUUIDString();
          session.createQueue(QueueConfiguration.of(rand));
          session.deleteQueue(rand);
          return session;

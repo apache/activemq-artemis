@@ -76,9 +76,9 @@ public class LargeMessageOverManagementTest extends ManagementTestBase {
 
    @Test
    public void testSendOverSizeMessageOverQueueControl() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString emptyqueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString emptyqueue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address));
       session.createQueue(QueueConfiguration.of(emptyqueue).setAddress(address));
@@ -118,7 +118,7 @@ public class LargeMessageOverManagementTest extends ManagementTestBase {
    @Test
    public void testSendOverSizeMessageOverAddressControl() throws Exception {
 
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);

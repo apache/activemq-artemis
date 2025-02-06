@@ -146,7 +146,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testTwoWaySSL() throws Exception {
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.SSL_PROVIDER, clientSSLProvider);
@@ -182,7 +182,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testTwoWaySSLChooseAliasPositive() throws Exception {
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.SSL_PROVIDER, clientSSLProvider);
@@ -229,7 +229,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       tc.getParams().put(TransportConstants.KEYSTORE_TYPE_PROP_NAME, storeType);
       tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, CLIENT_SIDE_KEYSTORE);
       tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
-      tc.getParams().put(TransportConstants.KEYSTORE_ALIAS_PROP_NAME, RandomUtil.randomString());
+      tc.getParams().put(TransportConstants.KEYSTORE_ALIAS_PROP_NAME, RandomUtil.randomUUIDString());
 
       tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
       tc.getParams().put(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME, storeType);
@@ -257,7 +257,7 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
       server.getRemotingService().start();
       server.getRemotingService().startAcceptors();
 
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.SSL_PROVIDER, clientSSLProvider);

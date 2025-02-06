@@ -57,7 +57,7 @@ public class PassthroughMetricsPluginTest extends MetricsPluginTest {
    @Test
    public void testPassthroughMeterRegistry() {
       final String meterName = getName();
-      meterRegistry.gauge(meterName, Tags.of(meterName, RandomUtil.randomString()), RandomUtil.randomDouble(), random -> random.doubleValue());
+      meterRegistry.gauge(meterName, Tags.of(meterName, RandomUtil.randomUUIDString()), RandomUtil.randomDouble(), random -> random.doubleValue());
       boolean found = false;
       for (Meter.Id meter : getMetrics().keySet()) {
          if (meter.getName().equals(meterName)) {

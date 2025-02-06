@@ -75,7 +75,7 @@ public class JGroupsFileBroadcastGroupControlTest extends ManagementTestBase {
       TransportConfiguration connectorConfiguration = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
       List<String> connectorInfos = new ArrayList<>();
       connectorInfos.add(connectorConfiguration.getName());
-      broadcastGroupConfig = new BroadcastGroupConfiguration().setName(RandomUtil.randomString()).setBroadcastPeriod(RandomUtil.randomPositiveInt()).setConnectorInfos(connectorInfos).setEndpointFactory(new JGroupsFileBroadcastEndpointFactory().setChannelName("myChannel").setFile("test-jgroups-file_ping.xml"));
+      broadcastGroupConfig = new BroadcastGroupConfiguration().setName(RandomUtil.randomUUIDString()).setBroadcastPeriod(RandomUtil.randomPositiveInt()).setConnectorInfos(connectorInfos).setEndpointFactory(new JGroupsFileBroadcastEndpointFactory().setChannelName("myChannel").setFile("test-jgroups-file_ping.xml"));
 
       Configuration config = createDefaultInVMConfig().setJMXManagementEnabled(true).addConnectorConfiguration(connectorConfiguration.getName(), connectorConfiguration).addBroadcastGroupConfiguration(broadcastGroupConfig);
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, false));

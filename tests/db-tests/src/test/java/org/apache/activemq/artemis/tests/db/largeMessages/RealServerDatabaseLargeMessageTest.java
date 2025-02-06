@@ -90,7 +90,7 @@ public class RealServerDatabaseLargeMessageTest extends ParameterDBTestBase {
 
    public void testLargeMessage(String protocol) throws Exception {
       logger.info("testLargeMessage({})", protocol);
-      final String queueName = "QUEUE_" + RandomUtil.randomString() + "_" + protocol + "_" + database;
+      final String queueName = "QUEUE_" + RandomUtil.randomUUIDString() + "_" + protocol + "_" + database;
 
       ConnectionFactory connectionFactory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
 

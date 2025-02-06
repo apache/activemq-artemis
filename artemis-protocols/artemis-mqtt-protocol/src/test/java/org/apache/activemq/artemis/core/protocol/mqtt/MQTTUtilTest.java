@@ -28,8 +28,8 @@ import org.junit.jupiter.api.Test;
 public class MQTTUtilTest {
    @Test
    public void testDecompose() {
-      String shareName = RandomUtil.randomString();
-      String topicFilter = RandomUtil.randomString();
+      String shareName = RandomUtil.randomUUIDString();
+      String topicFilter = RandomUtil.randomUUIDString();
 
       Pair<String, String> decomposed = MQTTUtil.decomposeSharedSubscriptionTopicFilter(MQTTUtil.SHARED_SUBSCRIPTION_PREFIX + shareName + MQTTUtil.SLASH + topicFilter);
       assertEquals(shareName, decomposed.getA());
@@ -49,7 +49,7 @@ public class MQTTUtilTest {
       assertThrows(NullPointerException.class, () -> MQTTUtil.getCoreQueueFromMqttTopic(null, "", null));
       assertThrows(NullPointerException.class, () -> MQTTUtil.getCoreQueueFromMqttTopic(null, "", new WildcardConfiguration()));
 
-      final String clientId = RandomUtil.randomString().replace("-", "");
+      final String clientId = RandomUtil.randomUUIDString().replace("-", "");
 
       WildcardConfiguration defaultWildCardConfig = new WildcardConfiguration();
       assertEquals(clientId + ".a.b.c", MQTTUtil.getCoreQueueFromMqttTopic("a/b/c", clientId, defaultWildCardConfig));
@@ -72,7 +72,7 @@ public class MQTTUtilTest {
 
    @Test
    public void testGetCoreQueueFromMqttTopicWithSharedSubscription() {
-      final String clientId = RandomUtil.randomString().replace("-", "");
+      final String clientId = RandomUtil.randomUUIDString().replace("-", "");
 
       WildcardConfiguration defaultWildCardConfig = new WildcardConfiguration();
       assertEquals("shareName.a.b.c", MQTTUtil.getCoreQueueFromMqttTopic("$share/shareName/a/b/c", clientId, defaultWildCardConfig));

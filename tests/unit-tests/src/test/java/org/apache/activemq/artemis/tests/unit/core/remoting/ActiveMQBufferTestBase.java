@@ -68,7 +68,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
 
    @Test
    public void testNonEmptyString() throws Exception {
-      String junk = RandomUtil.randomString();
+      String junk = RandomUtil.randomUUIDString();
 
       String result = putAndGetNullableString(junk);
 
@@ -92,7 +92,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
 
    @Test
    public void testNonEmptySimpleString() throws Exception {
-      SimpleString junk = RandomUtil.randomSimpleString();
+      SimpleString junk = RandomUtil.randomUUIDSimpleString();
       SimpleString result = putAndGetNullableSimpleString(junk);
 
       assertNotNull(result);
@@ -282,7 +282,7 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
 
    @Test
    public void testUTF() throws Exception {
-      String str = RandomUtil.randomString();
+      String str = RandomUtil.randomUUIDString();
       wrapper.writeUTF(str);
 
       assertEquals(str, wrapper.readUTF());

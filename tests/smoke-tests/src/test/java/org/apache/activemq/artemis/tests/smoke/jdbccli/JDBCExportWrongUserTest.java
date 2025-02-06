@@ -49,8 +49,8 @@ public class JDBCExportWrongUserTest extends SmokeTestBase {
 
       File artemisInstance = getFileServerLocation(serverConfigName);
 
-      String user = RandomUtil.randomString();
-      String password = RandomUtil.randomString();
+      String user = RandomUtil.randomUUIDString();
+      String password = RandomUtil.randomUUIDString();
 
       assertTrue(FileUtil.findReplace(new File(artemisInstance, "/etc/broker.xml"), "</database-store>", "   <jdbc-user>" + user + "</jdbc-user>\n" + "            <jdbc-password>" + password + "</jdbc-password>\n" + "         </database-store>"));
 

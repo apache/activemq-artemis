@@ -381,12 +381,12 @@ public class StompTest extends StompTestBase {
 
    @Test
    public void testSendMessageToNonExistentQueue() throws Exception {
-      sendMessageToNonExistentQueue(getQueuePrefix(), RandomUtil.randomString(), RoutingType.ANYCAST);
+      sendMessageToNonExistentQueue(getQueuePrefix(), RandomUtil.randomUUIDString(), RoutingType.ANYCAST);
    }
 
    @Test
    public void testSendMessageToNonExistentQueueUsingExplicitDefaultRouting() throws Exception {
-      String nonExistentQueue = RandomUtil.randomString();
+      String nonExistentQueue = RandomUtil.randomUUIDString();
       server.getAddressSettingsRepository().addMatch(nonExistentQueue, new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST).setDefaultQueueRoutingType(RoutingType.ANYCAST));
       sendMessageToNonExistentQueue(getQueuePrefix(), nonExistentQueue, null);
    }
@@ -423,19 +423,19 @@ public class StompTest extends StompTestBase {
 
    @Test
    public void testSendMessageToNonExistentTopic() throws Exception {
-      sendMessageToNonExistentTopic(getTopicPrefix(), RandomUtil.randomString(), RoutingType.MULTICAST);
+      sendMessageToNonExistentTopic(getTopicPrefix(), RandomUtil.randomUUIDString(), RoutingType.MULTICAST);
    }
 
    @Test
    public void testSendMessageToNonExistentTopicUsingExplicitDefaultRouting() throws Exception {
-      String nonExistentTopic = RandomUtil.randomString();
+      String nonExistentTopic = RandomUtil.randomUUIDString();
       server.getAddressSettingsRepository().addMatch(nonExistentTopic, new AddressSettings().setDefaultAddressRoutingType(RoutingType.MULTICAST).setDefaultQueueRoutingType(RoutingType.MULTICAST));
       sendMessageToNonExistentTopic(getTopicPrefix(), nonExistentTopic, null);
    }
 
    @Test
    public void testSendMessageToNonExistentTopicUsingImplicitDefaultRouting() throws Exception {
-      sendMessageToNonExistentTopic(getTopicPrefix(), RandomUtil.randomString(), null);
+      sendMessageToNonExistentTopic(getTopicPrefix(), RandomUtil.randomUUIDString(), null);
    }
 
    /*
@@ -1303,7 +1303,7 @@ public class StompTest extends StompTestBase {
 
    @Test
    public void testSubscribeToNonExistentQueue() throws Exception {
-      String nonExistentQueue = RandomUtil.randomString();
+      String nonExistentQueue = RandomUtil.randomUUIDString();
 
       conn.connect(defUser, defPass);
       subscribe(conn, null, null, null, null, getQueuePrefix() + nonExistentQueue, true);
@@ -1537,8 +1537,8 @@ public class StompTest extends StompTestBase {
    @Test
    public void testSubscribeToTopicWithNoLocalAndNormal() throws Exception {
       conn.connect(defUser, defPass);
-      String noLocalSubscriptionId = RandomUtil.randomString();
-      String normalSubscriptionId = RandomUtil.randomString();
+      String noLocalSubscriptionId = RandomUtil.randomUUIDString();
+      String normalSubscriptionId = RandomUtil.randomUUIDString();
       subscribeTopic(conn, noLocalSubscriptionId, null, null, true, true);
       subscribeTopic(conn, normalSubscriptionId, null, null, true, false);
 

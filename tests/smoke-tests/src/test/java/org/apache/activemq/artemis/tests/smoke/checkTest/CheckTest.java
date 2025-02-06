@@ -236,7 +236,7 @@ public class CheckTest extends SmokeTestBase {
 
       SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", "admin", "admin");
 
-      String queueName = "Q_" + RandomUtil.randomString();
+      String queueName = "Q_" + RandomUtil.randomUUIDString();
 
       QueueCheck queueCheck;
 

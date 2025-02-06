@@ -55,7 +55,7 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.StringPrintStream;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -612,7 +612,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName("deadLetterQueue"));
       server.getConfiguration().addQueueConfiguration(QueueConfiguration.of("deadLetterQueue").setRoutingType(RoutingType.ANYCAST));
 
-      String lvqName = "testLVQ_" + RandomUtil.randomString();
+      String lvqName = "testLVQ_" + RandomUtil.randomUUIDString();
 
       server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(lvqName));
       server.getConfiguration().addQueueConfiguration(QueueConfiguration.of(lvqName).setRoutingType(RoutingType.ANYCAST).setLastValue(true).setLastValueKey("KEY"));
@@ -1014,14 +1014,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       Wait.assertTrue(() -> server_2.locateQueue(queueName) != null);
       Wait.assertTrue(() -> server.locateQueue(queueName) != null);
 
-      String bigString;
-      {
-         StringBuilder bigSB = new StringBuilder();
-         while (bigSB.length() < 200 * 1024) {
-            bigSB.append("This is a big string ");
-         }
-         bigString = bigSB.toString();
-      }
+      String bigString = RandomUtil.randomAlphaNumericString(200 * 1024);
 
       ConnectionFactory factory1 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
       ConnectionFactory factory2 = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT_2);

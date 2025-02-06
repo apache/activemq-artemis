@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedT
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.TestParameters;
 import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
@@ -161,15 +162,7 @@ public class HorizontalPagingTest extends SoakTestBase {
          Connection connection = factory.createConnection();
          runAfter(connection::close);
 
-         String text;
-         {
-            StringBuilder sb = new StringBuilder();
-            while (sb.length() < MESSAGE_SIZE) {
-               sb.append("a big string...");
-            }
-
-            text = sb.toString();
-         }
+         String text = RandomUtil.randomAlphaNumericString(MESSAGE_SIZE);
 
          ReusableLatch latchDone = new ReusableLatch(0);
 

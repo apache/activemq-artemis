@@ -66,7 +66,7 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
          configuration.setSecurityEnabled(b);
          assertEquals(b, configuration.isSecurityEnabled());
 
-         String s = RandomUtil.randomString();
+         String s = RandomUtil.randomUUIDString();
          configuration.setBindingsDirectory(s);
          assertEquals(s, configuration.getBindingsDirectory());
 
@@ -74,7 +74,7 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
          configuration.setCreateBindingsDir(b);
          assertEquals(b, configuration.isCreateBindingsDir());
 
-         s = RandomUtil.randomString();
+         s = RandomUtil.randomUUIDString();
          configuration.setJournalDirectory(s);
          assertEquals(s, configuration.getJournalDirectory());
 
@@ -111,7 +111,7 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
          configuration.setJournalMaxIO_NIO(i);
          assertEquals(i, configuration.getJournalMaxIO_NIO());
 
-         s = RandomUtil.randomString();
+         s = RandomUtil.randomUUIDString();
          configuration.setManagementAddress(SimpleString.of(s));
          assertEquals(s, configuration.getManagementAddress().toString());
 
@@ -147,11 +147,11 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
          configuration.setThreadPoolMaxSize(i);
          assertEquals(i, configuration.getThreadPoolMaxSize());
 
-         SimpleString ss = RandomUtil.randomSimpleString();
+         SimpleString ss = RandomUtil.randomUUIDSimpleString();
          configuration.setManagementNotificationAddress(ss);
          assertEquals(ss, configuration.getManagementNotificationAddress());
 
-         s = RandomUtil.randomString();
+         s = RandomUtil.randomUUIDString();
          configuration.setClusterUser(s);
          assertEquals(s, configuration.getClusterUser());
 
@@ -199,11 +199,11 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
          configuration.setServerDumpInterval(l);
          assertEquals(l, configuration.getServerDumpInterval());
 
-         s = RandomUtil.randomString();
+         s = RandomUtil.randomUUIDString();
          configuration.setPagingDirectory(s);
          assertEquals(s, configuration.getPagingDirectory());
 
-         s = RandomUtil.randomString();
+         s = RandomUtil.randomUUIDString();
          configuration.setLargeMessagesDirectory(s);
          assertEquals(s, configuration.getLargeMessagesDirectory());
 
@@ -227,7 +227,7 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
          configuration.setTransactionTimeoutScanPeriod(l);
          assertEquals(l, configuration.getTransactionTimeoutScanPeriod());
 
-         s = RandomUtil.randomString();
+         s = RandomUtil.randomUUIDString();
          configuration.setClusterPassword(s);
          assertEquals(s, configuration.getClusterPassword());
 
@@ -268,7 +268,7 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
       configuration.setSecurityEnabled(b);
       assertEquals(b, configuration.isSecurityEnabled());
 
-      String s = RandomUtil.randomString();
+      String s = RandomUtil.randomUUIDString();
       configuration.setBindingsDirectory(s);
       assertEquals(s, configuration.getBindingsDirectory());
 
@@ -276,7 +276,7 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
       configuration.setCreateBindingsDir(b);
       assertEquals(b, configuration.isCreateBindingsDir());
 
-      s = RandomUtil.randomString();
+      s = RandomUtil.randomUUIDString();
       configuration.setJournalDirectory(s);
       assertEquals(s, configuration.getJournalDirectory());
 
@@ -313,7 +313,7 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
       configuration.setJournalMaxIO_NIO(i);
       assertEquals(i, configuration.getJournalMaxIO_NIO());
 
-      s = RandomUtil.randomString();
+      s = RandomUtil.randomUUIDString();
       configuration.setManagementAddress(SimpleString.of(s));
       assertEquals(s, configuration.getManagementAddress().toString());
 
@@ -349,11 +349,11 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
       configuration.setThreadPoolMaxSize(i);
       assertEquals(i, configuration.getThreadPoolMaxSize());
 
-      SimpleString ss = RandomUtil.randomSimpleString();
+      SimpleString ss = RandomUtil.randomUUIDSimpleString();
       configuration.setManagementNotificationAddress(ss);
       assertEquals(ss, configuration.getManagementNotificationAddress());
 
-      s = RandomUtil.randomString();
+      s = RandomUtil.randomUUIDString();
       configuration.setClusterUser(s);
       assertEquals(s, configuration.getClusterUser());
 
@@ -397,11 +397,11 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
       configuration.setServerDumpInterval(l);
       assertEquals(l, configuration.getServerDumpInterval());
 
-      s = RandomUtil.randomString();
+      s = RandomUtil.randomUUIDString();
       configuration.setPagingDirectory(s);
       assertEquals(s, configuration.getPagingDirectory());
 
-      s = RandomUtil.randomString();
+      s = RandomUtil.randomUUIDString();
       configuration.setLargeMessagesDirectory(s);
       assertEquals(s, configuration.getLargeMessagesDirectory());
 
@@ -429,7 +429,7 @@ public abstract class AbstractConfigurationTestBase extends ServerTestBase {
       configuration.setTransactionTimeoutScanPeriod(l);
       assertEquals(l, configuration.getTransactionTimeoutScanPeriod());
 
-      s = RandomUtil.randomString();
+      s = RandomUtil.randomUUIDString();
       configuration.setClusterPassword(s);
       assertEquals(s, configuration.getClusterPassword());
 

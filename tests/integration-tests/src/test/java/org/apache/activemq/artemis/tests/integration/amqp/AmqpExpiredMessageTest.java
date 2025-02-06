@@ -45,7 +45,7 @@ import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -621,10 +621,10 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
    @Test
    @Timeout(60)
    public void testExpirationAfterDivert() throws Throwable {
-      final String FORWARDING_ADDRESS = RandomUtil.randomString();
+      final String FORWARDING_ADDRESS = RandomUtil.randomUUIDString();
       server.createQueue(QueueConfiguration.of(FORWARDING_ADDRESS).setRoutingType(RoutingType.ANYCAST));
       server.deployDivert(new DivertConfiguration()
-                             .setName(RandomUtil.randomString())
+                             .setName(RandomUtil.randomUUIDString())
                              .setAddress(getQueueName())
                              .setForwardingAddress(FORWARDING_ADDRESS)
                              .setTransformerConfiguration(new TransformerConfiguration(MyTransformer.class.getName()))

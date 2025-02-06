@@ -151,7 +151,7 @@ public class JMSStorageManagerTest extends ActiveMQTestBase {
 
       ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl().setName("some-name").setConnectorNames(connectorConfigs).setBindings(str).setCallTimeout(RandomUtil.randomPositiveLong());
       List<Pair<String, String>> connectors = new ArrayList<>();
-      connectors.add(new Pair<String, String>(RandomUtil.randomString(), null));
+      connectors.add(new Pair<String, String>(RandomUtil.randomUUIDString(), null));
       //config.setConnectorNames(connectors);
 
       addSetting(new PersistedConnectionFactory(config));

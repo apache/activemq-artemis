@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ public class SecurityOpenWireTest extends BasicOpenWireTest {
    private final String ALLOWED_ROLE_ALTERNATE = "allowedRoleAlternate";
    private final String DENIED_USER = "deniedUser";
    private final String DENIED_ROLE = "deniedRole";
-   private final String PASS = RandomUtil.randomString();
+   private final String PASS = RandomUtil.randomUUIDString();
    private final String ADDRESS = "myAddress";
    private final String ALTERNATE_ADDRESS = "myOtherAddress";
    private final String ALTERNATE_QUEUE = "myOtherQueue";

@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,7 +64,7 @@ public class SimpleManagementTest extends ActiveMQTestBase {
    @Test
    public void testQueues() throws Exception {
       server.start();
-      String queueName = RandomUtil.randomString();
+      String queueName = RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST).setAddress(queueName).setDurable(true));
 

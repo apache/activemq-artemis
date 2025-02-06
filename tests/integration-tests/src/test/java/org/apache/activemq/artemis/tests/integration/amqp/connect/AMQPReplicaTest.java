@@ -60,7 +60,7 @@ import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorContro
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorMessageFactory;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
@@ -203,7 +203,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
       server_2.start();
 
-      SimpleString queueName = RandomUtil.randomSimpleString();
+      SimpleString queueName = RandomUtil.randomUUIDSimpleString();
 
       server_2.addAddressInfo(new AddressInfo(queueName).setAutoCreated(false));
       server_2.createQueue(QueueConfiguration.of(queueName).setDurable(true));

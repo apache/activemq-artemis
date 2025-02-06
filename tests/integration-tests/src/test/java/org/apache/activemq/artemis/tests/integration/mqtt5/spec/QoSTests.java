@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
@@ -75,7 +75,7 @@ public class QoSTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS1andDupFlag() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
 
       final CountDownLatch latch = new CountDownLatch(1);
       MqttClient consumer = createPahoClient("consumer");
@@ -92,7 +92,7 @@ public class QoSTests extends MQTT5TestSupport {
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
-      producer.publish(TOPIC, RandomUtil.randomString().getBytes(), 1, false);
+      producer.publish(TOPIC, RandomUtil.randomUUIDString().getBytes(), 1, false);
       producer.disconnect();
       producer.close();
 
@@ -108,7 +108,7 @@ public class QoSTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS1PubAck() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final String CONSUMER_ID = "consumer";
       final CountDownLatch ackLatch = new CountDownLatch(1);
       final AtomicInteger packetId = new AtomicInteger();
@@ -145,7 +145,7 @@ public class QoSTests extends MQTT5TestSupport {
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
-      producer.publish(TOPIC, RandomUtil.randomString().getBytes(), 1, false);
+      producer.publish(TOPIC, RandomUtil.randomUUIDString().getBytes(), 1, false);
       producer.disconnect();
       producer.close();
 
@@ -164,7 +164,7 @@ public class QoSTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS1PubAckId() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
       final AtomicInteger packetId = new AtomicInteger();
 
@@ -193,7 +193,7 @@ public class QoSTests extends MQTT5TestSupport {
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
-      producer.publish(TOPIC, RandomUtil.randomString().getBytes(), 1, false);
+      producer.publish(TOPIC, RandomUtil.randomUUIDString().getBytes(), 1, false);
       producer.disconnect();
       producer.close();
 
@@ -251,7 +251,7 @@ public class QoSTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2PubRec() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final String CONSUMER_ID = "consumer";
       final CountDownLatch ackLatch = new CountDownLatch(1);
       final AtomicInteger packetId = new AtomicInteger();
@@ -288,7 +288,7 @@ public class QoSTests extends MQTT5TestSupport {
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
-      producer.publish(TOPIC, RandomUtil.randomString().getBytes(), 2, false);
+      producer.publish(TOPIC, RandomUtil.randomUUIDString().getBytes(), 2, false);
       producer.disconnect();
       producer.close();
 
@@ -308,7 +308,7 @@ public class QoSTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2PubRelId() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
       final AtomicInteger packetId = new AtomicInteger();
       final AtomicBoolean pubRecReceived = new AtomicBoolean(false);
@@ -344,7 +344,7 @@ public class QoSTests extends MQTT5TestSupport {
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
-      producer.publish(TOPIC, RandomUtil.randomString().getBytes(), 2, false);
+      producer.publish(TOPIC, RandomUtil.randomUUIDString().getBytes(), 2, false);
       producer.disconnect();
       producer.close();
 
@@ -361,7 +361,7 @@ public class QoSTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2PubRel() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final String CONSUMER_ID = "consumer";
       final CountDownLatch ackLatch = new CountDownLatch(1);
       final AtomicInteger packetId = new AtomicInteger();
@@ -402,7 +402,7 @@ public class QoSTests extends MQTT5TestSupport {
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
-      producer.publish(TOPIC, RandomUtil.randomString().getBytes(), 2, false);
+      producer.publish(TOPIC, RandomUtil.randomUUIDString().getBytes(), 2, false);
       producer.disconnect();
       producer.close();
 
@@ -492,7 +492,7 @@ public class QoSTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2PubRecId() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
       final AtomicInteger packetId = new AtomicInteger();
 
@@ -521,7 +521,7 @@ public class QoSTests extends MQTT5TestSupport {
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
-      producer.publish(TOPIC, RandomUtil.randomString().getBytes(), 2, false);
+      producer.publish(TOPIC, RandomUtil.randomUUIDString().getBytes(), 2, false);
       producer.disconnect();
       producer.close();
 
@@ -543,11 +543,11 @@ public class QoSTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2DuplicatePub() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
       final AtomicInteger packetId = new AtomicInteger();
       AtomicInteger count = new AtomicInteger(0);
-      final byte[] PAYLOAD = RandomUtil.randomString().getBytes();
+      final byte[] PAYLOAD = RandomUtil.randomUUIDString().getBytes();
 
       MQTTInterceptor incomingInterceptor = (packet, connection) -> {
          if (packet.fixedHeader().messageType() == MqttMessageType.PUBLISH) {
@@ -601,7 +601,7 @@ public class QoSTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQoS2PubCompId() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final CountDownLatch ackLatch = new CountDownLatch(1);
       final AtomicInteger packetId = new AtomicInteger();
 
@@ -630,7 +630,7 @@ public class QoSTests extends MQTT5TestSupport {
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
-      producer.publish(TOPIC, RandomUtil.randomString().getBytes(), 2, false);
+      producer.publish(TOPIC, RandomUtil.randomUUIDString().getBytes(), 2, false);
       producer.disconnect();
       producer.close();
 

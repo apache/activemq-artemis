@@ -56,7 +56,7 @@ public class MQTTStateManagerTest extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testEmptyStateMessage() throws Exception {
-      testBadStateMessage(RandomUtil.randomString());
+      testBadStateMessage(RandomUtil.randomUUIDString());
    }
 
    private void testBadStateMessage(String clientId) throws Exception {
@@ -83,7 +83,7 @@ public class MQTTStateManagerTest extends MQTT5TestSupport {
       Session s = c.createSession();
       MessageProducer p = s.createProducer(s.createQueue(MQTTUtil.MQTT_SESSION_STORE));
       javax.jms.Message m = s.createMessage();
-      m.setStringProperty(Message.HDR_LAST_VALUE_NAME.toString(), RandomUtil.randomString());
+      m.setStringProperty(Message.HDR_LAST_VALUE_NAME.toString(), RandomUtil.randomUUIDString());
       p.send(m);
       c.close();
       server.stop();

@@ -32,7 +32,7 @@ public class AddressBindingEncodingTest {
 
    @Test
    public void testEncodeDecode() {
-      final SimpleString name = RandomUtil.randomSimpleString();
+      final SimpleString name = RandomUtil.randomUUIDSimpleString();
       final boolean autoCreated = RandomUtil.randomBoolean();
       final EnumSet<RoutingType> routingTypes = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
       final boolean internal = RandomUtil.randomBoolean();

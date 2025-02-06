@@ -58,7 +58,7 @@ public class WildcardConfigurationTest {
       assertEquals(b, a);
       assertEquals(a.hashCode(), b.hashCode());
 
-      String toConvert = RandomUtil.randomString();
+      String toConvert = RandomUtil.randomUUIDString();
       assertSame(toConvert, a.convert(toConvert, b));
       assertSame(toConvert, a.convert(toConvert, a));
    }

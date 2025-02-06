@@ -561,7 +561,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
    @TestTemplate
    public void testBridgeClientID() throws Exception {
-      final String clientId = RandomUtil.randomString();
+      final String clientId = RandomUtil.randomUUIDString();
       Map<String, Object> server0Params = new HashMap<>();
       server0 = createClusteredServerWithParams(isNetty(), 0, true, server0Params);
 

@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -123,25 +124,22 @@ public class AMQPLargeMessageOverCoreBridgeTest extends AmqpClientTestSupport {
       }
       server2.deployBridge(new BridgeConfiguration().setName(getTestName()).setQueueName(getQueueName(1)).setForwardingAddress(getQueueName(2)).setConfirmationWindowSize(10).setStaticConnectors(Arrays.asList("otherside")));
 
-      StringBuilder largeText = new StringBuilder();
-      while (largeText.length() < 300 * 1024) {
-         largeText.append("Some large stuff ");
-      }
+      String largeText = RandomUtil.randomAlphaNumericString(300 * 1024);
 
-      sendTextMessages(AMQP_PORT + 1, getQueueName(useDivert ? 0 : 1), largeText.toString(), 10);
+      sendTextMessages(AMQP_PORT + 1, getQueueName(useDivert ? 0 : 1), largeText, 10);
       server.stop();
       server.start();
-      receiveTextMessages(AMQP_PORT, getQueueName(2), largeText.toString(), 10);
+      receiveTextMessages(AMQP_PORT, getQueueName(2), largeText, 10);
       if (useDivert) {
          // We diverted, so messages were copied, we need to make sure we consume from the original queue
-         receiveTextMessages(AMQP_PORT + 1, getQueueName(0), largeText.toString(), 10);
+         receiveTextMessages(AMQP_PORT + 1, getQueueName(0), largeText, 10);
       } else {
          // no messages should been routed to 0
-         receiveTextMessages(AMQP_PORT + 1, getQueueName(0), largeText.toString(), 0);
+         receiveTextMessages(AMQP_PORT + 1, getQueueName(0), largeText, 0);
       }
 
       // messages should have been transferred between servers
-      receiveTextMessages(AMQP_PORT + 1, getQueueName(1), largeText.toString(), 0);
+      receiveTextMessages(AMQP_PORT + 1, getQueueName(1), largeText, 0);
 
    }
 

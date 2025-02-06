@@ -50,7 +50,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -103,18 +103,7 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
 
    private void internalSendReceiveLargeMessage(ConnectionFactory factory, boolean restart) throws Exception {
       // Create 1MB Message
-      String largeString;
-
-      {
-         String randomString = "This is a random String " + RandomUtil.randomString();
-         StringBuilder largeSB = new StringBuilder();
-         while (largeSB.length() < 1024 * 1024) {
-            largeSB.append(randomString);
-         }
-
-         largeString = largeSB.toString();
-      }
-
+      String largeString = RandomUtil.randomAlphaNumericString(1024 * 1024);
 
       try (Connection connection = factory.createConnection()) {
          connection.start();
@@ -204,17 +193,7 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
       CountDownLatch latch = new CountDownLatch(1);
 
       // Create 1MB Message
-      String largeString;
-
-      {
-         String randomString = "This is a random String " + RandomUtil.randomString();
-         StringBuilder largeSB = new StringBuilder();
-         while (largeSB.length() < 1024 * 1024) {
-            largeSB.append(randomString);
-         }
-
-         largeString = largeSB.toString();
-      }
+      String largeString = RandomUtil.randomAlphaNumericString(1024 * 1024);
 
       executorService.execute(() -> {
 

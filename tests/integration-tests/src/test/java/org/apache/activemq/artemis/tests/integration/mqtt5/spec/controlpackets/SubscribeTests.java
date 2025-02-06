@@ -62,7 +62,7 @@ public class SubscribeTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscribeNoLocal() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final CountDownLatch latch = new CountDownLatch(1);
 
       MqttClient client = createPahoClient("nolocal");
@@ -93,7 +93,7 @@ public class SubscribeTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testRequestResponseNoLocal() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final String REQUEST = "request";
       final String RESPONSE = "response";
       final CountDownLatch aclientLatch = new CountDownLatch(2);
@@ -158,7 +158,7 @@ public class SubscribeTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubAck() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final AtomicBoolean subscribed = new AtomicBoolean(false);
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -196,7 +196,7 @@ public class SubscribeTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubAckPacketId() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final AtomicBoolean subscribed = new AtomicBoolean(false);
       final AtomicInteger packetId = new AtomicInteger(0);
       final CountDownLatch latch = new CountDownLatch(1);
@@ -244,7 +244,7 @@ public class SubscribeTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testReplaceSubscription() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final CountDownLatch latch = new CountDownLatch(2);
 
       MqttClient client = createPahoClient("nolocal");
@@ -277,8 +277,8 @@ public class SubscribeTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testReplaceSubscriptionRetainHandling() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
       final CountDownLatch latch = new CountDownLatch(2);
 
       MqttClient client = createPahoClient(CLIENT_ID);
@@ -319,7 +319,7 @@ public class SubscribeTests extends MQTT5TestSupport {
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscribeAck() throws Exception {
       final int SUBSCRIPTION_COUNT = 30;
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final AtomicInteger subAckCount = new AtomicInteger(0);
       SimpleString[] topicNames = new SimpleString[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
@@ -371,7 +371,7 @@ public class SubscribeTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscriptionQoS() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final int PUBLISH_LOOP = 25;
       final int MESSAGES_PER_LOOP = 3;
       final int CONSUMER_COUNT = 3;

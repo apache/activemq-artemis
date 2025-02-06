@@ -198,7 +198,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       Map<String, Object> params = new HashMap<>();
       Set<String> allowableConnectorKeys = TransportConstants.ALLOWABLE_CONNECTOR_KEYS;
       for (String allowableConnectorKey : allowableConnectorKeys) {
-         String value = RandomUtil.randomString();
+         String value = RandomUtil.randomUUIDString();
          params.put(allowableConnectorKey, value);
       }
       params.put("host", "localhost0");
@@ -210,7 +210,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
 
       Map<String, Object> params2 = new HashMap<>();
       for (String allowableConnectorKey : allowableConnectorKeys) {
-         String value = RandomUtil.randomString();
+         String value = RandomUtil.randomUUIDString();
          params2.put(allowableConnectorKey, value);
       }
       params2.put("host", "localhost1");
@@ -236,7 +236,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       for (PropertyDescriptor descriptor : descriptors) {
          if (descriptor.getWriteMethod() != null && descriptor.getReadMethod() != null) {
             if (descriptor.getPropertyType() == String.class) {
-               String value = RandomUtil.randomString();
+               String value = RandomUtil.randomUUIDString();
                bean.setProperty(factory, descriptor.getName(), value);
                sb.append("&").append(descriptor.getName()).append("=").append(value);
             } else if (descriptor.getPropertyType() == int.class) {

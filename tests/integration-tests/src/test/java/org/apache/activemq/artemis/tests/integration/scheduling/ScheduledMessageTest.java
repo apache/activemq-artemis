@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -570,8 +570,8 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
    @Test
    public void testManagementDeliveryByFilter() throws Exception {
-      final String propertyValue = RandomUtil.randomString();
-      final String propertyName = "X" + RandomUtil.randomString().replace("-", "");
+      final String propertyValue = RandomUtil.randomUUIDString();
+      final String propertyName = "X" + RandomUtil.randomUUIDString().replace("-", "");
       ClientSessionFactory sessionFactory = createSessionFactory(locator);
       ClientSession session = sessionFactory.createSession(false, false, false);
       session.createQueue(QueueConfiguration.of(atestq));

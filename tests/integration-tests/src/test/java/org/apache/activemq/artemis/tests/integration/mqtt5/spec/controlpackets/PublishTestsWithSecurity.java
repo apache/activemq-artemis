@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
@@ -152,7 +152,7 @@ public class PublishTestsWithSecurity extends MQTT5TestSupport {
 
    private void internalTestWillAuthorization(String username, String password, boolean succeed) throws Exception {
       final byte[] WILL = RandomUtil.randomBytes();
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
 
       // consumer of the will message
       MqttClient client1 = createPahoClient("willConsumer");

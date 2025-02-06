@@ -41,7 +41,7 @@ public class MetaBeanTest {
    public void testToJson() throws Exception {
 
       MYClass sourceObject = new MYClass();
-      sourceObject.setA(RandomUtil.randomString());
+      sourceObject.setA(RandomUtil.randomUUIDString());
       sourceObject.setB(RandomUtil.randomInt());
       sourceObject.setC(RandomUtil.randomInt());
       sourceObject.setD(null);

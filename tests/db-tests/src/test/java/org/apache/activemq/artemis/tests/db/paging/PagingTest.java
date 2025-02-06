@@ -848,7 +848,7 @@ public class PagingTest extends ParameterDBTestBase {
       int page = 1;
 
       // all the messages on the last page will contain this constant, which it will be used to assert on the print-data
-      String lastPageConstant = RandomUtil.randomString();
+      String lastPageConstant = RandomUtil.randomUUIDString();
 
       for (int i = 0; i < numberOfMessages; i++) {
          if (i % 10 == 0 && i > 0) {
@@ -1115,7 +1115,7 @@ public class PagingTest extends ParameterDBTestBase {
 
    @TestTemplate
    public void testFqqn() throws Exception {
-      final SimpleString queue = RandomUtil.randomSimpleString();
+      final SimpleString queue = RandomUtil.randomUUIDSimpleString();
       SimpleString fqqn = CompositeAddress.toFullyQualified(ADDRESS, queue);
       boolean persistentMessages = true;
 
@@ -1841,7 +1841,7 @@ public class PagingTest extends ParameterDBTestBase {
 
       server.start();
 
-      SimpleString queue = SimpleString.of("testPurge:" + RandomUtil.randomString());
+      SimpleString queue = SimpleString.of("testPurge:" + RandomUtil.randomUUIDString());
       server.addAddressInfo(new AddressInfo(queue, RoutingType.ANYCAST));
       QueueImpl purgeQueue = (QueueImpl) server.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(false).setAutoCreateAddress(false));
 
@@ -6529,7 +6529,7 @@ public class PagingTest extends ParameterDBTestBase {
    private void internalNoTX(String protocol) throws Exception {
       int numberOfMessages = 20;
 
-      String queueName = "TEST" + RandomUtil.randomString();
+      String queueName = "TEST" + RandomUtil.randomUUIDString();
 
       try {
          server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST));

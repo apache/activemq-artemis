@@ -67,7 +67,7 @@ public class PrintDataTest extends ParameterDBTestBase {
    @TestTemplate
    public void testData() throws Exception {
 
-      String queueName = RandomUtil.randomString();
+      String queueName = RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST));
       Queue queue = server.createQueue(QueueConfiguration.of(queueName).setAddress(queueName).setDurable(true).setRoutingType(RoutingType.ANYCAST));
       queue.getPagingStore().startPaging();

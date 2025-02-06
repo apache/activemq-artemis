@@ -134,7 +134,7 @@ public class AuditLoggerResourceTest extends AuditLoggerTestBase {
       mqtt.setConnectAttemptsMax(1);
       mqtt.setReconnectAttemptsMax(0);
       mqtt.setVersion("3.1.1");
-      mqtt.setClientId(RandomUtil.randomString());
+      mqtt.setClientId(RandomUtil.randomUUIDString());
       mqtt.setCleanSession(true);
       mqtt.setHost("localhost", 1883);
       final BlockingConnection connection = mqtt.blockingConnection();

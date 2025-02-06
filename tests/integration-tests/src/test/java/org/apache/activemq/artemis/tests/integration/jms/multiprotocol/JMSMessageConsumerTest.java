@@ -358,7 +358,7 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
       final String OBJECT_KEY = "myObject";
       final short SHORT_VALUE = RandomUtil.randomShort();
       final String SHORT_KEY = "myShort";
-      final String STRING_VALUE = RandomUtil.randomString();
+      final String STRING_VALUE = RandomUtil.randomUUIDString();
       final String STRING_KEY = "myString";
 
       try {

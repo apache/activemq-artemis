@@ -58,8 +58,8 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressQueueDeleteDelay() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       final long deleteQueuesDelay = 150;
       final long deleteAddressesDelay = 500;
 
@@ -102,8 +102,8 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressQueueDeleteDelayWithAdditionalAddressQueue() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       final long deleteQueuesDelay = 300;
       final long deleteAddressesDelay = 500;
 
@@ -150,8 +150,8 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
    @Test
    public void testDefaultAddressQueueDeleteDelay() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setAutoCreated(true));
 
@@ -173,8 +173,8 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressDeleteDelay() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       final long deleteAddressesDelay = 500;
 
       AddressSettings addressSettings = new AddressSettings().setAutoDeleteAddressesDelay(deleteAddressesDelay);
@@ -189,8 +189,8 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressDeleteDelayNegative() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       final long deleteAddressesDelay = 500;
 
       AddressSettings addressSettings = new AddressSettings().setAutoDeleteAddressesDelay(deleteAddressesDelay);
@@ -207,8 +207,8 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressDeleteDelayNegative2() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
       final long deleteAddressesDelay = 500;
 
       // the address should not be deleted since autoDeleteAddresses = false

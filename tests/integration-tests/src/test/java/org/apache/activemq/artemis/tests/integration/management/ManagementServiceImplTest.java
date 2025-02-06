@@ -50,8 +50,8 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
 
    @Test
    public void testHandleManagementMessageWithOperation() throws Exception {
-      String queue = RandomUtil.randomString();
-      String address = RandomUtil.randomString();
+      String queue = RandomUtil.randomUUIDString();
+      String address = RandomUtil.randomUUIDString();
 
       Configuration config = createBasicConfig().setJMXManagementEnabled(false);
 
@@ -143,10 +143,10 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
       ManagementServiceImpl managementService = new ManagementServiceImpl(null, config);
       managementService.setStorageManager(new NullStorageManager());
 
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       managementService.registerAddress(new AddressInfo(address));
-      Queue queue = new FakeQueue(RandomUtil.randomSimpleString());
-      managementService.registerQueue(queue, RandomUtil.randomSimpleString(), new FakeStorageManager());
+      Queue queue = new FakeQueue(RandomUtil.randomUUIDSimpleString());
+      managementService.registerQueue(queue, RandomUtil.randomUUIDSimpleString(), new FakeStorageManager());
 
       Object[] addresses = managementService.getResources(AddressControl.class);
       assertEquals(1, addresses.length);
@@ -163,8 +163,8 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
 
    @Test
    public void testCorrelateResponseByCorrelationID() throws Exception {
-      String queue = RandomUtil.randomString();
-      String address = RandomUtil.randomString();
+      String queue = RandomUtil.randomUUIDString();
+      String address = RandomUtil.randomUUIDString();
       String correlationID = UUIDGenerator.getInstance().generateStringUUID();
 
       Configuration config = createBasicConfig().setJMXManagementEnabled(false);
@@ -184,8 +184,8 @@ public class ManagementServiceImplTest extends ActiveMQTestBase {
 
    @Test
    public void testCorrelateResponseByMessageID() throws Exception {
-      String queue = RandomUtil.randomString();
-      String address = RandomUtil.randomString();
+      String queue = RandomUtil.randomUUIDString();
+      String address = RandomUtil.randomUUIDString();
       UUID messageId =  UUIDGenerator.getInstance().generateUUID();
 
       Configuration config = createBasicConfig().setJMXManagementEnabled(false);

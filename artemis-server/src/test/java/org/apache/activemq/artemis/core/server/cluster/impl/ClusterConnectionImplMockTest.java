@@ -108,7 +108,7 @@ public class ClusterConnectionImplMockTest extends ServerTestBase {
       try {
          ClusterConnectionImpl cci = new ClusterConnectionImpl(null, new TransportConfiguration[]{tc}, null, null, null, 0, 0L, 0L, 0L, 0, 0L, 0, 0, 0L, 0L, false, null, 0, 0, () -> executor, new MockServer(), null, null, null, 0, new FakeNodeManager(UUIDGenerator.getInstance().generateStringUUID()), null, null, true, 0, 0, null);
 
-         TopologyMember topologyMember = new TopologyMemberImpl(RandomUtil.randomString(), null, null, null, null);
+         TopologyMember topologyMember = new TopologyMemberImpl(RandomUtil.randomUUIDString(), null, null, null, null);
          cci.nodeUP(topologyMember, false);
       } finally {
          executor.shutdownNow();

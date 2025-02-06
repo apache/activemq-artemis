@@ -51,9 +51,9 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
    @Test
    public void testMessagesExpiredNoBindings() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString expiryAddress = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString expiryAddress = RandomUtil.randomUUIDSimpleString();
 
       AddressSettings addressSettings = new AddressSettings().setExpiryAddress(expiryAddress);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
@@ -77,8 +77,8 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
    @Test
    public void testMessagesExpiredNoExpiryAddress() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
@@ -99,8 +99,8 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
    @Test
    public void testMessageWithNoExpirationMinExpiryDelayOverride() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.close();
 
@@ -124,8 +124,8 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
    @Test
    public void testMessageWithTooSmallExpirationMinExpiryDelayOverride() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.close();
 
@@ -150,8 +150,8 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
    @Test
    public void testMessageWithNoExpirationMaxExpiryDelayOverride() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.close();
 
@@ -173,8 +173,8 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
    @Test
    public void testMessageWithTooLargeExpirationMaxExpiryDelayOverride() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.close();
 
@@ -198,8 +198,8 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
    @Test
    public void testMessageWithAcceptableExpirationMinMaxExpiryDelayOverride() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.close();
 

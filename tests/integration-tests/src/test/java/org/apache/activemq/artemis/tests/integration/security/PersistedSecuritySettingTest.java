@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
 
 public class PersistedSecuritySettingTest {
@@ -52,7 +52,7 @@ public class PersistedSecuritySettingTest {
    @Test
    public void testUpgradeAfterARTEMIS_4582() {
       // this buffer simulates a PersistedSecuritySetting journal entry from *before* ARTEMIS-4582
-      SimpleString match = RandomUtil.randomSimpleString();
+      SimpleString match = RandomUtil.randomUUIDSimpleString();
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer((SimpleString.sizeofNullableString(match)) + 10);
       buffer.writeSimpleString(match);
       for (int i = 0; i < 10; i++) {

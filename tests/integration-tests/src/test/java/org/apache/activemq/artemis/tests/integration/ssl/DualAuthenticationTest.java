@@ -81,7 +81,7 @@ public class DualAuthenticationTest extends ActiveMQTestBase {
 
    @Test
    public void testDualAuthentication() throws Exception {
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
 
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);

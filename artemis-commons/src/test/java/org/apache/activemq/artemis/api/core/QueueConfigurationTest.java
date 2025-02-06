@@ -53,8 +53,8 @@ public class QueueConfigurationTest {
 
    @Test
    public void testFqqn() {
-      final SimpleString ADDRESS = RandomUtil.randomSimpleString();
-      final SimpleString QUEUE = RandomUtil.randomSimpleString();
+      final SimpleString ADDRESS = RandomUtil.randomUUIDSimpleString();
+      final SimpleString QUEUE = RandomUtil.randomUUIDSimpleString();
       QueueConfiguration queueConfiguration = QueueConfiguration.of(CompositeAddress.toFullyQualified(ADDRESS, QUEUE));
       assertEquals(ADDRESS, queueConfiguration.getAddress());
       assertEquals(QUEUE, queueConfiguration.getName());
@@ -63,8 +63,8 @@ public class QueueConfigurationTest {
 
    @Test
    public void testFqqnNegative() {
-      final SimpleString ADDRESS = RandomUtil.randomSimpleString();
-      final SimpleString QUEUE = RandomUtil.randomSimpleString();
+      final SimpleString ADDRESS = RandomUtil.randomUUIDSimpleString();
+      final SimpleString QUEUE = RandomUtil.randomUUIDSimpleString();
       QueueConfiguration queueConfiguration = QueueConfiguration.of(QUEUE).setAddress(ADDRESS);
       assertEquals(ADDRESS, queueConfiguration.getAddress());
       assertEquals(QUEUE, queueConfiguration.getName());
@@ -73,9 +73,9 @@ public class QueueConfigurationTest {
 
    @Test
    public void testFqqnViaAddress() {
-      final SimpleString ADDRESS = RandomUtil.randomSimpleString();
-      final SimpleString QUEUE = RandomUtil.randomSimpleString();
-      QueueConfiguration queueConfiguration = QueueConfiguration.of(RandomUtil.randomSimpleString()).setAddress(CompositeAddress.toFullyQualified(ADDRESS, QUEUE));
+      final SimpleString ADDRESS = RandomUtil.randomUUIDSimpleString();
+      final SimpleString QUEUE = RandomUtil.randomUUIDSimpleString();
+      QueueConfiguration queueConfiguration = QueueConfiguration.of(RandomUtil.randomUUIDSimpleString()).setAddress(CompositeAddress.toFullyQualified(ADDRESS, QUEUE));
       assertEquals(ADDRESS, queueConfiguration.getAddress());
       assertEquals(QUEUE, queueConfiguration.getName());
       assertTrue(queueConfiguration.isFqqn());

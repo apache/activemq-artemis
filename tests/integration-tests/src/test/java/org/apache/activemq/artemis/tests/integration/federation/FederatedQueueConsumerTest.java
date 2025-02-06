@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.federation.FederatedQueueConsumerImpl;
 import org.apache.activemq.artemis.core.server.federation.Federation;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +36,7 @@ public class FederatedQueueConsumerTest extends ActiveMQTestBase {
    public void testClose() throws Exception {
       ActiveMQServer server = createServer(false, createDefaultInVMConfig());
       server.start();
-      Federation federation = new Federation(server, new FederationConfiguration().setName(RandomUtil.randomString()));
+      Federation federation = new Federation(server, new FederationConfiguration().setName(RandomUtil.randomUUIDString()));
       federation.start();
       FederatedQueueConsumerImpl consumer = new FederatedQueueConsumerImpl(federation, server, null, null, null, null);
       assertNull(consumer.getCurrentConnectTask());

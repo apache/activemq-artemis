@@ -31,17 +31,58 @@ public class RandomUtil {
       return random;
    }
 
+   private static final String letters = "abcdefghijklmnopqrstuvwxyz";
 
-   public static String randomString() {
+   private static final String digits = "0123456789";
+
+   private static final String randomBase = letters + letters.toUpperCase() + digits;
+
+   private static final int randomBaseLength = randomBase.length();
+
+   /**
+    * Utility method to build a {@code String} filled with random alpha-numeric characters. The {@code String} will
+    * contain characters from the following:
+    * <ul>
+    *    <li>abcdefghijklmnopqrstuvwxyz</li>
+    *    <li>ABCDEFGHIJKLMNOPQRSTUVWXYZ</li>
+    *    <li>0123456789</li>
+    * </ul>
+    * @param length how long the returned {@code String} should be
+    * @return a {@code String} of random alpha-numeric characters
+    */
+   public static String randomAlphaNumericString(int length) {
+      StringBuilder result = new StringBuilder(length);
+      for (int i = 0; i < length; i++) {
+         result.append(randomChar());
+      }
+      return result.toString();
+   }
+
+   /**
+    * @return A randomly generated {@link java.util.UUID} converted to a {@code String}
+    */
+   public static String randomUUIDString() {
       return java.util.UUID.randomUUID().toString();
    }
 
-   public static SimpleString randomSimpleString() {
-      return SimpleString.of(RandomUtil.randomString());
+   /**
+    * @return A randomly generated {@link java.util.UUID} converted to a {@link SimpleString}
+    */
+   public static SimpleString randomUUIDSimpleString() {
+      return SimpleString.of(RandomUtil.randomUUIDString());
    }
 
+   /**
+    * Utility method to get a random alpha-numeric character. The {@code char} will be one of the following:
+    * <ul>
+    *    <li>abcdefghijklmnopqrstuvwxyz</li>
+    *    <li>ABCDEFGHIJKLMNOPQRSTUVWXYZ</li>
+    *    <li>0123456789</li>
+    * </ul>
+    * @return A randomly generated alpha-numeric {@code char}
+    */
    public static char randomChar() {
-      return RandomUtil.randomString().charAt(0);
+      return randomBase.charAt(random.nextInt(randomBaseLength));
    }
 
    public static long randomLong() {
@@ -113,7 +154,7 @@ public class RandomUtil {
    }
 
    public static byte[] randomBytes() {
-      return RandomUtil.randomString().getBytes();
+      return RandomUtil.randomUUIDString().getBytes();
    }
 
    public static byte[] randomBytes(final int length) {

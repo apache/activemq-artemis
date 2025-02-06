@@ -46,7 +46,7 @@ import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.MqttAsyncClient;
@@ -73,7 +73,7 @@ public class MQTT5Test extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSimpleSendReceive() throws Exception {
-      String topic = RandomUtil.randomString();
+      String topic = RandomUtil.randomUUIDString();
 
       CountDownLatch latch = new CountDownLatch(1);
       MqttClient subscriber = createPahoClient("subscriber");
@@ -121,14 +121,14 @@ public class MQTT5Test extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testTimestamp() throws Exception {
-      final String DESTINATION = RandomUtil.randomString();
+      final String DESTINATION = RandomUtil.randomUUIDString();
 
       createJMSConnection();
       JMSContext context = cf.createContext();
       JMSConsumer consumer = context.createConsumer(context.createQueue(DESTINATION));
 
       long time = System.currentTimeMillis();
-      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      MqttClient producer = createPahoClient(RandomUtil.randomUUIDString());
       producer.connect();
       producer.publish(DESTINATION, new byte[0], 1, false);
       producer.disconnect();
@@ -207,10 +207,10 @@ public class MQTT5Test extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAddressAutoCreation() throws Exception {
-      final String DESTINATION = RandomUtil.randomString();
+      final String DESTINATION = RandomUtil.randomUUIDString();
       server.getAddressSettingsRepository().addMatch(DESTINATION, new AddressSettings().setAutoCreateAddresses(true));
 
-      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      MqttClient producer = createPahoClient(RandomUtil.randomUUIDString());
       producer.connect();
       producer.publish(DESTINATION, new byte[0], 0, false);
       producer.disconnect();
@@ -222,10 +222,10 @@ public class MQTT5Test extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAddressAutoCreationNegative() throws Exception {
-      final String DESTINATION = RandomUtil.randomString();
+      final String DESTINATION = RandomUtil.randomUUIDString();
       server.getAddressSettingsRepository().addMatch(DESTINATION, new AddressSettings().setAutoCreateAddresses(false));
 
-      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      MqttClient producer = createPahoClient(RandomUtil.randomUUIDString());
       producer.connect();
       producer.publish(DESTINATION, new byte[0], 0, false);
       producer.disconnect();
@@ -244,8 +244,8 @@ public class MQTT5Test extends MQTT5TestSupport {
       final byte[] WILL = RandomUtil.randomBytes();
       final String[][] properties = new String[10][2];
       for (String[] property : properties) {
-         property[0] = RandomUtil.randomString();
-         property[1] = RandomUtil.randomString();
+         property[0] = RandomUtil.randomUUIDString();
+         property[1] = RandomUtil.randomUUIDString();
       }
 
       // consumer of the will message
@@ -290,7 +290,7 @@ public class MQTT5Test extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testExpiryDelayOnDisconnect() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
 
       MqttAsyncClient consumer = createAsyncPahoClient(CONSUMER_ID);
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
@@ -328,8 +328,8 @@ public class MQTT5Test extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testQueueCleanOnRestart() throws Exception {
-      String topic = RandomUtil.randomString();
-      String clientId = RandomUtil.randomString();
+      String topic = RandomUtil.randomUUIDString();
+      String clientId = RandomUtil.randomUUIDString();
 
       MqttClient client = createPahoClient(clientId);
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
@@ -559,7 +559,7 @@ public class MQTT5Test extends MQTT5TestSupport {
 
       List<String> addresses = new ArrayList<>();
       for (int i = 0; i < MESSAGE_COUNT; i++) {
-         String address = prefix + "/" + RandomUtil.randomString();
+         String address = prefix + "/" + RandomUtil.randomUUIDString();
          addresses.add(address.replace('/', '.'));
          producer.publish(address, new MqttMessage());
       }
@@ -586,7 +586,7 @@ public class MQTT5Test extends MQTT5TestSupport {
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnectionStealingDisabled() throws Exception {
       setAcceptorProperty("allowLinkStealing=false");
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
 
       MqttClient client = createPahoClient(CLIENT_ID);
       client.connect();
@@ -613,9 +613,9 @@ public class MQTT5Test extends MQTT5TestSupport {
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnectionStealingOnMultipleAcceptors() throws Exception {
       int secondaryPort = 1884;
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
 
-      server.getRemotingService().createAcceptor(RandomUtil.randomString(), "tcp://localhost:" + secondaryPort);
+      server.getRemotingService().createAcceptor(RandomUtil.randomUUIDString(), "tcp://localhost:" + secondaryPort);
       server.getRemotingService().startAcceptors();
 
       MqttClient client = createPahoClient(CLIENT_ID);
@@ -639,9 +639,9 @@ public class MQTT5Test extends MQTT5TestSupport {
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnectionStealingDisabledOnMultipleAcceptors() throws Exception {
       int secondaryPort = 1884;
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
 
-      server.getRemotingService().createAcceptor(RandomUtil.randomString(), "tcp://localhost:" + secondaryPort + "?allowLinkStealing=false");
+      server.getRemotingService().createAcceptor(RandomUtil.randomUUIDString(), "tcp://localhost:" + secondaryPort + "?allowLinkStealing=false");
       server.getRemotingService().startAcceptors();
 
       MqttClient client = createPahoClient(CLIENT_ID);

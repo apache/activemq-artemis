@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.Test;
 
@@ -88,7 +88,7 @@ public class AMQPMirrorTemporaryQueueTest extends ActiveMQTestBase {
          serverB.getConfiguration().addAMQPConnection(amqpConnection);
       }
 
-      String topicName = "topic" + RandomUtil.randomString();
+      String topicName = "topic" + RandomUtil.randomUUIDString();
 
       serverA.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(topicName).addRoutingType(RoutingType.ANYCAST));
       serverB.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(topicName).addRoutingType(RoutingType.ANYCAST));

@@ -34,15 +34,15 @@ public class AcceptorControlImplTest {
    @Test
    public void testParameters() throws Exception {
       Map<String, Object> params = new HashMap<>();
-      params.put("param", RandomUtil.randomString());
+      params.put("param", RandomUtil.randomUUIDString());
 
       Map<String, Object> extraProps = new HashMap<>();
-      extraProps.put("extraProp", RandomUtil.randomString());
+      extraProps.put("extraProp", RandomUtil.randomUUIDString());
 
       Acceptor acceptor = Mockito.mock(Acceptor.class);
       StorageManager storageManager = Mockito.mock(StorageManager.class);
       TransportConfiguration transportConfiguration = new TransportConfiguration(
-         InVMAcceptorFactory.class.getName(), params, RandomUtil.randomString(), extraProps);
+         InVMAcceptorFactory.class.getName(), params, RandomUtil.randomUUIDString(), extraProps);
       AcceptorControlImpl acceptorControl = new AcceptorControlImpl(acceptor, storageManager, transportConfiguration);
 
       Map<String, Object> acceptorPrameters = acceptorControl.getParameters();

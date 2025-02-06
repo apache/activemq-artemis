@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.junit.jupiter.api.BeforeEach;
@@ -98,7 +98,7 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreateExpiryQueuePrefix() throws Exception {
-      SimpleString prefix = RandomUtil.randomSimpleString();
+      SimpleString prefix = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().getMatch("#").setExpiryQueuePrefix(prefix);
       triggerExpiration();
       Wait.assertTrue(() -> server.locateQueue(prefix.concat(addressA).concat(AddressSettings.DEFAULT_EXPIRY_QUEUE_SUFFIX)) != null, 2000, 100);
@@ -106,7 +106,7 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreateExpiryQueueSuffix() throws Exception {
-      SimpleString suffix = RandomUtil.randomSimpleString();
+      SimpleString suffix = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().getMatch("#").setExpiryQueueSuffix(suffix);
       triggerExpiration();
       Wait.assertTrue(() -> server.locateQueue(AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX.concat(addressA).concat(suffix)) != null, 2000, 100);
@@ -114,8 +114,8 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreateExpiryQueuePrefixAndSuffix() throws Exception {
-      SimpleString prefix = RandomUtil.randomSimpleString();
-      SimpleString suffix = RandomUtil.randomSimpleString();
+      SimpleString prefix = RandomUtil.randomUUIDSimpleString();
+      SimpleString suffix = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().getMatch("#").setExpiryQueuePrefix(prefix).setExpiryQueueSuffix(suffix);
       triggerExpiration();
       Wait.assertTrue(() -> server.locateQueue(prefix.concat(addressA).concat(suffix)) != null, 2000, 100);
@@ -136,8 +136,8 @@ public class AutoCreateExpiryResourcesTest extends ActiveMQTestBase {
       final int MESSAGE_COUNT = 5;
 
       for (int i = 0; i < ITERATIONS; i++) {
-         SimpleString address = RandomUtil.randomSimpleString();
-         SimpleString queue = RandomUtil.randomSimpleString();
+         SimpleString address = RandomUtil.randomUUIDSimpleString();
+         SimpleString queue = RandomUtil.randomUUIDSimpleString();
          server.createQueue(QueueConfiguration.of(queue).setAddress(address).setRoutingType(routingType));
          ServerLocator locator = createInVMNonHALocator();
          ClientSessionFactory cf = createSessionFactory(locator);

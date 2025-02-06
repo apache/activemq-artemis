@@ -57,7 +57,7 @@ public class SimpleSendMultipleQueuesTest extends ActiveMQTestBase {
       for (int i = 0; i < 1000; i++) {
          ClientMessage message = session.createMessage(false);
 
-         final String body = RandomUtil.randomString();
+         final String body = RandomUtil.randomUUIDString();
 
          message.getBodyBuffer().writeString(body);
 

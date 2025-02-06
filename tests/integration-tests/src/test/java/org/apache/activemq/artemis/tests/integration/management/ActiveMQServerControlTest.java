@@ -443,8 +443,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCreateAndDestroyQueue() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -471,7 +471,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCreateQueueWithNullAddress() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       SimpleString name = address;
 
       ActiveMQServerControl serverControl = createManagementControl();
@@ -498,8 +498,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCreateAndDestroyQueue_2() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
       String filter = "color = 'green'";
       boolean durable = true;
 
@@ -528,8 +528,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCreateAndDestroyQueue_3() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
       boolean durable = true;
 
       ActiveMQServerControl serverControl = createManagementControl();
@@ -557,8 +557,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCreateAndDestroyQueue_4() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
       boolean durable = RandomUtil.randomBoolean();
       boolean purgeOnNoConsumers = RandomUtil.randomBoolean();
       boolean autoCreateAddress = true;
@@ -602,15 +602,15 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCreateAndDestroyQueue_5() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
       boolean durable = RandomUtil.randomBoolean();
       int maxConsumers = RandomUtil.randomInt();
       boolean purgeOnNoConsumers = RandomUtil.randomBoolean();
       boolean exclusive = RandomUtil.randomBoolean();
       boolean groupRebalance = RandomUtil.randomBoolean();
       int groupBuckets = 1;
-      String groupFirstKey = RandomUtil.randomSimpleString().toString();
+      String groupFirstKey = RandomUtil.randomUUIDSimpleString().toString();
       boolean lastValue = false;
       String lastValueKey = null;
       boolean nonDestructive = RandomUtil.randomBoolean();
@@ -687,8 +687,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    @TestTemplate
    public void testCreateAndDestroyQueueWithAutoDeleteAddress() throws Exception {
       server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setAutoDeleteAddresses(false));
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -716,7 +716,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    @TestTemplate
    public void testRemoveQueueFilter() throws Exception {
 
-      String address = RandomUtil.randomString();
+      String address = RandomUtil.randomUUIDString();
       QueueConfiguration queue1 = QueueConfiguration.of("q1")
               .setAddress(address)
               .setFilterString("hello='world'");
@@ -762,8 +762,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCreateAndDestroyQueueClosingConsumers() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
       boolean durable = true;
 
       ActiveMQServerControl serverControl = createManagementControl();
@@ -793,8 +793,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCreateAndDestroyQueueWithNullFilter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
       String filter = null;
       boolean durable = true;
 
@@ -823,8 +823,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCreateAndDestroyQueueWithEmptyStringForFilter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
       String filter = "";
       boolean durable = true;
 
@@ -853,8 +853,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCreateAndUpdateQueueWithoutFilter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -872,8 +872,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCreateAndLegacyUpdateQueueRingSize() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -903,8 +903,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetQueueCount() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -929,8 +929,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetQueueNames() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -952,9 +952,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetQueueNamesWithRoutingType() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString anycastName = RandomUtil.randomSimpleString();
-      SimpleString multicastName = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString anycastName = RandomUtil.randomUUIDSimpleString();
+      SimpleString multicastName = RandomUtil.randomUUIDSimpleString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -988,8 +988,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetClusterConnectionNames() throws Exception {
-      String clusterConnection1 = RandomUtil.randomString();
-      String clusterConnection2 = RandomUtil.randomString();
+      String clusterConnection1 = RandomUtil.randomUUIDString();
+      String clusterConnection2 = RandomUtil.randomUUIDString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -1009,8 +1009,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetAddressCount() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -1034,8 +1034,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetAddressNames() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -1056,8 +1056,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testGetAddressDeletedFromJournal() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -1353,12 +1353,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String configDeleteQueues = DeletionPolicy.getType(RandomUtil.randomPositiveInt() % 2).toString();
       String configDeleteAddresses = DeletionPolicy.getType(RandomUtil.randomPositiveInt() % 2).toString();
       long maxSizeBytesRejectThreshold = RandomUtil.randomPositiveLong();
-      String defaultLastValueKey = RandomUtil.randomString();
+      String defaultLastValueKey = RandomUtil.randomUUIDString();
       boolean defaultNonDestructive = RandomUtil.randomBoolean();
       boolean defaultExclusiveQueue = RandomUtil.randomBoolean();
       boolean defaultGroupRebalance = RandomUtil.randomBoolean();
       int defaultGroupBuckets = RandomUtil.randomPositiveInt();
-      String defaultGroupFirstKey = RandomUtil.randomString();
+      String defaultGroupFirstKey = RandomUtil.randomUUIDString();
       int defaultMaxConsumers = RandomUtil.randomPositiveInt();
       boolean defaultPurgeOnNoConsumers = RandomUtil.randomBoolean();
       int defaultConsumersBeforeDispatch = RandomUtil.randomPositiveInt();
@@ -1374,11 +1374,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       double redeliveryCollisionAvoidanceFactor = RandomUtil.randomDouble();
       long retroactiveMessageCount = RandomUtil.randomPositiveLong();
       boolean autoCreateDeadLetterResources = RandomUtil.randomBoolean();
-      String deadLetterQueuePrefix = RandomUtil.randomString();
-      String deadLetterQueueSuffix = RandomUtil.randomString();
+      String deadLetterQueuePrefix = RandomUtil.randomUUIDString();
+      String deadLetterQueueSuffix = RandomUtil.randomUUIDString();
       boolean autoCreateExpiryResources = RandomUtil.randomBoolean();
-      String expiryQueuePrefix = RandomUtil.randomString();
-      String expiryQueueSuffix = RandomUtil.randomString();
+      String expiryQueuePrefix = RandomUtil.randomUUIDString();
+      String expiryQueueSuffix = RandomUtil.randomUUIDString();
       boolean enableMetrics = RandomUtil.randomBoolean();
       int initialQueueBufferSize = (int) Math.pow(2, 14);
 
@@ -1623,12 +1623,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String configDeleteQueues = DeletionPolicy.getType(RandomUtil.randomPositiveInt() % 2).toString();
       String configDeleteAddresses = DeletionPolicy.getType(RandomUtil.randomPositiveInt() % 2).toString();
       long maxSizeBytesRejectThreshold = RandomUtil.randomPositiveLong();
-      String defaultLastValueKey = RandomUtil.randomString();
+      String defaultLastValueKey = RandomUtil.randomUUIDString();
       boolean defaultNonDestructive = RandomUtil.randomBoolean();
       boolean defaultExclusiveQueue = RandomUtil.randomBoolean();
       boolean defaultGroupRebalance = RandomUtil.randomBoolean();
       int defaultGroupBuckets = RandomUtil.randomPositiveInt();
-      String defaultGroupFirstKey = RandomUtil.randomString();
+      String defaultGroupFirstKey = RandomUtil.randomUUIDString();
       int defaultMaxConsumers = RandomUtil.randomPositiveInt();
       boolean defaultPurgeOnNoConsumers = RandomUtil.randomBoolean();
       int defaultConsumersBeforeDispatch = RandomUtil.randomPositiveInt();
@@ -1644,11 +1644,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       double redeliveryCollisionAvoidanceFactor = RandomUtil.randomDouble();
       long retroactiveMessageCount = RandomUtil.randomPositiveLong();
       boolean autoCreateDeadLetterResources = RandomUtil.randomBoolean();
-      String deadLetterQueuePrefix = RandomUtil.randomString();
-      String deadLetterQueueSuffix = RandomUtil.randomString();
+      String deadLetterQueuePrefix = RandomUtil.randomUUIDString();
+      String deadLetterQueueSuffix = RandomUtil.randomUUIDString();
       boolean autoCreateExpiryResources = RandomUtil.randomBoolean();
-      String expiryQueuePrefix = RandomUtil.randomString();
-      String expiryQueueSuffix = RandomUtil.randomString();
+      String expiryQueuePrefix = RandomUtil.randomUUIDString();
+      String expiryQueueSuffix = RandomUtil.randomUUIDString();
       boolean enableMetrics = RandomUtil.randomBoolean();
 
       AddressSettings addressSettings = new AddressSettings();
@@ -1740,9 +1740,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    private void testNullRouteNameOnDivert(boolean json) throws Exception {
-      String address = RandomUtil.randomString();
-      String name = RandomUtil.randomString();
-      String forwardingAddress = RandomUtil.randomString();
+      String address = RandomUtil.randomUUIDString();
+      String name = RandomUtil.randomUUIDString();
+      String forwardingAddress = RandomUtil.randomUUIDString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -1769,10 +1769,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    private void testCreateAndDestroyDivert(boolean json) throws Exception {
-      String address = RandomUtil.randomString();
-      String name = RandomUtil.randomString();
-      String routingName = RandomUtil.randomString();
-      String forwardingAddress = RandomUtil.randomString();
+      String address = RandomUtil.randomUUIDString();
+      String name = RandomUtil.randomUUIDString();
+      String routingName = RandomUtil.randomUUIDString();
+      String forwardingAddress = RandomUtil.randomUUIDString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -1804,8 +1804,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession();
 
-      String divertQueue = RandomUtil.randomString();
-      String queue = RandomUtil.randomString();
+      String divertQueue = RandomUtil.randomUUIDString();
+      String queue = RandomUtil.randomUUIDString();
       if (legacyCreateQueue) {
          session.createQueue(forwardingAddress, RoutingType.ANYCAST, divertQueue);
          session.createQueue(address, RoutingType.ANYCAST, queue);
@@ -1816,7 +1816,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(false);
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
       message.putStringProperty("prop", text);
       producer.send(message);
 
@@ -1837,7 +1837,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       // check that a message is no longer diverted
       message = session.createMessage(false);
-      String text2 = RandomUtil.randomString();
+      String text2 = RandomUtil.randomUUIDString();
       message.putStringProperty("prop", text2);
       producer.send(message);
 
@@ -1867,8 +1867,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    private void testCreateAndDestroyDivertServerRestart(boolean json) throws Exception {
-      String address = RandomUtil.randomString();
-      String name = RandomUtil.randomString();
+      String address = RandomUtil.randomUUIDString();
+      String name = RandomUtil.randomUUIDString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -1876,9 +1876,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(0, serverControl.getDivertNames().length);
 
       if (json) {
-         serverControl.createDivert(new DivertConfiguration().setName(name).setRoutingName(RandomUtil.randomString()).setAddress(address).setForwardingAddress(RandomUtil.randomString()).setExclusive(true).toJSON());
+         serverControl.createDivert(new DivertConfiguration().setName(name).setRoutingName(RandomUtil.randomUUIDString()).setAddress(address).setForwardingAddress(RandomUtil.randomUUIDString()).setExclusive(true).toJSON());
       } else {
-         serverControl.createDivert(name, RandomUtil.randomString(), address, RandomUtil.randomString(), true, null, null);
+         serverControl.createDivert(name, RandomUtil.randomUUIDString(), address, RandomUtil.randomUUIDString(), true, null, null);
       }
 
       checkResource(ObjectNameBuilder.DEFAULT.getDivertObjectName(name, address));
@@ -1908,11 +1908,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    private void testCreateAndUpdateDivert(boolean json) throws Exception {
-      String address = RandomUtil.randomString();
-      String name = RandomUtil.randomString();
-      String routingName = RandomUtil.randomString();
-      String forwardingAddress = RandomUtil.randomString();
-      String updatedForwardingAddress = RandomUtil.randomString();
+      String address = RandomUtil.randomUUIDString();
+      String name = RandomUtil.randomUUIDString();
+      String routingName = RandomUtil.randomUUIDString();
+      String forwardingAddress = RandomUtil.randomUUIDString();
+      String updatedForwardingAddress = RandomUtil.randomUUIDString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -1944,9 +1944,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       ClientSessionFactory csf = createSessionFactory(locator);
       ClientSession session = csf.createSession();
 
-      String updatedDivertQueue = RandomUtil.randomString();
-      String divertQueue = RandomUtil.randomString();
-      String queue = RandomUtil.randomString();
+      String updatedDivertQueue = RandomUtil.randomUUIDString();
+      String divertQueue = RandomUtil.randomUUIDString();
+      String queue = RandomUtil.randomUUIDString();
       if (legacyCreateQueue) {
          session.createQueue(updatedForwardingAddress, RoutingType.ANYCAST, updatedDivertQueue);
          session.createQueue(forwardingAddress, RoutingType.ANYCAST, divertQueue);
@@ -1959,7 +1959,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ClientProducer producer = session.createProducer(address);
       ClientMessage message = session.createMessage(false);
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
       message.putStringProperty("prop", text);
       producer.send(message);
 
@@ -1999,7 +1999,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       // check that a message is no longer exclusively diverted
       message = session.createMessage(false);
-      String text2 = RandomUtil.randomString();
+      String text2 = RandomUtil.randomUUIDString();
       message.putStringProperty("prop", text2);
       producer.send(message);
 
@@ -2023,11 +2023,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCreateAndDestroyBridge() throws Exception {
-      String name = RandomUtil.randomString();
-      String sourceAddress = RandomUtil.randomString();
-      String sourceQueue = RandomUtil.randomString();
-      String targetAddress = RandomUtil.randomString();
-      String targetQueue = RandomUtil.randomString();
+      String name = RandomUtil.randomUUIDString();
+      String sourceAddress = RandomUtil.randomUUIDString();
+      String sourceQueue = RandomUtil.randomUUIDString();
+      String targetAddress = RandomUtil.randomUUIDString();
+      String targetQueue = RandomUtil.randomUUIDString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -2066,7 +2066,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       // check that a message sent to the sourceAddress is put in the tagetQueue
       ClientProducer producer = session.createProducer(sourceAddress);
       ClientMessage message = session.createMessage(false);
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
       message.putStringProperty("prop", text);
       producer.send(message);
 
@@ -2087,7 +2087,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       // check that a message is no longer diverted
       message = session.createMessage(false);
-      String text2 = RandomUtil.randomString();
+      String text2 = RandomUtil.randomUUIDString();
       message.putStringProperty("prop", text2);
       producer.send(message);
 
@@ -2118,11 +2118,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    private void internalTestCreateAndDestroyBridgeFromJson(boolean dynamicConnector) throws Exception {
-      String name = RandomUtil.randomString();
-      String sourceAddress = RandomUtil.randomString();
-      String sourceQueue = RandomUtil.randomString();
-      String targetAddress = RandomUtil.randomString();
-      String targetQueue = RandomUtil.randomString();
+      String name = RandomUtil.randomUUIDString();
+      String sourceAddress = RandomUtil.randomUUIDString();
+      String sourceQueue = RandomUtil.randomUUIDString();
+      String targetAddress = RandomUtil.randomUUIDString();
+      String targetQueue = RandomUtil.randomUUIDString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -2143,7 +2143,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       String connectorName = connectorConfig.getName();
       if (dynamicConnector) {
-         connectorName = RandomUtil.randomString();
+         connectorName = RandomUtil.randomUUIDString();
          serverControl.addConnector(connectorName, "vm://0");
       }
 
@@ -2171,7 +2171,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       // check that a message sent to the sourceAddress is put in the tagetQueue
       ClientProducer producer = session.createProducer(sourceAddress);
       ClientMessage message = session.createMessage(false);
-      String text = RandomUtil.randomString();
+      String text = RandomUtil.randomUUIDString();
       message.putStringProperty("prop", text);
       producer.send(message);
 
@@ -2192,7 +2192,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       // check that a message is no longer diverted
       message = session.createMessage(false);
-      String text2 = RandomUtil.randomString();
+      String text2 = RandomUtil.randomUUIDString();
       message.putStringProperty("prop", text2);
       producer.send(message);
 
@@ -2215,7 +2215,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    @TestTemplate
    public void testAddAndRemoveConnector() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
-      String connectorName = RandomUtil.randomString();
+      String connectorName = RandomUtil.randomUUIDString();
       serverControl.addConnector(connectorName, "vm://0");
       assertEquals(connectorName, server.getConfiguration().getConnectorConfigurations().get(connectorName).getName());
       serverControl.removeConnector(connectorName);
@@ -2478,8 +2478,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testTotalMessageCount() throws Exception {
-      String random1 = RandomUtil.randomString();
-      String random2 = RandomUtil.randomString();
+      String random1 = RandomUtil.randomUUIDString();
+      String random2 = RandomUtil.randomUUIDString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -2538,8 +2538,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testTotalMessagesAdded() throws Exception {
-      String random1 = RandomUtil.randomString();
-      String random2 = RandomUtil.randomString();
+      String random1 = RandomUtil.randomUUIDString();
+      String random2 = RandomUtil.randomUUIDString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -2590,8 +2590,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testTotalMessagesAcknowledged() throws Exception {
-      String random1 = RandomUtil.randomString();
-      String random2 = RandomUtil.randomString();
+      String random1 = RandomUtil.randomUUIDString();
+      String random2 = RandomUtil.randomUUIDString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -2641,8 +2641,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testTotalConsumerCount() throws Exception {
-      String random1 = RandomUtil.randomString();
-      String random2 = RandomUtil.randomString();
+      String random1 = RandomUtil.randomUUIDString();
+      String random2 = RandomUtil.randomUUIDString();
 
       ActiveMQServerControl serverControl = createManagementControl();
       QueueControl queueControl1 = ManagementControlHelper.createQueueControl(SimpleString.of(random1), SimpleString.of(random1), RoutingType.ANYCAST, mbeanServer);
@@ -4472,7 +4472,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListSessionsJmsClientID() throws Exception {
-      final String clientId = RandomUtil.randomString();
+      final String clientId = RandomUtil.randomUUIDString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -4616,7 +4616,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListConnectionsCoreClientID() throws Exception {
-      final String clientId = RandomUtil.randomString();
+      final String clientId = RandomUtil.randomUUIDString();
       SimpleString queueName1 = SimpleString.of("my_queue_one");
       SimpleString addressName1 = SimpleString.of("my_address_one");
 
@@ -4654,7 +4654,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListConnectionsCoreClientIDLegacy() throws Exception {
-      final String clientId = RandomUtil.randomString();
+      final String clientId = RandomUtil.randomUUIDString();
       SimpleString queueName1 = SimpleString.of("my_queue_one");
       SimpleString addressName1 = SimpleString.of("my_address_one");
 
@@ -4694,7 +4694,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testListConnectionsJmsClientID() throws Exception {
-      final String clientId = RandomUtil.randomString();
+      final String clientId = RandomUtil.randomUUIDString();
 
       ActiveMQServerControl serverControl = createManagementControl();
 
@@ -5855,8 +5855,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testCloseCOREclient() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
       boolean durable = true;
 
       ActiveMQServerControl serverControl = createManagementControl();
@@ -5930,8 +5930,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    private void testForceCloseSession(boolean error, boolean pendingStoreOperation) throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString name = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString name = RandomUtil.randomUUIDSimpleString();
       boolean durable = true;
 
       ActiveMQServerControl serverControl = createManagementControl();
@@ -6020,7 +6020,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    private void testReplaySimple(boolean useDate) throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
-      String queue = "testQueue" + RandomUtil.randomString();
+      String queue = "testQueue" + RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(queue).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
 
@@ -6079,7 +6079,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    @TestTemplate
    public void testReplayFilter() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
-      String queue = "testQueue" + RandomUtil.randomString();
+      String queue = "testQueue" + RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(queue).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
 
@@ -6223,7 +6223,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @TestTemplate
    public void testRestartEmbeddedWebServerException() throws Exception {
-      final String message = RandomUtil.randomString();
+      final String message = RandomUtil.randomUUIDString();
       final Exception startException = new ActiveMQIllegalStateException(message);
       FakeWebServerComponent fake = new FakeWebServerComponent(startException);
       server.addExternalComponent(fake, false);

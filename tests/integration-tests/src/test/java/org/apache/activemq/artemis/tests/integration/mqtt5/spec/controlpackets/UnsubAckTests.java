@@ -51,7 +51,7 @@ public class UnsubAckTests extends MQTT5TestSupport {
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUnsubscribeAck() throws Exception {
       final int SUBSCRIPTION_COUNT = 10;
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       SimpleString[] topicNames = new SimpleString[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
          topicNames[i] = SimpleString.of(i + "-" + TOPIC);
@@ -76,7 +76,7 @@ public class UnsubAckTests extends MQTT5TestSupport {
             unsubTopicNames[i * 2] = topicNames[i].toString();
          }
          if (i != 0) {
-            unsubTopicNames[(i * 2) - 1] = RandomUtil.randomString();
+            unsubTopicNames[(i * 2) - 1] = RandomUtil.randomUUIDString();
          }
       }
       IMqttToken token = consumer.unsubscribe(unsubTopicNames);

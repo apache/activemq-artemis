@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.common.MqttException;
@@ -56,11 +56,11 @@ public class EnhancedAuthenticationTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testBadAuthenticationMethod() throws Exception {
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
 
       MqttClient client = createPahoClient(CLIENT_ID);
       MqttConnectionOptions options = new MqttConnectionOptions();
-      options.setAuthMethod(RandomUtil.randomString());
+      options.setAuthMethod(RandomUtil.randomUUIDString());
       try {
          client.connect(options);
          fail("should have thrown an exception when connecting");

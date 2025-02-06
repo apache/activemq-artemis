@@ -46,7 +46,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -211,7 +211,7 @@ public class DeleteAddressTest extends ActiveMQTestBase {
       localServer(autocreate);
 
       String ADDRESS_NAME = getName() + protocol + "_Topic";
-      final String dlqText = "This should be in DLQ " + RandomUtil.randomString();
+      final String dlqText = "This should be in DLQ " + RandomUtil.randomUUIDString();
 
       if (!autocreate) {
          server.addAddressInfo(new AddressInfo(ADDRESS_NAME).addRoutingType(RoutingType.MULTICAST));

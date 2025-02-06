@@ -40,7 +40,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -107,7 +107,7 @@ public class AutoDeleteAddressTest extends ActiveMQTestBase {
       String prefix = "topic";
       server.getAddressSettingsRepository().addMatch(prefix + ".#", new AddressSettings().setAutoDeleteAddresses(true).setAutoDeleteAddressesSkipUsageCheck(true));
       String wildcardAddress = prefix + ".#";
-      String queue = RandomUtil.randomString();
+      String queue = RandomUtil.randomUUIDString();
       final int MESSAGE_COUNT = 10;
       final CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
 
@@ -123,7 +123,7 @@ public class AutoDeleteAddressTest extends ActiveMQTestBase {
 
       List<String> addresses = new ArrayList<>();
       for (int i = 0; i < MESSAGE_COUNT; i++) {
-         String address = prefix + "." + RandomUtil.randomString();
+         String address = prefix + "." + RandomUtil.randomUUIDString();
          addresses.add(address);
          server.addAddressInfo(new AddressInfo(address).setAutoCreated(true));
          producer.send(address, producerSession.createMessage(false));

@@ -111,6 +111,6 @@ public class ConcurrentHashSetTest {
    @BeforeEach
    public void setUp() throws Exception {
       set = new ConcurrentHashSet<>();
-      element = RandomUtil.randomString();
+      element = RandomUtil.randomUUIDString();
    }
 }

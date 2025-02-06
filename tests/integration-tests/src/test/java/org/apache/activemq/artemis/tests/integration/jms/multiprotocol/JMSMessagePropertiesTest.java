@@ -93,7 +93,7 @@ public class JMSMessagePropertiesTest extends MultiprotocolJMSClientTestSupport 
 
    private void testMessageProperties(Connection producerConnection, Connection consumerConnection) throws JMSException {
       final String stringPropertyName = "myStringProperty";
-      final String stringPropertyValue = RandomUtil.randomString();
+      final String stringPropertyValue = RandomUtil.randomUUIDString();
       final String intPropertyName = "myIntProperty";
       final int intPropertyValue = RandomUtil.randomInt();
       final String longPropertyName = "myLongProperty";

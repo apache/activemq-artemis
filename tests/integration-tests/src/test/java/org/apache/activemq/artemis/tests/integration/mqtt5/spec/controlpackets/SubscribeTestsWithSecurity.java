@@ -22,7 +22,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttClient;
@@ -53,7 +53,7 @@ public class SubscribeTestsWithSecurity extends MQTT5TestSupport {
 
       MqttSubscription[] subscriptions = new MqttSubscription[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
-         MqttSubscription subscription = new MqttSubscription(RandomUtil.randomString(), RandomUtil.randomInterval(0, 3));
+         MqttSubscription subscription = new MqttSubscription(RandomUtil.randomUUIDString(), RandomUtil.randomInterval(0, 3));
          subscriptions[i] = subscription;
       }
 
@@ -81,7 +81,7 @@ public class SubscribeTestsWithSecurity extends MQTT5TestSupport {
       int[] requestedQos = new int[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
          requestedQos[i] = RandomUtil.randomInterval(0, 3);
-         MqttSubscription subscription = new MqttSubscription(RandomUtil.randomString(), requestedQos[i]);
+         MqttSubscription subscription = new MqttSubscription(RandomUtil.randomUUIDString(), requestedQos[i]);
          subscriptions[i] = subscription;
       }
 

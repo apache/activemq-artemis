@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -75,6 +68,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static org.apache.activemq.artemis.utils.RandomUtil.randomUUIDString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class AddressControlTest extends ManagementTestBase {
 
    private ActiveMQServer server;
@@ -94,8 +94,8 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetAddress() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
@@ -108,7 +108,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testIsRetroactiveResource() throws Exception {
-      SimpleString baseAddress = RandomUtil.randomSimpleString();
+      SimpleString baseAddress = RandomUtil.randomUUIDSimpleString();
       SimpleString address = ResourceNames.getRetroactiveResourceAddressName(server.getInternalNamingPrefix(), server.getConfiguration().getWildcardConfiguration().getDelimiterString(), baseAddress);
 
       session.createAddress(address, RoutingType.MULTICAST, false);
@@ -120,14 +120,14 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetLocalQueueNames() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString anotherQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString anotherQueue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       // add a fake RemoteQueueBinding to simulate being in a cluster; we don't want this binding to be returned by getQueueNames()
-      RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), address, RandomUtil.randomSimpleString(), RandomUtil.randomSimpleString(), RandomUtil.randomLong(), null, null, RandomUtil.randomSimpleString(), RandomUtil.randomInt() + 1, MessageLoadBalancingType.OFF);
+      RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), address, RandomUtil.randomUUIDSimpleString(), RandomUtil.randomUUIDSimpleString(), RandomUtil.randomLong(), null, null, RandomUtil.randomUUIDSimpleString(), RandomUtil.randomInt() + 1, MessageLoadBalancingType.OFF);
       server.getPostOffice().addBinding(binding);
 
       AddressControl addressControl = createManagementControl(address);
@@ -150,13 +150,13 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetRemoteQueueNames() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session.createAddress(address, RoutingType.MULTICAST, false);
 
       // add a fake RemoteQueueBinding to simulate being in a cluster; this should be returned by getRemoteQueueNames()
-      RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), address, queue, RandomUtil.randomSimpleString(), RandomUtil.randomLong(), null, null, RandomUtil.randomSimpleString(), RandomUtil.randomInt() + 1, MessageLoadBalancingType.OFF);
+      RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), address, queue, RandomUtil.randomUUIDSimpleString(), RandomUtil.randomLong(), null, null, RandomUtil.randomUUIDSimpleString(), RandomUtil.randomInt() + 1, MessageLoadBalancingType.OFF);
       server.getPostOffice().addBinding(binding);
 
       AddressControl addressControl = createManagementControl(address);
@@ -167,15 +167,15 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetAllQueueNames() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString anotherQueue = RandomUtil.randomSimpleString();
-      SimpleString remoteQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString anotherQueue = RandomUtil.randomUUIDSimpleString();
+      SimpleString remoteQueue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
       // add a fake RemoteQueueBinding to simulate being in a cluster
-      RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), address, remoteQueue, RandomUtil.randomSimpleString(), RandomUtil.randomLong(), null, null, RandomUtil.randomSimpleString(), RandomUtil.randomInt() + 1, MessageLoadBalancingType.OFF);
+      RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), address, remoteQueue, RandomUtil.randomUUIDSimpleString(), RandomUtil.randomLong(), null, null, RandomUtil.randomUUIDSimpleString(), RandomUtil.randomInt() + 1, MessageLoadBalancingType.OFF);
       server.getPostOffice().addBinding(binding);
 
       AddressControl addressControl = createManagementControl(address);
@@ -201,9 +201,9 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetBindingNames() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      String divertName = RandomUtil.randomString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      String divertName = RandomUtil.randomUUIDString();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(false));
 
@@ -212,7 +212,7 @@ public class AddressControlTest extends ManagementTestBase {
       assertEquals(1, bindingNames.length);
       assertEquals(queue.toString(), bindingNames[0]);
 
-      server.getActiveMQServerControl().createDivert(divertName, randomString(), address.toString(), RandomUtil.randomString(), false, null, null);
+      server.getActiveMQServerControl().createDivert(divertName, randomUUIDString(), address.toString(), RandomUtil.randomUUIDString(), false, null, null);
 
       bindingNames = addressControl.getBindingNames();
       assertEquals(2, bindingNames.length);
@@ -226,9 +226,9 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetRoles() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      Role role = new Role(RandomUtil.randomString(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), false, false);
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      Role role = new Role(RandomUtil.randomUUIDString(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), false, false);
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
@@ -262,9 +262,9 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetRolesAsJSON() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      Role role = new Role(RandomUtil.randomString(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), false, false);
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      Role role = new Role(RandomUtil.randomUUIDString(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), RandomUtil.randomBoolean(), false, false);
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
@@ -301,7 +301,7 @@ public class AddressControlTest extends ManagementTestBase {
       server.stop();
       server.getConfiguration().setPersistenceEnabled(true);
 
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(1024).setMaxSizeBytes(10 * 1024);
       final int NUMBER_MESSAGES_BEFORE_PAGING = 7;
@@ -360,7 +360,7 @@ public class AddressControlTest extends ManagementTestBase {
    public void testScheduleCleanup() throws Exception {
       server.getConfiguration().setPersistenceEnabled(true);
 
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(1024).setMaxSizeBytes(10 * 1024);
 
@@ -385,7 +385,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetNumberOfBytesPerPage() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createQueue(QueueConfiguration.of(address));
 
       AddressControl addressControl = createManagementControl(address);
@@ -408,7 +408,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetRoutingTypes() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
@@ -416,7 +416,7 @@ public class AddressControlTest extends ManagementTestBase {
       assertEquals(1, routingTypes.length);
       assertEquals(RoutingType.ANYCAST.toString(), routingTypes[0]);
 
-      address = RandomUtil.randomSimpleString();
+      address = RandomUtil.randomUUIDSimpleString();
       EnumSet<RoutingType> types = EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST);
       session.createAddress(address, types, false);
 
@@ -430,7 +430,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetRoutingTypesAsJSON() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
@@ -442,7 +442,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetMessageCount() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
@@ -463,7 +463,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testNumberOfMessages() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
@@ -482,9 +482,9 @@ public class AddressControlTest extends ManagementTestBase {
       Queue queue = Mockito.mock(Queue.class);
       Mockito.when(queue.getMessageCount()).thenReturn((long) 999);
       Mockito.when(binding.getQueue()).thenReturn(queue);
-      Mockito.when(binding.getUniqueName()).thenReturn(RandomUtil.randomSimpleString());
-      Mockito.when(binding.getRoutingName()).thenReturn(RandomUtil.randomSimpleString());
-      Mockito.when(binding.getClusterName()).thenReturn(RandomUtil.randomSimpleString());
+      Mockito.when(binding.getUniqueName()).thenReturn(RandomUtil.randomUUIDSimpleString());
+      Mockito.when(binding.getRoutingName()).thenReturn(RandomUtil.randomUUIDSimpleString());
+      Mockito.when(binding.getClusterName()).thenReturn(RandomUtil.randomUUIDSimpleString());
       Mockito.when(binding.getType()).thenReturn(BindingType.REMOTE_QUEUE);
       server.getPostOffice().addBinding(binding);
 
@@ -493,7 +493,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testGetRoutedMessageCounts() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
@@ -523,7 +523,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testSendMessage() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
@@ -545,7 +545,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testSendMessageWithProperties() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
@@ -572,7 +572,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testSendMessageWithMessageId() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
@@ -611,7 +611,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    private void internalDuplicateIdTest(boolean clear) throws Exception {
       server.getConfiguration().setPersistIDCache(false);
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
@@ -636,7 +636,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    @Test
    public void testPurge() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
@@ -672,7 +672,7 @@ public class AddressControlTest extends ManagementTestBase {
 
    private void testReplaySimple(boolean useDate) throws Exception {
 
-      String queue = "testQueue" + RandomUtil.randomString();
+      String queue = "testQueue" + RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(queue).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
       AddressControl addressControl = createManagementControl(SimpleString.of(queue));
@@ -731,7 +731,7 @@ public class AddressControlTest extends ManagementTestBase {
    @Test
    public void testReplayFilter() throws Exception {
 
-      String queue = "testQueue" + RandomUtil.randomString();
+      String queue = "testQueue" + RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(queue).addRoutingType(RoutingType.ANYCAST));
       server.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST).setAddress(queue));
 
@@ -770,7 +770,7 @@ public class AddressControlTest extends ManagementTestBase {
       server.stop();
       server.getConfiguration().setPersistenceEnabled(true);
 
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       server.start();
       ServerLocator locator2 = createInVMNonHALocator();
@@ -812,7 +812,7 @@ public class AddressControlTest extends ManagementTestBase {
 
       final int payLoadSize = 896;
       final int pageLimitNumberOfMessages = 4;
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(payLoadSize * 2).setMaxSizeBytes(payLoadSize * pageLimitNumberOfMessages);
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
 

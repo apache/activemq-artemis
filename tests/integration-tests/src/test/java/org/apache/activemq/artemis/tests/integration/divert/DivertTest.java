@@ -65,7 +65,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.jupiter.api.Test;
@@ -194,14 +194,14 @@ public class DivertTest extends ActiveMQTestBase {
 
    @Test
    public void testDivertAndQueueWithSameName() throws Exception {
-      final String name = RandomUtil.randomString();
+      final String name = RandomUtil.randomUUIDString();
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig()
                                                                              .addDivertConfiguration(new DivertConfiguration()
                                                                                                         .setName(name)
-                                                                                                        .setRoutingName(RandomUtil.randomString())
-                                                                                                        .setAddress(RandomUtil.randomString())
-                                                                                                        .setForwardingAddress(RandomUtil.randomString())), false));
+                                                                                                        .setRoutingName(RandomUtil.randomUUIDString())
+                                                                                                        .setAddress(RandomUtil.randomUUIDString())
+                                                                                                        .setForwardingAddress(RandomUtil.randomUUIDString())), false));
 
       server.start();
 

@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.Test;
 
@@ -61,7 +61,7 @@ public class ConfigurationTest extends ActiveMQTestBase {
 
    @Test
    public void testQueueWithoutAddressName() throws Exception {
-      final SimpleString QUEUE_NAME = RandomUtil.randomSimpleString();
+      final SimpleString QUEUE_NAME = RandomUtil.randomUUIDSimpleString();
       ActiveMQServer server = createServer(false, createDefaultInVMConfig());
       try {
          server.getConfiguration().addQueueConfiguration(new CoreQueueConfiguration().setName(QUEUE_NAME.toString()));

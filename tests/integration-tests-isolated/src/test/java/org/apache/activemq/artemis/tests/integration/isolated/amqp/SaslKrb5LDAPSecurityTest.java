@@ -415,7 +415,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
          javax.jms.Queue queue = session.createQueue(QUEUE_NAME);
 
          // PRODUCE
-         final String text = RandomUtil.randomString();
+         final String text = RandomUtil.randomUUIDString();
 
          try {
             MessageProducer producer = session.createProducer(queue);

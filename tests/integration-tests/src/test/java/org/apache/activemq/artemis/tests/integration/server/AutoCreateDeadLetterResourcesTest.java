@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.junit.jupiter.api.BeforeEach;
@@ -97,7 +97,7 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreateDeadLetterQueuePrefix() throws Exception {
-      SimpleString prefix = RandomUtil.randomSimpleString();
+      SimpleString prefix = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().getMatch("#").setDeadLetterQueuePrefix(prefix);
       triggerDlaDelivery();
       assertNotNull(server.locateQueue(prefix.concat(addressA).concat(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX)));
@@ -105,7 +105,7 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreateDeadLetterQueueSuffix() throws Exception {
-      SimpleString suffix = RandomUtil.randomSimpleString();
+      SimpleString suffix = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().getMatch("#").setDeadLetterQueueSuffix(suffix);
       triggerDlaDelivery();
       assertNotNull(server.locateQueue(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX.concat(addressA).concat(suffix)));
@@ -113,8 +113,8 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
 
    @Test
    public void testAutoCreateDeadLetterQueuePrefixAndSuffix() throws Exception {
-      SimpleString prefix = RandomUtil.randomSimpleString();
-      SimpleString suffix = RandomUtil.randomSimpleString();
+      SimpleString prefix = RandomUtil.randomUUIDSimpleString();
+      SimpleString suffix = RandomUtil.randomUUIDSimpleString();
       server.getAddressSettingsRepository().getMatch("#").setDeadLetterQueuePrefix(prefix).setDeadLetterQueueSuffix(suffix);
       triggerDlaDelivery();
       assertNotNull(server.locateQueue(prefix.concat(addressA).concat(suffix)));
@@ -135,8 +135,8 @@ public class AutoCreateDeadLetterResourcesTest extends ActiveMQTestBase {
       final int MESSAGE_COUNT = 10;
 
       for (int i = 0; i < ITERATIONS; i++) {
-         SimpleString address = RandomUtil.randomSimpleString();
-         SimpleString queue = RandomUtil.randomSimpleString();
+         SimpleString address = RandomUtil.randomUUIDSimpleString();
+         SimpleString queue = RandomUtil.randomUUIDSimpleString();
          server.createQueue(QueueConfiguration.of(queue).setAddress(address).setRoutingType(routingType));
          ServerLocator locator = createInVMNonHALocator();
          ClientSessionFactory cf = createSessionFactory(locator);

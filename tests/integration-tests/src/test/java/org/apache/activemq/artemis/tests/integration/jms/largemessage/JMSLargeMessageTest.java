@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.largemessage;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -37,11 +33,15 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JMSLargeMessageTest extends JMSTestBase {
 
@@ -263,16 +263,9 @@ public class JMSLargeMessageTest extends JMSTestBase {
 
       TextMessage m = session.createTextMessage();
 
-      StringBuilder sb = new StringBuilder();
-      while (sb.length() < msgSize) {
-         sb.append(UUIDGenerator.getInstance().generateStringUUID());
-      }
-
-      final String originalString = sb.toString();
+      final String originalString = RandomUtil.randomAlphaNumericString(msgSize);
 
       m.setText(originalString);
-
-      sb = null;
 
       prod.send(m);
 

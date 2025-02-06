@@ -449,7 +449,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
    @Test
    public void testString() throws Exception {
-      String value = RandomUtil.randomString();
+      String value = RandomUtil.randomUUIDString();
       ActiveMQStreamMessage message = new ActiveMQStreamMessage();
 
       message.writeString(value);
@@ -522,7 +522,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
    @Test
    public void testReadStringFromString() throws Exception {
-      String value = RandomUtil.randomString();
+      String value = RandomUtil.randomUUIDString();
       ActiveMQStreamMessage message = new ActiveMQStreamMessage();
 
       message.writeString(value);
@@ -598,7 +598,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
    @Test
    public void testWriteObjectWithString() throws Exception {
-      doWriteObjectWithType(RandomUtil.randomString(), message -> message.readString());
+      doWriteObjectWithType(RandomUtil.randomUUIDString(), message -> message.readString());
    }
 
    @Test
@@ -721,7 +721,7 @@ public class ActiveMQStreamMessageTest extends ActiveMQTestBase {
 
    @Test
    public void testReadObjectFromString() throws Exception {
-      String value = RandomUtil.randomString();
+      String value = RandomUtil.randomUUIDString();
       ActiveMQStreamMessage message = new ActiveMQStreamMessage();
       message.writeString(value);
 

@@ -68,10 +68,10 @@ public class OpenWireProtocolManagerTest {
          Mockito.doReturn(new ChannelBufferWrapper(Unpooled.buffer(1024))).when(connection).createTransportBuffer(Mockito.anyInt());
          OpenWireConnection openWireConnection = new OpenWireConnection(connection, server, openWireProtocolManager, openWireProtocolManager.wireFormat(), executor);
          ConnectionInfo connectionInfo = new ConnectionInfo(new ConnectionId("1:1"));
-         connectionInfo.setClientId(RandomUtil.randomString());
+         connectionInfo.setClientId(RandomUtil.randomUUIDString());
          openWireProtocolManager.addConnection(openWireConnection, connectionInfo);
 
-         TopologyMember topologyMember = new TopologyMemberImpl(RandomUtil.randomString(), null, null, null, null);
+         TopologyMember topologyMember = new TopologyMemberImpl(RandomUtil.randomUUIDString(), null, null, null, null);
          openWireProtocolManager.nodeUP(topologyMember, false);
       } finally {
          executor.shutdown();

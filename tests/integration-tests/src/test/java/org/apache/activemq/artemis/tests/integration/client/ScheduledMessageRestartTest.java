@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +49,7 @@ public class ScheduledMessageRestartTest extends ActiveMQTestBase {
 
    @Test
    public void testSchedulePropertyExistsAfterRestart() throws Exception {
-      final String queueName = RandomUtil.randomString();
+      final String queueName = RandomUtil.randomUUIDString();
       final long scheduledTime = System.currentTimeMillis() * 2;
       server.createQueue(QueueConfiguration.of(queueName).setAddress(queueName));
       ServerLocator locator = createInVMLocator(0);

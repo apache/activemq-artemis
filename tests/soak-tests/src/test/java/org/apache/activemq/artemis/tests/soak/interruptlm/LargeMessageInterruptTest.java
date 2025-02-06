@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.junit.jupiter.api.BeforeAll;
@@ -162,15 +163,7 @@ public class LargeMessageInterruptTest extends SoakTestBase {
 
       String queueName = "LargeMessageInterruptTest";
 
-      String largebody;
-
-      {
-         StringBuilder sb = new StringBuilder();
-         while (sb.length() < BODY_SIZE) {
-            sb.append("LOREM IPSUM WHATEVER THEY SAY IN THERE I DON'T REALLY CARE. I'M NOT SURE IF IT'S LOREM, LAUREM, LAUREN, IPSUM OR YPSUM AND I DON'T REALLY CARE ");
-         }
-         largebody = sb.toString();
-      }
+      String largebody = RandomUtil.randomAlphaNumericString(BODY_SIZE);
 
       if (paging) {
          try (Connection connection = factory.createConnection()) {

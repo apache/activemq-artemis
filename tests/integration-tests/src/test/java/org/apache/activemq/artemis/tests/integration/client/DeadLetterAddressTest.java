@@ -378,10 +378,10 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
    public void testDeadlLetterAddressWithDefaultAddressSettings() throws Exception {
       int deliveryAttempt = 3;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString deadLetterAddress = RandomUtil.randomSimpleString();
-      SimpleString deadLetterQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString deadLetterAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString deadLetterQueue = RandomUtil.randomUUIDSimpleString();
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(deliveryAttempt).setDeadLetterAddress(deadLetterAddress);
       server.getAddressSettingsRepository().setDefault(addressSettings);
 
@@ -415,10 +415,10 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
    public void testDeadlLetterAddressWithWildcardAddressSettings() throws Exception {
       int deliveryAttempt = 3;
 
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString deadLetterAddress = RandomUtil.randomSimpleString();
-      SimpleString deadLetterQueue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString deadLetterAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString deadLetterQueue = RandomUtil.randomUUIDSimpleString();
       AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(deliveryAttempt).setDeadLetterAddress(deadLetterAddress);
       server.getAddressSettingsRepository().addMatch("*", addressSettings);
 
@@ -454,11 +454,11 @@ public class DeadLetterAddressTest extends ActiveMQTestBase {
       int specificeDeliveryAttempt = defaultDeliveryAttempt + 1;
 
       SimpleString address = SimpleString.of("prefix.address");
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString defaultDeadLetterAddress = RandomUtil.randomSimpleString();
-      SimpleString defaultDeadLetterQueue = RandomUtil.randomSimpleString();
-      SimpleString specificDeadLetterAddress = RandomUtil.randomSimpleString();
-      SimpleString specificDeadLetterQueue = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString defaultDeadLetterAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString defaultDeadLetterQueue = RandomUtil.randomUUIDSimpleString();
+      SimpleString specificDeadLetterAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString specificDeadLetterQueue = RandomUtil.randomUUIDSimpleString();
 
       AddressSettings defaultAddressSettings = new AddressSettings().setMaxDeliveryAttempts(defaultDeliveryAttempt).setDeadLetterAddress(defaultDeadLetterAddress);
       server.getAddressSettingsRepository().addMatch("*", defaultAddressSettings);

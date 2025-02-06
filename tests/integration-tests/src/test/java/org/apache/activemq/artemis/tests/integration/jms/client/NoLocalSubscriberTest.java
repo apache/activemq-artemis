@@ -57,7 +57,7 @@ public class NoLocalSubscriberTest extends JMSTestBase {
 
          defaultConn.start();
 
-         String text = RandomUtil.randomString();
+         String text = RandomUtil.randomUUIDString();
          // message is created only once from the same connection than the noLocalConsumer
          TextMessage messageSent = defaultSess.createTextMessage(text);
          for (int i = 0; i < 10; i++) {
@@ -78,7 +78,7 @@ public class NoLocalSubscriberTest extends JMSTestBase {
 
          newConn.start();
 
-         text = RandomUtil.randomString();
+         text = RandomUtil.randomUUIDString();
          messageSent.setText(text);
          defaultProd.send(messageSent);
 
@@ -86,7 +86,7 @@ public class NoLocalSubscriberTest extends JMSTestBase {
          assertNotNull(received);
          assertEquals(text, ((TextMessage) received).getText());
 
-         text = RandomUtil.randomString();
+         text = RandomUtil.randomUUIDString();
          messageSent.setText(text);
          // we send the message created at the start of the test but on the *newConn* this time
          newProd.send(messageSent);

@@ -85,7 +85,7 @@ public class JGroupsChannelBroadcastGroupControlTest extends ManagementTestBase 
 
       String channelName1 = "channel1";
       ChannelBroadcastEndpointFactory endpointFactory = new ChannelBroadcastEndpointFactory(channel, channelName1);
-      broadcastGroupConfig = new BroadcastGroupConfiguration().setName(RandomUtil.randomString()).setBroadcastPeriod(RandomUtil.randomPositiveInt()).setConnectorInfos(connectorInfos).setEndpointFactory(endpointFactory);
+      broadcastGroupConfig = new BroadcastGroupConfiguration().setName(RandomUtil.randomUUIDString()).setBroadcastPeriod(RandomUtil.randomPositiveInt()).setConnectorInfos(connectorInfos).setEndpointFactory(endpointFactory);
 
       Configuration config = createDefaultInVMConfig().setJMXManagementEnabled(true).addConnectorConfiguration(connectorConfiguration.getName(), connectorConfiguration).addBroadcastGroupConfiguration(broadcastGroupConfig);
       server = addServer(ActiveMQServers.newActiveMQServer(config, mbeanServer, false));

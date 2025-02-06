@@ -65,7 +65,7 @@ public class ConfirmationWindowTest extends ActiveMQTestBase {
 
       final int totalMessagesToSend = 1000;
       final int maxChunkSize = 99;
-      String queueName = RandomUtil.randomString();
+      String queueName = RandomUtil.randomUUIDString();
 
       server.createQueue(QueueConfiguration.of(queueName).setAddress(queueName).setRoutingType(RoutingType.ANYCAST));
 

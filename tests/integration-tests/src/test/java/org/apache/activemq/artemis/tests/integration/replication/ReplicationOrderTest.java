@@ -48,8 +48,8 @@ public class ReplicationOrderTest extends FailoverTestBase {
    }
 
    private void doTestMixedPersistentAndNonPersistentMessagesOrderWithReplicatedBackup(final boolean transactional) throws Exception {
-      String address = RandomUtil.randomString();
-      String queue = RandomUtil.randomString();
+      String address = RandomUtil.randomUUIDString();
+      String queue = RandomUtil.randomUUIDString();
       ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(getConnectorTransportConfiguration(true));
       addServerLocator(locator);
       locator.setBlockOnNonDurableSend(false).setBlockOnDurableSend(false);

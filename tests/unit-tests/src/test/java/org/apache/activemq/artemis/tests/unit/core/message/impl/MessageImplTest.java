@@ -79,7 +79,7 @@ public class MessageImplTest extends ActiveMQTestBase {
          assertEquals(timestamp, message.getTimestamp());
          assertEquals(priority, message.getPriority());
 
-         final SimpleString destination = SimpleString.of(RandomUtil.randomString());
+         final SimpleString destination = SimpleString.of(RandomUtil.randomUUIDString());
          final boolean durable2 = RandomUtil.randomBoolean();
          final long expiration2 = RandomUtil.randomLong();
          final long timestamp2 = RandomUtil.randomLong();
@@ -161,7 +161,7 @@ public class MessageImplTest extends ActiveMQTestBase {
          msg.putShortProperty(prop8, val8);
 
          SimpleString prop9 = SimpleString.of("prop9");
-         SimpleString val9 = SimpleString.of(RandomUtil.randomString());
+         SimpleString val9 = SimpleString.of(RandomUtil.randomUUIDString());
          msg.putStringProperty(prop9, val9);
 
          assertEquals(9, msg.getPropertyNames().size());
@@ -195,7 +195,7 @@ public class MessageImplTest extends ActiveMQTestBase {
          assertEquals(val8, msg.getObjectProperty(prop8));
          assertEquals(val9, msg.getObjectProperty(prop9));
 
-         SimpleString val10 = SimpleString.of(RandomUtil.randomString());
+         SimpleString val10 = SimpleString.of(RandomUtil.randomUUIDString());
          // test overwrite
          msg.putStringProperty(prop9, val10);
          assertEquals(val10, msg.getObjectProperty(prop9));

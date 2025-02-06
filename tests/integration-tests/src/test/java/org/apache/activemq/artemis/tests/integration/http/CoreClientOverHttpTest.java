@@ -16,11 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.http;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -38,8 +35,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CoreClientOverHttpTest extends ActiveMQTestBase {
 
@@ -126,7 +126,7 @@ public class CoreClientOverHttpTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(ActiveMQTextMessage.TYPE, false, 0, System.currentTimeMillis(), (byte) 1);
-         content[i] = this.getFixedSizeString(((i % 5) + 1) * 1024 * 8);
+         content[i] = RandomUtil.randomAlphaNumericString(((i % 5) + 1) * 1024 * 8);
          message.getBodyBuffer().writeString(content[i]);
          producer.send(message);
       }
@@ -145,16 +145,4 @@ public class CoreClientOverHttpTest extends ActiveMQTestBase {
 
       session.close();
    }
-
-   private String getFixedSizeString(int size) {
-      StringBuilder sb = new StringBuilder();
-      Random r = new Random();
-      for (int i = 0; i < size; i++) {
-         char chr = (char) r.nextInt(256);
-         sb.append(chr);
-      }
-      String result = sb.toString();
-      return result;
-   }
-
 }

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -29,12 +30,14 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.apache.activemq.artemis.tests.util.RandomUtil.randomXid;
+import static org.apache.activemq.artemis.utils.RandomUtil.randomBytes;
+import static org.apache.activemq.artemis.utils.RandomUtil.randomInt;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SessionCloseTest extends ActiveMQTestBase {
@@ -58,11 +61,11 @@ public class SessionCloseTest extends ActiveMQTestBase {
 
       ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.createProducer());
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.createConsumer(RandomUtil.randomSimpleString()));
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.createConsumer(RandomUtil.randomUUIDSimpleString()));
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.createQueue(QueueConfiguration.of(RandomUtil.randomSimpleString()).setDurable(RandomUtil.randomBoolean())));
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.createQueue(QueueConfiguration.of(RandomUtil.randomUUIDSimpleString()).setDurable(RandomUtil.randomBoolean())));
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.createQueue(QueueConfiguration.of(RandomUtil.randomSimpleString()).setAddress(RandomUtil.randomSimpleString()).setDurable(false).setTemporary(true)));
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.createQueue(QueueConfiguration.of(RandomUtil.randomUUIDSimpleString()).setAddress(RandomUtil.randomUUIDSimpleString()).setDurable(false).setTemporary(true)));
 
       ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.start());
 
@@ -72,9 +75,9 @@ public class SessionCloseTest extends ActiveMQTestBase {
 
       ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.rollback());
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.queueQuery(RandomUtil.randomSimpleString()));
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.queueQuery(RandomUtil.randomUUIDSimpleString()));
 
-      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.addressQuery(RandomUtil.randomSimpleString()));
+      ActiveMQTestBase.expectActiveMQException(ActiveMQExceptionType.OBJECT_CLOSED, () -> session.addressQuery(RandomUtil.randomUUIDSimpleString()));
 
    }
 
@@ -106,10 +109,14 @@ public class SessionCloseTest extends ActiveMQTestBase {
 
    }
 
+   private static Xid randomXid() {
+      return new XidImpl(randomBytes(), randomInt(), randomBytes());
+   }
+
    @Test
    public void testCloseHierarchy() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       ClientSession session = sf.createSession(false, true, true);
 

@@ -66,7 +66,7 @@ public class UnsubscribeTests extends MQTT5TestSupport {
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUnsubscribe() throws Exception {
       final int SUBSCRIPTION_COUNT = 30;
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final AtomicInteger unsubAckCount = new AtomicInteger(0);
       SimpleString[] topicNames = new SimpleString[SUBSCRIPTION_COUNT];
       for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
@@ -121,7 +121,7 @@ public class UnsubscribeTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testStopAddingMessagesOnUnsubscribe() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
 
       MqttClient consumer1 = createPahoClient("consumer1");
       consumer1.connect();
@@ -163,7 +163,7 @@ public class UnsubscribeTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUnsubAck() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final AtomicBoolean unsubscribed = new AtomicBoolean(false);
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -202,7 +202,7 @@ public class UnsubscribeTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUnsubAckPacketId() throws Exception {
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final AtomicBoolean unsubscribed = new AtomicBoolean(false);
       final AtomicInteger packetId = new AtomicInteger(0);
       final CountDownLatch latch = new CountDownLatch(1);

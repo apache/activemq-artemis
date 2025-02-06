@@ -60,6 +60,7 @@ import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedT
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.utils.ExecuteUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
@@ -287,11 +288,6 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
 
    public void produce(ConnectionFactory factory, int index, CountDownLatch latch) {
       try {
-
-         StringBuilder largeSB = new StringBuilder();
-         while (largeSB.length() < 110000) {
-            largeSB.append("asdflkajdhsf akljsdfh akljsdfh alksjdfh alkdjsf ");
-         }
          Connection connection = factory.createConnection("admin", "admin");
 
          latch.countDown();
@@ -322,9 +318,9 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
 
             Message message;
             if (i % 100 == 0) {
-               message = session.createTextMessage(largeSB.toString());
+               message = session.createTextMessage(RandomUtil.randomAlphaNumericString(110_000));
             } else {
-               message = session.createTextMessage("fkjdslkfjdskljf;lkdsjf;kdsajf;lkjdf;kdsajf;kjdsa;flkjdsa;lfkjdsa;flkj;dsakjf;dsajf;askjd;fkj;dsajflaskfja;fdlkajs;lfdkja;kfj;dsakfj;akdsjf;dsakjf;akfj;lakdsjf;lkasjdf;ksajf;kjdsa;fkj;adskjf;akdsjf;kja;sdkfj;akdsjf;akjdsf;adskjf;akdsjf;askfj;aksjfkdjafndmnfmdsnfjadshfjdsalkfjads;fkjdsa;kfja;skfj;akjfd;akjfd;ksaj;fkja;kfj;dsakjf;dsakjf;dksjf;akdsjf;kdsajf");
+               message = session.createTextMessage(RandomUtil.randomAlphaNumericString(355));
             }
 
             messageProducer.send(message);

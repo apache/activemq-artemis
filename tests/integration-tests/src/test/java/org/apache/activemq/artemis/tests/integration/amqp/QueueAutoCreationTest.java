@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -214,12 +215,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
 
          m.setJMSDeliveryMode(DeliveryMode.PERSISTENT);
 
-         StringBuilder sb = new StringBuilder();
-         while (sb.length() < msgSize) {
-            sb.append(UUIDGenerator.getInstance().generateStringUUID());
-         }
-
-         final String originalString = sb.toString();
+         final String originalString = RandomUtil.randomAlphaNumericString(msgSize);
 
          m.setText(originalString);
 

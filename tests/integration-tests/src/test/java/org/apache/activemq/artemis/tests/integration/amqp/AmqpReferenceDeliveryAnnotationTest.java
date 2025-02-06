@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -71,7 +71,7 @@ public class AmqpReferenceDeliveryAnnotationTest extends AmqpClientTestSupport {
 
    public void internalReceiveAnnotations(boolean largeMessage, boolean reboot) throws Exception {
 
-      final String uuid = RandomUtil.randomString();
+      final String uuid = RandomUtil.randomUUIDString();
 
       server.getConfiguration().registerBrokerPlugin(new ActiveMQServerMessagePlugin() {
 

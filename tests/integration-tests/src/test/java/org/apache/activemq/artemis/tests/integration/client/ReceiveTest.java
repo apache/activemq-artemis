@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,10 +58,10 @@ public class ReceiveTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      addressA = RandomUtil.randomSimpleString();
-      queueA = RandomUtil.randomSimpleString();
-      addressB = RandomUtil.randomSimpleString();
-      queueB = RandomUtil.randomSimpleString();
+      addressA = RandomUtil.randomUUIDSimpleString();
+      queueA = RandomUtil.randomUUIDSimpleString();
+      addressB = RandomUtil.randomUUIDSimpleString();
+      queueB = RandomUtil.randomUUIDSimpleString();
 
       locator = createInVMNonHALocator();
       server = createServer(false);

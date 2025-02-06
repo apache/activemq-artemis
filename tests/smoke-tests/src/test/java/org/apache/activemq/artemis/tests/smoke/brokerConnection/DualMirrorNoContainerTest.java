@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.cli.commands.tools.PrintData;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -204,15 +205,7 @@ public class DualMirrorNoContainerTest extends SmokeTestBase {
       ConnectionFactory cfA = CFUtil.createConnectionFactory("amqp", "tcp://localhost:61616");
       ConnectionFactory cfB = CFUtil.createConnectionFactory("amqp", "tcp://localhost:61617");
 
-      String largeBuffer = "";
-
-      if (isLarge) {
-         StringBuilder sb = new StringBuilder();
-         while (sb.length() < 200 * 1024) {
-            sb.append("This is large ");
-         }
-         largeBuffer = sb.toString();
-      }
+      String largeBuffer = RandomUtil.randomAlphaNumericString(200 * 1024);
 
       int NUMBER_OF_MESSAGES = isLarge ? 100 : 1_000;
       int FAILURE_INTERVAL = isLarge ? 10 : 100;

@@ -126,10 +126,10 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
 
    @Test
    public void testActualPort() throws Exception {
-      String firstPort0 = RandomUtil.randomString();
-      String secondPort0 = RandomUtil.randomString();
-      String normal = RandomUtil.randomString();
-      String invm = RandomUtil.randomString();
+      String firstPort0 = RandomUtil.randomUUIDString();
+      String secondPort0 = RandomUtil.randomUUIDString();
+      String normal = RandomUtil.randomUUIDString();
+      String invm = RandomUtil.randomUUIDString();
       ActiveMQServer server = createServer(false, createDefaultInVMConfig());
       server.getConfiguration().addAcceptorConfiguration(firstPort0, "tcp://127.0.0.1:0");
       server.getConfiguration().addAcceptorConfiguration(secondPort0, "tcp://127.0.0.1:0");
@@ -160,7 +160,7 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
    public void testValidSSLConfig1() {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
-      params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, RandomUtil.randomString());
+      params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, RandomUtil.randomUUIDString());
       new NettyAcceptor("netty", null, params, null, null, null, null, Map.of());
    }
 
@@ -168,7 +168,7 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
    public void testValidSSLConfig2() {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
-      params.put(TransportConstants.SSL_CONTEXT_PROP_NAME, RandomUtil.randomString());
+      params.put(TransportConstants.SSL_CONTEXT_PROP_NAME, RandomUtil.randomUUIDString());
       new NettyAcceptor("netty", null, params, null, null, null, null, Map.of());
    }
 }

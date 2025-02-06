@@ -63,7 +63,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -324,7 +324,7 @@ public class JournalPagingTest extends ActiveMQTestBase {
 
       server.start();
 
-      SimpleString queue = SimpleString.of("testPurge:" + RandomUtil.randomString());
+      SimpleString queue = SimpleString.of("testPurge:" + RandomUtil.randomUUIDString());
       server.addAddressInfo(new AddressInfo(queue, RoutingType.ANYCAST));
       QueueImpl purgeQueue = (QueueImpl) server.createQueue(QueueConfiguration.of(queue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(true).setAutoCreateAddress(false));
 

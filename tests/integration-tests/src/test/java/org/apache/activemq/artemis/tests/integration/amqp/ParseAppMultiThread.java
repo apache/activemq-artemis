@@ -41,7 +41,7 @@ public class ParseAppMultiThread {
    public void testMultiThreadParsing() throws Exception {
 
       for (int rep = 0; rep < 500; rep++) {
-         String randomStr = RandomUtil.randomString();
+         String randomStr = RandomUtil.randomUUIDString();
          Map map = new HashMap();
          map.put("color", randomStr);
          for (int i = 0; i < 10; i++) {

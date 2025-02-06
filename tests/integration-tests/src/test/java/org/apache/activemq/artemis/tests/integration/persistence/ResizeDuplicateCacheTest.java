@@ -54,7 +54,7 @@ public class ResizeDuplicateCacheTest extends ActiveMQTestBase {
 
    public void internalReloadCache(boolean additionalSettings, Integer preExistingCacheValue) throws Exception {
       int duplicateSize = 30;
-      SimpleString randomString = RandomUtil.randomSimpleString();
+      SimpleString randomString = RandomUtil.randomUUIDSimpleString();
 
       ActiveMQServer server = createServer(true, false);
       server.start();

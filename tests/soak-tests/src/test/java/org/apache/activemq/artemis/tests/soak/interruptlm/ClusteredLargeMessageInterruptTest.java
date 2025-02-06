@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.junit.jupiter.api.BeforeAll;
@@ -95,16 +96,8 @@ public class ClusteredLargeMessageInterruptTest extends SoakTestBase {
    private volatile boolean runningConsumer = true;
    private final AtomicInteger errors = new AtomicInteger(0);
 
-   static final String largebody = createBody();
    static final int BODY_SIZE = 500 * 1024;
-
-   private static String createBody() {
-      StringBuilder sb = new StringBuilder();
-      while (sb.length() < BODY_SIZE) {
-         sb.append("LOREM IPSUM WHATEVER THEY SAY IN THERE I DON'T REALLY CARE. I'M NOT SURE IF IT'S LOREM, LAUREM, LAUREN, IPSUM OR YPSUM AND I DON'T REALLY CARE ");
-      }
-      return sb.toString();
-   }
+   static final String largebody = RandomUtil.randomAlphaNumericString(BODY_SIZE);
 
    Process serverProcess;
    Process serverProcess2;

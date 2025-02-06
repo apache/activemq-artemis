@@ -67,8 +67,8 @@ public class NotificationTest extends ActiveMQTestBase {
 
    @Test
    public void testBINDING_ADDED() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
       NotificationTest.flush(notifConsumer);
@@ -90,8 +90,8 @@ public class NotificationTest extends ActiveMQTestBase {
 
    @Test
    public void testBINDING_ADDEDWithMatchingFilter() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
       notifConsumer.close();
@@ -116,8 +116,8 @@ public class NotificationTest extends ActiveMQTestBase {
 
    @Test
    public void testBINDING_ADDEDWithNonMatchingFilter() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
       notifConsumer.close();
@@ -134,8 +134,8 @@ public class NotificationTest extends ActiveMQTestBase {
 
    @Test
    public void testBINDING_REMOVED() throws Exception {
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
@@ -162,8 +162,8 @@ public class NotificationTest extends ActiveMQTestBase {
 
       mySession.start();
 
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
@@ -196,8 +196,8 @@ public class NotificationTest extends ActiveMQTestBase {
    @Test
    public void testConsumerCreatedWithEmptyFilterString() throws Exception {
 
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       SimpleString filter = SimpleString.of("");
       boolean durable = RandomUtil.randomBoolean();
 
@@ -250,8 +250,8 @@ public class NotificationTest extends ActiveMQTestBase {
 
       mySession.start();
 
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
       mySession.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
@@ -280,7 +280,7 @@ public class NotificationTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressAdded() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
 
       NotificationTest.flush(notifConsumer);
 
@@ -299,7 +299,7 @@ public class NotificationTest extends ActiveMQTestBase {
 
    @Test
    public void testAddressRemoved() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, true);
       NotificationTest.flush(notifConsumer);
 
@@ -367,8 +367,8 @@ public class NotificationTest extends ActiveMQTestBase {
 
       mySession.start();
 
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
@@ -407,8 +407,8 @@ public class NotificationTest extends ActiveMQTestBase {
 
       mySession.start();
 
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
@@ -447,8 +447,8 @@ public class NotificationTest extends ActiveMQTestBase {
 
       mySession.start();
 
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       boolean durable = RandomUtil.randomBoolean();
 
       session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
@@ -497,7 +497,7 @@ public class NotificationTest extends ActiveMQTestBase {
       session = sf.createSession(false, true, true);
       session.start();
 
-      notifQueue = RandomUtil.randomSimpleString();
+      notifQueue = RandomUtil.randomUUIDSimpleString();
 
       session.createQueue(QueueConfiguration.of(notifQueue).setAddress(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()).setDurable(false));
 

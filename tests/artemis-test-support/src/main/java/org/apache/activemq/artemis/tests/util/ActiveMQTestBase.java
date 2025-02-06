@@ -237,7 +237,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
    protected static String randomProtocol(String...protocols) {
-      String protocol = protocols[org.apache.activemq.artemis.tests.util.RandomUtil.randomPositiveInt() % protocols.length];
+      String protocol = protocols[RandomUtil.randomPositiveInt() % protocols.length];
       logger.info("Selecting {} protocol", protocol);
       return protocol;
    }
@@ -755,7 +755,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       // So this will first register them at the config and then generate a list of objects
       List<String> connectors = new ArrayList<>();
       for (TransportConfiguration tnsp : connectorConfigs) {
-         String name1 = RandomUtil.randomString();
+         String name1 = RandomUtil.randomUUIDString();
 
          server.getConfiguration().getConnectorConfigurations().put(name1, tnsp);
 
@@ -1031,7 +1031,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
          Object value;
 
          if (prop.getPropertyType() == String.class) {
-            value = RandomUtil.randomString();
+            value = RandomUtil.randomUUIDString();
          } else if (prop.getPropertyType() == Integer.class || prop.getPropertyType() == Integer.TYPE) {
             value = RandomUtil.randomInt();
          } else if (prop.getPropertyType() == Long.class || prop.getPropertyType() == Long.TYPE) {

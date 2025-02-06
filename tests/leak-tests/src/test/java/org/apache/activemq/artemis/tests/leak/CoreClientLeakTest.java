@@ -77,8 +77,8 @@ public class CoreClientLeakTest extends AbstractLeakTest {
    public void testConsumerFiltered() throws Exception {
 
       ServerLocator locator = ActiveMQClient.createServerLocator("tcp://localhost:61616");
-      SimpleString queue = RandomUtil.randomSimpleString();
-      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
       SimpleString emptyString = SimpleString.of("");
       SimpleString dummyFilter = SimpleString.of("dummy=true");
 

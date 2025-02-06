@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.junit.jupiter.api.TestTemplate;
@@ -58,7 +58,7 @@ public class BasicSslTests extends MQTT5TestSupport {
    @TestTemplate
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSimpleSendReceive() throws Exception {
-      String topic = RandomUtil.randomString();
+      String topic = RandomUtil.randomUUIDString();
       byte[] body = RandomUtil.randomBytes(32);
 
       CountDownLatch latch = new CountDownLatch(1);

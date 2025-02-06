@@ -67,8 +67,8 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
 
    @Test
    public void testListMessagesAsJSON() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session1.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
@@ -115,8 +115,8 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
 
    @Test
    public void testListMessagesAsJSONWithFilter() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session1.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
@@ -169,8 +169,8 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
    //message iteration.
    @Test
    public void testListMessagesAsJSONWhilePagingOnGoing() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
       session1.createQueue(QueueConfiguration.of(queue).setAddress(address));
 
@@ -207,11 +207,11 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
 
    @Test
    public void testCopyMessageWhilstPaging() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
-      SimpleString otherAddress = RandomUtil.randomSimpleString();
-      SimpleString otherQueue = RandomUtil.randomSimpleString();
+      SimpleString otherAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString otherQueue = RandomUtil.randomUUIDSimpleString();
 
       session1.createQueue(QueueConfiguration.of(queue).setAddress(address));
       session1.createQueue(QueueConfiguration.of(otherQueue).setAddress(otherAddress));
@@ -245,10 +245,10 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
 
    @Test
    public void testCopyMessageWhilstPagingSameAddress() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
-      SimpleString otherQueue = RandomUtil.randomSimpleString();
+      SimpleString otherQueue = RandomUtil.randomUUIDSimpleString();
 
       session1.createQueue(QueueConfiguration.of(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST));
       session1.createQueue(QueueConfiguration.of(otherQueue).setAddress(address).setRoutingType(RoutingType.ANYCAST));
@@ -289,11 +289,11 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
 
    @Test
    public void testMoveMessageWhilstPagingAndConsuming() throws Exception {
-      SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
-      SimpleString otherAddress = RandomUtil.randomSimpleString();
-      SimpleString otherQueue = RandomUtil.randomSimpleString();
+      SimpleString otherAddress = RandomUtil.randomUUIDSimpleString();
+      SimpleString otherQueue = RandomUtil.randomUUIDSimpleString();
 
       session1.createQueue(QueueConfiguration.of(queue).setAddress(address));
       session1.createQueue(QueueConfiguration.of(otherQueue).setAddress(otherAddress));

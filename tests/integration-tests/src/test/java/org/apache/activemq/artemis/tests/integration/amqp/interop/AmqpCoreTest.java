@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.tests.integration.amqp.JMSClientTestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.JmsTopic;
@@ -102,7 +102,7 @@ public class AmqpCoreTest extends JMSClientTestSupport {
    @Test
    @Timeout(60)
    public void testAmqpFailedConversionFromCore() throws Exception {
-      final SimpleString message = RandomUtil.randomSimpleString();
+      final SimpleString message = RandomUtil.randomUUIDSimpleString();
       Connection coreJmsConn = this.createCoreConnection();
       ConnectionFactory cfAMQP = new JmsConnectionFactory("amqp://127.0.0.1:" + AMQP_PORT);
       Connection connectionAMQP = cfAMQP.createConnection();

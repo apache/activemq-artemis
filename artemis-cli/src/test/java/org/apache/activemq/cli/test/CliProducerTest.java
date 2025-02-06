@@ -102,7 +102,7 @@ public class CliProducerTest extends CliTestBase {
 
       String myBooleanKey = "myBooleanKey";
       String myStringKey = "myStringKey";
-      String myStringValue = RandomUtil.randomString();
+      String myStringValue = RandomUtil.randomUUIDString();
       String propertiesJson = ("[{'type':'boolean','key':'" + myBooleanKey + "','value':'true'},{'type':'string','key':'" + myStringKey + "','value':'" + myStringValue + "'}]").replaceAll("'", "\"");
 
       produceMessages(address, null, 1, propertiesJson);
@@ -136,7 +136,7 @@ public class CliProducerTest extends CliTestBase {
       String address = "test";
       String queue = "queue";
       String fqqn = address + "::" + queue;
-      String messageBody = new StringGenerator().generateRandomString(20);
+      String messageBody = RandomUtil.randomAlphaNumericString(20);
 
       createQueue(RoutingType.MULTICAST, address, queue);
       Session session = createSession(connection);
@@ -149,7 +149,7 @@ public class CliProducerTest extends CliTestBase {
    @Test
    public void testSendMessageWithCustomBody() throws Exception {
       String address = "test";
-      String messageBody = new StringGenerator().generateRandomString(20);
+      String messageBody = RandomUtil.randomAlphaNumericString(20);
 
       Session session = createSession(connection);
 
@@ -161,7 +161,7 @@ public class CliProducerTest extends CliTestBase {
    @Test
    public void testSendMessageWithCustomBodyLongString() throws Exception {
       String address = "test";
-      String messageBody = new StringGenerator().generateRandomString(500000);
+      String messageBody = RandomUtil.randomAlphaNumericString(500_000);
 
       Session session = createSession(connection);
 

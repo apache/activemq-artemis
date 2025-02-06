@@ -188,7 +188,7 @@ public class OpenWireMessageConverterTest {
 
    @Test
    public void testStringCorrelationId() throws Exception {
-      final String CORRELATION_ID = RandomUtil.randomString();
+      final String CORRELATION_ID = RandomUtil.randomUUIDString();
 
       ICoreMessage coreMessage = new CoreMessage().initBuffer(8);
       coreMessage.setCorrelationID(CORRELATION_ID);
@@ -201,7 +201,7 @@ public class OpenWireMessageConverterTest {
 
    @Test
    public void testBytesCorrelationId() throws Exception {
-      final byte[] CORRELATION_ID = RandomUtil.randomString().getBytes(StandardCharsets.UTF_8);
+      final byte[] CORRELATION_ID = RandomUtil.randomUUIDString().getBytes(StandardCharsets.UTF_8);
 
       ICoreMessage coreMessage = new CoreMessage().initBuffer(8);
       coreMessage.setCorrelationID(CORRELATION_ID);
@@ -227,7 +227,7 @@ public class OpenWireMessageConverterTest {
 
    @Test
    public void testLegacyCorrelationId() throws Exception {
-      final String CORRELATION_ID = RandomUtil.randomString();
+      final String CORRELATION_ID = RandomUtil.randomUUIDString();
 
       ICoreMessage coreMessage = new CoreMessage().initBuffer(8);
       coreMessage.putStringProperty(OpenWireConstants.JMS_CORRELATION_ID_PROPERTY, SimpleString.of(CORRELATION_ID));
@@ -273,7 +273,7 @@ public class OpenWireMessageConverterTest {
 
    @Test
    public void testLegacyOriginalDestination() throws Exception {
-      final String DESTINATION = RandomUtil.randomString().replace("-", "");
+      final String DESTINATION = RandomUtil.randomUUIDString().replace("-", "");
 
       ActiveMQMessage classicMessage = new ActiveMQMessage();
       classicMessage.setOriginalDestination(new ActiveMQQueue(DESTINATION));
@@ -290,7 +290,7 @@ public class OpenWireMessageConverterTest {
 
    @Test
    public void testLegacyReplyTo() throws Exception {
-      final String DESTINATION = RandomUtil.randomString().replace("-", "");
+      final String DESTINATION = RandomUtil.randomUUIDString().replace("-", "");
 
       ActiveMQMessage classicMessage = new ActiveMQMessage();
       classicMessage.setJMSReplyTo(new ActiveMQQueue(DESTINATION));

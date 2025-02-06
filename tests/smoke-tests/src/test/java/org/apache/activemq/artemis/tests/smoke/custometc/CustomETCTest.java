@@ -76,7 +76,7 @@ public class CustomETCTest extends SmokeTestBase {
          Queue queue = session.createQueue(getName());
          MessageConsumer consumer = session.createConsumer(queue);
          MessageProducer producer = session.createProducer(queue);
-         String text = RandomUtil.randomString();
+         String text = RandomUtil.randomUUIDString();
          connection.start();
          producer.send(session.createTextMessage(text));
          TextMessage txtMessage = (TextMessage) consumer.receive(5000);

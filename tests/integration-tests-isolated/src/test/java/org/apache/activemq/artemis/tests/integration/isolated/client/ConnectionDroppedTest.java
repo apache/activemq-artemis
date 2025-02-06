@@ -93,7 +93,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
                peer.expectOpen();
                peer.remoteBegin().queue();
                peer.expectBegin();
-               peer.remoteAttach().ofReceiver().withName(RandomUtil.randomString()).withSenderSettleModeUnsettled().withReceivervSettlesFirst().withTarget().also().withSource().withAddress("test-queue").withExpiryPolicyOnLinkDetach().withDurabilityOfNone().withCapabilities("queue").withOutcomes("amqp:accepted:list", "amqp:rejected:list").also().queue();
+               peer.remoteAttach().ofReceiver().withName(RandomUtil.randomUUIDString()).withSenderSettleModeUnsettled().withReceivervSettlesFirst().withTarget().also().withSource().withAddress("test-queue").withExpiryPolicyOnLinkDetach().withDurabilityOfNone().withCapabilities("queue").withOutcomes("amqp:accepted:list", "amqp:rejected:list").also().queue();
                peer.dropAfterLastHandler(1000); // This closes the netty connection after the attach is written
                peer.connect("localhost", 61616);
 
@@ -141,7 +141,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
                   peer.expectOpen();
                   peer.remoteBegin().queue();
                   peer.expectBegin();
-                  peer.remoteAttach().ofReceiver().withName(RandomUtil.randomString()).withSenderSettleModeUnsettled().withReceivervSettlesFirst().withTarget().also().withSource().withAddress("test-queue").withExpiryPolicyOnLinkDetach().withDurabilityOfNone().withCapabilities("queue").withOutcomes("amqp:accepted:list", "amqp:rejected:list").also().queue();
+                  peer.remoteAttach().ofReceiver().withName(RandomUtil.randomUUIDString()).withSenderSettleModeUnsettled().withReceivervSettlesFirst().withTarget().also().withSource().withAddress("test-queue").withExpiryPolicyOnLinkDetach().withDurabilityOfNone().withCapabilities("queue").withOutcomes("amqp:accepted:list", "amqp:rejected:list").also().queue();
                   peer.expectAttach();
                   peer.remoteClose().queue();
                   peer.expectClose();
@@ -341,7 +341,7 @@ public class ConnectionDroppedTest extends ActiveMQTestBase {
                peer.queueClientSaslAnonymousConnect();
                peer.remoteOpen().queue();
                peer.remoteBegin().queue();
-               peer.remoteAttach().ofReceiver().withName(RandomUtil.randomString()).withSenderSettleModeUnsettled().withReceivervSettlesFirst().withTarget().also().withSource().withAddress(getName()).withExpiryPolicyOnLinkDetach().withDurabilityOfNone().withCapabilities("queue").withOutcomes("amqp:accepted:list", "amqp:rejected:list").also().queue();
+               peer.remoteAttach().ofReceiver().withName(RandomUtil.randomUUIDString()).withSenderSettleModeUnsettled().withReceivervSettlesFirst().withTarget().also().withSource().withAddress(getName()).withExpiryPolicyOnLinkDetach().withDurabilityOfNone().withCapabilities("queue").withOutcomes("amqp:accepted:list", "amqp:rejected:list").also().queue();
 
                peer.connect("localhost", 61616);
 

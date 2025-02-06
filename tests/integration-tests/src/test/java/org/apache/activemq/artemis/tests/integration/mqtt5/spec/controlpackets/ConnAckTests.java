@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttClient;
@@ -130,7 +130,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnackWhenCleanStartFalse() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
 
       // no session should exist
       assertEquals(0, getSessionStates().size());
@@ -163,7 +163,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnackWhenCleanStartTrue() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
 
       // no session should exist
       assertEquals(0, getSessionStates().size());
@@ -189,7 +189,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWithAbsentSessionExpiryInterval() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       MqttClient consumer = createPahoClient(CONSUMER_ID);
@@ -217,7 +217,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWithMaxSessionExpiryInterval() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final long EXPIRY_INTERVAL = 2000L;
 
@@ -242,7 +242,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnackSentFirst() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       CountDownLatch latch = new CountDownLatch(1);
       AtomicBoolean failed = new AtomicBoolean(false);
 
@@ -322,7 +322,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       };
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       client.connect();
 
       assertTrue(latch.await(2, TimeUnit.SECONDS));
@@ -338,11 +338,11 @@ public class ConnAckTests  extends MQTT5TestSupport {
    public void testMaxPacketSize() throws Exception {
       final int SIZE = 256;
       setAcceptorProperty("maximumPacketSize=" + SIZE);
-      final String TOPIC = RandomUtil.randomString();
+      final String TOPIC = RandomUtil.randomUUIDString();
       final CountDownLatch latch = new CountDownLatch(1);
       byte[] bytes = "=".repeat(SIZE * 2).getBytes(StandardCharsets.UTF_8);
 
-      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      MqttClient producer = createPahoClient(RandomUtil.randomUUIDString());
       producer.connect();
       producer.setCallback(new DefaultMqttCallback() {
          @Override
@@ -377,7 +377,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       final int SIZE = -1;
       setAcceptorProperty("maximumPacketSize=" + SIZE);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       IMqttToken result = client.connectWithResult(null);
       assertNotNull(result.getResponseProperties());
       assertNull(result.getResponseProperties().getMaximumPacketSize());
@@ -397,7 +397,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       final int SIZE = 0;
       setAcceptorProperty("maximumPacketSize=" + SIZE);
 
-      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      MqttClient producer = createPahoClient(RandomUtil.randomUUIDString());
       try {
          producer.connect();
          fail("Connecting should have thrown an exception");
@@ -424,7 +424,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       final int SIZE = -1;
       setAcceptorProperty("topicAliasMaximum=" + SIZE);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       IMqttToken result = client.connectWithResult(null);
       assertNotNull(result.getResponseProperties());
       assertNull(result.getResponseProperties().getTopicAliasMaximum());
@@ -445,7 +445,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       final int SIZE = 0;
       setAcceptorProperty("topicAliasMaximum=" + SIZE);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       IMqttToken result = client.connectWithResult(null);
       assertNotNull(result.getResponseProperties());
       assertEquals(0, result.getResponseProperties().getTopicAliasMaximum().intValue());
@@ -461,7 +461,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       final int SERVER_KEEP_ALIVE = 123;
       setAcceptorProperty("serverKeepAlive=" + SERVER_KEEP_ALIVE);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setKeepAliveInterval(1234);
       IMqttToken result = client.connectWithResult(options);
@@ -480,7 +480,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       final int KEEP_ALIVE = 1234;
       setAcceptorProperty("serverKeepAlive=-1");
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setKeepAliveInterval(KEEP_ALIVE);
       IMqttToken result = client.connectWithResult(options);
@@ -507,7 +507,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       final int SERVER_KEEP_ALIVE = 0;
       setAcceptorProperty("serverKeepAlive=" + SERVER_KEEP_ALIVE);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setKeepAliveInterval(1234);
       IMqttToken result = client.connectWithResult(options);
@@ -531,7 +531,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
       final int SERVER_KEEP_ALIVE = 123;
       setAcceptorProperty("serverKeepAlive=" + SERVER_KEEP_ALIVE);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setKeepAliveInterval(0);
       IMqttToken result = client.connectWithResult(options);

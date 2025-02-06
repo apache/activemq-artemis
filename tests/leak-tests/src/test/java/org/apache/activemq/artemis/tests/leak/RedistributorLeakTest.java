@@ -78,7 +78,7 @@ public class RedistributorLeakTest extends AbstractLeakTest {
 
       final int NUMBER_OF_MESSAGES = 500;
 
-      String addressName = "Queue" + RandomUtil.randomString();
+      String addressName = "Queue" + RandomUtil.randomUUIDString();
       server.addAddressInfo(new AddressInfo(addressName).addRoutingType(RoutingType.ANYCAST));
       QueueImpl queue = (QueueImpl) server.createQueue(QueueConfiguration.of(addressName).setRoutingType(RoutingType.ANYCAST));
 

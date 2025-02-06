@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSessionState;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttClient;
@@ -118,7 +118,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillFlag() throws Exception {
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
       final byte[] WILL = RandomUtil.randomBytes();
 
       MqttClient client = createPahoClient(CLIENT_ID);
@@ -149,8 +149,8 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillMessageWithNoSessionExpiryDelayAndNoWillDelay() throws Exception {
-      final String CLIENT_ID_1 = RandomUtil.randomString();
-      final String CLIENT_ID_2 = RandomUtil.randomString();
+      final String CLIENT_ID_1 = RandomUtil.randomUUIDString();
+      final String CLIENT_ID_2 = RandomUtil.randomUUIDString();
       final byte[] WILL = RandomUtil.randomBytes();
 
       // consumer of the will message
@@ -359,8 +359,8 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillMessageRemovedOnceSent() throws Exception {
-      final String WILL_CONSUMER = RandomUtil.randomString();
-      final String WILL_SENDER = RandomUtil.randomString();
+      final String WILL_CONSUMER = RandomUtil.randomUUIDString();
+      final String WILL_SENDER = RandomUtil.randomUUIDString();
       final byte[] WILL = RandomUtil.randomBytes();
 
       // consumer of the will message
@@ -397,7 +397,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillMessageRemovedOnDisconnect() throws Exception {
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
       final byte[] WILL = RandomUtil.randomBytes();
 
       MqttClient client = createPahoClient(CLIENT_ID);
@@ -421,7 +421,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testWillFlagWithRetain() throws Exception {
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
       final byte[] WILL = RandomUtil.randomBytes();
 
       MqttClient client = createPahoClient(CLIENT_ID);
@@ -460,7 +460,7 @@ public class ConnectTests extends MQTT5TestSupport {
       };
       server.getRemotingService().addIncomingInterceptor(incomingInterceptor);
 
-      MqttClient client = createPahoClient(RandomUtil.randomString());
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
       MqttConnectionOptions options = new MqttConnectionOptions();
       options.setKeepAliveInterval(1);
       client.connect(options);
@@ -477,7 +477,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testMaxPacketSize() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final long SIZE = 1500;
       final byte[] bytes = new byte[(int) SIZE];
@@ -495,7 +495,7 @@ public class ConnectTests extends MQTT5TestSupport {
       consumer.connect(options);
       consumer.subscribe(TOPIC, 2);
 
-      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      MqttClient producer = createPahoClient(RandomUtil.randomUUIDString());
       producer.connect();
       producer.publish(TOPIC, bytes, 2, false);
       producer.disconnect();
@@ -536,7 +536,7 @@ public class ConnectTests extends MQTT5TestSupport {
    }
 
    private void testTopicAliasOnClient(boolean disabled) throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final int MESSAGE_COUNT = 25;
 
@@ -576,12 +576,12 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testUserPropertiesOrder() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final int USER_PROPERTY_COUNT = 10;
       List<UserProperty> userProperties = new ArrayList<>();
       for (int i = 0; i < USER_PROPERTY_COUNT; i++) {
-         userProperties.add(new UserProperty(RandomUtil.randomString(), RandomUtil.randomString()));
+         userProperties.add(new UserProperty(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString()));
       }
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -623,7 +623,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testClientID() throws Exception {
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
 
       // no session should exist
       assertEquals(0, getSessionStates().size());
@@ -702,7 +702,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testAuthenticationFailure() throws Exception {
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
 
       MqttClient client = createPahoClient(CLIENT_ID);
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
@@ -721,7 +721,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnectionStealing() throws Exception {
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
 
       MqttClient client = createPahoClient(CLIENT_ID);
       client.connect();
@@ -763,7 +763,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnectionStealingBy3_1_1() throws Exception {
-      final String CLIENT_ID = RandomUtil.randomString();
+      final String CLIENT_ID = RandomUtil.randomUUIDString();
 
       MqttClient client = createPahoClient(CLIENT_ID);
       client.connect();
@@ -807,7 +807,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnackWhenCleanStartFalse() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
 
       // no session should exist
       assertEquals(0, getSessionStates().size());
@@ -840,7 +840,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testConnackWhenCleanStartTrue() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
 
       // no session should exist
       assertEquals(0, getSessionStates().size());
@@ -868,7 +868,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalse() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
 
       // no session should exist
       assertEquals(0, getSessionStates().size());
@@ -899,11 +899,11 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWithReconnect() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
-      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      MqttClient producer = createPahoClient(RandomUtil.randomUUIDString());
       MqttClient consumer = createPahoClient(CONSUMER_ID);
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
          .cleanStart(false)
@@ -951,7 +951,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWith0SessionExpiryInterval() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       MqttClient consumer = createPahoClient(CONSUMER_ID);
@@ -981,7 +981,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWithNon0SessionExpiryInterval() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final long EXPIRY_INTERVAL = 2L;
 
@@ -1019,7 +1019,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWithAbsentSessionExpiryInterval() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       MqttClient consumer = createPahoClient(CONSUMER_ID);
@@ -1047,7 +1047,7 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartFalseWithMaxSessionExpiryInterval() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
       final long EXPIRY_INTERVAL = 2000L;
 
@@ -1074,11 +1074,11 @@ public class ConnectTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testCleanStartTrue() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
+      final String CONSUMER_ID = RandomUtil.randomUUIDString();
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(1);
-      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      MqttClient producer = createPahoClient(RandomUtil.randomUUIDString());
       MqttClient consumer = createPahoClient(CONSUMER_ID);
 
       // start with clean start = false and a non-zero session expiry interval to ensure the session stays on the broker

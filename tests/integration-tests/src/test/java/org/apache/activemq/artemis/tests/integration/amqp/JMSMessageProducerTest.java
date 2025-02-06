@@ -26,10 +26,10 @@ import javax.jms.Session;
 import javax.jms.TemporaryQueue;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-import java.util.Random;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -208,7 +208,7 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
          Queue queue = session.createQueue(getQueueName());
          MessageProducer sender = session.createProducer(queue);
 
-         String body = createMessage(10240);
+         String body = RandomUtil.randomAlphaNumericString(10240);
          sender.send(session.createTextMessage(body));
          connection.start();
 
@@ -308,16 +308,5 @@ public class JMSMessageProducerTest extends JMSClientTestSupport {
       } finally {
          connection.close();
       }
-   }
-
-   private static String createMessage(int messageSize) {
-      final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      Random rnd = new Random();
-      StringBuilder sb = new StringBuilder(messageSize);
-      for (int j = 0; j < messageSize; j++) {
-         sb.append(AB.charAt(rnd.nextInt(AB.length())));
-      }
-      String body = sb.toString();
-      return body;
    }
 }

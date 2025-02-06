@@ -67,7 +67,7 @@ import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.jupiter.api.Test;
@@ -633,11 +633,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
       server.createQueue(QueueConfiguration.of("A").setRoutingType(RoutingType.ANYCAST));
       MessageProducer p = s.createProducer(ActiveMQJMSClient.createQueue("A"));
       p.setDeliveryMode(DeliveryMode.PERSISTENT);
-      StringBuilder stringBuilder = new StringBuilder();
-      for (int i = 0; i < 1024 * 200; i++) {
-         stringBuilder.append(RandomUtil.randomChar());
-      }
-      TextMessage textMessage = s.createTextMessage(stringBuilder.toString());
+      TextMessage textMessage = s.createTextMessage(RandomUtil.randomAlphaNumericString(200 * 1024));
       textMessage.setStringProperty("_AMQ_DUPL_ID", String.valueOf(UUID.randomUUID()));
       p.send(textMessage);
       c.close();
@@ -1275,15 +1271,15 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    @Test
    public void testRemovedQueue() throws Exception {
 
-      String undefinedPrefix = "undef_" + RandomUtil.randomString() + "_";
+      String undefinedPrefix = "undef_" + RandomUtil.randomUUIDString() + "_";
       final int numberOfMessages = 100;
 
       server = createServer(true, true);
       server.start();
       forceLong();
 
-      String anycastQueueName = getTestClassName() + RandomUtil.randomString();
-      String multicastQueueName = getTestClassName() + RandomUtil.randomString();
+      String anycastQueueName = getTestClassName() + RandomUtil.randomUUIDString();
+      String multicastQueueName = getTestClassName() + RandomUtil.randomUUIDString();
       createAnycastPair(server, anycastQueueName);
       server.addAddressInfo(new AddressInfo(multicastQueueName).addRoutingType(RoutingType.MULTICAST).setAutoCreated(false));
       server.createQueue(QueueConfiguration.of(multicastQueueName).setRoutingType(RoutingType.MULTICAST).setAddress(multicastQueueName));

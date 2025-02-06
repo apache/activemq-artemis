@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -44,16 +45,7 @@ public class AmqpMessageDivertsTest extends AmqpClientTestSupport implements Tra
 
    static final AtomicInteger divertCount = new AtomicInteger(0);
 
-   String largeString = createLargeString();
-
-   protected String createLargeString() {
-      StringBuilder sbLarge = new StringBuilder();
-      for (int i = 0; i < 500 * 1024; i++) {
-         sbLarge.append((char) ('a' + (i % 20)));
-      }
-      String largeString = sbLarge.toString();
-      return largeString;
-   }
+   static final String largeString = RandomUtil.randomAlphaNumericString(500 * 1024);
 
 
    @Test

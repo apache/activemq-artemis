@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImp
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -111,7 +111,7 @@ public class ClusterConnectionConfigTest extends ClusterTestBase {
 
    @Test
    public void testClusterConnectionClientId() throws Exception {
-      final String clientId = RandomUtil.randomString();
+      final String clientId = RandomUtil.randomUUIDString();
       setupCluster(MessageLoadBalancingType.ON_DEMAND, (ClusterConnectionConfiguration cfg) -> {
          cfg.setClientId(clientId);
       });

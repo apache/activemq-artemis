@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.BeforeEach;
@@ -297,7 +297,7 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
 
    private void testFilteredQueue(boolean useProperty) throws Exception {
       final String key = "myKey";
-      final String value = RandomUtil.randomString();
+      final String value = RandomUtil.randomUUIDString();
       server.createQueue(new QueueConfiguration(anycastQ1).setAddress(anycastAddress).setRoutingType(RoutingType.ANYCAST).setFilterString(key + "='" + value + "'"));
 
       ClientSessionFactory cf = createSessionFactory(locator);

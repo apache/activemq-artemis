@@ -255,7 +255,7 @@ public class SimpleStringTest {
    public void testSizeofString() throws Exception {
       assertEquals(DataConstants.SIZE_INT, SimpleString.sizeofString(createSimpleString("")));
 
-      SimpleString str = createSimpleString(RandomUtil.randomString());
+      SimpleString str = createSimpleString(RandomUtil.randomUUIDString());
       assertEquals(DataConstants.SIZE_INT + str.getData().length, SimpleString.sizeofString(str));
    }
 
@@ -265,7 +265,7 @@ public class SimpleStringTest {
 
       assertEquals(1 + DataConstants.SIZE_INT, SimpleString.sizeofNullableString(createSimpleString("")));
 
-      SimpleString str = createSimpleString(RandomUtil.randomString());
+      SimpleString str = createSimpleString(RandomUtil.randomUUIDString());
       assertEquals(1 + DataConstants.SIZE_INT + str.getData().length, SimpleString.sizeofNullableString(str));
    }
 
