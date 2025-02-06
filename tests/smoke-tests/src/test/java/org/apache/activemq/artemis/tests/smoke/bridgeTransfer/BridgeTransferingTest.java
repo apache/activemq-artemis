@@ -123,16 +123,7 @@ public class BridgeTransferingTest extends SmokeTestBase {
       ConnectionFactory cf = CFUtil.createConnectionFactory(theprotocol, "tcp://localhost:61616");
       ((ActiveMQConnectionFactory) cf).setMinLargeMessageSize(minlargeMessageSize);
 
-      String body;
-
-      {
-         StringBuilder sb = new StringBuilder();
-         while (sb.length() < messageSize) {
-            sb.append(" ");
-         }
-         body = sb.toString();
-      }
-
+      String body = " ".repeat(messageSize);
       {
          Connection connection = cf.createConnection();
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
