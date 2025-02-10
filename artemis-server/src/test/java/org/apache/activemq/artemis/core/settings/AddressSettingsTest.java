@@ -65,6 +65,13 @@ public class AddressSettingsTest extends ServerTestBase {
    }
 
    @Test
+   public void testSizeNegative() {
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setPageSizeBytes(-1);
+      assertEquals(AddressSettings.DEFAULT_PAGE_SIZE, addressSettings.getPageSizeBytes());
+   }
+
+   @Test
    public void testSingleMerge() {
       testSingleMerge(false);
    }

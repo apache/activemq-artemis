@@ -834,7 +834,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    }
 
    public AddressSettings setPageSizeBytes(final int pageSize) {
-      pageSizeBytes = pageSize;
+      this.pageSizeBytes = testForNull(pageSize);
       return this;
    }
 
@@ -853,6 +853,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public long getMaxSizeMessages() {
       return maxSizeMessages != null ? maxSizeMessages : AddressSettings.DEFAULT_MAX_SIZE_MESSAGES;
+   }
+
+   private Integer testForNull(int value) {
+      return value < 0 ? null : value;
    }
 
    public AddressSettings setMaxSizeMessages(final long maxSizeMessages) {
