@@ -54,7 +54,7 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
 
    protected final Predicate<ServerConsumer> federationConsumerMatcher;
    protected final FederationReceiveFromQueuePolicy policy;
-   protected final Map<FederationConsumerInfo, AMQPFederationQueueEntry> demandTracking = new HashMap<>();
+   protected final Map<FederationConsumerInfo, AMQPFederationQueueConsumerManager> federationConsumers = new HashMap<>();
 
    public AMQPFederationQueuePolicyManager(AMQPFederation federation, AMQPFederationMetrics metrics, FederationReceiveFromQueuePolicy queuePolicy) throws ActiveMQException {
       super(federation, metrics, queuePolicy);
@@ -74,19 +74,19 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
    }
 
    @Override
-   protected void safeCleanupConsumerDemandTracking(boolean force) {
+   protected void safeCleanupManagerResources(boolean force) {
       try {
-         demandTracking.values().forEach((entry) -> {
-            if (entry != null && entry.hasConsumer()) {
+         federationConsumers.values().forEach((entry) -> {
+            if (entry != null) {
                if (isConnected() && !force) {
-                  tryStopFederationConsumer(entry.removeAllDemand());
+                  entry.shutdown();
                } else {
-                  tryCloseFederationConsumer(entry.removeAllDemand().clearConsumer());
+                  entry.shutdownNow();
                }
             }
          });
       } finally {
-         demandTracking.clear();
+         federationConsumers.clear();
       }
    }
 
@@ -100,24 +100,12 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
    @Override
    public synchronized void afterCloseConsumer(ServerConsumer consumer, boolean failed) {
       if (isActive()) {
-         final String queueName = consumer.getQueue().getName().toString();
          final FederationConsumerInfo consumerInfo = createConsumerInfo(consumer);
-         final AMQPFederationQueueEntry entry = demandTracking.get(consumerInfo);
+         final AMQPFederationQueueConsumerManager entry = federationConsumers.get(consumerInfo);
 
-         if (entry == null) {
-            return;
-         }
-
-         entry.removeDemand(consumer);
-
-         logger.trace("Reducing demand on federated queue {}, remaining demand? {}", queueName, entry.hasDemand());
-
-         if (!entry.hasDemand() && entry.hasConsumer()) {
-            // A started consumer should be allowed to stop before possible close either because demand
-            // is still not present or the remote did not respond before the configured stop timeout elapsed.
-            // A successfully stopped receiver can be restarted but if the stop times out the receiver should
-            // be closed and a new receiver created if demand is present.
-            tryStopFederationConsumer(entry);
+         if (entry != null) {
+            logger.trace("Reducing demand on federated queue {}", entry.getQueueName());
+            entry.removeDemand(identifyConsumer(consumer));
          }
       }
    }
@@ -127,8 +115,8 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
       if (binding instanceof QueueBinding queueBinding) {
          final String queueName = queueBinding.getQueue().getName().toString();
 
-         demandTracking.values().removeIf((entry) -> {
-            if (entry.getConsumerInfo().getQueueName().equals(queueName) && entry.removeAllDemand().hasConsumer()) {
+         federationConsumers.values().removeIf((entry) -> {
+            if (entry.getQueueName().equals(queueName)) {
                logger.trace("Federated queue {} was removed, closing federation consumer", queueName);
 
                // Demand is gone because the Queue binding is gone and any in-flight messages
@@ -137,54 +125,13 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
                // of data for entries that may never return and to prevent interference from the
                // next set of events which will be the close of all local consumers for this now
                // removed Queue.
-               tryCloseFederationConsumer(entry.clearConsumer());
+               entry.shutdownNow();
 
                return true;
             } else {
                return false;
             }
          });
-      }
-   }
-
-   private void tryStopFederationConsumer(AMQPFederationQueueEntry entry) {
-      if (entry.hasConsumer()) {
-         entry.getConsumer().stopAsync(new AMQPFederationAsyncCompletion<AMQPFederationConsumer>() {
-
-            @Override
-            public void onComplete(AMQPFederationConsumer context) {
-               handleFederationConsumerStopped(entry, true);
-            }
-
-            @Override
-            public void onException(AMQPFederationConsumer context, Exception error) {
-               logger.trace("Stop of federation consumer {} failed, closing consumer: ", context, error);
-               handleFederationConsumerStopped(entry, false);
-            }
-         });
-      }
-   }
-
-   private synchronized void handleFederationConsumerStopped(AMQPFederationQueueEntry entry, boolean didStop) {
-      final AMQPFederationConsumer federationConsuner = entry.getConsumer();
-
-      // Remote close or local queue remove could have beaten us here and already cleaned up the consumer.
-      if (federationConsuner != null) {
-         // If the consumer has no demand or it didn't stop in time or some other error occurred we
-         // assume the worst and close it here, the follow on code will recreate or cleanup as needed.
-         if (!didStop || !entry.hasDemand()) {
-            tryCloseFederationConsumer(entry.clearConsumer());
-         }
-
-         // Demand may have returned while the consumer was stopping in which case
-         // we either restart an existing stopped consumer or recreate if the stop
-         // timed out and we closed it above. If there's still no demand then we
-         // should remove it from demand tracking to reduce resource consumption.
-         if (isActive() && entry.hasDemand()) {
-            tryRestartFederationConsumerForQueue(entry);
-         } else {
-            demandTracking.remove(entry.getConsumerInfo());
-         }
       }
    }
 
@@ -218,107 +165,22 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
 
          logger.trace("Federation Policy matched on consumer for binding: {}", consumer.getBinding());
 
-         final AMQPFederationQueueEntry entry;
+         final AMQPFederationQueueConsumerManager entry;
          final FederationConsumerInfo consumerInfo = createConsumerInfo(consumer);
 
          // Check for existing consumer add demand from a additional local consumer to ensure
          // the remote consumer remains active until all local demand is withdrawn.
-         if (demandTracking.containsKey(consumerInfo)) {
+         if (federationConsumers.containsKey(consumerInfo)) {
             logger.trace("Federation Queue Policy manager found existing demand for queue: {}, adding demand", queueName);
-            entry = demandTracking.get(consumerInfo);
+            entry = federationConsumers.get(consumerInfo);
          } else {
-            demandTracking.put(consumerInfo, entry = new AMQPFederationQueueEntry(consumer.getQueue(), consumerInfo));
+            federationConsumers.put(consumerInfo, entry = new AMQPFederationQueueConsumerManager(this, consumerInfo, consumer.getQueue()));
          }
 
          // Demand passed all binding plugin blocking checks so we track it, plugin can still
          // stop federation of the queue based on some external criteria but once it does
          // (if ever) allow it we will have tracked all allowed demand.
-         entry.addDemand(consumer);
-
-         // This will create a new consumer only if there isn't one currently assigned to the entry
-         // and any configured federation plugins don't block it from doing so.
-         tryCreateFederationConsumerForQueue(entry);
-      }
-   }
-
-   private void tryCreateFederationConsumerForQueue(AMQPFederationQueueEntry queueEntry) {
-      if (queueEntry.hasDemand()) {
-         if (!queueEntry.hasConsumer() && !isPluginBlockingFederationConsumerCreate(queueEntry.getQueue())) {
-            logger.trace("Federation Queue Policy manager creating remote consumer for queue: {}", queueEntry.getQueueName());
-
-            signalPluginBeforeCreateFederationConsumer(queueEntry.getConsumerInfo());
-
-            final AMQPFederationConsumer queueConsumer = createFederationConsumer(queueEntry.getConsumerInfo());
-
-            // Handle remote close with remove of consumer which means that future demand will
-            // attempt to create a new consumer for that demand. Ensure that thread safety is
-            // accounted for here as the notification can be asynchronous.
-            queueConsumer.setRemoteClosedHandler((closedConsumer) -> {
-               synchronized (AMQPFederationQueuePolicyManager.this) {
-                  try {
-                     final AMQPFederationQueueEntry tracked = demandTracking.get(closedConsumer.getConsumerInfo());
-
-                     if (tracked != null) {
-                        tracked.clearConsumer();
-                     }
-                  } finally {
-                     tryCloseFederationConsumer(closedConsumer);
-                  }
-               }
-            });
-
-            queueEntry.setConsumer(queueConsumer);
-
-            // Now that we are tracking it we can initialize it which will start it once
-            // the link has fully attached.
-            queueConsumer.initialize();
-
-            signalPluginAfterCreateFederationConsumer(queueConsumer);
-         }
-      }
-   }
-
-   private void tryRestartFederationConsumerForQueue(AMQPFederationQueueEntry entry) {
-      // There might be a consumer that was previously stopped due to demand having been
-      // removed in which case we can attempt to recover it with a simple restart but if
-      // that fails ensure the old consumer is closed and then attempt to recreate as we
-      // know there is demand currently.
-      if (entry.hasConsumer()) {
-         final AMQPFederationConsumer federationConsuner = entry.getConsumer();
-
-         try {
-            federationConsuner.startAsync(new AMQPFederationAsyncCompletion<AMQPFederationConsumer>() {
-
-               @Override
-               public void onComplete(AMQPFederationConsumer context) {
-                  logger.trace("Restarted federation consumer after new demand added.");
-               }
-
-               @Override
-               public void onException(AMQPFederationConsumer context, Exception error) {
-                  if (error instanceof IllegalStateException) {
-                     // The receiver might be stopping or it could be closed, either of which
-                     // was initiated from this manager so we can ignore and let those complete.
-                     return;
-                  } else {
-                     // This is unexpected and our reaction is to close the consumer since we
-                     // have no idea what its state is now. Later new demand or remote events
-                     // will trigger a new consumer to get added.
-                     logger.trace("Start of federation consumer {} threw unexpected error, closing consumer: ", context, error);
-                     tryCloseFederationConsumer(entry.clearConsumer());
-                  }
-               }
-            });
-         } catch (Exception ex) {
-            // The consumer might have been remotely closed, we can't be certain but since we
-            // are responding to demand having been added we will close it and clear the entry
-            // so that the follow on code can try and create a new one.
-            logger.trace("Caught error on attempted restart of existing federation consumer", ex);
-            tryCloseFederationConsumer(entry.clearConsumer());
-            tryCreateFederationConsumerForQueue(entry);
-         }
-      } else {
-         tryCreateFederationConsumerForQueue(entry);
+         entry.addDemand(identifyConsumer(consumer));
       }
    }
 
@@ -345,9 +207,9 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
          final Queue queue = server.locateQueue(queueName);
 
          if (queue != null) {
-            demandTracking.forEach((k, v) -> {
+            federationConsumers.forEach((k, v) -> {
                if (k.getQueueName().equals(queueName)) {
-                  tryCreateFederationConsumerForQueue(v);
+                  v.recover();
                }
             });
          }
@@ -467,11 +329,49 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
       }
    }
 
+   private static String identifyConsumer(ServerConsumer consumer) {
+      return consumer.getConnectionID().toString() + ":" +
+             consumer.getSessionID() + ":" +
+             consumer.getID();
+   }
+
    private static String selectFilter(Filter queueFilter, Filter consumerFilter) {
       if (consumerFilter != null) {
          return consumerFilter.getFilterString().toString();
       } else {
          return queueFilter != null ? queueFilter.getFilterString().toString() : null;
+      }
+   }
+
+   private static class AMQPFederationQueueConsumerManager extends AMQPFederationConsumerManager {
+
+      private final AMQPFederationQueuePolicyManager manager;
+      private final Queue queue;
+      private final FederationConsumerInfo consumerInfo;
+
+      AMQPFederationQueueConsumerManager(AMQPFederationQueuePolicyManager manager, FederationConsumerInfo consumerInfo, Queue queue) {
+         super(manager);
+
+         this.manager = manager;
+         this.queue = queue;
+         this.consumerInfo = consumerInfo;
+      }
+
+      /**
+       * @return the name of the Queue this federation consumer manager is attached to.
+       */
+      public String getQueueName() {
+         return queue.getName().toString();
+      }
+
+      @Override
+      protected AMQPFederationConsumer createFederationConsumer() {
+         return manager.createFederationConsumer(consumerInfo);
+      }
+
+      @Override
+      protected boolean isPluginBlockingFederationConsumerCreate() {
+         return manager.isPluginBlockingFederationConsumerCreate(queue);
       }
    }
 }

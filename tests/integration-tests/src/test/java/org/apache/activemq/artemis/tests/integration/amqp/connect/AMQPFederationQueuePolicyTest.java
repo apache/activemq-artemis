@@ -108,6 +108,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_INCLUDES;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_INCLUDE_FEDERATED;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_PRIORITY_ADJUSTMENT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_RECEIVER_IDLE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
@@ -570,6 +571,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -638,6 +640,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 2);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -731,6 +734,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -802,6 +806,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -885,6 +890,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
          receiveFromQueue.setName("queue-policy");
          receiveFromQueue.addToIncludes("", "test.#");
+         receiveFromQueue.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
@@ -1026,6 +1032,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -1124,6 +1131,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -1210,6 +1218,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -1309,6 +1318,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -1561,6 +1571,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -1730,9 +1741,12 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
       final Collection<Map.Entry<String, String>> includes = new ArrayList<>();
       includes.add(new AbstractMap.SimpleEntry<>("#", "testQueue"));
 
+      final Map<String, Object> properties = new HashMap<>();
+      properties.put(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
+
       final FederationReceiveFromQueuePolicy policy =
          new FederationReceiveFromQueuePolicy("test-queue-policy",
-                                              true, -2, includes, null, null, null,
+                                              true, -2, includes, null, properties, null,
                                               DEFAULT_WILDCARD_CONFIGURATION);
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
@@ -1796,9 +1810,12 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
       final Collection<Map.Entry<String, String>> includes = new ArrayList<>();
       includes.add(new AbstractMap.SimpleEntry<>("#", "testQueue"));
 
+      final Map<String, Object> properties = new HashMap<>();
+      properties.put(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
+
       final FederationReceiveFromQueuePolicy policy =
          new FederationReceiveFromQueuePolicy("test-queue-policy",
-                                              true, -2, includes, null, null, null,
+                                              true, -2, includes, null, properties, null,
                                               DEFAULT_WILDCARD_CONFIGURATION);
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
@@ -1868,6 +1885,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
       properties.put(RECEIVER_CREDITS, "40");
       properties.put(RECEIVER_CREDITS_LOW, 39);
       properties.put(LARGE_MESSAGE_THRESHOLD, 2048);
+      properties.put(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
 
       final FederationReceiveFromQueuePolicy policy =
          new FederationReceiveFromQueuePolicy("test-queue-policy",
@@ -1936,6 +1954,9 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
       final Collection<Map.Entry<String, String>> includes = new ArrayList<>();
       includes.add(new AbstractMap.SimpleEntry<>("#", "testQueue"));
 
+      final Map<String, Object> properties = new HashMap<>();
+      properties.put(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
+
       final Map<String, String> transformerProperties = new HashMap<>();
       transformerProperties.put("key1", "value1");
       transformerProperties.put("key2", "value2");
@@ -1947,7 +1968,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
       final FederationReceiveFromQueuePolicy policy =
          new FederationReceiveFromQueuePolicy("test-queue-policy",
                                               true, -2, includes, null,
-                                              null, transformerConfiguration,
+                                              properties, transformerConfiguration,
                                               DEFAULT_WILDCARD_CONFIGURATION);
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
@@ -2510,6 +2531,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 5);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -2622,6 +2644,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 5);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -2903,6 +2926,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 0);
          if (setGlobal) {
             element.addProperty(PULL_RECEIVER_BATCH_SIZE, globalBatch);
          }
@@ -3177,6 +3201,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -3472,7 +3497,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
    @Test
    @Timeout(20)
-   public void testFederationCreatesAddressReceiverInResponseToAddressAddedEvent() throws Exception {
+   public void testFederationCreatesQueueReceiverInResponseToQueueAddedEvent() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
          peer.expectOpen().respond();
@@ -3747,6 +3772,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 5);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -3855,6 +3881,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 5);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -4100,6 +4127,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
          receiveFromQueue.setName("queue-policy");
          receiveFromQueue.addToIncludes(getTestName(), getTestName());
+         receiveFromQueue.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
@@ -4197,6 +4225,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
          receiveFromQueue.setName("queue-policy");
          receiveFromQueue.addToIncludes(getTestName(), getTestName());
+         receiveFromQueue.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
@@ -4289,6 +4318,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -4360,7 +4390,17 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
    @Test
    @Timeout(20)
-   public void testFederationLinksDetachesAfterLinkQuiesceTimeout() throws Exception {
+   public void testFederationLinksDetachesAfterLinkQuiesceTimeoutWithIdleTimeout() throws Exception {
+      doTestFederationLinksDetachesAfterLinkQuiesceTimeout(2);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationLinksDetachesAfterLinkQuiesceTimeoutNoIdleTimeout() throws Exception {
+      doTestFederationLinksDetachesAfterLinkQuiesceTimeout(0);
+   }
+
+   private void doTestFederationLinksDetachesAfterLinkQuiesceTimeout(int idleTimeout) throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
          peer.expectOpen().respond();
@@ -4385,6 +4425,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, idleTimeout);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -4446,7 +4487,17 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
    @Test
    @Timeout(20)
-   public void testFederationLinksRecoveredAfterLinkQuiesceTimeoutWithRenewedDemand() throws Exception {
+   public void testFederationLinksRecoveredAfterLinkQuiesceTimeoutWithRenewedDemandNoIdleTimeout() throws Exception {
+      doTestFederationLinksRecoveredAfterLinkQuiesceTimeoutWithRenewedDemand(0);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationLinksRecoveredAfterLinkQuiesceTimeoutWithRenewedDemandWithIdleTimeout() throws Exception {
+      doTestFederationLinksRecoveredAfterLinkQuiesceTimeoutWithRenewedDemand(2);
+   }
+
+   private void doTestFederationLinksRecoveredAfterLinkQuiesceTimeoutWithRenewedDemand(int idleTimeout) throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
          peer.expectOpen().respond();
@@ -4467,6 +4518,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          receiveFromQueue.setName("queue-policy");
          receiveFromQueue.addToIncludes(getTestName(), getTestName());
          receiveFromQueue.addProperty(RECEIVER_QUIESCE_TIMEOUT, 300);
+         receiveFromQueue.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, idleTimeout);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
@@ -4535,7 +4587,17 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
    @Test
    @Timeout(20)
-   public void testFederationResourceDeletedBeforeLinkQuiesceCompletes() throws Exception {
+   public void testFederationResourceDeletedBeforeLinkQuiesceCompletesNoIdleTimeout() throws Exception {
+      doTestFederationResourceDeletedBeforeLinkQuiesceCompletes(0);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationResourceDeletedBeforeLinkQuiesceCompletesWithIdleTimeout() throws Exception {
+      doTestFederationResourceDeletedBeforeLinkQuiesceCompletes(2);
+   }
+
+   private void doTestFederationResourceDeletedBeforeLinkQuiesceCompletes(int idleTimeout) throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
          peer.expectOpen().respond();
@@ -4559,6 +4621,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, idleTimeout);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -4601,6 +4664,162 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          server.destroyQueue(SimpleString.of(getTestName()));
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationLinksRecoveredAfterLinkQuiescedButNotIdledOut() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respondInKind();
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue.setName("queue-policy");
+         receiveFromQueue.addToIncludes(getTestName(), getTestName());
+         receiveFromQueue.addProperty(RECEIVER_QUIESCE_TIMEOUT, 10_000);
+         receiveFromQueue.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 10_000);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalQueuePolicy(receiveFromQueue);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.ANYCAST)
+                                                                .setAddress(getTestName())
+                                                                .setAutoCreated(false));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("queue-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(1000);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageConsumer consumer = session.createConsumer(session.createQueue(getTestName()));
+
+            connection.start();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            // Demand is removed so expect a drain, respond to drain to quiesce the link
+            // which should leave it idling and ready for recovery by next consumer.
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+
+            consumer.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            // Link should be restarted by receiving a new batch of credit
+            peer.expectFlow().withLinkCredit(1000);
+
+            session.createConsumer(session.createQueue(getTestName()));
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         }
+
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationLinkIdleTimeoutAtPolicyLevelOverridesTopLevelConfiguration() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respondInKind();
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue.setName("queue-policy");
+         receiveFromQueue.addToIncludes(getTestName(), getTestName());
+         receiveFromQueue.addProperty(RECEIVER_QUIESCE_TIMEOUT, 10_000);
+         receiveFromQueue.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 250);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalQueuePolicy(receiveFromQueue);
+         element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 90_000);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.ANYCAST)
+                                                                .setAddress(getTestName())
+                                                                .setAutoCreated(false));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("queue-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(1000);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageConsumer consumer = session.createConsumer(session.createQueue(getTestName()));
+
+            connection.start();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            // Demand is removed so expect a drain, respond to drain to quiesce the link
+            // which should leave it idling and ready for recovery by next consumer.
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+
+            consumer.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectDetach().respond();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         }
+
          peer.close();
       }
    }

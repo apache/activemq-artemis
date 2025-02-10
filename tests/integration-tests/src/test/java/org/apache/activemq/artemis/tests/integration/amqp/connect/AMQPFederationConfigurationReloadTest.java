@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.tests.integration.amqp.connect;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_DELAY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_MSG_COUNT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_RECEIVER_IDLE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_ADDRESS_RECEIVER;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
@@ -122,6 +123,7 @@ public class AMQPFederationConfigurationReloadTest extends AmqpClientTestSupport
          receiveFromAddress.setAutoDelete(true);
          receiveFromAddress.setAutoDeleteDelay(10_000L);
          receiveFromAddress.setAutoDeleteMessageCount(-1L);
+         receiveFromAddress.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 2);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
