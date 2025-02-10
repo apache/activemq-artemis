@@ -52,7 +52,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
 
    protected final String remoteQueueFilter;
    protected final FederationReceiveFromAddressPolicy policy;
-   protected final Map<String, AMQPFederationAddressEntry> demandTracking = new HashMap<>();
+   protected final Map<String, AMQPFederationAddressConsumerManager> federationConsumers = new HashMap<>();
    protected final Map<DivertBinding, Set<QueueBinding>> divertsTracking = new HashMap<>();
 
    public AMQPFederationAddressPolicyManager(AMQPFederation federation, AMQPFederationMetrics metrics, FederationReceiveFromAddressPolicy addressPolicy) throws ActiveMQException {
@@ -73,19 +73,19 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
    }
 
    @Override
-   protected void safeCleanupConsumerDemandTracking(boolean force) {
+   protected void safeCleanupManagerResources(boolean force) {
       try {
-         demandTracking.values().forEach((entry) -> {
+         federationConsumers.values().forEach((entry) -> {
             if (entry != null) {
                if (isConnected() && !force) {
-                  tryStopFederationConsumer(entry.removeAllDemand());
+                  entry.shutdown();
                } else {
-                  tryCloseFederationConsumer(entry.removeAllDemand().clearConsumer());
+                  entry.shutdownNow();
                }
             }
          });
       } finally {
-         demandTracking.clear();
+         federationConsumers.clear();
          divertsTracking.clear();
       }
    }
@@ -93,18 +93,18 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
    @Override
    public synchronized void afterRemoveAddress(SimpleString address, AddressInfo addressInfo) throws ActiveMQException {
       if (isActive()) {
-         final AMQPFederationAddressEntry entry = demandTracking.remove(address.toString());
+         final AMQPFederationConsumerManager entry = federationConsumers.remove(address.toString());
 
-         if (entry != null && entry.removeAllDemand().hasConsumer()) {
+         if (entry != null) {
             logger.trace("Federated address {} was removed, closing federation consumer", address);
 
             // Demand is gone because the Address is gone and any in-flight messages can be
             // allowed to be released back to the remote as they will not be processed.
-            // We removed the consumer information from demand tracking to prevent build up
+            // We removed the tracking information from matched address data to prevent build up
             // of data for entries that may never return and to prevent interference from the
             // next set of events which will be the close of all local consumers for this now
             // removed Address.
-            tryCloseFederationConsumer(entry.clearConsumer());
+            entry.shutdownNow();
          }
       }
    }
@@ -113,9 +113,9 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
    public synchronized void afterRemoveBinding(Binding binding, Transaction tx, boolean deleteData) throws ActiveMQException {
       if (isActive()) {
          if (binding instanceof QueueBinding) {
-            final AMQPFederationAddressEntry entry = demandTracking.get(binding.getAddress().toString());
+            final AMQPFederationAddressConsumerManager entry = federationConsumers.get(binding.getAddress().toString());
 
-            logger.trace("Federated address {} binding was removed, stopping federation consumer", binding.getAddress());
+            logger.trace("Federated address {} binding was removed, reducing demand.", binding.getAddress());
 
             if (entry != null) {
                // This is QueueBinding that was mapped to a federated address so we can directly remove
@@ -138,7 +138,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
                      divertEntry.getValue().remove(binding);
 
                      if (divertEntry.getValue().isEmpty()) {
-                        tryRemoveDemandOnAddress(demandTracking.get(sourceAddress), divertEntry.getKey());
+                        tryRemoveDemandOnAddress(federationConsumers.get(sourceAddress), divertEntry.getKey());
                      }
                   }
                });
@@ -152,7 +152,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
                // only thing keeping the federated address consumer open this will result in it
                // being closed.
                try {
-                  tryRemoveDemandOnAddress(demandTracking.get(divert.getAddress().toString()), divert);
+                  tryRemoveDemandOnAddress(federationConsumers.get(divert.getAddress().toString()), divert);
                } catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.federationBindingsLookupError(divert.getDivert().getForwardAddress(), e);
                }
@@ -161,61 +161,10 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       }
    }
 
-   private void tryRemoveDemandOnAddress(AMQPFederationAddressEntry entry, Binding binding) {
+   private void tryRemoveDemandOnAddress(AMQPFederationAddressConsumerManager entry, Binding binding) {
       if (entry != null) {
+         logger.trace("Reducing demand on federated address {}", entry.getAddress());
          entry.removeDemand(binding);
-
-         logger.trace("Reducing demand on federated address {}, remaining demand? {}", entry.getAddress(), entry.hasDemand());
-
-         if (!entry.hasDemand() && entry.hasConsumer()) {
-            // A started consumer should be allowed to stop before possible close either because demand
-            // is still not present or the remote did not respond before the configured stop timeout elapsed.
-            // A successfully stopped receiver can be restarted but if the stop times out the receiver should
-            // be closed and a new receiver created if demand is present. The completions occur on the connection
-            // thread which requires the handler method to use synchronized to ensure thread safety.
-            tryStopFederationConsumer(entry);
-         }
-      }
-   }
-
-   private void tryStopFederationConsumer(AMQPFederationAddressEntry entry) {
-      if (entry.hasConsumer()) {
-         entry.getConsumer().stopAsync(new AMQPFederationAsyncCompletion<AMQPFederationConsumer>() {
-
-            @Override
-            public void onComplete(AMQPFederationConsumer context) {
-               handleFederationConsumerStopped(entry, true);
-            }
-
-            @Override
-            public void onException(AMQPFederationConsumer context, Exception error) {
-               logger.trace("Stop of federation consumer {} failed, closing consumer: ", context, error);
-               handleFederationConsumerStopped(entry, false);
-            }
-         });
-      }
-   }
-
-   private synchronized void handleFederationConsumerStopped(AMQPFederationAddressEntry entry, boolean didStop) {
-      final AMQPFederationConsumer federationConsuner = entry.getConsumer();
-
-      // Remote close or local address remove could have beaten us here and already cleaned up the consumer.
-      if (federationConsuner != null) {
-         // If the consumer has no demand or it didn't stop in time or some other error occurred we
-         // assume the worst and close it here, the follow on code will recreate or cleanup as needed.
-         if (!didStop || !entry.hasDemand()) {
-            tryCloseFederationConsumer(entry.clearConsumer());
-         }
-
-         // Demand may have returned while the consumer was stopping in which case
-         // we either restart an existing stopped consumer or recreate if the stop
-         // timed out and we closed it above. If there's still no demand then we
-         // should remove it from demand tracking to reduce resource consumption.
-         if (isActive() && entry.hasDemand()) {
-            tryRestartFederationConsumerForAddress(entry);
-         } else {
-            demandTracking.remove(entry.getAddress());
-         }
       }
    }
 
@@ -378,111 +327,21 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       logger.trace("Federation Address Policy matched on for demand on address: {} : binding: {}", addressInfo, binding);
 
       final String addressName = addressInfo.getName().toString();
-      final AMQPFederationAddressEntry entry;
+      final AMQPFederationAddressConsumerManager entry;
 
       // Check for existing consumer add demand from a additional local consumer to ensure
       // the remote consumer remains active until all local demand is withdrawn.
-      if (demandTracking.containsKey(addressName)) {
-         entry = demandTracking.get(addressName);
+      if (federationConsumers.containsKey(addressName)) {
+         entry = federationConsumers.get(addressName);
       } else {
-         entry = new AMQPFederationAddressEntry(addressInfo);
-         demandTracking.put(addressName, entry);
+         entry = new AMQPFederationAddressConsumerManager(this, addressInfo);
+         federationConsumers.put(addressName, entry);
       }
 
       // Demand passed all binding plugin blocking checks so we track it, plugin can still
       // stop federation of the address based on some external criteria but once it does
       // (if ever) allow it we will have tracked all allowed demand.
       entry.addDemand(binding);
-
-      // This will create a new consumer only if there isn't one currently assigned to the entry
-      // and any configured federation plugins don't block it from doing so.
-      tryCreateFederationConsumerForAddress(entry);
-   }
-
-   private void tryCreateFederationConsumerForAddress(AMQPFederationAddressEntry entry) {
-      if (entry.hasDemand()) {
-         final AddressInfo addressInfo = entry.getAddressInfo();
-
-         if (!entry.hasConsumer() && !isPluginBlockingFederationConsumerCreate(addressInfo)) {
-            logger.trace("Federation Address Policy manager creating remote consumer for address: {}", addressInfo);
-
-            final FederationConsumerInfo consumerInfo = createConsumerInfo(addressInfo);
-            final AMQPFederationConsumer addressConsumer = createFederationConsumer(consumerInfo);
-
-            signalPluginBeforeCreateFederationConsumer(consumerInfo);
-
-            // Handle remote close with remove of consumer which means that future demand will
-            // attempt to create a new consumer for that demand. Ensure that thread safety is
-            // accounted for here as the notification can be asynchronous.
-            addressConsumer.setRemoteClosedHandler((closedConsumer) -> {
-               synchronized (AMQPFederationAddressPolicyManager.this) {
-                  try {
-                     final AMQPFederationAddressEntry tracked = demandTracking.get(closedConsumer.getConsumerInfo().getAddress());
-
-                     if (tracked != null) {
-                        tracked.clearConsumer();
-                     }
-                  } finally {
-                     closedConsumer.close();
-                  }
-               }
-            });
-
-            entry.setConsumer(addressConsumer);
-
-            // Now that we are tracking it we can initialize it which will start it once
-            // the link has fully attached.
-            addressConsumer.initialize();
-
-            signalPluginAfterCreateFederationConsumer(addressConsumer);
-         }
-      }
-   }
-
-   private void tryRestartFederationConsumerForAddress(AMQPFederationAddressEntry entry) {
-      // There might be a consumer that was previously stopped due to demand having been
-      // removed in which case we can attempt to recover it with a simple restart but if
-      // that fails ensure the old consumer is closed and then attempt to recreate as we
-      // know there is demand currently.
-      if (entry.hasConsumer()) {
-         final AMQPFederationConsumer federationConsuner = entry.getConsumer();
-
-         try {
-            federationConsuner.startAsync(new AMQPFederationAsyncCompletion<AMQPFederationConsumer>() {
-
-               @Override
-               public void onComplete(AMQPFederationConsumer context) {
-                  logger.trace("Restarted federation consumer after new demand added.");
-               }
-
-               @Override
-               public void onException(AMQPFederationConsumer context, Exception error) {
-                  if (error instanceof IllegalStateException) {
-                     // The receiver might be stopping or it could be closed, either of which
-                     // was initiated from this manager so we can ignore and let those complete.
-                     return;
-                  } else {
-                     // This is unexpected and our reaction is to close the consumer since we
-                     // have no idea what its state is now. Later new demand or remote events
-                     // will trigger a new consumer to get added.
-                     logger.trace("Start of federation consumer {} threw unexpected error, closing consumer: ", context, error);
-                     tryCloseFederationConsumer(entry.clearConsumer());
-                  }
-               }
-            });
-         } catch (Exception ex) {
-            // The consumer might have been remotely closed, we can't be certain but since we
-            // are responding to demand having been added we will close it and clear the entry
-            // so that the follow on code can try and create a new one.
-            logger.trace("Caught error on attempted restart of existing federation consumer", ex);
-            tryCloseFederationConsumer(entry.clearConsumer());
-            tryCreateFederationConsumerForAddress(entry);
-         }
-      } else {
-         // The consumer was likely closed because it didn't stop in time, create a new one and
-         // let the normal setup process start federation again.
-         tryCreateFederationConsumerForAddress(entry);
-      }
    }
 
    /**
@@ -502,8 +361,12 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       // and adds the address again (hopefully with the correct routing type). We retrain all the
       // current demand and don't need to re-check the server state before trying to create the
       // remote address consumer.
-      if (isActive() && testIfAddressMatchesPolicy(addressName, RoutingType.MULTICAST) && demandTracking.containsKey(addressName)) {
-         tryCreateFederationConsumerForAddress(demandTracking.get(addressName));
+      if (isActive() && testIfAddressMatchesPolicy(addressName, RoutingType.MULTICAST)) {
+         final AMQPFederationConsumerManager entry = federationConsumers.get(addressName);
+
+         if (entry != null) {
+            entry.recover();
+         }
       }
    }
 
@@ -598,5 +461,42 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       }
 
       return false;
+   }
+
+   private static class AMQPFederationAddressConsumerManager extends AMQPFederationConsumerManager {
+
+      private final AMQPFederationAddressPolicyManager manager;
+      private final AddressInfo addressInfo;
+
+      AMQPFederationAddressConsumerManager(AMQPFederationAddressPolicyManager manager, AddressInfo addressInfo) {
+         super(manager);
+
+         this.manager = manager;
+         this.addressInfo = addressInfo;
+      }
+
+      /**
+       * @return the address information that this entry is acting to federate.
+       */
+      public AddressInfo getAddressInfo() {
+         return addressInfo;
+      }
+
+      /**
+       * @return the address that this entry is acting to federate.
+       */
+      public String getAddress() {
+         return getAddressInfo().getName().toString();
+      }
+
+      @Override
+      protected AMQPFederationConsumer createFederationConsumer() {
+         return manager.createFederationConsumer(manager.createConsumerInfo(addressInfo));
+      }
+
+      @Override
+      protected boolean isPluginBlockingFederationConsumerCreate() {
+         return manager.isPluginBlockingFederationConsumerCreate(addressInfo);
+      }
    }
 }

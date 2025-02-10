@@ -47,6 +47,7 @@ import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.Modified;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
 import org.apache.qpid.proton.amqp.messaging.Released;
+import org.apache.qpid.proton.amqp.transport.Detach;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
 import org.slf4j.Logger;
@@ -88,6 +89,7 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
    protected volatile boolean initialized;
    protected ProtonAbstractReceiver receiver;
    protected Receiver protonReceiver;
+   protected Consumer<AMQPFederationConsumer> remoteOpenHandler;
    protected Consumer<AMQPFederationConsumer> remoteCloseHandler;
 
    public AMQPFederationConsumer(AMQPFederationLocalPolicyManager manager, AMQPFederationConsumerConfiguration configuration,
@@ -129,6 +131,18 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
    public AMQPFederationLocalPolicyManager getPolicyManager() {
       return manager;
    }
+
+   /**
+    * @return the consumer configuration that was assigned to this federation consumer.
+    */
+   public AMQPFederationConsumerConfiguration getConfiguration() {
+      return configuration;
+   }
+
+   /**
+    * @return the idle timeout value that is used applied to quiesced receivers.
+    */
+   public abstract int getReceiverIdleTimeout();
 
    @Override
    public final AMQPFederation getFederation() {
@@ -313,6 +327,25 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
     */
    public boolean isClosed() {
       return closed.get();
+   }
+
+   /**
+    * Provides and event point for notification of the receiver having been opened successfully
+    * by the remote. This handler will not be called if the remote rejects the link attach and
+    * a {@link Detach} is expected to follow.
+    *
+    * @param handler
+    *    The handler that will be invoked when the remote opens this receiver.
+    *
+    * @return this receiver instance.
+    */
+   public final AMQPFederationConsumer setRemoteOpenHandler(Consumer<AMQPFederationConsumer> handler) {
+      if (protonReceiver != null) {
+         throw new IllegalStateException("Cannot set a remote opened handler after the consumer is started");
+      }
+
+      this.remoteOpenHandler = handler;
+      return this;
    }
 
    /**

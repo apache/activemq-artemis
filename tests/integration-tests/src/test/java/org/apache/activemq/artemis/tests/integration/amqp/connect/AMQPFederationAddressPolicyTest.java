@@ -24,6 +24,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_EXCLUDES;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_INCLUDES;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_MAX_HOPS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_RECEIVER_IDLE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_ADDRESS_POLICY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.EVENT_TYPE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_ADDRESS_RECEIVER;
@@ -192,6 +193,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -576,7 +578,17 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
    @Test
    @Timeout(20)
-   public void testFederationClosesAddressReceiverLinkWhenDemandRemoved() throws Exception {
+   public void testFederationClosesAddressReceiverLinkWhenDemandRemovedNoIdleTimeout() throws Exception {
+      doTestFederationClosesAddressReceiverLinkWhenDemandRemoved(0);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationClosesAddressReceiverLinkWhenDemandRemovedShortIdleTimeout() throws Exception {
+      doTestFederationClosesAddressReceiverLinkWhenDemandRemoved(5);
+   }
+
+   public void doTestFederationClosesAddressReceiverLinkWhenDemandRemoved(int idleTimeout) throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
          peer.expectOpen().respond();
@@ -603,6 +615,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setAutoDelete(false);
          receiveFromAddress.setAutoDeleteDelay(-1L);
          receiveFromAddress.setAutoDeleteMessageCount(-1L);
+         receiveFromAddress.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, idleTimeout);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
@@ -690,6 +703,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -780,6 +794,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -858,6 +873,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -955,6 +971,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 2);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -1041,6 +1058,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 2);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -1135,6 +1153,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -1313,6 +1332,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -1408,6 +1428,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -1494,6 +1515,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -1582,6 +1604,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
          receiveFromAddress.setName("address-policy");
          receiveFromAddress.addToIncludes("test");
+         receiveFromAddress.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
@@ -1725,13 +1748,16 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
    public void testRemoteFederatesAddressWhenDemandIsApplied() throws Exception {
       server.start();
 
-      final ArrayList<String> includes = new ArrayList<>();
+      final List<String> includes = new ArrayList<>();
       includes.add("address1");
+
+      final Map<String, Object> properties = new HashMap<>();
+      properties.put(ADDRESS_RECEIVER_IDLE_TIMEOUT, 5);
 
       final FederationReceiveFromAddressPolicy policy =
          new FederationReceiveFromAddressPolicy("test-address-policy",
                                                 true, 30_000L, 1000L, 1, true,
-                                                includes, null, null, null,
+                                                includes, null, properties, null,
                                                 DEFAULT_WILDCARD_CONFIGURATION);
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
@@ -1792,13 +1818,16 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
    public void testRemoteFederatesAddressWhenDemandIsAppliedUsingControllerDefinedLinkCredit() throws Exception {
       server.start();
 
-      final ArrayList<String> includes = new ArrayList<>();
+      final List<String> includes = new ArrayList<>();
       includes.add("address1");
+
+      final Map<String, Object> properties = new HashMap<>();
+      properties.put(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
       final FederationReceiveFromAddressPolicy policy =
          new FederationReceiveFromAddressPolicy("test-address-policy",
                                                 true, 30_000L, 1000L, 1, true,
-                                                includes, null, null, null,
+                                                includes, null, properties, null,
                                                 DEFAULT_WILDCARD_CONFIGURATION);
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
@@ -1860,13 +1889,14 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
    public void testRemoteFederatesAddressWhenDemandIsAppliedUsingPolicyDefinedLinkCredit() throws Exception {
       server.start();
 
-      final ArrayList<String> includes = new ArrayList<>();
+      final List<String> includes = new ArrayList<>();
       includes.add("address1");
 
       final Map<String, Object> properties = new HashMap<>();
       properties.put(RECEIVER_CREDITS, 40);
       properties.put(RECEIVER_CREDITS_LOW, "39");
       properties.put(LARGE_MESSAGE_THRESHOLD, 1024);
+      properties.put(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
       final FederationReceiveFromAddressPolicy policy =
          new FederationReceiveFromAddressPolicy("test-address-policy",
@@ -1933,8 +1963,11 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
    public void testRemoteFederatesAddressAndAppliesTransformerWhenDemandIsApplied() throws Exception {
       server.start();
 
-      final ArrayList<String> includes = new ArrayList<>();
+      final List<String> includes = new ArrayList<>();
       includes.add("address1");
+
+      final Map<String, Object> properties = new HashMap<>();
+      properties.put(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
       final Map<String, String> transformerProperties = new HashMap<>();
       transformerProperties.put("key1", "value1");
@@ -1947,7 +1980,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
       final FederationReceiveFromAddressPolicy policy =
          new FederationReceiveFromAddressPolicy("test-address-policy",
                                                 true, 30_000L, 1000L, 1, true,
-                                                includes, null, null, transformerConfiguration,
+                                                includes, null, properties, transformerConfiguration,
                                                 DEFAULT_WILDCARD_CONFIGURATION);
 
       try (ProtonTestClient peer = new ProtonTestClient()) {
@@ -2251,6 +2284,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -2547,6 +2581,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -2657,6 +2692,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -2769,6 +2805,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -3477,6 +3514,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -3582,6 +3620,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -4288,6 +4327,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -4387,6 +4427,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
          element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 5);
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
@@ -4445,7 +4486,17 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
    @Test
    @Timeout(20)
-   public void testFederationLinksDetachesAfterLinkQuiesceTimeout() throws Exception {
+   public void testFederationLinksDetachesAfterLinkQuiesceTimeoutNoIldeTimeout() throws Exception {
+      doTestFederationLinksDetachesAfterLinkQuiesceTimeout(0);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationLinksDetachesAfterLinkQuiesceTimeoutAndIdleTimeout() throws Exception {
+      doTestFederationLinksDetachesAfterLinkQuiesceTimeout(10);
+   }
+
+   public void doTestFederationLinksDetachesAfterLinkQuiesceTimeout(int idleTimeout) throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
          peer.expectOpen().respond();
@@ -4466,6 +4517,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setName("address-policy");
          receiveFromAddress.addToIncludes(getTestName());
          receiveFromAddress.addProperty(RECEIVER_QUIESCE_TIMEOUT, 20);
+         receiveFromAddress.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, idleTimeout);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
@@ -4552,6 +4604,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          receiveFromAddress.setName("address-policy");
          receiveFromAddress.addToIncludes(getTestName());
          receiveFromAddress.addProperty(RECEIVER_QUIESCE_TIMEOUT, 300);
+         receiveFromAddress.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 10);
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
@@ -4612,6 +4665,158 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          }
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationLinksRecoveredAfterLinkQuiescedButNotIdledOut() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respondInKind();
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes(getTestName());
+         receiveFromAddress.addProperty(RECEIVER_QUIESCE_TIMEOUT, 10_000);
+         receiveFromAddress.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 10_000);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalAddressPolicy(receiveFromAddress);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.addAddressInfo(new AddressInfo(SimpleString.of(getTestName()), RoutingType.MULTICAST));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(1000);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageConsumer consumer = session.createConsumer(session.createTopic(getTestName()));
+
+            connection.start();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            // Demand is removed so expect a drain, respond to drain to quiesce the link
+            // which should leave it idling and ready for recovery by next consumer.
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+
+            consumer.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            // Link should be restarted by receiving a new batch of credit
+            peer.expectFlow().withLinkCredit(1000);
+
+            session.createConsumer(session.createTopic(getTestName()));
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         }
+
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationLinkIdleTimeoutAtPolicyLevelOverridesTopLevelConfiguration() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respondInKind();
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes(getTestName());
+         receiveFromAddress.addProperty(RECEIVER_QUIESCE_TIMEOUT, 10_000);
+         receiveFromAddress.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 250);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 90_000);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.addAddressInfo(new AddressInfo(SimpleString.of(getTestName()), RoutingType.MULTICAST));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(1000);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageConsumer consumer = session.createConsumer(session.createTopic(getTestName()));
+
+            connection.start();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            // Demand is removed so expect a drain, respond to drain to quiesce the link
+            // which should leave it idling and ready for recovery by next consumer.
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+
+            consumer.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectDetach().respond();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         }
+
          peer.close();
       }
    }

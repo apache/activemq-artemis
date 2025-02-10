@@ -20,9 +20,11 @@ package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LARGE_MESSAGE_THRESHOLD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LINK_ATTACH_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.PULL_RECEIVER_BATCH_SIZE;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_RECEIVER_IDLE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_RECEIVER_IDLE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_FILTERS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
 
@@ -76,11 +78,27 @@ public final class AMQPFederationConfiguration {
    public static final boolean DEFAULT_IGNNORE_QUEUE_CONSUMER_PRIORITIES = false;
 
    /**
-    * Default timeout (milliseconds) applied to federation receivers that are being closed due to removal
+    * Default timeout (milliseconds) applied to federation receivers that are being stopped due to removal
     * of local demand and need to drain link credit and process any in-flight deliveries before closure.
     * If the timeout elapses before the link has quiesced the link is forcibly closed.
     */
    public static final int DEFAULT_RECEIVER_QUIESCE_TIMEOUT = 60_000;
+
+   /**
+    * Default timeout (milliseconds) applied to federation address receivers that have been stopped due to
+    * lack of local demand. The close delay prevent a link from detaching in cases where demand drops and
+    * returns in quick succession allowing for faster recovery. The idle timeout kicks in once the link has
+    * completed its drain of outstanding credit.
+    */
+   public static final int DEFAULT_ADDRESS_RECEIVER_IDLE_TIMEOUT = 5_000;
+
+   /**
+    * Default timeout (milliseconds) applied to federation queue receivers that have been stopped due to
+    * lack of local demand. The close delay prevent a link from detaching in cases where demand drops and
+    * returns in quick succession allowing for faster recovery. The idle timeout kicks in once the link has
+    * completed its drain of outstanding credit.
+    */
+   public static final int DEFAULT_QUEUE_RECEIVER_IDLE_TIMEOUT = 60_000;
 
    private final Map<String, Object> properties;
    private final AMQPConnectionContext connection;
@@ -224,6 +242,34 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
+    * @return the receive idle timeout when shutting down a address {@link Receiver} when local demand is removed.
+    */
+   public int getAddressReceiverIdleTimeout() {
+      final Object property = properties.get(ADDRESS_RECEIVER_IDLE_TIMEOUT);
+      if (property instanceof Number number) {
+         return number.intValue();
+      } else if (property instanceof String string) {
+         return Integer.parseInt(string);
+      } else {
+         return DEFAULT_ADDRESS_RECEIVER_IDLE_TIMEOUT;
+      }
+   }
+
+   /**
+    * @return the receive idle timeout when shutting down a queue {@link Receiver} when local demand is removed.
+    */
+   public int getQueueReceiverIdleTimeout() {
+      final Object property = properties.get(QUEUE_RECEIVER_IDLE_TIMEOUT);
+      if (property instanceof Number number) {
+         return number.intValue();
+      } else if (property instanceof String string) {
+         return Integer.parseInt(string);
+      } else {
+         return DEFAULT_QUEUE_RECEIVER_IDLE_TIMEOUT;
+      }
+   }
+
+   /**
     * Enumerate the configuration options in this configuration object and return a {@link Map} that
     * contains the values which can be sent to a remote peer
     *
@@ -235,6 +281,8 @@ public final class AMQPFederationConfiguration {
       configMap.put(RECEIVER_CREDITS, getReceiverCredits());
       configMap.put(RECEIVER_CREDITS_LOW, getReceiverCreditsLow());
       configMap.put(RECEIVER_QUIESCE_TIMEOUT, getReceiverQuiesceTimeout());
+      configMap.put(ADDRESS_RECEIVER_IDLE_TIMEOUT, getAddressReceiverIdleTimeout());
+      configMap.put(QUEUE_RECEIVER_IDLE_TIMEOUT, getQueueReceiverIdleTimeout());
       configMap.put(PULL_RECEIVER_BATCH_SIZE, getPullReceiverBatchSize());
       configMap.put(LARGE_MESSAGE_THRESHOLD, getLargeMessageThreshold());
       configMap.put(LINK_ATTACH_TIMEOUT, getLinkAttachTimeout());

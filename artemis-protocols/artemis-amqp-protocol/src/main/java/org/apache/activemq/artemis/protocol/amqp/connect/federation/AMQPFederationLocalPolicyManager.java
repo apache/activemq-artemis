@@ -70,7 +70,7 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
 
    @Override
    protected final void handleManagerStopped() {
-      safeCleanupConsumerDemandTracking(false);
+      safeCleanupManagerResources(false);
    }
 
    @Override
@@ -83,13 +83,13 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
          logger.trace("Error while attempting to remove local policy control to management", e);
       }
 
-      safeCleanupConsumerDemandTracking(false);
+      safeCleanupManagerResources(false);
    }
 
    @Override
    protected final void handleConnectionInterrupted() {
       // Connection is gone so consumers can be cleared immediately without a stop
-      safeCleanupConsumerDemandTracking(true);
+      safeCleanupManagerResources(true);
    }
 
    @Override
@@ -132,7 +132,7 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
     * @param force
     *    Should the implementation simply close the consumers without attempting a stop.
     */
-   protected abstract void safeCleanupConsumerDemandTracking(boolean force);
+   protected abstract void safeCleanupManagerResources(boolean force);
 
    /**
     * Attempts to close a federation consumer and signals the installed federation plugin

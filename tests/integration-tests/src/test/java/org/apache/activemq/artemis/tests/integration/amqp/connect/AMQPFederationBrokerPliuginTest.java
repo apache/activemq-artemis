@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_RECEIVER_IDLE_TIMEOUT;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -201,6 +202,7 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
       final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
       element.setName(getTestName());
       element.addLocalQueuePolicy(localQueuePolicy);
+      element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 1);
 
       final AMQPBrokerConnectConfiguration amqpConnection =
          new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
