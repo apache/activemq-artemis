@@ -22,28 +22,147 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
 public class QueueConfigurationUtils {
 
-   public static void applyDynamicQueueDefaults(QueueConfiguration config, AddressSettings as) {
-      config.setMaxConsumers(config.getMaxConsumers() == null ? as.getDefaultMaxConsumers() : config.getMaxConsumers());
-      config.setExclusive(config.isExclusive() == null ? as.isDefaultExclusiveQueue() : config.isExclusive());
-      config.setGroupRebalance(config.isGroupRebalance() == null ? as.isDefaultGroupRebalance() : config.isGroupRebalance());
-      config.setGroupRebalancePauseDispatch(config.isGroupRebalancePauseDispatch() == null ? as.isDefaultGroupRebalancePauseDispatch() : config.isGroupRebalancePauseDispatch());
-      config.setGroupBuckets(config.getGroupBuckets() == null ? as.getDefaultGroupBuckets() : config.getGroupBuckets());
-      config.setGroupFirstKey(config.getGroupFirstKey() == null ? as.getDefaultGroupFirstKey() : config.getGroupFirstKey());
-      config.setLastValue(config.isLastValue() == null ? as.isDefaultLastValueQueue() : config.isLastValue());
-      config.setLastValueKey(config.getLastValueKey() == null ? as.getDefaultLastValueKey() : config.getLastValueKey());
-      config.setNonDestructive(config.isNonDestructive() == null ? as.isDefaultNonDestructive() : config.isNonDestructive());
-      config.setConsumersBeforeDispatch(config.getConsumersBeforeDispatch() == null ? as.getDefaultConsumersBeforeDispatch() : config.getConsumersBeforeDispatch());
-      config.setDelayBeforeDispatch(config.getDelayBeforeDispatch() == null ? as.getDefaultDelayBeforeDispatch() : config.getDelayBeforeDispatch());
-      config.setRingSize(config.getRingSize() == null ? as.getDefaultRingSize() : config.getRingSize());
-      config.setRoutingType(config.getRoutingType() == null ? as.getDefaultQueueRoutingType() : config.getRoutingType());
-      config.setPurgeOnNoConsumers(config.isPurgeOnNoConsumers() == null ? as.isDefaultPurgeOnNoConsumers() : config.isPurgeOnNoConsumers());
-      config.setAutoCreateAddress(config.isAutoCreateAddress() == null ? as.isAutoCreateAddresses() : config.isAutoCreateAddress());
-      // set the default auto-delete
-      config.setAutoDelete(config.isAutoDelete() == null ? !config.isConfigurationManaged() && ((config.isAutoCreated() && as.isAutoDeleteQueues()) || (!config.isAutoCreated() && as.isAutoDeleteCreatedQueues())) : config.isAutoDelete());
+   /**
+    * This method inspects the {@code QueueConfiguration} and applies default values to it based on the {@code
+    * AddressSettings} as well as {@code static} defaults. The {@code static} values are applied only after the values
+    * from the {@code AddressSettings} are applied. Values are only changed to defaults if they are {@code null}.
+    * @param config the {@code QueueConfiguration} to modify with default values
+    * @param as the {@code AddressSettings} to use when applying dynamic default values
+    */
+   public static void applyDefaults(final QueueConfiguration config, AddressSettings as) {
+      applyDynamicDefaults(config, as);
+      applyStaticDefaults(config);
+   }
 
-      config.setAutoDeleteDelay(config.getAutoDeleteDelay() == null ? as.getAutoDeleteQueuesDelay() : config.getAutoDeleteDelay());
-      config.setAutoDeleteMessageCount(config.getAutoDeleteMessageCount() == null ? as.getAutoDeleteQueuesMessageCount() : config.getAutoDeleteMessageCount());
+   /**
+    * This method inspects the {@code QueueConfiguration} and applies default values to it based on the {@code
+    * AddressSettings}. Values are only changed to defaults if they are {@code null}.
+    * @param config the {@code QueueConfiguration} to modify with default values
+    * @param as the {@code AddressSettings} to use when applying dynamic default values
+    */
+   public static void applyDynamicDefaults(final QueueConfiguration config, AddressSettings as) {
+      if (config.getMaxConsumers() == null) {
+         config.setMaxConsumers(as.getDefaultMaxConsumers());
+      }
+      if (config.isExclusive() == null) {
+         config.setExclusive(as.isDefaultExclusiveQueue());
+      }
+      if (config.isGroupRebalance() == null) {
+         config.setGroupRebalance(as.isDefaultGroupRebalance());
+      }
+      if (config.isGroupRebalancePauseDispatch() == null) {
+         config.setGroupRebalancePauseDispatch(as.isDefaultGroupRebalancePauseDispatch());
+      }
+      if (config.getGroupBuckets() == null) {
+         config.setGroupBuckets(as.getDefaultGroupBuckets());
+      }
+      if (config.getGroupFirstKey() == null) {
+         config.setGroupFirstKey(as.getDefaultGroupFirstKey());
+      }
+      if (config.isLastValue() == null) {
+         config.setLastValue(as.isDefaultLastValueQueue());
+      }
+      if (config.getLastValueKey() == null) {
+         config.setLastValueKey(as.getDefaultLastValueKey());
+      }
+      if (config.isNonDestructive() == null) {
+         config.setNonDestructive(as.isDefaultNonDestructive());
+      }
+      if (config.getConsumersBeforeDispatch() == null) {
+         config.setConsumersBeforeDispatch(as.getDefaultConsumersBeforeDispatch());
+      }
+      if (config.getDelayBeforeDispatch() == null) {
+         config.setDelayBeforeDispatch(as.getDefaultDelayBeforeDispatch());
+      }
+      if (config.getRingSize() == null) {
+         config.setRingSize(as.getDefaultRingSize());
+      }
+      if (config.getRoutingType() == null) {
+         config.setRoutingType(as.getDefaultQueueRoutingType());
+      }
+      if (config.isPurgeOnNoConsumers() == null) {
+         config.setPurgeOnNoConsumers(as.isDefaultPurgeOnNoConsumers());
+      }
+      if (config.isAutoCreateAddress() == null) {
+         config.setAutoCreateAddress(as.isAutoCreateAddresses());
+      }
+      if (config.isAutoDelete() == null) {
+         config.setAutoDelete(!config.isConfigurationManaged() && ((config.isAutoCreated() && as.isAutoDeleteQueues()) || (!config.isAutoCreated() && as.isAutoDeleteCreatedQueues())));
+      }
+      if (config.getAutoDeleteDelay() == null) {
+         config.setAutoDeleteDelay(as.getAutoDeleteQueuesDelay());
+      }
+      if (config.getAutoDeleteMessageCount() == null) {
+         config.setAutoDeleteMessageCount(as.getAutoDeleteQueuesMessageCount());
+      }
+   }
 
-      config.setEnabled(config.isEnabled() == null ? ActiveMQDefaultConfiguration.getDefaultEnabled() : config.isEnabled());
+   /**
+    * This method inspects the {@code QueueConfiguration} and applies default values to it based on the {@code static}
+    * defaults. Values are only changed to defaults if they are {@code null}.
+    * <br>
+    * Static defaults are not applied directly in {@code QueueConfiguration} because {@code null} values allow us to
+    * determine whether the fields have actually been set. This allows us, for example, to omit unset fields from JSON
+    * payloads during queue-related management operations.
+    * @param config the {@code QueueConfiguration} to modify with default values
+    */
+   public static void applyStaticDefaults(final QueueConfiguration config) {
+      if (config.getMaxConsumers() == null) {
+         config.setMaxConsumers(ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers());
+      }
+      if (config.getRoutingType() == null) {
+         config.setRoutingType(ActiveMQDefaultConfiguration.getDefaultRoutingType());
+      }
+      if (config.isExclusive() == null) {
+         config.setExclusive(ActiveMQDefaultConfiguration.getDefaultExclusive());
+      }
+      if (config.isNonDestructive() == null) {
+         config.setNonDestructive(ActiveMQDefaultConfiguration.getDefaultNonDestructive());
+      }
+      if (config.isPurgeOnNoConsumers() == null) {
+         config.setPurgeOnNoConsumers(ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers());
+      }
+      if (config.isEnabled() == null) {
+         config.setEnabled(ActiveMQDefaultConfiguration.getDefaultEnabled());
+      }
+      if (config.getConsumersBeforeDispatch() == null) {
+         config.setConsumersBeforeDispatch(ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch());
+      }
+      if (config.getDelayBeforeDispatch() == null) {
+         config.setDelayBeforeDispatch(ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch());
+      }
+      if (config.isGroupRebalance() == null) {
+         config.setGroupRebalance(ActiveMQDefaultConfiguration.getDefaultGroupRebalance());
+      }
+      if (config.isGroupRebalancePauseDispatch() == null) {
+         config.setGroupRebalancePauseDispatch(ActiveMQDefaultConfiguration.getDefaultGroupRebalancePauseDispatch());
+      }
+      if (config.getGroupBuckets() == null) {
+         config.setGroupBuckets(ActiveMQDefaultConfiguration.getDefaultGroupBuckets());
+      }
+      if (config.getGroupFirstKey() == null) {
+         config.setGroupFirstKey(ActiveMQDefaultConfiguration.getDefaultGroupFirstKey());
+      }
+      if (config.isAutoDelete() == null) {
+         config.setAutoDelete(ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete(config.isAutoCreated()));
+      }
+      if (config.getAutoDeleteDelay() == null) {
+         config.setAutoDeleteDelay(ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteDelay());
+      }
+      if (config.getAutoDeleteMessageCount() == null) {
+         config.setAutoDeleteMessageCount(ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteMessageCount());
+      }
+      if (config.getRingSize() == null) {
+         config.setRingSize(ActiveMQDefaultConfiguration.getDefaultRingSize());
+      }
+      if (config.isLastValue() == null) {
+         config.setLastValue(ActiveMQDefaultConfiguration.getDefaultLastValue());
+      }
+      if (config.getLastValueKey() == null) {
+         config.setLastValueKey(ActiveMQDefaultConfiguration.getDefaultLastValueKey());
+      }
+      if (config.isInternal() == null) {
+         config.setInternal(ActiveMQDefaultConfiguration.getDefaultInternal());
+      }
    }
 }

@@ -16,101 +16,79 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PersistentQueueBindingEncoding;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class QueueBindingEncodingTest {
 
    @Test
    public void testEncodeDecode() {
-      final SimpleString name = RandomUtil.randomUUIDSimpleString();
-      final SimpleString address = RandomUtil.randomUUIDSimpleString();
-      final SimpleString filterString = RandomUtil.randomUUIDSimpleString();
-      final SimpleString user = RandomUtil.randomUUIDSimpleString();
-      final boolean autoCreated = RandomUtil.randomBoolean();
-      final int maxConsumers = RandomUtil.randomInt();
-      final boolean purgeOnNoConsumers = RandomUtil.randomBoolean();
-      final boolean exclusive = RandomUtil.randomBoolean();
-      final boolean groupRebalance = RandomUtil.randomBoolean();
-      final int groupBuckets = RandomUtil.randomInt();
-      final SimpleString groupFirstKey = RandomUtil.randomUUIDSimpleString();
-      final boolean lastValue = RandomUtil.randomBoolean();
-      final SimpleString lastValueKey = RandomUtil.randomUUIDSimpleString();
-      final boolean nonDestructive = RandomUtil.randomBoolean();
-      final int consumersBeforeDispatch = RandomUtil.randomInt();
-      final long delayBeforeDispatch = RandomUtil.randomLong();
-      final boolean autoDelete = RandomUtil.randomBoolean();
-      final long autoDeleteDelay = RandomUtil.randomLong();
-      final long autoDeleteMessageCount = RandomUtil.randomLong();
-      final byte routingType = RandomUtil.randomByte();
-      final boolean configurationManaged = RandomUtil.randomBoolean();
-      final long ringSize = RandomUtil.randomLong();
-      final boolean enabled = RandomUtil.randomBoolean();
-      final boolean groupRebalancePauseDispatch = RandomUtil.randomBoolean();
-      final boolean internal = RandomUtil.randomBoolean();
+      final QueueConfiguration config = QueueConfiguration.of(RandomUtil.randomUUIDSimpleString())
+         .setAddress(RandomUtil.randomUUIDSimpleString())
+         .setFilterString(RandomUtil.randomUUIDSimpleString())
+         .setUser(RandomUtil.randomUUIDSimpleString())
+         .setAutoCreated(RandomUtil.randomBoolean())
+         .setMaxConsumers(RandomUtil.randomInt())
+         .setPurgeOnNoConsumers(RandomUtil.randomBoolean())
+         .setEnabled(RandomUtil.randomBoolean())
+         .setExclusive(RandomUtil.randomBoolean())
+         .setGroupRebalance(RandomUtil.randomBoolean())
+         .setGroupRebalancePauseDispatch(RandomUtil.randomBoolean())
+         .setGroupBuckets(RandomUtil.randomInt())
+         .setGroupFirstKey(RandomUtil.randomUUIDSimpleString())
+         .setLastValue(RandomUtil.randomBoolean())
+         .setLastValueKey(RandomUtil.randomUUIDSimpleString())
+         .setNonDestructive(RandomUtil.randomBoolean())
+         .setConsumersBeforeDispatch(RandomUtil.randomInt())
+         .setDelayBeforeDispatch(RandomUtil.randomLong())
+         .setAutoDelete(RandomUtil.randomBoolean())
+         .setAutoDeleteDelay(RandomUtil.randomLong())
+         .setAutoDeleteMessageCount(RandomUtil.randomLong())
+         .setRoutingType(RoutingType.getType((byte) RandomUtil.randomInterval(0, 1)))
+         .setConfigurationManaged(RandomUtil.randomBoolean())
+         .setRingSize(RandomUtil.randomLong())
+         .setInternal(RandomUtil.randomBoolean());
 
-      PersistentQueueBindingEncoding encoding = new PersistentQueueBindingEncoding(name,
-                                                                                   address,
-                                                                                   filterString,
-                                                                                   user,
-                                                                                   autoCreated,
-                                                                                   maxConsumers,
-                                                                                   purgeOnNoConsumers,
-                                                                                   enabled,
-                                                                                   exclusive,
-                                                                                   groupRebalance,
-                                                                                   groupRebalancePauseDispatch,
-                                                                                   groupBuckets,
-                                                                                   groupFirstKey,
-                                                                                   lastValue,
-                                                                                   lastValueKey,
-                                                                                   nonDestructive,
-                                                                                   consumersBeforeDispatch,
-                                                                                   delayBeforeDispatch,
-                                                                                   autoDelete,
-                                                                                   autoDeleteDelay,
-                                                                                   autoDeleteMessageCount,
-                                                                                   routingType,
-                                                                                   configurationManaged,
-                                                                                   ringSize,
-                                                                                   internal);
+      PersistentQueueBindingEncoding encoding = new PersistentQueueBindingEncoding(config);
       int size = encoding.getEncodeSize();
       ActiveMQBuffer encodedBuffer = ActiveMQBuffers.fixedBuffer(size);
       encoding.encode(encodedBuffer);
 
       PersistentQueueBindingEncoding decoding = new PersistentQueueBindingEncoding();
       decoding.decode(encodedBuffer);
+      QueueConfiguration decodedQueueConfig = decoding.getQueueConfiguration();
 
-      assertEquals(name, decoding.getQueueName());
-      assertEquals(address, decoding.getAddress());
-      assertEquals(filterString, decoding.getFilterString());
-      assertEquals(user, decoding.getUser());
-      assertEquals(autoCreated, decoding.isAutoCreated());
-      assertEquals(maxConsumers, decoding.getMaxConsumers());
-      assertEquals(purgeOnNoConsumers, decoding.isPurgeOnNoConsumers());
-      assertEquals(enabled, decoding.isEnabled());
-      assertEquals(exclusive, decoding.isExclusive());
-      assertEquals(groupRebalance, decoding.isGroupRebalance());
-      assertEquals(groupBuckets, decoding.getGroupBuckets());
-      assertEquals(groupFirstKey, decoding.getGroupFirstKey());
-      assertEquals(lastValue, decoding.isLastValue());
-      assertEquals(lastValueKey, decoding.getLastValueKey());
-      assertEquals(nonDestructive, decoding.isNonDestructive());
-      assertEquals(consumersBeforeDispatch, decoding.getConsumersBeforeDispatch());
-      assertEquals(delayBeforeDispatch, decoding.getDelayBeforeDispatch());
-      assertEquals(autoDelete, decoding.isAutoDelete());
-      assertEquals(autoDeleteDelay, decoding.getAutoDeleteDelay());
-      assertEquals(autoDeleteMessageCount, decoding.getAutoDeleteMessageCount());
-      assertEquals(routingType, decoding.getRoutingType());
-      assertEquals(configurationManaged, decoding.isConfigurationManaged());
-      assertEquals(ringSize, decoding.getRingSize());
-      assertEquals(groupRebalancePauseDispatch, decoding.isGroupRebalancePauseDispatch());
-      assertEquals(internal, decoding.isInternal());
+      assertEquals(config.getName(), decodedQueueConfig.getName());
+      assertEquals(config.getAddress(), decodedQueueConfig.getAddress());
+      assertEquals(config.getFilterString(), decodedQueueConfig.getFilterString());
+      assertEquals(config.getUser(), decodedQueueConfig.getUser());
+      assertEquals(config.isAutoCreated(), decodedQueueConfig.isAutoCreated());
+      assertEquals(config.getMaxConsumers(), decodedQueueConfig.getMaxConsumers());
+      assertEquals(config.isPurgeOnNoConsumers(), decodedQueueConfig.isPurgeOnNoConsumers());
+      assertEquals(config.isEnabled(), decodedQueueConfig.isEnabled());
+      assertEquals(config.isExclusive(), decodedQueueConfig.isExclusive());
+      assertEquals(config.isGroupRebalance(), decodedQueueConfig.isGroupRebalance());
+      assertEquals(config.getGroupBuckets(), decodedQueueConfig.getGroupBuckets());
+      assertEquals(config.getGroupFirstKey(), decodedQueueConfig.getGroupFirstKey());
+      assertEquals(config.isLastValue(), decodedQueueConfig.isLastValue());
+      assertEquals(config.getLastValueKey(), decodedQueueConfig.getLastValueKey());
+      assertEquals(config.isNonDestructive(), decodedQueueConfig.isNonDestructive());
+      assertEquals(config.getConsumersBeforeDispatch(), decodedQueueConfig.getConsumersBeforeDispatch());
+      assertEquals(config.getDelayBeforeDispatch(), decodedQueueConfig.getDelayBeforeDispatch());
+      assertEquals(config.isAutoDelete(), decodedQueueConfig.isAutoDelete());
+      assertEquals(config.getAutoDeleteDelay(), decodedQueueConfig.getAutoDeleteDelay());
+      assertEquals(config.getAutoDeleteMessageCount(), decodedQueueConfig.getAutoDeleteMessageCount());
+      assertEquals(config.getRoutingType(), decodedQueueConfig.getRoutingType());
+      assertEquals(config.isConfigurationManaged(), decodedQueueConfig.isConfigurationManaged());
+      assertEquals(config.getRingSize(), decodedQueueConfig.getRingSize());
+      assertEquals(config.isGroupRebalancePauseDispatch(), decodedQueueConfig.isGroupRebalancePauseDispatch());
+      assertEquals(config.isInternal(), decodedQueueConfig.isInternal());
    }
 }

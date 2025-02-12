@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.DBOption;
@@ -67,8 +67,8 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "exp", description = "Export all message-data using an XML that could be interpreted by any system.")
 public final class XmlDataExporter extends DBOption {
@@ -325,7 +325,7 @@ public final class XmlDataExporter extends DBOption {
       for (RecordInfo info : records) {
          if (info.getUserRecordType() == JournalRecordIds.QUEUE_BINDING_RECORD) {
             PersistentQueueBindingEncoding bindingEncoding = (PersistentQueueBindingEncoding) DescribeJournal.newObjectEncoding(info, null);
-            queueBindings.put(bindingEncoding.getId(), bindingEncoding);
+            queueBindings.put(bindingEncoding.getQueueConfiguration().getId(), bindingEncoding);
          } else if (info.getUserRecordType() == JournalRecordIds.ADDRESS_BINDING_RECORD) {
             PersistentAddressBindingEncoding bindingEncoding = (PersistentAddressBindingEncoding) DescribeJournal.newObjectEncoding(info, null);
             addressBindings.put(bindingEncoding.getId(), bindingEncoding);
@@ -368,17 +368,13 @@ public final class XmlDataExporter extends DBOption {
          bindingsPrinted++;
       }
       for (Map.Entry<Long, PersistentQueueBindingEncoding> queueBindingEncodingEntry : queueBindings.entrySet()) {
-         PersistentQueueBindingEncoding bindingEncoding = queueBindings.get(queueBindingEncodingEntry.getKey());
+         QueueConfiguration queueConfig = queueBindings.get(queueBindingEncodingEntry.getKey()).getQueueConfiguration();
          xmlWriter.writeEmptyElement(XmlDataConstants.QUEUE_BINDINGS_CHILD);
-         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_ADDRESS, bindingEncoding.getAddress().toString());
-         String filter = "";
-         if (bindingEncoding.getFilterString() != null) {
-            filter = bindingEncoding.getFilterString().toString();
-         }
-         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_FILTER_STRING, filter);
-         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_NAME, bindingEncoding.getQueueName().toString());
-         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_ID, Long.toString(bindingEncoding.getId()));
-         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_ROUTING_TYPE, RoutingType.getType(bindingEncoding.getRoutingType()).toString());
+         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_ADDRESS, queueConfig.getAddress().toString());
+         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_FILTER_STRING, queueConfig.getFilterString() == null ? "" : queueConfig.getFilterString().toString());
+         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_NAME, queueConfig.getName().toString());
+         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_ID, Long.toString(queueConfig.getId()));
+         xmlWriter.writeAttribute(XmlDataConstants.QUEUE_BINDING_ROUTING_TYPE, queueConfig.getRoutingType().toString());
          bindingsPrinted++;
       }
       xmlWriter.writeEndElement(); // end BINDINGS_PARENT
@@ -466,7 +462,7 @@ public final class XmlDataExporter extends DBOption {
                            if (!acked) {
                               PersistentQueueBindingEncoding queueBinding = queueBindings.get(queueID);
                               if (queueBinding != null) {
-                                 SimpleString queueName = queueBinding.getQueueName();
+                                 SimpleString queueName = queueBinding.getQueueConfiguration().getName();
                                  queueNames.add(queueName.toString());
                               }
                            }
@@ -496,17 +492,15 @@ public final class XmlDataExporter extends DBOption {
       for (DescribeJournal.ReferenceDescribe ref : refMap.values()) {
          String queueName;
 
-         PersistentQueueBindingEncoding persistentQueueBindingEncoding = queueBindings.get(ref.refEncoding.queueID);
+         long id = ref.refEncoding.queueID;
+         PersistentQueueBindingEncoding persistentQueueBindingEncoding = queueBindings.get(id);
          if (persistentQueueBindingEncoding == null) {
-            PersistentQueueBindingEncoding undefinedQueue = new PersistentQueueBindingEncoding();
-            undefinedQueue.setId(ref.refEncoding.queueID);
-            undefinedQueue.replaceQueueName(SimpleString.of(undefinedPrefix + ref.refEncoding.queueID));
-            undefinedQueue.replaceAddress(undefinedQueue.getQueueName());
-            queueBindings.put(undefinedQueue.getId(), undefinedQueue);
-            queueName = String.valueOf(undefinedQueue.getQueueName());
-            getActionContext().err.println("Queue ID " + ref.refEncoding.queueID + " not defined. Exporting it as " + undefinedQueue.getQueueName());
+            String name = undefinedPrefix + id;
+            queueBindings.put(id, new PersistentQueueBindingEncoding(QueueConfiguration.of(name).setAddress(name)));
+            queueName = String.valueOf(name);
+            getActionContext().err.println("Queue ID " + id + " not defined. Exporting it as " + name);
          } else {
-            queueName = String.valueOf(persistentQueueBindingEncoding.getQueueName());
+            queueName = String.valueOf(persistentQueueBindingEncoding.getQueueConfiguration().getName());
          }
 
          queues.add(queueName);

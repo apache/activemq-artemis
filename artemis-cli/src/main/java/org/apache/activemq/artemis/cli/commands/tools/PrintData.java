@@ -257,7 +257,7 @@ public class PrintData extends DBOption {
 
       Set<Long> existingQueues = new HashSet<>();
       if (bindingsDescribe != null && bindingsDescribe.getBindingEncodings() != null) {
-         bindingsDescribe.getBindingEncodings().forEach(e -> existingQueues.add(e.getId()));
+         bindingsDescribe.getBindingEncodings().forEach(e -> existingQueues.add(e.getQueueConfiguration().getId()));
       }
 
       Set<Long> pgTXs = cursorACKs.getPgTXs();

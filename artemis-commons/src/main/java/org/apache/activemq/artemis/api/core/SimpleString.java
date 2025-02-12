@@ -195,6 +195,17 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       data[1] = high;
    }
 
+   public boolean isBlank() {
+      boolean result = true;
+      for (int i = 0; i < length(); i++) {
+         if (!Character.isWhitespace(charAt(i))) {
+            result = false;
+            break;
+         }
+      }
+      return result;
+   }
+
    @Override
    public boolean isEmpty() {
       return data.length == 0;
