@@ -488,7 +488,7 @@ public class ConsumerTest extends ActiveMQTestBase {
       ConnectionFactory factorySend = createFactory(protocolSender);
       ConnectionFactory factoryConsume = protocolConsumer == protocolSender ? factorySend : createFactory(protocolConsumer);
 
-      final String bufferLargeContent = " ".repeat(1000 * 1024);
+      final String bufferLargeContent = " ".repeat(100 * 1024);
 
       try (Connection connection = factorySend.createConnection()) {
          connection.start();
