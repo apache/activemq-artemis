@@ -21,7 +21,9 @@ import io.netty.buffer.ByteBufAllocator;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SimpleStringTest {
 
@@ -37,5 +39,24 @@ public class SimpleStringTest {
          e = iob;
       }
       assertInstanceOf(IndexOutOfBoundsException.class, e);
+   }
+
+   @Test
+   public void testBlank() {
+      for (int i = 0; i <= 10; i++) {
+         assertTrue(SimpleString.of(" ".repeat(i)).isBlank());
+      }
+      for (int i = 0; i <= 10; i++) {
+         assertTrue(SimpleString.of("\t".repeat(i)).isBlank());
+      }
+      for (int i = 0; i <= 10; i++) {
+         assertTrue(SimpleString.of("\n".repeat(i)).isBlank());
+      }
+      for (int i = 0; i <= 10; i++) {
+         assertTrue(SimpleString.of("\r".repeat(i)).isBlank());
+      }
+      for (int i = 1; i <= 10; i++) {
+         assertFalse(SimpleString.of("x".repeat(i)).isBlank());
+      }
    }
 }

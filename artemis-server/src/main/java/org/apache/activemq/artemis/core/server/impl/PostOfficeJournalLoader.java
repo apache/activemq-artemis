@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import javax.transaction.xa.Xid;
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -28,7 +29,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -66,7 +66,6 @@ import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class PostOfficeJournalLoader implements JournalLoader {
 
@@ -121,50 +120,27 @@ public class PostOfficeJournalLoader implements JournalLoader {
                           List<QueueBindingInfo> queueBindingInfos) throws Exception {
       int duplicateID = 0;
       for (final QueueBindingInfo queueBindingInfo : queueBindingInfos) {
-         queueBindingInfosMap.put(queueBindingInfo.getId(), queueBindingInfo);
-         Filter filter = FilterImpl.createFilter(queueBindingInfo.getFilterString());
+         QueueConfiguration queueConfig = queueBindingInfo.getQueueConfiguration();
+         queueBindingInfosMap.put(queueConfig.getId(), queueBindingInfo);
+         Filter filter = FilterImpl.createFilter(queueConfig.getFilterString());
 
-         if (postOffice.getBinding(queueBindingInfo.getQueueName()) != null) {
+         if (postOffice.getBinding(queueConfig.getName()) != null) {
 
             if (FilterUtils.isTopicIdentification(filter)) {
                final long tx = storageManager.generateID();
-               storageManager.deleteQueueBinding(tx, queueBindingInfo.getId());
+               storageManager.deleteQueueBinding(tx, queueConfig.getId());
                storageManager.commitBindings(tx);
                continue;
             } else {
-               final SimpleString newName = queueBindingInfo.getQueueName().concat("-" + (duplicateID++));
-               ActiveMQServerLogger.LOGGER.queueDuplicatedRenaming(queueBindingInfo.getQueueName().toString(), newName.toString());
-               queueBindingInfo.replaceQueueName(newName);
+               final SimpleString newName = queueConfig.getName().concat("-" + (duplicateID++));
+               ActiveMQServerLogger.LOGGER.queueDuplicatedRenaming(queueConfig.getName().toString(), newName.toString());
+               queueConfig.setName(newName);
             }
          }
 
-         final Queue queue = queueFactory.createQueueWith(QueueConfiguration.of(queueBindingInfo.getQueueName())
-                                                             .setId(queueBindingInfo.getId())
-                                                             .setAddress(queueBindingInfo.getAddress())
-                                                             .setFilterString(queueBindingInfo.getFilterString())
-                                                             .setUser(queueBindingInfo.getUser())
+         final Queue queue = queueFactory.createQueueWith(QueueConfiguration.of(queueConfig)
                                                              .setDurable(true)
-                                                             .setTemporary(false)
-                                                             .setAutoCreated(queueBindingInfo.isAutoCreated())
-                                                             .setPurgeOnNoConsumers(queueBindingInfo.isPurgeOnNoConsumers())
-                                                             .setEnabled(queueBindingInfo.isEnabled())
-                                                             .setMaxConsumers(queueBindingInfo.getMaxConsumers())
-                                                             .setExclusive(queueBindingInfo.isExclusive())
-                                                             .setGroupRebalance(queueBindingInfo.isGroupRebalance())
-                                                             .setGroupBuckets(queueBindingInfo.getGroupBuckets())
-                                                             .setGroupFirstKey(queueBindingInfo.getGroupFirstKey())
-                                                             .setLastValue(queueBindingInfo.isLastValue())
-                                                             .setLastValueKey(queueBindingInfo.getLastValueKey())
-                                                             .setNonDestructive(queueBindingInfo.isNonDestructive())
-                                                             .setConsumersBeforeDispatch(queueBindingInfo.getConsumersBeforeDispatch())
-                                                             .setDelayBeforeDispatch(queueBindingInfo.getDelayBeforeDispatch())
-                                                             .setAutoDelete(queueBindingInfo.isAutoDelete())
-                                                             .setAutoDeleteDelay(queueBindingInfo.getAutoDeleteDelay())
-                                                             .setAutoDeleteMessageCount(queueBindingInfo.getAutoDeleteMessageCount())
-                                                             .setRoutingType(RoutingType.getType(queueBindingInfo.getRoutingType()))
-                                                             .setConfigurationManaged(queueBindingInfo.isConfigurationManaged())
-                                                             .setRingSize(queueBindingInfo.getRingSize())
-                                                             .setInternal(queueBindingInfo.isInternal()),
+                                                             .setTemporary(false),
                                                           pagingManager,
                                                           filter);
 

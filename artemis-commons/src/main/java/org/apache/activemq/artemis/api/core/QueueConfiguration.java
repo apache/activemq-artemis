@@ -140,11 +140,6 @@ public class QueueConfiguration implements Serializable {
       return new QueueConfiguration(queueConfiguration);
    }
 
-   /**
-    * @deprecated
-    * Use {@link #of(String)} instead.
-    */
-   @Deprecated(forRemoval = true)
    public QueueConfiguration() {
    }
 
@@ -416,12 +411,16 @@ public class QueueConfiguration implements Serializable {
    }
 
    public QueueConfiguration setFilterString(SimpleString filterString) {
-      this.filterString = filterString;
+      if (filterString != null && !filterString.isEmpty() && !filterString.isBlank()) {
+         this.filterString = filterString;
+      } else if (filterString == null) {
+         this.filterString = filterString;
+      }
       return this;
    }
 
    public QueueConfiguration setFilterString(String filterString) {
-      return setFilterString(filterString == null ? null : SimpleString.of(filterString));
+      return setFilterString(SimpleString.of(filterString));
    }
 
    /**

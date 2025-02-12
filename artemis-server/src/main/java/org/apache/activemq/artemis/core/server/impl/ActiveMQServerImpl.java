@@ -1116,45 +1116,19 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       Binding binding = getPostOffice().getBinding(realName);
 
-      final SimpleString addressName = binding != null && binding.getType() == BindingType.LOCAL_QUEUE
-            ? binding.getAddress() : CompositeAddress.extractAddressName(name);
+      final SimpleString addressName = binding != null && binding.getType() == BindingType.LOCAL_QUEUE ? binding.getAddress() : CompositeAddress.extractAddressName(name);
 
       final AddressSettings addressSettings = getAddressSettingsRepository().getMatch(addressName.toString());
 
-      boolean autoCreateQueues = addressSettings.isAutoCreateQueues();
-      boolean defaultPurgeOnNoConsumers = addressSettings.isDefaultPurgeOnNoConsumers();
-      int defaultMaxConsumers = addressSettings.getDefaultMaxConsumers();
-      boolean defaultExclusiveQueue = addressSettings.isDefaultExclusiveQueue();
-      boolean defaultLastValueQueue = addressSettings.isDefaultLastValueQueue();
-      SimpleString defaultLastValueKey = addressSettings.getDefaultLastValueKey();
-      boolean defaultNonDestructive = addressSettings.isDefaultNonDestructive();
-      int defaultConsumersBeforeDispatch = addressSettings.getDefaultConsumersBeforeDispatch();
-      long defaultDelayBeforeDispatch = addressSettings.getDefaultDelayBeforeDispatch();
-      int defaultConsumerWindowSize = addressSettings.getDefaultConsumerWindowSize();
-      boolean defaultGroupRebalance = addressSettings.isDefaultGroupRebalance();
-      boolean defaultGroupRebalancePauseDispatch = addressSettings.isDefaultGroupRebalancePauseDispatch();
-      int defaultGroupBuckets = addressSettings.getDefaultGroupBuckets();
-      SimpleString defaultGroupFirstKey = addressSettings.getDefaultGroupFirstKey();
-      long autoDeleteQueuesDelay = addressSettings.getAutoDeleteQueuesDelay();
-      long autoDeleteQueuesMessageCount = addressSettings.getAutoDeleteQueuesMessageCount();
-      long defaultRingSize = addressSettings.getDefaultRingSize();
-      boolean defaultEnabled = ActiveMQDefaultConfiguration.getDefaultEnabled();
-
       SimpleString managementAddress = getManagementService() != null ? getManagementService().getManagementAddress() : null;
 
-      if (binding != null && binding.getType() == BindingType.LOCAL_QUEUE) {
-         Queue queue = (Queue) binding.getBindable();
-
-         Filter filter = queue.getFilter();
-
-         SimpleString filterString = filter == null ? null : filter.getFilterString();
-
-         response = new QueueQueryResult(realName, binding.getAddress(), queue.isDurable(), queue.isTemporary(), filterString, queue.getConsumerCount(), queue.getMessageCount(), autoCreateQueues, true, queue.isAutoCreated(), queue.isPurgeOnNoConsumers(), queue.getRoutingType(), queue.getMaxConsumers(), queue.isExclusive(), queue.isGroupRebalance(), queue.isGroupRebalancePauseDispatch(), queue.getGroupBuckets(), queue.getGroupFirstKey(), queue.isLastValue(), queue.getLastValueKey(), queue.isNonDestructive(), queue.getConsumersBeforeDispatch(), queue.getDelayBeforeDispatch(), queue.isAutoDelete(), queue.getAutoDeleteDelay(), queue.getAutoDeleteMessageCount(), defaultConsumerWindowSize, queue.getRingSize(), queue.isEnabled(), queue.isConfigurationManaged());
-      } else if (realName.equals(managementAddress)) {
-         // make an exception for the management address (see HORNETQ-29)
-         response = new QueueQueryResult(realName, managementAddress, true, false, null, -1, -1, autoCreateQueues, true, false, false, RoutingType.MULTICAST, -1, false, false, false, null, null, null, null, null, null, null, null, null, null, defaultConsumerWindowSize, null, null, null);
+      if (binding != null && binding.getBindable() instanceof Queue queue) {
+         response = new QueueQueryResult(queue.getQueueConfiguration(), queue.getConsumerCount(), queue.getMessageCount(), addressSettings.isAutoCreateQueues(), true, addressSettings.getDefaultConsumerWindowSize());
       } else {
-         response = new QueueQueryResult(realName, addressName, true, false, null, 0, 0, autoCreateQueues, false, false, defaultPurgeOnNoConsumers, RoutingType.MULTICAST, defaultMaxConsumers, defaultExclusiveQueue, defaultGroupRebalance, defaultGroupRebalancePauseDispatch, defaultGroupBuckets, defaultGroupFirstKey, defaultLastValueQueue, defaultLastValueKey, defaultNonDestructive, defaultConsumersBeforeDispatch, defaultDelayBeforeDispatch, isAutoDelete(false, addressSettings), autoDeleteQueuesDelay, autoDeleteQueuesMessageCount, defaultConsumerWindowSize, defaultRingSize, defaultEnabled, false);
+         QueueConfiguration config = QueueConfiguration.of(realName).setAddress(addressName);
+         QueueConfigurationUtils.applyDynamicDefaults(config, addressSettings);
+         boolean isManagement = realName.equals(managementAddress);
+         response = new QueueQueryResult(config, isManagement ? -1 : 0, isManagement ? -1 : 0, addressSettings.isAutoCreateQueues(), isManagement ? true : false, addressSettings.getDefaultConsumerWindowSize());
       }
 
       return response;
@@ -3797,7 +3771,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private void deployQueuesFromListQueueConfiguration(List<QueueConfiguration> queues) throws Exception {
       for (QueueConfiguration config : queues) {
          try {
-            QueueConfigurationUtils.applyDynamicQueueDefaults(config, addressSettingsRepository.getMatch(config.getAddress().toString()));
+            QueueConfigurationUtils.applyDynamicDefaults(config, addressSettingsRepository.getMatch(config.getAddress().toString()));
 
             config.setAutoCreateAddress(true);
 
@@ -3806,7 +3780,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             // determine if there is an address::queue match; update it if so
             if (locateQueue(config.getName()) != null && locateQueue(config.getName()).getAddress().equals(config.getAddress())) {
                config.setConfigurationManaged(true);
-               setUnsetQueueParamsToDefaults(config);
+               QueueConfigurationUtils.applyStaticDefaults(config);
                updateQueue(config, true);
             } else {
                // if the address::queue doesn't exist then create it
@@ -4107,7 +4081,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             }
          }
 
-         QueueConfigurationUtils.applyDynamicQueueDefaults(queueConfiguration, addressSettingsRepository.getMatch(getRuntimeTempQueueNamespace(queueConfiguration.isTemporary()) + queueConfiguration.getAddress().toString()));
+         QueueConfigurationUtils.applyDynamicDefaults(queueConfiguration, addressSettingsRepository.getMatch(getRuntimeTempQueueNamespace(queueConfiguration.isTemporary()) + queueConfiguration.getAddress().toString()));
 
          AddressInfo info = postOfficeInUse.getAddressInfo(queueConfiguration.getAddress());
          if (queueConfiguration.isAutoCreateAddress() || queueConfiguration.isTemporary()) {

@@ -19,205 +19,37 @@ package org.apache.activemq.artemis.core.persistence.impl.journal.codec;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
+import org.apache.activemq.artemis.core.server.impl.QueueConfigurationUtils;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBindingInfo {
 
-   private long id;
-
-   private SimpleString name;
-
-   private SimpleString address;
-
-   private SimpleString filterString;
-
-   private boolean autoCreated;
-
-   private SimpleString user;
+   private QueueConfiguration config;
 
    private List<QueueStatusEncoding> queueStatusEncodings;
 
-   private int maxConsumers;
-
-   private boolean purgeOnNoConsumers;
-
-   private boolean enabled;
-
-   private boolean exclusive;
-
-   private boolean lastValue;
-
-   private SimpleString lastValueKey;
-
-   private boolean nonDestructive;
-
-   private int consumersBeforeDispatch;
-
-   private long delayBeforeDispatch;
-
-   private byte routingType;
-
-   private boolean configurationManaged;
-
-   private boolean groupRebalance;
-
-   private boolean groupRebalancePauseDispatch;
-
-   private int groupBuckets;
-
-   private SimpleString groupFirstKey;
-
-   private boolean autoDelete;
-
-   private long autoDeleteDelay;
-
-   private long autoDeleteMessageCount;
-
-   private long ringSize;
-
-   private boolean internal;
-
    public PersistentQueueBindingEncoding() {
+      config = new QueueConfiguration();
    }
 
    @Override
    public String toString() {
-      return "PersistentQueueBindingEncoding [id=" + id +
-         ", name=" + name +
-         ", address=" + address +
-         ", filterString=" + filterString +
-         ", user=" + user +
-         ", autoCreated=" + autoCreated +
-         ", maxConsumers=" + maxConsumers +
-         ", purgeOnNoConsumers=" + purgeOnNoConsumers +
-         ", enabled=" + enabled +
-         ", exclusive=" + exclusive +
-         ", lastValue=" + lastValue +
-         ", lastValueKey=" + lastValueKey +
-         ", nonDestructive=" + nonDestructive +
-         ", consumersBeforeDispatch=" + consumersBeforeDispatch +
-         ", delayBeforeDispatch=" + delayBeforeDispatch +
-         ", routingType=" + routingType +
-         ", configurationManaged=" + configurationManaged +
-         ", groupRebalance=" + groupRebalance +
-         ", groupRebalancePauseDispatch=" + groupRebalancePauseDispatch +
-         ", groupBuckets=" + groupBuckets +
-         ", groupFirstKey=" + groupFirstKey +
-         ", autoDelete=" + autoDelete +
-         ", autoDeleteDelay=" + autoDeleteDelay +
-         ", autoDeleteMessageCount=" + autoDeleteMessageCount +
-         ", internal=" + internal +
-         "]";
+      return "PersistentQueueBindingEncoding [queueConfiguration=" + config + "]";
    }
 
-   public PersistentQueueBindingEncoding(final SimpleString name,
-                                         final SimpleString address,
-                                         final SimpleString filterString,
-                                         final SimpleString user,
-                                         final boolean autoCreated,
-                                         final int maxConsumers,
-                                         final boolean purgeOnNoConsumers,
-                                         final boolean enabled,
-                                         final boolean exclusive,
-                                         final boolean groupRebalance,
-                                         final boolean groupRebalancePauseDispatch,
-                                         final int groupBuckets,
-                                         final SimpleString groupFirstKey,
-                                         final boolean lastValue,
-                                         final SimpleString lastValueKey,
-                                         final boolean nonDestructive,
-                                         final int consumersBeforeDispatch,
-                                         final long delayBeforeDispatch,
-                                         final boolean autoDelete,
-                                         final long autoDeleteDelay,
-                                         final long autoDeleteMessageCount,
-                                         final byte routingType,
-                                         final boolean configurationManaged,
-                                         final long ringSize,
-                                         final boolean internal) {
-      this.name = name;
-      this.address = address;
-      this.filterString = filterString;
-      this.user = user;
-      this.autoCreated = autoCreated;
-      this.maxConsumers = maxConsumers;
-      this.purgeOnNoConsumers = purgeOnNoConsumers;
-      this.groupRebalancePauseDispatch = groupRebalancePauseDispatch;
-      this.enabled = enabled;
-      this.exclusive = exclusive;
-      this.groupRebalance = groupRebalance;
-      this.groupBuckets = groupBuckets;
-      this.groupFirstKey = groupFirstKey;
-      this.lastValue = lastValue;
-      this.lastValueKey = lastValueKey;
-      this.nonDestructive = nonDestructive;
-      this.consumersBeforeDispatch = consumersBeforeDispatch;
-      this.delayBeforeDispatch = delayBeforeDispatch;
-      this.autoDelete = autoDelete;
-      this.autoDeleteDelay = autoDeleteDelay;
-      this.autoDeleteMessageCount = autoDeleteMessageCount;
-      this.routingType = routingType;
-      this.configurationManaged = configurationManaged;
-      this.ringSize = ringSize;
-      this.internal = internal;
+   public PersistentQueueBindingEncoding(final QueueConfiguration config) {
+      this.config = config;
    }
 
    @Override
-   public long getId() {
-      return id;
-   }
-
-   public void setId(final long id) {
-      this.id = id;
-   }
-
-   @Override
-   public SimpleString getAddress() {
-      return address;
-   }
-
-   @Override
-   public void replaceQueueName(SimpleString newName) {
-      this.name = newName;
-   }
-
-   public void replaceAddress(SimpleString address) {
-      this.address = address;
-   }
-
-   @Override
-   public SimpleString getFilterString() {
-      return filterString;
-   }
-
-   @Override
-   public SimpleString getQueueName() {
-      return name;
-   }
-
-   @Override
-   public SimpleString getUser() {
-      return user;
-   }
-
-   @Override
-   public boolean isAutoCreated() {
-      return autoCreated;
-   }
-
-   @Override
-   public boolean isConfigurationManaged() {
-      return configurationManaged;
-   }
-
-   @Override
-   public void setConfigurationManaged(boolean configurationManaged) {
-      this.configurationManaged = configurationManaged;
+   public QueueConfiguration getQueueConfiguration() {
+      return config;
    }
 
    @Override
@@ -234,155 +66,10 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    }
 
    @Override
-   public int getMaxConsumers() {
-      return maxConsumers;
-   }
-
-   @Override
-   public void setMaxConsumers(int maxConsumers) {
-      this.maxConsumers = maxConsumers;
-   }
-
-   @Override
-   public boolean isPurgeOnNoConsumers() {
-      return purgeOnNoConsumers;
-   }
-
-   @Override
-   public void setPurgeOnNoConsumers(boolean purgeOnNoConsumers) {
-      this.purgeOnNoConsumers = purgeOnNoConsumers;
-   }
-
-   @Override
-   public boolean isEnabled() {
-      return enabled;
-   }
-
-   @Override
-   public void setEnabled(boolean enabled) {
-      this.enabled = enabled;
-   }
-
-   @Override
-   public boolean isExclusive() {
-      return exclusive;
-   }
-
-   @Override
-   public void setExclusive(boolean exclusive) {
-      this.exclusive = exclusive;
-   }
-
-   @Override
-   public boolean isLastValue() {
-      return lastValue;
-   }
-
-   @Override
-   public void setLastValue(boolean lastValue) {
-      this.lastValue = lastValue;
-   }
-
-   @Override
-   public SimpleString getLastValueKey() {
-      return lastValueKey;
-   }
-
-   @Override
-   public void setLastValueKey(SimpleString lastValueKey) {
-      this.lastValueKey = lastValueKey;
-   }
-
-   @Override
-   public boolean isNonDestructive() {
-      return nonDestructive;
-   }
-
-   @Override
-   public void setNonDestructive(boolean nonDestructive) {
-      this.nonDestructive = nonDestructive;
-   }
-
-   @Override
-   public int getConsumersBeforeDispatch() {
-      return consumersBeforeDispatch;
-   }
-
-   @Override
-   public void setConsumersBeforeDispatch(int consumersBeforeDispatch) {
-      this.consumersBeforeDispatch = consumersBeforeDispatch;
-   }
-
-   @Override
-   public long getDelayBeforeDispatch() {
-      return delayBeforeDispatch;
-   }
-
-   @Override
-   public void setDelayBeforeDispatch(long delayBeforeDispatch) {
-      this.delayBeforeDispatch = delayBeforeDispatch;
-   }
-
-   @Override
-   public byte getRoutingType() {
-      return routingType;
-   }
-
-   @Override
-   public void setRoutingType(byte routingType) {
-      this.routingType = routingType;
-   }
-
-   @Override
-   public boolean isGroupRebalance() {
-      return groupRebalance;
-   }
-
-   @Override
-   public boolean isGroupRebalancePauseDispatch() {
-      return groupRebalancePauseDispatch;
-   }
-
-   @Override
-   public int getGroupBuckets() {
-      return groupBuckets;
-   }
-
-   @Override
-   public SimpleString getGroupFirstKey() {
-      return groupFirstKey;
-   }
-
-   @Override
-   public boolean isAutoDelete() {
-      return autoDelete;
-   }
-
-   @Override
-   public long getAutoDeleteDelay() {
-      return autoDeleteDelay;
-   }
-
-   @Override
-   public long getAutoDeleteMessageCount() {
-      return autoDeleteMessageCount;
-   }
-
-   @Override
-   public long getRingSize() {
-      return ringSize;
-   }
-
-   @Override
-   public boolean isInternal() {
-      return internal;
-   }
-
-   @Override
    public void decode(final ActiveMQBuffer buffer) {
-      name = buffer.readSimpleString();
-      address = buffer.readSimpleString();
-      filterString = buffer.readNullableSimpleString();
+      config.setName(buffer.readSimpleString());
+      config.setAddress(buffer.readSimpleString());
+      config.setFilterString(buffer.readNullableSimpleString());
 
       String metadata = buffer.readNullableSimpleString().toString();
       if (metadata != null) {
@@ -391,146 +78,107 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
             String[] keyValuePair = element.split("=");
             if (keyValuePair.length == 2) {
                if (keyValuePair[0].equals("user")) {
-                  user = SimpleString.of(keyValuePair[1]);
+                  config.setUser(SimpleString.of(keyValuePair[1]));
                }
             }
          }
       }
 
-      autoCreated = buffer.readBoolean();
+      config.setAutoCreated(buffer.readBoolean());
 
-      if (buffer.readableBytes() > 0) {
-         maxConsumers = buffer.readInt();
-         purgeOnNoConsumers = buffer.readBoolean();
-         routingType = buffer.readByte();
-      } else {
-         maxConsumers = ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
-         purgeOnNoConsumers = ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
-         routingType = ActiveMQDefaultConfiguration.getDefaultRoutingType().getType();
+      if (buffer.readable()) {
+         config.setMaxConsumers(buffer.readInt());
+         config.setPurgeOnNoConsumers(buffer.readBoolean());
+         config.setRoutingType(RoutingType.getType(buffer.readByte()));
       }
 
-      if (buffer.readableBytes() > 0) {
-         exclusive = buffer.readBoolean();
-      } else {
-         exclusive = ActiveMQDefaultConfiguration.getDefaultExclusive();
+      if (buffer.readable()) {
+         config.setExclusive(buffer.readBoolean());
       }
-      if (buffer.readableBytes() > 0) {
-         lastValue = buffer.readBoolean();
-      } else {
-         lastValue = ActiveMQDefaultConfiguration.getDefaultLastValue();
+      if (buffer.readable()) {
+         config.setLastValue(buffer.readBoolean());
       }
-      if (buffer.readableBytes() > 0) {
-         configurationManaged = buffer.readBoolean();
-      } else {
-         configurationManaged = false;
+      if (buffer.readable()) {
+         config.setConfigurationManaged(buffer.readBoolean());
       }
-      if (buffer.readableBytes() > 0) {
-         consumersBeforeDispatch = buffer.readInt();
-      } else {
-         consumersBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch();
+      if (buffer.readable()) {
+         config.setConsumersBeforeDispatch(buffer.readInt());
       }
-      if (buffer.readableBytes() > 0) {
-         delayBeforeDispatch = buffer.readLong();
-      } else {
-         delayBeforeDispatch = ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch();
+      if (buffer.readable()) {
+         config.setDelayBeforeDispatch(buffer.readLong());
       }
-      if (buffer.readableBytes() > 0) {
-         lastValueKey = buffer.readNullableSimpleString();
-      } else {
-         lastValueKey = ActiveMQDefaultConfiguration.getDefaultLastValueKey();
+      if (buffer.readable()) {
+         config.setLastValueKey(buffer.readNullableSimpleString());
       }
-      if (buffer.readableBytes() > 0) {
-         nonDestructive = buffer.readBoolean();
-      } else {
-         nonDestructive = ActiveMQDefaultConfiguration.getDefaultNonDestructive();
+      if (buffer.readable()) {
+         config.setNonDestructive(buffer.readBoolean());
       }
-      if (buffer.readableBytes() > 0) {
-         groupRebalance = buffer.readBoolean();
-      } else {
-         groupRebalance = ActiveMQDefaultConfiguration.getDefaultGroupRebalance();
+      if (buffer.readable()) {
+         config.setGroupRebalance(buffer.readBoolean());
       }
-      if (buffer.readableBytes() > 0) {
-         groupBuckets = buffer.readInt();
-      } else {
-         groupBuckets = ActiveMQDefaultConfiguration.getDefaultGroupBuckets();
+      if (buffer.readable()) {
+         config.setGroupBuckets(buffer.readInt());
       }
-      if (buffer.readableBytes() > 0) {
-         autoDelete = buffer.readBoolean();
-      } else {
-         autoDelete = ActiveMQDefaultConfiguration.getDefaultQueueAutoDelete(autoCreated);
+      if (buffer.readable()) {
+         config.setAutoDelete(buffer.readBoolean());
       }
-      if (buffer.readableBytes() > 0) {
-         autoDeleteDelay = buffer.readLong();
-      } else {
-         autoDeleteDelay = ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteDelay();
+      if (buffer.readable()) {
+         config.setAutoDeleteDelay(buffer.readLong());
       }
-      if (buffer.readableBytes() > 0) {
-         autoDeleteMessageCount = buffer.readLong();
-      } else {
-         autoDeleteMessageCount = ActiveMQDefaultConfiguration.getDefaultQueueAutoDeleteMessageCount();
+      if (buffer.readable()) {
+         config.setAutoDeleteMessageCount(buffer.readLong());
       }
-      if (buffer.readableBytes() > 0) {
-         groupFirstKey = buffer.readNullableSimpleString();
-      } else {
-         groupFirstKey = ActiveMQDefaultConfiguration.getDefaultGroupFirstKey();
+      if (buffer.readable()) {
+         config.setGroupFirstKey(buffer.readNullableSimpleString());
       }
-      if (buffer.readableBytes() > 0) {
-         ringSize = buffer.readLong();
-      } else {
-         ringSize = ActiveMQDefaultConfiguration.getDefaultRingSize();
+      if (buffer.readable()) {
+         config.setRingSize(buffer.readLong());
       }
-      if (buffer.readableBytes() > 0) {
-         enabled = buffer.readBoolean();
-      } else {
-         enabled = ActiveMQDefaultConfiguration.getDefaultEnabled();
+      if (buffer.readable()) {
+         config.setEnabled(buffer.readBoolean());
       }
-
-      if (buffer.readableBytes() > 0) {
-         groupRebalancePauseDispatch = buffer.readBoolean();
-      } else {
-         groupRebalancePauseDispatch = ActiveMQDefaultConfiguration.getDefaultGroupRebalancePauseDispatch();
+      if (buffer.readable()) {
+         config.setGroupRebalancePauseDispatch(buffer.readBoolean());
       }
-
-      if (buffer.readableBytes() > 0) {
-         internal = buffer.readBoolean();
-      } else {
-         internal = ActiveMQDefaultConfiguration.getDefaultInternal();
+      if (buffer.readable()) {
+         config.setInternal(buffer.readBoolean());
       }
+      QueueConfigurationUtils.applyStaticDefaults(config);
    }
 
    @Override
    public void encode(final ActiveMQBuffer buffer) {
-      buffer.writeSimpleString(name);
-      buffer.writeSimpleString(address);
-      buffer.writeNullableSimpleString(filterString);
+      buffer.writeSimpleString(config.getName());
+      buffer.writeSimpleString(config.getAddress());
+      buffer.writeNullableSimpleString(config.getFilterString());
       buffer.writeNullableSimpleString(createMetadata());
-      buffer.writeBoolean(autoCreated);
-      buffer.writeInt(maxConsumers);
-      buffer.writeBoolean(purgeOnNoConsumers);
-      buffer.writeByte(routingType);
-      buffer.writeBoolean(exclusive);
-      buffer.writeBoolean(lastValue);
-      buffer.writeBoolean(configurationManaged);
-      buffer.writeInt(consumersBeforeDispatch);
-      buffer.writeLong(delayBeforeDispatch);
-      buffer.writeNullableSimpleString(lastValueKey);
-      buffer.writeBoolean(nonDestructive);
-      buffer.writeBoolean(groupRebalance);
-      buffer.writeInt(groupBuckets);
-      buffer.writeBoolean(autoDelete);
-      buffer.writeLong(autoDeleteDelay);
-      buffer.writeLong(autoDeleteMessageCount);
-      buffer.writeNullableSimpleString(groupFirstKey);
-      buffer.writeLong(ringSize);
-      buffer.writeBoolean(enabled);
-      buffer.writeBoolean(groupRebalancePauseDispatch);
-      buffer.writeBoolean(internal);
+      buffer.writeBoolean(config.isAutoCreated());
+      buffer.writeInt(config.getMaxConsumers());
+      buffer.writeBoolean(config.isPurgeOnNoConsumers());
+      buffer.writeByte(config.getRoutingType().getType());
+      buffer.writeBoolean(config.isExclusive());
+      buffer.writeBoolean(config.isLastValue());
+      buffer.writeBoolean(config.isConfigurationManaged());
+      buffer.writeInt(config.getConsumersBeforeDispatch());
+      buffer.writeLong(config.getDelayBeforeDispatch());
+      buffer.writeNullableSimpleString(config.getLastValueKey());
+      buffer.writeBoolean(config.isNonDestructive());
+      buffer.writeBoolean(config.isGroupRebalance());
+      buffer.writeInt(config.getGroupBuckets());
+      buffer.writeBoolean(config.isAutoDelete());
+      buffer.writeLong(config.getAutoDeleteDelay());
+      buffer.writeLong(config.getAutoDeleteMessageCount());
+      buffer.writeNullableSimpleString(config.getGroupFirstKey());
+      buffer.writeLong(config.getRingSize());
+      buffer.writeBoolean(config.isEnabled());
+      buffer.writeBoolean(config.isGroupRebalancePauseDispatch());
+      buffer.writeBoolean(config.isInternal());
    }
 
    @Override
    public int getEncodeSize() {
-      return SimpleString.sizeofString(name) + SimpleString.sizeofString(address) +
-         SimpleString.sizeofNullableString(filterString) + DataConstants.SIZE_BOOLEAN +
+      return SimpleString.sizeofString(config.getName()) + SimpleString.sizeofString(config.getAddress()) +
+         SimpleString.sizeofNullableString(config.getFilterString()) + DataConstants.SIZE_BOOLEAN +
          SimpleString.sizeofNullableString(createMetadata()) +
          DataConstants.SIZE_INT +
          DataConstants.SIZE_BOOLEAN +
@@ -540,14 +188,14 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_INT +
          DataConstants.SIZE_LONG +
-         SimpleString.sizeofNullableString(lastValueKey) +
+         SimpleString.sizeofNullableString(config.getLastValueKey()) +
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_INT +
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_LONG +
          DataConstants.SIZE_LONG +
-         SimpleString.sizeofNullableString(groupFirstKey) +
+         SimpleString.sizeofNullableString(config.getGroupFirstKey()) +
          DataConstants.SIZE_LONG +
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BOOLEAN +
@@ -556,8 +204,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    private SimpleString createMetadata() {
       StringBuilder metadata = new StringBuilder();
-      if (user != null) {
-         metadata.append("user=").append(user).append(";");
+      if (config.getUser() != null) {
+         metadata.append("user=").append(config.getUser()).append(";");
       }
       return SimpleString.of(metadata.toString());
    }

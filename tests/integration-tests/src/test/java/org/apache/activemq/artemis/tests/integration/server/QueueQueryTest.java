@@ -51,6 +51,32 @@ public class QueueQueryTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testQueueQueryOnManagement() throws Exception {
+      SimpleString addressName = server.getConfiguration().getManagementAddress();
+      SimpleString queueName = server.getConfiguration().getManagementAddress();
+      QueueQueryResult queueQueryResult = server.queueQuery(queueName);
+      assertTrue(queueQueryResult.isExists());
+      assertEquals(RoutingType.MULTICAST, queueQueryResult.getRoutingType());
+      assertEquals(queueName, queueQueryResult.getName());
+      assertTrue(queueQueryResult.isAutoCreateQueues());
+      assertNull(queueQueryResult.getFilterString());
+      assertFalse(queueQueryResult.isAutoCreated());
+      assertEquals(addressName, queueQueryResult.getAddress());
+      assertEquals(-1, queueQueryResult.getMessageCount());
+      assertEquals(-1, queueQueryResult.getConsumerCount());
+      assertEquals(ActiveMQDefaultConfiguration.DEFAULT_MAX_QUEUE_CONSUMERS, queueQueryResult.getMaxConsumers());
+      assertEquals(ActiveMQDefaultConfiguration.DEFAULT_CONSUMERS_BEFORE_DISPATCH, queueQueryResult.getConsumersBeforeDispatch().intValue());
+      assertEquals(ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, queueQueryResult.getDefaultConsumerWindowSize().intValue());
+      assertEquals(ActiveMQDefaultConfiguration.DEFAULT_DELAY_BEFORE_DISPATCH, queueQueryResult.getDelayBeforeDispatch().longValue());
+      assertNull(queueQueryResult.getLastValueKey());
+      assertTrue(queueQueryResult.isDurable());
+      assertFalse(queueQueryResult.isPurgeOnNoConsumers());
+      assertFalse(queueQueryResult.isTemporary());
+      assertFalse(queueQueryResult.isExclusive());
+      assertFalse(queueQueryResult.isNonDestructive());
+   }
+
+   @Test
    public void testQueueQueryDefaultsOnStaticQueue() throws Exception {
       SimpleString addressName = SimpleString.of(UUID.randomUUID().toString());
       SimpleString queueName = SimpleString.of(UUID.randomUUID().toString());
