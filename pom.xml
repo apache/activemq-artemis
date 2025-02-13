@@ -1051,6 +1051,7 @@
             <artifactId>maven-javadoc-plugin</artifactId>
             <configuration>
                <noindex>true</noindex>
+               <doclint>all,-missing</doclint>
             </configuration>
          </plugin>
          <plugin>

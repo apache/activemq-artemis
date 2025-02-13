@@ -68,7 +68,7 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
    /**
     * Set the value of a parameter based on its "key" {@code String}. Valid key names and corresponding {@code static}
     * {@code final} are:
-    * <p><ul>
+    * <ul>
     * <li>name: {@link #NAME}
     * <li>routing-name: {@link #ROUTING_NAME}
     * <li>address: {@link #ADDRESS}
@@ -77,7 +77,7 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
     * <li>filter-string: {@link #FILTER_STRING}
     * <li>transformer-configuration: {@link #TRANSFORMER_CONFIGURATION}
     * <li>routing-type: {@link #ROUTING_TYPE}
-    * </ul><p>
+    * </ul>
     * The {@code String}-based values will be converted to the proper value types based on the underlying property. For
     * example, if you pass the value "TRUE" for the key "exclusive" the {@code String} "TRUE" will be converted to
     * the {@code Boolean} {@code true}.
