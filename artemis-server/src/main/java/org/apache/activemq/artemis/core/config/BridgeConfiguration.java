@@ -172,7 +172,7 @@ public final class BridgeConfiguration implements Serializable {
    /**
     * Set the value of a parameter based on its "key" {@code String}. Valid key names and corresponding {@code static}
     * {@code final} are:
-    * <p><ul>
+    * <ul>
     * <li>name: {@link #NAME}
     * <li>queue-name: {@link #QUEUE_NAME}
     * <li>forwarding-address: {@link #FORWARDING_ADDRESS}
@@ -199,7 +199,7 @@ public final class BridgeConfiguration implements Serializable {
     * <li>routing-type: {@link #ROUTING_TYPE}
     * <li>concurrency: {@link #CONCURRENCY}
     * <li>client-id: {@link #CLIENT_ID}
-    * </ul><p>
+    * </ul>
     * The {@code String}-based values will be converted to the proper value types based on the underlying property. For
     * example, if you pass the value "TRUE" for the key "auto-created" the {@code String} "TRUE" will be converted to
     * the {@code Boolean} {@code true}.

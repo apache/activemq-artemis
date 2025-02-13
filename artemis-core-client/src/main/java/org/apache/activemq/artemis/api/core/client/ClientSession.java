@@ -301,7 +301,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * details on configuration specifics.
     * <p>
     * Some static defaults will be enforced for properties which are not set on the {@code QueueConfiguration}:
-    * <p><ul>
+    * <ul>
     * <li>{@code transient} : {@code false}
     * <li>{@code temporary} : {@code false}
     * <li>{@code durable} : {@code true}
@@ -310,9 +310,9 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * <li>{@code configurationManaged} : {@code false}
     * <li>{@code maxConsumers} : {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#getDefaultMaxQueueConsumers()}
     * <li>{@code purgeOnNoConsumers} : {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#getDefaultPurgeOnNoConsumers()}
-    * </ul><p>
+    * </ul>
     * Some dynamic defaults will be enforced via address-settings for the corresponding unset properties:
-    * <p><ul>
+    * <ul>
     * <li>{@code exclusive}
     * <li>{@code groupRebalance}
     * <li>{@code groupBuckets}
@@ -328,7 +328,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * <li>{@code autoDelete} (only set if queue was auto-created)
     * <li>{@code autoDeleteDelay}
     * <li>{@code autoDeleteMessageCount}
-    * </ul><p>
+    * </ul>
     *
     * @param queueConfiguration the configuration to use when creating the queue
     * @throws ActiveMQException
@@ -339,15 +339,15 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * This method is essentially the same as {@link #createQueue(QueueConfiguration)} with a few key exceptions.
     * <p>
     * If {@code durable} is {@code true} then:
-    * <p><ul>
+    * <ul>
     * <li>{@code transient} will be forced to {@code false}
     * <li>{@code temporary} will be forced to {@code false}
-    * </ul><p>
+    * </ul>
     * If {@code durable} is {@code false} then:
-    * <p><ul>
+    * <ul>
     * <li>{@code transient} will be forced to {@code true}
     * <li>{@code temporary} will be forced to {@code true}
-    * </ul><p>
+    * </ul>
     * In all instances {@code autoCreated} will be forced to {@code false} and {@code autoCreatedAddress} will be forced
     * to {@code true}.
     *

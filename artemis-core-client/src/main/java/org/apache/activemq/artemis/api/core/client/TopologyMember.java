@@ -45,7 +45,6 @@ public interface TopologyMember {
     * <p>
     * This is a server configuration value. An active server will only send its messages to another active server
     * with matching {@code scale-down-group-name}.
-    * <p>
     *
     * @return the {@code scale-down-group-name}
     */

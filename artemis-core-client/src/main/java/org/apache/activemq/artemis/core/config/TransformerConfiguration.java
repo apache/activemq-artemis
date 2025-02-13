@@ -60,7 +60,7 @@ public final class TransformerConfiguration implements Serializable {
     * This method returns a {@code TransformerConfiguration} created from the JSON-formatted input {@code String}.
     * The input should contain these entries:
     *
-    * <p><ul>
+    * <ul>
     * <li>class-name - a string value,
     * <li>properties - an object containing string key-value pairs.
     * </ul>

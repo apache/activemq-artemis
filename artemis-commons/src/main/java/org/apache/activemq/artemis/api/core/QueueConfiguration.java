@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 /**
  * This class holds all the properties required to configure a queue. The only strictly required property is
  * {@code name}. Some defaults will be enforced for properties which are not explicitly set:
- * <p><ul>
+ * <ul>
  * <li>{@code address} : the value set for {@code name}
  * <li>{@code transient} : {@code false}
  * <li>{@code temporary} : {@code false}
@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.utils.JsonLoader;
  * <li>{@code autoCreated} : {@code false}
  * <li>{@code internal} : {@code false}
  * <li>{@code configurationManaged} : {@code false}
- * </ul><p>
+ * </ul>
  */
 public class QueueConfiguration implements Serializable {
 
@@ -223,7 +223,7 @@ public class QueueConfiguration implements Serializable {
    /**
     * Set the value of a parameter based on its "key" {@code String}. Valid key names and corresponding {@code static}
     * {@code final} are:
-    * <p><ul>
+    * <ul>
     * <li>id: {@link #ID}
     * <li>name: {@link #NAME}
     * <li>address: {@link #ADDRESS}
@@ -254,7 +254,7 @@ public class QueueConfiguration implements Serializable {
     * <li>internal: {@link #INTERNAL}
     * <li>transient: {@link #TRANSIENT}
     * <li>auto-created: {@link #AUTO_CREATED}
-    * </ul><p>
+    * </ul>
     * The {@code String}-based values will be converted to the proper value types based on the underlying property. For
     * example, if you pass the value "TRUE" for the key "auto-created" the {@code String} "TRUE" will be converted to
     * the {@code Boolean} {@code true}.
