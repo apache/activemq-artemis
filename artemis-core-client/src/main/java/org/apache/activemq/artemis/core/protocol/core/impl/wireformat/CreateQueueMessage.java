@@ -59,9 +59,6 @@ public class CreateQueueMessage extends PacketImpl {
       super(CREATE_QUEUE);
    }
 
-   /**
-    * @param createQueueMessageV2
-    */
    public CreateQueueMessage(byte createQueueMessageV2) {
       super(createQueueMessageV2);
    }

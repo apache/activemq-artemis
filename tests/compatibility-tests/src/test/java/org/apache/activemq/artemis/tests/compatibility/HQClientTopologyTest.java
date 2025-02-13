@@ -34,8 +34,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Runs Artemis server with HornetQ client and verifies that the client receives
- * correct connector parameters (keys must be dash-delimited instead of camelCase).
+ * Runs Artemis server with HornetQ client and verifies that the client receives correct connector parameters (keys must
+ * be dash-delimited instead of camelCase).
  */
 @ExtendWith(ParameterizedTestExtension.class)
 public class HQClientTopologyTest extends VersionedBase {

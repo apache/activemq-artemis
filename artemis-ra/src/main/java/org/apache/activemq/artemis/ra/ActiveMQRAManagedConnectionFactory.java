@@ -36,46 +36,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/**
- * ActiveMQ Artemis ManagedConnectionFactory
- */
 public final class ActiveMQRAManagedConnectionFactory implements ManagedConnectionFactory, ResourceAdapterAssociation {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * Serial version UID
-    */
    static final long serialVersionUID = -1452379518562456741L;
 
-   /**
-    * The resource adapter
-    */
    private ActiveMQResourceAdapter ra;
 
-   /**
-    * Connection manager
-    */
    private ConnectionManager cm;
 
-   /**
-    * The managed connection factory properties
-    */
    private final ActiveMQRAMCFProperties mcfProperties;
 
-   /**
-    * Connection Factory used if properties are set
-    */
    private ActiveMQConnectionFactory recoveryConnectionFactory;
 
-   /**
-    * The resource recovery if there is one
-    */
    private XARecoveryConfig resourceRecovery;
 
-   /**
-    * Constructor
-    */
    public ActiveMQRAManagedConnectionFactory() {
       logger.trace("constructor()");
 
@@ -85,10 +61,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    }
 
    /**
-    * Creates a Connection Factory instance
-    *
-    * @return javax.resource.cci.ConnectionFactory instance
-    * @throws ResourceException Thrown if a connection factory can't be created
+    * {@inheritDoc}
     */
    @Override
    public Object createConnectionFactory() throws ResourceException {
@@ -98,11 +71,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    }
 
    /**
-    * Creates a Connection Factory instance
-    *
-    * @param cxManager The connection manager
-    * @return javax.resource.cci.ConnectionFactory instance
-    * @throws ResourceException Thrown if a connection factory can't be created
+    * {@inheritDoc}
     */
    @Override
    public Object createConnectionFactory(final ConnectionManager cxManager) throws ResourceException {
@@ -118,12 +87,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    }
 
    /**
-    * Creates a new physical connection to the underlying EIS resource manager.
-    *
-    * @param subject       Caller's security information
-    * @param cxRequestInfo Additional resource adapter specific connection request information
-    * @return The managed connection
-    * @throws ResourceException Thrown if a managed connection can't be created
+    * {@inheritDoc}
     */
    @Override
    public ManagedConnection createManagedConnection(final Subject subject,
@@ -160,13 +124,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    }
 
    /**
-    * Returns a matched connection from the candidate set of connections.
-    *
-    * @param connectionSet The candidate connection set
-    * @param subject       Caller's security information
-    * @param cxRequestInfo Additional resource adapter specific connection request information
-    * @return The managed connection
-    * @throws ResourceException Thrown if the managed connection can not be found
+    * {@inheritDoc}
     */
    @Override
    public ManagedConnection matchManagedConnections(final Set connectionSet,
@@ -201,10 +159,9 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    }
 
    /**
-    * Set the log writer -- NOT SUPPORTED
-    *
-    * @param out The writer
-    * @throws ResourceException Thrown if the writer can't be set
+    * <b>NOT SUPPORTED</b>
+    * <p>
+    * {@inheritDoc}
     */
    @Override
    public void setLogWriter(final PrintWriter out) throws ResourceException {
@@ -212,10 +169,9 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    }
 
    /**
-    * Get the log writer -- NOT SUPPORTED
-    *
-    * @return The writer
-    * @throws ResourceException Thrown if the writer can't be retrieved
+    * <b>NOT SUPPORTED</b>
+    * <p>
+    * {@inheritDoc}
     */
    @Override
    public PrintWriter getLogWriter() throws ResourceException {
@@ -225,9 +181,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    }
 
    /**
-    * Get the resource adapter
-    *
-    * @return The resource adapter
+    * {@inheritDoc}
     */
    @Override
    public ResourceAdapter getResourceAdapter() {
@@ -241,12 +195,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    }
 
    /**
-    * Set the resource adapter
-    * <br>
-    * This should ensure that when the RA is stopped, this MCF will be stopped as well.
-    *
-    * @param ra The resource adapter
-    * @throws ResourceException Thrown if incorrect resource adapter
+    * {@inheritDoc}
     */
    @Override
    public void setResourceAdapter(final ResourceAdapter ra) throws ResourceException {
@@ -260,12 +209,6 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       this.ra.setManagedConnectionFactory(this);
    }
 
-   /**
-    * Indicates whether some other object is "equal to" this one.
-    *
-    * @param obj Object with which to compare
-    * @return True if this object is the same as the obj argument; false otherwise.
-    */
    @Override
    public boolean equals(final Object obj) {
       logger.trace("equals({})", obj);
@@ -282,11 +225,6 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       }
    }
 
-   /**
-    * Return the hash code for the object
-    *
-    * @return The hash code
-    */
    @Override
    public int hashCode() {
       logger.trace("hashCode()");
@@ -297,11 +235,6 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       return hash;
    }
 
-   /**
-    * Get the default session type
-    *
-    * @return The value
-    */
    public String getSessionDefaultType() {
       logger.trace("getSessionDefaultType()");
 
@@ -311,7 +244,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    /**
     * Set the default session type
     *
-    * @param type either javax.jms.Topic or javax.jms.Queue
+    * @param type either {@literal javax.jms.Topic} or {@literal javax.jms.Queue}
     */
    public void setSessionDefaultType(final String type) {
       logger.trace("setSessionDefaultType({})", type);
@@ -319,9 +252,6 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       mcfProperties.setSessionDefaultType(type);
    }
 
-   /**
-    * @return the connectionParameters
-    */
    public String getConnectionParameters() {
       return mcfProperties.getStrConnectionParameters();
    }
@@ -330,9 +260,6 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       mcfProperties.setConnectionParameters(configuration);
    }
 
-   /**
-    * @return the transportType
-    */
    public String getConnectorClassName() {
       return mcfProperties.getConnectorClassName();
    }
@@ -698,57 +625,30 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       mcfProperties.setInitialConnectAttempts(initialConnectAttempts);
    }
 
-
-   /**
-    * Get the useTryLock.
-    *
-    * @return the useTryLock.
-    */
    public Integer getUseTryLock() {
       logger.trace("getUseTryLock()");
 
       return mcfProperties.getUseTryLock();
    }
 
-   /**
-    * Set the useTryLock.
-    *
-    * @param useTryLock the useTryLock.
-    */
    public void setUseTryLock(final Integer useTryLock) {
       logger.trace("setUseTryLock({})", useTryLock);
 
       mcfProperties.setUseTryLock(useTryLock);
    }
 
-   /**
-    * Get the connection metadata
-    *
-    * @return The metadata
-    */
    public ConnectionMetaData getMetaData() {
       logger.trace("getMetadata()");
 
       return new ActiveMQRAConnectionMetaData();
    }
 
-   /**
-    * Get the managed connection factory properties
-    *
-    * @return The properties
-    */
    protected ActiveMQRAMCFProperties getProperties() {
       logger.trace("getProperties()");
 
       return mcfProperties;
    }
 
-   /**
-    * Get a connection request info instance
-    *
-    * @param info The instance that should be updated; may be <code>null</code>
-    * @return The instance
-    */
    private ActiveMQRAConnectionRequestInfo getCRI(final ActiveMQRAConnectionRequestInfo info) {
       logger.trace("getCRI({})", info);
 

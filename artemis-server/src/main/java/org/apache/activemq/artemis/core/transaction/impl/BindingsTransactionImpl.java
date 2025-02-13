@@ -25,9 +25,6 @@ public class BindingsTransactionImpl extends TransactionImpl {
       super(storage, 0);
    }
 
-   /**
-    * @throws Exception
-    */
    @Override
    protected void doCommit() throws Exception {
       if (isContainsPersistent()) {

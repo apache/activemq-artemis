@@ -44,11 +44,13 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * you need to define -Djava.library.path=${project-root}/native/src/.libs when calling the JVM
+ * You need to define {@literal -Djava.library.path=${project-root}/native/src/.libs} when calling the JVM
  * If you are running this test in eclipse you should do:
- * I - Run->Open Run Dialog
- * II - Find the class on the list (you will find it if you already tried running this testcase before)
- * III - Add -Djava.library.path=<your project place>/native/src/.libs
+ * <ol>
+ * <li>Run->Open Run Dialog
+ * <li>Find the class on the list (you will find it if you already tried running this testcase before)
+ * <li>Add {@literal -Djava.library.path=${project-root}/native/src/.libs}
+ * </ol>
  */
 public class MultiThreadAsynchronousFileTest extends AIOTestBase {
 

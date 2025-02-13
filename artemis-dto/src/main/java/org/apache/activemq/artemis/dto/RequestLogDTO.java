@@ -111,7 +111,8 @@ public class RequestLogDTO {
    public Boolean preferProxiedForAddress;
 
    /**
-    * the format to use for logging; see https://www.eclipse.org/jetty/javadoc/jetty-9/org/eclipse/jetty/server/CustomRequestLog.html
+    * the format to use for logging; see
+    * https://www.eclipse.org/jetty/javadoc/jetty-9/org/eclipse/jetty/server/CustomRequestLog.html
     */
    @XmlAttribute
    public String format;

@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test JMS Security.
- * <br>
+ * <p>
  * This test must be run with the Test security config. on the server
  */
 public class SecurityTest extends JMSTestCase {
@@ -354,8 +354,6 @@ public class SecurityTest extends JMSTestCase {
       connection.close();
    }
 
-   /* Now some client id tests */
-
    /**
     * user/pwd with preconfigured clientID, should return preconf
     */
@@ -409,7 +407,7 @@ public class SecurityTest extends JMSTestCase {
       }
    }
 
-   /*
+   /**
     * Try setting client ID after an operation has been performed on the connection
     */
    @Test

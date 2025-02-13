@@ -28,8 +28,9 @@ public class InputAbstract extends ActionAbstract {
    private static boolean inputEnabled = false;
 
    /**
-    * Test cases validating or using the CLI cannot deal with inputs,
-    * so they are generally disabled, however the main method from the CLI will enable it back. */
+    * Test cases validating or using the CLI cannot deal with inputs, so they are generally disabled, however the main
+    * method from the CLI will enable it back.
+    */
    public static void enableInput() {
       inputEnabled = true;
    }

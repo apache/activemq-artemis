@@ -43,12 +43,10 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 
 /**
- * Writer of tunneled large Core messages that will be written as the body of an
- * AMQP delivery with a custom message format that indicates this payload. The writer
- * will read bytes from the Core large message file and write them into an AMQP
- * Delivery that will be sent across to the remote peer where it can be processed
- * and a Core message recreated for dispatch as if it had been sent from a Core
- * connection.
+ * Writer of tunneled large Core messages that will be written as the body of an AMQP delivery with a custom message
+ * format that indicates this payload. The writer will read bytes from the Core large message file and write them into
+ * an AMQP Delivery that will be sent across to the remote peer where it can be processed and a Core message recreated
+ * for dispatch as if it had been sent from a Core connection.
  */
 public class AMQPTunneledCoreLargeMessageWriter implements MessageWriter {
 

@@ -57,7 +57,7 @@ public class JournalFilesRepository {
 
    /**
     * Used to debug the consistency of the journal ordering.
-    * <br>
+    * <p>
     * This is meant to be false as these extra checks would cause performance issues
     */
    private static final boolean CHECK_CONSISTENCE = false;
@@ -193,13 +193,10 @@ public class JournalFilesRepository {
    }
 
    /**
-    * Set the {link #nextFileID} value to {@code targetUpdate} if the current value is less than
-    * {@code targetUpdate}.
-    *
+    * Set the {link #nextFileID} value to {@code targetUpdate} if the current value is less than {@code targetUpdate}.
+    * <p>
     * Notice that {@code nextFileID} is incremented before being used, see
     * {@link JournalFilesRepository#generateFileID()}.
-    *
-    * @param targetUpdate
     */
    public void setNextFileID(final long targetUpdate) {
       while (true) {
@@ -352,19 +349,15 @@ public class JournalFilesRepository {
       return freeFilesCount.get();
    }
 
-   /**
-    * @param file
-    * @throws Exception
-    */
    public synchronized void addFreeFile(final JournalFile file, final boolean renameTmp) throws Exception {
       addFreeFile(file, renameTmp, true);
    }
 
    /**
-    * @param file
+    * add a free file
+    *
     * @param renameTmp   - should rename the file as it's being added to free files
     * @param checkDelete - should delete the file if max condition has been met
-    * @throws Exception
     */
    public synchronized void addFreeFile(final JournalFile file,
                                         final boolean renameTmp,
@@ -466,9 +459,11 @@ public class JournalFilesRepository {
    }
 
    /**
-    * <p>This method will instantly return the opened file, and schedule opening and reclaiming.</p>
-    * <p>In case there are no cached opened files, this method will block until the file was opened,
-    * what would happen only if the system is under heavy load by another system (like a backup system, or a DB sharing the same box as ActiveMQ).</p>
+    * This method will instantly return the opened file, and schedule opening and reclaiming.
+    * <p>
+    * In case there are no cached opened files, this method will block until the file was opened, what would happen only
+    * if the system is under heavy load by another system (like a backup system, or a DB sharing the same box as
+    * ActiveMQ).
     *
     * @throws ActiveMQIOErrorException In case the file could not be opened
     */
@@ -555,7 +550,6 @@ public class JournalFilesRepository {
     * This will get a File from freeFile without initializing it
     *
     * @return uninitialized JournalFile
-    * @throws Exception
     * @see JournalImpl#initFileHeader(SequentialFileFactory, SequentialFile, int, long)
     */
    private JournalFile takeFile(final boolean keepOpened,
@@ -587,9 +581,8 @@ public class JournalFilesRepository {
 
    /**
     * Creates files for journal synchronization of a replicated backup.
-    *
-    * In order to simplify synchronization, the file IDs in the backup match those in the live
-    * server.
+    * <p>
+    * In order to simplify synchronization, the file IDs in the backup match those in the live server.
     *
     * @param fileID the fileID to use when creating the file.
     */
@@ -600,9 +593,7 @@ public class JournalFilesRepository {
    /**
     * This method will create a new file on the file system, pre-fill it with FILL_CHARACTER
     *
-    * @param keepOpened
     * @return an initialized journal file
-    * @throws Exception
     */
    private JournalFile createFile(final boolean keepOpened,
                                   final boolean multiAIO,
@@ -674,11 +665,6 @@ public class JournalFilesRepository {
       return new JournalFileImpl(sequentialFile, fileID, JournalImpl.FORMAT_VERSION);
    }
 
-   /**
-    * @param tmpCompact
-    * @param fileID
-    * @return
-    */
    private String createFileName(final boolean tmpCompact, final long fileID) {
       String fileName;
       if (tmpCompact) {

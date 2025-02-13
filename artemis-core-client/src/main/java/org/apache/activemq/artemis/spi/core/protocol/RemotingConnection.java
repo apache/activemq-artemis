@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.spi.core.protocol;
 
+import javax.security.auth.Subject;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -30,32 +31,26 @@ import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 
-import javax.security.auth.Subject;
-
 /**
  * A RemotingConnection is a connection between a client and a server.
- *
- * Perhaps a better name for this class now would be ProtocolConnection as this
- * represents the link with the used protocol
+ * <p>
+ * Perhaps a better name for this class now would be ProtocolConnection as this represents the link with the used
+ * protocol
  */
 public interface RemotingConnection extends BufferHandler {
 
    /**
-    * Returns the unique id of the {@link RemotingConnection}.
-    *
-    * @return the id
+    * {@return the unique id of the {@link RemotingConnection}}
     */
    Object getID();
 
    /**
-    * Returns the creation time of the {@link RemotingConnection}.
+    * {@return the creation time of the {@link RemotingConnection}}
     */
    long getCreationTime();
 
    /**
-    * returns a string representation of the remote address of this connection
-    *
-    * @return the remote address
+    * {@return a string representation of the remote address of this connection}
     */
    String getRemoteAddress();
 
@@ -100,9 +95,7 @@ public interface RemotingConnection extends BufferHandler {
    void setCloseListeners(List<CloseListener> listeners);
 
    /**
-    * return all the failure listeners
-    *
-    * @return the listeners
+    * {@return all the failure listeners}
     */
    List<FailureListener> getFailureListeners();
 
@@ -118,8 +111,7 @@ public interface RemotingConnection extends BufferHandler {
    void setFailureListeners(List<FailureListener> listeners);
 
    /**
-    * creates a new ActiveMQBuffer of the specified size.
-    * For the purpose of i/o outgoing packets
+    * creates a new ActiveMQBuffer of the specified size. For the purpose of i/o outgoing packets
     *
     * @param size the size of buffer required
     * @return the buffer
@@ -135,9 +127,8 @@ public interface RemotingConnection extends BufferHandler {
 
    void close();
 
-   /** Same thing as fail, but using an executor.
-    *  semantic of send here, is asynchrounous.
-    * @param me
+   /**
+    * Same thing as fail, but using an executor. semantic of send here, is asynchrounous.
     */
    Future asyncFail(ActiveMQException me);
 
@@ -162,16 +153,12 @@ public interface RemotingConnection extends BufferHandler {
    Connection getTransportConnection();
 
    /**
-    * Returns whether or not the {@link RemotingConnection} is a client
-    *
-    * @return true if client, false if a server
+    * {@return true if the {@link RemotingConnection} is a client, otherwise false}
     */
    boolean isClient();
 
    /**
-    * Returns true if this {@link RemotingConnection} has been destroyed.
-    *
-    * @return true if destroyed, otherwise false
+    * {@return true if this {@link RemotingConnection} has been destroyed, otherwise false}
     */
    boolean isDestroyed();
 
@@ -193,9 +180,7 @@ public interface RemotingConnection extends BufferHandler {
    }
 
    /**
-    * returns true if any data has been received since the last time this method was called.
-    *
-    * @return true if data has been received.
+    * {@return true if any data has been received since the last time this method was called}
     */
    boolean checkDataReceived();
 
@@ -212,56 +197,46 @@ public interface RemotingConnection extends BufferHandler {
    void killMessage(SimpleString nodeID);
 
    /**
-    * This will check if reconnects are supported on the protocol and configuration.
-    * In case it's not supported a connection failure could remove messages right away from pending deliveries.
-    *
-    * @return
+    * This will check if reconnects are supported on the protocol and configuration. In case it's not supported a
+    * connection failure could remove messages right away from pending deliveries.
     */
    boolean isSupportReconnect();
 
    /**
-    * Return true if the protocol supports flow control.
-    * This is because in some cases we may need to hold message producers in cases like disk full.
-    * If the protocol doesn't support it we trash the connection and throw exceptions.
-    *
-    * @return
+    * Return true if the protocol supports flow control. This is because in some cases we may need to hold message
+    * producers in cases like disk full. If the protocol doesn't support it we trash the connection and throw
+    * exceptions.
     */
    boolean isSupportsFlowControl();
 
    /**
     * sets the currently associated subject for this connection
-    * @param subject
     */
    void setSubject(Subject subject);
 
    /**
     * the possibly null subject associated with this connection
-    * @return
     */
    Subject getSubject();
 
    /**
-    * Returns the name of the protocol for this Remoting Connection
-    * @return
+    * {@return the name of the protocol for this Remoting Connection}
     */
    String getProtocolName();
 
    /**
     * Sets the client ID associated with this connection
-     * @param cID
     */
    void setClientID(String cID);
 
    /**
-    * Returns the Client ID associated with this connection
-    * @return
+    * {@return the Client ID associated with this connection}
     */
    String getClientID();
 
    /**
-    * Returns a string representation of the local address this connection is connected to.
-    * This is useful when the server is configured at 0.0.0.0 (or multiple IPs).
-    * This will give you the actual IP that's being used.
+    * Returns a string representation of the local address this connection is connected to This is useful when the
+    * server is configured at 0.0.0.0 (or multiple IPs). This will give you the actual IP that's being used.
     *
     * @return the local address of transport connection
     */

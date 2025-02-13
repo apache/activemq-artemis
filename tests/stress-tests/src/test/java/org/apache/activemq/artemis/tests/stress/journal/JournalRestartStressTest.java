@@ -32,9 +32,8 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
 
 /**
- * Simulates the journal being updated, compacted cleared up,
- * and having multiple restarts,
- * To make sure the journal would survive at multiple restarts of the server
+ * Simulates the journal being updated, compacted cleared up, and having multiple restarts, To make sure the journal
+ * would survive at multiple restarts of the server
  */
 public class JournalRestartStressTest extends ActiveMQTestBase {
 
@@ -85,13 +84,6 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
 
    }
 
-   /**
-    * @param sf
-    * @param NMSGS
-    * @throws ActiveMQException
-    * @throws InterruptedException
-    * @throws Throwable
-    */
    private void produceMessages(final ClientSessionFactory sf, final int NMSGS) throws Throwable {
 
       final int TIMEOUT = 5000;

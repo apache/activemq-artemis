@@ -27,7 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/** MirrorTransaction disable some syncs in storage, and plays with OperationConsistencyLevel to relax some of the syncs required for Mirroring. */
+/**
+ * MirrorTransaction disable some syncs in storage, and plays with OperationConsistencyLevel to relax some of the syncs
+ * required for Mirroring.
+ */
 public class MirrorTransaction extends TransactionImpl {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

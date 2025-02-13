@@ -223,8 +223,6 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
       return new FakeSequentialFile(fileName);
    }
 
-
-
    /**
     * This listener will return a message to the test with each callback added
     */
@@ -461,9 +459,6 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          writeDirect(bytes, sync, null);
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.io.SequentialFile#writeInternal(java.nio.ByteBuffer)
-       */
       public void writeInternal(ByteBuffer bytes) throws Exception {
          writeDirect(bytes, true);
       }
@@ -484,10 +479,6 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          }
       }
 
-      /**
-       * @param bytes
-       * @param action
-       */
       private void addCallback(final ByteBuffer bytes, final CallbackRunnable action) {
          synchronized (FakeSequentialFileFactory.this) {
             callbacksInHold.add(action);
@@ -515,9 +506,6 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          }
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.io.SequentialFile#renameTo(org.apache.activemq.artemis.core.io.SequentialFile)
-       */
       @Override
       public void renameTo(final String newFileName) throws Exception {
          fileMap.remove(fileName);
@@ -525,29 +513,17 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          fileMap.put(newFileName, this);
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.io.SequentialFile#fits(int)
-       */
       @Override
       public boolean fits(final int size) {
          return data.position() + size <= data.limit();
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.io.SequentialFile#setBuffering(boolean)
-       */
       public void setBuffering(final boolean buffering) {
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.io.SequentialFile#lockBuffer()
-       */
       public void disableAutoFlush() {
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.io.SequentialFile#unlockBuffer()
-       */
       public void enableAutoFlush() {
       }
 
@@ -556,9 +532,6 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          return null; // To change body of implemented methods use File | Settings | File Templates.
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.io.SequentialFile#write(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer, boolean, org.apache.activemq.artemis.core.journal.IOCallback)
-       */
       @Override
       public void write(final ActiveMQBuffer bytes, final boolean sync, final IOCallback callback) throws Exception {
          bytes.writerIndex(bytes.capacity());
@@ -567,9 +540,6 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
 
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.io.SequentialFile#write(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer, boolean)
-       */
       @Override
       public void write(final ActiveMQBuffer bytes, final boolean sync) throws Exception {
          bytes.writerIndex(bytes.capacity());
@@ -577,9 +547,6 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          writeDirect(bytes.toByteBuffer(), sync);
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.io.SequentialFile#write(org.apache.activemq.artemis.core.journal.EncodingSupport, boolean, org.apache.activemq.artemis.core.journal.IOCompletion)
-       */
       @Override
       public void write(final EncodingSupport bytes, final boolean sync, final IOCallback callback) throws Exception {
          ByteBuffer buffer = newBuffer(bytes.getEncodeSize());
@@ -588,9 +555,6 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          write(outbuffer, sync, callback);
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.io.SequentialFile#write(org.apache.activemq.artemis.core.journal.EncodingSupport, boolean)
-       */
       @Override
       public void write(final EncodingSupport bytes, final boolean sync) throws Exception {
          ByteBuffer buffer = newBuffer(bytes.getEncodeSize());
@@ -599,9 +563,6 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          write(outbuffer, sync);
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.io.SequentialFile#exists()
-       */
       @Override
       public boolean exists() {
          FakeSequentialFile file = fileMap.get(fileName);
@@ -609,27 +570,18 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
          return file != null && file.data != null && file.data.capacity() > 0;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.io.SequentialFile#setTimedBuffer(org.apache.activemq.artemis.core.io.buffer.TimedBuffer)
-       */
       @Override
       public void setTimedBuffer(final TimedBuffer buffer) {
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.io.SequentialFile#copyTo(org.apache.activemq.artemis.core.io.SequentialFile)
-       */
       @Override
       public void copyTo(SequentialFile newFileName) {
-         // TODO Auto-generated method stub
-
       }
 
       @Override
       public File getJavaFile() {
          throw new UnsupportedOperationException();
       }
-
    }
 
    @Override
@@ -676,7 +628,6 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
 
    @Override
    public File getDirectory() {
-      // TODO Auto-generated method stub
       return null;
    }
 

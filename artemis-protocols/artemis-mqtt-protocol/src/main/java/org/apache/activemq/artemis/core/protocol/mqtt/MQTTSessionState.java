@@ -101,18 +101,19 @@ public class MQTTSessionState {
 
    /**
     * This constructor deserializes session data from a message. The format is as follows.
-    *
-    *  - byte: version
-    *  - int: subscription count
-    *
+    * <ul>
+    * <li>byte: version
+    * <li>int: subscription count
+    * </ul>
     *  There may be 0 or more subscriptions. The subscription format is as follows.
-    *
-    *  - String: topic name
-    *  - int: QoS
-    *  - boolean: no-local
-    *  - boolean: retain as published
-    *  - int: retain handling
-    *  - int (nullable): subscription identifier
+    * <ul>
+    * <li>String: topic name
+    * <li>int: QoS
+    * <li>boolean: no-local
+    * <li>boolean: retain as published
+    * <li>int: retain handling
+    * <li>int (nullable): subscription identifier
+    * </ul>
     *
     * @param message the message holding the MQTT session data
     */

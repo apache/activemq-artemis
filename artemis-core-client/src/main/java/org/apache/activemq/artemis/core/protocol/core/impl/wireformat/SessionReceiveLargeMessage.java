@@ -26,7 +26,7 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
    private Message message;
 
    /**
-    * Since we receive the message before the entire message was received,
+    * Since we receive the message before the entire message was received
     */
    private long largeMessageSize;
 
@@ -78,9 +78,6 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
       return deliveryCount;
    }
 
-   /**
-    * @return the largeMessageSize
-    */
    public long getLargeMessageSize() {
       return largeMessageSize;
    }

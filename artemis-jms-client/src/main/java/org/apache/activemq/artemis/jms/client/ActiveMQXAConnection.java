@@ -29,8 +29,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 /**
  * ActiveMQ Artemis implementation of a JMS XAConnection.
  * <p>
- * The flat implementation of {@link XATopicConnection} and {@link XAQueueConnection} is per design,
- * following common practices of JMS 1.1.
+ * The flat implementation of {@link XATopicConnection} and {@link XAQueueConnection} is per design, following common
+ * practices of JMS 1.1.
  */
 public final class ActiveMQXAConnection extends ActiveMQConnection implements XATopicConnection, XAQueueConnection {
 

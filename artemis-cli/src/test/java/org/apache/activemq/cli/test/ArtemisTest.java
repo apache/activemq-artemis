@@ -1329,9 +1329,7 @@ public class ArtemisTest extends CliTestBase {
           */
          assertEquals(100L, Artemis.internalExecute(false, null, null, null, new String[] {"producer", "--destination", "queue://q1", "--message-count", "100", "--password", "admin"}, context));
 
-         /*
-          * This is the same as above except it will prompt the user to re-enter both the URL and the username.
-          */
+         // This is the same as above except it will prompt the user to re-enter both the URL and the username.
          in = new ByteArrayInputStream("tcp://localhost:61616\nadmin\n".getBytes());
          context = new ActionContext(in, System.out, System.err);
          assertEquals(100L, Artemis.internalExecute(false, null, null, null, new String[] {"producer", "--destination", "queue://q1", "--message-count", "100", "--password", "admin", "--url", "tcp://badhost:11111"}, context));

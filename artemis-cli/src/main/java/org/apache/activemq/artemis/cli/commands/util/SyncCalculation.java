@@ -37,7 +37,6 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 
 /**
  * It will perform a simple test to evaluate how many syncs a disk can make per second
- * * *
  */
 public class SyncCalculation {
 
@@ -45,13 +44,16 @@ public class SyncCalculation {
    private static final long MAX_FLUSH_NANOS = TimeUnit.SECONDS.toNanos(5);
 
    /**
-    * It will perform {@code tries} write tests of {@code blockSize * blocks} bytes and returning the lowest elapsed time to perform a try.
-    *
+    * It will perform {@code tries} write tests of {@code blockSize * blocks} bytes and returning the lowest elapsed
+    * time to perform a try.    *
     * <p>
-    * Please configure {@code blocks >= -XX:CompileThreshold} (ie by default on most JVMs is 10000) to favour the best JIT/OSR compilation (ie: Just In Time/On Stack Replacement)
-    * if the test is running on a temporary file-system (eg: tmpfs on Linux) or without {@code fsync}.
+    * Please configure {@code blocks >= -XX:CompileThreshold} (ie by default on most JVMs is 10000) to favour the best
+    * JIT/OSR compilation (ie: Just In Time/On Stack Replacement) if the test is running on a temporary file-system (eg:
+    * tmpfs on Linux) or without {@code fsync}.
     * <p>
-    * NOTE: The write latencies are provided only if {@code verbose && !(journalType == JournalType.ASYNCIO && !syncWrites)} (ie are used effective synchronous writes).
+    * NOTE: The write latencies are provided only if
+    * {@code verbose && !(journalType == JournalType.ASYNCIO && !syncWrites)} (ie are used effective synchronous
+    * writes).
     *
     * @param datafolder  the folder where the journal files will be stored
     * @param blockSize   the size in bytes of each write on the journal
@@ -59,12 +61,12 @@ public class SyncCalculation {
     * @param tries       the number of tests
     * @param verbose     {@code true} to make the output verbose, {@code false} otherwise
     * @param fsync       if {@code true} the test is performing full durable writes, {@code false} otherwise
-    * @param syncWrites  if {@code true} each write is performed only if the previous one is completed, {@code false} otherwise (ie each try will wait only the last write)
+    * @param syncWrites  if {@code true} each write is performed only if the previous one is completed, {@code false}
+    *                    otherwise (ie each try will wait only the last write)
     * @param fileName    the name of the journal file used for the test
     * @param maxAIO      the max number of in-flight IO requests (if {@code journalType} will support it)
     * @param journalType the {@link JournalType} used for the tests
     * @return the lowest elapsed time (in {@link TimeUnit#MILLISECONDS}) to perform a try
-    * @throws Exception
     */
    public static long syncTest(File datafolder,
                                int blockSize,

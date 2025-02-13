@@ -34,17 +34,18 @@ import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContex
 import org.apache.qpid.proton.engine.Delivery;
 
 /**
- * AMQP Protocol has different TX Rollback behaviour for Acks depending on whether an AMQP delivery has been settled
- * or not.  This class extends the Core TransactionImpl used for normal TX behaviour.  In the case where deliveries
- * have been settled, normal Ack rollback is applied.  For cases where deliveries are unsettled and rolled back,
- * we increment the delivery count and return to the consumer.
+ * AMQP Protocol has different TX Rollback behaviour for Acks depending on whether an AMQP delivery has been settled or
+ * not.  This class extends the Core TransactionImpl used for normal TX behaviour.  In the case where deliveries have
+ * been settled, normal Ack rollback is applied.  For cases where deliveries are unsettled and rolled back, we increment
+ * the delivery count and return to the consumer.
  */
 public class ProtonTransactionImpl extends TransactionImpl {
 
-   /* We need to track the Message reference against the AMQP objects, so we can check whether the corresponding
-      deliveries have been settled.  We also need to ensure we are settling on the correct link.  Hence why we keep a ref
-      to the ProtonServerSenderContext here.
-   */
+   /**
+    * We need to track the Message reference against the AMQP objects, so we can check whether the corresponding
+    * deliveries have been settled.  We also need to ensure we are settling on the correct link.  Hence why we keep a
+    * ref to the ProtonServerSenderContext here.
+    */
    final Map<MessageReference, Pair<Delivery, ProtonServerSenderContext>> deliveries = new HashMap<>();
 
    private boolean discharged;

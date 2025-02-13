@@ -21,7 +21,8 @@ import org.apache.activemq.artemis.api.core.Message;
 /**
  * {@link org.apache.activemq.artemis.core.server.LargeServerMessage} methods used by the {@link ReplicationEndpoint}.
  * <p>
- * In practice a subset of the methods necessary to have a {@link org.apache.activemq.artemis.core.server.LargeServerMessage}
+ * In practice a subset of the methods necessary to have a
+ * {@link org.apache.activemq.artemis.core.server.LargeServerMessage}
  *
  * @see org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageInSync
  */

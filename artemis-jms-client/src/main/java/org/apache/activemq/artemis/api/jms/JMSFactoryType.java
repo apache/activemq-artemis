@@ -16,16 +16,6 @@
  */
 package org.apache.activemq.artemis.api.jms;
 
-import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
-import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQQueueConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQTopicConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQXAConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQXATopicConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQXAQueueConnectionFactory;
-
 import javax.jms.ConnectionFactory;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.TopicConnectionFactory;
@@ -33,7 +23,16 @@ import javax.jms.XAConnectionFactory;
 import javax.jms.XAQueueConnectionFactory;
 import javax.jms.XATopicConnectionFactory;
 
-// XXX no javadocs
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQQueueConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQTopicConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQXAConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQXAQueueConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQXATopicConnectionFactory;
+
 public enum JMSFactoryType {
    CF {
       @Override
@@ -216,45 +215,42 @@ public enum JMSFactoryType {
    }
 
    /**
-    * Creates an ActiveMQConnectionFactory that receives cluster topology updates from the cluster as
-    * servers leave or join and new backups are appointed or removed.
+    * Creates an ActiveMQConnectionFactory that receives cluster topology updates from the cluster as servers leave or
+    * join and new backups are appointed or removed.
     * <p>
-    * The discoveryAddress and discoveryPort parameters in this method are used to listen for UDP
-    * broadcasts which contain connection information for members of the cluster. The broadcasted
-    * connection information is simply used to make an initial connection to the cluster, once that
-    * connection is made, up to date cluster topology information is downloaded and automatically
-    * updated whenever the cluster topology changes. If the topology includes backup servers that
-    * information is also propagated to the client so that it can know which server to failover onto
-    * in case of server failure.
+    * The discoveryAddress and discoveryPort parameters in this method are used to listen for UDP broadcasts which
+    * contain connection information for members of the cluster. The broadcasted connection information is simply used
+    * to make an initial connection to the cluster, once that connection is made, up to date cluster topology
+    * information is downloaded and automatically updated whenever the cluster topology changes. If the topology
+    * includes backup servers that information is also propagated to the client so that it can know which server to
+    * failover onto in case of server failure.
     *
-    * @param groupConfiguration
     * @return the ActiveMQConnectionFactory
     */
    public abstract ActiveMQConnectionFactory createConnectionFactoryWithHA(DiscoveryGroupConfiguration groupConfiguration);
 
    /**
-    * Create an ActiveMQConnectionFactory which creates session factories from a set of active servers, no HA backup information is propagated to the client
+    * Create an ActiveMQConnectionFactory which creates session factories from a set of active servers, no HA backup
+    * information is propagated to the client
     * <p>
     * The UDP address and port are used to listen for active servers in the cluster
     *
-    * @param groupConfiguration
     * @return the ActiveMQConnectionFactory
     */
    public abstract ActiveMQConnectionFactory createConnectionFactoryWithoutHA(DiscoveryGroupConfiguration groupConfiguration);
 
    /**
-    * Create an ActiveMQConnectionFactory which will receive cluster topology updates from the cluster
-    * as servers leave or join and new backups are appointed or removed.
+    * Create an ActiveMQConnectionFactory which will receive cluster topology updates from the cluster as servers leave
+    * or join and new backups are appointed or removed.
     * <p>
-    * The initial list of servers supplied in this method is simply to make an initial connection to
-    * the cluster, once that connection is made, up to date cluster topology information is
-    * downloaded and automatically updated whenever the cluster topology changes. If the topology
-    * includes backup servers that information is also propagated to the client so that it can know
-    * which server to failover onto in case of server failure.
+    * The initial list of servers supplied in this method is simply to make an initial connection to the cluster, once
+    * that connection is made, up to date cluster topology information is downloaded and automatically updated whenever
+    * the cluster topology changes. If the topology includes backup servers that information is also propagated to the
+    * client so that it can know which server to failover onto in case of server failure.
     *
-    * @param initialServers The initial set of servers used to make a connection to the cluster.
-    *                       Each one is tried in turn until a successful connection is made. Once a connection
-    *                       is made, the cluster topology is downloaded and the rest of the list is ignored.
+    * @param initialServers The initial set of servers used to make a connection to the cluster. Each one is tried in
+    *                       turn until a successful connection is made. Once a connection is made, the cluster topology
+    *                       is downloaded and the rest of the list is ignored.
     * @return the ActiveMQConnectionFactory
     */
    public abstract ActiveMQConnectionFactory createConnectionFactoryWithHA(TransportConfiguration... initialServers);
@@ -263,18 +259,15 @@ public enum JMSFactoryType {
     * Create an ActiveMQConnectionFactory which creates session factories using a static list of
     * transportConfigurations.
     * <p>
-    * The ActiveMQConnectionFactory is not updated automatically as the cluster topology changes, and
-    * no HA backup information is propagated to the client
+    * The ActiveMQConnectionFactory is not updated automatically as the cluster topology changes, and no HA backup
+    * information is propagated to the client
     *
-    * @param transportConfigurations
     * @return the ActiveMQConnectionFactory
     */
    public abstract ActiveMQConnectionFactory createConnectionFactoryWithoutHA(TransportConfiguration... transportConfigurations);
 
    /**
-    * Returns the connection factory interface that this JMSFactoryType creates.
-    *
-    * @return the javax.jms Class ConnectionFactory interface
+    * {@return the javax.jms Class ConnectionFactory interface}
     */
    public abstract Class connectionFactoryInterface();
 

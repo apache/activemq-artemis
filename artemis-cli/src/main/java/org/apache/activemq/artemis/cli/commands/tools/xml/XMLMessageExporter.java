@@ -31,7 +31,9 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.reader.TextMessageUtil;
 
 
-/** This is an Utility class that will import the outputs in XML format. */
+/**
+ * This is an Utility class that will import the outputs in XML format.
+ */
 public class XMLMessageExporter {
 
    private static final int LARGE_MESSAGE_CHUNK_SIZE = 1000;

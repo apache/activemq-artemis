@@ -138,8 +138,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Tests for AMQP Broker federation handling of the receive from and send to address policy
- * configuration handling.
+ * Tests for AMQP Broker federation handling of the receive from and send to address policy configuration handling.
  */
 public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 

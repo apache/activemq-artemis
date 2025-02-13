@@ -31,27 +31,14 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The managed connection
-    */
    private final ActiveMQRAManagedConnection mc;
 
-   /**
-    * Constructor
-    *
-    * @param mc The managed connection
-    */
    public ActiveMQRALocalTransaction(final ActiveMQRAManagedConnection mc) {
       logger.trace("constructor({})", mc);
 
       this.mc = mc;
    }
 
-   /**
-    * Begin
-    *
-    * @throws ResourceException Thrown if the operation fails
-    */
    @Override
    public void begin() throws ResourceException {
       logger.trace("begin()");
@@ -59,11 +46,6 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
       // mc.setInManagedTx(true);
    }
 
-   /**
-    * Commit
-    *
-    * @throws ResourceException Thrown if the operation fails
-    */
    @Override
    public void commit() throws ResourceException {
       logger.trace("commit()");
@@ -81,11 +63,6 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
       }
    }
 
-   /**
-    * Rollback
-    *
-    * @throws ResourceException Thrown if the operation fails
-    */
    @Override
    public void rollback() throws ResourceException {
       logger.trace("rollback()");

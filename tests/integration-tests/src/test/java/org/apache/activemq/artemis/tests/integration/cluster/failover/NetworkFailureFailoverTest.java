@@ -57,10 +57,9 @@ import org.slf4j.LoggerFactory;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * This test will simulate a failure where the network card is gone.
- * On that case the server should fail (as in stop) and not hung.
- * If you don't have sudoer access to ifutil, this test will skip.
- * You should add sudoer on your environment to run the test.
+ * This test will simulate a failure where the network card is gone. On that case the server should fail (as in stop)
+ * and not hung. If you don't have sudoer access to ifutil, this test will skip. You should add sudoer on your
+ * environment to run the test.
  */
 public class NetworkFailureFailoverTest extends FailoverTestBase {
 

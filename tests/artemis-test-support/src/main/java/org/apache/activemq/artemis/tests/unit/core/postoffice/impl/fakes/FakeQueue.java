@@ -964,16 +964,10 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
       // no-op
    }
 
-   /* (non-Javadoc)
-   * @see org.apache.activemq.artemis.core.server.Queue#destroyPaging()
-   */
    @Override
    public void destroyPaging() {
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.server.Queue#getDeliveringMessages()
-    */
    @Override
    public Map<String, List<MessageReference>> getDeliveringMessages() {
       return null;
@@ -981,7 +975,6 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
 
    @Override
    public LinkedListIterator<MessageReference> browserIterator() {
-      // TODO Auto-generated method stub
       return null;
    }
 

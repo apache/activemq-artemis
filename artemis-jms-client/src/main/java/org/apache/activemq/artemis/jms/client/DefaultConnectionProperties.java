@@ -21,8 +21,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 /**
- * <p>This class will provide default properties for constructors</p>
- *
+ * This class will provide default properties for constructors
  * <table border='1'>
  * <caption>Default properties</caption>
  * <tr> <td>Name</td> <td>Default Value</td></tr>

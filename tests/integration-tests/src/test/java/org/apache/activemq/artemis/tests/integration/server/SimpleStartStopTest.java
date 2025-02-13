@@ -34,12 +34,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class SimpleStartStopTest extends ActiveMQTestBase {
 
    /**
-    * Start / stopping the server shouldn't generate any errors.
-    * Also it shouldn't bloat the journal with lots of IDs (it should do some cleanup when possible)
-    * <br>
+    * Start / stopping the server shouldn't generate any errors. Also it shouldn't bloat the journal with lots of IDs
+    * (it should do some cleanup when possible)
+    * <p>
     * This is also validating that the same server could be restarted after stopped
-    *
-    * @throws Exception
     */
    @Test
    public void testStartStopAndCleanupIDs() throws Exception {

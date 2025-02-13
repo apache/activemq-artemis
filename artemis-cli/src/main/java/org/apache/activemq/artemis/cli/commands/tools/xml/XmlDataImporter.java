@@ -64,9 +64,9 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 /**
- * Read XML output from <code>org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataExporter</code>, create a core session, and
- * send the messages to a running instance of ActiveMQ Artemis.  It uses the StAX <code>javax.xml.stream.XMLStreamReader</code>
- * for speed and simplicity.
+ * Read XML output from {@code org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataExporter}, create a core
+ * session, and send the messages to a running instance of ActiveMQ Artemis.  It uses the StAX
+ * {@code javax.xml.stream.XMLStreamReader} for speed and simplicity.
  */
 @Command(name = "imp", description = "Import all message-data using an XML that could be interpreted by any system.")
 public final class XmlDataImporter extends ConnectionConfigurationAbtract {
@@ -130,9 +130,9 @@ public final class XmlDataImporter extends ConnectionConfigurationAbtract {
 
    /**
     * This is the normal constructor for programmatic access to the
-    * <code>org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataImporter</code> if the session passed
-    * in uses auto-commit for sends.
-    * <br>
+    * {@code org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataImporter} if the session passed in uses
+    * auto-commit for sends.
+    * <p>
     * If the session needs to be transactional then use the constructor which takes 2 sessions.
     *
     * @param inputStream the stream from which to read the XML for import
@@ -144,9 +144,9 @@ public final class XmlDataImporter extends ConnectionConfigurationAbtract {
 
    /**
     * This is the constructor to use if you wish to import all messages transactionally.
-    * <br>
-    * Pass in a session which doesn't use auto-commit for sends, and one that does (for management
-    * operations necessary during import).
+    * <p>
+    * Pass in a session which doesn't use auto-commit for sends, and one that does (for management operations necessary
+    * during import).
     *
     * @param inputStream       the stream from which to read the XML for import
     * @param session           used for sending messages, doesn't need to auto-commit sends
@@ -511,6 +511,4 @@ public final class XmlDataImporter extends ConnectionConfigurationAbtract {
          logger.debug("Binding {} already exists so won't re-bind.", addressName);
       }
    }
-
-
 }

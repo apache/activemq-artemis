@@ -29,9 +29,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 
-/**
- * User: gtully
- */
 @RunWith(BlockJUnit4ClassRunner.class)
 public class ExpiryHogTest extends JmsMultipleClientsTestSupport {
 

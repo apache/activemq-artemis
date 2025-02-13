@@ -25,12 +25,11 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * This class will be used to perform generic class-loader operations,
- * such as load a class first using TCCL, and then the classLoader used by ActiveMQ Artemis (ClassloadingUtil.getClass().getClassLoader()).
+ * This class will be used to perform generic class-loader operations, such as load a class first using TCCL, and then
+ * the classLoader used by ActiveMQ Artemis (ClassloadingUtil.getClass().getClassLoader()).
  * <p>
  * Is't required to use a Security Block on any calls to this class.
  */
-
 public final class ClassloadingUtil {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

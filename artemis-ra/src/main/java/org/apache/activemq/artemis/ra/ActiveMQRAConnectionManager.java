@@ -33,16 +33,8 @@ import java.lang.invoke.MethodHandles;
 public class ActiveMQRAConnectionManager implements ConnectionManager {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-
-   /**
-    * Serial version UID
-    */
    static final long serialVersionUID = 4409118162975011014L;
 
-   /**
-    * Constructor
-    */
    public ActiveMQRAConnectionManager() {
       logger.trace("constructor()");
    }

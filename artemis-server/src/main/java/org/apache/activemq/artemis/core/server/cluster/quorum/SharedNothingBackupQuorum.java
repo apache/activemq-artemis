@@ -78,8 +78,8 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
 
    private final boolean failback;
    /**
-    * This is a safety net in case the primary sends the first {@link ReplicationPrimaryIsStoppingMessage}
-    * with code {@link ReplicationPrimaryIsStoppingMessage.PrimaryStopping#STOP_CALLED} and crashes before sending the second with
+    * This is a safety net in case the primary sends the first {@link ReplicationPrimaryIsStoppingMessage} with code
+    * {@link ReplicationPrimaryIsStoppingMessage.PrimaryStopping#STOP_CALLED} and crashes before sending the second with
     * {@link ReplicationPrimaryIsStoppingMessage.PrimaryStopping#FAIL_OVER}.
     * <p>
     * If the second message does come within this dead line, we fail over anyway.
@@ -133,7 +133,8 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
             signal = BACKUP_ACTIVATION.FAIL_OVER;
          }
 
-         /* use NetworkHealthCheck to determine if node is isolated
+         /*
+          * use NetworkHealthCheck to determine if node is isolated
           * if there are no addresses/urls configured then ignore and rely on quorum vote only
           */
          if (networkHealthCheck != null && !networkHealthCheck.isEmpty()) {
@@ -161,10 +162,6 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
 
    /**
     * if the node going down is the node we are replicating from then decide on an action.
-    *
-    * @param topology
-    * @param eventUID
-    * @param nodeID
     */
    @Override
    public void nodeDown(Topology topology, long eventUID, String nodeID) {
@@ -219,8 +216,8 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
    /**
     * Releases the latch, causing the backup activation thread to fail-over.
     * <p>
-    * The use case is for when the 'live' has an orderly shutdown, in which case it informs the
-    * backup that it should fail-over.
+    * The use case is for when the 'live' has an orderly shutdown, in which case it informs the backup that it should
+    * fail-over.
     */
    public synchronized void failOver(ReplicationPrimaryIsStoppingMessage.PrimaryStopping finalMessage) {
       removeListeners();
@@ -255,8 +252,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
    }
 
    /**
-    * Called by the replicating backup (i.e. "SharedNothing" backup) to wait for the signal to
-    * fail-over or to stop.
+    * Called by the replicating backup (i.e. "SharedNothing" backup) to wait for the signal to fail-over or to stop.
     *
     * @return signal, indicating whether to stop or to fail-over
     */

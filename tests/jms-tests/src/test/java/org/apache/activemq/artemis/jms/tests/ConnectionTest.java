@@ -249,8 +249,6 @@ public class ConnectionTest extends JMSTestCase {
 
    }
 
-   // This test is to check netty issue in https://jira.jboss.org/jira/browse/JBMESSAGING-1618
-
    @Test
    public void testConnectionListenerBug() throws Exception {
       for (int i = 0; i < 1000; i++) {
@@ -267,8 +265,6 @@ public class ConnectionTest extends JMSTestCase {
    /**
     * This test is similar to a JORAM Test...
     * (UnifiedTest::testCreateDurableConnectionConsumerOnQueueConnection)
-    *
-    * @throws Exception
     */
    @Test
    public void testDurableSubscriberOnQueueConnection() throws Exception {

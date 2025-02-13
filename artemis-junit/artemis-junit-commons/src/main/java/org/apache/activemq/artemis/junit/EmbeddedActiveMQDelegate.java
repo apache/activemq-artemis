@@ -82,6 +82,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    /**
     * Create a default EmbeddedActiveMQResource with the specified serverId
+    *
     * @param serverId server id
     */
    protected EmbeddedActiveMQDelegate(int serverId) {
@@ -98,6 +99,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    /**
     * Creates an EmbeddedActiveMQResource using the specified configuration
+    *
     * @param configuration ActiveMQServer configuration
     */
    protected EmbeddedActiveMQDelegate(Configuration configuration) {
@@ -107,6 +109,7 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    /**
     * Creates an EmbeddedActiveMQResource using the specified configuration file
+    *
     * @param filename ActiveMQServer configuration file name
     */
    protected EmbeddedActiveMQDelegate(String filename) {
@@ -128,8 +131,6 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    /**
     * Adds properties to a ClientMessage
-    * @param message
-    * @param properties
     */
    public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {
       if (properties != null && !properties.isEmpty()) {

@@ -28,16 +28,20 @@ public class SessionSendMessage extends MessagePacket {
    protected boolean requiresResponse;
 
    /**
-    * In case, we are using a different handler than the one set on the {@link org.apache.activemq.artemis.api.core.client.ClientSession}
-    * <br>
+    * In case, we are using a different handler than the one set on the
+    * {@link org.apache.activemq.artemis.api.core.client.ClientSession}
+    * <p>
     * This field is only used at the client side.
     *
     * @see org.apache.activemq.artemis.api.core.client.ClientSession#setSendAcknowledgementHandler(SendAcknowledgementHandler)
-    * @see org.apache.activemq.artemis.api.core.client.ClientProducer#send(org.apache.activemq.artemis.api.core.SimpleString, org.apache.activemq.artemis.api.core.Message, SendAcknowledgementHandler)
+    * @see org.apache.activemq.artemis.api.core.client.ClientProducer#send(org.apache.activemq.artemis.api.core.SimpleString,
+    * org.apache.activemq.artemis.api.core.Message, SendAcknowledgementHandler)
     */
    private final transient SendAcknowledgementHandler handler;
 
-   /** This will be using the CoreMessage because it is meant for the core-protocol */
+   /**
+    * This will be using the CoreMessage because it is meant for the core-protocol
+    */
    protected SessionSendMessage(final byte id,
                              final ICoreMessage message,
                              final boolean requiresResponse,
@@ -53,7 +57,9 @@ public class SessionSendMessage extends MessagePacket {
       this.handler = null;
    }
 
-   /** This will be using the CoreMessage because it is meant for the core-protocol */
+   /**
+    * This will be using the CoreMessage because it is meant for the core-protocol
+    */
    public SessionSendMessage(final ICoreMessage message,
                              final boolean requiresResponse,
                              final SendAcknowledgementHandler handler) {

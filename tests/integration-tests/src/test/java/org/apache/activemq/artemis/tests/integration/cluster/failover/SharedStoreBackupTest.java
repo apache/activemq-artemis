@@ -37,11 +37,10 @@ public class SharedStoreBackupTest extends FailoverTestBase {
    }
 
    /**
-    * Returns true if backup started in given timeout. False otherwise.
+    * {@return returns true if backup started in given timeout; false otherwise}
     *
     * @param backupServer backup server
     * @param waitTimeout  timeout in milliseconds
-    * @return returns true if backup started in given timeout. False otherwise
     */
    private boolean waitForBackupToBecomeActive(TestableServer backupServer, long waitTimeout) throws Exception {
 

@@ -24,7 +24,7 @@ public class ClientStompFrameV12 extends ClientStompFrameV11 {
 
    public ClientStompFrameV12(String command, boolean newEol, boolean validate) {
       super(command, validate);
-      /**
+      /*
        * Stomp 1.2 frames allow a carriage return (octet 13) to optionally
        * precedes the required line feed (octet 10) as their internal line breaks.
        * Stomp 1.0 and 1.1 only allow line feeds.

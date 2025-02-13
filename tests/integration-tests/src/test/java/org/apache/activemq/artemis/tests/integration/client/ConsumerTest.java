@@ -833,7 +833,6 @@ public class ConsumerTest extends ActiveMQTestBase {
       locator.close();
    }
 
-   // https://jira.jboss.org/browse/HORNETQ-410
    @TestTemplate
    public void testConsumeWithNoConsumerFlowControl() throws Exception {
 
@@ -1029,7 +1028,6 @@ public class ConsumerTest extends ActiveMQTestBase {
       assertEquals(0, errors.get(), "Had errors along the execution");
    }
 
-   // https://jira.jboss.org/jira/browse/HORNETQ-111
    // Test that, on rollback credits are released for messages cleared in the buffer
    @TestTemplate
    public void testConsumerCreditsOnRollback() throws Exception {
@@ -1077,7 +1075,6 @@ public class ConsumerTest extends ActiveMQTestBase {
       session.close();
    }
 
-   // https://jira.jboss.org/jira/browse/HORNETQ-111
    // Test that, on rollback credits are released for messages cleared in the buffer
    @TestTemplate
    public void testInVMURI() throws Exception {
@@ -1096,7 +1093,6 @@ public class ConsumerTest extends ActiveMQTestBase {
 
    }
 
-   // https://jira.jboss.org/jira/browse/HORNETQ-111
    // Test that, on rollback credits are released for messages cleared in the buffer
    @TestTemplate
    public void testConsumerCreditsOnRollbackLargeMessages() throws Exception {

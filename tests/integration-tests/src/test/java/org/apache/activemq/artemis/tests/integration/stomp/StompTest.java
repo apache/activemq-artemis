@@ -1675,7 +1675,6 @@ public class StompTest extends StompTestBase {
       conn.disconnect();
    }
 
-   // HORNETQ-1007
    @Test
    public void testMultiProtocolConsumers() throws Exception {
       final int TIME_OUT = 2000;
@@ -1812,8 +1811,6 @@ public class StompTest extends StompTestBase {
    /**
     * This test and testPrefixedAutoCreatedMulticastAndAnycastWithSameName are basically the same but doing the
     * operations in opposite order. In this test the anycast subscription is created first.
-    *
-    * @throws Exception
     */
    @Test
    public void testPrefixedAutoCreatedAnycastAndMulticastWithSameName() throws Exception {
@@ -1891,8 +1888,6 @@ public class StompTest extends StompTestBase {
    /**
     * This test and testPrefixedAutoCreatedMulticastAndAnycastWithSameName are basically the same but doing the
     * operations in opposite order. In this test the multicast subscription is created first.
-    *
-    * @throws Exception
     */
    @Test
    public void testPrefixedAutoCreatedMulticastAndAnycastWithSameName() throws Exception {

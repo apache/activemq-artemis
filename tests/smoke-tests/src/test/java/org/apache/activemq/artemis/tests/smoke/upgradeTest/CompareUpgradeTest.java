@@ -48,7 +48,9 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** This test will compare expected values at the upgraded servers. */
+/**
+ * This test will compare expected values at the upgraded servers.
+ */
 public class CompareUpgradeTest {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

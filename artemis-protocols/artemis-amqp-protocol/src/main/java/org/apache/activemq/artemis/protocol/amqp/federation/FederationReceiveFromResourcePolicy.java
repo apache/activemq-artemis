@@ -21,28 +21,28 @@ import java.util.Map;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 
 /**
- * Interface that a Federation receive from (address or queue) policy should implement
- * and provides some common APIs that each should share.
+ * Interface that a Federation receive from (address or queue) policy should implement and provides some common APIs
+ * that each should share.
  */
 public interface FederationReceiveFromResourcePolicy {
 
    /**
-    * @return the federation type this policy configuration defines.
+    * {@return the federation type this policy configuration defines}
     */
    FederationType getPolicyType();
 
    /**
-    * @return the name assigned to this federation policy.
+    * {@return the name assigned to this federation policy}
     */
    String getPolicyName();
 
    /**
-    * @return a {@link Map} of properties that were used in the policy configuration.
+    * {@return a {@link Map} of properties that were used in the policy configuration}
     */
    Map<String, Object> getProperties();
 
    /**
-    * @return the {@link TransformerConfiguration} that was specified in the policy configuration.
+    * {@return the {@link TransformerConfiguration} that was specified in the policy configuration}
     */
    TransformerConfiguration getTransformerConfiguration();
 

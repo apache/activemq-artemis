@@ -29,7 +29,7 @@ import org.eclipse.paho.mqttv5.common.packet.MqttSubAck;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * The broker doesn't send any "Reason String" or "User Property" in the SUBACK packet for any reason. Therefore, these are not tested here:
  *
  * [MQTT-3.9.2-1] The Server MUST NOT send this Property if it would increase the size of the SUBACK packet beyond the Maximum Packet Size specified by the Client.
@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Timeout;
 
 public class SubAckTests extends MQTT5TestSupport {
 
-   /*
+   /**
     * [MQTT-3.9.3-1] The order of Reason Codes in the SUBACK packet MUST match the order of Topic Filters in the
     * SUBSCRIBE packet.
     *

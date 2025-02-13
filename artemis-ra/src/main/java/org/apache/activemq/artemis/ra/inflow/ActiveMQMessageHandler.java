@@ -59,23 +59,14 @@ import java.lang.invoke.MethodHandles;
 import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 
-/**
- * The message handler
- */
 public class ActiveMQMessageHandler implements MessageHandler, FailoverEventListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The session
-    */
    private final ClientSessionInternal session;
 
    private ClientConsumerInternal consumer;
 
-   /**
-    * The endpoint
-    */
    private MessageEndpoint endpoint;
 
    private final ConnectionFactoryOptions options;

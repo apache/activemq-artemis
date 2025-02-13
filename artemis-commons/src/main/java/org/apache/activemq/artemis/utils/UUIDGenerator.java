@@ -71,19 +71,12 @@ public final class UUIDGenerator {
       return UUIDGenerator.sSingleton;
    }
 
-   /*
-    * ///////////////////////////////////////////////////// // Configuration
-    * /////////////////////////////////////////////////////
-    */
-
    /**
-    * Method for getting the shared random number generator used for generating
-    * the UUIDs. This way the initialization cost is only taken once; access
-    * need not be synchronized (or in cases where it has to, SecureRandom takes
-    * care of it); it might even be good for getting really 'random' stuff to
-    * get shared access..
+    * Method for getting the shared random number generator used for generating the UUIDs. This way the initialization
+    * cost is only taken once; access need not be synchronized (or in cases where it has to, SecureRandom takes care of
+    * it); it might even be good for getting really 'random' stuff to get shared access..
     *
-    * @return A Random number generator.
+    * @return A Random number generator
     */
    public Random getRandomNumberGenerator() {
       /*
@@ -121,7 +114,8 @@ public final class UUIDGenerator {
       Random rnd = getRandomNumberGenerator();
       byte[] dummy = new byte[6];
       rnd.nextBytes(dummy);
-      /* Need to set the broadcast bit to indicate it's not a real
+      /*
+       * Need to set the broadcast bit to indicate it's not a real
        * address.
        */
       dummy[0] |= (byte) 0x01;
@@ -133,10 +127,10 @@ public final class UUIDGenerator {
    }
 
    /**
-    * If running java 6 or above, returns {@link NetworkInterface#getHardwareAddress()}, else return {@code null}.
-    * The first hardware address is returned when iterating all the NetworkInterfaces
+    * If running java 6 or above, returns {@link NetworkInterface#getHardwareAddress()}, else return {@code null}. The
+    * first hardware address is returned when iterating all the NetworkInterfaces
     *
-    * @return A byte array containing the hardware address.
+    * @return A byte array containing the hardware address
     */
    public static byte[] getHardwareAddress() {
       try {

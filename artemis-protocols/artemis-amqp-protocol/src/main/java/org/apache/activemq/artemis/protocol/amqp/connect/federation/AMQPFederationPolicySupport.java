@@ -68,46 +68,42 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_ADDRESS_POLICY;
 
 /**
- * Tools used when loading AMQP Broker connections configuration that includes Federation
- * configuration.
+ * Tools used when loading AMQP Broker connections configuration that includes Federation configuration.
  */
 public final class AMQPFederationPolicySupport {
 
    /**
-    * Default priority adjustment used for a federation queue match policy if nothing
-    * was configured in the broker configuration file.
+    * Default priority adjustment used for a federation queue match policy if nothing was configured in the broker
+    * configuration file.
     */
    public static final int DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT = -1;
 
    /**
-    * Annotation added to received messages from address consumers that indicates how many
-    * times the message has traversed a federation link.
+    * Annotation added to received messages from address consumers that indicates how many times the message has
+    * traversed a federation link.
     */
    public static final Symbol MESSAGE_HOPS_ANNOTATION = Symbol.valueOf("x-opt-amq-fed-hops");
 
    /**
-    * Property value placed on Core messages to indicate number of hops that a message has
-    * made when crossing Federation links. This value is used when Core messages are tunneled
-    * via an AMQP custom message and then recreated again on the other side.
+    * Property value placed on Core messages to indicate number of hops that a message has made when crossing Federation
+    * links. This value is used when Core messages are tunneled via an AMQP custom message and then recreated again on
+    * the other side.
     */
    public static final String MESSAGE_HOPS_PROPERTY = "_AMQ_Fed_Hops";
 
    /**
-    * Property name used to embed a nested map of properties meant to be applied if the address
-    * indicated in an federation address receiver auto creates the federated address.
+    * Property name used to embed a nested map of properties meant to be applied if the address indicated in an
+    * federation address receiver auto creates the federated address.
     */
    public static final Symbol FEDERATED_ADDRESS_SOURCE_PROPERTIES = Symbol.valueOf("federated-address-source-properties");
 
    /**
-    * Constructs an address filter for a federated address receiver link that deals with
-    * both AMQP messages and unwrapped Core messages which can carry different hops markers.
-    * If the max is less than or equal to zero no filter is created as these values are used
-    * to indicate no max hops for federated messages on an address.
+    * Constructs an address filter for a federated address receiver link that deals with both AMQP messages and
+    * unwrapped Core messages which can carry different hops markers. If the max is less than or equal to zero no filter
+    * is created as these values are used to indicate no max hops for federated messages on an address.
     *
-    * @param maxHops
-    *    The max allowed number of hops before a message should stop crossing federation links.
-    *
-    * @return the address filter string that should be applied (or null).
+    * @param maxHops The max allowed number of hops before a message should stop crossing federation links.
+    * @return the address filter string that should be applied (or null)
     */
    public static String generateAddressFilter(int maxHops) {
       if (maxHops <= 0) {
@@ -123,13 +119,11 @@ public final class AMQPFederationPolicySupport {
    }
 
    /**
-    * Create an AMQP Message used to instruct the remote peer that it should perform
-    * Federation operations on the given {@link FederationReceiveFromQueuePolicy}.
+    * Create an AMQP Message used to instruct the remote peer that it should perform Federation operations on the given
+    * {@link FederationReceiveFromQueuePolicy}.
     *
-    * @param policy
-    *    The policy to encode into an AMQP message.
-    *
-    * @return an AMQP Message with the encoded policy.
+    * @param policy The policy to encode into an AMQP message.
+    * @return an AMQP Message with the encoded policy
     */
    public static AMQPMessage encodeQueuePolicyControlMessage(FederationReceiveFromQueuePolicy policy) {
       final Map<Symbol, Object> annotations = new LinkedHashMap<>();
@@ -194,13 +188,11 @@ public final class AMQPFederationPolicySupport {
    }
 
    /**
-    * Create an AMQP Message used to instruct the remote peer that it should perform
-    * Federation operations on the given {@link FederationReceiveFromAddressPolicy}.
+    * Create an AMQP Message used to instruct the remote peer that it should perform Federation operations on the given
+    * {@link FederationReceiveFromAddressPolicy}.
     *
-    * @param policy
-    *    The policy to encode into an AMQP message.
-    *
-    * @return an AMQP Message with the encoded policy.
+    * @param policy The policy to encode into an AMQP message.
+    * @return an AMQP Message with the encoded policy
     */
    public static AMQPMessage encodeAddressPolicyControlMessage(FederationReceiveFromAddressPolicy policy) {
       final Map<Symbol, Object> annotations = new LinkedHashMap<>();
@@ -254,17 +246,13 @@ public final class AMQPFederationPolicySupport {
    }
 
    /**
-    * Given an AMQP Message decode an {@link FederationReceiveFromQueuePolicy} from it and return
-    * the decoded value. The message should have already been inspected and determined to be an
-    * control message of the add to policy type.
+    * Given an AMQP Message decode an {@link FederationReceiveFromQueuePolicy} from it and return the decoded value. The
+    * message should have already been inspected and determined to be an control message of the add to policy type.
     *
-    * @param message
-    *    The {@link AMQPMessage} that should carry an encoded {@link FederationReceiveFromQueuePolicy}
-    * @param wildcardConfig
-    *    The {@link WildcardConfiguration} to use in the decoded policy.
-    *
-    * @return a decoded {@link FederationReceiveFromQueuePolicy} instance.
-    *
+    * @param message        The {@link AMQPMessage} that should carry an encoded
+    *                       {@link FederationReceiveFromQueuePolicy}
+    * @param wildcardConfig The {@link WildcardConfiguration} to use in the decoded policy.
+    * @return a decoded {@link FederationReceiveFromQueuePolicy} instance
     * @throws ActiveMQException if an error occurs while decoding the policy.
     */
    @SuppressWarnings("unchecked")
@@ -367,17 +355,13 @@ public final class AMQPFederationPolicySupport {
    }
 
    /**
-    * Given an AMQP Message decode an {@link FederationReceiveFromAddressPolicy} from it and return
-    * the decoded value. The message should have already been inspected and determined to be an
-    * control message of the add to policy type.
+    * Given an AMQP Message decode an {@link FederationReceiveFromAddressPolicy} from it and return the decoded value.
+    * The message should have already been inspected and determined to be an control message of the add to policy type.
     *
-    * @param message
-    *    The {@link AMQPMessage} that should carry an encoded {@link FederationReceiveFromQueuePolicy}
-    * @param wildcardConfig
-    *    The {@link WildcardConfiguration} to use in the decoded policy.
-    *
-    * @return a decoded {@link FederationReceiveFromAddressPolicy} instance.
-    *
+    * @param message        The {@link AMQPMessage} that should carry an encoded
+    *                       {@link FederationReceiveFromQueuePolicy}
+    * @param wildcardConfig The {@link WildcardConfiguration} to use in the decoded policy.
+    * @return a decoded {@link FederationReceiveFromAddressPolicy} instance
     * @throws ActiveMQException if an error occurs during the policy decode.
     */
    @SuppressWarnings("unchecked")
@@ -458,15 +442,12 @@ public final class AMQPFederationPolicySupport {
    }
 
    /**
-    * From the broker AMQP broker connection configuration element and the configured wild-card
-    * settings create an address match policy.
+    * From the broker AMQP broker connection configuration element and the configured wild-card settings create an
+    * address match policy.
     *
-    * @param element
-    *    The broker connections element configuration that creates this policy.
-    * @param wildcards
-    *    The configured wild-card settings for the broker or defaults.
-    *
-    * @return a new address match and handling policy for use in the broker connection.
+    * @param element   The broker connections element configuration that creates this policy.
+    * @param wildcards The configured wild-card settings for the broker or defaults.
+    * @return a new address match and handling policy for use in the broker connection
     */
    public static FederationReceiveFromAddressPolicy create(AMQPFederationAddressPolicyElement element, WildcardConfiguration wildcards) {
       final Set<String> includes;
@@ -508,17 +489,14 @@ public final class AMQPFederationPolicySupport {
    }
 
    /**
-    * From the broker AMQP broker connection configuration element and the configured wild-card
-    * settings create an queue match policy. If not configured otherwise the consumer priority value
-    * is always defaulted to a value of <code>-1</code> in order to attempt to prevent federation
-    * consumers from consuming messages on the remote when a local consumer is present.
+    * From the broker AMQP broker connection configuration element and the configured wild-card settings create an queue
+    * match policy. If not configured otherwise the consumer priority value is always defaulted to a value of {@code -1}
+    * in order to attempt to prevent federation consumers from consuming messages on the remote when a local consumer is
+    * present.
     *
-    * @param element
-    *    The broker connections element configuration that creates this policy.
-    * @param wildcards
-    *    The configured wild-card settings for the broker or defaults.
-    *
-    * @return a new queue match and handling policy for use in the broker connection.
+    * @param element   The broker connections element configuration that creates this policy.
+    * @param wildcards The configured wild-card settings for the broker or defaults.
+    * @return a new queue match and handling policy for use in the broker connection
     */
    public static FederationReceiveFromQueuePolicy create(AMQPFederationQueuePolicyElement element, WildcardConfiguration wildcards) {
       final Set<Map.Entry<String, String>> includes;

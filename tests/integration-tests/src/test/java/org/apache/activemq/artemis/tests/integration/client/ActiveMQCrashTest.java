@@ -39,9 +39,6 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-/**
- * From https://jira.jboss.org/jira/browse/HORNETQ-144
- */
 public class ActiveMQCrashTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

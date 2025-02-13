@@ -21,8 +21,8 @@ import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 
 /**
- * Helper class to create Java Objects from the
- * JSON serialization returned by {@link QueueControl#listMessageCounter()}.
+ * Helper class to create Java Objects from the JSON serialization returned by
+ * {@link QueueControl#listMessageCounter()}.
  */
 public final class MessageCounterInfo {
 
@@ -47,8 +47,8 @@ public final class MessageCounterInfo {
    private final String updateTimestamp;
 
    /**
-    * Returns a MessageCounterInfo corresponding to the JSON serialization returned
-    * by {@link QueueControl#listMessageCounter()}.
+    * {@return a MessageCounterInfo corresponding to the JSON serialization returned by {@link
+    * QueueControl#listMessageCounter()}}
     */
    public static MessageCounterInfo fromJSON(final String jsonString) throws Exception {
       JsonObject data = JsonUtil.readJsonObject(jsonString);
@@ -90,70 +90,70 @@ public final class MessageCounterInfo {
    }
 
    /**
-    * Returns the name of the queue.
+    * {@return the name of the queue}
     */
    public String getName() {
       return name;
    }
 
    /**
-    * Returns the name of the subscription.
+    * {@return the name of the subscription}
     */
    public String getSubscription() {
       return subscription;
    }
 
    /**
-    * Returns whether the queue is durable.
+    * {@return whether the queue is durable}
     */
    public boolean isDurable() {
       return durable;
    }
 
    /**
-    * Returns the number of messages added to the queue since it was created.
+    * {@return the number of messages added to the queue since it was created}
     */
    public long getCount() {
       return count;
    }
 
    /**
-    * Returns the number of messages added to the queue since the last counter sample.
+    * {@return the number of messages added to the queue since the last counter sample}
     */
    public long getCountDelta() {
       return countDelta;
    }
 
    /**
-    * Returns the number of messages currently in the queue.
+    * {@return the number of messages currently in the queue}
     */
    public int getDepth() {
       return depth;
    }
 
    /**
-    * Returns the number of messages in the queue since last counter sample.
+    * {@return the number of messages in the queue since last counter sample}
     */
    public int getDepthDelta() {
       return depthDelta;
    }
 
    /**
-    * Returns the timestamp of the last time a message was added to the queue.
+    * {@return the timestamp of the last time a message was added to the queue}
     */
    public String getLastAddTimestamp() {
       return lastAddTimestamp;
    }
 
    /**
-    * Returns the timestamp of the last time a message from the queue was acknolwedged.
+    * {@return the timestamp of the last time a message from the queue was acknolwedged}
     */
    public String getLastAckTimestamp() {
       return lastAckTimestamp;
    }
 
    /**
-    * Returns the timestamp of the last time the queue was updated.
+    * {@return the timestamp of the last time the queue was updated}
     */
    public String getUpdateTimestamp() {
       return updateTimestamp;

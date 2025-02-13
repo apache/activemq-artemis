@@ -57,10 +57,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Deprecated in favor of EmbeddedActiveMQDelegate. Since Artemis 2.0 all JMS specific broker
- * management classes, interfaces, and methods have been deprecated in favor of their more general
- * counter-parts.
+ * Deprecated in favor of EmbeddedActiveMQDelegate. Since Artemis 2.0 all JMS specific broker management classes,
+ * interfaces, and methods have been deprecated in favor of their more general counter-parts.
+ *
  * @see EmbeddedActiveMQDelegate
+ * @deprecated use {@link EmbeddedActiveMQDelegate} instead
  */
 @Deprecated
 public class EmbeddedJMSDelegate implements EmbeddedJMSOperations<EmbeddedJMSDelegate> {
@@ -136,7 +137,8 @@ public class EmbeddedJMSDelegate implements EmbeddedJMSOperations<EmbeddedJMSDel
 
    /**
     * Create an EmbeddedJMSResource with the specified configurations
-    * @param configuration ActiveMQServer configuration
+    *
+    * @param configuration    ActiveMQServer configuration
     * @param jmsConfiguration JMSServerManager configuration
     */
    protected EmbeddedJMSDelegate(Configuration configuration, JMSConfiguration jmsConfiguration) {
@@ -147,6 +149,7 @@ public class EmbeddedJMSDelegate implements EmbeddedJMSOperations<EmbeddedJMSDel
 
    /**
     * Create an EmbeddedJMSResource with the specified configuration file
+    *
     * @param filename configuration file name
     */
    protected EmbeddedJMSDelegate(String filename) {
@@ -155,8 +158,9 @@ public class EmbeddedJMSDelegate implements EmbeddedJMSOperations<EmbeddedJMSDel
 
    /**
     * Create an EmbeddedJMSResource with the specified configuration file
+    *
     * @param serverConfigurationFileName ActiveMQServer configuration file name
-    * @param jmsConfigurationFileName JMSServerManager configuration file name
+    * @param jmsConfigurationFileName    JMSServerManager configuration file name
     */
    protected EmbeddedJMSDelegate(String serverConfigurationFileName, String jmsConfigurationFileName) {
       if (serverConfigurationFileName == null) {
@@ -216,8 +220,8 @@ public class EmbeddedJMSDelegate implements EmbeddedJMSOperations<EmbeddedJMSDel
    /**
     * Start the embedded EmbeddedJMSResource.
     * <p>
-    * The server will normally be started by JUnit using the before() method. This method allows the
-    * server to be started manually to support advanced testing scenarios.
+    * The server will normally be started by JUnit using the before() method. This method allows the server to be
+    * started manually to support advanced testing scenarios.
     */
    @Override
    public void start() {
@@ -234,8 +238,8 @@ public class EmbeddedJMSDelegate implements EmbeddedJMSOperations<EmbeddedJMSDel
    /**
     * Stop the embedded ActiveMQ broker, blocking until the broker has stopped.
     * <p>
-    * The broker will normally be stopped by JUnit using the after() method. This method allows the
-    * broker to be stopped manually to support advanced testing scenarios.
+    * The broker will normally be stopped by JUnit using the after() method. This method allows the broker to be stopped
+    * manually to support advanced testing scenarios.
     */
    @Override
    public void stop() {

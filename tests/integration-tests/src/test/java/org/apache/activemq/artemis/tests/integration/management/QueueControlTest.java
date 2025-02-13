@@ -132,9 +132,6 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
 
-   /**
-    * @param durable
-    */
    public QueueControlTest(boolean durable) {
       super();
       this.durable = durable;
@@ -1446,7 +1443,6 @@ public class QueueControlTest extends ManagementTestBase {
       session.deleteQueue(queue);
    }
 
-   //https://issues.jboss.org/browse/HORNETQ-1231
    @TestTemplate
    public void testListDeliveringMessagesWithRASession() throws Exception {
       ServerLocator locator1 = createInVMNonHALocator().setBlockOnNonDurableSend(true).setConsumerWindowSize(10240).setAckBatchSize(0);
@@ -1479,17 +1475,12 @@ public class QueueControlTest extends ManagementTestBase {
          consumer = transSession.createConsumer(queue);
          transSession.start();
 
-         /**
+         /*
           * the following latches are used to make sure that
           *
-          * 1. the first call on queueControl happens after the
-          * first message arrived at the message handler.
-          *
-          * 2. the message handler wait on the first message until
-          * the queueControl returns the right/wrong result.
-          *
+          * 1. the first call on queueControl happens after the first message arrived at the message handler.
+          * 2. the message handler wait on the first message until the queueControl returns the right/wrong result.
           * 3. the test exits after all messages are received.
-          *
           */
          final CountDownLatch latch1 = new CountDownLatch(1);
          final CountDownLatch latch2 = new CountDownLatch(1);
@@ -2883,19 +2874,20 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    /**
-    *    Moving message from another address to a single "child" queue of a multicast address
-    *
+    * Moving message from another address to a single "child" queue of a multicast address
+    * <pre>{@code
     *    <address name="ErrorQueue">
-    *             <anycast>
-    *                <queue name="ErrorQueue" />
-    *             </anycast>
-    *          </address>
-    *          <address name="parent.addr.1">
-    *             <multicast>
-    *                <queue name="child.queue.1" />
-    *                <queue name="child.queue.2" />
-    *             </multicast>
-    *          </address>
+    *       <anycast>
+    *          <queue name="ErrorQueue" />
+    *       </anycast>
+    *    </address>
+    *    <address name="parent.addr.1">
+    *       <multicast>
+    *          <queue name="child.queue.1" />
+    *          <queue name="child.queue.2" />
+    *       </multicast>
+    *    </address>
+    * }</pre>
     */
    @TestTemplate
    public void testMoveMessageToFQQN() throws Exception {
@@ -3020,7 +3012,6 @@ public class QueueControlTest extends ManagementTestBase {
     * <li>check there is only one message to consume from queue</li>
     * </ol>
     */
-
    @TestTemplate
    public void testRemoveMessages() throws Exception {
       SimpleString key = SimpleString.of("key");

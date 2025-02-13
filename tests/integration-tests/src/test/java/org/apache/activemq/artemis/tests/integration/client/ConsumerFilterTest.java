@@ -76,7 +76,6 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
       token.append("a".repeat(5000));
       token.append("'");
 
-      // The server would fail to create this consumer if HORNETQ-545 wasn't solved
       consumer = session.createConsumer("foo", "animal=" + token.toString());
    }
 
@@ -271,10 +270,6 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
       locator.close();
    }
 
-   /**
-    * @param consumer
-    * @throws Exception
-    */
    private void readConsumer(String consumerName, ClientConsumer consumer) throws Exception {
       ClientMessage message = consumer.receive(5000);
       assertNotNull(message);
@@ -282,11 +277,6 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
       message.acknowledge();
    }
 
-   /**
-    * @param session
-    * @param producer
-    * @throws Exception
-    */
    private void sendMessage(ClientSession session, ClientProducer producer, String color, String msg) throws Exception {
       ClientMessage anyMessage = session.createMessage(true);
       anyMessage.putStringProperty("color", color);

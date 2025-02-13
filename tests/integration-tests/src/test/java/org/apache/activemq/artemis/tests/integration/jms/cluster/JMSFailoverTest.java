@@ -84,9 +84,8 @@ import java.lang.invoke.MethodHandles;
 
 /**
  * A JMSFailoverTest
- * <br>
- * A simple test to test failover when using the JMS API.
- * Most of the failover tests are done on the Core API.
+ * <p>
+ * A simple test to test failover when using the JMS API. Most of the failover tests are done on the Core API.
  */
 public class JMSFailoverTest extends ActiveMQTestBase {
 
@@ -518,9 +517,6 @@ public class JMSFailoverTest extends ActiveMQTestBase {
       startServers();
    }
 
-   /**
-    * @throws Exception
-    */
    protected void startServers() throws Exception {
       final boolean sharedStore = true;
       NodeManager nodeManager = new InVMNodeManager(!sharedStore);

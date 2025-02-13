@@ -34,9 +34,6 @@ import org.apache.activemq.test.TestSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class JmsTopicRequestReplyTest extends TestSupport implements MessageListener {
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsTopicRequestReplyTest.class);
@@ -71,11 +68,9 @@ public class JmsTopicRequestReplyTest extends TestSupport implements MessageList
       // same", clientSideClientID, value);
       LOG.info("Both the clientID and destination clientID match properly: " + clientSideClientID);
 
-        /* build queues */
       MessageProducer requestProducer = session.createProducer(requestDestination);
       MessageConsumer replyConsumer = session.createConsumer(replyDestination);
 
-        /* build requestmessage */
       TextMessage requestMessage = session.createTextMessage("Olivier");
       requestMessage.setJMSReplyTo(replyDestination);
       requestProducer.send(requestMessage);
@@ -170,7 +165,7 @@ public class JmsTopicRequestReplyTest extends TestSupport implements MessageList
 
       requestDestination = createDestination(serverSession);
 
-        /* build queues */
+      // build queues
       final MessageConsumer requestConsumer = serverSession.createConsumer(requestDestination);
       if (useAsyncConsume) {
          requestConsumer.setMessageListener(this);

@@ -23,11 +23,8 @@ import org.apache.activemq.artemis.utils.DataConstants;
 public class StreamMessageUtil extends MessageUtil {
 
    /**
-    * Method to read boolean values out of the Stream protocol existent on JMS Stream Messages
-    * Throws IllegalStateException if the type was invalid
-    *
-    * @param buff
-    * @return
+    * Method to read boolean values out of the Stream protocol existent on JMS Stream Messages Throws
+    * IllegalStateException if the type was invalid
     */
    public static boolean streamReadBoolean(ActiveMQBuffer buff) {
       byte type = buff.readByte();
@@ -164,11 +161,9 @@ public class StreamMessageUtil extends MessageUtil {
    }
 
    /**
-    * Utility for reading bytes out of streaming.
-    * It will return remainingBytes, bytesRead
+    * Utility for reading bytes out of streaming. It will return remainingBytes, bytesRead
     *
     * @param remainingBytes remaining Bytes from previous read. Send it to 0 if it was the first call for the message
-    * @param buff
     * @return a pair of remaining bytes and bytes read
     */
    public static Pair<Integer, Integer> streamReadBytes(ActiveMQBuffer buff, int remainingBytes, byte[] value) {

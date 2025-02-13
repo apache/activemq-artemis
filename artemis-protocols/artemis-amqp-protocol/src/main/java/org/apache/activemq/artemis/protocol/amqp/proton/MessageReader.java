@@ -22,47 +22,42 @@ import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.engine.Delivery;
 
 /**
- * Message reader for incoming messages from and AMQP receiver context which will
- * handle the read and decode of message payload into am AMQP message.
+ * Message reader for incoming messages from and AMQP receiver context which will handle the read and decode of message
+ * payload into am AMQP message.
  */
 public interface MessageReader {
 
    /**
-    * Closes the reader and releases any in use resources. If the reader was not
-    * finished processing an incoming message when closed the reader should release
-    * any resources that might be held such as large message files etc.
+    * Closes the reader and releases any in use resources. If the reader was not finished processing an incoming message
+    * when closed the reader should release any resources that might be held such as large message files etc.
     */
    void close();
 
    /**
-    * Reset any internal state of this reader and prepares it to begin processing a
-    * new delivery. A previously closed reader can be reset for reuse.
+    * Reset any internal state of this reader and prepares it to begin processing a new delivery. A previously closed
+    * reader can be reset for reuse.
     *
-    * @return this {@link MessageReader} instance.
+    * @return this {@link MessageReader} instance
     */
    MessageReader open();
 
    /**
-    * Reads the bytes from an incoming delivery which might not be complete yet
-    * but allows the reader to consume pending bytes to prevent stalling the sender
-    * because the session window was exhausted. Once a delivery has been fully read
-    * and is no longer partial the readBytes method will return the decoded message
-    * for dispatch.
-    *
+    * Reads the bytes from an incoming delivery which might not be complete yet but allows the reader to consume pending
+    * bytes to prevent stalling the sender because the session window was exhausted. Once a delivery has been fully read
+    * and is no longer partial the readBytes method will return the decoded message for dispatch.
+    * <p>
     * Notice that asynchronous Readers will never return the Message but will rather call a complete operation on the
     * Server Receiver.
     *
-    * @param delivery
-    *    The delivery that has pending incoming bytes.
+    * @param delivery The delivery that has pending incoming bytes.
     */
    Message readBytes(Delivery delivery) throws Exception;
 
    /**
-    * Once a message has been read but before the reader is closed this API offers
-    * access to any delivery annotations that were present upon decode of the read
-    * message.
+    * Once a message has been read but before the reader is closed this API offers access to any delivery annotations
+    * that were present upon decode of the read message.
     *
-    * @return any DeliveryAnnotations that were read as part of decoding the message.
+    * @return any DeliveryAnnotations that were read as part of decoding the message
     */
    DeliveryAnnotations getDeliveryAnnotations();
 

@@ -49,20 +49,19 @@ public class HawtioSecurityControlImpl extends AbstractControl implements Hawtio
 
    /**
     * The Tabular Type returned by the {@link #canInvoke(Map)} operation. The rows consist of
-    * {@link #CAN_INVOKE_RESULT_ROW_TYPE} entries.
-    * It has a composite key with consists of the "ObjectName" and "Method" columns.
+    * {@link #CAN_INVOKE_RESULT_ROW_TYPE} entries. It has a composite key with consists of the "ObjectName" and "Method"
+    * columns.
     */
    static final TabularType CAN_INVOKE_TABULAR_TYPE = SecurityMBeanOpenTypeInitializer.TABULAR_TYPE;
 
    /**
-    * A row as returned by the {@link #CAN_INVOKE_TABULAR_TYPE}. The columns of the row are defined
-    * by {@link #CAN_INVOKE_RESULT_COLUMNS}.
+    * A row as returned by the {@link #CAN_INVOKE_TABULAR_TYPE}. The columns of the row are defined by
+    * {@link #CAN_INVOKE_RESULT_COLUMNS}.
     */
    static final CompositeType CAN_INVOKE_RESULT_ROW_TYPE = SecurityMBeanOpenTypeInitializer.ROW_TYPE;
 
    /**
-    * The columns contained in a {@link #CAN_INVOKE_RESULT_ROW_TYPE}. The data types for these columns are
-    * as follows:
+    * The columns contained in a {@link #CAN_INVOKE_RESULT_ROW_TYPE}. The data types for these columns are as follows:
     * <ul>
     * <li>"ObjectName" : {@link SimpleType#STRING}</li>
     * <li>"Method" : {@link SimpleType#STRING}</li>

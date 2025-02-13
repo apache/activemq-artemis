@@ -60,10 +60,10 @@ import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextConfig;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 
 /**
- * Please note, this class supports PKCS#11 keystores, but there are no specific tests in the ActiveMQ Artemis test-suite to
- * validate/verify this works because this requires a functioning PKCS#11 provider which is not available by default
- * (see java.security.Security#getProviders()).  The main thing to keep in mind is that PKCS#11 keystores will either use
- * null, and empty string, or NONE for their keystore path.
+ * Please note, this class supports PKCS#11 keystores, but there are no specific tests in the ActiveMQ Artemis
+ * test-suite to validate/verify this works because this requires a functioning PKCS#11 provider which is not available
+ * by default (see java.security.Security#getProviders()).  The main thing to keep in mind is that PKCS#11 keystores
+ * will either use null, and empty string, or NONE for their keystore path.
  */
 public class SSLSupport {
 
@@ -410,9 +410,9 @@ public class SSLSupport {
    }
 
    /**
-    * This seems duplicate code all over the place, but for security reasons we can't let something like this to be open in a
-    * utility class, as it would be a door to load anything you like in a safe VM.
-    * For that reason any class trying to do a privileged block should do with the AccessController directly.
+    * This seems duplicate code all over the place, but for security reasons we can't let something like this to be open
+    * in a utility class, as it would be a door to load anything you like in a safe VM. For that reason any class trying
+    * to do a privileged block should do with the AccessController directly.
     */
    private static URL findResource(final String resourceName) {
       return AccessController.doPrivileged((PrivilegedAction<URL>) () -> ClassloadingUtil.findResource(resourceName));
@@ -438,13 +438,11 @@ public class SSLSupport {
 
    /**
     * The changes ARTEMIS-3155 introduced an incompatibility with old clients using the keyStoreProvider and
-    * trustStoreProvider URL properties. These old clients use these properties to set the *type* of store
-    * (e.g. PKCS12, PKCS11, JKS, JCEKS, etc.), but new clients use these to set the *provider* (as the name
-    * implies). This method checks to see if the provider property matches what is expected from old clients
-    * and if so returns they proper provider and type properties to use with the new client implementation.
+    * trustStoreProvider URL properties. These old clients use these properties to set the *type* of store (e.g. PKCS12,
+    * PKCS11, JKS, JCEKS, etc.), but new clients use these to set the *provider* (as the name implies). This method
+    * checks to see if the provider property matches what is expected from old clients and if so returns they proper
+    * provider and type properties to use with the new client implementation.
     *
-    * @param storeProvider
-    * @param storeType
     * @return a {@code Pair<String, String>} representing the provider and type to use (in that order)
     */
    public static Pair<String, String> getValidProviderAndType(String storeProvider, String storeType) {

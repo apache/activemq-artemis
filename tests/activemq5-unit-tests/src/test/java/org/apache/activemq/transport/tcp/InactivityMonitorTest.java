@@ -60,10 +60,6 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
       startTransportServer();
    }
 
-   /**
-    * @throws Exception
-    * @throws URISyntaxException
-    */
    private void startClient() throws Exception, URISyntaxException {
       clientTransport = TransportFactory.connect(new URI("tcp://localhost:" + serverPort + "?trace=true&wireFormat.maxInactivityDuration=1000"));
       clientTransport.setTransportListener(new TransportListener() {
@@ -95,11 +91,6 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
       clientTransport.start();
    }
 
-   /**
-    * @throws IOException
-    * @throws URISyntaxException
-    * @throws Exception
-    */
    private void startTransportServer() throws IOException, URISyntaxException, Exception {
       server = TransportFactory.bind(new URI("tcp://localhost:0?trace=true&wireFormat.maxInactivityDuration=1000"));
       server.setAcceptListener(this);
@@ -230,11 +221,7 @@ public class InactivityMonitorTest extends CombinationTestSupport implements Tra
    }
 
    /**
-    * Used to test when an operation blocks. This should not cause transport to
-    * get disconnected.
-    *
-    * @throws Exception
-    * @throws URISyntaxException
+    * Used to test when an operation blocks. This should not cause transport to get disconnected.
     */
    public void initCombosForTestNoClientHangWithServerBlock() throws Exception {
       startClient();

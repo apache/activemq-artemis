@@ -33,12 +33,12 @@ import org.apache.activemq.artemis.spi.core.naming.BindingRegistry;
  * Deprecated in favor of org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ. Since Artemis 2.0 all JMS
  * specific broker management classes, interfaces, and methods have been deprecated in favor of their more general
  * counter-parts.
- *
- * Simple bootstrap class that parses activemq config files (server and jms and security) and starts
- * an ActiveMQServer instance and populates it with configured JMS endpoints.
  * <p>
- * JMS Endpoints are registered with a simple MapBindingRegistry.  If you want to use a different registry
- * you must set the registry property of this class or call the setRegistry() method if you want to use JNDI
+ * Simple bootstrap class that parses activemq config files (server and jms and security) and starts an ActiveMQServer
+ * instance and populates it with configured JMS endpoints.
+ * <p>
+ * JMS Endpoints are registered with a simple MapBindingRegistry.  If you want to use a different registry you must set
+ * the registry property of this class or call the setRegistry() method if you want to use JNDI
  */
 @Deprecated
 public class EmbeddedJMS extends EmbeddedActiveMQ {
@@ -58,8 +58,6 @@ public class EmbeddedJMS extends EmbeddedActiveMQ {
 
    /**
     * Only set this property if you are using a custom BindingRegistry
-    *
-    * @param registry
     */
    public EmbeddedJMS setRegistry(BindingRegistry registry) {
       this.registry = registry;
@@ -68,8 +66,6 @@ public class EmbeddedJMS extends EmbeddedActiveMQ {
 
    /**
     * By default, this class uses file-based configuration.  Set this property to override it.
-    *
-    * @param jmsConfiguration
     */
    public EmbeddedJMS setJmsConfiguration(JMSConfiguration jmsConfiguration) {
       this.jmsConfiguration = jmsConfiguration;
@@ -78,8 +74,6 @@ public class EmbeddedJMS extends EmbeddedActiveMQ {
 
    /**
     * If you want to use JNDI instead of an internal map, set this property
-    *
-    * @param context
     */
    public EmbeddedJMS setContext(Context context) {
       this.context = context;
@@ -96,8 +90,6 @@ public class EmbeddedJMS extends EmbeddedActiveMQ {
     * Lookup in the registry for registered object, i.e. a ConnectionFactory.
     * <p>
     * This is a convenience method.
-    *
-    * @param name
     */
    public Object lookup(String name) {
       return serverManager.getRegistry().lookup(name);

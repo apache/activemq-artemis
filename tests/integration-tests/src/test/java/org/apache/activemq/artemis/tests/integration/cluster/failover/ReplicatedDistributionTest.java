@@ -160,10 +160,6 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
 
    }
 
-   /**
-    * @param session
-    * @throws InterruptedException
-    */
    private void fail(final ClientSession session) throws InterruptedException {
 
       final CountDownLatch latch = new CountDownLatch(1);

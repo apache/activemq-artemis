@@ -61,9 +61,6 @@ import java.lang.invoke.MethodHandles;
 
 import java.util.function.BiConsumer;
 
-/**
- * This test is replicating the behaviour from https://issues.jboss.org/browse/HORNETQ-988.
- */
 public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -78,18 +75,16 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       try {
          ad.removeBinding(SimpleString.of("two"), null);
       } catch (Throwable e) {
-         // We are not failing the test here as this test is replicating the exact scenario
-         // that was happening under https://issues.jboss.org/browse/HORNETQ-988
-         // In which this would be ignored
+         // We are not failing the test here as this test is replicating the exact scenario reported by the user in
+         // which this would be ignored.
          errors++;
          e.printStackTrace();
       }
       try {
          ad.addBinding(new BindingFake("Topic1", "three"));
       } catch (Throwable e) {
-         // We are not failing the test here as this test is replicating the exact scenario
-         // that was happening under https://issues.jboss.org/browse/HORNETQ-988
-         // In which this would be ignored
+         // We are not failing the test here as this test is replicating the exact scenario reported by the user in
+         // which this would be ignored.
          errors++;
          e.printStackTrace();
       }
@@ -108,18 +103,16 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       try {
          ad.removeBinding(SimpleString.of("*::two"), null);
       } catch (Throwable e) {
-         // We are not failing the test here as this test is replicating the exact scenario
-         // that was happening under https://issues.jboss.org/browse/HORNETQ-988
-         // In which this would be ignored
+         // We are not failing the test here as this test is replicating the exact scenario reported by the user in
+         // which this would be ignored.
          errors++;
          e.printStackTrace();
       }
       try {
          ad.addBinding(new BindingFake("Topic1", "three"));
       } catch (Throwable e) {
-         // We are not failing the test here as this test is replicating the exact scenario
-         // that was happening under https://issues.jboss.org/browse/HORNETQ-988
-         // In which this would be ignored
+         // We are not failing the test here as this test is replicating the exact scenario reported by the user in
+         // which this would be ignored.
          errors++;
          e.printStackTrace();
       }

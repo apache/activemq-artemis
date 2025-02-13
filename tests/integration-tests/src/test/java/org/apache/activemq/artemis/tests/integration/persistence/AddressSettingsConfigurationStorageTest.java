@@ -104,10 +104,6 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
       checkAddresses(journal);
    }
 
-   /**
-    * @param journal1
-    * @throws Exception
-    */
    private void checkAddresses(StorageManager journal1) throws Exception {
       List<AbstractPersistedAddressSetting> listSetting = journal1.recoverAddressSettings();
 

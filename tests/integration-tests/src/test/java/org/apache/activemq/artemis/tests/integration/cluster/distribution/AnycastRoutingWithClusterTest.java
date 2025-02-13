@@ -30,9 +30,8 @@ import org.junit.jupiter.api.Test;
 public class AnycastRoutingWithClusterTest extends ClusterTestBase {
 
    /**
-    * Test anycast address with single distributed queue in a 3 node cluster environment.  Messages should be
-    * "round robin"'d across the each queue
-    * @throws Exception
+    * Test anycast address with single distributed queue in a 3 node cluster environment.  Messages should be "round
+    * robin"'d across the each queue
     */
    @Test
    public void testAnycastAddressOneQueueRoutingMultiNode() throws Exception {
@@ -85,7 +84,6 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
    /**
     * Test anycast address with N queues in a 3 node cluster environment.  Messages should be "round robin"'d across the
     * each queue.
-    * @throws Exception
     */
    @Test
    public void testAnycastAddressMultiQueuesRoutingMultiNode() throws Exception {
@@ -138,7 +136,6 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
    /**
     * Test anycast address with N queues in a 3 node cluster environment.  Messages should be "round robin"'d across the
     * each queue.
-    * @throws Exception
     */
    @Test
    public void testAnycastAddressMultiQueuesWithFilterRoutingMultiNode() throws Exception {
@@ -198,7 +195,6 @@ public class AnycastRoutingWithClusterTest extends ClusterTestBase {
    /**
     * Test multicast address that with N queues in a 3 node cluster environment.  Each queue should receive all messages
     * sent from the client.
-    * @throws Exception
     */
    @Test
    public void testMulitcastAddressMultiQueuesRoutingMultiNode() throws Exception {

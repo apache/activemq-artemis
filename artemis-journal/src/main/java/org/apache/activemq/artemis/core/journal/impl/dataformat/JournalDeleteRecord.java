@@ -23,9 +23,6 @@ public class JournalDeleteRecord extends JournalInternalRecord {
 
    private final long id;
 
-   /**
-    * @param id
-    */
    public JournalDeleteRecord(final long id) {
       this.id = id;
    }

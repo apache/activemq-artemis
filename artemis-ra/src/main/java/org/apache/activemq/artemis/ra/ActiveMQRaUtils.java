@@ -39,9 +39,6 @@ import java.lang.invoke.MethodHandles;
 public final class ActiveMQRaUtils {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * Private constructor
-    */
    private ActiveMQRaUtils() {
    }
 
@@ -50,7 +47,7 @@ public final class ActiveMQRaUtils {
     *
     * @param me  First value
     * @param you Second value
-    * @return True if object equals else false.
+    * @return {@code true} if object equals else false
     */
    public static boolean compare(final String me, final String you) {
       return Objects.equals(me, you);
@@ -61,7 +58,7 @@ public final class ActiveMQRaUtils {
     *
     * @param me  First value
     * @param you Second value
-    * @return True if object equals else false.
+    * @return {@code true} if object equals else false
     */
    public static boolean compare(final Integer me, final Integer you) {
       return Objects.equals(me, you);
@@ -72,7 +69,7 @@ public final class ActiveMQRaUtils {
     *
     * @param me  First value
     * @param you Second value
-    * @return True if object equals else false.
+    * @return {@code true} if object equals else false
     */
    public static boolean compare(final Long me, final Long you) {
       return Objects.equals(me, you);
@@ -83,7 +80,7 @@ public final class ActiveMQRaUtils {
     *
     * @param me  First value
     * @param you Second value
-    * @return True if object equals else false.
+    * @return {@code true} if object equals else false
     */
    public static boolean compare(final Double me, final Double you) {
       return Objects.equals(me, you);
@@ -94,7 +91,7 @@ public final class ActiveMQRaUtils {
     *
     * @param me  First value
     * @param you Second value
-    * @return True if object equals else false.
+    * @return {@code true} if object equals else false
     */
    public static boolean compare(final Boolean me, final Boolean you) {
       return Objects.equals(me, you);
@@ -116,7 +113,6 @@ public final class ActiveMQRaUtils {
    /**
     * Used on parsing JNDI Configuration
     *
-    * @param config
     * @return hash-table with configuration option pairs
     */
    public static Hashtable<String, String> parseHashtableConfig(final String config) {
@@ -140,10 +136,10 @@ public final class ActiveMQRaUtils {
    public static List<Map<String, Object>> parseConfig(final String config) {
       List<Map<String, Object>> result = new ArrayList<>();
 
-      /**
-       * Some configuration values can contain commas (e.g. enabledProtocols, enabledCipherSuites, etc.).
-       * To support config values with commas, the commas in the values must be escaped (e.g. "\\,") so that
-       * the commas used to separate configs for different connectors can still function as designed.
+      /*
+       * Some configuration values can contain commas (e.g. enabledProtocols, enabledCipherSuites, etc.). To support
+       * config values with commas, the commas in the values must be escaped (e.g. "\\,") so that the commas used to
+       * separate configs for different connectors can still function as designed.
        */
       String commaPlaceHolder = UUID.randomUUID().toString();
       String replaced = config.replace("\\,", commaPlaceHolder);
@@ -184,9 +180,9 @@ public final class ActiveMQRaUtils {
    }
 
    /**
-    * Within AS7 the RA is loaded by JCA. properties can only be passed in String form. However if
-    * RA is configured using jgroups stack, we need to pass a Channel object. As is impossible with
-    * JCA, we use this method to allow a JChannel object to be located.
+    * Within AS7 the RA is loaded by JCA. properties can only be passed in String form. However if RA is configured
+    * using jgroups stack, we need to pass a Channel object. As is impossible with JCA, we use this method to allow a
+    * JChannel object to be located.
     */
    public static JChannel locateJGroupsChannel(final String locatorClass, final String name) {
       return AccessController.doPrivileged((PrivilegedAction<JChannel>) () -> {
@@ -204,9 +200,9 @@ public final class ActiveMQRaUtils {
    }
 
    /**
-    * This seems duplicate code all over the place, but for security reasons we can't let something like this to be open in a
-    * utility class, as it would be a door to load anything you like in a safe VM.
-    * For that reason any class trying to do a privileged block should do with the AccessController directly.
+    * This seems duplicate code all over the place, but for security reasons we can't let something like this to be open
+    * in a utility class, as it would be a door to load anything you like in a safe VM. For that reason any class trying
+    * to do a privileged block should do with the AccessController directly.
     */
    private static Object safeInitNewInstance(final String className) {
       return AccessController.doPrivileged(new PrivilegedAction<>() {

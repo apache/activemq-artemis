@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.core.server;
 
 /**
- * This interface represents a way users can be alerted to activation failures that don't necessarily constitute a
- * fatal problem for the broker (e.g. the failure to start an acceptor)
+ * This interface represents a way users can be alerted to activation failures that don't necessarily constitute a fatal
+ * problem for the broker (e.g. the failure to start an acceptor)
  */
 public interface ActivationFailureListener {
 

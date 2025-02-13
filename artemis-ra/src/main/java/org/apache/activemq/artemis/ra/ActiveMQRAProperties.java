@@ -33,23 +33,14 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * Serial version UID
-    */
    static final long serialVersionUID = -2772367477755473248L;
 
    protected boolean allowLocalTransactions;
 
    protected boolean useTopologyForLoadBalancing = ActiveMQClient.DEFAULT_USE_TOPOLOGY_FOR_LOADBALANCING;
 
-   /**
-    * The user name
-    */
    private String userName;
 
-   /**
-    * The password
-    */
    private String password = null;
 
    /**
@@ -85,40 +76,22 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     */
    private String jgroupsChannelRefName;
 
-   /**
-    * Constructor
-    */
    public ActiveMQRAProperties() {
       logger.trace("constructor()");
    }
 
-   /**
-    * Get the user name
-    *
-    * @return The value
-    */
    public String getUserName() {
       logger.trace("getUserName()");
 
       return userName;
    }
 
-   /**
-    * Set the user name
-    *
-    * @param userName The value
-    */
    public void setUserName(final String userName) {
       logger.trace("setUserName({})", userName);
 
       this.userName = userName;
    }
 
-   /**
-    * Get the password
-    *
-    * @return The value
-    */
    public String getPassword() {
       logger.trace("getPassword()");
 
@@ -126,12 +99,9 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
    }
 
    /**
-    * Set the password
-    * Based on UseMaskedPassword property, the password can be
-    * plain text or encoded string. However we cannot decide
-    * which is the case at this moment, because we don't know
-    * when the UseMaskedPassword and PasswordCodec are loaded. So for the moment
-    * we just save the password.
+    * Set the password Based on UseMaskedPassword property, the password can be plain text or encoded string. However we
+    * cannot decide which is the case at this moment, because we don't know when the UseMaskedPassword and PasswordCodec
+    * are loaded. So for the moment we just save the password.
     *
     * @param password The value
     */
@@ -141,23 +111,14 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
       this.password = password;
    }
 
-   /**
-    * @return the useJNDI
-    */
    public boolean isUseJNDI() {
       return useJNDI;
    }
 
-   /**
-    * @param value the useJNDI to set
-    */
    public void setUseJNDI(final Boolean value) {
       useJNDI = value;
    }
 
-   /**
-    * @return return the jndi params to use
-    */
    public Hashtable<?, ?> getParsedJndiParams() {
       return jndiParams;
    }
@@ -166,22 +127,12 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
       jndiParams = params;
    }
 
-   /**
-    * Get the use XA flag
-    *
-    * @return The value
-    */
    public Boolean getUseLocalTx() {
       logger.trace("getUseLocalTx()");
 
       return localTx;
    }
 
-   /**
-    * Set the use XA flag
-    *
-    * @param localTx The value
-    */
    public void setUseLocalTx(final Boolean localTx) {
       logger.trace("setUseLocalTx({})", localTx);
 

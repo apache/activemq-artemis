@@ -130,13 +130,6 @@ public final class XmlDataExporter extends DBOption {
 
    /**
     * Use setConfiguration and process(out) instead.
-    *
-    * @param out
-    * @param bindingsDir
-    * @param journalDir
-    * @param pagingDir
-    * @param largeMessagesDir
-    * @throws Exception
     */
    @Deprecated
    public void process(OutputStream out,
@@ -409,9 +402,10 @@ public final class XmlDataExporter extends DBOption {
       exporter.printSingleMessageAsXML(message, queues, false);
       messagesPrinted++;
    }
+
    /**
-    * Reads from the page files and prints messages as it finds them (making sure to check acks and transactions
-    * from the journal).
+    * Reads from the page files and prints messages as it finds them (making sure to check acks and transactions from
+    * the journal).
     */
    private void printPagedMessagesAsXML() {
       try {
@@ -509,7 +503,7 @@ public final class XmlDataExporter extends DBOption {
    }
 
    /**
-    * Proxy to handle indenting the XML since <code>javax.xml.stream.XMLStreamWriter</code> doesn't support that.
+    * Proxy to handle indenting the XML since {@code javax.xml.stream.XMLStreamWriter} doesn't support that.
     */
    public static class PrettyPrintHandler implements InvocationHandler {
 

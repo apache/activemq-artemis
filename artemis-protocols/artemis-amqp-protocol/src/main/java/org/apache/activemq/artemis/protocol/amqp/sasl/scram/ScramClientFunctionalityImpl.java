@@ -56,8 +56,9 @@ public class ScramClientFunctionalityImpl implements ScramClientFunctionality {
 
    /**
     * Create new ScramClientFunctionalityImpl
+    *
     * @param digestName Digest to be used
-    * @param hmacName HMAC to be used
+    * @param hmacName   HMAC to be used
     */
    public ScramClientFunctionalityImpl(String digestName, String hmacName) {
       this(digestName, hmacName, UUID.randomUUID().toString());
@@ -65,8 +66,9 @@ public class ScramClientFunctionalityImpl implements ScramClientFunctionality {
 
    /**
     * Create new ScramClientFunctionalityImpl
-    * @param digestName Digest to be used
-    * @param hmacName HMAC to be used
+    *
+    * @param digestName  Digest to be used
+    * @param hmacName    HMAC to be used
     * @param clientNonce Client nonce to be used
     */
    public ScramClientFunctionalityImpl(String digestName, String hmacName, String clientNonce) {
@@ -86,12 +88,12 @@ public class ScramClientFunctionalityImpl implements ScramClientFunctionality {
    }
 
    /**
-    * Prepares first client message You may want to use
-    * {@link StringPrep#isContainingProhibitedCharacters(String)} in order to check if the username
-    * contains only valid characters
+    * Prepares first client message You may want to use {@link StringPrep#isContainingProhibitedCharacters(String)} in
+    * order to check if the username contains only valid characters
+    *
     * @param username Username
     * @return prepared first message
-    * @throws ScramException if <code>username</code> contains prohibited characters
+    * @throws ScramException if {@code username} contains prohibited characters
     */
    @Override
    public String prepareFirstMessage(String username) throws ScramException {

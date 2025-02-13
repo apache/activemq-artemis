@@ -23,16 +23,8 @@ import javax.jms.MessageNotWriteableException;
 
 import junit.framework.TestCase;
 
-/**
- *
- */
 public class ActiveMQStreamMessageTest extends TestCase {
 
-   /**
-    * Constructor for ActiveMQStreamMessageTest.
-    *
-    * @param name
-    */
    public ActiveMQStreamMessageTest(String name) {
       super(name);
    }
@@ -41,17 +33,11 @@ public class ActiveMQStreamMessageTest extends TestCase {
       junit.textui.TestRunner.run(ActiveMQStreamMessageTest.class);
    }
 
-   /*
-    * @see TestCase#setUp()
-    */
    @Override
    protected void setUp() throws Exception {
       super.setUp();
    }
 
-   /*
-    * @see TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       super.tearDown();

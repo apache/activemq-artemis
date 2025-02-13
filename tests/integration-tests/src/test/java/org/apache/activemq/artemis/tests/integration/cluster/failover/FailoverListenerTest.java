@@ -61,10 +61,8 @@ public class FailoverListenerTest extends FailoverTestBase {
    }
 
    /**
-    * Test if two servers are running and one of them is failing, that we trigger the expected
-    * events for {@link FailoverEventListener}
-    *
-    * @throws Exception
+    * Test if two servers are running and one of them is failing, that we trigger the expected events for
+    * {@link FailoverEventListener}
     */
    @Test
    public void testFailoverListenerCall() throws Exception {
@@ -122,9 +120,6 @@ public class FailoverListenerTest extends FailoverTestBase {
       assertEquals(4, listener.getFailoverEventType().size(), "Expected 4 FailoverEvents to be triggered");
    }
 
-   /**
-    * @throws Exception
-    */
    private void verifyMessageOnServer(final int server, final int numberOfMessages) throws Exception {
       ServerLocator backupLocator = createInVMLocator(server);
       ClientSessionFactory factorybkp = addSessionFactory(createSessionFactory(backupLocator));
@@ -143,10 +138,8 @@ public class FailoverListenerTest extends FailoverTestBase {
    }
 
    /**
-    * Test that if the only server is running and failing we trigger
-    * the event FailoverEventType.FAILOVER_FAILED in the end
-    *
-    * @throws Exception
+    * Test that if the only server is running and failing we trigger the event FailoverEventType.FAILOVER_FAILED in the
+    * end
     */
    @Test
    public void testFailoverFailed() throws Exception {

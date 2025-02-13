@@ -73,12 +73,6 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
       bodyAssignableFrom(type, true, clazz);
    }
 
-   /**
-    * @param type
-    * @param clazz
-    * @param bool
-    * @throws JMSException
-    */
    private void bodyAssignableFrom(final JmsMessageType type, final boolean bool, Class... clazz) throws JMSException {
       assertNotNull(clazz, "clazz!=null");
       assertTrue(clazz.length > 0, "clazz[] not empty");
@@ -107,10 +101,6 @@ public class BodyIsAssignableFromTest extends MessageBodyTestCase {
       }
    }
 
-   /**
-    * @param type
-    * @throws JMSException
-    */
    private Object createBodySendAndReceive(JmsMessageType type) throws JMSException {
       Object res = null;
       Message msg = null;

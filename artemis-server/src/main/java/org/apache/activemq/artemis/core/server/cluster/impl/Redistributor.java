@@ -155,9 +155,6 @@ public class Redistributor implements Consumer {
       tx.commit();
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.server.Consumer#getDeliveringMessages()
-    */
    @Override
    public List<MessageReference> getDeliveringMessages() {
       return Collections.emptyList();

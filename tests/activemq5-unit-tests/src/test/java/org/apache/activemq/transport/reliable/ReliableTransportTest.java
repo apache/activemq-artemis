@@ -26,9 +26,6 @@ import org.apache.activemq.transport.StubTransportListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class ReliableTransportTest extends TestCase {
 
    private static final Logger LOG = LoggerFactory.getLogger(ReliableTransportTest.class);

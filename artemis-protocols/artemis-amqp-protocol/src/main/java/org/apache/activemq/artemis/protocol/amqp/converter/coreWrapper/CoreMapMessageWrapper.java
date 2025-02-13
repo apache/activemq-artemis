@@ -45,15 +45,13 @@ public final class CoreMapMessageWrapper extends CoreMessageWrapper {
 
    public static final byte TYPE = Message.MAP_TYPE;
 
-
    private final TypedProperties map = new TypedProperties();
 
-   /*
+   /**
     * This constructor is used to construct messages prior to sending
     */
    public CoreMapMessageWrapper(ICoreMessage message) {
       super(message);
-
    }
 
    private static Map<String, Object> getMapFromMessageBody(CoreMapMessageWrapper message) {

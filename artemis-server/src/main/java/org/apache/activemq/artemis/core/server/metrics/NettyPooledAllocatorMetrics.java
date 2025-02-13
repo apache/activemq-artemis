@@ -114,9 +114,7 @@ public final class NettyPooledAllocatorMetrics implements MeterBinder {
                                    final PoolArenaMetric poolArenaMetric,
                                    final int poolArenaIndex,
                                    final String poolArenaType) {
-      /**
-       * the number of thread caches backed by this arena.
-       */
+      // the number of thread caches backed by this arena.
       final String poolArenaIndexString = Integer.toString(poolArenaIndex);
       Gauge.builder("netty.pooled.arena.threadcaches.num", poolArenaMetric, metric -> metric.numThreadCaches())
          .tags(commonTags)

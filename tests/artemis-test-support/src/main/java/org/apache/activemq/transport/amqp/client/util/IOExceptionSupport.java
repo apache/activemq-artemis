@@ -24,11 +24,11 @@ import java.io.IOException;
 public class IOExceptionSupport {
 
    /**
-    * Checks the given cause to determine if it's already an IOException type and
-    * if not creates a new IOException to wrap it.
+    * Checks the given cause to determine if it's already an IOException type and if not creates a new IOException to
+    * wrap it.
     *
     * @param cause The initiating exception that should be cast or wrapped.
-    * @return an IOException instance.
+    * @return an IOException instance
     */
    public static IOException create(Throwable cause) {
       if (cause instanceof IOException ioException) {

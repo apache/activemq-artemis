@@ -34,7 +34,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 /**
- * Abstract class where we can replace the configuration in various places *
+ * Abstract class where we can replace the configuration in various places
  */
 public abstract class Configurable extends ActionAbstract {
 

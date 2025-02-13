@@ -1339,9 +1339,6 @@ public final class RandomReattachIntegrationTest extends ActiveMQTestBase {
 
       private final List<AssertionError> errors = new ArrayList<>();
 
-      /* (non-Javadoc)
-       * @see MessageHandler#onMessage(ClientMessage)
-       */
       @Override
       public void onMessage(ClientMessage message) {
          try {

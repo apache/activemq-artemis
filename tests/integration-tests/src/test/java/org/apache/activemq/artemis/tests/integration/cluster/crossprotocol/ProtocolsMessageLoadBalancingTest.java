@@ -515,11 +515,6 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       clearServer(0, 1);
    }
 
-   /**
-    * @param serverID
-    * @return
-    * @throws Exception
-    */
    @Override
    protected ConfigurationImpl createBasicConfig(final int serverID) {
       ConfigurationImpl configuration = super.createBasicConfig(serverID);

@@ -23,7 +23,6 @@ import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfi
 
 public class PersistedConnectionFactory implements EncodingSupport {
 
-
    private long id;
 
    private ConnectionFactoryConfiguration config;
@@ -32,19 +31,11 @@ public class PersistedConnectionFactory implements EncodingSupport {
       super();
    }
 
-   /**
-    * @param config
-    */
    public PersistedConnectionFactory(final ConnectionFactoryConfiguration config) {
       super();
       this.config = config;
    }
 
-
-
-   /**
-    * @return the id
-    */
    public long getId() {
       return id;
    }
@@ -57,9 +48,6 @@ public class PersistedConnectionFactory implements EncodingSupport {
       return config.getName();
    }
 
-   /**
-    * @return the config
-    */
    public ConnectionFactoryConfiguration getConfig() {
       return config;
    }

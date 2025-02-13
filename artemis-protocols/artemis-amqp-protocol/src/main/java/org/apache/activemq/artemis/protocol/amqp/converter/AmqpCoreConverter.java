@@ -105,9 +105,8 @@ import static org.apache.activemq.artemis.utils.DestinationUtil.TEMP_TOPIC_QUALI
 import static org.apache.activemq.artemis.utils.DestinationUtil.TOPIC_QUALIFIED_PREFIX;
 
 /**
- *  This class was created just to separate concerns on AMQPConverter.
- *  For better organization of the code.
- * */
+ * This class was created just to separate concerns on AMQPConverter. For better organization of the code.
+ */
 public class AmqpCoreConverter {
    public static ICoreMessage toCore(AMQPMessage message, CoreMessageObjectPools coreMessageObjectPools) throws Exception {
       return message.toCore(coreMessageObjectPools);

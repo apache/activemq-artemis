@@ -62,9 +62,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * This test covers interactions between core clients and
- * openwire clients, i.e. core producers sending messages
- * to be received by openwire receivers, and vice versa.
+ * This test covers interactions between core clients and openwire clients, i.e. core producers sending messages to be
+ * received by openwire receivers, and vice versa.
  */
 public class GeneralInteropTest extends BasicOpenWireTest {
 
@@ -209,7 +208,7 @@ public class GeneralInteropTest extends BasicOpenWireTest {
    @Test
    public void testFailoverReceivingFromCore() throws Exception {
 
-      /**
+      /*
        * to get logging to stdout from failover client
        *  org.slf4j.impl.SimpleLoggerFactory simpleLoggerFactory = new SimpleLoggerFactory();
        * ((SimpleLogger)simpleLoggerFactory.getLogger(FailoverTransport.class.getName())).setLevel(SimpleLogger.TRACE);

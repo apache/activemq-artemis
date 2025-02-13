@@ -52,9 +52,10 @@ import org.slf4j.LoggerFactory;
 import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-/* This test creates a condition where one queue is filtering a lot of data.
-*  Upon completing a page after the ignored filter.
-*  it will then make sure the removed references list and acked list is cleared from the PageInfo map. */
+/**
+ * This test creates a condition where one queue is filtering a lot of data. Upon completing a page after the ignored
+ * filter. it will then make sure the removed references list and acked list is cleared from the PageInfo map.
+ */
 public class FilteredPagingLeakTest extends AbstractLeakTest {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

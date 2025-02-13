@@ -253,9 +253,6 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
       journal.stop();
    }
 
-   /**
-    * @throws Exception
-    */
    protected void exportImportJournal() throws Exception {
       logger.debug("Exporting to {}/output.log", getTestDir());
 
@@ -281,11 +278,6 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
       loadAndCheck(false);
    }
 
-   /**
-    * @param fileFactory
-    * @param journal
-    * @throws Exception
-    */
    private static void describeJournal(SequentialFileFactory fileFactory,
                                        JournalImpl journal,
                                        final File path,
@@ -658,10 +650,6 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
       }
    }
 
-   /**
-    * @param expected
-    * @param actual
-    */
    protected void printJournalLists(final List<RecordInfo> expected, final List<RecordInfo> actual) {
       try {
 

@@ -128,11 +128,7 @@ public class BytesMessageUtil extends MessageUtil {
    }
 
    /**
-    * Returns true if it could send the Object to any known format
-    *
-    * @param message
-    * @param value
-    * @return
+    * {@return {@code true} if it could send the Object to any known format}
     */
    public static boolean bytesWriteObject(ActiveMQBuffer message, Object value) {
       if (value == null) {

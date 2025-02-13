@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * ActiveMQ Artemis implementation of a JMS Topic.
- * <br>
+ * <p>
  * This class can be instantiated directly.
  */
 public class ActiveMQTopic extends ActiveMQDestination implements Topic {
@@ -51,11 +51,6 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
       this(address, temporary, null);
    }
 
-   /**
-    * @param address
-    * @param temporary
-    * @param session
-    */
    protected ActiveMQTopic(String address, boolean temporary, ActiveMQSession session) {
       super(address, temporary ? TYPE.TEMP_TOPIC : TYPE.TOPIC, session);
    }

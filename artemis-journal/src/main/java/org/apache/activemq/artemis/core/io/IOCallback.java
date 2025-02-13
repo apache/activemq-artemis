@@ -26,14 +26,16 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 public interface IOCallback {
 
    /**
-    * Method for sync notifications. When this callback method is called, there is a guarantee the data is written on the disk.
-    * <br><b>Note:</b><i>Leave this method as soon as possible, or you would be blocking the whole notification thread</i>
+    * Method for sync notifications. When this callback method is called, there is a guarantee the data is written on
+    * the disk.
+    * <p>
+    * <b>Note:</b><i>Leave this method as soon as possible, or you would be blocking the whole notification thread</i>
     */
    void done();
 
    /**
-    * Method for error notifications.
-    * Observation: The whole file will be probably failing if this happens. Like, if you delete the file, you will start to get errors for these operations
+    * Method for error notifications. Observation: The whole file will be probably failing if this happens. Like, if you
+    * delete the file, you will start to get errors for these operations
     */
    void onError(int errorCode, String errorMessage);
 

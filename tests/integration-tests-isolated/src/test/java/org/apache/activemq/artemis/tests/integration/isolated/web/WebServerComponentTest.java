@@ -63,8 +63,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * This test leaks a thread named org.eclipse.jetty.util.RolloverFileOutputStream which is why it is isolated now.
- * In the future Jetty might fix this.
+ * This test leaks a thread named org.eclipse.jetty.util.RolloverFileOutputStream which is why it is isolated now. In
+ * the future Jetty might fix this.
  */
 public class WebServerComponentTest {
 
@@ -189,7 +189,8 @@ public class WebServerComponentTest {
       assertEquals(fail, clientHandler.body.toString().contains("431"));
    }
 
-   /* It's not clear how to create a functional test for the response header size so this test simply ensures the
+   /*
+    * It's not clear how to create a functional test for the response header size so this test simply ensures the
     * configuration is passed through as expected.
     */
    @Test

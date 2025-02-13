@@ -45,8 +45,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Test that AMQP senders and receivers can send to and receive from FQQN addresses when
- * the broker security policy is configured to limit access to those resources.
+ * Test that AMQP senders and receivers can send to and receive from FQQN addresses when the broker security policy is
+ * configured to limit access to those resources.
  */
 @Timeout(20)
 public class AmqpTargetedFQQNSecurityTest extends AmqpClientTestSupport {

@@ -304,7 +304,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
             if (callForceDelivery) {
                logger.trace("{}::Forcing delivery", this);
-               // JBPAPP-6030 - Calling forceDelivery outside of the lock to avoid distributed dead locks
+               // Calling forceDelivery outside of the lock to avoid distributed dead locks
                sessionContext.forceDelivery(this, forceDeliveryCount.getAndIncrement());
                callForceDelivery = false;
                deliveryForced = true;
@@ -458,7 +458,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
     * To be used by MDBs to stop any more handling of messages.
     *
     * @param future the future to run once the onMessage Thread has completed
-    * @throws ActiveMQException
     */
    @Override
    public Thread prepareForClose(final FutureLatch future) throws ActiveMQException {
@@ -609,14 +608,13 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    }
 
    /**
-    * This method deals with messages arrived as regular message but its contents are compressed.
-    * Such messages come from message senders who are configured to compress large messages, and
-    * if some of the messages are compressed below the min-large-message-size limit, they are sent
-    * as regular messages.
-    * <br>
-    * However when decompressing the message, we are not sure how large the message could be..
-    * for that reason we fake a large message controller that will deal with the message as it was a large message
-    * <br>
+    * This method deals with messages arrived as regular message but its contents are compressed. Such messages come
+    * from message senders who are configured to compress large messages, and if some of the messages are compressed
+    * below the min-large-message-size limit, they are sent as regular messages.
+    * <p>
+    * However when decompressing the message, we are not sure how large the message could be.. for that reason we fake a
+    * large message controller that will deal with the message as it was a large message
+    * <p>
     * Say that you sent a 1G message full of spaces. That could be just bellow 100K compressed but you wouldn't have
     * enough memory to decompress it
     */
@@ -809,10 +807,11 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    }
 
    /**
-    * LargeMessageBuffer will call flowcontrol here, while other handleMessage will also be calling flowControl.
-    * So, this operation needs to be atomic.
+    * LargeMessageBuffer will call flowcontrol here, while other handleMessage will also be calling flowControl. So,
+    * this operation needs to be atomic.
     *
-    * @param discountSlowConsumer When dealing with slowConsumers, we need to discount one credit that was pre-sent when the first receive was called. For largeMessage that is only done at the latest packet
+    * @param discountSlowConsumer When dealing with slowConsumers, we need to discount one credit that was pre-sent when
+    *                             the first receive was called. For largeMessage that is only done at the latest packet
     */
    @Override
    public void flowControl(final int messageBytes, final boolean discountSlowConsumer) throws ActiveMQException {
@@ -896,9 +895,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       sessionExecutor.execute(runner);
    }
 
-   /**
-    * @param credits
-    */
    private void sendCredits(final int credits) {
       pendingFlowControl.countUp();
       flowControlExecutor.execute(() -> {
@@ -1055,10 +1051,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       });
    }
 
-   /**
-    * @param message
-    * @throws ActiveMQException
-    */
    private void flowControlBeforeConsumption(final ClientMessageInternal message) throws ActiveMQException {
       if (manualFlowManagement) {
          return;

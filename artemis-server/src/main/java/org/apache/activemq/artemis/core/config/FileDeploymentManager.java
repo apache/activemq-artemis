@@ -50,9 +50,9 @@ public class FileDeploymentManager {
       this.configurationUrl = configurationUrl;
    }
 
-   /*
-   * parse a set of configuration with the Deployables that were given.
-   */
+   /**
+    * Parse a set of configuration with the {@link Deployable}s that were given.
+    */
    public void readConfiguration() throws Exception {
       URL url;
 
@@ -83,9 +83,9 @@ public class FileDeploymentManager {
       }
    }
 
-   /*
-   * Build a set of ActiveMQComponents from the Deployables configured
-   */
+   /**
+    * Build a set of {@link ActiveMQComponent}s from the {@link Deployable}s configured
+    */
    public Map<String, ActiveMQComponent> buildService(ActiveMQSecurityManager securityManager,
                                                       MBeanServer mBeanServer, ActivateCallback activateCallback) throws Exception {
       Map<String, ActiveMQComponent> components = new HashMap<>();
@@ -98,9 +98,9 @@ public class FileDeploymentManager {
       return components;
    }
 
-   /*
-   * add a Deployable to be configured
-   */
+   /**
+    * Add a {@link Deployable} to be configured
+    */
    public FileDeploymentManager addDeployable(Deployable deployable) {
       deployables.put(deployable.getRootElement(), deployable);
       return this;

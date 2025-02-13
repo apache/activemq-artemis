@@ -24,9 +24,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-/**
- *
- */
 public class JmsAutoAckListenerTest extends TestSupport implements MessageListener {
 
    private Connection connection;
@@ -37,9 +34,6 @@ public class JmsAutoAckListenerTest extends TestSupport implements MessageListen
       connection = createConnection();
    }
 
-   /**
-    * @see junit.framework.TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
@@ -51,8 +45,6 @@ public class JmsAutoAckListenerTest extends TestSupport implements MessageListen
 
    /**
     * Tests if acknowledged messages are being consumed.
-    *
-    * @throws javax.jms.JMSException
     */
    public void testAckedMessageAreConsumed() throws Exception {
       connection.start();

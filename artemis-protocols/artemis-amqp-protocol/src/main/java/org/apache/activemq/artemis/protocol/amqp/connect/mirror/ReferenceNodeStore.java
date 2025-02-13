@@ -100,7 +100,9 @@ public class ReferenceNodeStore implements NodeStore<MessageReference> {
       }
    }
 
-   /** notice getMap should always return an instance. It should never return null. */
+   /**
+    * notice getMap should always return an instance. It should never return null.
+    */
    private synchronized LongObjectHashMap<LinkedListImpl.Node<MessageReference>> getMap(String serverID) {
       if (serverID == null) {
          serverID = idSupplier.getDefaultNodeID();

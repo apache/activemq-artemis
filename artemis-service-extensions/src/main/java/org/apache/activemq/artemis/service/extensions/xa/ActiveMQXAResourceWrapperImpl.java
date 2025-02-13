@@ -36,11 +36,8 @@ public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper 
 
    /**
     * Creates a new XAResourceWrapper.  PRODUCT_NAME, productVersion and jndiName are useful for log output in the
-    * Transaction Manager.  For ActiveMQ Artemis only the resourceManagerID is required to allow Transaction Manager to recover
-    * from relevant recovery scenarios.
-    *
-    * @param xaResource
-    * @param properties
+    * Transaction Manager.  For ActiveMQ Artemis only the resourceManagerID is required to allow Transaction Manager to
+    * recover from relevant recovery scenarios.
     */
    public ActiveMQXAResourceWrapperImpl(XAResource xaResource, Map<String, Object> properties) {
       this.xaResource = xaResource;

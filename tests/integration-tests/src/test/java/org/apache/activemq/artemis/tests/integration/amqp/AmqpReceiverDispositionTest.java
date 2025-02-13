@@ -38,11 +38,10 @@ import org.junit.jupiter.api.Timeout;
 
 /**
  * Test various behaviors of AMQP receivers with the broker.
- *
- * See also {@link AmqpReceiverDispositionRejectAsUnmodifiedModeTests} for
- * some testing of configurable alternative behaviour.
+ * <p>
+ * See also {@link AmqpReceiverDispositionRejectAsUnmodifiedModeTests} for some testing of configurable alternative
+ * behaviour.
  */
-
 public class AmqpReceiverDispositionTest extends AmqpClientTestSupport {
 
    private final int MIN_LARGE_MESSAGE_SIZE = 2048;

@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * A ConcurrentHashSet.
- *
+ * <p>
  * Offers same concurrency as ConcurrentHashMap but for a Set
  */
 public class ConcurrentHashSet<E> extends AbstractSet<E> implements ConcurrentSet<E> {

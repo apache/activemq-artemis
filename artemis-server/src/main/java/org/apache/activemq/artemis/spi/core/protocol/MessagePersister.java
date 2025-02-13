@@ -42,7 +42,9 @@ public class MessagePersister implements Persister<Message> {
 
    private static final MessagePersister theInstance = new MessagePersister();
 
-   /** This will be used for reading messages */
+   /**
+    * This will be used for reading messages
+    */
    private static final Persister<Message>[] persisters = new Persister[MAX_PERSISTERS];
 
    static {
@@ -100,7 +102,9 @@ public class MessagePersister implements Persister<Message> {
    }
 
 
-   /** Sub classes must add the first short as the protocol-id */
+   /**
+    * Sub classes must add the first short as the protocol-id
+    */
    @Override
    public void encode(ActiveMQBuffer buffer, Message record) {
       buffer.writeByte(getID());

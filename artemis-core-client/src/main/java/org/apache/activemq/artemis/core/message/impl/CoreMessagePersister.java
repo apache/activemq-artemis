@@ -29,7 +29,9 @@ public class CoreMessagePersister implements Persister<Message> {
 
    private static CoreMessagePersister theInstance;
 
-   /** This is a hook for testing */
+   /**
+    * This is a hook for testing
+    */
    public static void registerPersister(CoreMessagePersister newPersister) {
       theInstance = newPersister;
    }
@@ -60,7 +62,9 @@ public class CoreMessagePersister implements Persister<Message> {
    }
 
 
-   /** Sub classes must add the first short as the protocol-id */
+   /**
+    * Sub classes must add the first short as the protocol-id
+    */
    @Override
    public void encode(ActiveMQBuffer buffer, Message record) {
       buffer.writeByte((byte)1);

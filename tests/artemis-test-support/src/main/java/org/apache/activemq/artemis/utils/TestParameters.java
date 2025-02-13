@@ -24,7 +24,9 @@ import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Encapsulates System properties that could be passed on to the test. */
+/**
+ * Encapsulates System properties that could be passed on to the test.
+ */
 public class TestParameters {
 
 

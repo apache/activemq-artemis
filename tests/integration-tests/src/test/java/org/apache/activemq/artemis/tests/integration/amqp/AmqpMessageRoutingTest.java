@@ -137,10 +137,8 @@ public class AmqpMessageRoutingTest extends JMSClientTestSupport {
 
    /**
     * If we have an address configured with both ANYCAST and MULTICAST routing types enabled, we must ensure that any
-    * messages sent specifically to MULTICAST (e.g. JMS TopicProducer) are only delivered to MULTICAST queues (e.g.
-    * i.e. subscription queues) and **NOT** to ANYCAST queues (e.g. JMS Queue).
-    *
-    * @throws Exception
+    * messages sent specifically to MULTICAST (e.g. JMS TopicProducer) are only delivered to MULTICAST queues (e.g. i.e.
+    * subscription queues) and **NOT** to ANYCAST queues (e.g. JMS Queue).
     */
    @Test
    @Timeout(60)

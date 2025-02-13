@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.utils.critical;
 
 /**
- * This is not abstract as it could be used through aggregations or extensions.
- * This is only good for cases where you call leave within the same thread as you called enter.
+ * This is not abstract as it could be used through aggregations or extensions. This is only good for cases where you
+ * call leave within the same thread as you called enter.
  */
 public class CriticalComponentImpl implements CriticalComponent {
 

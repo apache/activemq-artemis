@@ -112,7 +112,9 @@ public final class ManagementHelper {
       }
    }
 
-   /** Utility function to reuse a ClientSessionConnection and perform a single management operation via core. */
+   /**
+    * Utility function to reuse a ClientSessionConnection and perform a single management operation via core.
+    */
    public static void doManagement(ClientSession session, MessageAcceptor setup, MessageAcceptor ok, MessageAcceptor failed) throws Exception {
       session.start();
       ClientRequestor requestor = new ClientRequestor(session, "activemq.management");
@@ -147,7 +149,8 @@ public final class ManagementHelper {
    }
 
    /**
-    * Stores an operation invocation in a message to invoke the corresponding operation the value from the server resource.
+    * Stores an operation invocation in a message to invoke the corresponding operation the value from the server
+    * resource.
     *
     * @param message       message
     * @param resourceName  the name of the resource
@@ -161,7 +164,8 @@ public final class ManagementHelper {
    }
 
    /**
-    * Stores an operation invocation in a  message to invoke the corresponding operation the value from the server resource.
+    * Stores an operation invocation in a  message to invoke the corresponding operation the value from the server
+    * resource.
     *
     * @param message       message
     * @param resourceName  the name of the server resource
@@ -209,14 +213,14 @@ public final class ManagementHelper {
    }
 
    /**
-    * Returns whether the JMS message corresponds to the result of a management operation invocation.
+    * {@return whether the JMS message corresponds to the result of a management operation invocation}
     */
    public static boolean isOperationResult(final Message message) {
       return message.containsProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED);
    }
 
    /**
-    * Returns whether the JMS message corresponds to the result of a management attribute value.
+    * {@return whether the JMS message corresponds to the result of a management attribute value}
     */
    public static boolean isAttributesResult(final Message message) {
       return !ManagementHelper.isOperationResult(message);
@@ -242,10 +246,9 @@ public final class ManagementHelper {
    }
 
    /**
-    * Returns the result of an operation invocation or an attribute value.
-    * <br>
-    * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
-    * and the result will be a String corresponding to the server exception.
+    * {@return the result of an operation invocation or an attribute value; if an error occurred on the server {@link
+    * #hasOperationSucceeded(Message)} will return {@code false} and the result will be a {@code String} corresponding
+    * to the server exception}
     */
    public static Object[] getResults(final ICoreMessage message) throws Exception {
       SimpleString sstring = message.getReadOnlyBodyBuffer().readNullableSimpleString();
@@ -260,20 +263,18 @@ public final class ManagementHelper {
    }
 
    /**
-    * Returns the result of an operation invocation or an attribute value.
-    * <br>
-    * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
-    * and the result will be a String corresponding to the server exception.
+    * {@return the result of an operation invocation or an attribute value; if an error occurred on the server {@link
+    * #hasOperationSucceeded(Message)} will return {@code false} and the result will be a {@code String} corresponding
+    * to the server exception}
     */
    public static Object getResult(final ICoreMessage message) throws Exception {
       return getResult(message, null);
    }
 
    /**
-    * Returns the result of an operation invocation or an attribute value.
-    * <br>
-    * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
-    * and the result will be a String corresponding to the server exception.
+    * {@return the result of an operation invocation or an attribute value; if an error occurred on the server {@link
+    * #hasOperationSucceeded(Message)} will return {@code false} and the result will be a {@code String} corresponding
+    * to the server exception}
     */
    public static Object getResult(final ICoreMessage message, Class desiredType) throws Exception {
       Object[] res = ManagementHelper.getResults(message);
@@ -286,7 +287,7 @@ public final class ManagementHelper {
    }
 
    /**
-    * Returns whether the invocation of the management operation on the server resource succeeded.
+    * {@return whether the invocation of the management operation on the server resource succeeded}
     */
    public static boolean hasOperationSucceeded(final Message message) {
       if (message == null) {

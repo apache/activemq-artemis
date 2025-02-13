@@ -43,10 +43,7 @@ import org.junit.jupiter.api.Test;
 public class JmsConsumerResetActiveListenerTest extends BasicOpenWireTest {
 
    /**
-    * verify the (undefined by spec) behaviour of setting a listener while
-    * receiving a message.
-    *
-    * @throws Exception
+    * verify the (undefined by spec) behaviour of setting a listener while receiving a message.
     */
    @Test
    public void testSetListenerFromListener() throws Exception {
@@ -95,8 +92,6 @@ public class JmsConsumerResetActiveListenerTest extends BasicOpenWireTest {
 
    /**
     * and a listener on a new consumer, just in case.
-    *
-    * @throws Exception
     */
    @Test
    public void testNewConsumerSetListenerFromListener() throws Exception {

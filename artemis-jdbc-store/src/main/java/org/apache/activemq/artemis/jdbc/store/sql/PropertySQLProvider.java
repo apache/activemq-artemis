@@ -37,9 +37,9 @@ import static java.lang.String.format;
 
 /**
  * Property-based implementation of a {@link SQLProvider}'s factory.
- *
+ * <p>
  * Properties are stored in a journal-sql.properties.
- *
+ * <p>
  * Dialects specific to a database can be customized by suffixing the property keys with the name of the dialect.
  */
 public class PropertySQLProvider implements SQLProvider {

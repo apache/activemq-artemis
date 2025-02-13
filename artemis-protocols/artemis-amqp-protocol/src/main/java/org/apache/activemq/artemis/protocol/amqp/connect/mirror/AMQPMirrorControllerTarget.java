@@ -101,10 +101,9 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    }
 
    /**
-    * Objects of this class can be used by either transaction or by OperationContext.
-    * It is important that when you're using the transactions you clear any references to
-    * the operation context. Don't use transaction and OperationContext at the same time
-    * as that would generate duplicates on the objects cache.
+    * Objects of this class can be used by either transaction or by OperationContext. It is important that when you're
+    * using the transactions you clear any references to the operation context. Don't use transaction and
+    * OperationContext at the same time as that would generate duplicates on the objects cache.
     */
    class ACKMessageOperation implements IOCallback, Runnable {
 
@@ -191,7 +190,9 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       }
    }
 
-   /** This method will wait both replication and storage to finish their current operations. */
+   /**
+    * This method will wait both replication and storage to finish their current operations.
+    */
    public void flush() {
       CountDownLatch latch = new CountDownLatch(1);
       connection.runNow(() -> {
@@ -276,11 +277,13 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
          if (message instanceof AMQPMessage amqpMessage) {
 
-            /** We use message annotations, because on the same link we will receive control messages
+            /*
+             * We use message annotations, because on the same link we will receive control messages
              *  coming from mirror events,
              *  and the actual messages that need to be replicated.
              *  Using anything from the body would force us to parse the body on regular messages.
-             *  The body of the message may still be used on control messages, on cases where a JSON string is sent. */
+             *  The body of the message may still be used on control messages, on cases where a JSON string is sent.
+             */
             Object eventType = AMQPMessageBrokerAccessor.getMessageAnnotationProperty(amqpMessage, EVENT_TYPE);
             if (eventType != null) {
                if (eventType.equals(ADD_ADDRESS)) {
@@ -481,10 +484,10 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    }
 
    /**
-    * this method returning true means the sendMessage was successful, and the IOContext should no longer be used.
-    * as the sendMessage was successful the OperationContext of the transaction will take care of the completion.
-    * The caller of this method should give up any reference to messageCompletionAck when this method returns true.
-    * */
+    * this method returning true means the sendMessage was successful, and the IOContext should no longer be used. as
+    * the sendMessage was successful the OperationContext of the transaction will take care of the completion. The
+    * caller of this method should give up any reference to messageCompletionAck when this method returns {@code true}.
+    */
    private boolean sendMessage(Message message, DeliveryAnnotations deliveryAnnotations, ACKMessageOperation messageCompletionAck) throws Exception {
       if (message.getMessageID() <= 0) {
          message.setMessageID(server.getStorageManager().generateID());
@@ -560,7 +563,10 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       return true;
    }
 
-   /** When the source mirror receives messages from a cluster member of his own, it should then fill targetQueues so we could play the same semantic the source applied on its routing */
+   /**
+    * When the source mirror receives messages from a cluster member of his own, it should then fill targetQueues so we
+    * could play the same semantic the source applied on its routing
+    */
    private void targetQueuesRouting(final Message message,
                                     final RoutingContext context,
                                     final Collection<String> queueNames) throws Exception {

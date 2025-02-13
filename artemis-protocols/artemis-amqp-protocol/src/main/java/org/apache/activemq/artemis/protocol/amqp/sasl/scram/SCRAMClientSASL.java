@@ -36,11 +36,10 @@ public class SCRAMClientSASL implements ClientSASL {
    private final String password;
 
    /**
-    * @param scram the SCRAM mechanism to use
+    * @param scram    the SCRAM mechanism to use
     * @param username the username for authentication
     * @param password the password for authentication
     */
-
    public SCRAMClientSASL(SCRAM scram, String username, String password) {
       this(scram, username, password, UUID.randomUUID().toString());
    }

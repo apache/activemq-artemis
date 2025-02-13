@@ -23,13 +23,9 @@ import javax.naming.NamingException;
 import java.io.Serializable;
 import java.util.Properties;
 
-/**
- * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
- */
 public class InVMNameParser implements NameParser, Serializable {
 
    private static final long serialVersionUID = 2925203703371001031L;
-
 
    static Properties syntax;
 
@@ -40,8 +36,6 @@ public class InVMNameParser implements NameParser, Serializable {
       InVMNameParser.syntax.put("jndi.syntax.separator", "/");
    }
 
-
-
    public static Properties getSyntax() {
       return InVMNameParser.syntax;
    }
@@ -50,5 +44,4 @@ public class InVMNameParser implements NameParser, Serializable {
    public Name parse(final String name) throws NamingException {
       return new CompoundName(name, InVMNameParser.syntax);
    }
-
 }

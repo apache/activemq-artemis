@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -63,8 +64,9 @@ import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.URISupport;
 
 /**
- * <p>ActiveMQ Artemis implementation of a JMS ConnectionFactory.</p>
- * <p>This connection factory will use defaults defined by {@link DefaultConnectionProperties}.
+ * ActiveMQ Artemis implementation of a JMS ConnectionFactory.
+ * <p>
+ * This connection factory will use defaults defined by {@link DefaultConnectionProperties}.
  */
 public class ActiveMQConnectionFactory extends JNDIStorable implements ConnectionFactoryOptions, Externalizable, ConnectionFactory, XAConnectionFactory, AutoCloseable {
 
@@ -239,13 +241,14 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       }
    }
 
-   /** Warning: This method will not clear any previous properties.
-    *           Say, you set the user on a first call.
-    *                Now you just change the brokerURI on a second call without passing the user.
-    *                The previous filled user will be already set, and nothing will clear it out.
-    *
-    *            Also: you cannot use this method after the connection factory is made readOnly.
-    *                  Which happens after you create a first connection. */
+   /**
+    * <b>Warning</b>: This method will not clear any previous properties. For example, if you set the user first then
+    * you change the brokerURL without passing the user. The previously set user will still exist, and nothing will
+    * clear it out.
+    * <p>
+    * Also, you cannot use this method after this {@code ConnectionFactory} is made {@code readOnly} which happens after
+    * the first time it's used to create a connection.
+    */
    public void setBrokerURL(String brokerURL) throws JMSException {
       if (readOnly) {
          throw new javax.jms.IllegalStateException("You cannot use setBrokerURL after the connection factory has been used");
@@ -640,9 +643,6 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       serverLocator.setProducerWindowSize(producerWindowSize);
    }
 
-   /**
-    * @param cacheLargeMessagesClient
-    */
    public synchronized void setCacheLargeMessagesClient(final boolean cacheLargeMessagesClient) {
       checkWrite();
       serverLocator.setCacheLargeMessagesClient(cacheLargeMessagesClient);
@@ -806,7 +806,10 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
    }
 
    /**
-    * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor needs a default Constructor to be used with this method.
+    * Set the list of {@link Interceptor}s to use for incoming packets.
+    *
+    * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor
+    *                        needs a default Constructor to be used with this method.
     */
    public void setIncomingInterceptorList(String interceptorList) {
       checkWrite();
@@ -818,7 +821,10 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
    }
 
    /**
-    * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor needs a default Constructor to be used with this method.
+    * Set the list of {@link Interceptor}s to use for outgoing packets.
+    *
+    * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor
+    *                        needs a default Constructor to be used with this method.
     */
    public void setOutgoingInterceptorList(String interceptorList) {
       serverLocator.setOutgoingInterceptorList(interceptorList);

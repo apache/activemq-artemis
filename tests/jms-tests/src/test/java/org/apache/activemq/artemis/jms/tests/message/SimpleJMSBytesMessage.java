@@ -396,10 +396,6 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       return internalArray.length;
    }
 
-
-
-
-
    /**
     * Check the message is readable
     *

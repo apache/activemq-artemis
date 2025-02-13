@@ -325,13 +325,6 @@ public class PageTest extends ActiveMQTestBase {
 
 
 
-   /**
-    * @param simpleDestination
-    * @param page
-    * @param numberOfElements
-    * @return
-    * @throws Exception
-    */
    protected void addPageElements(final StorageManager storageManager,
                                   final SimpleString simpleDestination,
                                   final Page page,

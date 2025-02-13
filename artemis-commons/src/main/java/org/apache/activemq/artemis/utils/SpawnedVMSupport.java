@@ -154,20 +154,9 @@ public class SpawnedVMSupport {
    }
 
    /**
-    * @param classPath
-    * @param wordMatch
-    * @param wordRunning
-    * @param className
-    * @param memoryArg1
-    * @param memoryArg2
-    * @param vmargs
-    * @param logOutput
-    * @param logErrorOutput
-    * @param debugPort      if &lt;=0 it means no debug
-    * @param args
-    * @return
-    * @throws IOException
-    * @throws ClassNotFoundException
+    * Spawns a VM
+    *
+    * @param debugPort if &lt;=0 it means no debug {@return a {@code Process} based on the input parameters}
     */
    public static Process spawnVM(String classPath,
                                  String wordMatch,
@@ -238,16 +227,13 @@ public class SpawnedVMSupport {
                                  Process process) throws ClassNotFoundException {
       SpawnedVMSupport.startLogger(logOutput, wordMatch, wordRunning, className, process);
 
-      // Adding a reader to System.err, so the VM won't hang on a System.err.println as identified on this forum thread:
-      // http://www.jboss.org/index.html?module=bb&op=viewtopic&t=151815
+      // Adding a reader to System.err, so the VM won't hang on a System.err.println
       ProcessLogger errorLogger = new ProcessLogger(logErrorOutput, process.getErrorStream(), className, wordMatch, wordRunning);
       errorLogger.start();
    }
 
    /**
     * it will return a pair of dead / alive servers
-    *
-    * @return
     */
    private static Set<Process> getAliveProcesses() {
 
@@ -315,11 +301,6 @@ public class SpawnedVMSupport {
       return true;
    }
 
-   /**
-    * @param className
-    * @param process
-    * @throws ClassNotFoundException
-    */
    public static void startLogger(final boolean print,
                                   final String wordMatch,
                                   final Runnable wordRunanble,
@@ -329,11 +310,6 @@ public class SpawnedVMSupport {
       outputLogger.start();
    }
 
-   /**
-    * @param className
-    * @param process
-    * @throws ClassNotFoundException
-    */
    public static void startLogger(final String className, final Process process) throws ClassNotFoundException {
       startLogger(true, null, null, className, process);
    }
@@ -351,8 +327,7 @@ public class SpawnedVMSupport {
 
       private final String wordMatch;
       /**
-       * This will be executed when wordMatch is within any line on the log *
-       * *
+       * This will be executed when wordMatch is within any line on the log
        */
       private final Runnable wordRunner;
 

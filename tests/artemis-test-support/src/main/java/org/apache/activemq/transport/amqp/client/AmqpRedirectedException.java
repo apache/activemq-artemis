@@ -19,8 +19,8 @@ package org.apache.activemq.transport.amqp.client;
 import java.io.IOException;
 
 /**
- * {@link IOException} derivative that defines that the remote peer has requested that this
- * connection be redirected to some alternative peer.
+ * {@link IOException} derivative that defines that the remote peer has requested that this connection be redirected to
+ * some alternative peer.
  */
 public class AmqpRedirectedException extends IOException {
 
@@ -39,21 +39,21 @@ public class AmqpRedirectedException extends IOException {
    }
 
    /**
-    * @return the host name of the container being redirected to.
+    * @return the host name of the container being redirected to
     */
    public String getHostname() {
       return hostname;
    }
 
    /**
-    * @return the DNS host name or IP address of the peer this connection is being redirected to.
+    * @return the DNS host name or IP address of the peer this connection is being redirected to
     */
    public String getNetworkHost() {
       return networkHost;
    }
 
    /**
-    * @return the port number on the peer this connection is being redirected to.
+    * @return the port number on the peer this connection is being redirected to
     */
    public int getPort() {
       return port;

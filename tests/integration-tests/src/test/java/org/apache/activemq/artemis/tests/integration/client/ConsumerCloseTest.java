@@ -75,7 +75,6 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
       }));
    }
 
-   // https://jira.jboss.org/jira/browse/JBMESSAGING-1526
    @Test
    public void testCloseWithManyMessagesInBufferAndSlowConsumer() throws Exception {
       ClientConsumer consumer = session.createConsumer(queue);

@@ -57,17 +57,15 @@ public class AMQPFederatedBrokerConnectionElement extends AMQPBrokerConnectionEl
    }
 
    /**
-    * @return the configured remote address policy set.
+    * @return the configured remote address policy set
     */
    public Set<AMQPFederationAddressPolicyElement> getRemoteAddressPolicies() {
       return remoteAddressPolicies;
    }
 
    /**
-    * @param remoteAddressPolicy
-    *       the policy to add to the set of remote address policies set
-    *
-    * @return this configuration element instance.
+    * @param remoteAddressPolicy the policy to add to the set of remote address policies set
+    * @return this configuration element instance
     */
    public AMQPFederatedBrokerConnectionElement addRemoteAddressPolicy(AMQPFederationAddressPolicyElement remoteAddressPolicy) {
       this.remoteAddressPolicies.add(remoteAddressPolicy);
@@ -75,17 +73,15 @@ public class AMQPFederatedBrokerConnectionElement extends AMQPBrokerConnectionEl
    }
 
    /**
-    * @return the configured remote queue policy set.
+    * @return the configured remote queue policy set
     */
    public Set<AMQPFederationQueuePolicyElement> getRemoteQueuePolicies() {
       return remoteQueuePolicies;
    }
 
    /**
-    * @param remoteQueuePolicy
-    *       the policy to add to the set of remote queue policies set
-    *
-    * @return this configuration element instance.
+    * @param remoteQueuePolicy the policy to add to the set of remote queue policies set
+    * @return this configuration element instance
     */
    public AMQPFederatedBrokerConnectionElement addRemoteQueuePolicy(AMQPFederationQueuePolicyElement remoteQueuePolicy) {
       this.remoteQueuePolicies.add(remoteQueuePolicy);
@@ -93,17 +89,15 @@ public class AMQPFederatedBrokerConnectionElement extends AMQPBrokerConnectionEl
    }
 
    /**
-    * @return the configured local address policy set.
+    * @return the configured local address policy set
     */
    public Set<AMQPFederationAddressPolicyElement> getLocalAddressPolicies() {
       return localAddressPolicies;
    }
 
    /**
-    * @param localAddressPolicy
-    *       the policy to add to the set of local address policies set
-    *
-    * @return this configuration element instance.
+    * @param localAddressPolicy the policy to add to the set of local address policies set
+    * @return this configuration element instance
     */
    public AMQPFederatedBrokerConnectionElement addLocalAddressPolicy(AMQPFederationAddressPolicyElement localAddressPolicy) {
       this.localAddressPolicies.add(localAddressPolicy);
@@ -111,17 +105,15 @@ public class AMQPFederatedBrokerConnectionElement extends AMQPBrokerConnectionEl
    }
 
    /**
-    * @return the configured local queue policy set.
+    * @return the configured local queue policy set
     */
    public Set<AMQPFederationQueuePolicyElement> getLocalQueuePolicies() {
       return localQueuePolicies;
    }
 
    /**
-    * @param localQueuePolicy
-    *       the policy to add to the set of local queue policies set
-    *
-    * @return this configuration element instance.
+    * @param localQueuePolicy the policy to add to the set of local queue policies set
+    * @return this configuration element instance
     */
    public AMQPFederatedBrokerConnectionElement addLocalQueuePolicy(AMQPFederationQueuePolicyElement localQueuePolicy) {
       this.localQueuePolicies.add(localQueuePolicy);
@@ -131,12 +123,9 @@ public class AMQPFederatedBrokerConnectionElement extends AMQPBrokerConnectionEl
    /**
     * Adds the given property key and value to the federation configuration element.
     *
-    * @param key
-    *    The key that identifies the property
-    * @param value
-    *    The value associated with the property key.
-    *
-    * @return this configuration element instance.
+    * @param key   The key that identifies the property
+    * @param value The value associated with the property key.
+    * @return this configuration element instance
     */
    public AMQPFederatedBrokerConnectionElement addProperty(String key, String value) {
       properties.put(key, value);
@@ -146,12 +135,9 @@ public class AMQPFederatedBrokerConnectionElement extends AMQPBrokerConnectionEl
    /**
     * Adds the given property key and value to the federation configuration element.
     *
-    * @param key
-    *    The key that identifies the property
-    * @param value
-    *    The value associated with the property key.
-    *
-    * @return this configuration element instance.
+    * @param key   The key that identifies the property
+    * @param value The value associated with the property key.
+    * @return this configuration element instance
     */
    public AMQPFederatedBrokerConnectionElement addProperty(String key, Number value) {
       properties.put(key, value);
@@ -159,7 +145,7 @@ public class AMQPFederatedBrokerConnectionElement extends AMQPBrokerConnectionEl
    }
 
    /**
-    * @return the collection of configuration properties associated with this federation element.
+    * @return the collection of configuration properties associated with this federation element
     */
    public Map<String, Object> getProperties() {
       return properties;

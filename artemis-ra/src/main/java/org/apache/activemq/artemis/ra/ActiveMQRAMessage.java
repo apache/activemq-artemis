@@ -29,28 +29,16 @@ import java.lang.invoke.MethodHandles;
 import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 /**
- * A wrapper for a message
+ * A wrapper for a {@link Message}.
  */
 public class ActiveMQRAMessage implements Message {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The message
-    */
    protected Message message;
 
-   /**
-    * The session
-    */
    protected ActiveMQRASession session;
 
-   /**
-    * Create a new wrapper
-    *
-    * @param message the message
-    * @param session the session
-    */
    public ActiveMQRAMessage(final Message message, final ActiveMQRASession session) {
       checkNotNull(message);
       checkNotNull(session);
@@ -62,9 +50,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Acknowledge
-    *
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void acknowledge() throws JMSException {
@@ -75,9 +61,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Clear body
-    *
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void clearBody() throws JMSException {
@@ -87,9 +71,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Clear properties
-    *
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void clearProperties() throws JMSException {
@@ -99,11 +81,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get property
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public boolean getBooleanProperty(final String name) throws JMSException {
@@ -113,11 +91,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get property
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public byte getByteProperty(final String name) throws JMSException {
@@ -127,11 +101,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get property
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public double getDoubleProperty(final String name) throws JMSException {
@@ -141,11 +111,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get property
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public float getFloatProperty(final String name) throws JMSException {
@@ -155,11 +121,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get property
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public int getIntProperty(final String name) throws JMSException {
@@ -169,10 +131,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get correlation id
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public String getJMSCorrelationID() throws JMSException {
@@ -182,10 +141,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get correlation id
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public byte[] getJMSCorrelationIDAsBytes() throws JMSException {
@@ -195,10 +151,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get delivery mode
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public int getJMSDeliveryMode() throws JMSException {
@@ -208,10 +161,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get destination
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Destination getJMSDestination() throws JMSException {
@@ -221,10 +171,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get expiration
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public long getJMSExpiration() throws JMSException {
@@ -234,10 +181,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get message id
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public String getJMSMessageID() throws JMSException {
@@ -247,10 +191,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get priority
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public int getJMSPriority() throws JMSException {
@@ -260,10 +201,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get redelivered status
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public boolean getJMSRedelivered() throws JMSException {
@@ -273,10 +211,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get reply to destination
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Destination getJMSReplyTo() throws JMSException {
@@ -286,10 +221,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get timestamp
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public long getJMSTimestamp() throws JMSException {
@@ -299,10 +231,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get type
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public String getJMSType() throws JMSException {
@@ -312,11 +241,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get property
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public long getLongProperty(final String name) throws JMSException {
@@ -326,11 +251,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get property
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Object getObjectProperty(final String name) throws JMSException {
@@ -340,10 +261,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get property names
-    *
-    * @return The values
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Enumeration getPropertyNames() throws JMSException {
@@ -353,11 +271,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get property
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public short getShortProperty(final String name) throws JMSException {
@@ -367,11 +281,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Get property
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public String getStringProperty(final String name) throws JMSException {
@@ -381,11 +291,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Do property exist
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public boolean propertyExists(final String name) throws JMSException {
@@ -395,11 +301,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set property
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setBooleanProperty(final String name, final boolean value) throws JMSException {
@@ -411,11 +313,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set property
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setByteProperty(final String name, final byte value) throws JMSException {
@@ -427,11 +325,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set property
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setDoubleProperty(final String name, final double value) throws JMSException {
@@ -443,11 +337,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set property
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setFloatProperty(final String name, final float value) throws JMSException {
@@ -459,11 +349,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set property
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setIntProperty(final String name, final int value) throws JMSException {
@@ -475,10 +361,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set correlation id
-    *
-    * @param correlationID The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setJMSCorrelationID(final String correlationID) throws JMSException {
@@ -490,10 +373,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set correlation id
-    *
-    * @param correlationID The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setJMSCorrelationIDAsBytes(final byte[] correlationID) throws JMSException {
@@ -505,10 +385,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set delivery mode
-    *
-    * @param deliveryMode The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setJMSDeliveryMode(final int deliveryMode) throws JMSException {
@@ -520,10 +397,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set destination
-    *
-    * @param destination The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setJMSDestination(final Destination destination) throws JMSException {
@@ -533,10 +407,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set expiration
-    *
-    * @param expiration The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setJMSExpiration(final long expiration) throws JMSException {
@@ -548,10 +419,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set message id
-    *
-    * @param id The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setJMSMessageID(final String id) throws JMSException {
@@ -561,10 +429,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set priority
-    *
-    * @param priority The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setJMSPriority(final int priority) throws JMSException {
@@ -576,10 +441,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set redelivered status
-    *
-    * @param redelivered The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setJMSRedelivered(final boolean redelivered) throws JMSException {
@@ -591,10 +453,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set reply to
-    *
-    * @param replyTo The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setJMSReplyTo(final Destination replyTo) throws JMSException {
@@ -604,10 +463,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set timestamp
-    *
-    * @param timestamp The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setJMSTimestamp(final long timestamp) throws JMSException {
@@ -619,10 +475,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set type
-    *
-    * @param type The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setJMSType(final String type) throws JMSException {
@@ -632,11 +485,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set property
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setLongProperty(final String name, final long value) throws JMSException {
@@ -648,11 +497,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set property
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setObjectProperty(final String name, final Object value) throws JMSException {
@@ -662,11 +507,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set property
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setShortProperty(final String name, final short value) throws JMSException {
@@ -678,11 +519,7 @@ public class ActiveMQRAMessage implements Message {
    }
 
    /**
-    * Set property
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setStringProperty(final String name, final String value) throws JMSException {
@@ -693,6 +530,9 @@ public class ActiveMQRAMessage implements Message {
       message.setStringProperty(name, value);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public long getJMSDeliveryTime() throws JMSException {
       logger.trace("getJMSDeliveryTime()");
@@ -700,6 +540,9 @@ public class ActiveMQRAMessage implements Message {
       return message.getJMSDeliveryTime();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public void setJMSDeliveryTime(long deliveryTime) throws JMSException {
       if (logger.isTraceEnabled()) {
@@ -709,6 +552,9 @@ public class ActiveMQRAMessage implements Message {
       message.setJMSDeliveryTime(deliveryTime);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public <T> T getBody(Class<T> c) throws JMSException {
       logger.trace("getBody({})", c);
@@ -716,6 +562,9 @@ public class ActiveMQRAMessage implements Message {
       return message.getBody(c);
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public boolean isBodyAssignableTo(Class c) throws JMSException {
       logger.trace("isBodyAssignableTo({})", c);
@@ -723,11 +572,6 @@ public class ActiveMQRAMessage implements Message {
       return message.isBodyAssignableTo(c);
    }
 
-   /**
-    * Return the hash code
-    *
-    * @return The hash code
-    */
    @Override
    public int hashCode() {
       logger.trace("hashCode()");
@@ -735,12 +579,6 @@ public class ActiveMQRAMessage implements Message {
       return message.hashCode();
    }
 
-   /**
-    * Check for equality
-    *
-    * @param object The other object
-    * @return True / false
-    */
    @Override
    public boolean equals(final Object object) {
       logger.trace("equals({})", object);
@@ -752,11 +590,6 @@ public class ActiveMQRAMessage implements Message {
       }
    }
 
-   /**
-    * Return string representation
-    *
-    * @return The string
-    */
    @Override
    public String toString() {
       logger.trace("toString()");

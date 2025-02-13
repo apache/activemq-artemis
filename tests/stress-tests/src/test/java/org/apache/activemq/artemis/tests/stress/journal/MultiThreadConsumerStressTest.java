@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * A MultiThreadConsumerStressTest
- * <br>
+ * <p>
  * This test validates consuming / sending messages while compacting is working
  */
 public class MultiThreadConsumerStressTest extends ActiveMQTestBase {

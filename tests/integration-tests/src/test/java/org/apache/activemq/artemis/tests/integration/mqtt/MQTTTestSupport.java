@@ -259,9 +259,9 @@ public class MQTTTestSupport extends ActiveMQTestBase {
    }
 
    /**
-    * Initialize an MQTTClientProvider instance.  By default this method uses the port that's
-    * assigned to be the TCP based port using the base version of addMQTTConnector.  A subclass
-    * can either change the value of port or override this method to assign the correct port.
+    * Initialize an MQTTClientProvider instance.  By default this method uses the port that's assigned to be the TCP
+    * based port using the base version of addMQTTConnector.  A subclass can either change the value of port or override
+    * this method to assign the correct port.
     *
     * @param provider the MQTTClientProvider instance to initialize.
     * @throws Exception if an error occurs during initialization.

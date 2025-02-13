@@ -38,9 +38,6 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.objectweb.jtests.jms.admin.Admin;
 
-/**
- * AbstractAdmin.
- */
 public class AbstractAdmin implements Admin {
 
    protected ClientSession clientSession;
@@ -59,9 +56,8 @@ public class AbstractAdmin implements Admin {
    public static final boolean spawnServer = false;
 
    /**
-    * Determines whether to act or 'no-op' on serverStart() and
-    * serverStop(). This is used when testing combinations of client and
-    * servers with different versions.
+    * Determines whether to act or 'no-op' on serverStart() and serverStop(). This is used when testing combinations of
+    * client and servers with different versions.
     */
    private static final String SERVER_LIVE_CYCLE_PROPERTY = "org.apache.activemq.artemis.jms.ActiveMQAMQPAdmin.serverLifeCycle";
 

@@ -57,9 +57,6 @@ public class BufferHelper {
       buffer.writeSimpleString(SimpleString.of(str));
    }
 
-   /**
-    * @param buffer
-    */
    public static void writeNullableBoolean(ActiveMQBuffer buffer, Boolean value) {
       buffer.writeBoolean(value != null);
 
@@ -82,9 +79,6 @@ public class BufferHelper {
       }
    }
 
-   /**
-    * @param buffer
-    */
    public static void writeNullableLong(ActiveMQBuffer buffer, Long value) {
       buffer.writeBoolean(value != null);
 
@@ -93,9 +87,6 @@ public class BufferHelper {
       }
    }
 
-   /**
-    * @param buffer
-    */
    public static void writeNullableDouble(ActiveMQBuffer buffer, Double value) {
       buffer.writeBoolean(value != null);
 
@@ -122,9 +113,6 @@ public class BufferHelper {
       }
    }
 
-   /**
-    * @param buffer
-    */
    public static void writeNullableInteger(ActiveMQBuffer buffer, Integer value) {
       buffer.writeBoolean(value != null);
 

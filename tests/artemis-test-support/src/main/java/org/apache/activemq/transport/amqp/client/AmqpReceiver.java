@@ -91,12 +91,9 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Create a new receiver instance.
     *
-    * @param session
-    *        The parent session that created the receiver.
-    * @param address
-    *        The address that this receiver should listen on.
-    * @param receiverId
-    *        The unique ID assigned to this receiver.
+    * @param session    The parent session that created the receiver.
+    * @param address    The address that this receiver should listen on.
+    * @param receiverId The unique ID assigned to this receiver.
     */
    public AmqpReceiver(AmqpSession session, String address, String receiverId) {
       this(session, address, receiverId, null, null);
@@ -105,16 +102,11 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Create a new receiver instance.
     *
-    * @param session
-    *        The parent session that created the receiver.
-    * @param address
-    *        The address that this receiver should listen on.
-    * @param receiverId
-    *        The unique ID assigned to this receiver.
-    * @param senderMode
-    *        The {@link SenderSettleMode} to use on open.
-    * @param receiverMode
-    *        The {@link ReceiverSettleMode} to use on open.
+    * @param session      The parent session that created the receiver.
+    * @param address      The address that this receiver should listen on.
+    * @param receiverId   The unique ID assigned to this receiver.
+    * @param senderMode   The {@link SenderSettleMode} to use on open.
+    * @param receiverMode The {@link ReceiverSettleMode} to use on open.
     */
    public AmqpReceiver(AmqpSession session, String address, String receiverId, SenderSettleMode senderMode, ReceiverSettleMode receiverMode) {
 
@@ -133,12 +125,9 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Create a new receiver instance.
     *
-    * @param session
-    *        The parent session that created the receiver.
-    * @param source
-    *        The Source instance to use instead of creating and configuring one.
-    * @param receiverId
-    *        The unique ID assigned to this receiver.
+    * @param session    The parent session that created the receiver.
+    * @param source     The Source instance to use instead of creating and configuring one.
+    * @param receiverId The unique ID assigned to this receiver.
     */
    public AmqpReceiver(AmqpSession session, Source source, String receiverId) {
 
@@ -155,11 +144,9 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    }
 
    /**
-    * Close the receiver, a closed receiver will throw exceptions if any further send calls are
-    * made.
+    * Close the receiver, a closed receiver will throw exceptions if any further send calls are made.
     *
-    * @throws IOException
-    *         if an error occurs while closing the receiver.
+    * @throws IOException if an error occurs while closing the receiver.
     */
    public void close() throws IOException {
       if (closed.compareAndSet(false, true)) {
@@ -183,11 +170,9 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    }
 
    /**
-    * Detach the receiver, a closed receiver will throw exceptions if any further send calls are
-    * made.
+    * Detach the receiver, a closed receiver will throw exceptions if any further send calls are made.
     *
-    * @throws IOException
-    *         if an error occurs while closing the receiver.
+    * @throws IOException if an error occurs while closing the receiver.
     */
    public void detach() throws IOException {
       if (closed.compareAndSet(false, true)) {
@@ -203,26 +188,25 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    }
 
    /**
-    * @return this session's parent AmqpSession.
+    * {@return this session's parent AmqpSession}
     */
    public AmqpSession getSession() {
       return session;
    }
 
    /**
-    * @return the address that this receiver has been configured to listen on.
+    * {@return the address that this receiver has been configured to listen on}
     */
    public String getAddress() {
       return address;
    }
 
    /**
-    * Attempts to wait on a message to be delivered to this receiver. The receive call will wait
-    * indefinitely for a message to be delivered.
+    * Attempts to wait on a message to be delivered to this receiver. The receive call will wait indefinitely for a
+    * message to be delivered.
     *
-    * @return a newly received message sent to this receiver.
-    * @throws Exception
-    *         if an error occurs during the receive attempt.
+    * @return a newly received message sent to this receiver
+    * @throws Exception if an error occurs during the receive attempt.
     */
    public AmqpMessage receive() throws Exception {
       checkClosed();
@@ -230,16 +214,13 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    }
 
    /**
-    * Attempts to receive a message sent to this receiver, waiting for the given timeout value
-    * before giving up and returning null.
+    * Attempts to receive a message sent to this receiver, waiting for the given timeout value before giving up and
+    * returning null.
     *
-    * @param timeout
-    *        the time to wait for a new message to arrive.
-    * @param unit
-    *        the unit of time that the timeout value represents.
-    * @return a newly received message or null if the time to wait period expires.
-    * @throws Exception
-    *         if an error occurs during the receive attempt.
+    * @param timeout the time to wait for a new message to arrive.
+    * @param unit    the unit of time that the timeout value represents.
+    * @return a newly received message or null if the time to wait period expires
+    * @throws Exception if an error occurs during the receive attempt.
     */
    public AmqpMessage receive(long timeout, TimeUnit unit) throws Exception {
       checkClosed();
@@ -247,12 +228,11 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    }
 
    /**
-    * If a message is already available in this receiver's prefetch buffer then it is returned
-    * immediately otherwise this methods return null without waiting.
+    * If a message is already available in this receiver's prefetch buffer then it is returned immediately otherwise
+    * this methods return null without waiting.
     *
-    * @return a newly received message or null if there is no currently available message.
-    * @throws Exception
-    *         if an error occurs during the receive attempt.
+    * @return a newly received message or null if there is no currently available message
+    * @throws Exception if an error occurs during the receive attempt.
     */
    public AmqpMessage receiveNoWait() throws Exception {
       checkClosed();
@@ -262,9 +242,8 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Request a remote peer send a Message to this client waiting until one arrives.
     *
-    * @return the pulled AmqpMessage or null if none was pulled from the remote.
-    * @throws IOException
-    *         if an error occurs
+    * @return the pulled AmqpMessage or null if none was pulled from the remote
+    * @throws IOException if an error occurs
     */
    public AmqpMessage pull() throws IOException {
       return pull(-1, TimeUnit.MILLISECONDS);
@@ -273,9 +252,8 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Request a remote peer send a Message to this client using an immediate drain request.
     *
-    * @return the pulled AmqpMessage or null if none was pulled from the remote.
-    * @throws IOException
-    *         if an error occurs
+    * @return the pulled AmqpMessage or null if none was pulled from the remote
+    * @throws IOException if an error occurs
     */
    public AmqpMessage pullImmediate() throws IOException {
       return pull(0, TimeUnit.MILLISECONDS);
@@ -283,20 +261,17 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
 
    /**
     * Request a remote peer send a Message to this client.
-    *
-    * {@literal timeout < 0} then it should remain open until a message is received.
-    * {@literal timeout = 0} then it returns a message or null if none available
-    * {@literal timeout > 0} then it should remain open for timeout amount of time.
-    *
+    * <p>
+    * {@literal timeout < 0} then it should remain open until a message is received. {@literal timeout = 0} then it
+    * returns a message or null if none available {@literal timeout > 0} then it should remain open for timeout amount
+    * of time.
+    * <p>
     * The timeout value when positive is given in milliseconds.
     *
-    * @param timeout
-    *        the amount of time to tell the remote peer to keep this pull request valid.
-    * @param unit
-    *        the unit of measure that the timeout represents.
-    * @return the pulled AmqpMessage or null if none was pulled from the remote.
-    * @throws IOException
-    *         if an error occurs
+    * @param timeout the amount of time to tell the remote peer to keep this pull request valid.
+    * @param unit    the unit of measure that the timeout represents.
+    * @return the pulled AmqpMessage or null if none was pulled from the remote
+    * @throws IOException if an error occurs
     */
    public AmqpMessage pull(final long timeout, final TimeUnit unit) throws IOException {
       checkClosed();
@@ -358,10 +333,8 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Controls the amount of credit given to the receiver link.
     *
-    * @param credit
-    *        the amount of credit to grant.
-    * @throws IOException
-    *         if an error occurs while sending the flow.
+    * @param credit the amount of credit to grant.
+    * @throws IOException if an error occurs while sending the flow.
     */
    public void flow(final int credit) throws IOException {
       flow(credit, false);
@@ -370,12 +343,9 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Controls the amount of credit given to the receiver link.
     *
-    * @param credit
-    *        the amount of credit to grant.
-    * @param deferWrite
-    *        defer writing to the wire, hold until for the next operation writes.
-    * @throws IOException
-    *         if an error occurs while sending the flow.
+    * @param credit     the amount of credit to grant.
+    * @param deferWrite defer writing to the wire, hold until for the next operation writes.
+    * @throws IOException if an error occurs while sending the flow.
     */
    public void flow(final int credit, final boolean deferWrite) throws IOException {
       checkClosed();
@@ -399,10 +369,8 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Attempts to drain a given amount of credit from the link.
     *
-    * @param credit
-    *        the amount of credit to drain.
-    * @throws IOException
-    *         if an error occurs while sending the drain.
+    * @param credit the amount of credit to drain.
+    * @throws IOException if an error occurs while sending the drain.
     */
    public void drain(final int credit) throws IOException {
       checkClosed();
@@ -424,8 +392,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Stops the receiver, using all link credit and waiting for in-flight messages to arrive.
     *
-    * @throws IOException
-    *         if an error occurs while sending the drain.
+    * @throws IOException if an error occurs while sending the drain.
     */
    public void stop() throws IOException {
       checkClosed();
@@ -444,14 +411,10 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    }
 
    /**
-    * Accepts a message that was dispatched under the given Delivery instance and settles the
-    * delivery.
+    * Accepts a message that was dispatched under the given Delivery instance and settles the delivery.
     *
-    * @param delivery
-    *        the Delivery instance to accept.
-    *
-    * @throws IOException
-    *         if an error occurs while sending the accept.
+    * @param delivery the Delivery instance to accept.
+    * @throws IOException if an error occurs while sending the accept.
     */
    public void accept(Delivery delivery) throws IOException {
       accept(delivery, this.session, true);
@@ -460,33 +423,24 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Accepts a message that was dispatched under the given Delivery instance.
     *
-    * @param delivery
-    *        the Delivery instance to accept.
-    * @param settle
-    *        true if the receiver should settle the delivery or just send the disposition.
-    *
-    * @throws IOException
-    *         if an error occurs while sending the accept.
+    * @param delivery the Delivery instance to accept.
+    * @param settle   {@code true} if the receiver should settle the delivery or just send the disposition.
+    * @throws IOException if an error occurs while sending the accept.
     */
    public void accept(Delivery delivery, boolean settle) throws IOException {
       accept(delivery, this.session, settle);
    }
 
    /**
-    * Accepts a message that was dispatched under the given Delivery instance and settles the
-    * delivery.
+    * Accepts a message that was dispatched under the given Delivery instance and settles the delivery.
+    * <p>
+    * This method allows for the session that is used in the accept to be specified by the caller. This allows for an
+    * accepted message to be involved in a transaction that is being managed by some other session other than the one
+    * that created this receiver.
     *
-    * This method allows for the session that is used in the accept to be specified by the
-    * caller. This allows for an accepted message to be involved in a transaction that is being
-    * managed by some other session other than the one that created this receiver.
-    *
-    * @param delivery
-    *        the Delivery instance to accept.
-    * @param session
-    *        the session under which the message is being accepted.
-    *
-    * @throws IOException
-    *         if an error occurs while sending the accept.
+    * @param delivery the Delivery instance to accept.
+    * @param session  the session under which the message is being accepted.
+    * @throws IOException if an error occurs while sending the accept.
     */
    public void accept(final Delivery delivery, final AmqpSession session) throws IOException {
       accept(delivery, session, true);
@@ -494,20 +448,15 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
 
    /**
     * Accepts a message that was dispatched under the given Delivery instance.
+    * <p>
+    * This method allows for the session that is used in the accept to be specified by the caller. This allows for an
+    * accepted message to be involved in a transaction that is being managed by some other session other than the one
+    * that created this receiver.
     *
-    * This method allows for the session that is used in the accept to be specified by the
-    * caller. This allows for an accepted message to be involved in a transaction that is being
-    * managed by some other session other than the one that created this receiver.
-    *
-    * @param delivery
-    *        the Delivery instance to accept.
-    * @param session
-    *        the session under which the message is being accepted.
-    * @param settle
-    *        true if the receiver should settle the delivery or just send the disposition.
-    *
-    * @throws IOException
-    *         if an error occurs while sending the accept.
+    * @param delivery the Delivery instance to accept.
+    * @param session  the session under which the message is being accepted.
+    * @param settle   {@code true} if the receiver should settle the delivery or just send the disposition.
+    * @throws IOException if an error occurs while sending the accept.
     */
    public void accept(final Delivery delivery, final AmqpSession session, final boolean settle) throws IOException {
       checkClosed();
@@ -559,14 +508,10 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Mark a message that was dispatched under the given Delivery instance as Modified.
     *
-    * @param delivery
-    *        the Delivery instance to mark modified.
-    * @param deliveryFailed
-    *        indicates that the delivery failed for some reason.
-    * @param undeliverableHere
-    *        marks the delivery as not being able to be process by link it was sent to.
-    * @throws IOException
-    *         if an error occurs while sending the reject.
+    * @param delivery          the Delivery instance to mark modified.
+    * @param deliveryFailed    indicates that the delivery failed for some reason.
+    * @param undeliverableHere marks the delivery as not being able to be process by link it was sent to.
+    * @throws IOException if an error occurs while sending the reject.
     */
    public void modified(final Delivery delivery, final Boolean deliveryFailed, final Boolean undeliverableHere) throws IOException {
       checkClosed();
@@ -599,10 +544,8 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Release a message that was dispatched under the given Delivery instance.
     *
-    * @param delivery
-    *        the Delivery instance to release.
-    * @throws IOException
-    *         if an error occurs while sending the release.
+    * @param delivery the Delivery instance to release.
+    * @throws IOException if an error occurs while sending the release.
     */
    public void release(final Delivery delivery) throws IOException {
       checkClosed();
@@ -632,10 +575,8 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    /**
     * Reject a message that was dispatched under the given Delivery instance.
     *
-    * @param delivery
-    *        the Delivery instance to reject.
-    * @throws IOException
-    *         if an error occurs while sending the release.
+    * @param delivery the Delivery instance to reject.
+    * @throws IOException if an error occurs while sending the release.
     */
    public void reject(final Delivery delivery) throws IOException {
       checkClosed();
@@ -663,7 +604,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    }
 
    /**
-    * @return an unmodifiable view of the underlying Receiver instance.
+    * {@return an unmodifiable view of the underlying Receiver instance}
     */
    public Receiver getReceiver() {
       return UnmodifiableProxy.receiverProxy(getEndpoint());

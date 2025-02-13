@@ -20,9 +20,8 @@ package org.apache.activemq.artemis.core.config.amqpBrokerConnectivity;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 
 /**
- * Marker interface for AMQP Federation broker plugins which allows for the decoupling
- * of the actual AMQP federation broker plugin API as the AMQP protocol module may not
- * always be present on the classpath for a broker install.
+ * Marker interface for AMQP Federation broker plugins which allows for the decoupling of the actual AMQP federation
+ * broker plugin API as the AMQP protocol module may not always be present on the classpath for a broker install.
  */
 public interface AMQPFederationBrokerPlugin extends ActiveMQServerBasePlugin {
 

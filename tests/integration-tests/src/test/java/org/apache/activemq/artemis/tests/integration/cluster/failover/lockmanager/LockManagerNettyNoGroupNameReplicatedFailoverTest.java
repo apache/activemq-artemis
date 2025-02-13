@@ -59,8 +59,8 @@ public class LockManagerNettyNoGroupNameReplicatedFailoverTest extends FailoverT
    }
 
    /**
-    * Default maxSavedReplicatedJournalsSize is 2, this means the backup will fall back to replicated only twice, after this
-    * it is stopped permanently.
+    * Default maxSavedReplicatedJournalsSize is 2, this means the backup will fall back to replicated only twice, after
+    * this it is stopped permanently.
     */
    @Test
    @Timeout(120)

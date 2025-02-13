@@ -84,10 +84,9 @@ public class MessagePriorityTest extends ActiveMQTestBase {
    }
 
    /**
-    * in this tests, the session is started and the consumer created *before* the messages are sent.
-    * each message which is sent will be received by the consumer in its buffer and the priority won't be taken
-    * into account.
-    * We need to implement client-side message priority to handle this case: https://jira.jboss.org/jira/browse/JBMESSAGING-1560
+    * In this tests, the session is started and the consumer created *before* the messages are sent. each message which
+    * is sent will be received by the consumer in its buffer and the priority won't be taken into account. We need to
+    * implement client-side message priority to handle this case.
     */
    @Test
    public void testMessagePriorityWithClientSidePrioritization() throws Exception {
@@ -193,7 +192,6 @@ public class MessagePriorityTest extends ActiveMQTestBase {
 
    }
 
-   // https://jira.jboss.org/jira/browse/HORNETQ-275
    @Test
    public void testOutOfOrderAcknowledgement() throws Exception {
       SimpleString queue = RandomUtil.randomUUIDSimpleString();

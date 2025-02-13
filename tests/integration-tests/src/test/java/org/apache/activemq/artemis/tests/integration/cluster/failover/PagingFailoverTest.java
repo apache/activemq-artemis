@@ -42,7 +42,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * A PagingFailoverTest
- * <br>
  */
 public class PagingFailoverTest extends FailoverTestBase {
 

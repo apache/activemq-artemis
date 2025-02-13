@@ -42,10 +42,9 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 
 /**
- * Reader of tunneled Core message that have been written as the body of an AMQP
- * delivery with a custom message format that indicates this payload. The reader
- * will extract bytes from the delivery and decode from them a standard Core message
- * which is then routed into the broker as if received from a Core connection.
+ * Reader of tunneled Core message that have been written as the body of an AMQP delivery with a custom message format
+ * that indicates this payload. The reader will extract bytes from the delivery and decode from them a standard Core
+ * message which is then routed into the broker as if received from a Core connection.
  */
 public class AMQPTunneledCoreMessageReader implements MessageReader {
 

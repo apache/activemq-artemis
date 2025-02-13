@@ -49,7 +49,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * A PagingOrderTest.
- * <br>
+ * <p>
  * PagingTest has a lot of tests already. I decided to create a newer one more specialized on Ordering and counters
  */
 public class PageTransactionCleanupTest extends ActiveMQTestBase {

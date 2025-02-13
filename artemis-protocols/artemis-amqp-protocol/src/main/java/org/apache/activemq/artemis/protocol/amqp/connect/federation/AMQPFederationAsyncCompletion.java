@@ -17,29 +17,24 @@
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
 /**
- * AMQPFederationAsyncCompletion type used to implement the handlers for asynchronous calls in AMQP
- * federation types.
+ * AMQPFederationAsyncCompletion type used to implement the handlers for asynchronous calls in AMQP federation types.
  *
- * @param <E>
- *    The type that defines the context provided to the completion events
+ * @param <E> The type that defines the context provided to the completion events
  */
 public interface AMQPFederationAsyncCompletion<E> {
 
    /**
     * Called when the asynchronous operation has succeeded.
     *
-    * @param context
-    *    The context object provided for this asynchronous event.
+    * @param context The context object provided for this asynchronous event.
     */
    void onComplete(E context);
 
    /**
     * Called when the asynchronous operation has failed due to an error.
     *
-    * @param context
-    *    The context object provided for this asynchronous event.
-    * @param error
-    *    The error that describes the failure that occurred.
+    * @param context The context object provided for this asynchronous event.
+    * @param error   The error that describes the failure that occurred.
     */
    void onException(E context, Exception error);
 

@@ -39,8 +39,7 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
    private final String invalidAdminPassword = "invalidAdminPassword";
 
    /**
-    * default CLUSTER_ADMIN_USER must work even when there are other
-    * configured admin users
+    * default CLUSTER_ADMIN_USER must work even when there are other configured admin users
     */
    @TestTemplate
    public void testSendManagementMessageWithClusterAdminUser() throws Exception {
@@ -61,8 +60,6 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
    public void testSendManagementMessageWithoutUserCredentials() throws Exception {
       doSendBrokerManagementMessage(null, null, false);
    }
-
-
 
    @Override
    protected ActiveMQServer setupAndStartActiveMQServer() throws Exception {
@@ -87,7 +84,4 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
 
       return server;
    }
-
-
-
 }

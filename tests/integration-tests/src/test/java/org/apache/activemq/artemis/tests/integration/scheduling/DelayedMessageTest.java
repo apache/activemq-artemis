@@ -51,9 +51,6 @@ public class DelayedMessageTest extends ActiveMQTestBase {
       initServer();
    }
 
-   /**
-    * @throws Exception
-    */
    protected void initServer() throws Exception {
       server = createServer(true, createDefaultInVMConfig());
       server.start();

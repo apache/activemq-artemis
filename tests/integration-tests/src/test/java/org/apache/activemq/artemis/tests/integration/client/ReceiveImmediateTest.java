@@ -109,7 +109,6 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
       session.close();
    }
 
-   // https://jira.jboss.org/browse/HORNETQ-450
    @Test
    public void testReceivedImmediateFollowedByReceive() throws Exception {
       locator.setBlockOnNonDurableSend(true);
@@ -142,7 +141,6 @@ public class ReceiveImmediateTest extends ActiveMQTestBase {
       session.close();
    }
 
-   // https://jira.jboss.org/browse/HORNETQ-450
    @Test
    public void testReceivedImmediateFollowedByAsyncConsume() throws Exception {
 

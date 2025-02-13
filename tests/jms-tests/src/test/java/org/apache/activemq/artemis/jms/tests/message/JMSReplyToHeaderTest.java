@@ -22,12 +22,7 @@ import javax.jms.TemporaryQueue;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.jupiter.api.Test;
 
-/**
- * A JMSReplyToHeaderTest
- */
 public class JMSReplyToHeaderTest extends MessageHeaderTestBase {
-
-
 
    @Test
    public void testJMSDestinationSimple() throws Exception {

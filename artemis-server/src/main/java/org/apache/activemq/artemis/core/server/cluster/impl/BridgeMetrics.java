@@ -42,22 +42,16 @@ public class BridgeMetrics {
       MESSAGES_ACKNOWLEDGED_UPDATER.incrementAndGet(this);
    }
 
-   /**
-    * @return the messagesPendingAcknowledgement
-    */
    public long getMessagesPendingAcknowledgement() {
       return messagesPendingAcknowledgement;
    }
 
-   /**
-    * @return the messagesAcknowledged
-    */
    public long getMessagesAcknowledged() {
       return messagesAcknowledged;
    }
 
    /**
-    * @return New map containing the Bridge metrics
+    * {@return <em>new</em> {@code Map} containing the Bridge metrics}
     */
    public Map<String, Object> convertToMap() {
       final Map<String, Object> metrics = new HashMap<>();

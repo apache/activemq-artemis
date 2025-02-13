@@ -21,9 +21,9 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * Helper class used to build resource names used by management messages.
- * <br>
- * Resource's name is build by appending its <em>name</em> to its corresponding type.
- * For example, the resource name of the "foo" queue is {@code QUEUE + "foo"}.
+ * <p>
+ * Resource's name is build by appending its <em>name</em> to its corresponding type. For example, the resource name of
+ * the "foo" queue is {@code QUEUE + "foo"}.
  */
 public final class ResourceNames {
    public static final String BROKER = "broker";

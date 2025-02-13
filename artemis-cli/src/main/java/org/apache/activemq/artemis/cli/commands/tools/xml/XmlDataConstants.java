@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.cli.commands.tools.xml;
 
 /**
- * The constants shared by <code>org.apache.activemq.tools.XmlDataImporter</code> and
- * <code>org.apache.activemq.tools.XmlDataExporter</code>.
+ * The constants shared by {@code org.apache.activemq.tools.XmlDataImporter} and
+ * {@code org.apache.activemq.tools.XmlDataExporter}.
  */
 public final class XmlDataConstants {
 

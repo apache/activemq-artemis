@@ -136,10 +136,8 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
    }
 
    /**
-    * Closes the channel used in this JGroups Broadcast.
-    * Can be overridden by implementations that use an externally managed channel.
-    *
-    * @param channel
+    * Closes the channel used in this JGroups Broadcast. Can be overridden by implementations that use an externally
+    * managed channel.
     */
    protected synchronized void internalCloseChannel(JChannelWrapper channel) {
       channel.close(true);

@@ -49,8 +49,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Represents the AMQP Transaction coordinator link used by the transaction context
- * of a session to control the lifetime of a given transaction.
+ * Represents the AMQP Transaction coordinator link used by the transaction context of a session to control the lifetime
+ * of a given transaction.
  */
 public class AmqpTransactionCoordinator extends AmqpAbstractResource<Sender> {
 

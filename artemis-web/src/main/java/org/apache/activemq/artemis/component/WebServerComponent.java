@@ -461,7 +461,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
    }
 
    /**
-    * @return started server's port number; useful if it was specified as 0 (to use a random port)
+    * {@return started server's port number; useful if it was specified as 0 (to use a random port)}
     */
    @Deprecated
    public int getPort() {

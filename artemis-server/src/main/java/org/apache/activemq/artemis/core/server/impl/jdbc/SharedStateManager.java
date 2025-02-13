@@ -21,7 +21,8 @@ import java.util.function.Supplier;
 import org.apache.activemq.artemis.utils.UUID;
 
 /**
- * Facade to abstract the operations on the shared state (inter-process and/or inter-thread) necessary to coordinate broker nodes.
+ * Facade to abstract the operations on the shared state (inter-process and/or inter-thread) necessary to coordinate
+ * broker nodes.
  */
 interface SharedStateManager extends AutoCloseable {
 

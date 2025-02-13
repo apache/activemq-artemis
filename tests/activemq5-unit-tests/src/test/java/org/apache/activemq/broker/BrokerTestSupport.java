@@ -57,8 +57,7 @@ import org.apache.activemq.usage.SystemUsage;
 public class BrokerTestSupport extends CombinationTestSupport {
 
    /**
-    * Setting this to false makes the test run faster but they may be less
-    * accurate.
+    * Setting this to false makes the test run faster but they may be less accurate.
     */
    public static final boolean FAST_NO_MESSAGE_LEFT_ASSERT = System.getProperty("FAST_NO_MESSAGE_LEFT_ASSERT", "true").equals("true");
 
@@ -318,11 +317,6 @@ public class BrokerTestSupport extends CombinationTestSupport {
       return new StubConnection(broker);
    }
 
-   /**
-    * @param connection
-    * @return
-    * @throws InterruptedException
-    */
    public Message receiveMessage(StubConnection connection) throws InterruptedException {
       return receiveMessage(connection, maxWait);
    }

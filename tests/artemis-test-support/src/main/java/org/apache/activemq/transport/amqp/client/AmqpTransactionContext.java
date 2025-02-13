@@ -28,8 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Defines a context under which resources in a given session
- * will operate inside transaction scoped boundaries.
+ * Defines a context under which resources in a given session will operate inside transaction scoped boundaries.
  */
 public class AmqpTransactionContext {
 

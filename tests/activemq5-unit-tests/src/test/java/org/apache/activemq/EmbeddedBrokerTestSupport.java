@@ -118,8 +118,8 @@ public abstract class EmbeddedBrokerTestSupport extends CombinationTestSupport {
    }
 
    /**
-    * Factory method to create the destination in either the queue or topic
-    * space based on the value of the {@link #useTopic} field
+    * Factory method to create the destination in either the queue or topic space based on the value of the
+    * {@link #useTopic} field
     */
    protected ActiveMQDestination createDestination(String subject) {
       if (useTopic) {
@@ -130,7 +130,7 @@ public abstract class EmbeddedBrokerTestSupport extends CombinationTestSupport {
    }
 
    /**
-    * Returns the name of the destination used in this test case
+    * {@return the name of the destination used in this test case}
     */
    protected String getDestinationString() {
       return getClass().getName() + "." + getName();
@@ -184,16 +184,10 @@ public abstract class EmbeddedBrokerTestSupport extends CombinationTestSupport {
       artemisBroker.start();
    }
 
-   /**
-    * @return whether or not persistence should be used
-    */
    protected boolean isPersistent() {
       return false;
    }
 
-   /**
-    * Factory method to create a new connection
-    */
    protected Connection createConnection() throws Exception {
       return connectionFactory.createConnection();
    }

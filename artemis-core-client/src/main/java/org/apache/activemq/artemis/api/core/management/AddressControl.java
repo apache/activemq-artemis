@@ -30,54 +30,66 @@ public interface AddressControl {
    String LIMIT_PERCENT_DESCRIPTION = "the % of memory limit (global or local) that is in use by this address";
 
    /**
-    * Returns the managed address.
+    * {@return the managed address}
     */
    @Attribute(desc = "managed address")
    String getAddress();
 
-   /*
-   * Whether multicast routing is enabled for this address
-   * */
+   /**
+    * {@return whether multicast routing is enabled for this address}
+    */
    @Attribute(desc = "Get the routing types enabled on this address")
    String[] getRoutingTypes();
 
-   /*
-   * Whether multicast routing is enabled for this address
-   * */
+   /**
+    * {@return the routing types enabled on this address as JSON}
+    */
    @Attribute(desc = "Get the routing types enabled on this address as JSON")
    String getRoutingTypesAsJSON() throws Exception;
 
    /**
-    * Returns the roles (name and permissions) associated with this address.
+    * {@return the roles (name and permissions) associated with this address}
     */
    @Attribute(desc = "roles (name and permissions) associated with this address")
    Object[] getRoles() throws Exception;
 
    /**
-    * Returns the roles  (name and permissions) associated with this address
-    * using JSON serialization.
-    * <br>
-    * Java objects can be recreated from JSON serialization using {@link RoleInfo#from(String)}.
+    * {@return the roles (name and permissions) associated with this address using JSON serialization.
+    * <p>
+    * Java objects can be recreated from JSON serialization using {@link RoleInfo#from(String)}}.
     */
    @Attribute(desc = "roles  (name and permissions) associated with this address using JSON serialization")
    String getRolesAsJSON() throws Exception;
 
    /**
-    * Returns the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking.
+    * {@return the number of estimated bytes being used by all the queue(s) bound to this address; used to control
+    * paging and blocking}
     */
    @Attribute(desc = ADDRESS_SIZE_DESCRIPTION)
    long getAddressSize();
 
 
+   /**
+    * {@return the maximum number of bytes that can be read into memory from paged files}
+    */
    @Attribute(desc = "The maximum number of bytes that can be read into memory from paged files")
    int getMaxPageReadBytes();
 
+   /**
+    * {@return the maximum number of messages that can be read into memory from paged files}
+    */
    @Attribute(desc = "The maximum number of messages that can be read into memory from paged files")
    int getMaxPageReadMessages();
 
+   /**
+    * {@return the number of bytes to prefetch from storage into memory before reching maxReadBytes}
+    */
    @Attribute(desc = "The number of bytes to prefetch from storage into memory before reching maxReadBytes")
    int getPrefetchPageBytes();
 
+   /**
+    * {@return the number of messages prefetch from storage into memory before reching maxReadBytes}
+    */
    @Attribute(desc = "The number of messages prefetch from storage into memory before reching maxReadBytes")
    int getPrefetchPageMessages();
 
@@ -85,54 +97,52 @@ public interface AddressControl {
    void schedulePageCleanup() throws Exception;
 
    /**
-    * Returns the sum of messages on queue(s), including messages in delivery.
+    * {@return the sum of messages on queue(s), including messages in delivery}
     */
    @Deprecated
    @Attribute(desc = "the sum of messages on queue(s), including messages in delivery; DEPRECATED: use getMessageCount() instead")
    long getNumberOfMessages();
 
    /**
-    * Returns the names of the remote queue(s) bound to this address.
+    * {@return the names of the remote queue(s) bound to this address}
     */
    @Attribute(desc = "names of the remote queue(s) bound to this address")
    String[] getRemoteQueueNames();
 
    /**
-    * Returns the names of the local queue(s) bound to this address.
+    * {@return the names of the local queue(s) bound to this address}
     */
    @Attribute(desc = "names of the local queue(s) bound to this address")
    String[] getQueueNames();
 
    /**
-    * Returns the names of both the local and remote queue(s) bound to this address.
+    * {@return the names of both the local and remote queue(s) bound to this address}
     */
    @Attribute(desc = "names of both the local & remote queue(s) bound to this address")
    String[] getAllQueueNames();
 
    /**
-    * Returns the number of pages used by this address.
+    * {@return the number of pages used by this address}
     */
    @Attribute(desc = NUMBER_OF_PAGES_DESCRIPTION)
    long getNumberOfPages();
 
    /**
-    * Returns whether this address is paging.
-    *
-    * @throws Exception
+    * {@return whether this address is paging}
     */
    @Attribute(desc = "whether this address is paging")
    boolean isPaging() throws Exception;
 
    /**
-    * Returns the % of memory limit that is currently in use
+    * {@return the % of memory limit that is currently in use}
     */
    @Attribute(desc = LIMIT_PERCENT_DESCRIPTION)
    int getAddressLimitPercent();
 
    /**
     * Blocks message production to this address by limiting credit
-    * @return true if production is blocked
-    * @throws Exception
+    *
+    * @return {@code true} if production is blocked
     */
    @Operation(desc = "Stops message production to this address, typically with flow control.", impact = MBeanOperationInfo.ACTION)
    boolean block() throws Exception;
@@ -141,13 +151,13 @@ public interface AddressControl {
    void unblock() throws Exception;
 
    /**
-    * Returns the number of bytes used by each page for this address.
+    * {@return the number of bytes used by each page for this address}
     */
    @Attribute(desc = "number of bytes used by each page for this address")
    long getNumberOfBytesPerPage() throws Exception;
 
    /**
-    * Returns the names of all bindings (both queues and diverts) bound to this address
+    * {@return the names of all bindings (both queues and diverts) bound to this address}
     */
    @Attribute(desc = "names of all bindings (both queues and diverts) bound to this address")
    String[] getBindingNames() throws Exception;
@@ -156,26 +166,22 @@ public interface AddressControl {
    long getMessageCount();
 
    /**
-    * Returns the number of messages routed to one or more bindings
+    * {@return the number of messages routed to one or more bindings}
     */
    @Attribute(desc = ROUTED_MESSAGE_COUNT_DESCRIPTION)
    long getRoutedMessageCount();
 
    /**
-    * Returns the number of messages not routed to any bindings
+    * {@return the number of messages not routed to any bindings}
     */
    @Attribute(desc = UNROUTED_MESSAGE_COUNT_DESCRIPTION)
    long getUnRoutedMessageCount();
 
-
    /**
-    * @param headers  the message headers and properties to set. Can only
-    *                 container Strings maped to primitive types.
-    * @param body     the text to send
-    * @param durable
-    * @param user
-    * @param password @return
-    * @throws Exception
+    * Sends a TextMessage to a password-protected address.
+    *
+    * @param headers the message headers and properties to set. Can only container Strings maped to primitive types.
+    * @param body    the text to send
     */
    @Operation(desc = "Sends a TextMessage to a password-protected address.", impact = MBeanOperationInfo.ACTION)
    String sendMessage(@Parameter(name = "headers", desc = "The headers to add to the message") Map<String, String> headers,
@@ -186,14 +192,12 @@ public interface AddressControl {
                       @Parameter(name = "password", desc = "The users password to authenticate with") String password) throws Exception;
 
    /**
-    * @param headers  the message headers and properties to set. Can only
-    *                 container Strings maped to primitive types.
-    * @param body     the text to send
-    * @param durable
-    * @param user
-    * @param password @return
-    * @param createMessageId whether or not to auto generate a Message ID
-    * @throws Exception
+    * Sends a TextMessage to a password-protected address.
+    *
+    * @param headers         the message headers and properties to set. Can only container Strings maped to primitive
+    *                        types.
+    * @param body            the text to send
+    * @param createMessageId whether to auto generate a Message ID
     */
    @Operation(desc = "Sends a TextMessage to a password-protected address.", impact = MBeanOperationInfo.ACTION)
    String sendMessage(@Parameter(name = "headers", desc = "The headers to add to the message") Map<String, String> headers,
@@ -204,26 +208,24 @@ public interface AddressControl {
                       @Parameter(name = "password", desc = "The users password to authenticate with") String password,
                       @Parameter(name = "createMessageId", desc = "whether or not to auto generate a Message ID") boolean createMessageId) throws Exception;
 
-
    /**
-    * Pauses all the queues bound to this address. Messages are no longer delivered to all its bounded queues.
-    * Newly added queue will be paused too until resume is called.
-    * @throws java.lang.Exception
+    * Pauses all the queues bound to this address. Messages are no longer delivered to all its bounded queues. Newly
+    * added queue will be paused too until resume is called.
     */
    @Operation(desc = "Pauses the queues bound to this address", impact = MBeanOperationInfo.ACTION)
    void pause() throws Exception;
 
    /**
-    * Pauses all the queues bound to this address. Messages are no longer delivered to all its bounded queues. Newly added queue will be paused too until resume is called.
-    * @param persist if true, the pause state will be persisted.
-    * @throws java.lang.Exception
+    * Pauses all the queues bound to this address. Messages are no longer delivered to all its bounded queues. Newly
+    * added queue will be paused too until resume is called.
+    *
+    * @param persist if {@code true}, the pause state will be persisted.
     */
    @Operation(desc = "Pauses the queues bound to this address", impact = MBeanOperationInfo.ACTION)
    void pause(@Parameter(name = "persist", desc = "if true, the pause state will be persisted.") boolean persist) throws Exception;
 
    /**
     * Resume all the queues bound of this address. Messages are delivered again to all its bounded queues.
-    * @throws java.lang.Exception
     */
    @Operation(desc = "Resumes the queues bound to this address", impact = MBeanOperationInfo.ACTION)
    void resume() throws Exception;
@@ -241,26 +243,25 @@ public interface AddressControl {
    boolean clearDuplicateIdCache() throws Exception;
 
    /**
-    * Returns whether this address was created automatically in response to client action.
+    * {@return whether this address was created automatically in response to client action}
     */
    @Attribute(desc = "whether this address was created automatically in response to client action")
    boolean isAutoCreated();
 
    /**
-    * Returns whether this address was created for the broker's internal use.
+    * {@return whether this address was created for the broker's internal use}
     */
    @Attribute(desc = "whether this address was created for the broker's internal use")
    boolean isInternal();
 
    /**
-    * Returns whether this address is temporary.
+    * {@return whether this address is temporary}
     */
    @Attribute(desc = "whether this address is temporary")
    boolean isTemporary();
 
    /**
     * Purge all the queues bound of this address. Returns the total number of messages purged.
-    * @throws java.lang.Exception
     */
    @Operation(desc = "Purges the queues bound to this address. Returns the total number of messages purged.", impact = MBeanOperationInfo.ACTION)
    long purge() throws Exception;

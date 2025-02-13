@@ -34,11 +34,6 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.jupiter.api.Test;
 
-/**
- * A DivertAndACKClientTest
- *
- * https://jira.jboss.org/jira/browse/HORNETQ-165
- */
 public class DivertAndACKClientTest extends JMSTestBase {
 
    @Test

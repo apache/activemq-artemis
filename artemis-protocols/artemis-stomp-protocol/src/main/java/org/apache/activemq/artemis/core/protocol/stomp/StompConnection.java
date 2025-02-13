@@ -178,7 +178,7 @@ public final class StompConnection extends AbstractRemotingConnection {
          AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(destination);
          RoutingType effectiveAddressRoutingType = routingType == null ? addressSettings.getDefaultAddressRoutingType() : routingType;
          ServerSession session = getSession().getCoreSession();
-         /**
+         /*
           * If the address doesn't exist then it is created if possible.
           * If the address does exist but doesn't support the routing-type then the address is updated if possible.
           */
@@ -693,11 +693,6 @@ public final class StompConnection extends AbstractRemotingConnection {
       return manager;
    }
 
-   /**
-    * Returns the name of the protocol for this Remoting Connection
-    *
-    * @return
-    */
    @Override
    public String getProtocolName() {
       return StompProtocolManagerFactory.STOMP_PROTOCOL_NAME;

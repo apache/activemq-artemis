@@ -55,8 +55,10 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
       this.setType(AMQPBrokerConnectionAddressType.MIRROR);
    }
 
-   /** There is no setter for this property.
-    * Basically by setting a sourceMirrorAddress we are automatically setting this to true. */
+   /**
+    * There is no setter for this property. Basically by setting a sourceMirrorAddress we are automatically setting this
+    * to true.
+    */
    public boolean isDurable() {
       return durable;
    }
@@ -120,12 +122,9 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
    /**
     * Adds the given property key and value to the mirror broker configuration element.
     *
-    * @param key
-    *    The key that identifies the property
-    * @param value
-    *    The value associated with the property key.
-    *
-    * @return this configuration element instance.
+    * @param key   The key that identifies the property
+    * @param value The value associated with the property key.
+    * @return this configuration element instance
     */
    public AMQPMirrorBrokerConnectionElement addProperty(String key, String value) {
       properties.put(key, value);
@@ -135,12 +134,9 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
    /**
     * Adds the given property key and value to the mirror broker configuration element.
     *
-    * @param key
-    *    The key that identifies the property
-    * @param value
-    *    The value associated with the property key.
-    *
-    * @return this configuration element instance.
+    * @param key   The key that identifies the property
+    * @param value The value associated with the property key.
+    * @return this configuration element instance
     */
    public AMQPMirrorBrokerConnectionElement addProperty(String key, Number value) {
       properties.put(key, value);
@@ -148,7 +144,7 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
    }
 
    /**
-    * @return the collection of configuration properties associated with this mirror configuration element.
+    * @return the collection of configuration properties associated with this mirror configuration element
     */
    public Map<String, Object> getProperties() {
       return properties;

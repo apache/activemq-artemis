@@ -63,8 +63,6 @@ import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.utils.ByteUtil.ensureExactWritable;
 
-/** Note: you shouldn't change properties using multi-threads. Change your properties before you can send it to multiple
- *  consumers */
 public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    public static final int BUFFER_HEADER_SPACE = PacketImpl.PACKET_HEADERS_SIZE;
@@ -76,8 +74,10 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    // There's an integer with the number of bytes for the body
    public static final int BODY_OFFSET = DataConstants.SIZE_INT;
 
-   /** That is the readInto for the whole message, including properties..
-       it does not include the buffer for the Packet send and receive header on core protocol */
+   /**
+    * That is the readInto for the whole message, including properties. It does not include the buffer for the Packet
+    * send and receive header on core protocol
+    */
    protected ByteBuf buffer;
 
    private volatile boolean validBuffer = false;
@@ -99,7 +99,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    protected boolean paged;
 
    /**
-    * GMT milliseconds at which this message expires. 0 means never expires *
+    * GMT milliseconds at which this message expires. 0 means never expires
     */
    private long expiration;
 
@@ -140,13 +140,17 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       return ActiveMQClient.DEFAULT_CORE_PROTOCOL;
    }
 
-   /** On core there's no delivery annotation */
+   /**
+    * On core there's no delivery annotation
+    */
    @Override
    public Object getAnnotation(SimpleString key) {
       return getObjectProperty(key);
    }
 
-   /** On core there's no delivery annotation */
+   /**
+    * On core there's no delivery annotation
+    */
    @Override
    public Object removeAnnotation(SimpleString key) {
       return removeProperty(key);
@@ -226,7 +230,9 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       decode(false);
    }
 
-   /** This will fix the incoming body of 1.x messages */
+   /**
+    * This will fix the incoming body of 1.x messages
+    */
    @Override
    public void receiveBuffer_1X(ByteBuf buffer) {
       this.buffer = buffer;
@@ -248,9 +254,8 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    /**
-    * This will return the proper buffer to represent the data of the Message. If compressed it will decompress.
-    * If large, it will read from the file or streaming.
-    * @return
+    * This will return the proper buffer to represent the data of the Message. If compressed it will decompress. If
+    * large, it will read from the file or streaming.
     */
    @Override
    public ActiveMQBuffer getDataBuffer() {
@@ -346,7 +351,6 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    /**
-    * @param sendBuffer
     * @param deliveryCount Some protocols (AMQP) will have this as part of the message. ignored on core
     */
    @Override
@@ -485,8 +489,10 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       }
    }
 
-   /** This method serves as a purpose of extension.
-    *   Large Message on a Core Message will have to set the messageID on the attached NewLargeMessage */
+   /**
+    * This method serves as a purpose of extension. Large Message on a Core Message will have to set the messageID on
+    * the attached NewLargeMessage
+    */
    protected void internalSetMessageID(final long messageID) {
       this.messageID = messageID;
    }
@@ -1173,9 +1179,9 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    /**
-    * Differently from {@link #containsProperty(SimpleString)}, this method can save decoding the message,
-    * performing a search of the {@code key} property and falling back to {@link #containsProperty(SimpleString)}
-    * if not possible or if already decoded.
+    * Differently from {@link #containsProperty(SimpleString)}, this method can save decoding the message, performing a
+    * search of the {@code key} property and falling back to {@link #containsProperty(SimpleString)} if not possible or
+    * if already decoded.
     */
    public boolean searchProperty(SimpleString key) {
       Objects.requireNonNull(key, "key cannot be null");

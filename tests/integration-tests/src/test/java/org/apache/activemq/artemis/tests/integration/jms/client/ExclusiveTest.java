@@ -42,9 +42,6 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * Exclusive Test
- */
 public class ExclusiveTest extends JMSTestBase {
 
    private SimpleString queueName = SimpleString.of("jms.exclusive.queue");

@@ -64,8 +64,9 @@ public enum ConsumerField {
    }
 
    /**
-    * There is some inconsistency with some json objects returned for consumers because they were hard coded.
-    * This is just to track the differences and provide backward compatibility.
+    * There is some inconsistency with some json objects returned for consumers because they were hard coded. This is
+    * just to track the differences and provide backward compatibility.
+    *
     * @return the old alternative name
     */
    public String getAlternativeName() {

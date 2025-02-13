@@ -29,13 +29,12 @@ public final class ReplicationPrimaryIsStoppingMessage extends PacketImpl {
 
    public enum PrimaryStopping {
       /**
-       * Notifies the backup that its primary is going to stop. The backup will then NOT fail-over if
-       * it gets signals from the cluster that its primary sent a disconnect.
+       * Notifies the backup that its primary is going to stop. The backup will then NOT fail-over if it gets signals
+       * from the cluster that its primary sent a disconnect.
        */
       STOP_CALLED(0),
       /**
-       * Orders the backup to fail-over immediately. Meant as a follow-up message to
-       * {@link #STOP_CALLED}.
+       * Orders the backup to fail-over immediately. Meant as a follow-up message to {@link #STOP_CALLED}.
        */
       FAIL_OVER(1);
       private final int code;
@@ -51,9 +50,6 @@ public final class ReplicationPrimaryIsStoppingMessage extends PacketImpl {
       super(PacketImpl.REPLICATION_SCHEDULED_FAILOVER);
    }
 
-   /**
-    * @param b
-    */
    public ReplicationPrimaryIsStoppingMessage(PrimaryStopping b) {
       this();
       this.primaryStopping = b;
@@ -76,10 +72,8 @@ public final class ReplicationPrimaryIsStoppingMessage extends PacketImpl {
    }
 
    /**
-    * The first message is sent to turn-off the quorumManager, which in some cases would trigger a
-    * faster fail-over than what would be correct.
-    *
-    * @return
+    * The first message is sent to turn-off the quorumManager, which in some cases would trigger a faster fail-over than
+    * what would be correct.
     */
    public PrimaryStopping isFinalMessage() {
       return primaryStopping;

@@ -793,10 +793,6 @@ public class BasicXaTest extends ActiveMQTestBase {
       clientSession.close();
    }
 
-   /**
-    * @throws ActiveMQException
-    * @throws XAException
-    */
    protected void multipleQueuesInternalTest(final boolean createQueues,
                                              final boolean suspend,
                                              final boolean recreateSession,

@@ -471,7 +471,7 @@ public class AcknowledgementTest extends JMSTestCase {
       }
    }
 
-   /*
+   /**
     * Send some messages, consume them and verify the messages are not sent upon recovery
     */
    @Test
@@ -1238,8 +1238,8 @@ public class AcknowledgementTest extends JMSTestCase {
    }
 
    /**
-    * Ensure no blocking calls in acknowledge flow when block on acknowledge = false.
-    * This is done by checking the performance compared to blocking is much improved.
+    * Ensure no blocking calls in acknowledge flow when block on acknowledge = false. This is done by checking the
+    * performance compared to blocking is much improved.
     */
    @Test
    public void testNonBlockingAckPerf() throws Exception {

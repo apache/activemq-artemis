@@ -205,11 +205,6 @@ public final class DescribeJournal {
       }
    });
 
-   /**
-    * @param fileFactory
-    * @param journal
-    * @throws Exception
-    */
    private static DescribeJournal describeJournal(SequentialFileFactory fileFactory,
                                                   JournalImpl journal,
                                                   final File path,

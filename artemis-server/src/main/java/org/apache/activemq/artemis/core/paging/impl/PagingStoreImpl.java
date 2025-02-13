@@ -156,8 +156,8 @@ public class PagingStoreImpl implements PagingStore {
 
    private final PageCursorProvider cursorProvider;
 
-   // This lock mostly protects the paging field.
-   // It is also used to block producers in eventual cases such as dropping a queue, but mostly to protect if the storage is in paging mode
+   // This lock mostly protects the paging field. It is also used to block producers in eventual cases such as dropping
+   // a queue, but mostly to protect if the storage is in paging mode.
    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
    private volatile boolean running = false;
@@ -245,9 +245,6 @@ public class PagingStoreImpl implements PagingStore {
       size.setMax(maxSize, maxSize, maxMessages, maxMessages);
    }
 
-   /**
-    * @param addressSettings
-    */
    @Override
    public void applySetting(final AddressSettings addressSettings) {
       applySetting(addressSettings, false);
@@ -406,7 +403,6 @@ public class PagingStoreImpl implements PagingStore {
          this.pageFull = false;
       }
    }
-
 
    @Override
    public void readLock() {
@@ -763,10 +759,10 @@ public class PagingStoreImpl implements PagingStore {
 
       resetCurrentPage(page);
 
-      /**
-       * The page file might be incomplete in the cases: 1) last message incomplete 2) disk damaged.
-       * In case 1 we can keep writing the file. But in case 2 we'd better not bcs old data might be overwritten.
-       * Here we open a new page so the incomplete page would be reserved for recovery if needed.
+      /*
+       * The page file might be incomplete in the cases: 1) last message incomplete 2) disk damaged. In case 1 we can
+       * keep writing the file. But in case 2 we'd better not bcs old data might be overwritten. Here we open a new page
+       * so the incomplete page would be reserved for recovery if needed.
        */
       if (page.getSize() != page.getFile().size()) {
          openNewPage();
@@ -832,10 +828,9 @@ public class PagingStoreImpl implements PagingStore {
          readUnlock();
       }
 
-      // We need to guarantee a readLock on the storageManager before starting paging.
-      // This is because the replication manager will get a list of files to synchronize while
-      // holding a writeLock on the storageManager.
-      // So we must guarantee a readLock here otherwise the list might be wrong.
+      // We need to guarantee a readLock on the storageManager before starting paging. This is because the replication
+      // manager will get a list of files to synchronize while holding a writeLock on the storageManager. So we must
+      // guarantee a readLock here otherwise the list might be wrong.
       try (ArtemisCloseable readLock = storageManager.closeableReadLock()) {
          // if the first check failed, we do it again under a global currentPageLock
          // (writeLock) this time
@@ -990,18 +985,15 @@ public class PagingStoreImpl implements PagingStore {
       }
    }
 
-
    /**
     * Returns a Page out of the Page System without reading it.
     * <p>
-    * The method calling this method will remove the page and will start reading it outside of any
-    * locks. This method could also replace the current file by a new file, and that process is done
-    * through acquiring a writeLock on currentPageLock.
-    * </p>
+    * The method calling this method will remove the page and will start reading it outside of any locks. This method
+    * could also replace the current file by a new file, and that process is done through acquiring a writeLock on
+    * currentPageLock.
     * <p>
-    * Observation: This method is used internally as part of the regular depage process, but
-    * externally is used only on tests, and that's why this method is part of the Testable Interface
-    * </p>
+    * Observation: This method is used internally as part of the regular depage process, but externally is used only on
+    * tests, and that's why this method is part of the Testable Interface
     */
    @Override
    public Page removePage(int pageId) {
@@ -1059,14 +1051,13 @@ public class PagingStoreImpl implements PagingStore {
    /**
     * Returns a Page out of the Page System without reading it.
     * <p>
-    * The method calling this method will remove the page and will start reading it outside of any
-    * locks. This method could also replace the current file by a new file, and that process is done
-    * through acquiring a writeLock on currentPageLock.
+    * The method calling this method will remove the page and will start reading it outside of any locks. This method
+    * could also replace the current file by a new file, and that process is done through acquiring a writeLock on
+    * currentPageLock.
     * </p>
     * <p>
-    * Observation: This method is used internally as part of the regular depage process, but
-    * externally is used only on tests, and that's why this method is part of the Testable Interface
-    * </p>
+    * Observation: This method is used internally as part of the regular depage process, but externally is used only on
+    * tests, and that's why this method is part of the Testable Interface
     */
    @Override
    public Page depage() throws Exception {
@@ -1441,10 +1432,6 @@ public class PagingStoreImpl implements PagingStore {
 
    /**
     * This is done to prevent non tx to get out of sync in case of failures
-    *
-    * @param tx
-    * @param ctx
-    * @throws Exception
     */
    private void applyPageCounters(Transaction tx, RouteContextList ctx, long size) throws Exception {
       List<org.apache.activemq.artemis.core.server.Queue> durableQueues = ctx.getDurableQueues();
@@ -1660,7 +1647,7 @@ public class PagingStoreImpl implements PagingStore {
    }
 
    public String createFileName(final long pageID) {
-      /** {@link DecimalFormat} is not thread safe. */
+      // DecimalFormat is not thread safe.
       synchronized (format) {
          return format.format(pageID) + ".page";
       }

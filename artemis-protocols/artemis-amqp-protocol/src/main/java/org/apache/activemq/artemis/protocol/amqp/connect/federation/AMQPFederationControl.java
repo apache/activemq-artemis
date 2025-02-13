@@ -24,19 +24,19 @@ import org.apache.activemq.artemis.api.core.management.Attribute;
 public interface AMQPFederationControl {
 
    /**
-    * Returns the configured name the AMQP federation being controlled
+    * {@return the configured name the AMQP federation being controlled}
     */
    @Attribute(desc = "The configured AMQP federation name that backs this control instance.")
    String getName();
 
    /**
-    * Returns the number of messages this federation has received from the remote.
+    * {@return the number of messages this federation has received from the remote}
     */
    @Attribute(desc = "returns the number of messages this federation has received from the remote")
    long getMessagesReceived();
 
    /**
-    * Returns the number of messages this federation has sent to the remote.
+    * {@return the number of messages this federation has sent to the remote}
     */
    @Attribute(desc = "returns the number of messages this federation has sent to the remote")
    long getMessagesSent();

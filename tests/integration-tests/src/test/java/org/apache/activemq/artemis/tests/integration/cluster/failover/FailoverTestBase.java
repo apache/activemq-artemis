@@ -77,9 +77,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
 
    protected static final int NUM_MESSAGES = 100;
 
-   /*
-    * Used only by tests of large messages.
-    */
+   // Used only by tests of large messages.
    protected static final int MIN_LARGE_MESSAGE = 1024;
    private static final int LARGE_MESSAGE_SIZE = MIN_LARGE_MESSAGE * 3;
 
@@ -269,9 +267,6 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
 
    /**
     * Large message version of {@link #setBody(int, ClientMessage)}.
-    *
-    * @param i
-    * @param message
     */
    protected static void setLargeMessageBody(final int i, final ClientMessage message) {
       try {
@@ -283,9 +278,6 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
 
    /**
     * Large message version of {@link #assertMessageBody(int, ClientMessage)}.
-    *
-    * @param i
-    * @param message
     */
    protected static void assertLargeMessageBody(final int i, final ClientMessage message) {
       ActiveMQBuffer buffer = message.getBodyBuffer();
@@ -297,7 +289,8 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
    }
 
    /**
-    * Override this if is needed a different implementation of {@link NodeManager} to be used into {@link #createConfigs()}.
+    * Override this if is needed a different implementation of {@link NodeManager} to be used into
+    * {@link #createConfigs()}.
     */
    protected NodeManager createNodeManager() throws Exception {
       return new InVMNodeManager(false);
@@ -322,7 +315,8 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
    }
 
    /**
-    * Override this if is needed a different implementation of {@link NodeManager} to be used into {@link #createReplicatedConfigs()}.
+    * Override this if is needed a different implementation of {@link NodeManager} to be used into
+    * {@link #createReplicatedConfigs()}.
     */
    protected NodeManager createReplicatedBackupNodeManager(Configuration backupConfig) {
       return new InVMNodeManager(true, backupConfig.getJournalLocation());
@@ -458,10 +452,6 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
 
    /**
     * Waits for backup to be in the "started" state and to finish synchronization with its live.
-    *
-    * @param sessionFactory
-    * @param seconds
-    * @throws Exception
     */
    protected void waitForBackup(ClientSessionFactoryInternal sessionFactory, int seconds) throws Exception {
       final ActiveMQServerImpl actualServer = (ActiveMQServerImpl) backupServer.getServer();

@@ -22,9 +22,9 @@ import io.netty.util.internal.MathUtil;
 /**
  * Thread-safe {@code <T>} interner.
  * <p>
- * Differently from {@link String#intern()} it contains a fixed amount of entries and
- * when used by concurrent threads it doesn't ensure the uniqueness of the entries ie
- * the same entry could be allocated multiple times by concurrent calls.
+ * Differently from {@link String#intern()} it contains a fixed amount of entries and when used by concurrent threads it
+ * doesn't ensure the uniqueness of the entries ie the same entry could be allocated multiple times by concurrent
+ * calls.
  */
 public abstract class AbstractPool<I, O> {
 
@@ -51,7 +51,7 @@ public abstract class AbstractPool<I, O> {
    protected abstract O create(I value);
 
    /**
-    * Returns {@code true} if the {@code entry} content is equal to {@code value};
+    * {@return {@code true} if the {@code entry} content is equal to {@code value};}
     */
    protected abstract boolean isEqual(O entry, I value);
 

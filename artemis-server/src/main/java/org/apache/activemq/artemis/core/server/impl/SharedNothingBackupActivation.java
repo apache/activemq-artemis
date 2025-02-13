@@ -216,19 +216,16 @@ public final class SharedNothingBackupActivation extends Activation implements R
             }
 
             activeMQServer.getThreadPool().execute(endpointConnector);
-            /**
-             * Wait for a signal from the quorum manager. At this point if replication has been successful we can
-             * fail over or if there is an error trying to replicate (such as already replicating) we try the
-             * process again on the next primary server.  All the action happens inside {@link BackupQuorum}
+            /*
+             * Wait for a signal from the quorum manager. At this point if replication has been successful we can fail
+             * over or if there is an error trying to replicate (such as already replicating) we try the process again
+             * on the next primary server.  All the action happens inside {@link BackupQuorum}
              */
             signal = backupQuorum.waitForStatusChange();
 
             logger.trace("Got a signal {} through backupQuorum.waitForStatusChange()", signal);
 
-            /**
-             * replicationEndpoint will be holding lots of open files. Make sure they get
-             * closed/sync'ed.
-             */
+            // replicationEndpoint will be holding lots of open files. Make sure they get closed/sync'ed.
             ActiveMQServerImpl.stopComponent(replicationEndpoint);
             // time to give up
             if (!activeMQServer.isStarted() || signal == STOP) {
@@ -403,11 +400,8 @@ public final class SharedNothingBackupActivation extends Activation implements R
    /**
     * Wait for backup synchronization when using synchronization
     *
-    * @param timeout
-    * @param unit
-    * @return {@code true} if the server was already initialized or if it was initialized within the
-    * timeout period, {@code false} otherwise.
-    * @throws InterruptedException
+    * @return {@code true} if the server was already initialized or if it was initialized within the timeout period,
+    * {@code false} otherwise.
     * @see java.util.concurrent.CountDownLatch#await(long, TimeUnit)
     */
    public boolean waitForBackupSync(long timeout, TimeUnit unit) throws InterruptedException {
@@ -430,13 +424,12 @@ public final class SharedNothingBackupActivation extends Activation implements R
    }
 
    /**
-    * Whether a remote backup server was in sync with its primary server. If it was not in sync, it may
-    * not take over the primary's functions.
+    * Whether a remote backup server was in sync with its primary server. If it was not in sync, it may not take over
+    * the primary's functions.
     * <p>
     * A local backup server or a primary server should always return {@code true}
     *
-    * @return whether the backup is up-to-date, if the server is not a backup it always returns
-    * {@code true}.
+    * @return whether the backup is up-to-date, if the server is not a backup it always returns {@code true}.
     */
    public boolean isRemoteBackupUpToDate() {
       return backupUpToDate;
@@ -455,9 +448,6 @@ public final class SharedNothingBackupActivation extends Activation implements R
       backupSyncLatch.countDown();
    }
 
-   /**
-    * @throws ActiveMQException
-    */
    @Override
    public void onPrimaryStopping(ReplicationPrimaryIsStoppingMessage.PrimaryStopping finalMessage) throws ActiveMQException {
       if (logger.isTraceEnabled()) {

@@ -269,7 +269,8 @@ public class ScaleDownHandler {
                MessageReference messageRef = messagesIterator.next();
                Message message = messageRef.getMessage().copy();
 
-               /* Here we are taking messages out of a store-and-forward queue and sending them to the corresponding
+               /*
+                * Here we are taking messages out of a store-and-forward queue and sending them to the corresponding
                 * address on the scale-down target server.  However, we have to take the existing _AMQ_ROUTE_TOsf.*
                 * property and put its value into the _AMQ_ROUTE_TO property so the message is routed properly.
                 */
@@ -419,7 +420,6 @@ public class ScaleDownHandler {
                                      String password) throws Exception {
       try (ClientSession session = sessionFactory.createSession(user, password, true, false, false, false, 0);
            ClientProducer producer = session.createProducer(managementAddress)) {
-         //todo - https://issues.jboss.org/browse/HORNETQ-1336
          for (Map.Entry<SimpleString, List<Pair<byte[], Long>>> entry : duplicateIDMap.entrySet()) {
             ClientMessage message = session.createMessage(false);
             List<Pair<byte[], Long>> list = entry.getValue();
@@ -435,9 +435,9 @@ public class ScaleDownHandler {
    }
 
    /**
-    * Get the ID of the queues involved so the message can be routed properly.  This is done because we cannot
-    * send directly to a queue, we have to send to an address instead but not all the queues related to the
-    * address may need the message
+    * Get the ID of the queues involved so the message can be routed properly.  This is done because we cannot send
+    * directly to a queue, we have to send to an address instead but not all the queues related to the address may need
+    * the message
     */
    private long createQueueWithRoutingTypeIfNecessaryAndGetID(ClientSession session,
                                                               Queue queue,
@@ -516,8 +516,7 @@ public class ScaleDownHandler {
    }
 
    /**
-    * this class will control iterations while
-    * looking over for messages relations
+    * this class will control iterations while looking over for messages relations
     */
    private class QueuesXRefInnerManager {
 

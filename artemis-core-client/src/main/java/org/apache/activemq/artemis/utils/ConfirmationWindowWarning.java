@@ -26,9 +26,6 @@ public final class ConfirmationWindowWarning {
    public final boolean disabled;
    public final AtomicBoolean warningIssued;
 
-   /**
-    *
-    */
    public ConfirmationWindowWarning(boolean disabled) {
       this.disabled = disabled;
       warningIssued = new AtomicBoolean(false);

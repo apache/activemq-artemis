@@ -16,13 +16,11 @@
  */
 
 /**
- * The SimpleQueueSender class consists only of a main method,
- * which sends several messages to a queue.
- *
- * Run this program in conjunction with SimpleQueueReceiver.
- * Specify a queue name on the command line when you run the
- * program.  By default, the program sends one message.  Specify
- * a number after the queue name to send that number of messages.
+ * The SimpleQueueSender class consists only of a main method, which sends several messages to a queue.
+ * <p>
+ * Run this program in conjunction with SimpleQueueReceiver. Specify a queue name on the command line when you run the
+ * program.  By default, the program sends one message.  Specify a number after the queue name to send that number of
+ * messages.
  */
 package org.apache.activemq.demo;
 

@@ -57,7 +57,7 @@ import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-3.3.2-1] The Topic Name MUST be present as the first field in the PUBLISH packet Variable Header. It MUST be a UTF-8 Encoded String.
@@ -86,7 +86,7 @@ public class PublishTests extends MQTT5TestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /*
+   /**
     * [MQTT-3.3.1-1] The DUP flag MUST be set to 1 by the Client or Server when it attempts to re-deliver a PUBLISH
     * packet.
     */
@@ -149,7 +149,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.1-2] The DUP flag MUST be set to 0 for all QoS 0 messages.
     */
    @Test
@@ -181,7 +181,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.1-3] The DUP flag in the outgoing PUBLISH packet is set independently to the incoming PUBLISH packet,
     * its value MUST be determined solely by whether the outgoing PUBLISH packet is a retransmission.
     *
@@ -221,7 +221,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.1-5] If the RETAIN flag is set to 1 in a PUBLISH packet sent by a Client to a Server, the Server MUST
     * replace any existing retained message for this topic and store the Application Message.
     */
@@ -258,7 +258,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.1-6] If the Payload contains zero bytes it is processed normally by the Server but any retained message
     * with the same topic name MUST be removed and any future subscribers for the topic will not receive a retained
     * message.
@@ -305,7 +305,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.1-8] If the RETAIN flag is 0 in a PUBLISH packet sent by a Client to a Server, the Server MUST NOT store
     * the message as a retained message and MUST NOT remove or replace any existing retained message.
     */
@@ -351,7 +351,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
     * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
     * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
@@ -368,7 +368,7 @@ public class PublishTests extends MQTT5TestSupport {
       internalTestRetainHandlingZero(false, 1);
    }
 
-   /*
+   /**
     * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
     * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
     * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
@@ -385,7 +385,7 @@ public class PublishTests extends MQTT5TestSupport {
       internalTestRetainHandlingZero(false, 25);
    }
 
-   /*
+   /**
     * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
     * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
     * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
@@ -467,7 +467,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
     * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
     * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
@@ -536,7 +536,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
     * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
     * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
@@ -579,7 +579,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * The setting of the RETAIN flag in an Application Message forwarded by the Server from an *established* connection
     * is controlled by the Retain As Published subscription option.
     *
@@ -624,7 +624,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * The setting of the RETAIN flag in an Application Message forwarded by the Server from an *established* connection
     * is controlled by the Retain As Published subscription option.
     *
@@ -685,7 +685,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-3] The Topic Name in a PUBLISH packet sent by a Server to a subscribing Client MUST match the
     * Subscription’s Topic Filter.
     */
@@ -725,7 +725,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-3] The Topic Name in a PUBLISH packet sent by a Server to a subscribing Client MUST match the
     * Subscription’s Topic Filter.
     */
@@ -764,7 +764,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-4] A Server MUST send the Payload Format Indicator unaltered to all subscribers receiving the message.
     */
    @Test
@@ -773,7 +773,7 @@ public class PublishTests extends MQTT5TestSupport {
       internalTestPayloadFormatIndicator(true);
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-4] A Server MUST send the Payload Format Indicator unaltered to all subscribers receiving the message.
     */
    @Test
@@ -823,7 +823,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-5] If the Message Expiry Interval has passed and the Server has not managed to start onward delivery
     * to a matching subscriber, then it MUST delete the copy of the message for that subscriber.
     */
@@ -871,7 +871,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.disconnect();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-6] The PUBLISH packet sent to a Client by the Server MUST contain a Message Expiry Interval set to the
     * received value minus the time that the message has been waiting in the Server.
     */
@@ -925,7 +925,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.disconnect();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-11] A Server MUST NOT send a PUBLISH packet with a Topic Alias greater than the Topic Alias Maximum
     * value sent by the Client in the CONNECT packet.
     */
@@ -967,7 +967,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.disconnect();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-7] A receiver MUST NOT carry forward any Topic Alias mappings from one Network Connection to another.
     *
     * Unfortunately the Paho MQTT 5 client performs automatic validation and therefore refuses to send a message with an
@@ -1018,7 +1018,7 @@ public class PublishTests extends MQTT5TestSupport {
       producer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-12] A Server MUST accept all Topic Alias values greater than 0 and less than or equal to the Topic
     * Alias Maximum value that it returned in the CONNACK packet.
     */
@@ -1061,7 +1061,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.disconnect();
    }
 
-   /*
+   /**
     * From section 3.3.2.3.4 of the MQTT 5 specification:
     *
     * A sender can modify the Topic Alias mapping by sending another PUBLISH in the same Network Connection with the
@@ -1127,7 +1127,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer2.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-15] The Server MUST send the Response Topic unaltered to all subscribers receiving the Application
     * Message.
     */
@@ -1166,7 +1166,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-16] The Server MUST send the Correlation Data unaltered to all subscribers receiving the Application
     * Message.
     */
@@ -1205,7 +1205,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-17] The Server MUST send all User Properties unaltered in a PUBLISH packet when forwarding the
     * Application Message to a Client.
     *
@@ -1254,7 +1254,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.2-20] A Server MUST send the Content Type unaltered to all subscribers receiving the Application
     * Message.
     */
@@ -1293,7 +1293,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-1] The receiver of a PUBLISH Packet MUST respond with the packet as determined by the QoS in the
     * PUBLISH Packet.
     *
@@ -1307,7 +1307,7 @@ public class PublishTests extends MQTT5TestSupport {
       internalTestQoS(2);
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-1] The receiver of a PUBLISH Packet MUST respond with the packet as determined by the QoS in the
     * PUBLISH Packet.
     *
@@ -1319,7 +1319,7 @@ public class PublishTests extends MQTT5TestSupport {
       internalTestQoS(1);
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-1] The receiver of a PUBLISH Packet MUST respond with the packet as determined by the QoS in the
     * PUBLISH Packet.
     *
@@ -1359,7 +1359,7 @@ public class PublishTests extends MQTT5TestSupport {
       producer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-2] When Clients make subscriptions with Topic Filters that include wildcards, it is possible for a
     * Client’s subscriptions to overlap so that a published message might match multiple filters. In this case the
     * Server MUST deliver the message to the Client respecting the maximum QoS of all the matching subscriptions.
@@ -1444,7 +1444,7 @@ public class PublishTests extends MQTT5TestSupport {
       }
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-3] If the Client specified a Subscription Identifier for any of the overlapping subscriptions the
     * Server MUST send those Subscription Identifiers in the message which is published as the result of the
     * subscriptions.
@@ -1520,7 +1520,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-3] If the Client specified a Subscription Identifier for any of the overlapping subscriptions the
     * Server MUST send those Subscription Identifiers in the message which is published as the result of the
     * subscriptions.
@@ -1592,12 +1592,12 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-9] The Server MUST NOT send more than Receive Maximum QoS 1 and QoS 2 PUBLISH packets for which it has
     * not received PUBACK, PUBCOMP, or PUBREC with a Reason Code of 128 or greater from the Client.
     *
     * This is impossible to test with the Paho client directly because it doesn't invoke the callback concurrently.
-    * Therefore, we must use interceptors as a kind of hack to determine whether or not we're implementing flow control
+    * Therefore, we must use interceptors as a kind of hack to determine whether we're implementing flow control
     * properly.
     */
    @Test
@@ -1658,7 +1658,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-9] The Server MUST NOT send more than Receive Maximum QoS 1 and QoS 2 PUBLISH packets for which it has
     * not received PUBACK, PUBCOMP, or PUBREC with a Reason Code of 128 or greater from the Client.
     *
@@ -1722,7 +1722,7 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
-   /*
+   /**
     * [MQTT-3.3.4-10] The Server MUST NOT delay the sending of any packets other than PUBLISH packets due to having sent
     * Receive Maximum PUBLISH packets without receiving acknowledgements for them.
     *

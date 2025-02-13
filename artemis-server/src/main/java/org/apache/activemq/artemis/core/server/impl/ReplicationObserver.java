@@ -264,7 +264,8 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
             primaryID = nodeId;
          }
          if (activationSequence <= 0) {
-            /* NOTE: activationSequence == 0 is still illegal because the primary has to increase the sequence before
+            /*
+             * NOTE: activationSequence == 0 is still illegal because the primary has to increase the sequence before
              * replicating.
              */
             stopForcedFailoverAfterDelay();

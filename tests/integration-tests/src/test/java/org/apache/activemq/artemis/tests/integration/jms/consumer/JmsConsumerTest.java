@@ -820,7 +820,6 @@ public class JmsConsumerTest extends JMSTestBase {
 
    /**
     * Test for ARTEMIS-1610
-    * @throws Exception
     */
    @Test
    public void testConsumerAfterWildcardAddressRemoval() throws Exception {
@@ -853,7 +852,6 @@ public class JmsConsumerTest extends JMSTestBase {
 
    /**
     * Test for ARTEMIS-1610
-    * @throws Exception
     */
    @Test
    public void testConsumerAfterWildcardConsumer() throws Exception {
@@ -888,10 +886,8 @@ public class JmsConsumerTest extends JMSTestBase {
    }
 
    /**
-    * ARTEMIS-1627 - Verify that a address can be removed when there are no direct
-    * bindings on the address but does have bindings on a linked address
-    *
-    * @throws Exception
+    * ARTEMIS-1627 - Verify that a address can be removed when there are no direct bindings on the address but does have
+    * bindings on a linked address
     */
    @Test
    public void testAddressRemovalWithWildcardConsumer() throws Exception {

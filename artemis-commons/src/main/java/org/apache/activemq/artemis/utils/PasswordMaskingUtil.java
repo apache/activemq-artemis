@@ -38,11 +38,11 @@ public final class PasswordMaskingUtil {
 
    /**
     * This method deals with password masking and returns the password in its plain text form.
-    * @param password : the original value of password string; interpreted as masked if wrapped in ENC()
-    *                 or as plain text otherwise.
-    * @param codecClass : the codec used to decode the password. Only when the password is interpreted
-    *              as masked will this codec be used. Ignored otherwise.
-    * @return
+    *
+    * @param password   : the original value of password string; interpreted as masked if wrapped in ENC() or as plain
+    *                   text otherwise.
+    * @param codecClass : the codec used to decode the password. Only when the password is interpreted as masked will
+    *                   this codec be used. Ignored otherwise.
     */
    public static String resolveMask(String password, String codecClass) throws Exception {
       return resolveMask(null, password, codecClass);
@@ -50,14 +50,13 @@ public final class PasswordMaskingUtil {
 
    /**
     * This method deals with password masking and returns the password in its plain text form.
-    * @param maskPassword : explicit mask flag. If it's true, the password is interpreted as
-    *                     masked. If it is false, the password is interpreted as plain text.
-    *                     if it is null, the password will be interpreted as masked if the
-    *                     password is wrapped in ENC(), or as plain text otherwise.
-    * @param password : the original value of password string
-    * @param codecClass : the codec used to decode the password. Only when the password is interpreted
-    *              as masked will this codec be used. Ignored otherwise.
-    * @return
+    *
+    * @param maskPassword : explicit mask flag. If it's true, the password is interpreted as masked. If it is false, the
+    *                     password is interpreted as plain text. if it is null, the password will be interpreted as
+    *                     masked if the password is wrapped in ENC(), or as plain text otherwise.
+    * @param password     : the original value of password string
+    * @param codecClass   : the codec used to decode the password. Only when the password is interpreted as masked will
+    *                     this codec be used. Ignored otherwise.
     */
    public static String resolveMask(Boolean maskPassword, String password, String codecClass) throws Exception {
       String plainText = password;
@@ -155,14 +154,12 @@ public final class PasswordMaskingUtil {
       return processor;
    }
 
-   /*
+   /**
     * Loading the codec class.
     *
     * @param codecDesc This parameter must have the following format:
-    *
-    * <full qualified class name>;key=value;key1=value1;...
-    *
-    * Where only <full qualified class name> is required. key/value pairs are optional
+    *                  {@code <full qualified class name>;key=value;key1=value1;...} where only
+    *                  {@code <full qualified class name>} is required. key/value pairs are optional
     */
    public static SensitiveDataCodec<String> getCodec(String codecDesc) throws ActiveMQException {
       SensitiveDataCodec<String> codecInstance;

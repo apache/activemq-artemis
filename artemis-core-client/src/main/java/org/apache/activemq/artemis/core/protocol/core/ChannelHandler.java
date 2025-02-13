@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.core.protocol.core;
 
 /**
- * A ChannelHandler is used by {@link Channel}. When a channel receives a packet it will call its handler to deal with the
- * packet.
+ * A ChannelHandler is used by {@link Channel}. When a channel receives a packet it will call its handler to deal with
+ * the packet.
  */
 public interface ChannelHandler {
 

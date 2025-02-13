@@ -215,10 +215,14 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private NotificationService notificationService;
 
-   /** The amount of time we wait before new tasks are added during a shutdown period. */
+   /**
+    * The amount of time we wait before new tasks are added during a shutdown period.
+    */
    private int quietPeriod;
 
-   /** The total amount of time we wait before a hard shutdown. */
+   /**
+    * The total amount of time we wait before a hard shutdown.
+    */
    private int shutdownTimeout;
 
    private boolean paused;
@@ -566,8 +570,8 @@ public class NettyAcceptor extends AbstractAcceptor {
    }
 
    /**
-    * Transfers the Netty channel that has been created outside of this NettyAcceptor
-    * to control it and configure it according to this NettyAcceptor setting.
+    * Transfers the Netty channel that has been created outside of this NettyAcceptor to control it and configure it
+    * according to this NettyAcceptor setting.
     *
     * @param channel A Netty channel created outside this NettyAcceptor.
     */
@@ -843,8 +847,6 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    /**
     * not allowed
-    *
-    * @param defaultActiveMQPrincipal
     */
    @Override
    public void setDefaultActiveMQPrincipal(ActiveMQPrincipal defaultActiveMQPrincipal) {
@@ -853,8 +855,6 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    /**
     * only InVM acceptors should allow this
-    *
-    * @return
     */
    @Override
    public boolean isUnsecurable() {

@@ -84,7 +84,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
    /**
     * AMQPLargeMessagePersister will save the buffer here.
-    * */
+    */
    private ByteBuf temporaryBuffer;
 
    private final LargeBody largeBody;
@@ -96,7 +96,9 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
    private StorageManager storageManager;
 
-   /** this is used to parse the initial packets from the buffer */
+   /**
+    * this is used to parse the initial packets from the buffer
+    */
    private CompositeReadableBuffer parsingBuffer;
 
    private void checkDebug() {
@@ -149,9 +151,10 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       internalReleaseBuffer(1);
    }
 
-   /** {@link #getSavedEncodeBuffer()} will retain two counters from the buffer, one meant for the call,
-    * and one that must be released only after encoding.
-    *
+   /**
+    * {@link #getSavedEncodeBuffer()} will retain two counters from the buffer, one meant for the call, and one that
+    * must be released only after encoding.
+    * <p>
     * This method is meant to be called when the buffer is actually encoded on the journal, meaning both refs are gone.
     * and the actual buffer can be released.
     */
@@ -170,7 +173,9 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       }
    }
 
-   /** during large message deliver, we need this calculation to place a new delivery annotation */
+   /**
+    * during large message deliver, we need this calculation to place a new delivery annotation
+    */
    public int getPositionAfterDeliveryAnnotations() {
       return encodedHeaderSize + encodedDeliveryAnnotationsSize;
    }
@@ -185,7 +190,9 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       }
    }
 
-   /** This is used on test assertions to make sure the buffers are released corrected */
+   /**
+    * This is used on test assertions to make sure the buffers are released corrected
+    */
    public ByteBuf inspectTemporaryBuffer() {
       return temporaryBuffer;
    }

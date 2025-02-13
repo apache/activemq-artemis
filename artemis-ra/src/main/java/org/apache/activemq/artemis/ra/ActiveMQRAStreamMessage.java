@@ -25,18 +25,12 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * A wrapper for a message
+ * A wrapper for a {@link StreamMessage}.
  */
 public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements StreamMessage {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * Create a new wrapper
-    *
-    * @param message the message
-    * @param session the session
-    */
    public ActiveMQRAStreamMessage(final StreamMessage message, final ActiveMQRASession session) {
       super(message, session);
 
@@ -44,10 +38,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Read
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public boolean readBoolean() throws JMSException {
@@ -57,10 +48,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Read
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public byte readByte() throws JMSException {
@@ -70,11 +58,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Read
-    *
-    * @param value The value
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public int readBytes(final byte[] value) throws JMSException {
@@ -86,10 +70,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Read
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public char readChar() throws JMSException {
@@ -99,10 +80,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Read
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public double readDouble() throws JMSException {
@@ -112,10 +90,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Read
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public float readFloat() throws JMSException {
@@ -125,10 +100,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Read
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public int readInt() throws JMSException {
@@ -138,10 +110,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Read
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public long readLong() throws JMSException {
@@ -151,10 +120,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Read
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Object readObject() throws JMSException {
@@ -164,10 +130,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Read
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public short readShort() throws JMSException {
@@ -177,10 +140,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Read
-    *
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public String readString() throws JMSException {
@@ -190,9 +150,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Reset
-    *
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void reset() throws JMSException {
@@ -202,10 +160,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Write
-    *
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void writeBoolean(final boolean value) throws JMSException {
@@ -217,10 +172,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Write
-    *
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void writeByte(final byte value) throws JMSException {
@@ -232,12 +184,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Write
-    *
-    * @param value  The value
-    * @param offset The offset
-    * @param length The length
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException {
@@ -249,10 +196,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Write
-    *
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void writeBytes(final byte[] value) throws JMSException {
@@ -264,10 +208,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Write
-    *
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void writeChar(final char value) throws JMSException {
@@ -279,10 +220,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Write
-    *
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void writeDouble(final double value) throws JMSException {
@@ -294,10 +232,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Write
-    *
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void writeFloat(final float value) throws JMSException {
@@ -309,10 +244,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Write
-    *
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void writeInt(final int value) throws JMSException {
@@ -324,10 +256,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Write
-    *
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void writeLong(final long value) throws JMSException {
@@ -339,10 +268,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Write
-    *
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void writeObject(final Object value) throws JMSException {
@@ -352,10 +278,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Write
-    *
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void writeShort(final short value) throws JMSException {
@@ -367,10 +290,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    }
 
    /**
-    * Write
-    *
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void writeString(final String value) throws JMSException {

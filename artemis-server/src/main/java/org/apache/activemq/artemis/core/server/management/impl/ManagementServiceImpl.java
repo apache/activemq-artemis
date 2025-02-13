@@ -702,7 +702,7 @@ public class ManagementServiceImpl implements ManagementService {
          messageCounterManager.start();
       }
 
-      /**
+      /*
        * Ensure the management notification address is created otherwise if auto-create-address = false then cluster
        * bridges won't be able to connect.
        */
@@ -821,9 +821,8 @@ public class ManagementServiceImpl implements ManagementService {
             }
          }
 
-         // start sending notification *messages* only when server has initialised
-         // Note at backup initialisation we don't want to send notifications either
-         // https://jira.jboss.org/jira/browse/HORNETQ-317
+         // Start sending notification *messages* only when server has initialised. Note at backup initialisation we
+         // don't want to send notifications either.
          if (messagingServer == null || !messagingServer.isActive()) {
             logger.debug("ignoring message {} as the server is not initialized", notification);
             return;
@@ -949,10 +948,9 @@ public class ManagementServiceImpl implements ManagementService {
    }
 
    /**
-    * Correlate management responses using the Correlation ID Pattern, if the request supplied a correlation id,
-    * or fallback to the Message ID Pattern providing the request had a message id.
-
-    * @param request
+    * Correlate management responses using the Correlation ID Pattern, if the request supplied a correlation id, or
+    * fallback to the Message ID Pattern providing the request had a message id.
+    *
     * @return correlation identify
     */
    private Object getCorrelationIdentity(final Message request) {

@@ -37,7 +37,9 @@ import org.apache.activemq.artemis.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** This class provides a simple proxy for management operations */
+/**
+ * This class provides a simple proxy for management operations
+ */
 public class SimpleManagement implements AutoCloseable {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -94,28 +96,36 @@ public class SimpleManagement implements AutoCloseable {
       simpleManagementVoid("broker", "rebuildPageCounters");
    }
 
-   /** Simple helper for management returning a string.*/
+   /**
+    * Simple helper for management returning a string.
+    */
    public String simpleManagement(String resource, String method, Object... parameters) throws Exception {
       AtomicReference<String> responseString = new AtomicReference<>();
       doManagement((m) -> setupCall(m, resource, method, parameters), m -> setStringResult(m, responseString), SimpleManagement::failed);
       return responseString.get();
    }
 
-   /** Simple helper for management returning a long.*/
+   /**
+    * Simple helper for management returning a long.
+    */
    public long simpleManagementLong(String resource, String method, Object... parameters) throws Exception {
       AtomicLong responseLong = new AtomicLong();
       doManagement((m) -> setupCall(m, resource, method, parameters), m -> setLongResult(m, responseLong), SimpleManagement::failed);
       return responseLong.get();
    }
 
-   /** Simple helper for management returning a long.*/
+   /**
+    * Simple helper for management returning a long.
+    */
    public boolean simpleManagementBoolean(String resource, String method, Object... parameters) throws Exception {
       AtomicBoolean responseBoolean = new AtomicBoolean();
       doManagement((m) -> setupCall(m, resource, method, parameters), m -> setBooleanResult(m, responseBoolean), SimpleManagement::failed);
       return responseBoolean.get();
    }
 
-   /** Simple helper for management void calls.*/
+   /**
+    * Simple helper for management void calls.
+    */
    public void simpleManagementVoid(String resource, String method, Object... parameters) throws Exception {
       doManagement((m) -> setupCall(m, resource, method, parameters), null, SimpleManagement::failed);
    }

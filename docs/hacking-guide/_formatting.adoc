@@ -20,3 +20,7 @@ Do not use the https://maven.apache.org/plugins/maven-eclipse-plugin/[maven-ecli
 
 For editors supporting http://editorconfig.org/[EditorConfig], a settings file is provided in etc/ide-settings/editorconfig.ini.
 Copy it to your Artemis top level directory and http://editorconfig.org/#file-location[name it .editorconfig]
+
+== JavaDoc
+
+There's no formal enforcement of the JavaDoc style

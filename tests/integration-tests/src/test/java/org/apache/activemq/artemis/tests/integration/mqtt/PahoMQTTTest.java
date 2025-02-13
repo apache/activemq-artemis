@@ -197,9 +197,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
       return new MqttClient(protocol + "://localhost:" + getPort(), clientId, new MemoryPersistence());
    }
 
-   /*
-    * This test was adapted from a test from Eclipse Kapua submitted by a community member.
-    */
+   // This test was adapted from a test from Eclipse Kapua submitted by a community member.
    @TestTemplate
    @Timeout(60)
    public void testDollarAndHashSubscriptions() throws Exception {

@@ -37,9 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/**
- * The client-side Producer.
- */
 public class ClientProducerImpl implements ClientProducerInternal {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -53,8 +50,6 @@ public class ClientProducerImpl implements ClientProducerInternal {
    private final SessionContext sessionContext;
 
    private volatile boolean closed;
-
-   // For rate throttling
 
    private final TokenBucketLimiter rateLimiter;
 
@@ -313,11 +308,6 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
    // Methods to send Large Messages----------------------------------------------------------------
 
-   /**
-    * @param msgI
-    * @param handler
-    * @throws ActiveMQException
-    */
    private void largeMessageSend(final boolean sendBlocking,
                                  final ICoreMessage msgI,
                                  final ClientProducerCredits credits,
@@ -357,13 +347,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
    }
 
    /**
-    * Used to send serverMessages through the bridges. No need to validate compression here since
-    * the message is only compressed at the client
-    *
-    * @param sendBlocking
-    * @param msgI
-    * @param handler
-    * @throws ActiveMQException
+    * Used to send serverMessages through the bridges. No need to validate compression here since the message is only
+    * compressed at the client
     */
    private void largeMessageSendServer(final boolean sendBlocking,
                                        final ICoreMessage msgI,
@@ -402,12 +387,6 @@ public class ClientProducerImpl implements ClientProducerInternal {
       }
    }
 
-   /**
-    * @param sendBlocking
-    * @param msgI
-    * @param handler
-    * @throws ActiveMQException
-    */
    private void largeMessageSendBuffered(final boolean sendBlocking,
                                          final ICoreMessage msgI,
                                          final ClientProducerCredits credits,
@@ -416,13 +395,6 @@ public class ClientProducerImpl implements ClientProducerInternal {
       largeMessageSendStreamed(sendBlocking, msgI, new ActiveMQBufferInputStream(msgI.getBodyBuffer()), credits, handler);
    }
 
-   /**
-    * @param sendBlocking
-    * @param msgI
-    * @param inputStreamParameter
-    * @param credits
-    * @throws ActiveMQException
-    */
    private void largeMessageSendStreamed(final boolean sendBlocking,
                                          final ICoreMessage msgI,
                                          final InputStream inputStreamParameter,

@@ -36,19 +36,21 @@ import org.apache.activemq.artemis.utils.ExecuteUtil;
 import org.junit.jupiter.api.Test;
 
 /**
- * This utility class will use sudo commands to start "fake" network cards on a given address.
- * It's used on tests that need to emmulate network outages and split brains.
- *
- * If you write a new test using this class, please make special care on undoing the config,
- * especially in case of failures, by calling the {@link #cleanup()} method.
- *
+ * This utility class will use sudo commands to start "fake" network cards on a given address. It's used on tests that
+ * need to emmulate network outages and split brains.
+ * <p>
+ * If you write a new test using this class, please make special care on undoing the config, especially in case of
+ * failures, by calling the {@link #cleanup()} method.
+ * <p>
  * You need special sudo authorizations on your system to let this class work:
- *
+ * <p>
  * Add the following at the end of your /etc/sudoers (use the sudo visudo command)");
+ * <pre>
  * # ------------------------------------------------------- ");
  * yourUserName ALL = NOPASSWD: /sbin/ifconfig");
  * # ------------------------------------------------------- ");
- * */
+ * </pre>
+ */
 public class NetUtil extends ExecuteUtil {
 
    public static boolean checkIP(String ip) throws Exception {

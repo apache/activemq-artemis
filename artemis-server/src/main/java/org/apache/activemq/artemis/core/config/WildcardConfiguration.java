@@ -144,11 +144,11 @@ public class WildcardConfiguration implements Serializable {
 
    /**
     * Convert the input from this WildcardConfiguration into the specified WildcardConfiguration.
-    *
-    * If the input already contains characters defined in the target WildcardConfiguration then those characters will
-    * be escaped and preserved as such in the returned String. That said, wildcard characters which are the same
-    * between the two configurations will not be escaped
-    *
+    * <p>
+    * If the input already contains characters defined in the target WildcardConfiguration then those characters will be
+    * escaped and preserved as such in the returned String. That said, wildcard characters which are the same between
+    * the two configurations will not be escaped
+    * <p>
     * If the input already contains escaped characters defined in this WildcardConfiguration then those characters will
     * be unescaped after conversion and restored in the returned String.
     *
@@ -212,8 +212,8 @@ public class WildcardConfiguration implements Serializable {
    /**
     * This will replace one character with another while ignoring escaped characters (i.e. those proceeded with '\').
     *
-    * @param result the final result of the replacement
-    * @param replace the character to replace
+    * @param result      the final result of the replacement
+    * @param replace     the character to replace
     * @param replacement the replacement character to use
     */
    private void replaceChar(StringBuilder result, char replace, char replacement) {

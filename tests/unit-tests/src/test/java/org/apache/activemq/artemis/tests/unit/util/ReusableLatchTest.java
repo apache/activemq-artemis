@@ -64,14 +64,10 @@ public class ReusableLatchTest extends ActiveMQTestBase {
    }
 
    /**
-    * This test will open numberOfThreads threads, and add numberOfAdds on the
-    * VariableLatch After those addthreads are finished, the latch count should
-    * be numberOfThreads * numberOfAdds Then it will open numberOfThreads
-    * threads again releasing numberOfAdds on the VariableLatch After those
-    * releaseThreads are finished, the latch count should be 0 And all the
-    * waiting threads should be finished also
-    *
-    * @throws Exception
+    * This test will open numberOfThreads threads, and add numberOfAdds on the VariableLatch After those addthreads are
+    * finished, the latch count should be numberOfThreads * numberOfAdds Then it will open numberOfThreads threads again
+    * releasing numberOfAdds on the VariableLatch After those releaseThreads are finished, the latch count should be 0
+    * And all the waiting threads should be finished also
     */
    @Test
    public void testLatchOnMultiThread() throws Exception {

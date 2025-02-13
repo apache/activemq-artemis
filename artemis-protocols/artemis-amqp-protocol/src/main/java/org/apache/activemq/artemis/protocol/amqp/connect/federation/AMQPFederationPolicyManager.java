@@ -24,8 +24,8 @@ import org.apache.activemq.artemis.protocol.amqp.federation.FederationType;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 
 /**
- * Base Federation policy manager that declares some common APIs that address or queue policy
- * managers must provide implementations for.
+ * Base Federation policy manager that declares some common APIs that address or queue policy managers must provide
+ * implementations for.
  */
 public abstract class AMQPFederationPolicyManager {
 
@@ -66,10 +66,9 @@ public abstract class AMQPFederationPolicyManager {
    }
 
    /**
-    * Start the federation policy manager which will initiate a scan of all broker
-    * bindings and create and matching remote receivers. Start on a policy manager
-    * should only be called after its parent {@link Federation} is started and the
-    * federation connection has been established.
+    * Start the federation policy manager which will initiate a scan of all broker bindings and create and matching
+    * remote receivers. Start on a policy manager should only be called after its parent {@link Federation} is started
+    * and the federation connection has been established.
     */
    public final synchronized void start() {
       if (!federation.isStarted()) {
@@ -89,9 +88,8 @@ public abstract class AMQPFederationPolicyManager {
    }
 
    /**
-    * Stops the queue policy manager which will close any open remote receivers that are
-    * active for local queue demand. Stop should generally be called whenever the parent
-    * {@link Federation} loses its connection to the remote.
+    * Stops the queue policy manager which will close any open remote receivers that are active for local queue demand.
+    * Stop should generally be called whenever the parent {@link Federation} loses its connection to the remote.
     */
    public final synchronized void stop() {
       if (state == State.UNINITIALIZED) {
@@ -115,43 +113,43 @@ public abstract class AMQPFederationPolicyManager {
    }
 
    /**
-    * @return <code>true</code> if the policy is started at the time this method was called.
+    * {@return {@code true} if the policy is started at the time this method was called}
     */
    public final boolean isStarted() {
       return state == State.STARTED;
    }
 
    /**
-    * @return the metrics instance tied to this federation policy manager instance.
+    * {@return the metrics instance tied to this federation policy manager instance}
     */
    public AMQPFederationMetrics getMetrics() {
       return metrics;
    }
 
    /**
-    * @return the federation type this policy manager implements.
+    * {@return the federation type this policy manager implements}
     */
    public final FederationType getPolicyType() {
       return policyType;
    }
 
    /**
-    * @return the assigned name of the policy that is being managed.
+    * {@return the assigned name of the policy that is being managed}
     */
    public final String getPolicyName() {
       return policyName;
    }
 
    /**
-    * @return the {@link AMQPFederation} instance that owns this policy manager.
+    * {@return the {@link AMQPFederation} instance that owns this policy manager}
     */
    public AMQPFederation getFederation() {
       return federation;
    }
 
    /**
-    * Called by the parent federation instance when the connection has failed and this federation
-    * should tear down any active resources and await a reconnect if one is allowed.
+    * Called by the parent federation instance when the connection has failed and this federation should tear down any
+    * active resources and await a reconnect if one is allowed.
     */
    public final synchronized void connectionInterrupted() {
       connected = false;
@@ -159,8 +157,8 @@ public abstract class AMQPFederationPolicyManager {
    }
 
    /**
-    * Called by the parent federation instance when the connection has been established and this
-    * policy manager should build up its active state based on the configuration.
+    * Called by the parent federation instance when the connection has been established and this policy manager should
+    * build up its active state based on the configuration.
     */
    public final synchronized void connectionRestored() {
       connected = true;
@@ -178,19 +176,16 @@ public abstract class AMQPFederationPolicyManager {
    }
 
    /**
-    * Returns <code>true</code> if the policy manager is both started and marked as connected to
-    * the remote peer. This method must always be called under lock to ensure the state returned
-    * is accurate.
+    * This method must always be called under lock to ensure the state returned is accurate.
     *
-    * @return <code>true</code> if the manager is both started and the connected state is <code>true</code>
+    * @return {@code true} if the policy manager is both started and the connected state is {@code true}
     */
    protected final boolean isActive() {
       return connected && state == State.STARTED;
    }
 
    /**
-    * Returns if the policy manager has been marked as connected to the remote peer. This method
-    * must be called under lock to ensure the returned state is accurate.
+    * This method must be called under lock to ensure the returned state is accurate.
     *
     * @return the state of the connected flag based on the last update from the connection APIs
     */
@@ -199,38 +194,38 @@ public abstract class AMQPFederationPolicyManager {
    }
 
    /**
-    * On initialize a federation policy manager needs to perform any specific initialization actions
-    * it requires to begin tracking broker resources.
+    * On initialize a federation policy manager needs to perform any specific initialization actions it requires to
+    * begin tracking broker resources.
     */
    protected abstract void handleManagerInitialized();
 
    /**
-    * On start a federation policy manager needs to perform any specific startup actions
-    * it requires to begin tracking broker resources.
+    * On start a federation policy manager needs to perform any specific startup actions it requires to begin tracking
+    * broker resources.
     */
    protected abstract void handleManagerStarted();
 
    /**
-    * On stop a federation policy manager needs to perform any specific stopped actions
-    * it requires to cease tracking broker resources and cleanup.
+    * On stop a federation policy manager needs to perform any specific stopped actions it requires to cease tracking
+    * broker resources and cleanup.
     */
    protected abstract void handleManagerStopped();
 
    /**
-    * On shutdown a federation policy manager needs to perform any specific shutdown actions
-    * it requires to cease tracking broker resources.
+    * On shutdown a federation policy manager needs to perform any specific shutdown actions it requires to cease
+    * tracking broker resources.
     */
    protected abstract void handleManagerShutdown();
 
    /**
-    * On connection interrupted a federation policy manager needs to perform any specific
-    * actions to pause of cleanup current resources based on the connection being closed.
+    * On connection interrupted a federation policy manager needs to perform any specific actions to pause of cleanup
+    * current resources based on the connection being closed.
     */
    protected abstract void handleConnectionInterrupted();
 
    /**
-    * On connection restoration a federation policy manager needs to perform any specific
-    * actions to resume service based on a new connection having been established.
+    * On connection restoration a federation policy manager needs to perform any specific actions to resume service
+    * based on a new connection having been established.
     */
    protected abstract void handleConnectionRestored();
 

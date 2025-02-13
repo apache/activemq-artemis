@@ -116,8 +116,7 @@ public class IdGenerator {
    }
 
    /**
-    * As we have to find the host name as a side-affect of generating a unique stub, we allow
-    * it's easy retrieval here
+    * As we have to find the host name as a side-affect of generating a unique stub, we allow it's easy retrieval here
     *
     * @return the local host name
     */
@@ -126,9 +125,7 @@ public class IdGenerator {
    }
 
    /**
-    * Generate a unique id
-    *
-    * @return a unique id
+    * {@return a unique id}
     */
    public synchronized String generateId() {
       StringBuilder sb = new StringBuilder(length);
@@ -160,9 +157,7 @@ public class IdGenerator {
    }
 
    /**
-    * Generate a unique ID - that is friendly for a URL or file system
-    *
-    * @return a unique id
+    * {@return a unique ID - that is friendly for a URL or file system}
     */
    public String generateSanitizedId() {
       String result = generateId();
@@ -193,7 +188,7 @@ public class IdGenerator {
     * From a generated id - return the generator count
     *
     * @param id The ID that will be parsed for a sequence number.
-    * @return the sequence value parsed from the given ID.
+    * @return the sequence value parsed from the given ID
     */
    public static long getSequenceFromId(String id) {
       long result = -1;
@@ -213,7 +208,7 @@ public class IdGenerator {
     *
     * @param id1 the lhs of the comparison.
     * @param id2 the rhs of the comparison.
-    * @return 0 if equal else a positive if {@literal id1 > id2} ...
+    * @return 0 if equal else a positive if {@literal id1 > id2} ..
     */
    public static int compare(String id1, String id2) {
       int result = -1;
@@ -231,18 +226,15 @@ public class IdGenerator {
    }
 
    /**
-    * When using the {@link java.net.InetAddress#getHostName()} method in an
-    * environment where neither a proper DNS lookup nor an <code>/etc/hosts</code>
-    * entry exists for a given host, the following exception will be thrown:
-    * <code>
-    * java.net.UnknownHostException: &lt;hostname&gt;: &lt;hostname&gt;
-    * at java.net.InetAddress.getLocalHost(InetAddress.java:1425)
-    * ...
-    * </code>
-    * Instead of just throwing an UnknownHostException and giving up, this
-    * method grabs a suitable hostname from the exception and prevents the
-    * exception from being thrown. If a suitable hostname cannot be acquired
-    * from the exception, only then is the <code>UnknownHostException</code> thrown.
+    * When using the {@link java.net.InetAddress#getHostName()} method in an environment where neither a proper DNS
+    * lookup nor an {@code /etc/hosts} entry exists for a given host, the following exception will be thrown:
+    * <pre>{@code
+    * java.net.UnknownHostException: <hostname>: <hostname> at
+    * java.net.InetAddress.getLocalHost(InetAddress.java:1425) ...
+    * }</pre>
+    * Instead of just throwing an UnknownHostException and giving up, this method grabs a suitable hostname from the
+    * exception and prevents the exception from being thrown. If a suitable hostname cannot be acquired from the
+    * exception, only then is the {@code UnknownHostException} thrown.
     *
     * @return The hostname
     * @throws UnknownHostException if the given host cannot be looked up.

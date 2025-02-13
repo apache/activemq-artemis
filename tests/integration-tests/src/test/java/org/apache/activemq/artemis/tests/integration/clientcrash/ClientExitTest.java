@@ -36,11 +36,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A test that makes sure that an ActiveMQ Artemis client gracefully exists after the last session is
- * closed. Test for http://jira.jboss.org/jira/browse/JBMESSAGING-417.
- *
- * This is not technically a crash test, but it uses the same type of topology as the crash tests
- * (local server, remote VM client).
+ * A test that makes sure that an ActiveMQ Artemis client gracefully exists after the last session is closed.
+ * <p>
+ * This is not technically a crash test, but it uses the same type of topology as the crash tests (local server, remote
+ * VM client).
  */
 public class ClientExitTest extends ClientTestBase {
 
@@ -74,7 +73,7 @@ public class ClientExitTest extends ClientTestBase {
 
       assertEquals(0, p.exitValue());
 
-      // FIXME https://jira.jboss.org/jira/browse/JBMESSAGING-1421
+      // FIXME
       // Thread.sleep(1000);
       //
       // // the local session
@@ -83,7 +82,7 @@ public class ClientExitTest extends ClientTestBase {
 
       session.close();
 
-      // FIXME https://jira.jboss.org/jira/browse/JBMESSAGING-1421
+      // FIXME
       // Thread.sleep(1000);
       // assertActiveConnections(0);
       // // assertActiveSession(0);

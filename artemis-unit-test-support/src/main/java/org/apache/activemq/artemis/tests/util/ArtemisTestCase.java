@@ -69,7 +69,7 @@ public abstract class ArtemisTestCase {
 
    /**
     * Use this method to cleanup your resources by passing a TestCleanupTask.
-    *
+    * <p>
     * Exceptions thrown from your tasks will just be logged and not passed as failures.
     *
     * @param completionTask A TestCleanupTask that will be passed, possibly from a lambda
@@ -87,10 +87,10 @@ public abstract class ArtemisTestCase {
 
    /**
     * Use this method to cleanup your resources and validating exceptional results by passing a TestCompletionTask.
-    *
-    * An exception thrown from a task will be thrown to JUnit. If more than one task is present, all tasks will be
-    * be executed, however only the exception of the first one will then be thrown the JUnit runner. All will be
-    * logged as they occur.
+    * <p>
+    * An exception thrown from a task will be thrown to JUnit. If more than one task is present, all tasks will be be
+    * executed, however only the exception of the first one will then be thrown the JUnit runner. All will be logged as
+    * they occur.
     *
     * @param completionTask A TestCompletionTask that will be passed, possibly from a lambda method
     */

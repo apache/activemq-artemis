@@ -43,18 +43,12 @@ public class JmsSessionRecoverTest extends TestCase {
    private ActiveMQConnectionFactory factory;
    private Destination dest;
 
-   /**
-    * @see junit.framework.TestCase#setUp()
-    */
    @Override
    protected void setUp() throws Exception {
       factory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
       connection = factory.createConnection();
    }
 
-   /**
-    * @see junit.framework.TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
@@ -63,55 +57,31 @@ public class JmsSessionRecoverTest extends TestCase {
       }
    }
 
-   /**
-    * @throws JMSException
-    * @throws InterruptedException
-    */
    public void testQueueSynchRecover() throws JMSException, InterruptedException {
       dest = new ActiveMQQueue("Queue-" + System.currentTimeMillis());
       doTestSynchRecover();
    }
 
-   /**
-    * @throws JMSException
-    * @throws InterruptedException
-    */
    public void testQueueAsynchRecover() throws JMSException, InterruptedException {
       dest = new ActiveMQQueue("Queue-" + System.currentTimeMillis());
       doTestAsynchRecover();
    }
 
-   /**
-    * @throws JMSException
-    * @throws InterruptedException
-    */
    public void testTopicSynchRecover() throws JMSException, InterruptedException {
       dest = new ActiveMQTopic("Topic-" + System.currentTimeMillis());
       doTestSynchRecover();
    }
 
-   /**
-    * @throws JMSException
-    * @throws InterruptedException
-    */
    public void testTopicAsynchRecover() throws JMSException, InterruptedException {
       dest = new ActiveMQTopic("Topic-" + System.currentTimeMillis());
       doTestAsynchRecover();
    }
 
-   /**
-    * @throws JMSException
-    * @throws InterruptedException
-    */
    public void testQueueAsynchRecoverWithAutoAck() throws JMSException, InterruptedException {
       dest = new ActiveMQQueue("Queue-" + System.currentTimeMillis());
       doTestAsynchRecoverWithAutoAck();
    }
 
-   /**
-    * @throws JMSException
-    * @throws InterruptedException
-    */
    public void testTopicAsynchRecoverWithAutoAck() throws JMSException, InterruptedException {
       dest = new ActiveMQTopic("Topic-" + System.currentTimeMillis());
       doTestAsynchRecoverWithAutoAck();
@@ -119,8 +89,6 @@ public class JmsSessionRecoverTest extends TestCase {
 
    /**
     * Test to make sure that a Sync recover works.
-    *
-    * @throws JMSException
     */
    public void doTestSynchRecover() throws JMSException {
       Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
@@ -152,9 +120,6 @@ public class JmsSessionRecoverTest extends TestCase {
 
    /**
     * Test to make sure that an Async recover works.
-    *
-    * @throws JMSException
-    * @throws InterruptedException
     */
    public void doTestAsynchRecover() throws JMSException, InterruptedException {
 
@@ -222,9 +187,6 @@ public class JmsSessionRecoverTest extends TestCase {
 
    /**
     * Test to make sure that an Async recover works when using AUTO_ACKNOWLEDGE.
-    *
-    * @throws JMSException
-    * @throws InterruptedException
     */
    public void doTestAsynchRecoverWithAutoAck() throws JMSException, InterruptedException {
 

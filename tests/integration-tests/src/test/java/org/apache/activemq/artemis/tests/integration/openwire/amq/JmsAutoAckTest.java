@@ -36,8 +36,6 @@ public class JmsAutoAckTest extends BasicOpenWireTest {
 
    /**
     * Tests if acknowledged messages are being consumed.
-    *
-    * @throws javax.jms.JMSException
     */
    @Test
    public void testAckedMessageAreConsumed() throws JMSException {

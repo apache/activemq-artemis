@@ -37,7 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/** This is an Utility class that will import the outputs in XML format. */
+/**
+ * This is an Utility class that will import the outputs in XML format.
+ */
 public class XMLMessageImporter {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -236,7 +238,7 @@ public class XMLMessageImporter {
     * to be combined to reconstruct the Base64 encoded string.  You can't decode bits and pieces of each CDATA.  Each
     * CDATA has to be decoded in its entirety.
     *
-    * @param processor used to deal with the decoded CDATA elements
+    * @param processor         used to deal with the decoded CDATA elements
     * @param decodeTextMessage If this a text message we decode UTF8 and encode as a simple string
     */
    private void getMessageBodyBytes(MessageBodyBytesProcessor processor, boolean decodeTextMessage) throws IOException, XMLStreamException {
@@ -247,7 +249,8 @@ public class XMLMessageImporter {
          if (currentEventType == XMLStreamConstants.END_ELEMENT) {
             break;
          } else if (currentEventType == XMLStreamConstants.CHARACTERS && reader.isWhiteSpace() && !cdata.isEmpty()) {
-            /* when we hit a whitespace CHARACTERS event we know that the entire CDATA is complete so decode, pass back to
+            /*
+             * when we hit a whitespace CHARACTERS event we know that the entire CDATA is complete so decode, pass back to
              * the processor, and reset the cdata for the next event(s)
              */
             if (decodeTextMessage) {

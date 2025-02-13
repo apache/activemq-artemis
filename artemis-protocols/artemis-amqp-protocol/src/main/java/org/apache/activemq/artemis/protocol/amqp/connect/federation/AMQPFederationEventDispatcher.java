@@ -53,8 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Sender controller used to fire events from one side of an AMQP Federation connection
- * to the other side.
+ * Sender controller used to fire events from one side of an AMQP Federation connection to the other side.
  */
 public class AMQPFederationEventDispatcher implements SenderController, ActiveMQServerBindingPlugin, ActiveMQServerAddressPlugin {
 
@@ -82,12 +81,10 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
    }
 
    /**
-    * Raw event send API that accepts an {@link AMQPMessage} instance and routes it using the
-    * server post office instance.
+    * Raw event send API that accepts an {@link AMQPMessage} instance and routes it using the server post office
+    * instance.
     *
-    * @param event
-    *    The event message to send to the previously created control address.
-    *
+    * @param event The event message to send to the previously created control address.
     * @throws Exception if an error occurs during the message send.
     */
    public void sendEvent(AMQPMessage event) throws Exception {
@@ -114,18 +111,17 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
       // We don't currently support SECOND so enforce that the answer is always FIRST
       sender.setReceiverSettleMode(ReceiverSettleMode.FIRST);
 
-      // Create a temporary queue using the unique link name which is where events will
-      // be sent to so that they can be held until credit is granted by the remote.
+      // Create a temporary queue using the unique link name which is where events will be sent to so that they can be
+      // held until credit is granted by the remote.
       eventsAddress = federation.prefixEventsLinkQueueName(sender.getName());
 
       if (sender.getLocalState() != EndpointState.ACTIVE) {
          // Indicate that event link capabilities is supported.
          sender.setOfferedCapabilities(new Symbol[]{FEDERATION_EVENT_LINK});
 
-         // When the federation source creates a events receiver link to receive events
-         // from the federation target side we land here on the target as this end should
-         // not be active yet, the federation source should request a dynamic source node
-         // to be created and we should return the address when opening this end.
+         // When the federation source creates a events receiver link to receive events from the federation target side
+         // we land here on the target as this end should not be active yet, the federation source should request a
+         // dynamic source node to be created and we should return the address when opening this end.
          final Terminus remoteTerminus = (Terminus) sender.getRemoteSource();
 
          if (remoteTerminus == null || !remoteTerminus.getDynamic()) {
@@ -168,28 +164,26 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
    }
 
    /**
-    * Add the given address name to the set of addresses that should be watched for and
-    * if added to the broker send an event to the remote indicating that it now exists
-    * and the remote should attempt to create a new address federation consumer.
-    *
+    * Add the given address name to the set of addresses that should be watched for and if added to the broker send an
+    * event to the remote indicating that it now exists and the remote should attempt to create a new address federation
+    * consumer.
+    * <p>
     * This method must be called from the connection thread.
     *
-    * @param addressName
-    *    The address name to watch for addition.
+    * @param addressName The address name to watch for addition.
     */
    public void addAddressWatch(String addressName) {
       addressWatches.add(addressName);
    }
 
    /**
-    * Add the given queue name to the set of queues that should be watched for and
-    * if added to the broker send an event to the remote indicating that it now exists
-    * and the remote should attempt to create a new queue federation consumer.
-    *
+    * Add the given queue name to the set of queues that should be watched for and if added to the broker send an event
+    * to the remote indicating that it now exists and the remote should attempt to create a new queue federation
+    * consumer.
+    * <p>
     * This method must be called from the connection thread.
     *
-    * @param queueName
-    *    The queue name to watch for addition.
+    * @param queueName The queue name to watch for addition.
     */
    public void addQueueWatch(String queueName) {
       queueWatches.add(queueName);
@@ -199,9 +193,9 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
    public void afterAddAddress(AddressInfo addressInfo, boolean reload) throws ActiveMQException {
       final String addressName = addressInfo.getName().toString();
 
-      // Run this on the connection thread so that rejection of a federation consumer
-      // and addition of the address can't race such that the consumer adds its intent
-      // concurrently with the address having been added and we miss the registration.
+      // Run this on the connection thread so that rejection of a federation consumer and addition of the address can't
+      // race such that the consumer adds its intent concurrently with the address having been added and we miss the
+      // registration.
       federation.getConnectionContext().runLater(() -> {
          if (addressWatches.remove(addressName)) {
             try {
@@ -221,9 +215,9 @@ public class AMQPFederationEventDispatcher implements SenderController, ActiveMQ
          final String addressName = queueBinding.getAddress().toString();
          final String queueName = queueBinding.getQueue().getName().toString();
 
-         // Run this on the connection thread so that rejection of a federation consumer
-         // and addition of the binding can't race such that the consumer adds its intent
-         // concurrently with the binding having been added and we miss the registration.
+         // Run this on the connection thread so that rejection of a federation consumer and addition of the binding
+         // can't race such that the consumer adds its intent concurrently with the binding having been added and we
+         // miss the registration.
          federation.getConnectionContext().runLater(() -> {
             if (queueWatches.remove(queueName)) {
                try {

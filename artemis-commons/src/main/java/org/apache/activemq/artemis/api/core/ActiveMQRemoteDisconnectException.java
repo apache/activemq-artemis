@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.api.core;
 import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.REMOTE_DISCONNECT;
 
 /**
- * A security problem occurred (authentication issues, permission issues,...)
+ * A security problem occurred (authentication issues, permission issues, etc.)
  */
 public final class ActiveMQRemoteDisconnectException extends ActiveMQException {
 

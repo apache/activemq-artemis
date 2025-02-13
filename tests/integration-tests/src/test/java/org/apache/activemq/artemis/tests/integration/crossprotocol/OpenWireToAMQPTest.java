@@ -161,9 +161,7 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
          ObjectMessage receive = (ObjectMessage) consumer.receive(5000);
          assertNotNull(receive);
 
-         /*
-          * As noted in section 3.5.4 of the JMS 2 specification all properties can be converted to String
-          */
+         // As noted in section 3.5.4 of the JMS 2 specification all properties can be converted to String
          Enumeration<String> propertyNames = receive.getPropertyNames();
          while (propertyNames.hasMoreElements()) {
             receive.getStringProperty(propertyNames.nextElement());

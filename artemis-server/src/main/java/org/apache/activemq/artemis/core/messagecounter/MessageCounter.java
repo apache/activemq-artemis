@@ -29,12 +29,11 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 /**
  * This class stores message count informations for a given queue
- *
+ * <p>
  * At intervals this class samples the queue for message count data
- *
- * Note that the underlying queue *does not* update statistics every time a message
- * is added since that would reall slow things down, instead we *sample* the queues at
- * regular intervals - this means we are less intrusive on the queue
+ * <p>
+ * Note that the underlying queue *does not* update statistics every time a message is added since that would reall slow
+ * things down, instead we *sample* the queues at regular intervals - this means we are less intrusive on the queue
  */
 public class MessageCounter {
 
@@ -71,7 +70,6 @@ public class MessageCounter {
    private long lastMessagesAdded;
 
    private long lastMessagesAcked;
-
 
    /**
     * Constructor
@@ -139,7 +137,7 @@ public class MessageCounter {
    };
 
 
-   /*
+   /**
     * This method is called periodically to update statistics from the queue
     */
    public synchronized void onTimer() {
@@ -167,8 +165,7 @@ public class MessageCounter {
    }
 
    /**
-    * Gets the total message count since startup or
-    * last counter reset
+    * Gets the total message count since startup or last counter reset
     */
    public long getCount() {
       return countTotal;
@@ -186,16 +183,14 @@ public class MessageCounter {
    }
 
    /**
-    * Gets the current message count of pending messages
-    * within the destination waiting for dispatch
+    * Gets the current message count of pending messages within the destination waiting for dispatch
     */
    public long getMessageCount() {
       return serverQueue.getMessageCount();
    }
 
    /**
-    * Gets the message count delta of pending messages
-    * since last method call.
+    * Gets the message count delta of pending messages since last method call.
     */
    public long getMessageCountDelta() {
       long current = serverQueue.getMessageCount();
@@ -279,14 +274,14 @@ public class MessageCounter {
 
    /**
     * Get message counter history data as string in format
-    *
-    * "day count\n
-    * Date 1, hour counter 0, hour counter 1, ..., hour counter 23\n
-    * Date 2, hour counter 0, hour counter 1, ..., hour counter 23\n
+    * <pre>
+    * day count
+    * Date 1, hour counter 0, hour counter 1, ..., hour counter 23
+    * Date 2, hour counter 0, hour counter 1, ..., hour counter 23
     * .....
     * .....
-    * Date n, hour counter 0, hour counter 1, ..., hour counter 23\n"
-    *
+    * Date n, hour counter 0, hour counter 1, ..., hour counter 23
+    * </pre>
     * @return String   message history data string
     */
    public String getHistoryAsString() {
@@ -324,9 +319,7 @@ public class MessageCounter {
    }
 
    /**
-    * Returns a JSON String serialization of a {@link MessageCounter} object.
-    *
-    * @return
+    * {@return a JSON String serialization of a {@link MessageCounter} object}
     */
    public String toJSon() {
       DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
@@ -348,9 +341,6 @@ public class MessageCounter {
          .build()
          .toString();
    }
-
-
-
 
    /**
     * Update message counter history
@@ -438,8 +428,7 @@ public class MessageCounter {
        * Constructor
        *
        * @param date       day counter date
-       * @param isStartDay true  first day counter
-       *                   false follow up day counter
+       * @param isStartDay true first day counter false follow up day counter
        */
       DayCounter(final GregorianCalendar date, final boolean isStartDay) {
          // store internal copy of creation date
@@ -537,8 +526,10 @@ public class MessageCounter {
       }
 
       /**
-       * Return day counter data as string with format<br>
-       * "Date, hour counter 0, hour counter 1, ..., hour counter 23".
+       * Return day counter data as string with format
+       * <pre>
+       * Date, hour counter 0, hour counter 1, ..., hour counter 23
+       * </pre>
        *
        * @return String day counter data
        */

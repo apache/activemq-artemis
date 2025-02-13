@@ -146,8 +146,8 @@ public class MQTTUtil {
     * {@code topicFilter} may be either for a shared subscription in the format {@code $share/<shareName>/<topicFilter>}
     * or a normal MQTT topic filter (e.g. {@code a/b/#}, {@code a/+/c}, {@code a/b/c}, etc.).
     *
-    * @param topicFilter the MQTT topic filter
-    * @param clientId the MQTT client ID, used for normal (i.e. non-shared) subscriptions
+    * @param topicFilter           the MQTT topic filter
+    * @param clientId              the MQTT client ID, used for normal (i.e. non-shared) subscriptions
     * @param wildcardConfiguration the {@code WildcardConfiguration} governing the core broker
     * @return the name of the core subscription queue based on the input
     */
@@ -169,7 +169,7 @@ public class MQTTUtil {
     * {@code topicFilter} must be normal (i.e. non-shared). It should not be in the format
     * {@code $share/<shareName>/<topicFilter>}.
     *
-    * @param topicFilter the MQTT topic filter
+    * @param topicFilter           the MQTT topic filter
     * @param wildcardConfiguration the {@code WildcardConfiguration} governing the core broker
     * @return the name of the core addres based on the input
     */
@@ -185,19 +185,20 @@ public class MQTTUtil {
     * also prefixes the return with
     * {@link org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil#MQTT_RETAIN_ADDRESS_PREFIX}
     *
-    * @param topicFilter the MQTT topic filter
+    * @param topicFilter           the MQTT topic filter
     * @param wildcardConfiguration the {@code WildcardConfiguration} governing the core broker
     * @return the name of the core address based on the input, stripping
-    *         {@link org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil#MQTT_RETAIN_ADDRESS_PREFIX} if it exists
+    * {@link org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil#MQTT_RETAIN_ADDRESS_PREFIX} if it exists
     */
    public static String getCoreRetainAddressFromMqttTopic(String topicFilter, WildcardConfiguration wildcardConfiguration) {
       return MQTT_RETAIN_ADDRESS_PREFIX + getCoreAddressFromMqttTopic(topicFilter, wildcardConfiguration);
    }
 
    /**
+    * Convert a Core address name into a proper MQTT topic name
     *
-    * @param address the core address
-    * @param wildcardConfiguration the {@code WildcardConfiguration} governing the core broker
+    * @param address               the core address; can't be {@code null}
+    * @param wildcardConfiguration the {@code WildcardConfiguration} governing the core broker; can't be {@code null}
     * @return the name of the MQTT topic based on the input
     */
    public static String getMqttTopicFromCoreAddress(String address, WildcardConfiguration wildcardConfiguration) {
@@ -462,7 +463,7 @@ public class MQTTUtil {
       return size;
    }
 
-   /*
+   /**
     * https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901027
     */
    private static int calculatePublishPropertiesSize(MqttProperties properties) {
@@ -520,7 +521,7 @@ public class MQTTUtil {
       }
    }
 
-   /*
+   /**
     * https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Remaining_Length:
     * "The packet size is the total number of bytes in an MQTT Control Packet, this is equal to the length of the Fixed
     * Header plus the Remaining Length."
@@ -532,9 +533,7 @@ public class MQTTUtil {
       return 1 + calculateVariableByteIntegerSize(message.fixedHeader().remainingLength()) + message.fixedHeader().remainingLength();
    }
 
-   /*
-    * https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901011
-    */
+   // https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901011
    private static int calculateVariableByteIntegerSize(int vbi) {
       int count = 0;
       do {
@@ -571,7 +570,7 @@ public class MQTTUtil {
     *
     * @param topicFilter String in the format {@code $share/<shareName>/<topicFilter>}
     * @return {@code Pair<String, String>} with {@code shareName} and {@code topicFilter} respectively or {@code null}
-    *         and {@code topicFilter} if not in the shared-subscription format.
+    * and {@code topicFilter} if not in the shared-subscription format.
     */
    public static Pair<String, String> decomposeSharedSubscriptionTopicFilter(String topicFilter) {
       if (isSharedSubscription(topicFilter)) {
@@ -585,8 +584,9 @@ public class MQTTUtil {
    }
 
    /**
+    * Test whether an MQTT topic filter is for a shared subscription.
     *
-    * @param topicFilter the topic filter
+    * @param topicFilter the MQTT topic filter
     * @return {@code true} if the input starts with {@code $share/}, {@code false} otherwise
     */
    public static boolean isSharedSubscription(String topicFilter) {

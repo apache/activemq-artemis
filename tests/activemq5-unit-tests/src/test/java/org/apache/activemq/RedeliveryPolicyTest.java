@@ -62,9 +62,6 @@ public class RedeliveryPolicyTest extends JmsTestSupport {
       assertEquals(500, delay);
    }
 
-   /**
-    * @throws Exception
-    */
    public void testExponentialRedeliveryPolicyDelaysDeliveryOnRollback() throws Exception {
 
       // Receive a message with the JMS API
@@ -117,9 +114,6 @@ public class RedeliveryPolicyTest extends JmsTestSupport {
 
    }
 
-   /**
-    * @throws Exception
-    */
    public void testNornalRedeliveryPolicyDelaysDeliveryOnRollback() throws Exception {
 
       // Receive a message with the JMS API
@@ -168,9 +162,6 @@ public class RedeliveryPolicyTest extends JmsTestSupport {
 
    }
 
-   /**
-    * @throws Exception
-    */
    public void testDLQHandling() throws Exception {
 
       // Receive a message with the JMS API
@@ -224,9 +215,6 @@ public class RedeliveryPolicyTest extends JmsTestSupport {
 
    }
 
-   /**
-    * @throws Exception
-    */
    public void testInfiniteMaximumNumberOfRedeliveries() throws Exception {
 
       // Receive a message with the JMS API
@@ -288,9 +276,6 @@ public class RedeliveryPolicyTest extends JmsTestSupport {
 
    }
 
-   /**
-    * @throws Exception
-    */
    public void testMaximumRedeliveryDelay() throws Exception {
 
       // Receive a message with the JMS API
@@ -338,9 +323,6 @@ public class RedeliveryPolicyTest extends JmsTestSupport {
       assertTrue(policy.getNextRedeliveryDelay(Long.MAX_VALUE) == 1000);
    }
 
-   /**
-    * @throws Exception
-    */
    public void testZeroMaximumNumberOfRedeliveries() throws Exception {
 
       // Receive a message with the JMS API

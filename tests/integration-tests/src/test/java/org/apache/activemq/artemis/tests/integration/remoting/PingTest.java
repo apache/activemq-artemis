@@ -84,7 +84,7 @@ public class PingTest extends ActiveMQTestBase {
       }
    }
 
-   /*
+   /**
     * Test that no failure listeners are triggered in a non failure case with pinging going on
     */
    @Test
@@ -137,7 +137,7 @@ public class PingTest extends ActiveMQTestBase {
       locator.close();
    }
 
-   /*
+   /**
     * Test that no failure listeners are triggered in a non failure case with no pinging going on
     */
    @Test
@@ -189,7 +189,7 @@ public class PingTest extends ActiveMQTestBase {
       locator.close();
    }
 
-   /*
+   /**
     * Test that pinging is disabled for in-vm connection when using the default settings
     */
    @Test
@@ -226,7 +226,7 @@ public class PingTest extends ActiveMQTestBase {
       locator.close();
    }
 
-   /*
+   /**
     * Test the server timing out a connection since it doesn't receive a ping in time
     */
    @Test
@@ -295,9 +295,9 @@ public class PingTest extends ActiveMQTestBase {
       locator.close();
    }
 
-   /*
-   * Test the client triggering failure due to no ping from server received in time
-   */
+   /**
+    * Test the client triggering failure due to no ping from server received in time
+    */
    @Test
    public void testClientFailureNoServerPing() throws Exception {
       // server must received at least one ping from the client to pass

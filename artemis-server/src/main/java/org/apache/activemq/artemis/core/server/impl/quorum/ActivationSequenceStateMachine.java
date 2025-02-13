@@ -31,10 +31,9 @@ import org.apache.activemq.artemis.lockmanager.UnavailableStateException;
 import org.slf4j.Logger;
 
 /**
- * This class contains the activation sequence logic of the pluggable lock manager:
- * it should be used by {@link org.apache.activemq.artemis.core.server.impl.ReplicationBackupActivation}
- * and {@link org.apache.activemq.artemis.core.server.impl.ReplicationPrimaryActivation} to coordinate
- * for replication.
+ * This class contains the activation sequence logic of the pluggable lock manager: it should be used by
+ * {@link org.apache.activemq.artemis.core.server.impl.ReplicationBackupActivation} and
+ * {@link org.apache.activemq.artemis.core.server.impl.ReplicationPrimaryActivation} to coordinate for replication.
  */
 public final class ActivationSequenceStateMachine {
 
@@ -46,18 +45,17 @@ public final class ActivationSequenceStateMachine {
    }
 
    /**
-    * It loops if the data of the broker is still valuable, but cannot become active.
-    * It loops (temporarily) if data is in sync or can auto-repair, but cannot yet acquire the primary lock.
+    * It loops if the data of the broker is still valuable, but cannot become active. It loops (temporarily) if data is
+    * in sync or can auto-repair, but cannot yet acquire the primary lock.
     * <p>
     * It stops loop and return:
-    * <p><ul>
+    * <ul>
     * <li>{@code null}: if data is stale (and there are no rights to become active)
     * <li>{@code !=null}: if data is in sync/repaired and the {@link DistributedLock} is correctly acquired
-    * </ul><p>
-    * <p>
+    * </ul>
     * After successfully returning from this method ie not null return value, a broker should use
-    * {@link #ensureSequentialAccessToNodeData} to complete
-    * the activation and guarantee the initial not-replicated ownership of data.
+    * {@link #ensureSequentialAccessToNodeData} to complete the activation and guarantee the initial not-replicated
+    * ownership of data.
     */
    public static DistributedLock tryActivate(final NodeManager nodeManager,
                                              final DistributedLockManager distributedManager,
@@ -147,19 +145,19 @@ public final class ActivationSequenceStateMachine {
    private enum ValidationResult {
       /**
        * coordinated activation sequence (claimed/committed) is far beyond the local one: data is not valuable anymore
-       **/
+       */
       Stale,
       /**
        * coordinated activation sequence is the same as local one: data is in sync
-       **/
+       */
       InSync,
       /**
        * next coordinated activation sequence is not committed yet: maybe data is in sync
-       **/
+       */
       MaybeInSync,
       /**
        * next coordinated activation sequence is not committed yet, but this broker can self-repair: data is in sync
-       **/
+       */
       SelfRepair
    }
 
@@ -253,12 +251,12 @@ public final class ActivationSequenceStateMachine {
    }
 
    /**
-    * This is going to increment the coordinated activation sequence and the local activation sequence
-    * (using {@link NodeManager#writeNodeActivationSequence}) while holding the primary lock,
-    * failing with some exception otherwise.<br>
+    * This is going to increment the coordinated activation sequence and the local activation sequence (using
+    * {@link NodeManager#writeNodeActivationSequence}) while holding the primary lock, failing with some exception
+    * otherwise.
     * <p>
-    * This must be used while holding a primary lock to ensure not-exclusive ownership of data ie can be both used
-    * while loosing connectivity with a replica or after successfully {@link #tryActivate}.
+    * This must be used while holding a primary lock to ensure not-exclusive ownership of data ie can be both used while
+    * loosing connectivity with a replica or after successfully {@link #tryActivate}.
     */
    public static void ensureSequentialAccessToNodeData(final String serverDescription,
                                                        final NodeManager nodeManager,

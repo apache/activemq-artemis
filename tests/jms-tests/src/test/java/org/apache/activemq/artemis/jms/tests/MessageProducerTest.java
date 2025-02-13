@@ -82,9 +82,6 @@ public class MessageProducerTest extends JMSTestCase {
 
    private static class SimpleDestination implements Destination, Serializable {
 
-      /**
-       *
-       */
       private static final long serialVersionUID = -2553676986492799801L;
    }
 

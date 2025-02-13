@@ -23,9 +23,6 @@ import org.apache.activemq.broker.BrokerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class JmsQueueSendReceiveTwoConnectionsStartBeforeBrokerTest extends JmsQueueSendReceiveTwoConnectionsTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsQueueSendReceiveTwoConnectionsStartBeforeBrokerTest.class);

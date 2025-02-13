@@ -24,7 +24,7 @@ import java.util.Hashtable;
 
 /**
  * A ConnectionFactoryObjectFactory.
- *
+ * <p>
  * Given a reference - reconstructs an ActiveMQRAConnectionFactory
  */
 public class ActiveMQRAConnectionFactoryObjectFactory implements ObjectFactory {

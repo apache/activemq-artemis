@@ -223,9 +223,9 @@ public class LargeBody {
       return file.cloneFile();
    }
 
-   /** Meant for test-ability, be careful if you decide to use it.
-    *  and in case you use it for a real reason, please change the documentation here.
-    * @param file
+   /**
+    * Meant for test-ability, be careful if you decide to use it. and in case you use it for a real reason, please
+    * change the documentation here.
     */
    public void replaceFile(SequentialFile file) {
       this.file = file;
@@ -306,8 +306,8 @@ public class LargeBody {
    }
 
    /**
-    * sendEvent means it's a close happening from end of write largemessage.
-    * While reading the largemessage we don't need (and shouldn't inform the backup
+    * sendEvent means it's a close happening from end of write largemessage. While reading the largemessage we don't
+    * need (and shouldn't inform the backup
     */
    public synchronized void releaseResources(boolean sync, boolean sendEvent) {
       if (file != null && file.isOpen()) {
@@ -443,9 +443,6 @@ public class LargeBody {
          }
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.message.LargeBodyEncoder#getSize()
-       */
       @Override
       public long getSize() throws ActiveMQException {
          return getBodySize();

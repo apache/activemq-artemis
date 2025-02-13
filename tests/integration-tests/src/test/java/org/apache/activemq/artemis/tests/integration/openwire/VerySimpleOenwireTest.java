@@ -31,13 +31,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/** This is useful to debug connection ordering. There's only one connection being made from these tests */
+/**
+ * This is useful to debug connection ordering. There's only one connection being made from these tests
+ */
 public class VerySimpleOenwireTest extends OpenWireTestBase {
 
    /**
     * This is the example shipped with the distribution
-    *
-    * @throws Exception
     */
    @Test
    public void testOpenWireExample() throws Exception {

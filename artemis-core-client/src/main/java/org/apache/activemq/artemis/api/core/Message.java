@@ -31,13 +31,13 @@ import org.apache.activemq.artemis.core.persistence.Persister;
 /**
  * A Message is a routable instance that has a payload.
  * <p>
- * The payload (the "body") is opaque to the messaging system. A Message also has a fixed set of
- * headers (required by the messaging system) and properties (defined by the users) that can be used
- * by the messaging system to route the message (e.g. to ensure it matches a queue filter).
+ * The payload (the "body") is opaque to the messaging system. A Message also has a fixed set of headers (required by
+ * the messaging system) and properties (defined by the users) that can be used by the messaging system to route the
+ * message (e.g. to ensure it matches a queue filter).
  * <h2>Message Properties</h2>
  * <p>
- * Message can contain properties specified by the users. It is possible to convert from some types
- * to other types as specified by the following table:
+ * Message can contain properties specified by the users. It is possible to convert from some types to other types as
+ * specified by the following table:
  * <pre>
  * |        | boolean byte short int long float double String byte[]
  * |----------------------------------------------------------------
@@ -52,25 +52,23 @@ import org.apache.activemq.artemis.core.persistence.Persister;
  * |byte[]  |                                                   X
  * |-----------------------------------------------------------------
  * </pre>
+ * If conversion is not allowed (for example calling {@code getFloatProperty} on a property set a {@code boolean}), a
+ * {@link ActiveMQPropertyConversionException} will be thrown.
  * <p>
- * If conversion is not allowed (for example calling {@code getFloatProperty} on a property set a
- * {@code boolean}), a {@link ActiveMQPropertyConversionException} will be thrown.
- *
- *
  * User cases that will be covered by Message
- *
+ * <p>
  * Receiving a buffer:
- *
+ * <pre>{@code
  * Message encode = new CoreMessage(); // or any other implementation
  * encode.receiveBuffer(buffer);
- *
- *
+ * }</pre>
+ * <p>
  * Sending to a buffer:
- *
+ * <pre>{@code
  * Message encode;
  * size = encode.getEncodeSize();
  * encode.encodeDirectly(bufferOutput);
- *
+ * }</pre>
  */
 public interface Message {
 
@@ -155,7 +153,8 @@ public interface Message {
    SimpleString HDR_LAST_VALUE_NAME = SimpleString.of("_AMQ_LVQ_NAME");
 
    /**
-    * To define the mime-type of body messages. Mainly for stomp but it could be informed on any message for user purposes.
+    * To define the mime-type of body messages. Mainly for stomp but it could be informed on any message for user
+    * purposes.
     */
    SimpleString HDR_CONTENT_TYPE = SimpleString.of("_AMQ_CONTENT_TYPE");
 
@@ -180,8 +179,8 @@ public interface Message {
    SimpleString HDR_INGRESS_TIMESTAMP = SimpleString.of("_AMQ_INGRESS_TIMESTAMP");
 
    /**
-    * The prefix used (if any) when sending this message.  For protocols (e.g. STOMP) that need to track this and restore
-    * the prefix when the message is consumed.
+    * The prefix used (if any) when sending this message.  For protocols (e.g. STOMP) that need to track this and
+    * restore the prefix when the message is consumed.
     */
    SimpleString HDR_PREFIX = SimpleString.of("_AMQ_PREFIX");
 
@@ -197,10 +196,15 @@ public interface Message {
 
    byte STREAM_TYPE = 6;
 
-   /** The message will contain another message persisted through {@literal org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil}*/
+   /**
+    * The message will contain another message persisted through
+    * {@code org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil}
+    */
    byte EMBEDDED_TYPE = 7;
 
-   /** This is to embedd Large Messages from other protocol */
+   /**
+    * This is to embedd Large Messages from other protocol
+    */
    byte LARGE_EMBEDDED_TYPE = 8;
 
    default void clearInternalProperties() {
@@ -211,8 +215,7 @@ public interface Message {
    }
 
    /**
-    * Search for the existence of the property: an implementor can save
-    * the message to be decoded, if possible.
+    * Search for the existence of the property: an implementor can save the message to be decoded, if possible.
     */
    default boolean hasScheduledDeliveryTime() {
       return getScheduledDeliveryTime() != null;
@@ -243,18 +246,17 @@ public interface Message {
    }
 
    /**
-    * @deprecated do not use this, use through ICoreMessage or ClientMessage
-    * Warning: if you need to read the content of a message use getDataBuffer(). This method is intended for when you
-    *          want to make changes.
+    * @deprecated do not use this, use through ICoreMessage or ClientMessage Warning: if you need to read the content of
+    * a message use getDataBuffer(). This method is intended for when you want to make changes.
     */
    @Deprecated
    default ActiveMQBuffer getBodyBuffer() {
       return null;
    }
 
-      /**
-       * @deprecated do not use this, use through ICoreMessage or ClientMessage
-       */
+   /**
+    * @deprecated do not use this, use through ICoreMessage or ClientMessage
+    */
    @Deprecated
    default byte getType() {
       return (byte)0;
@@ -273,8 +275,9 @@ public interface Message {
     */
    void messageChanged();
 
-   /** Used to calculate what is the delivery time.
-    *  Return null if not scheduled. */
+   /**
+    * Used to calculate what is the delivery time. Return null if not scheduled.
+    */
    Long getScheduledDeliveryTime();
 
    void setPaged();
@@ -318,13 +321,19 @@ public interface Message {
 
    Message setReplyTo(SimpleString address);
 
-   /** It will generate a new instance of the message encode, being a deep copy, new properties, new everything */
+   /**
+    * It will generate a new instance of the message encode, being a deep copy, new properties, new everything
+    */
    Message copy();
 
-   /** It will generate a new instance of the message encode, being a deep copy, new properties, new everything */
+   /**
+    * It will generate a new instance of the message encode, being a deep copy, new properties, new everything
+    */
    Message copy(long newID);
 
-   /** It will generate a new instance of the message encode, being a deep copy, new properties, new everything */
+   /**
+    * It will generate a new instance of the message encode, being a deep copy, new properties, new everything
+    */
    default Message copy(long newID, boolean isExpiryOrDLQ) {
       return copy(newID);
    }
@@ -337,9 +346,7 @@ public interface Message {
    }
 
    /**
-    * Returns the messageID.
-    * <br>
-    * The messageID is set when the message is handled by the server.
+    * {@return the messageID; the messageID is set when the message is handled by the server}
     */
    long getMessageID();
 
@@ -361,7 +368,7 @@ public interface Message {
    }
 
    /**
-    * Returns the expiration time of this message.
+    * {@return the expiration time of this message}
     */
    long getExpiration();
 
@@ -373,7 +380,7 @@ public interface Message {
    Message setExpiration(long expiration);
 
    /**
-    * Returns whether this message is expired or not.
+    * {@return whether this message is expired or not}
     */
    default boolean isExpired() {
       if (getExpiration() == 0) {
@@ -383,12 +390,10 @@ public interface Message {
       return System.currentTimeMillis() - getExpiration() >= 0;
    }
 
-
    /**
-    *
-    * This represents historically the JMSMessageID.
-    * We had in the past used this for the MessageID that was sent on core messages...
-    *
+    * This represents historically the JMSMessageID. We had in the past used this for the MessageID that was sent on
+    * core messages...
+    * <p>
     * later on when we added AMQP this name clashed with AMQPMessage.getUserID();
     *
     * @return the user id
@@ -406,7 +411,7 @@ public interface Message {
    }
 
    /**
-    * Returns whether this message is durable or not.
+    * {@return whether this message is durable or not}
     */
    boolean isDurable();
 
@@ -423,8 +428,6 @@ public interface Message {
 
    /**
     * Look at {@link #setAddress(SimpleString)} for the doc.
-    * @param address
-    * @return
     */
    Message setAddress(String address);
 
@@ -432,16 +435,13 @@ public interface Message {
 
    /**
     * This will set the address on CoreMessage.
-    *
-    * Note for AMQPMessages:
-    * in AMQPMessages this will not really change the address on the message. Instead it will add a property
-    * on extraProperties which only transverse internally at the broker.
-    * Whatever you change here it won't affect anything towards the received message.
-    *
+    * <p>
+    * Note for AMQPMessages: in AMQPMessages this will not really change the address on the message. Instead it will add
+    * a property on extraProperties which only transverse internally at the broker. Whatever you change here it won't
+    * affect anything towards the received message.
+    * <p>
     * If you wish to change AMQPMessages address you will have to do it directly at the AMQP Message, however beware
     * that AMQPMessages are not supposed to be changed at the broker, so only do it if you know what you are doing.
-    * @param address
-    * @return
     */
    Message setAddress(SimpleString address);
 
@@ -450,9 +450,7 @@ public interface Message {
    Message setTimestamp(long timestamp);
 
    /**
-    * Returns the message priority.
-    * <p>
-    * Values range from 0 (less priority) to 9 (more priority) inclusive.
+    * {@return the message priority; values range from 0 (less priority) to 9 (more priority) inclusive}
     */
    byte getPriority();
 
@@ -465,12 +463,17 @@ public interface Message {
     */
    Message setPriority(byte priority);
 
-   /** Used to receive this message from an encoded medium buffer */
+   /**
+    * Used to receive this message from an encoded medium buffer
+    */
    void receiveBuffer(ByteBuf buffer);
 
-   /** Used to send this message to an encoded medium buffer.
-    * @param buffer the buffer used.
-    * @param deliveryCount Some protocols (AMQP) will have this as part of the message. */
+   /**
+    * Used to send this message to an encoded medium buffer.
+    *
+    * @param buffer        the buffer used.
+    * @param deliveryCount Some protocols (AMQP) will have this as part of the message.
+    */
    void sendBuffer(ByteBuf buffer, int deliveryCount);
 
    int getPersistSize();
@@ -479,7 +482,9 @@ public interface Message {
 
    void reloadPersistence(ActiveMQBuffer record, CoreMessageObjectPools pools);
 
-   /** Propagate message modifications to clients. */
+   /**
+    * Propagate message modifications to clients.
+    */
    default void reencode() {
       // only valid probably on AMQP
    }
@@ -499,7 +504,6 @@ public interface Message {
 
    /**
     * it will translate a property named HDR_DUPLICATE_DETECTION_ID.
-    * @return
     */
    default byte[] getDuplicateIDBytes() {
       Object duplicateID = getDuplicateProperty();
@@ -534,59 +538,95 @@ public interface Message {
       return null;
    }
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putBooleanProperty(String key, boolean value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putByteProperty(String key, byte value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putBytesProperty(String key, byte[] value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putShortProperty(String key, short value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putCharProperty(String key, char value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putIntProperty(String key, int value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putLongProperty(String key, long value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putFloatProperty(String key, float value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putDoubleProperty(String key, double value);
 
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putBooleanProperty(SimpleString key, boolean value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putByteProperty(SimpleString key, byte value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putBytesProperty(SimpleString key, byte[] value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putShortProperty(SimpleString key, short value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putCharProperty(SimpleString key, char value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putIntProperty(SimpleString key, int value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putLongProperty(SimpleString key, long value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putFloatProperty(SimpleString key, float value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putDoubleProperty(SimpleString key, double value);
 
    /**
@@ -599,10 +639,14 @@ public interface Message {
     */
    Message putStringProperty(String key, String value);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putObjectProperty(String key, Object value) throws ActiveMQPropertyConversionException;
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    Message putObjectProperty(SimpleString key, Object value) throws ActiveMQPropertyConversionException;
 
    Object removeProperty(String key);
@@ -666,14 +710,17 @@ public interface Message {
 
    Object getAnnotation(SimpleString key);
 
-   /** Callers must call {@link #reencode()} in order to be sent to clients */
+   /**
+    * Callers must call {@link #reencode()} in order to be sent to clients
+    */
    default Message setAnnotation(SimpleString key, Object value) {
       putObjectProperty(key, value);
       return this;
    }
 
-   /** To be called by the broker on ocasions such as DLQ and expiry.
-    * When the broker is adding additional properties. */
+   /**
+    * To be called by the broker on ocasions such as DLQ and expiry. When the broker is adding additional properties.
+    */
    default Message setBrokerProperty(SimpleString key, Object value) {
       putObjectProperty(key, value);
       return this;
@@ -707,22 +754,21 @@ public interface Message {
    Message putStringProperty(SimpleString key, String value);
 
    /**
-    * Returns the size of the <em>encoded</em> message.
+    * {@return the size of the <em>encoded</em> message}
     */
    int getEncodeSize();
 
    /**
-    * Return an estimate of the size of the message on the wire.
-    * for LargeMessages this will contain whatever is needed to encode properties and the body size of large messages.
-    * For AMQP this will return the whole body size of the message as the body will contain all the data including properties.
-    * @return
+    * Return an estimate of the size of the message on the wire. for LargeMessages this will contain whatever is needed
+    * to encode properties and the body size of large messages. For AMQP this will return the whole body size of the
+    * message as the body will contain all the data including properties.
     */
    default long getWholeMessageSize() {
       return getEncodeSize();
    }
 
    /**
-    * Returns all the names of the properties for this message.
+    * {@return all the names of the properties for this message}
     */
    Set<SimpleString> getPropertyNames();
 
@@ -734,14 +780,16 @@ public interface Message {
 
    int getDurableCount();
 
-   /** this method indicates usage by components such as large message or page cache.
-    *  This method will cause large messages to be held longer after the ack happened for instance.
+   /**
+    * This method indicates usage by components such as large message or page cache. This method will cause large
+    * messages to be held longer after the ack happened for instance.
     */
    int usageUp();
 
    /**
+    * Opposite of {@link #usageUp()}
+    *
     * @see #usageUp()
-    * @return
     */
    int usageDown();
 
@@ -754,14 +802,15 @@ public interface Message {
    int durableDown();
 
    /**
-    * @return Returns the message in Map form, useful when encoding to JSON
+    * {@return Returns the message in Map form, useful when encoding to JSON}
     */
    default Map<String, Object> toMap() {
       return toMap(-1);
    }
 
    /**
-    * @return Returns the message in Map form, useful when encoding to JSON
+    * {@return the message in Map form, useful when encoding to JSON}
+    *
     * @param valueSizeLimit that limits [] map values
     */
    default Map<String, Object> toMap(int valueSizeLimit) {
@@ -782,14 +831,15 @@ public interface Message {
    }
 
    /**
-    * @return Returns the message properties in Map form, useful when encoding to JSON
+    * {@return Returns the message properties in Map form, useful when encoding to JSON}
     */
    default Map<String, Object> toPropertyMap() {
       return toPropertyMap(-1);
    }
 
    /**
-    * @return Returns the message properties in Map form, useful when encoding to JSON
+    * {@return Returns the message properties in Map form, useful when encoding to JSON}
+    *
     * @param valueSizeLimit that limits [] map values
     */
    default Map<String, Object> toPropertyMap(int valueSizeLimit) {
@@ -806,32 +856,35 @@ public interface Message {
       return map;
    }
 
-   /** This should make you convert your message into Core format. */
+   /**
+    * This should make you convert your message into Core format.
+    */
    ICoreMessage toCore();
 
    default CompositeData toCompositeData(int fieldsLimit, int deliveryCount) throws OpenDataException {
       return null;
    }
 
-   /** This should make you convert your message into Core format. */
+   /**
+    * This should make you convert your message into Core format.
+    */
    ICoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools);
 
    int getMemoryEstimate();
 
-   /** The first estimate that's been calculated without any updates. */
+   /**
+    * The first estimate that's been calculated without any updates.
+    */
    default int getOriginalEstimate() {
       // For Core Protocol we always use the same estimate
       return getMemoryEstimate();
    }
 
    /**
-    * This is the size of the message when persisted on disk which is used for metrics tracking
-    * Note that even if the message itself is not persisted on disk (ie non-durable) this value is
-    * still used for metrics tracking
-    * If a normal message it will be the encoded message size
-    * If a large message it will be encoded message size + large message body size
-    * @return
-    * @throws ActiveMQException
+    * This is the size of the message when persisted on disk which is used for metrics tracking Note that even if the
+    * message itself is not persisted on disk (ie non-durable) this value is still used for metrics tracking If a normal
+    * message it will be the encoded message size If a large message it will be encoded message size + large message
+    * body size
     */
    long getPersistentSize() throws ActiveMQException;
 
@@ -843,9 +896,13 @@ public interface Message {
       return null;
    }
 
-   /** Used for user context data. Useful on interceptors. */
+   /**
+    * Used for user context data. Useful on interceptors.
+    */
    Object getUserContext(Object key);
 
-   /** Used for user context data. Useful on interceptors. */
+   /**
+    * Used for user context data. Useful on interceptors.
+    */
    void setUserContext(Object key, Object value);
 }

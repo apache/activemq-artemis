@@ -74,9 +74,6 @@ public class JournalTransaction implements IOCallback {
       journal = provider;
    }
 
-   /**
-    * @return the id
-    */
    public long getId() {
       return id;
    }
@@ -149,9 +146,6 @@ public class JournalTransaction implements IOCallback {
       compacting = false;
    }
 
-   /**
-    *
-    */
    public void clear() {
       // / Compacting is recreating all the previous files and everything
       // / so we just clear the list of previous files, previous pos and previous adds
@@ -175,10 +169,6 @@ public class JournalTransaction implements IOCallback {
 
    }
 
-   /**
-    * @param currentFile
-    * @param data
-    */
    public void fillNumberOfRecords(final JournalFile currentFile, final JournalInternalRecord data) {
       data.setNumberOfRecords(getCounter(currentFile));
    }
@@ -214,7 +204,8 @@ public class JournalTransaction implements IOCallback {
    }
 
    /**
-    * The caller of this method needs to guarantee appendLock.lock at the journal. (unless this is being called from load what is a single thread process).
+    * The caller of this method needs to guarantee appendLock.lock at the journal. (unless this is being called from
+    * load what is a single thread process).
     */
    public void commit(final JournalFile file) {
       JournalCompactor compactor = journal.getCompactor();
@@ -277,8 +268,8 @@ public class JournalTransaction implements IOCallback {
    }
 
    /**
-    * The caller of this method needs to guarantee appendLock.lock before calling this method if being used outside of the lock context.
-    * or else potFilesMap could be affected
+    * The caller of this method needs to guarantee appendLock.lock before calling this method if being used outside of
+    * the lock context. or else potFilesMap could be affected
     */
    public void rollback(final JournalFile file) {
       JournalCompactor compactor = journal.getCompactor();
@@ -303,8 +294,8 @@ public class JournalTransaction implements IOCallback {
    }
 
    /**
-    * The caller of this method needs to guarantee appendLock.lock before calling this method if being used outside of the lock context.
-    * or else potFilesMap could be affected
+    * The caller of this method needs to guarantee appendLock.lock before calling this method if being used outside of
+    * the lock context. or else potFilesMap could be affected
     */
    public void prepare(final JournalFile file) {
       // We don't want the prepare record getting deleted before time
@@ -355,11 +346,6 @@ public class JournalTransaction implements IOCallback {
 
       final boolean replaceableUpdate;
 
-      /**
-       * @param file
-       * @param id
-       * @param size
-       */
       private JournalUpdate(final JournalFile file, final long id, final int size, final boolean replaceableUpdate) {
          super();
          this.file = file;
@@ -368,14 +354,10 @@ public class JournalTransaction implements IOCallback {
          this.replaceableUpdate = replaceableUpdate;
       }
 
-      /**
-       * @return the id
-       */
       public long getId() {
          return id;
       }
    }
-
 
    public void countUp() {
       upUpdater.incrementAndGet(this);
@@ -403,33 +385,19 @@ public class JournalTransaction implements IOCallback {
       }
    }
 
-   /**
-    * @return the delegateCompletion
-    */
    public IOCallback getDelegateCompletion() {
       return delegateCompletion;
    }
 
-   /**
-    * @param delegateCompletion the delegateCompletion to set
-    */
    public void setDelegateCompletion(final IOCallback delegateCompletion) {
       this.delegateCompletion = delegateCompletion;
    }
 
-   /**
-    * @return the errorMessage
-    */
    public String getErrorMessage() {
       return errorMessage;
    }
 
-   /**
-    * @return the errorCode
-    */
    public int getErrorCode() {
       return errorCode;
    }
-
-
 }

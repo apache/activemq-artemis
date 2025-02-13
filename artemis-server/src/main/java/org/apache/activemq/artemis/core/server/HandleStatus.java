@@ -18,11 +18,11 @@ package org.apache.activemq.artemis.core.server;
 
 /**
  * A HandleStatus
- *
+ * <p>
  * HANDLED means the MessageReference was handled
- *
+ * <p>
  * NO_MATCH means the MessageReference was rejected by a Filter
- *
+ * <p>
  * BUSY means the MessageReference was rejected since the ClientConsumer was busy
  */
 public enum HandleStatus {

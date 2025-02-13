@@ -412,9 +412,8 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
    /**
     * This test is validating that annotations sent to the original broker are not translated to the receiving side.
-    * Also annotations could eventually damage the body if the broker did not take that into consideration.
-    * So, this test is sending delivery annotations on messages.
-    * @throws Exception
+    * Also annotations could eventually damage the body if the broker did not take that into consideration. So, this
+    * test is sending delivery annotations on messages.
     */
    @Test
    public void testLargeMessagesWithDeliveryAnnotations() throws Exception {
@@ -483,9 +482,10 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       }
    }
 
-
-   /** This is setting delivery annotations and sending messages with no address.
-    * The broker should know how to deal with the annotations and no address on the message. */
+   /**
+    * This is setting delivery annotations and sending messages with no address. The broker should know how to deal with
+    * the annotations and no address on the message.
+    */
    @Test
    public void testNoAddressWithAnnotations() throws Exception {
       server.setIdentity("targetServer");

@@ -27,9 +27,6 @@ import org.apache.activemq.transport.udp.UdpTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class UnreliableCommandDatagramSocket extends CommandDatagramSocket {
 
    private static final Logger LOG = LoggerFactory.getLogger(UnreliableCommandDatagramSocket.class);

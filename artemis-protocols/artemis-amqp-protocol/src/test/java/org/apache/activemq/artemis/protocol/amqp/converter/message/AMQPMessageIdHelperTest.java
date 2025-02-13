@@ -45,8 +45,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#hasMessageIdPrefix(String)} returns
-    * true for strings that begin "ID:"
+    * Test that {@link AMQPMessageIdHelper#hasMessageIdPrefix(String)} returns {@code true} for strings that begin
+    * "ID:"
     */
    @Test
    public void testHasIdPrefixWithPrefix() {
@@ -55,8 +55,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#hasMessageIdPrefix(String)} returns
-    * false for string beings "ID" without colon.
+    * Test that {@link AMQPMessageIdHelper#hasMessageIdPrefix(String)} returns false for string beings "ID" without
+    * colon.
     */
    @Test
    public void testHasIdPrefixWithIDButNoColonPrefix() {
@@ -65,8 +65,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#hasMessageIdPrefix(String)} returns
-    * false for null
+    * Test that {@link AMQPMessageIdHelper#hasMessageIdPrefix(String)} returns false for null
     */
    @Test
    public void testHasIdPrefixWithNull() {
@@ -75,8 +74,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#hasMessageIdPrefix(String)} returns
-    * false for strings that doesnt have "ID:" anywhere
+    * Test that {@link AMQPMessageIdHelper#hasMessageIdPrefix(String)} returns false for strings that doesnt have "ID:"
+    * anywhere
     */
    @Test
    public void testHasIdPrefixWithoutPrefix() {
@@ -85,8 +84,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#hasMessageIdPrefix(String)} returns
-    * false for strings has lowercase "id:" prefix
+    * Test that {@link AMQPMessageIdHelper#hasMessageIdPrefix(String)} returns false for strings has lowercase "id:"
+    * prefix
     */
    @Test
    public void testHasIdPrefixWithLowercaseID() {
@@ -95,8 +94,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns
-    * null if given null
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns null if given null
     */
    @Test
    public void testToMessageIdStringWithNull() {
@@ -104,8 +102,7 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} throws an
-    * IAE if given an unexpected object type.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} throws an IAE if given an unexpected object type.
     */
    @Test
    public void testToMessageIdStringThrowsIAEWithUnexpectedType() {
@@ -124,8 +121,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns
-    * the given basic "ID:content" string unchanged.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns the given basic "ID:content" string
+    * unchanged.
     */
    @Test
    public void testToMessageIdStringWithString() {
@@ -135,8 +132,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns
-    * the given basic string with the 'no prefix' prefix and "ID:" prefix.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns the given basic string with the 'no
+    * prefix' prefix and "ID:" prefix.
     */
    @Test
    public void testToMessageIdStringWithStringNoPrefix() {
@@ -147,9 +144,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a
-    * string indicating lack of "ID:" prefix, when the given string happens to
-    * begin with the {@link AMQPMessageIdHelper#AMQP_UUID_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a string indicating lack of "ID:" prefix,
+    * when the given string happens to begin with the {@link AMQPMessageIdHelper#AMQP_UUID_PREFIX}.
     */
    @Test
    public void testToMessageIdStringWithStringBeginningWithEncodingPrefixForUUID() {
@@ -160,9 +156,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a
-    * string indicating lack of "ID:" prefix, when the given string happens to
-    * begin with the {@link AMQPMessageIdHelper#AMQP_ULONG_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a string indicating lack of "ID:" prefix,
+    * when the given string happens to begin with the {@link AMQPMessageIdHelper#AMQP_ULONG_PREFIX}.
     */
    @Test
    public void testToMessageIdStringWithStringBeginningWithEncodingPrefixForLong() {
@@ -173,9 +168,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a
-    * string indicating lack of "ID:" prefix, when the given string happens to
-    * begin with the {@link AMQPMessageIdHelper#AMQP_BINARY_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a string indicating lack of "ID:" prefix,
+    * when the given string happens to begin with the {@link AMQPMessageIdHelper#AMQP_BINARY_PREFIX}.
     */
    @Test
    public void testToMessageIdStringWithStringBeginningWithEncodingPrefixForBinary() {
@@ -186,9 +180,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a
-    * string indicating lack of "ID:" prefix, when the given string happens to
-    * begin with the {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a string indicating lack of "ID:" prefix,
+    * when the given string happens to begin with the {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX}.
     */
    @Test
    public void testToMessageIdStringWithStringBeginningWithEncodingPrefixForString() {
@@ -199,10 +192,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a
-    * string indicating lack of "ID:" prefix, effectively twice, when the given
-    * string happens to begin with the
-    * {@link AMQPMessageIdHelper#AMQP_NO_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a string indicating lack of "ID:" prefix,
+    * effectively twice, when the given string happens to begin with the {@link AMQPMessageIdHelper#AMQP_NO_PREFIX}.
     */
    @Test
    public void testToMessageIdStringWithStringBeginningWithEncodingPrefixForNoIdPrefix() {
@@ -213,8 +204,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a
-    * string indicating an AMQP encoded UUID when given a UUID object.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a string indicating an AMQP encoded UUID
+    * when given a UUID object.
     */
    @Test
    public void testToMessageIdStringWithUUID() {
@@ -225,8 +216,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a
-    * string indicating an AMQP encoded ulong when given a UnsignedLong object.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a string indicating an AMQP encoded ulong
+    * when given a UnsignedLong object.
     */
    @Test
    public void testToMessageIdStringWithUnsignedLong() {
@@ -237,8 +228,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a
-    * string indicating an AMQP encoded binary when given a Binary object.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a string indicating an AMQP encoded binary
+    * when given a Binary object.
     */
    @Test
    public void testToMessageIdStringWithBinary() {
@@ -251,10 +242,9 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a
-    * string indicating an escaped string, when given an input string that
-    * already has the "ID:" prefix, but follows it with an encoding prefix, in
-    * this case the {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a string indicating an escaped string,
+    * when given an input string that already has the "ID:" prefix, but follows it with an encoding prefix, in this case
+    * the {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX}.
     */
    @Test
    public void testToMessageIdStringWithStringBeginningWithIdAndEncodingPrefixForString() {
@@ -265,10 +255,9 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a
-    * string indicating an escaped string, when given an input string that
-    * already has the "ID:" prefix, but follows it with an encoding prefix, in
-    * this case the {@link AMQPMessageIdHelper#AMQP_UUID_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a string indicating an escaped string,
+    * when given an input string that already has the "ID:" prefix, but follows it with an encoding prefix, in this case
+    * the {@link AMQPMessageIdHelper#AMQP_UUID_PREFIX}.
     */
    @Test
    public void testToMessageIdStringWithStringBeginningWithIdAndEncodingPrefixForUUID() {
@@ -279,10 +268,9 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a
-    * string indicating an escaped string, when given an input string that
-    * already has the "ID:" prefix, but follows it with an encoding prefix, in
-    * this case the {@link AMQPMessageIdHelper#AMQP_ULONG_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a string indicating an escaped string,
+    * when given an input string that already has the "ID:" prefix, but follows it with an encoding prefix, in this case
+    * the {@link AMQPMessageIdHelper#AMQP_ULONG_PREFIX}.
     */
    @Test
    public void testToMessageIdStringWithStringBeginningWithIdAndEncodingPrefixForUlong() {
@@ -293,10 +281,9 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a
-    * string indicating an escaped string, when given an input string that
-    * already has the "ID:" prefix, but follows it with an encoding prefix, in
-    * this case the {@link AMQPMessageIdHelper#AMQP_BINARY_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a string indicating an escaped string,
+    * when given an input string that already has the "ID:" prefix, but follows it with an encoding prefix, in this case
+    * the {@link AMQPMessageIdHelper#AMQP_BINARY_PREFIX}.
     */
    @Test
    public void testToMessageIdStringWithStringBeginningWithIdAndEncodingPrefixForBinary() {
@@ -307,10 +294,9 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a
-    * string indicating an escaped string, when given an input string that
-    * already has the "ID:" prefix, but follows it with an encoding prefix, in
-    * this case the {@link AMQPMessageIdHelper#AMQP_NO_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toMessageIdString(Object)} returns a string indicating an escaped string,
+    * when given an input string that already has the "ID:" prefix, but follows it with an encoding prefix, in this case
+    * the {@link AMQPMessageIdHelper#AMQP_NO_PREFIX}.
     */
    @Test
    public void testToMessageIdStringWithStringBeginningWithIdAndEncodingPrefixForNoIDPrefix() {
@@ -321,8 +307,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns null if given null
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns {@code null} if given
+    * {@code null}
     */
    @Test
    public void testToCorrelationIdStringWithNull() {
@@ -330,8 +316,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} throws
-    * an IAE if given an unexpected object type.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} throws an IAE if given an unexpected
+    * object type.
     */
    @Test
    public void testToCorrelationIdStringThrowsIAEWithUnexpectedType() {
@@ -356,9 +342,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns the given basic string unchanged when it has the "ID:" prefix (but
-    * no others).
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns the given basic string
+    * unchanged when it has the "ID:" prefix (but no others).
     */
    @Test
    public void testToCorrelationIdStringWithString() {
@@ -368,9 +353,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns the given basic string unchanged when it lacks the "ID:" prefix
-    * (and any others)
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns the given basic string
+    * unchanged when it lacks the "ID:" prefix (and any others)
     */
    @Test
    public void testToCorrelationIdStringWithStringNoPrefix() {
@@ -380,9 +364,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns a string unchanged when it lacks the "ID:" prefix but happens to
-    * already begin with the {@link AMQPMessageIdHelper#AMQP_UUID_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns a string unchanged when it
+    * lacks the "ID:" prefix but happens to already begin with the {@link AMQPMessageIdHelper#AMQP_UUID_PREFIX}.
     */
    @Test
    public void testToCorrelationIdStringWithStringBeginningWithEncodingPrefixForUUID() {
@@ -392,9 +375,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns a string unchanged when it lacks the "ID:" prefix but happens to
-    * already begin with the {@link AMQPMessageIdHelper#AMQP_ULONG_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns a string unchanged when it
+    * lacks the "ID:" prefix but happens to already begin with the {@link AMQPMessageIdHelper#AMQP_ULONG_PREFIX}.
     */
    @Test
    public void testToCorrelationIdStringWithStringBeginningWithEncodingPrefixForLong() {
@@ -404,9 +386,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns a string unchanged when it lacks the "ID:" prefix but happens to
-    * already begin with the {@link AMQPMessageIdHelper#AMQP_BINARY_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns a string unchanged when it
+    * lacks the "ID:" prefix but happens to already begin with the {@link AMQPMessageIdHelper#AMQP_BINARY_PREFIX}.
     */
    @Test
    public void testToCorrelationIdStringWithStringBeginningWithEncodingPrefixForBinary() {
@@ -416,9 +397,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns a string unchanged when it lacks the "ID:" prefix but happens to
-    * already begin with the {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns a string unchanged when it
+    * lacks the "ID:" prefix but happens to already begin with the {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX}.
     */
    @Test
    public void testToCorrelationIdStringWithStringBeginningWithEncodingPrefixForString() {
@@ -428,9 +408,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns a string unchanged when it lacks the "ID:" prefix but happens to
-    * already begin with the {@link AMQPMessageIdHelper#AMQP_NO_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns a string unchanged when it
+    * lacks the "ID:" prefix but happens to already begin with the {@link AMQPMessageIdHelper#AMQP_NO_PREFIX}.
     */
    @Test
    public void testToCorrelationIdStringWithStringBeginningWithEncodingPrefixForNoIdPrefix() {
@@ -440,8 +419,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns a string indicating an AMQP encoded UUID when given a UUID object.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns a string indicating an AMQP
+    * encoded UUID when given a UUID object.
     */
    @Test
    public void testToCorrelationIdStringWithUUID() {
@@ -452,9 +431,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns a string indicating an AMQP encoded ulong when given a
-    * UnsignedLong object.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns a string indicating an AMQP
+    * encoded ulong when given a UnsignedLong object.
     */
    @Test
    public void testToCorrelationIdStringWithUnsignedLong() {
@@ -465,8 +443,8 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns a byte[] when given a Binary object.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns a byte[] when given a Binary
+    * object.
     */
    @Test
    public void testToCorrelationIdByteArrayWithBinary() {
@@ -485,10 +463,9 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns a string indicating an escaped string, when given an input string
-    * that already has the "ID:" prefix, but follows it with an encoding prefix,
-    * in this case the {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns a string indicating an escaped
+    * string, when given an input string that already has the "ID:" prefix, but follows it with an encoding prefix, in
+    * this case the {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX}.
     */
    @Test
    public void testToCorrelationIdStringWithStringBeginningWithIdAndEncodingPrefixForString() {
@@ -499,10 +476,9 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns a string indicating an escaped string, when given an input string
-    * that already has the "ID:" prefix, but follows it with an encoding prefix,
-    * in this case the {@link AMQPMessageIdHelper#AMQP_UUID_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns a string indicating an escaped
+    * string, when given an input string that already has the "ID:" prefix, but follows it with an encoding prefix, in
+    * this case the {@link AMQPMessageIdHelper#AMQP_UUID_PREFIX}.
     */
    @Test
    public void testToCorrelationIdStringWithStringBeginningWithIdAndEncodingPrefixForUUID() {
@@ -513,10 +489,9 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns a string indicating an escaped string, when given an input string
-    * that already has the "ID:" prefix, but follows it with an encoding prefix,
-    * in this case the {@link AMQPMessageIdHelper#AMQP_ULONG_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns a string indicating an escaped
+    * string, when given an input string that already has the "ID:" prefix, but follows it with an encoding prefix, in
+    * this case the {@link AMQPMessageIdHelper#AMQP_ULONG_PREFIX}.
     */
    @Test
    public void testToCorrelationIdStringWithStringBeginningWithIdAndEncodingPrefixForUlong() {
@@ -527,10 +502,9 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns a string indicating an escaped string, when given an input string
-    * that already has the "ID:" prefix, but follows it with an encoding prefix,
-    * in this case the {@link AMQPMessageIdHelper#AMQP_BINARY_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns a string indicating an escaped
+    * string, when given an input string that already has the "ID:" prefix, but follows it with an encoding prefix, in
+    * this case the {@link AMQPMessageIdHelper#AMQP_BINARY_PREFIX}.
     */
    @Test
    public void testToCorrelationIdStringWithStringBeginningWithIdAndEncodingPrefixForBinary() {
@@ -541,10 +515,9 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)}
-    * returns a string indicating an escaped string, when given an input string
-    * that already has the "ID:" prefix, but follows it with an encoding prefix,
-    * in this case the {@link AMQPMessageIdHelper#AMQP_NO_PREFIX}.
+    * Test that {@link AMQPMessageIdHelper#toCorrelationIdStringOrBytes(Object)} returns a string indicating an escaped
+    * string, when given an input string that already has the "ID:" prefix, but follows it with an encoding prefix, in
+    * this case the {@link AMQPMessageIdHelper#AMQP_NO_PREFIX}.
     */
    @Test
    public void testToCorrelationIdStringWithStringBeginningWithIdAndEncodingPrefixForNoIDPrefix() {
@@ -561,11 +534,10 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns an
-    * UnsignedLong when given a string indicating an encoded AMQP ulong id.
+    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns an UnsignedLong when given a string indicating an
+    * encoded AMQP ulong id.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testToIdObjectWithEncodedUlong() throws Exception {
@@ -576,12 +548,10 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns a Binary
-    * when given a string indicating an encoded AMQP binary id, using upper case
-    * hex characters
+    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns a Binary when given a string indicating an
+    * encoded AMQP binary id, using upper case hex characters
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testToIdObjectWithEncodedBinaryUppercaseHexString() throws Exception {
@@ -594,11 +564,9 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns null when
-    * given null.
+    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns null when given null.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testToIdObjectWithNull() throws Exception {
@@ -606,12 +574,10 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns a Binary
-    * when given a string indicating an encoded AMQP binary id, using lower case
-    * hex characters.
+    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns a Binary when given a string indicating an
+    * encoded AMQP binary id, using lower case hex characters.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testToIdObjectWithEncodedBinaryLowercaseHexString() throws Exception {
@@ -624,11 +590,10 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns a UUID
-    * when given a string indicating an encoded AMQP uuid id.
+    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns a UUID when given a string indicating an encoded
+    * AMQP uuid id.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testToIdObjectWithEncodedUuid() throws Exception {
@@ -639,11 +604,10 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns a string
-    * unchanged when given a string without any prefix.
+    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns a string unchanged when given a string without
+    * any prefix.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testToIdObjectWithAppSpecificString() throws Exception {
@@ -653,11 +617,10 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns a string
-    * unchanged when given a string with only the 'ID:' prefix.
+    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns a string unchanged when given a string with only
+    * the 'ID:' prefix.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testToIdObjectWithSimplIdString() throws Exception {
@@ -667,13 +630,11 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns the
-    * remainder of the provided string after removing the 'ID:' and
-    * {@link AMQPMessageIdHelper#AMQP_NO_PREFIX} prefix used to indicate it
-    * originally had no 'ID:' prefix [when arriving as a message id].
+    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns the remainder of the provided string after
+    * removing the 'ID:' and {@link AMQPMessageIdHelper#AMQP_NO_PREFIX} prefix used to indicate it originally had no
+    * 'ID:' prefix [when arriving as a message id].
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testToIdObjectWithStringContainingEncodingPrefixForNoIdPrefix() throws Exception {
@@ -684,12 +645,10 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns the
-    * remainder of the provided string after removing the
-    * {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX} prefix.
+    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} returns the remainder of the provided string after
+    * removing the {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX} prefix.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testToIdObjectWithStringContainingIdStringEncodingPrefix() throws Exception {
@@ -700,15 +659,12 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that when given a string with with the
-    * {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX} prefix and then
-    * additionally the {@link AMQPMessageIdHelper#AMQP_UUID_PREFIX}, the
-    * {@link AMQPMessageIdHelper#toIdObject(String)} method returns the
-    * remainder of the provided string after removing the
+    * Test that when given a string with with the {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX} prefix and then
+    * additionally the {@link AMQPMessageIdHelper#AMQP_UUID_PREFIX}, the {@link AMQPMessageIdHelper#toIdObject(String)}
+    * method returns the remainder of the provided string after removing the
     * {@link AMQPMessageIdHelper#AMQP_STRING_PREFIX} prefix.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testToIdObjectWithStringContainingIdStringEncodingPrefixAndThenUuidPrefix() throws Exception {
@@ -719,10 +675,9 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} throws an
-    * {@link IdConversionException} when presented with an encoded binary hex
-    * string of uneven length (after the prefix) that thus can't be converted
-    * due to each byte using 2 characters
+    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} throws an {@link IdConversionException} when presented
+    * with an encoded binary hex string of uneven length (after the prefix) that thus can't be converted due to each
+    * byte using 2 characters
     */
    @Test
    public void testToIdObjectWithStringContainingBinaryHexThrowsICEWithUnevenLengthString() {
@@ -739,10 +694,9 @@ public class AMQPMessageIdHelperTest {
    }
 
    /**
-    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} throws an
-    * {@link IdConversionException} when presented with an encoded binary hex
-    * string (after the prefix) that contains characters other than 0-9 and A-F
-    * and a-f, and thus can't be converted
+    * Test that {@link AMQPMessageIdHelper#toIdObject(String)} throws an {@link IdConversionException} when presented
+    * with an encoded binary hex string (after the prefix) that contains characters other than 0-9 and A-F and a-f, and
+    * thus can't be converted
     */
    @Test
    public void testToIdObjectWithStringContainingBinaryHexThrowsICEWithNonHexCharacters() {

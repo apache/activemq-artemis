@@ -48,9 +48,10 @@ import org.slf4j.LoggerFactory;
 import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 /**
- * A QourumManager can be used to register a {@link org.apache.activemq.artemis.core.server.cluster.quorum.Quorum} to receive notifications
- * about changes to the cluster. A {@link org.apache.activemq.artemis.core.server.cluster.quorum.Quorum} can then issue a vote to the
- * remaining nodes in a cluster for a specific outcome
+ * A QourumManager can be used to register a {@link org.apache.activemq.artemis.core.server.cluster.quorum.Quorum} to
+ * receive notifications about changes to the cluster. A
+ * {@link org.apache.activemq.artemis.core.server.cluster.quorum.Quorum} can then issue a vote to the remaining nodes in
+ * a cluster for a specific outcome
  */
 public final class QuorumManager implements ClusterTopologyListener, ActiveMQComponent {
 
@@ -102,8 +103,6 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
 
    /**
     * we start by simply creating the server locator and connecting in a separate thread
-    *
-    * @throws Exception
     */
    @Override
    public void start() throws Exception {
@@ -114,8 +113,6 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
 
    /**
     * stops the server locator
-    *
-    * @throws Exception
     */
    @Override
    public void stop() throws Exception {
@@ -137,8 +134,6 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
 
    /**
     * are we started
-    *
-    * @return
     */
    @Override
    public boolean isStarted() {
@@ -146,9 +141,8 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
    }
 
    /**
-    * registers a {@link org.apache.activemq.artemis.core.server.cluster.quorum.Quorum} so that it can be notified of changes in the cluster.
-    *
-    * @param quorum
+    * registers a {@link org.apache.activemq.artemis.core.server.cluster.quorum.Quorum} so that it can be notified of
+    * changes in the cluster.
     */
    public void registerQuorum(Quorum quorum) {
       quorums.put(quorum.getName(), quorum);
@@ -157,20 +151,19 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
 
    /**
     * unregisters a {@link org.apache.activemq.artemis.core.server.cluster.quorum.Quorum}.
-    *
-    * @param quorum
     */
    public void unRegisterQuorum(Quorum quorum) {
       quorums.remove(quorum.getName());
    }
 
    /**
-    * called by the {@link org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal} when the topology changes. we update the
-    * {@code maxClusterSize} if needed and inform the {@link org.apache.activemq.artemis.core.server.cluster.quorum.Quorum}'s.
+    * called by the {@link org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal} when the topology
+    * changes. we update the {@code maxClusterSize} if needed and inform the
+    * {@link org.apache.activemq.artemis.core.server.cluster.quorum.Quorum}'s.
     *
     * @param topologyMember the topolgy changed
-    * @param last           if the whole cluster topology is being transmitted (after adding the listener to
-    *                       the cluster connection) this parameter will be {@code true} for the last topology
+    * @param last           if the whole cluster topology is being transmitted (after adding the listener to the cluster
+    *                       connection) this parameter will be {@code true} for the last topology
     */
    @Override
    public void nodeUP(TopologyMember topologyMember, boolean last) {
@@ -184,7 +177,6 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
    /**
     * notify the {@link org.apache.activemq.artemis.core.server.cluster.quorum.Quorum} of a topology change.
     *
-    * @param eventUID
     * @param nodeID   the id of the node leaving the cluster
     */
    @Override
@@ -240,9 +232,7 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
    }
 
    /**
-    * returns the maximum size this cluster has been.
-    *
-    * @return max size
+    * {@return the maximum size this cluster has been}
     */
    public int getMaxClusterSize() {
       return maxClusterSize;
@@ -431,8 +421,8 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
    }
 
    /**
-    * this will connect to a node and then cast a vote. whether or not this vote is asked of the target node is dependent
-    * on {@link org.apache.activemq.artemis.core.server.cluster.quorum.Vote#isRequestServerVote()}
+    * this will connect to a node and then cast a vote. whether this vote is asked of the target node is dependent on
+    * {@link org.apache.activemq.artemis.core.server.cluster.quorum.Vote#isRequestServerVote()}
     */
    private final class VoteRunnable implements Runnable {
 

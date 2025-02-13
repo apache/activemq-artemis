@@ -65,7 +65,8 @@ public interface AuditLogger {
    }
 
    /**
-    * @return a String representing the "caller" in the format "user(role)@remoteAddress" using ThreadLocal values (if set)
+    * {@return a String representing the "caller" in the format "user(role)@remoteAddress" using ThreadLocal values (if
+    * set)}
     */
    static String getCaller() {
       Subject subject = Subject.getSubject(AccessController.getContext());
@@ -76,9 +77,10 @@ public interface AuditLogger {
    }
 
    /**
-    * @param  subject       the Subject to be used instead of the corresponding ThreadLocal Subject
-    * @param  remoteAddress the remote address to use; if null use the corresponding ThreadLocal remote address (if set)
-    * @return               a String representing the "caller" in the format "user(role)@remoteAddress"
+    * {@return a {@code String} representing the "caller" in the format "user(role)@remoteAddress"}
+    *
+    * @param subject       the Subject to be used instead of the corresponding ThreadLocal Subject
+    * @param remoteAddress the remote address to use; if null use the corresponding ThreadLocal remote address (if set)
     */
    static String getCaller(Subject subject, String remoteAddress) {
       String user = "anonymous";
@@ -2131,11 +2133,7 @@ public interface AuditLogger {
    @LogMessage(id = 601514, value = "User {} is getting preparedTransactionMessageCount property on target resource: {}", level = LogMessage.Level.INFO)
    void getPreparedTransactionMessageCount(String user, Object source);
 
-   /*
-    * This logger is for message production and consumption and is on the hot path so enabled independently
-    *
-    * */
-   //hot path log using a different logger
+   // This logger is for message production and consumption and is on the hot path so enabled independently
    static void coreSendMessage(Subject user, String remoteAddress, String messageToString, Object context, String tx) {
       MESSAGE_LOGGER.coreSendMessage(getCaller(user, remoteAddress), messageToString, context, tx);
    }
@@ -2159,10 +2157,7 @@ public interface AuditLogger {
    @LogMessage(id = 601502, value = "User {} acknowledged message from {}: {}, transaction: {}", level = LogMessage.Level.INFO)
    void coreAcknowledgeMessage(String user, String queue, String message, String tx);
 
-   /*
-    * This logger is focused on user interaction from the console or thru resource specific functions in the management layer/JMX
-    * */
-
+   // This logger is focused on user interaction from the console or thru resource specific functions in the management layer/JMX
    static void createAddressSuccess(String name, String routingTypes) {
       RESOURCE_LOGGER.createAddressSuccess(getCaller(), name, routingTypes);
    }

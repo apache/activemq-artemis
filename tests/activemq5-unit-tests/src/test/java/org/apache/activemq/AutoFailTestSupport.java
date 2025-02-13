@@ -26,10 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Enforces a test case to run for only an allotted time to prevent them from
- * hanging and breaking the whole testing.
- *
- *
+ * Enforces a test case to run for only an allotted time to prevent them from hanging and breaking the whole testing.
  */
 
 public abstract class AutoFailTestSupport extends TestCase {
@@ -63,10 +60,9 @@ public abstract class AutoFailTestSupport extends TestCase {
    }
 
    /**
-    * Manually start the auto fail thread. To start it automatically, just set
-    * the auto fail to true before calling any setup methods. As a rule, this
-    * method is used only when you are not sure, if the setUp and tearDown
-    * method is propagated correctly.
+    * Manually start the auto fail thread. To start it automatically, just set the auto fail to true before calling any
+    * setup methods. As a rule, this method is used only when you are not sure, if the setUp and tearDown method is
+    * propagated correctly.
     */
    public void startAutoFailThread() {
       setAutoFail(true);
@@ -102,9 +98,8 @@ public abstract class AutoFailTestSupport extends TestCase {
    }
 
    /**
-    * Manually stops the auto fail thread. As a rule, this method is used only
-    * when you are not sure, if the setUp and tearDown method is propagated
-    * correctly.
+    * Manually stops the auto fail thread. As a rule, this method is used only when you are not sure, if the setUp and
+    * tearDown method is propagated correctly.
     */
    public void stopAutoFailThread() {
       if (isAutoFail() && autoFailThread != null && autoFailThread.isAlive()) {
@@ -120,11 +115,8 @@ public abstract class AutoFailTestSupport extends TestCase {
    }
 
    /**
-    * Sets the auto fail value. As a rule, this should be used only before any
-    * setup methods is called to automatically enable the auto fail thread in
-    * the setup method of the test case.
-    *
-    * @param val
+    * Sets the auto fail value. As a rule, this should be used only before any setup methods is called to automatically
+    * enable the auto fail thread in the setup method of the test case.
     */
    public void setAutoFail(boolean val) {
       this.useAutoFail = val;
@@ -135,10 +127,8 @@ public abstract class AutoFailTestSupport extends TestCase {
    }
 
    /**
-    * The assigned value will only be reflected when the auto fail thread has
-    * started its run. Value is in milliseconds.
-    *
-    * @param val
+    * The assigned value will only be reflected when the auto fail thread has started its run. Value is in
+    * milliseconds.
     */
    public void setMaxTestTime(long val) {
       this.maxTestTime = val;

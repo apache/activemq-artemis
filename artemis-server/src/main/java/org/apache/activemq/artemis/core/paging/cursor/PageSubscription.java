@@ -33,7 +33,9 @@ public interface PageSubscription {
    // To be called before the server is down
    void stop();
 
-   /** Save a snapshot of the current counter value in the journal */
+   /**
+    * Save a snapshot of the current counter value in the journal
+    */
    void counterSnapshot();
 
    /**
@@ -95,16 +97,13 @@ public interface PageSubscription {
    // for internal (cursor) classes
    void confirmPosition(Transaction tx, PagePosition position, boolean fromDelivery) throws Exception;
 
-      /**
-       * @return the first page in use or MAX_LONG if none is in use
-       */
+   /**
+    * {@return the first page in use or MAX_LONG if none is in use}
+    */
    long getFirstPage();
 
    // Reload operations
 
-   /**
-    * @param position
-    */
    void reloadACK(PagePosition position);
 
    boolean reloadPageCompletion(PagePosition position) throws Exception;
@@ -113,8 +112,6 @@ public interface PageSubscription {
 
    /**
     * To be called when the cursor decided to ignore a position.
-    *
-    * @param position
     */
    void positionIgnored(PagePosition position);
 
@@ -122,8 +119,6 @@ public interface PageSubscription {
 
    /**
     * To be used to avoid a redelivery of a prepared ACK after load
-    *
-    * @param position
     */
    void reloadPreparedACK(Transaction tx, PagePosition position);
 
@@ -135,19 +130,12 @@ public interface PageSubscription {
 
    void printDebug();
 
-   /**
-    * @param page
-    * @return
-    */
    boolean isComplete(long page);
 
    void forEachConsumedPage(Consumer<ConsumedPage> pageCleaner);
 
    /**
     * To be used to requery the reference
-    *
-    * @param pos
-    * @return
     */
    PagedMessage queryMessage(PagePosition pos);
 
@@ -155,10 +143,6 @@ public interface PageSubscription {
 
    Queue getQueue();
 
-   /**
-    * @param deletedPage
-    * @throws Exception
-    */
    void onDeletePage(Page deletedPage) throws Exception;
 
    void removePendingDelivery(PagedMessage pagedMessage);

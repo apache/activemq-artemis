@@ -30,13 +30,11 @@ import org.junit.Before;
 
 /**
  * Creates convenient JMS Publish/Subscribe objects which can be needed for tests.
- * <br />
- * This class defines the setUp and tearDown methods so
- * that JMS administrated objects and  other "ready to use" Pub/Sub objects (that is to say topics,
- * sessions, publishers and subscribers) are available conveniently for the test cases.
- * <br />
- * Classes which want that convenience should extend <code>PubSubTestCase</code> instead of
- * <code>JMSTestCase</code>.
+ * <p>
+ * This class defines the setUp and tearDown methods so that JMS administrated objects and  other "ready to use" Pub/Sub
+ * objects (that is to say topics, sessions, publishers and subscribers) are available conveniently for the test cases.
+ * <p>
+ * Classes which want that convenience should extend {@code PubSubTestCase} instead of {@code JMSTestCase}.
  */
 public abstract class PubSubTestCase extends JMSTestCase {
 
@@ -44,24 +42,12 @@ public abstract class PubSubTestCase extends JMSTestCase {
 
    private static final String TOPIC_NAME = "testJoramTopic";
 
-   /**
-    * Topic used by a publisher
-    */
    protected Topic publisherTopic;
 
-   /**
-    * Publisher on queue
-    */
    protected TopicPublisher publisher;
 
-   /**
-    * TopicConnectionFactory of the publisher
-    */
    protected TopicConnectionFactory publisherTCF;
 
-   /**
-    * TopicConnection of the publisher
-    */
    protected TopicConnection publisherConnection;
 
    /**
@@ -69,24 +55,12 @@ public abstract class PubSubTestCase extends JMSTestCase {
     */
    protected TopicSession publisherSession;
 
-   /**
-    * Topic used by a subscriber
-    */
    protected Topic subscriberTopic;
 
-   /**
-    * Subscriber on queue
-    */
    protected TopicSubscriber subscriber;
 
-   /**
-    * TopicConnectionFactory of the subscriber
-    */
    protected TopicConnectionFactory subscriberTCF;
 
-   /**
-    * TopicConnection of the subscriber
-    */
    protected TopicConnection subscriberConnection;
 
    /**
@@ -96,7 +70,7 @@ public abstract class PubSubTestCase extends JMSTestCase {
 
    /**
     * Create all administrated objects connections and sessions ready to use for tests.
-    * <br />
+    * <p>
     * Start connections.
     */
    @Override

@@ -240,7 +240,6 @@ public class ConnectionTest extends JMSTestBase {
       testCreateConnection(newCF);
 
       //now serialize a cf after a connection has been created
-      //https://issues.jboss.org/browse/WFLY-327
       Connection aConn = null;
       try {
          aConn = cf.createConnection();

@@ -54,10 +54,6 @@ public interface SequentialFileFactory {
     * Lists files that end with the given extension.
     * <p>
     * This method inserts a ".' before the extension.
-    *
-    * @param extension
-    * @return
-    * @throws Exception
     */
    List<String> listFiles(String extension) throws Exception;
 
@@ -77,32 +73,31 @@ public interface SequentialFileFactory {
    }
 
    /**
-    * used for cases where you need direct buffer outside of the journal context.
-    * This is because the native layer has a method that can be reused in certain cases like paging
+    * used for cases where you need direct buffer outside of the journal context. This is because the native layer has a
+    * method that can be reused in certain cases like paging
     */
    ByteBuffer allocateDirectBuffer(int size);
 
    /**
-    * used for cases where you need direct buffer outside of the journal context.
-    * This is because the native layer has a method that can be reused in certain cases like paging
+    * used for cases where you need direct buffer outside of the journal context. This is because the native layer has a
+    * method that can be reused in certain cases like paging
     */
    void releaseDirectBuffer(ByteBuffer buffer);
 
    /**
-    * Note: You need to release the buffer if is used for reading operations. You don't need to do
-    * it if using writing operations (AIO Buffer Lister will take of writing operations)
+    * Note: You need to release the buffer if is used for reading operations. You don't need to do it if using writing
+    * operations (AIO Buffer Lister will take of writing operations)
     *
-    * @param size
     * @return the allocated ByteBuffer
     */
    ByteBuffer newBuffer(int size);
 
    /**
-    * Note: You need to release the buffer if is used for reading operations. You don't need to do
-    * it if using writing operations (AIO Buffer Lister will take of writing operations)
+    * Note: You need to release the buffer if is used for reading operations. You don't need to do it if using writing
+    * operations (AIO Buffer Lister will take of writing operations)
     *
-    * @param size
-    * @param zeroed if {@code true} the returned {@link ByteBuffer} must be zeroed, otherwise it tries to save zeroing it.
+    * @param zeroed if {@code true} the returned {@link ByteBuffer} must be zeroed, otherwise it tries to save zeroing
+    *               it.
     * @return the allocated ByteBuffer
     */
    default ByteBuffer newBuffer(int size, boolean zeroed) {
@@ -149,9 +144,10 @@ public interface SequentialFileFactory {
 
    long getBufferSize();
 
-   /** Only JDBC supports individual context.
-    *  Meaning for Files we need to use the Sync scheduler.
-    *  for JDBC we need to use a callback from the JDBC completion thread to complete the IOContexts. */
+   /**
+    * Only JDBC supports individual context. Meaning for Files we need to use the Sync scheduler. for JDBC we need to
+    * use a callback from the JDBC completion thread to complete the IOContexts.
+    */
    default boolean supportsIndividualContext() {
       return false;
    }

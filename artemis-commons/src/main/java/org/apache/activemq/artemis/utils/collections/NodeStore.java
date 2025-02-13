@@ -22,8 +22,10 @@ package org.apache.activemq.artemis.utils.collections;
  */
 public interface NodeStore<E> {
 
-   /** When you store the node, make sure you find what is the ID and ListID for the element you are storing
-    *  as later one you will need to provide the node based on list and id as specified on {@link #getNode(String, long)} */
+   /**
+    * When you store the node, make sure you find what is the ID and ListID for the element you are storing as later one
+    * you will need to provide the node based on list and id as specified on {@link #getNode(String, long)}
+    */
    void storeNode(E element, LinkedListImpl.Node<E> node);
 
    LinkedListImpl.Node<E> getNode(String listID, long id);
@@ -38,11 +40,14 @@ public interface NodeStore<E> {
       return null;
    }
 
-   /** this is meant to be a quick help to Garbage Collection.
-    *  Whenever the IDSupplier list is being cleared, you should first call the clear method and
-    *  empty every list before you let the instance go. */
+   /**
+    * This is meant to be a quick help to Garbage Collection. Whenever the IDSupplier list is being cleared, you should
+    * first call the clear method and empty every list before you let the instance go.
+    */
    void clear();
 
-   /** ths should return the sum of all the sizes. for test assertions. */
+   /**
+    * ths should return the sum of all the sizes. for test assertions.
+    */
    int size();
 }

@@ -21,9 +21,6 @@ import javax.jms.Session;
 
 import junit.framework.TestCase;
 
-/**
- *
- */
 public class ConnectionCloseMultipleTimesTest extends TestCase {
 
    private ActiveMQConnection connection;
@@ -35,9 +32,6 @@ public class ConnectionCloseMultipleTimesTest extends TestCase {
       connection.start();
    }
 
-   /**
-    * @see junit.framework.TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       if (connection.isStarted()) {
@@ -45,9 +39,6 @@ public class ConnectionCloseMultipleTimesTest extends TestCase {
       }
    }
 
-   /**
-    * @throws javax.jms.JMSException
-    */
    public void testCloseMultipleTimes() throws JMSException {
       connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 

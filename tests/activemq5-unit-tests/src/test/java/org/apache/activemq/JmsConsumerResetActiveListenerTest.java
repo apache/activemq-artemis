@@ -54,8 +54,6 @@ public class JmsConsumerResetActiveListenerTest extends TestCase {
 
    /**
     * verify the (undefined by spec) behaviour of setting a listener while receiving a message.
-    *
-    * @throws Exception
     */
    public void testSetListenerFromListener() throws Exception {
       Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
@@ -103,8 +101,6 @@ public class JmsConsumerResetActiveListenerTest extends TestCase {
 
    /**
     * and a listener on a new consumer, just in case.
-    *
-    * @throws Exception
     */
    public void testNewConsumerSetListenerFromListener() throws Exception {
       final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);

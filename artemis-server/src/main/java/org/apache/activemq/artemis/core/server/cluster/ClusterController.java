@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * used for creating and managing cluster control connections for each cluster connection and the replication connection
+ * Used for creating and managing cluster control connections for each cluster connection and the replication connection
  */
 public class ClusterController implements ActiveMQComponent {
 
@@ -82,7 +82,9 @@ public class ClusterController implements ActiveMQComponent {
    private boolean started;
    private SimpleString replicatedClusterName;
 
-   /** For tests only */
+   /**
+    * For tests only
+    */
    public ServerLocator getDefaultLocator() {
       return defaultLocator;
    }
@@ -194,10 +196,10 @@ public class ClusterController implements ActiveMQComponent {
    /**
     * add a locator for a cluster connection.
     *
-    * @param name                the cluster connection name
-    * @param dg                  the discovery group to use
-    * @param config              the cluster connection config
-    * @param connector           the cluster connector configuration
+    * @param name      the cluster connection name
+    * @param dg        the discovery group to use
+    * @param config    the cluster connection config
+    * @param connector the cluster connector configuration
     */
    public void addClusterConnection(SimpleString name,
                                     DiscoveryGroupConfiguration dg,
@@ -249,42 +251,22 @@ public class ClusterController implements ActiveMQComponent {
       locators.put(name, serverLocator);
    }
 
-   /**
-    * add a cluster listener
-    *
-    * @param listener
-    */
    public void addClusterTopologyListenerForReplication(ClusterTopologyListener listener) {
       if (replicationLocator != null) {
          replicationLocator.addClusterTopologyListener(listener);
       }
    }
 
-   /**
-    * add a cluster listener
-    *
-    * @param listener
-    */
    public void removeClusterTopologyListenerForReplication(ClusterTopologyListener listener) {
       if (replicationLocator != null) {
          replicationLocator.removeClusterTopologyListener(listener);
       }
    }
 
-   /**
-    * add an interceptor
-    *
-    * @param interceptor
-    */
    public void addIncomingInterceptorForReplication(Interceptor interceptor) {
       replicationLocator.addIncomingInterceptor(interceptor);
    }
 
-   /**
-    * remove an interceptor
-    *
-    * @param interceptor
-    */
    public void removeIncomingInterceptorForReplication(Interceptor interceptor) {
       replicationLocator.removeIncomingInterceptor(interceptor);
    }
@@ -294,7 +276,6 @@ public class ClusterController implements ActiveMQComponent {
     *
     * @param transportConfiguration the configuration of the node to connect to.
     * @return the Cluster Control
-    * @throws Exception
     */
    public ClusterControl connectToNode(TransportConfiguration transportConfiguration) throws Exception {
       ClientSessionFactoryInternal sessionFactory = (ClientSessionFactoryInternal) defaultLocator.createSessionFactory(transportConfiguration, 0, false);
@@ -307,7 +288,6 @@ public class ClusterController implements ActiveMQComponent {
     *
     * @param transportConfiguration the configuration of the node to connect to.
     * @return the Cluster Control
-    * @throws Exception
     */
    public ClusterControl connectToNodeInReplicatedCluster(TransportConfiguration transportConfiguration) throws Exception {
       ClientSessionFactoryInternal sessionFactory = (ClientSessionFactoryInternal) replicationLocator.createSessionFactory(transportConfiguration, 0, false);
@@ -337,8 +317,6 @@ public class ClusterController implements ActiveMQComponent {
 
    /**
     * wait until we have connected to the cluster.
-    *
-    * @throws InterruptedException
     */
    public void awaitConnectionToReplicationCluster() throws InterruptedException {
       replicationClusterConnectedLatch.await();
@@ -350,7 +328,6 @@ public class ClusterController implements ActiveMQComponent {
     * @param channel            the channel to set the handler
     * @param acceptorUsed       the acceptor used for connection
     * @param remotingConnection the connection itself
-    * @param activation
     */
    public void addClusterChannelHandler(Channel channel,
                                         Acceptor acceptorUsed,

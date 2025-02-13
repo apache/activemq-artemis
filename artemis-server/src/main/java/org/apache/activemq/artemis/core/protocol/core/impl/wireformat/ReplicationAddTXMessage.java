@@ -131,9 +131,6 @@ public class ReplicationAddTXMessage extends PacketImpl {
       return txId;
    }
 
-   /**
-    * @return the journalID
-    */
    public byte getJournalID() {
       return journalID;
    }
@@ -142,16 +139,10 @@ public class ReplicationAddTXMessage extends PacketImpl {
       return operation;
    }
 
-   /**
-    * @return the recordType
-    */
    public byte getRecordType() {
       return recordType;
    }
 
-   /**
-    * @return the recordData
-    */
    public byte[] getRecordData() {
       return recordData;
    }

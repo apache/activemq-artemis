@@ -18,9 +18,6 @@ package org.apache.activemq.transport;
 
 import org.junit.Before;
 
-/**
- *
- */
 public class QueueClusterTest extends TopicClusterTest {
 
    @Override

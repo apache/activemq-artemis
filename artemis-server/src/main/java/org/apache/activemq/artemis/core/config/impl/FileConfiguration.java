@@ -48,9 +48,8 @@ public final class FileConfiguration extends ConfigurationImpl implements Deploy
    public void parse(Element config, URL url) throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
 
-      // https://jira.jboss.org/browse/HORNETQ-478 - We only want to validate AIO when
-      //     starting the server
-      //     and we don't want to do it when deploying activemq-queues.xml which uses the same parser and XML format
+      // We only want to validate AIO when starting the server and we don't want to do it when deploying
+      // activemq-queues.xml which uses the same parser and XML format.
       parser.setValidateAIO(true);
 
       parser.parseMainConfig(config, this);

@@ -23,9 +23,10 @@ import java.util.Map;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 
-/** I need to store protocol specific data on the references. The same need exists in both PagedReference and MessageReferenceImpl.
- *  This class will serve the purpose to keep the specific protocol data for either reference.
- *  */
+/**
+ * I need to store protocol specific data on the references. The same need exists in both PagedReference and
+ * MessageReferenceImpl. This class will serve the purpose to keep the specific protocol data for either reference.
+ */
 public abstract class AbstractProtocolReference extends LinkedListImpl.Node<MessageReferenceImpl> implements MessageReference {
 
    private Map<Class, Object> protocolDataMap;

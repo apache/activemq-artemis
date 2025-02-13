@@ -178,7 +178,6 @@ public class MQTTPublishManager {
     * Sends a message either on behalf of the client or on behalf of the broker (Will Messages)
     *
     * @param internal if true means on behalf of the broker (skips authorisation) and does not return ack.
-    * @throws Exception
     */
    void sendToQueue(MqttPublishMessage message, boolean internal) throws Exception {
       synchronized (lock) {
@@ -340,8 +339,6 @@ public class MQTTPublishManager {
 
    /**
     * Once we get an acknowledgement for a QoS 1 or 2 message we allow messages to flow
-    *
-    * @param consumerId
     */
    private void releaseFlowControl(Long consumerId) {
       ServerConsumer consumer = session.getServerSession().locateConsumer(consumerId);

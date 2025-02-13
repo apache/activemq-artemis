@@ -47,6 +47,7 @@ public class RandomUtil {
     *    <li>ABCDEFGHIJKLMNOPQRSTUVWXYZ</li>
     *    <li>0123456789</li>
     * </ul>
+    *
     * @param length how long the returned {@code String} should be
     * @return a {@code String} of random alpha-numeric characters
     */
@@ -59,14 +60,14 @@ public class RandomUtil {
    }
 
    /**
-    * @return A randomly generated {@link java.util.UUID} converted to a {@code String}
+    * {@return A randomly generated {@link java.util.UUID} converted to a {@code String}}
     */
    public static String randomUUIDString() {
       return java.util.UUID.randomUUID().toString();
    }
 
    /**
-    * @return A randomly generated {@link java.util.UUID} converted to a {@link SimpleString}
+    * {@return A randomly generated {@link java.util.UUID} converted to a {@link SimpleString}}
     */
    public static SimpleString randomUUIDSimpleString() {
       return SimpleString.of(RandomUtil.randomUUIDString());
@@ -79,6 +80,7 @@ public class RandomUtil {
     *    <li>ABCDEFGHIJKLMNOPQRSTUVWXYZ</li>
     *    <li>0123456789</li>
     * </ul>
+    *
     * @return A randomly generated alpha-numeric {@code char}
     */
    public static char randomChar() {

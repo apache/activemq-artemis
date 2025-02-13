@@ -35,8 +35,8 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.Match;
 
 /**
- * Policy used to provide federation of remote to local broker addresses, once created the policy
- * configuration is immutable.
+ * Policy used to provide federation of remote to local broker addresses, once created the policy configuration is
+ * immutable.
  */
 public class FederationReceiveFromAddressPolicy implements FederationReceiveFromResourcePolicy, BiPredicate<String, RoutingType> {
 
@@ -133,14 +133,11 @@ public class FederationReceiveFromAddressPolicy implements FederationReceiveFrom
    }
 
    /**
-    * Convenience test method for those who have an {@link AddressInfo} object
-    * but don't want to deal with the {@link SimpleString} object or any null
-    * checks.
+    * Convenience test method for those who have an {@link AddressInfo} object but don't want to deal with the
+    * {@link SimpleString} object or any null checks.
     *
-    * @param addressInfo
-    *    The address info to check which if null will result in a negative result.
-    *
-    * @return <code>true</code> if the address value matches this configured policy.
+    * @param addressInfo The address info to check which if null will result in a negative result.
+    * @return {@code true} if the address value matches this configured policy
     */
    public boolean test(AddressInfo addressInfo) {
       if (addressInfo != null) {

@@ -29,9 +29,6 @@ import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class JmsSendWithAsyncCallbackTest extends TestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsSendWithAsyncCallbackTest.class);

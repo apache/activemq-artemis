@@ -30,8 +30,10 @@ import org.apache.activemq.artemis.cli.Artemis;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** This is a class simulating what the Artemis Maven Plugin does.
- *  You may use by creating a new instance, filling the properties, and calling the method create */
+/**
+ * This is a class simulating what the Artemis Maven Plugin does. You may use by creating a new instance, filling the
+ * properties, and calling the method create
+ */
 public class HelperCreate extends HelperBase {
 
    public HelperCreate(String homeProperty) {
@@ -76,9 +78,6 @@ public class HelperCreate extends HelperBase {
 
    private boolean failoverOnShutdown = false;
 
-   /**
-    * it will disable auto-tune
-    */
    private boolean noAutoTune = true;
 
    private String messageLoadBalancing = "ON_DEMAND";
@@ -384,5 +383,4 @@ public class HelperCreate extends HelperBase {
          }
       }
    }
-
 }

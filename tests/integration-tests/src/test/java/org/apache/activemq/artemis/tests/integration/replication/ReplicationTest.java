@@ -523,17 +523,10 @@ public final class ReplicationTest extends ActiveMQTestBase {
       assertEquals(checkPeriodOverride, replicationLocator.getClientFailureCheckPeriod());
    }
 
-   /**
-    * @return
-    * @throws Exception
-    */
    private JournalStorageManager getStorage() throws Exception {
       return new JournalStorageManager(createDefaultInVMConfig(), EmptyCriticalAnalyzer.getInstance(), factory, factory);
    }
 
-   /**
-    * @param manager1
-    */
    private void blockOnReplication(final StorageManager storage, final ReplicationManager manager1) throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
       storage.afterCompleteOperations(new IOCallback() {
@@ -691,8 +684,8 @@ public final class ReplicationTest extends ActiveMQTestBase {
    }
 
    /**
-    * We need to shutdown the executors before calling {@link super#tearDown()} (which will check
-    * for leaking threads). Due to that, we need to close/stop all components here.
+    * We need to shutdown the executors before calling {@link super#tearDown()} (which will check for leaking threads).
+    * Due to that, we need to close/stop all components here.
     */
    @Override
    @AfterEach

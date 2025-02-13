@@ -39,10 +39,6 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalAddRecord
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.Test;
 
-/**
- * Authored by Fabio Nascimento Brandao through https://issues.apache.org/jira/browse/ARTEMIS-3868
- * Clebert added some refactoring to make it a Unit Test
- * */
 public class JournalCompactSplitTest extends ActiveMQTestBase {
    private static final long RECORDS_TO_CREATE = 100;
 

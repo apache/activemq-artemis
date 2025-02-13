@@ -84,9 +84,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       assertEquals(500, delay);
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testExponentialRedeliveryPolicyDelaysDeliveryOnRollback() throws Exception {
 
@@ -141,9 +138,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testNornalRedeliveryPolicyDelaysDeliveryOnRollback() throws Exception {
 
@@ -194,9 +188,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testDLQHandling() throws Exception {
       this.makeSureCoreQueueExist("ActiveMQ.DLQ");
@@ -251,9 +242,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       session.commit();
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testInfiniteMaximumNumberOfRedeliveries() throws Exception {
 
@@ -317,9 +305,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       session.commit();
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testMaximumRedeliveryDelay() throws Exception {
 
@@ -370,9 +355,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       assertEquals(1000, policy.getNextRedeliveryDelay(Long.MAX_VALUE));
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testZeroMaximumNumberOfRedeliveries() throws Exception {
 
@@ -411,9 +393,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testRedeliveredMessageNotOverflowingPrefetch() throws Exception {
       final int prefetchSize = 10;
@@ -456,9 +435,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testCanRollbackPastPrefetch() throws Exception {
       final int prefetchSize = 10;
@@ -502,9 +478,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       }
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testCountersAreCorrectAfterSendToDLQ() throws Exception {
       RedeliveryPolicy policy = connection.getRedeliveryPolicy();
@@ -537,9 +510,6 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testRedeliveryRefCleanup() throws Exception {
 

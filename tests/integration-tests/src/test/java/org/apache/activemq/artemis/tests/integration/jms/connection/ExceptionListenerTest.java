@@ -39,9 +39,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * ExceptionListenerTest
- */
 public class ExceptionListenerTest extends ActiveMQTestBase {
 
    private ActiveMQServer server;
@@ -134,15 +131,14 @@ public class ExceptionListenerTest extends ActiveMQTestBase {
       conn.close();
    }
 
-
    /**
-    * The JMS Spec isn't specific about if ClientId can be set after Exception Listener or not,
-    * simply it states that clientId must be set before any operation (read as remote)
-    *
-    * QpidJMS and ActiveMQ5 both interpret that therefor you can set the exception lister first.
-    * As such we align with those, allowing the exception listener to be set prior to the clientId,
-    * This to avoid causing implementation nuance's, when switching code from one client to another.
-    *
+    * The JMS Spec isn't specific about if ClientId can be set after Exception Listener or not, simply it states that
+    * clientId must be set before any operation (read as remote)
+    * <p>
+    * QpidJMS and ActiveMQ5 both interpret that therefor you can set the exception lister first. As such we align with
+    * those, allowing the exception listener to be set prior to the clientId, This to avoid causing implementation
+    * nuance's, when switching code from one client to another.
+    * <p>
     * This test is to test this and to ensure it doesn't get accidentally regressed.
     */
    @Test

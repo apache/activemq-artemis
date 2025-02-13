@@ -204,7 +204,7 @@ public final class BridgeConfiguration implements Serializable {
     * example, if you pass the value "TRUE" for the key "auto-created" the {@code String} "TRUE" will be converted to
     * the {@code Boolean} {@code true}.
     *
-    * @param key the key to set to the value
+    * @param key   the key to set to the value
     * @param value the value to set for the key
     * @return this {@code BridgeConfiguration}
     */
@@ -284,7 +284,10 @@ public final class BridgeConfiguration implements Serializable {
    }
 
    /**
-    * @param name the name to set
+    * Sets the name of this {@code BridgeConfiguration}. If the {@code parentName} is {@code null} then it is also set.
+    *
+    * @param name the name to use
+    * @return this {@code BridgeConfiguration}
     */
    public BridgeConfiguration setName(final String name) {
       this.name = name;
@@ -307,17 +310,11 @@ public final class BridgeConfiguration implements Serializable {
       return queueName;
    }
 
-   /**
-    * @param queueName the queueName to set
-    */
    public BridgeConfiguration setQueueName(final String queueName) {
       this.queueName = queueName;
       return this;
    }
 
-   /**
-    * @return the connectionTTL
-    */
    public long getConnectionTTL() {
       return connectionTTL;
    }
@@ -327,9 +324,6 @@ public final class BridgeConfiguration implements Serializable {
       return this;
    }
 
-   /**
-    * @return the maxRetryInterval
-    */
    public long getMaxRetryInterval() {
       return maxRetryInterval;
    }
@@ -343,9 +337,6 @@ public final class BridgeConfiguration implements Serializable {
       return forwardingAddress;
    }
 
-   /**
-    * @param forwardingAddress the forwardingAddress to set
-    */
    public BridgeConfiguration setForwardingAddress(final String forwardingAddress) {
       this.forwardingAddress = forwardingAddress;
       return this;
@@ -355,9 +346,6 @@ public final class BridgeConfiguration implements Serializable {
       return filterString;
    }
 
-   /**
-    * @param filterString the filterString to set
-    */
    public BridgeConfiguration setFilterString(final String filterString) {
       this.filterString = filterString;
       return this;
@@ -367,9 +355,6 @@ public final class BridgeConfiguration implements Serializable {
       return transformerConfiguration;
    }
 
-   /**
-    * @param transformerConfiguration the transformerConfiguration to set
-    */
    public BridgeConfiguration setTransformerConfiguration(final TransformerConfiguration transformerConfiguration) {
       this.transformerConfiguration = transformerConfiguration;
       return this;
@@ -379,9 +364,6 @@ public final class BridgeConfiguration implements Serializable {
       return staticConnectors;
    }
 
-   /**
-    * @param staticConnectors the staticConnectors to set
-    */
    public BridgeConfiguration setStaticConnectors(final List<String> staticConnectors) {
       this.staticConnectors = staticConnectors;
       return this;
@@ -391,9 +373,6 @@ public final class BridgeConfiguration implements Serializable {
       return discoveryGroupName;
    }
 
-   /**
-    * @param discoveryGroupName the discoveryGroupName to set
-    */
    public BridgeConfiguration setDiscoveryGroupName(final String discoveryGroupName) {
       this.discoveryGroupName = discoveryGroupName;
       return this;
@@ -403,9 +382,6 @@ public final class BridgeConfiguration implements Serializable {
       return ha;
    }
 
-   /**
-    * @param ha is the bridge supporting HA?
-    */
    public BridgeConfiguration setHA(final boolean ha) {
       this.ha = ha;
       return this;
@@ -415,9 +391,6 @@ public final class BridgeConfiguration implements Serializable {
       return retryInterval;
    }
 
-   /**
-    * @param retryInterval the retryInterval to set
-    */
    public BridgeConfiguration setRetryInterval(final long retryInterval) {
       this.retryInterval = retryInterval;
       return this;
@@ -427,9 +400,6 @@ public final class BridgeConfiguration implements Serializable {
       return retryIntervalMultiplier;
    }
 
-   /**
-    * @param retryIntervalMultiplier the retryIntervalMultiplier to set
-    */
    public BridgeConfiguration setRetryIntervalMultiplier(final double retryIntervalMultiplier) {
       this.retryIntervalMultiplier = retryIntervalMultiplier;
       return this;
@@ -439,9 +409,6 @@ public final class BridgeConfiguration implements Serializable {
       return initialConnectAttempts;
    }
 
-   /**
-    * @param initialConnectAttempts the initialConnectAttempts to set
-    */
    public BridgeConfiguration setInitialConnectAttempts(final int initialConnectAttempts) {
       this.initialConnectAttempts = initialConnectAttempts;
       return this;
@@ -451,9 +418,6 @@ public final class BridgeConfiguration implements Serializable {
       return reconnectAttempts;
    }
 
-   /**
-    * @param reconnectAttempts the reconnectAttempts to set
-    */
    public BridgeConfiguration setReconnectAttempts(final int reconnectAttempts) {
       this.reconnectAttempts = reconnectAttempts;
       return this;
@@ -463,9 +427,6 @@ public final class BridgeConfiguration implements Serializable {
       return useDuplicateDetection;
    }
 
-   /**
-    * @param useDuplicateDetection the useDuplicateDetection to set
-    */
    public BridgeConfiguration setUseDuplicateDetection(final boolean useDuplicateDetection) {
       this.useDuplicateDetection = useDuplicateDetection;
       return this;
@@ -475,9 +436,6 @@ public final class BridgeConfiguration implements Serializable {
       return confirmationWindowSize;
    }
 
-   /**
-    * @param confirmationWindowSize the confirmationWindowSize to set
-    */
    public BridgeConfiguration setConfirmationWindowSize(final int confirmationWindowSize) {
       this.confirmationWindowSize = confirmationWindowSize;
       return this;
@@ -487,9 +445,6 @@ public final class BridgeConfiguration implements Serializable {
       return producerWindowSize;
    }
 
-   /**
-    * @param producerWindowSize the producerWindowSize to set
-    */
    public BridgeConfiguration setProducerWindowSize(final int producerWindowSize) {
       this.producerWindowSize = producerWindowSize;
       return this;
@@ -504,9 +459,6 @@ public final class BridgeConfiguration implements Serializable {
       return this;
    }
 
-   /**
-    * @return the minLargeMessageSize
-    */
    public int getMinLargeMessageSize() {
       return minLargeMessageSize;
    }
@@ -534,9 +486,6 @@ public final class BridgeConfiguration implements Serializable {
       return this;
    }
 
-   /**
-    * @return the callTimeout
-    */
    public long getCallTimeout() {
       return callTimeout;
    }
@@ -568,54 +517,35 @@ public final class BridgeConfiguration implements Serializable {
       return this;
    }
 
-   /**
-    * @return the bridge concurrency
-    */
    public int getConcurrency() {
       return concurrency;
    }
 
-   /**
-    * @param concurrency the bridge concurrency to set
-    */
    public BridgeConfiguration setConcurrency(int concurrency) {
       this.concurrency = concurrency;
       return this;
    }
 
-   /**
-    * @return the bridge pending ack timeout
-    */
    public long getPendingAckTimeout() {
       return pendingAckTimeout;
    }
 
-   /**
-    * @param pendingAckTimeout the bridge pending ack timeout to set
-    */
    public BridgeConfiguration setPendingAckTimeout(long pendingAckTimeout) {
       this.pendingAckTimeout = pendingAckTimeout;
       return this;
    }
 
-   /**
-    * @return the bridge client ID
-    */
    public String getClientId() {
       return clientId;
    }
 
-   /**
-    * @param clientId the bridge clientId to set
-    */
    public BridgeConfiguration setClientId(String clientId) {
       this.clientId = clientId;
       return this;
    }
 
    /**
-    * At this point this is only changed on testcases
-    * The bridge shouldn't be sending blocking anyways
+    * At this point this is only changed on testcases The bridge shouldn't be sending blocking anyways
     *
     * @param callTimeout the callTimeout to set
     */

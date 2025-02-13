@@ -18,8 +18,6 @@ package org.apache.activemq.artemis.selector.filter;
 
 /**
  * An expression which performs an operation on two expression values
- *
- * @version $Revision: 1.2 $
  */
 public abstract class ArithmeticExpression extends BinaryExpression {
 
@@ -28,10 +26,6 @@ public abstract class ArithmeticExpression extends BinaryExpression {
    protected static final int DOUBLE = 3;
    boolean convertStringExpressions = false;
 
-   /**
-    * @param left
-    * @param right
-    */
    public ArithmeticExpression(Expression left, Expression right) {
       super(left, right);
       convertStringExpressions = ComparisonExpression.CONVERT_STRING_EXPRESSIONS.get() != null;
@@ -192,11 +186,6 @@ public abstract class ArithmeticExpression extends BinaryExpression {
       return evaluate(lvalue, rvalue);
    }
 
-   /**
-    * @param lvalue
-    * @param rvalue
-    * @return
-    */
    protected abstract Object evaluate(Object lvalue, Object rvalue);
 
 }

@@ -84,9 +84,7 @@ public final class XPathExpression implements BooleanExpression {
    }
 
    /**
-    * @param message
-    * @return true if the expression evaluates to Boolean.TRUE.
-    * @throws FilterException
+    * {@return true if the expression evaluates to Boolean.TRUE}
     */
    @Override
    public boolean matches(Filterable message) throws FilterException {

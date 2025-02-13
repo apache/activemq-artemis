@@ -92,8 +92,8 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
    }
 
    /**
-    * <p> This is the member discovery implementation using direct UDP. It was extracted as a refactoring from
-    * {@link org.apache.activemq.artemis.core.cluster.DiscoveryGroup}</p>
+    * This is the member discovery implementation using direct UDP. It was extracted as a refactoring from
+    * {@link org.apache.activemq.artemis.core.cluster.DiscoveryGroup}
     */
    private static class UDPBroadcastEndpoint implements BroadcastEndpoint {
 
@@ -197,7 +197,6 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
 
       @Override
       public void openClient() throws Exception {
-         // HORNETQ-874
          if (checkForLinux() || checkForSolaris() || checkForHp()) {
             try {
                receivingSocket = new MulticastSocket(new InetSocketAddress(groupAddress, groupPort));

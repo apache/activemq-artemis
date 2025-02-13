@@ -29,8 +29,8 @@ import io.netty.buffer.ByteBuf;
 import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 /**
- * {@link ReadableBuffer} implementation that wraps a Netty {@link ByteBuf} to
- * allow use of Netty buffers to be used when decoding AMQP messages.
+ * {@link ReadableBuffer} implementation that wraps a Netty {@link ByteBuf} to allow use of Netty buffers to be used
+ * when decoding AMQP messages.
  */
 public class NettyReadable implements ReadableBuffer {
 

@@ -73,9 +73,9 @@ public class PagedMessageImpl implements PagedMessage {
          return NOT_CORE;
       }
    }
+
    /**
-    * Large messages will need to be instantiated lazily during getMessage when the StorageManager
-    * is available
+    * Large messages will need to be instantiated lazily during getMessage when the StorageManager is available
     */
    private byte[] largeMessageLazyData;
 

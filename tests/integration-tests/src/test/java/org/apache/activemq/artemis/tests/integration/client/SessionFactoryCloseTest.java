@@ -52,10 +52,9 @@ public class SessionFactoryCloseTest extends ActiveMQTestBase {
       sf.addFailoverListener(eventType -> {
          if (eventType == FailoverEventType.FAILURE_DETECTED) {
             try {
-               /**
-                * We close client session factory during this period and
-                * expect reconnection stopped without exception which notifies
-                * FAILOVER_FAILED event. See ARTEMIS-1949.
+               /*
+                * We close client session factory during this period and expect reconnection stopped without exception
+                * which notifies FAILOVER_FAILED event. See ARTEMIS-1949.
                 */
                Thread.sleep(1000L);
             } catch (InterruptedException e) {

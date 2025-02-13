@@ -53,8 +53,9 @@ public class PagedReferenceImpl extends AbstractProtocolReference implements Pag
    // just to avoid creating on object on each call
    PagePosition cachedPositionObject;
 
-   /** This will create a new PagePosition, or return one previously created.
-    *  This method is used to avoid repetitions on browsing iteration only.
+   /**
+    * This will create a new PagePosition, or return one previously created. This method is used to avoid repetitions on
+    * browsing iteration only.
     */
    @Override
    public PagePosition getPosition() {
@@ -106,7 +107,8 @@ public class PagedReferenceImpl extends AbstractProtocolReference implements Pag
    }
 
    /**
-    * It will call {@link Consumer#accept(Object)} on {@code this} of the {@link Consumer} registered in {@link #onDelivery(Consumer)}, if any.
+    * It will call {@link Consumer#accept(Object)} on {@code this} of the {@link Consumer} registered in
+    * {@link #onDelivery(Consumer)}, if any.
     */
    @Override
    public void run() {
@@ -280,9 +282,6 @@ public class PagedReferenceImpl extends AbstractProtocolReference implements Pag
       getQueue().acknowledge(tx, this, reason, consumer, delivering);
    }
 
-   /* (non-Javadoc)
-       * @see java.lang.Object#toString()
-       */
    @Override
    public String toString() {
       String msgToString;

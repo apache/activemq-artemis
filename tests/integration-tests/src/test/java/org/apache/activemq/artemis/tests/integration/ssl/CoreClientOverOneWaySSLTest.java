@@ -845,18 +845,16 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
       String[] suites = getEnabledCipherSuites();
 
-      /**
-       * The JKS certs are generated using Java keytool using RSA and not ECDSA but the JVM prefers ECDSA over RSA so we have
-       * to look through the cipher suites until we find one that's suitable for us.
-       * If the JVM running this test is version 7 from Oracle then this cipher suite will will almost certainly require
-       * TLSv1.2 (which is not enabled on the client by default).
-       * See http://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider for the
+      /*
+       * The JKS certs are generated using Java keytool using RSA and not ECDSA but the JVM prefers ECDSA over RSA so we
+       * have to look through the cipher suites until we find one that's suitable for us. If the JVM running this test
+       * is version 7 from Oracle then this cipher suite will will almost certainly require TLSv1.2 (which is not
+       * enabled on the client by default). See
+       * http://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider for the
        * preferred cipher suites.
        */
 
-      /**
-       * JCEKS is essentially the same story as JKS
-       */
+      // JCEKS is essentially the same story as JKS
       for (int i = 0; i < suites.length; i++) {
          String suite = suites[i];
          String storeType = SSLSupport.getValidProviderAndType(this.storeProvider, this.storeType).getB();
@@ -939,7 +937,6 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       }
    }
 
-   // see https://jira.jboss.org/jira/browse/HORNETQ-234
    @TestTemplate
    public void testPlainConnectionToSSLEndpoint() throws Exception {
       createCustomSslServer();

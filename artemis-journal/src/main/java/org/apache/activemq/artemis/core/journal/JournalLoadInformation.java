@@ -29,40 +29,24 @@ public class JournalLoadInformation {
       super();
    }
 
-   /**
-    * @param numberOfRecords
-    * @param maxID
-    */
    public JournalLoadInformation(final int numberOfRecords, final long maxID) {
       super();
       this.numberOfRecords = numberOfRecords;
       this.maxID = maxID;
    }
 
-   /**
-    * @return the numberOfRecords
-    */
    public int getNumberOfRecords() {
       return numberOfRecords;
    }
 
-   /**
-    * @param numberOfRecords the numberOfRecords to set
-    */
    public void setNumberOfRecords(final int numberOfRecords) {
       this.numberOfRecords = numberOfRecords;
    }
 
-   /**
-    * @return the maxID
-    */
    public long getMaxID() {
       return maxID;
    }
 
-   /**
-    * @param maxID the maxID to set
-    */
    public void setMaxID(final long maxID) {
       this.maxID = maxID;
    }

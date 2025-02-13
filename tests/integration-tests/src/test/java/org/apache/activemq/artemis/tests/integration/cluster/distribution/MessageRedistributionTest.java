@@ -95,7 +95,6 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
    }
 
-   //https://issues.jboss.org/browse/HORNETQ-1061
    @Test
    public void testRedistributionWithMessageGroups() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
@@ -261,7 +260,6 @@ public class MessageRedistributionTest extends ClusterTestBase {
       Wait.assertEquals(0L, () -> servers[1].locateQueue(QUEUE0).getMessageCount(), 2000, 100);
    }
 
-   //https://issues.jboss.org/browse/HORNETQ-1057
    @Test
    public void testRedistributionStopsWhenConsumerAdded() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
@@ -1219,7 +1217,6 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
    }
 
-   // https://issues.jboss.org/browse/HORNETQ-1072
    @Test
    public void testBackAndForth2WithDuplicDetection() throws Exception {
       internalTestBackAndForth2(true);
@@ -1455,9 +1452,8 @@ public class MessageRedistributionTest extends ClusterTestBase {
    }
 
    /*
-    * Start one node with no consumers and send some messages
-    * Start another node add a consumer and verify all messages are redistribute
-    * https://jira.jboss.org/jira/browse/HORNETQ-359
+    * Start one node with no consumers and send some messages. Start another node add a consumer and verify all messages
+    * are redistributed.
     */
    @Test
    public void testRedistributionWhenNewNodeIsAddedWithConsumer() throws Exception {

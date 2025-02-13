@@ -27,12 +27,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
-//import org.jboss.util.naming.Util;
-
 /**
  * used by the default context when running in embedded local configuration
- *
- * @author <a href="ataylor@redhat.com">Andy Taylor</a>
  */
 public class NonSerializableFactory implements ObjectFactory {
 

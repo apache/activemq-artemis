@@ -31,9 +31,7 @@ import javax.security.sasl.SaslServer;
 import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 
-/*
- * delegate the the jdk GSSAPI support
- */
+// delegate the the jdk GSSAPI support
 public class GSSAPIServerSASL implements ServerSASL {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

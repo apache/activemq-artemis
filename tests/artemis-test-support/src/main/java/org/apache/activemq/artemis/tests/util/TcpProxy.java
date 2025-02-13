@@ -44,9 +44,10 @@ import io.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** This Proxy is based in one of the Netty Examples:
+/**
+ * This Proxy is based in one of the Netty Examples:
  * https://github.com/netty/netty/tree/ccc5e01f0444301561f055b02cd7c1f3e875bca7/example/src/main/java/io/netty/example/proxy
- * */
+ */
 public final class TcpProxy implements Runnable {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -88,7 +89,9 @@ public final class TcpProxy implements Runnable {
       this.logging = logging;
    }
 
-   /** Try a Core Protocol connection until successful */
+   /**
+    * Try a Core Protocol connection until successful
+    */
    public void tryCore(String user, String password) {
       ConnectionFactory cf = CFUtil.createConnectionFactory("CORE", "tcp://" + remoteHost + ":" + localPort);
       // try to connect a few time, to make sure the proxy is up

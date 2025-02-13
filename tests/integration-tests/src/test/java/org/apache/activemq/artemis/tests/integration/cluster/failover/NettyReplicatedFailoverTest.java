@@ -209,7 +209,6 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
    }
 
 
-   // https://issues.jboss.org/browse/HORNETQ-685
    @Test
    @Timeout(120)
    public void testTimeoutOnFailover() throws Exception {
@@ -273,7 +272,6 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
       }
    }
 
-   // https://issues.jboss.org/browse/HORNETQ-685
    @Test
    @Timeout(120)
    public void testTimeoutOnFailoverConsume() throws Exception {
@@ -431,7 +429,6 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
       session.close();
    }
 
-   // https://issues.jboss.org/browse/HORNETQ-685
    @Test
    @Timeout(120)
    public void testTimeoutOnFailoverTransactionCommit() throws Exception {
@@ -499,8 +496,7 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
    }
 
    /**
-    * This test would fail one in three or five times,
-    * where the commit would leave the session dirty after a timeout.
+    * This test would fail one in three or five times, where the commit would leave the session dirty after a timeout.
     */
    @Test
    @Timeout(120)
@@ -580,7 +576,6 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
 
    }
 
-   // https://issues.jboss.org/browse/HORNETQ-685
    @Test
    @Timeout(120)
    public void testTimeoutOnFailoverTransactionRollback() throws Exception {
@@ -632,11 +627,6 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
 
    }
 
-   /**
-    * see http://jira.jboss.org/browse/HORNETQ-522
-    *
-    * @throws Exception
-    */
    @Test
    @Timeout(120)
    public void testNonTransactedWithZeroConsumerWindowSize() throws Exception {
@@ -910,8 +900,6 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
       session.close();
    }
 
-
-   // https://jira.jboss.org/jira/browse/HORNETQ-285
    @Test
    @Timeout(120)
    public void testFailoverOnInitialConnection() throws Exception {
@@ -977,8 +965,7 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
    }
 
    /**
-    * Test that once the transacted session has throw a TRANSACTION_ROLLED_BACK exception,
-    * it can be reused again
+    * Test that once the transacted session has throw a TRANSACTION_ROLLED_BACK exception, it can be reused again
     */
    @Test
    @Timeout(120)
@@ -1297,7 +1284,6 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
          fail("Should throw exception");
       } catch (XAException e) {
          assertEquals(XAException.XAER_RMFAIL, e.errorCode);
-         // XXXX  session.rollback();
       }
 
       ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
@@ -1631,7 +1617,7 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
       }
    }
 
-   /*
+   /**
     * Browser will get reset to beginning after failover
     */
    @Test
@@ -2082,7 +2068,6 @@ public class NettyReplicatedFailoverTest extends NettyFailoverInVMTest {
    @Test
    @Timeout(120)
    public void testBackupServerNotRemoved() throws Exception {
-      // HORNETQ-720 Disabling test for replicating backups.
       if (!(backupServer.getServer().getHAPolicy() instanceof SharedStoreBackupPolicy)) {
          return;
       }

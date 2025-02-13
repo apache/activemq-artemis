@@ -113,9 +113,8 @@ public class ConnectionClosedTest extends JMSTestCase {
    }
 
    /**
-    * A close terminates all pending message receives on the connection's session's  consumers. The
-    * receives may return with a message or null depending on whether or not there was a message
-    * available at the time of the close.
+    * A close terminates all pending message receives on the connection's session's  consumers. The receives may return
+    * with a message or null depending on whether there was a message available at the time of the close.
     */
    @Test
    public void testCloseWhileReceiving() throws Exception {
@@ -210,7 +209,8 @@ public class ConnectionClosedTest extends JMSTestCase {
 
       // Session
 
-      /* If the session is closed then any method invocation apart from close()
+      /*
+       * If the session is closed then any method invocation apart from close()
        * will throw an IllegalStateException
        */
       try {
@@ -256,7 +256,8 @@ public class ConnectionClosedTest extends JMSTestCase {
 
       // Producer
 
-      /* If the producer is closed then any method invocation apart from close()
+      /*
+       * If the producer is closed then any method invocation apart from close()
        * will throw an IllegalStateException
        */
       try {

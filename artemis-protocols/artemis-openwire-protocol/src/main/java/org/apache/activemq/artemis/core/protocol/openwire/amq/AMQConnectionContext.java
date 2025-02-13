@@ -85,37 +85,22 @@ public class AMQConnectionContext {
       return rc;
    }
 
-   /**
-    * @return the broker being used.
-    */
    public OpenWireProtocolManager getBroker() {
       return broker;
    }
 
-   /**
-    * @param broker being used
-    */
    public void setBroker(OpenWireProtocolManager broker) {
       this.broker = broker;
    }
 
-   /**
-    * @return the connection being used
-    */
    public OpenWireConnection getConnection() {
       return connection;
    }
 
-   /**
-    * @param connection being used
-    */
    public void setConnection(OpenWireConnection connection) {
       this.connection = connection;
    }
 
-   /**
-    * @return
-    */
    public boolean isInRecoveryMode() {
       return inRecoveryMode;
    }
@@ -204,16 +189,10 @@ public class AMQConnectionContext {
       return dontSendResponse;
    }
 
-   /**
-    * @return the clientMaster
-    */
    public boolean isClientMaster() {
       return this.clientMaster;
    }
 
-   /**
-    * @param clientMaster the clientMaster to set
-    */
    public void setClientMaster(boolean clientMaster) {
       this.clientMaster = clientMaster;
    }

@@ -16,15 +16,10 @@
  */
 package org.apache.activemq;
 
-/**
- *
- */
 public class JmsQueueRequestReplyTest extends JmsTopicRequestReplyTest {
 
    /**
     * Set up the test with a queue.
-    *
-    * @see junit.framework.TestCase#setUp()
     */
    @Override
    protected void setUp() throws Exception {

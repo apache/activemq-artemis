@@ -27,18 +27,12 @@ import org.junit.Test;
 import org.objectweb.jtests.jms.framework.PTPTestCase;
 import org.objectweb.jtests.jms.framework.TestConfig;
 
-/**
- * Test the <code>javax.jms.TemporaryQueue</code> features.
- */
 public class TemporaryQueueTest extends PTPTestCase {
 
    private TemporaryQueue tempQueue;
 
    private QueueReceiver tempReceiver;
 
-   /**
-    * Test a TemporaryQueue
-    */
    @Test
    public void testTemporaryQueue() {
       try {

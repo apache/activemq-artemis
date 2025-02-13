@@ -80,8 +80,6 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
 
    /**
     * Sends and consumes the messages.
-    *
-    * @throws Exception
     */
    @Test
    public void testSendReceive() throws Exception {
@@ -103,7 +101,6 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
     * Tests if the messages received are valid.
     *
     * @param receivedMessages - list of received messages.
-    * @throws JMSException
     */
    protected void assertMessagesReceivedAreValid(List<Message> receivedMessages) throws JMSException {
       List<Object> copyOfMessages = Arrays.asList(receivedMessages.toArray());
@@ -151,8 +148,6 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
 
    /**
     * Asserts messages are received.
-    *
-    * @throws JMSException
     */
    protected void assertMessagesAreReceived() throws JMSException {
       waitForMessagesToBeDelivered();
@@ -161,18 +156,11 @@ public abstract class JmsSendReceiveTestSupport extends BasicOpenWireTest implem
 
    /**
     * Just a hook so can insert failure tests
-    *
-    * @throws Exception
     */
    protected void messageSent() throws Exception {
 
    }
 
-   /*
-    * (non-Javadoc)
-    *
-    * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
-    */
    @Override
    public synchronized void onMessage(Message message) {
       consumeMessage(message, messages);

@@ -30,8 +30,8 @@ import javax.json.spi.JsonProvider;
 import java.io.Reader;
 
 /**
- * This is to make sure we use the proper classLoader to load JSon libraries.
- * This is equivalent to using {@link javax.json.Json}
+ * This is to make sure we use the proper classLoader to load JSon libraries. This is equivalent to using
+ * {@link javax.json.Json}
  */
 public class JsonLoader {
 

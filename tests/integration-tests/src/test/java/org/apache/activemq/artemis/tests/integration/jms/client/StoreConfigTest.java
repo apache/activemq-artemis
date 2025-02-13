@@ -295,9 +295,6 @@ public class StoreConfigTest extends JMSTestBase {
       jmsServer.stop();
    }
 
-   /**
-    *
-    */
    private void assertNullJNDI(String name) {
       Object obj = null;
       try {
@@ -308,10 +305,6 @@ public class StoreConfigTest extends JMSTestBase {
       assertNull(obj);
    }
 
-   /**
-    * @throws NamingException
-    * @throws JMSException
-    */
    private void openCon(String name) throws NamingException, JMSException {
       ConnectionFactory cf = (ConnectionFactory) namingContext.lookup(name);
 

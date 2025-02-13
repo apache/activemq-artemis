@@ -24,9 +24,8 @@ import java.util.zip.Inflater;
 /**
  * InflaterWriter
  * <p>
- * This class takes an OutputStream. Compressed bytes
- * can directly be written into this class. The class will
- * decompress the bytes and write them to the output stream.
+ * This class takes an OutputStream. Compressed bytes can directly be written into this class. The class will decompress
+ * the bytes and write them to the output stream.
  * <p>
  * Not for concurrent use.
  */
@@ -46,8 +45,10 @@ public class InflaterWriter extends OutputStream {
       this.output = output;
    }
 
-   /*
+   /**
     * Write a compressed byte.
+    * <p>
+    * {@inheritDoc}
     */
    @Override
    public void write(final int b) throws IOException {

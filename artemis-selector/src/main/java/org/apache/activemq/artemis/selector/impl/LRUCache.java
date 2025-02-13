@@ -21,11 +21,7 @@ import java.util.Map;
 
 /**
  * A Simple LRU Cache
- *
- * @param <K>
- * @param <V>
  */
-
 public class LRUCache<K, V> extends LinkedHashMap<K, V> {
 
    private static final long serialVersionUID = -342098639681884413L;
@@ -40,41 +36,29 @@ public class LRUCache<K, V> extends LinkedHashMap<K, V> {
 
    /**
     * Constructs a LRUCache with a maximum capacity
-    *
-    * @param maximumCacheSize
     */
    public LRUCache(int maximumCacheSize) {
       this(0, maximumCacheSize, 0.75f, true);
    }
 
    /**
-    * Constructs an empty <code>LRUCache</code> instance with the specified
-    * initial capacity, maximumCacheSize,load factor and ordering mode.
+    * Constructs an empty {@code LRUCache} instance with the specified initial capacity, maximumCacheSize,load factor
+    * and ordering mode.
     *
-    * @param initialCapacity  the initial capacity.
-    * @param maximumCacheSize
-    * @param loadFactor       the load factor.
-    * @param accessOrder      the ordering mode - <code>true</code> for access-order,
-    *                         <code>false</code> for insertion-order.
-    * @throws IllegalArgumentException if the initial capacity is negative or
-    *                                  the load factor is non-positive.
+    * @param initialCapacity the initial capacity.
+    * @param loadFactor      the load factor.
+    * @param accessOrder     the ordering mode - {@code true} for access-order, {@code false} for insertion-order.
+    * @throws IllegalArgumentException if the initial capacity is negative or the load factor is non-positive.
     */
-
    public LRUCache(int initialCapacity, int maximumCacheSize, float loadFactor, boolean accessOrder) {
       super(initialCapacity, loadFactor, accessOrder);
       this.maxCacheSize = maximumCacheSize;
    }
 
-   /**
-    * @return Returns the maxCacheSize.
-    */
    public int getMaxCacheSize() {
       return maxCacheSize;
    }
 
-   /**
-    * @param maxCacheSize The maxCacheSize to set.
-    */
    public void setMaxCacheSize(int maxCacheSize) {
       this.maxCacheSize = maxCacheSize;
    }

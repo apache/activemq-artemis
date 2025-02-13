@@ -44,8 +44,8 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * This test will run a hornetq server with artemis clients
- * and it will make sure that failover happens without any problems.
+ * This test will run a hornetq server with artemis clients and it will make sure that failover happens without any
+ * problems.
  */
 @ExtendWith(ParameterizedTestExtension.class)
 public class HQFailoverTest extends VersionedBase {

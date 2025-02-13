@@ -135,7 +135,6 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
       jbcf.close();
    }
 
-   // https://jira.jboss.org/jira/browse/HORNETQ-315
    @Test
    public void testCloseConnectionAfterServerIsShutdown() throws Exception {
       server.start();
@@ -152,9 +151,6 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
       conn.close();
    }
 
-   /**
-    * @return
-    */
    private ActiveMQConnectionFactory createConnectionFactory() {
       ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(NETTY_CONNECTOR_FACTORY));
 

@@ -42,9 +42,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/*
-* takes care of updating the cluster with a backups transport configuration which is based on each cluster connection.
-* */
+/**
+ * This takes care of updating the cluster with a backups transport configuration which is based on each cluster
+ * connection.
+ */
 public class BackupManager implements ActiveMQComponent {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -74,16 +75,19 @@ public class BackupManager implements ActiveMQComponent {
       this.clusterManager = clusterManager;
    }
 
-   /** This is meant for testing and assertions, please don't do anything stupid with it!
-    *  I mean, please don't use it outside of testing context */
+   /**
+    * This is meant for testing and assertions, please don't do anything stupid with it! I mean, please don't use it
+    * outside of testing context
+    */
    public List<BackupConnector> getBackupConnectors() {
       return backupConnectors;
    }
 
-   /*
-   * Start the backup manager if not already started. This entails deploying a backup connector based on a cluster
-   * configuration, informing the cluster manager so that it can add it to its topology and announce itself to the cluster.
-   * */
+   /**
+    * Start the backup manager if not already started. This entails deploying a backup connector based on a cluster
+    * configuration, informing the cluster manager so that it can add it to its topology and announce itself to the
+    * cluster.
+    */
    @Override
    public synchronized void start() throws Exception {
       if (started)
@@ -107,9 +111,9 @@ public class BackupManager implements ActiveMQComponent {
       started = true;
    }
 
-   /*
-   * stop all the connectors
-   * */
+   /**
+    * stop all the connectors
+    */
    @Override
    public synchronized void stop() {
       if (!started)
@@ -120,18 +124,18 @@ public class BackupManager implements ActiveMQComponent {
       started = false;
    }
 
-   /*
-   * announce the fact that we are a backup server ready to fail over if required.
-   */
+   /**
+    * announce the fact that we are a backup server ready to fail over if required.
+    */
    public void announceBackup() {
       for (BackupConnector backupConnector : backupConnectors) {
          backupConnector.announceBackup();
       }
    }
 
-   /*
-   * create the connectors using the cluster configurations
-   * */
+   /**
+    * create the connectors using the cluster configurations
+    */
    private void deployBackupConnector(final ClusterConnectionConfiguration config) throws Exception {
       if (!config.validateConfiguration()) {
          return;
@@ -160,9 +164,9 @@ public class BackupManager implements ActiveMQComponent {
       }
    }
 
-   /*
-   * called to notify us that we have been activated so the connectors are no longer needed.
-   * */
+   /**
+    * called to notify us that we have been activated so the connectors are no longer needed.
+    */
    public void activated() {
       for (BackupConnector backupConnector : backupConnectors) {
          backupConnector.close();
@@ -183,9 +187,9 @@ public class BackupManager implements ActiveMQComponent {
       return true;
    }
 
-   /*
-   * A backup connector will connect to the cluster and announce that we are a backup server ready to fail over.
-   * */
+   /**
+    * A backup connector will connect to the cluster and announce that we are a backup server ready to fail over.
+    */
    public abstract class BackupConnector {
 
       private volatile ServerLocatorInternal backupServerLocator;
@@ -215,19 +219,21 @@ public class BackupManager implements ActiveMQComponent {
          this.clusterManager = clusterManager;
       }
 
-      /*
-      * used to create the server locator needed, will be connectors or discovery
-      * */
+      /**
+       * used to create the server locator needed, will be connectors or discovery
+       */
       abstract ServerLocatorInternal createServerLocator(Topology topology);
 
-      /** This is for test assertions, please be careful, don't use outside of testing! */
+      /**
+       * This is for test assertions, please be careful, don't use outside of testing!
+       */
       public ServerLocator getBackupServerLocator() {
          return backupServerLocator;
       }
 
-      /*
-      * start the connector by creating the server locator to use.
-      * */
+      /**
+       * start the connector by creating the server locator to use.
+       */
       void start() {
          stopping = false;
          backupAnnounced = false;
@@ -245,9 +251,9 @@ public class BackupManager implements ActiveMQComponent {
          }
       }
 
-      /*
-      * this connects to the cluster and announces that we are a backup
-      * */
+      /**
+       * this connects to the cluster and announces that we are a backup
+       */
       public void announceBackup() {
          //this has to be done in a separate thread
          executor.execute(() -> {
@@ -294,21 +300,20 @@ public class BackupManager implements ActiveMQComponent {
          });
       }
 
-      /** it will re-schedule the connection after a timeout, using a scheduled executor */
+      /**
+       * it will re-schedule the connection after a timeout, using a scheduled executor
+       */
       protected void retryConnection() {
          scheduledExecutor.schedule(this::announceBackup, config.getRetryInterval(), TimeUnit.MILLISECONDS);
       }
 
-      /*
-      * called to notify the cluster manager about the backup
-      * */
+      /**
+       * called to notify the cluster manager about the backup
+       */
       public void informTopology() {
          clusterManager.informClusterOfBackup(config.getName());
       }
 
-      /*
-      * close everything
-      * */
       public void close() {
          stopping = true;
          if (announcingBackup) {
@@ -338,9 +343,6 @@ public class BackupManager implements ActiveMQComponent {
       }
    }
 
-   /*
-   * backup connector using static connectors
-   * */
    private final class StaticBackupConnector extends BackupConnector {
 
       private final TransportConfiguration[] tcConfigs;
@@ -378,9 +380,6 @@ public class BackupManager implements ActiveMQComponent {
 
    }
 
-   /*
-   * backup connector using discovery
-   * */
    private final class DiscoveryBackupConnector extends BackupConnector {
 
       private final DiscoveryGroupConfiguration discoveryGroupConfiguration;

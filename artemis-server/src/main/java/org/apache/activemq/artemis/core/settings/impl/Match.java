@@ -60,12 +60,8 @@ public class Match<T> {
    }
 
    /**
-    *
-    * @param match
-    * @param wildcardConfiguration
-    * @param direct setting true is useful for use-cases where you just want to know whether or not a message sent to
-    *               a particular address would match the pattern
-    * @return
+    * @param direct setting true is useful for use-cases where you just want to know whether a message sent to a
+    *               particular address would match the pattern
     */
    public static Pattern createPattern(final String match, final WildcardConfiguration wildcardConfiguration, boolean direct) {
       String actMatch = match;

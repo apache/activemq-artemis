@@ -82,9 +82,6 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
       assertEquals(target, getAllMessageFileIds(dir).size(), "we really ought to delete these after delivery");
    }
 
-   /**
-    * @throws Exception
-    */
    @Test
    public void testDeleteLargeMessagesDuringSync() throws Exception {
       setNumberOfMessages(200);
@@ -111,11 +108,9 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
    }
 
    /**
-    * LargeMessages are passed from the client to the server in chunks. Here we test the backup
-    * starting the data synchronization with the primary in the middle of a multiple chunks large
-    * message upload from the client to the primary server.
-    *
-    * @throws Exception
+    * LargeMessages are passed from the client to the server in chunks. Here we test the backup starting the data
+    * synchronization with the primary in the middle of a multiple chunks large message upload from the client to the
+    * primary server.
     */
    @Test
    public void testBackupStartsWhenPrimaryIsReceivingLargeMessage() throws Exception {

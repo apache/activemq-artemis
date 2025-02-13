@@ -441,11 +441,6 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
    }
 
-   /**
-    * @param queue
-    * @return
-    * @throws Exception
-    */
    private PageSubscriptionCounter locateCounter(Queue queue) throws Exception {
       PageSubscription subscription = server.getPagingManager().getPageStore(SimpleString.of("A1")).getCursorProvider().getSubscription(queue.getID());
 

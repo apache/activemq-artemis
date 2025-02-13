@@ -263,7 +263,8 @@ public class ClusteredGroupingTest extends ClusterTestBase {
    }
 
    /**
-    * This is the same test as testGroupingSimple() just with the "address" removed from the cluster-connection and grouping-handler
+    * This is the same test as testGroupingSimple() just with the "address" removed from the cluster-connection and
+    * grouping-handler
     */
    @Test
    public void testGroupingSimpleWithNoAddress() throws Exception {

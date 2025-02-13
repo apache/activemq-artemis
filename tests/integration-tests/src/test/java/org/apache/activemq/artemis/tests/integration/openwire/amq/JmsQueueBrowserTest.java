@@ -40,11 +40,8 @@ import org.junit.jupiter.api.Test;
 public class JmsQueueBrowserTest extends BasicOpenWireTest {
 
    /**
-    * Tests the queue browser. Browses the messages then the consumer tries to
-    * receive them. The messages should still be in the queue even when it was
-    * browsed.
-    *
-    * @throws Exception
+    * Tests the queue browser. Browses the messages then the consumer tries to receive them. The messages should still
+    * be in the queue even when it was browsed.
     */
    @Test
    public void testReceiveBrowseReceive() throws Exception {

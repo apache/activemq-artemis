@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.utils.Env;
 
 /**
- * This class will check for Epoll or KQueue is available, and return false in case of NoClassDefFoundError
- * it could be improved to check for other cases eventually.
+ * This class will check for Epoll or KQueue is available, and return false in case of NoClassDefFoundError it could be
+ * improved to check for other cases eventually.
  */
 public class CheckDependencies {
 

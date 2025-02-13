@@ -30,7 +30,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-4.5.0-2] The Client MUST acknowledge any Publish packet it receives according to the applicable QoS rules regardless of whether it elects to process the Application Message that it contains.
@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Timeout;
 
 public class MessageReceiptTests extends MQTT5TestSupport {
 
-   /*
+   /**
     * [MQTT-4.5.0-1] When a Server takes ownership of an incoming Application Message it MUST add it to the Session
     * State for those Clients that have matching Subscriptions.
     *

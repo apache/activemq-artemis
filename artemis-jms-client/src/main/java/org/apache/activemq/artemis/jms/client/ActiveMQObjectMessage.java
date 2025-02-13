@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 
 /**
  * ActiveMQ Artemis implementation of a JMS ObjectMessage.
- * <br>
+ * <p>
  * Don't used ObjectMessage if you want good performance!
  * <p>
  * Serialization is slooooow!

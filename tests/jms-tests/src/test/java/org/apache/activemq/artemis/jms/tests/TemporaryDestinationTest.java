@@ -123,9 +123,7 @@ public class TemporaryDestinationTest extends JMSTestCase {
          }
       }
    }
-   /**
-    * http://jira.jboss.com/jira/browse/JBMESSAGING-93
-    */
+
    @Test
    public void testTemporaryQueueOnClosedSession() throws Exception {
       Connection producerConnection = null;
@@ -310,9 +308,6 @@ public class TemporaryDestinationTest extends JMSTestCase {
       }
    }
 
-   /**
-    * http://jira.jboss.com/jira/browse/JBMESSAGING-93
-    */
    @Test
    public void testTemporaryTopicOnClosedSession() throws Exception {
       Connection producerConnection = null;
@@ -371,9 +366,6 @@ public class TemporaryDestinationTest extends JMSTestCase {
       }
    }
 
-   /**
-    * https://jira.jboss.org/jira/browse/JBMESSAGING-1566
-    */
    @Test
    public void testCanNotCreateConsumerFromAnotherConnectionForTemporaryQueue() throws Exception {
       Connection conn = createConnection();
@@ -396,9 +388,6 @@ public class TemporaryDestinationTest extends JMSTestCase {
       anotherConn.close();
    }
 
-   /**
-    * https://jira.jboss.org/jira/browse/JBMESSAGING-1566
-    */
    @Test
    public void testCanNotCreateConsumerFromAnotherCnnectionForTemporaryTopic() throws Exception {
       Connection conn = createConnection();

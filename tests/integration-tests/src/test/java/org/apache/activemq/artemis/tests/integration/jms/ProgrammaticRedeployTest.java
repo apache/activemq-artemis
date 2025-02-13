@@ -41,11 +41,11 @@ import org.junit.jupiter.api.Test;
 
 public class ProgrammaticRedeployTest extends ActiveMQTestBase {
 
-   @Test
    /**
     * This is basically a copy of org.apache.activemq.artemis.tests.integration.jms.RedeployTest#testRedeployAddressQueue().
     * However, this test disables automatic configuration reload and uses the management API to do it instead.
     */
+   @Test
    public void testRedeployAddressQueue() throws Exception {
       Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
       URL url1 = ProgrammaticRedeployTest.class.getClassLoader().getResource("reload-address-queues-programmatic.xml");

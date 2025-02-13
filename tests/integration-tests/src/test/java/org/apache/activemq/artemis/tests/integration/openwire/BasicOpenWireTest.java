@@ -186,11 +186,6 @@ public class BasicOpenWireTest extends OpenWireTestBase {
       session.close();
    }
 
-   /**
-    * @param messsage
-    * @param firstSet
-    * @param secondSet
-    */
    protected void assertTextMessagesEqual(String messsage,
                                           Message[] firstSet,
                                           Message[] secondSet) throws JMSException {

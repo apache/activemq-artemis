@@ -35,26 +35,15 @@ import junit.framework.TestSuite;
 
 import org.apache.activemq.util.Wait;
 
-/**
- *
- */
 public class JmsRedeliveredTest extends TestCase {
 
    private Connection connection;
 
-   /*
-    * (non-Javadoc)
-    *
-    * @see junit.framework.TestCase#setUp()
-    */
    @Override
    protected void setUp() throws Exception {
       connection = createConnection();
    }
 
-   /**
-    * @see junit.framework.TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
@@ -64,18 +53,12 @@ public class JmsRedeliveredTest extends TestCase {
       CombinationTestSupport.checkStopped();
    }
 
-   /**
-    * Creates a connection.
-    *
-    * @return connection
-    * @throws Exception
-    */
    protected Connection createConnection() throws Exception {
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
       return factory.createConnection();
    }
 
-   /**
+   /*
     * Tests if a message unacknowledged message gets to be resent when the
     * session is closed and then a new consumer session is created.
     */
@@ -148,11 +131,9 @@ public class JmsRedeliveredTest extends TestCase {
       session.close();
    }
 
-   /**
+   /*
     * Tests session recovery and that the redelivered message is marked as
     * such. Session uses client acknowledgement, the destination is a queue.
-    *
-    * @throws JMSException
     */
    public void testQueueRecoverMarksMessageRedelivered() throws JMSException {
       connection.start();
@@ -182,11 +163,9 @@ public class JmsRedeliveredTest extends TestCase {
       session.close();
    }
 
-   /**
+   /*
     * Tests rollback message to be marked as redelivered. Session uses client
     * acknowledgement and the destination is a queue.
-    *
-    * @throws JMSException
     */
    public void testQueueRollbackMarksMessageRedelivered() throws JMSException {
       connection.start();
@@ -215,13 +194,11 @@ public class JmsRedeliveredTest extends TestCase {
       session.close();
    }
 
-   /**
+   /*
     * Tests if the message gets to be re-delivered when the session closes and
     * that the re-delivered message is marked as such. Session uses client
     * acknowledgment, the destination is a topic and the consumer is a durable
     * subscriber.
-    *
-    * @throws JMSException
     */
    public void testDurableTopicSessionCloseMarksMessageRedelivered() throws JMSException {
       connection.setClientID(getName());
@@ -259,12 +236,10 @@ public class JmsRedeliveredTest extends TestCase {
       session.close();
    }
 
-   /**
+   /*
     * Tests session recovery and that the redelivered message is marked as
     * such. Session uses client acknowledgement, the destination is a topic and
     * the consumer is a durable suscriber.
-    *
-    * @throws JMSException
     */
    public void testDurableTopicRecoverMarksMessageRedelivered() throws JMSException {
       connection.setClientID(getName());
@@ -296,11 +271,9 @@ public class JmsRedeliveredTest extends TestCase {
       session.close();
    }
 
-   /**
+   /*
     * Tests rollback message to be marked as redelivered. Session uses client
     * acknowledgement and the destination is a topic.
-    *
-    * @throws JMSException
     */
    public void testDurableTopicRollbackMarksMessageRedelivered() throws JMSException {
       connection.setClientID(getName());
@@ -331,9 +304,6 @@ public class JmsRedeliveredTest extends TestCase {
       session.close();
    }
 
-   /**
-    * @throws JMSException
-    */
    public void testTopicRecoverMarksMessageRedelivered() throws JMSException {
 
       connection.setClientID(getName());
@@ -365,11 +335,9 @@ public class JmsRedeliveredTest extends TestCase {
       session.close();
    }
 
-   /**
+   /*
     * Tests rollback message to be marked as redelivered. Session uses client
     * acknowledgement and the destination is a topic.
-    *
-    * @throws JMSException
     */
    public void testTopicRollbackMarksMessageRedelivered() throws JMSException {
       connection.setClientID(getName());
@@ -480,13 +448,6 @@ public class JmsRedeliveredTest extends TestCase {
       session.close();
    }
 
-   /**
-    * Creates a text message.
-    *
-    * @param session
-    * @return TextMessage.
-    * @throws JMSException
-    */
    private TextMessage createTextMessage(Session session) throws JMSException {
       return createTextMessage(session, "Hello");
    }
@@ -495,55 +456,24 @@ public class JmsRedeliveredTest extends TestCase {
       return session.createTextMessage(txt);
    }
 
-   /**
-    * Creates a producer.
-    *
-    * @param session
-    * @param queue   - destination.
-    * @return MessageProducer
-    * @throws JMSException
-    */
    private MessageProducer createProducer(Session session, Destination queue) throws JMSException {
       MessageProducer producer = session.createProducer(queue);
       producer.setDeliveryMode(getDeliveryMode());
       return producer;
    }
 
-   /**
-    * Returns delivery mode.
-    *
-    * @return int - persistent delivery mode.
-    */
    protected int getDeliveryMode() {
       return DeliveryMode.PERSISTENT;
    }
 
-   /**
-    * Run the JmsRedeliverTest with the delivery mode set as persistent.
-    */
    public static final class PersistentCase extends JmsRedeliveredTest {
-
-      /**
-       * Returns delivery mode.
-       *
-       * @return int - persistent delivery mode.
-       */
       @Override
       protected int getDeliveryMode() {
          return DeliveryMode.PERSISTENT;
       }
    }
 
-   /**
-    * Run the JmsRedeliverTest with the delivery mode set as non-persistent.
-    */
    public static final class TransientCase extends JmsRedeliveredTest {
-
-      /**
-       * Returns delivery mode.
-       *
-       * @return int - non-persistent delivery mode.
-       */
       @Override
       protected int getDeliveryMode() {
          return DeliveryMode.NON_PERSISTENT;

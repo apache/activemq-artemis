@@ -23,9 +23,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.Test;
 
 /**
- * This tests is placed in duplication here to validate that the libaio module is properly loaded on this
- * test module.
- *
+ * This tests is placed in duplication here to validate that the libaio module is properly loaded on this test module.
+ * <p>
  * This test should be placed on each one of the tests modules to make sure the library is loaded correctly.
  */
 public class LibaioDependencyCheckTest extends ActiveMQTestBase {

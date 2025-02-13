@@ -21,12 +21,10 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 /**
- * Registers a given backup-server as the replicating backup of a primary server (i.e. a regular
- * ActiveMQ).
+ * Registers a given backup-server as the replicating backup of a primary server (i.e. a regular ActiveMQ).
  * <p>
- * If it succeeds the backup will start synchronization of its state with the new backup node, and
- * replicating any new data. If it fails the backup server will receive a message indicating
- * failure, and should shutdown.
+ * If it succeeds the backup will start synchronization of its state with the new backup node, and replicating any new
+ * data. If it fails the backup server will receive a message indicating failure, and should shutdown.
  *
  * @see BackupReplicationStartFailedMessage
  */

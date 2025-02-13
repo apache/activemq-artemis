@@ -68,11 +68,6 @@ public final class TransportConfigurationUtils {
       return transportConfiguration(ActiveMQTestBase.NETTY_CONNECTOR_FACTORY, live, server, name);
    }
 
-   /**
-    * @param classname
-    * @param live
-    * @return
-    */
    private static TransportConfiguration transportConfiguration(String classname, boolean live) {
       if (live) {
          return new TransportConfiguration(classname);

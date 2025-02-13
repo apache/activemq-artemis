@@ -18,9 +18,6 @@ package org.apache.activemq;
 
 import org.apache.activemq.test.JmsResourceProvider;
 
-/**
- *
- */
 public class JmsTopicTransactionTest extends JmsTransactionTestSupport {
 
    /**

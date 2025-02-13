@@ -35,8 +35,10 @@ public interface ServiceRegistry {
 
    ExecutorService getPageExecutorService();
 
-   /** Notice that if you want to provide your own PageExecutor, you should limit the number of threads to the number of
-    *  parallel reads you want to perform on paging */
+   /**
+    * Notice that if you want to provide your own PageExecutor, you should limit the number of threads to the number of
+    * parallel reads you want to perform on paging
+    */
    void setPageExecutorService(ExecutorService executorService);
 
    ExecutorService getExecutorService();
@@ -51,17 +53,13 @@ public interface ServiceRegistry {
 
    void setScheduledExecutorService(ScheduledExecutorService scheduledExecutorService);
 
-   void addConnectorService(ConnectorServiceFactory connectorServiceFactory,
-                            ConnectorServiceConfiguration configuration);
+   void addConnectorService(ConnectorServiceFactory connectorServiceFactory, ConnectorServiceConfiguration configuration);
 
    void removeConnectorService(ConnectorServiceConfiguration configuration);
 
    /**
     * Get a collection of paired org.apache.activemq.artemis.core.server.ConnectorServiceFactory and
     * org.apache.activemq.artemis.core.config.ConnectorServiceConfiguration instances.
-    *
-    * @param configs
-    * @return
     */
    Collection<Pair<ConnectorServiceFactory, ConnectorServiceConfiguration>> getConnectorServices(List<ConnectorServiceConfiguration> configs);
 
@@ -69,7 +67,7 @@ public interface ServiceRegistry {
     * Get connector service for a given configuration.
     *
     * @param configuration The connector service configuration.
-    * @return an instance of the connector service factory.
+    * @return an instance of the connector service factory
     */
    ConnectorServiceFactory getConnectorService(ConnectorServiceConfiguration configuration);
 
@@ -77,9 +75,6 @@ public interface ServiceRegistry {
 
    /**
     * Get a list of org.apache.activemq.artemis.api.core.BaseInterceptor instances
-    *
-    * @param classNames
-    * @return
     */
    List<BaseInterceptor> getIncomingInterceptors(List<String> classNames);
 
@@ -87,18 +82,14 @@ public interface ServiceRegistry {
 
    /**
     * Get a list of org.apache.activemq.artemis.api.core.BaseInterceptor instances
-    *
-    * @param classNames
-    * @return
     */
    List<BaseInterceptor> getOutgoingInterceptors(List<String> classNames);
 
    /**
     * Get an instance of org.apache.activemq.artemis.core.server.transformer.Transformer for a divert
     *
-    * @param name      the name of divert for which the transformer will be used
+    * @param name                     the name of divert for which the transformer will be used
     * @param transformerConfiguration the transformer configuration
-    * @return
     */
    Transformer getDivertTransformer(String name, TransformerConfiguration transformerConfiguration);
 
@@ -109,9 +100,8 @@ public interface ServiceRegistry {
    /**
     * Get an instance of org.apache.activemq.artemis.core.server.transformer.Transformer for a bridge
     *
-    * @param name      the name of bridge for which the transformer will be used
+    * @param name                     the name of bridge for which the transformer will be used
     * @param transformerConfiguration the transformer configuration
-    * @return
     */
    Transformer getBridgeTransformer(String name, TransformerConfiguration transformerConfiguration);
 
@@ -120,9 +110,8 @@ public interface ServiceRegistry {
    /**
     * Get an instance of org.apache.activemq.artemis.core.server.transformer.Transformer for federation
     *
-    * @param name      the name of bridge for which the transformer will be used
+    * @param name                     the name of bridge for which the transformer will be used
     * @param transformerConfiguration the transformer configuration
-    * @return
     */
    Transformer getFederationTransformer(String name, TransformerConfiguration transformerConfiguration);
 
@@ -133,7 +122,6 @@ public interface ServiceRegistry {
     *
     * @param name      the name of acceptor for which the factory will be used
     * @param className the fully qualified name of the factory implementation (can be null)
-    * @return
     */
    AcceptorFactory getAcceptorFactory(String name, String className);
 

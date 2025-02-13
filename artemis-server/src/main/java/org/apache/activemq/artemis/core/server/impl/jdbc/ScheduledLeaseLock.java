@@ -23,7 +23,8 @@ import org.apache.activemq.artemis.core.server.NodeManager.LockListener;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
 /**
- * {@link LeaseLock} holder that allows to schedule a {@link LeaseLock#renew} task with a fixed {@link #renewPeriodMillis()} delay.
+ * {@link LeaseLock} holder that allows to schedule a {@link LeaseLock#renew} task with a fixed
+ * {@link #renewPeriodMillis()} delay.
  */
 interface ScheduledLeaseLock extends ActiveMQComponent {
 

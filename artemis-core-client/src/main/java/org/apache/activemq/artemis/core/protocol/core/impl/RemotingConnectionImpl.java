@@ -81,7 +81,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
    private final SimpleString nodeID;
 
-   /*
+   /**
     * Create a client side connection
     */
    public RemotingConnectionImpl(final PacketDecoder packetDecoder,
@@ -94,7 +94,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       this(packetDecoder, transportConnection, blockingCallTimeout, blockingCallFailoverTimeout, incomingInterceptors, outgoingInterceptors, true, null, connectionExecutor);
    }
 
-   /*
+   /**
     * Create a server side connection
     */
    public RemotingConnectionImpl(final PacketDecoder packetDecoder,
@@ -142,17 +142,11 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       return "RemotingConnectionImpl [ID=" + getID() + ", clientID=" + getClientID() + ", nodeID=" + nodeID + ", transportConnection=" + getTransportConnection() + "]";
    }
 
-   /**
-    * @return the channelVersion
-    */
    @Override
    public int getChannelVersion() {
       return channelVersion;
    }
 
-   /**
-    * @param clientVersion the channelVersion to set
-    */
    @Override
    public void setChannelVersion(int clientVersion) {
       this.channelVersion = clientVersion;
@@ -368,11 +362,6 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       return true;
    }
 
-   /**
-    * Returns the name of the protocol for this Remoting Connection
-    *
-    * @return
-    */
    @Override
    public String getProtocolName() {
       return ActiveMQClient.DEFAULT_CORE_PROTOCOL;

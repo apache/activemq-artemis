@@ -30,7 +30,6 @@ import java.util.List;
 
 public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
 
-
    /**
     * Value used to indicate that all classes should be allowed or denied
     */
@@ -43,10 +42,8 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
    public static final String BLACKLIST_PROPERTY = "org.apache.activemq.artemis.jms.deserialization.blacklist";
    public static final String DENYLIST_PROPERTY = "org.apache.activemq.artemis.jms.deserialization.denylist";
 
-
    private List<String> allowList = new ArrayList<>();
    private List<String> denyList = new ArrayList<>();
-
 
    public ObjectInputStreamWithClassLoader(final InputStream in) throws IOException {
       super(in);
@@ -58,24 +55,23 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
    }
 
    /**
-    * @return the allowList configured on this policy instance.
+    * @return the allowList configured on this policy instance
     */
    public String getAllowList() {
       return StringUtil.joinStringList(allowList, ",");
    }
 
    /**
-    * @return the denyList configured on this policy instance.
+    * @return the denyList configured on this policy instance
     */
    public String getDenyList() {
       return StringUtil.joinStringList(denyList, ",");
    }
 
    /**
-    * Replaces the currently configured allowList with a comma separated
-    * string containing the new allowList. Null or empty string denotes
-    * no allowList entries, {@value #CATCH_ALL_WILDCARD} indicates that
-    * all classes are allowListed.
+    * Replaces the currently configured allowList with a comma separated string containing the new allowList. Null or
+    * empty string denotes no allowList entries, {@value #CATCH_ALL_WILDCARD} indicates that all classes are
+    * allowListed.
     *
     * @param allowList the list that this policy is configured to recognize.
     */
@@ -84,22 +80,18 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
    }
 
    /**
-    * Adds to the currently configured allowList with a comma separated
-    * string containing the additional allowList entries. Null or empty
-    * string denotes no additional allowList entries.
+    * Adds to the currently configured allowList with a comma separated string containing the additional allowList
+    * entries. Null or empty string denotes no additional allowList entries.
     *
-    * @param allowList the additional list entries that this policy is
-    *                  configured to recognize.
+    * @param allowList the additional list entries that this policy is configured to recognize.
     */
    public void addToAllowList(String allowList) {
       this.allowList.addAll(StringUtil.splitStringList(allowList, ","));
    }
 
    /**
-    * Replaces the currently configured denyList with a comma separated
-    * string containing the new denyList. Null or empty string denotes
-    * no denylist entries, {@value #CATCH_ALL_WILDCARD} indicates that
-    * all classes are denylisted.
+    * Replaces the currently configured denyList with a comma separated string containing the new denyList. Null or
+    * empty string denotes no denylist entries, {@value #CATCH_ALL_WILDCARD} indicates that all classes are denylisted.
     *
     * @param denyList the list that this policy is configured to recognize.
     */
@@ -108,12 +100,10 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
    }
 
    /**
-    * Adds to the currently configured denyList with a comma separated
-    * string containing the additional denyList entries. Null or empty
-    * string denotes no additional denyList entries.
+    * Adds to the currently configured denyList with a comma separated string containing the additional denyList
+    * entries. Null or empty string denotes no additional denyList entries.
     *
-    * @param denyList the additional list entries that this policy is
-    *                  configured to recognize.
+    * @param denyList the additional list entries that this policy is configured to recognize.
     */
    public void addToDenyList(String denyList) {
       this.denyList.addAll(StringUtil.splitStringList(denyList, ","));
@@ -145,12 +135,10 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
       }
    }
 
-
    private Class resolveClass0(final ObjectStreamClass desc) throws IOException, ClassNotFoundException {
       String name = desc.getName();
       ClassLoader loader = Thread.currentThread().getContextClassLoader();
       try {
-         // HORNETQ-747 https://issues.jboss.org/browse/HORNETQ-747
          // Use Class.forName instead of ClassLoader.loadClass to avoid issues with loading arrays
          Class clazz = Class.forName(name, false, loader);
          // sanity check only.. if a classLoader can't find a clazz, it will throw an exception

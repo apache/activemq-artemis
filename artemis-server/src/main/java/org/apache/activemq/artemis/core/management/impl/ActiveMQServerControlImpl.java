@@ -2491,9 +2491,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.api.core.management.ActiveMQServerControl#listProducersInfoAsJSON()
-    */
    @Override
    public String listProducersInfoAsJSON() throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
@@ -3464,7 +3461,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
       checkStarted();
 
-      // JBPAPP-6334 requested this to be pageSizeBytes > maxSizeBytes
       if (pageSizeBytes > maxSizeBytes && maxSizeBytes > 0) {
          throw new IllegalStateException("pageSize has to be lower than maxSizeBytes. Invalid argument (" + pageSizeBytes + " < " + maxSizeBytes + ")");
       }
@@ -3553,7 +3549,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          if (addressSettingsConfiguration == null) {
             throw ActiveMQMessageBundle.BUNDLE.failedToParseJson(addressSettingsConfigurationAsJson);
          }
-         // JBPAPP-6334 requested this to be pageSizeBytes > maxSizeBytes
          if (addressSettingsConfiguration.getPageSizeBytes() > addressSettingsConfiguration.getMaxSizeBytes() && addressSettingsConfiguration.getMaxSizeBytes() > 0) {
             throw new IllegalStateException("pageSize has to be lower than maxSizeBytes. Invalid argument (" + addressSettingsConfiguration.getPageSizeBytes() + " < " + addressSettingsConfiguration.getMaxSizeBytes() + ")");
          }

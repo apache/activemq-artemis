@@ -21,8 +21,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 /**
- * Ping is sent on the client side by {@link org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl}. At the server's
- * side it is handled by org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl
+ * Ping is sent on the client side by {@link org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl}. At
+ * the server's side it is handled by org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl
  */
 public final class Ping extends PacketImpl {
 

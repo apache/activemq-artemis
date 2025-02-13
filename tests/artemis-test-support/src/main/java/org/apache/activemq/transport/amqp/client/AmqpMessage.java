@@ -47,8 +47,7 @@ public class AmqpMessage {
    private Map<String, Object> applicationPropertiesMap;
 
    /**
-    * Creates a new AmqpMessage that wraps the information necessary to handle
-    * an outgoing message.
+    * Creates a new AmqpMessage that wraps the information necessary to handle an outgoing message.
     */
    public AmqpMessage() {
       receiver = null;
@@ -58,8 +57,7 @@ public class AmqpMessage {
    }
 
    /**
-    * Creates a new AmqpMessage that wraps the information necessary to handle
-    * an outgoing message.
+    * Creates a new AmqpMessage that wraps the information necessary to handle an outgoing message.
     *
     * @param message the Proton message that is to be sent.
     */
@@ -68,8 +66,7 @@ public class AmqpMessage {
    }
 
    /**
-    * Creates a new AmqpMessage that wraps the information necessary to handle
-    * an incoming delivery.
+    * Creates a new AmqpMessage that wraps the information necessary to handle an incoming delivery.
     *
     * @param receiver the AmqpReceiver that received this message.
     * @param message  the Proton message that was received.
@@ -97,7 +94,7 @@ public class AmqpMessage {
    //----- Access to interal client resources -------------------------------//
 
    /**
-    * @return the AMQP Delivery object linked to a received message.
+    * {@return the AMQP Delivery object linked to a received message}
     */
    public Delivery getWrappedDelivery() {
       if (delivery != null) {
@@ -108,14 +105,14 @@ public class AmqpMessage {
    }
 
    /**
-    * @return the AMQP Message that is wrapped by this object.
+    * {@return the AMQP Message that is wrapped by this object}
     */
    public Message getWrappedMessage() {
       return message;
    }
 
    /**
-    * @return the AmqpReceiver that consumed this message.
+    * {@return the AmqpReceiver that consumed this message}
     */
    public AmqpReceiver getAmqpReceiver() {
       return receiver;
@@ -135,9 +132,7 @@ public class AmqpMessage {
    /**
     * Accepts the message marking it as consumed on the remote peer.
     *
-    * @param settle
-    *        true if the client should also settle the delivery when sending the accept.
-    *
+    * @param settle {@code true} if the client should also settle the delivery when sending the accept.
     * @throws Exception if an error occurs during the accept.
     */
    public void accept(boolean settle) throws Exception {
@@ -161,9 +156,7 @@ public class AmqpMessage {
    /**
     * Accepts the message marking it as consumed on the remote peer.
     *
-    * @param txnSession
-    *      The session that is used to manage acceptance of the message.
-    *
+    * @param txnSession The session that is used to manage acceptance of the message.
     * @throws Exception if an error occurs during the accept.
     */
    public void accept(AmqpSession txnSession, boolean settle) throws Exception {
@@ -229,9 +222,7 @@ public class AmqpMessage {
    }
 
    /**
-    * Return the set address that was set in the Message To field.
-    *
-    * @return the set address String form or null if not set.
+    * {@return the address that was set in the Message To field or {@code null} if not set}
     */
    public String getAddress() {
       if (message.getProperties() == null) {
@@ -253,9 +244,7 @@ public class AmqpMessage {
    }
 
    /**
-    * Return the set replyTo address that was set in the Message To field.
-    *
-    * @return the set replyTo address String form or null if not set.
+    * {@return the replyTo address that was set in the Message To field or {@code null} if not set}
     */
    public String getReplyToAddress() {
       if (message.getProperties() == null) {
@@ -277,10 +266,7 @@ public class AmqpMessage {
    }
 
    /**
-    * Return the set MessageId value in String form, if there are no properties
-    * in the given message return null.
-    *
-    * @return the set message ID in String form or null if not set.
+    * {@return the the set MessageId value in String form or {@code null} if not set}
     */
    public String getMessageId() {
       if (message.getProperties() == null || message.getProperties().getMessageId() == null) {
@@ -291,10 +277,7 @@ public class AmqpMessage {
    }
 
    /**
-    * Return the set MessageId value in the original form, if there are no properties
-    * in the given message return null.
-    *
-    * @return the set message ID in its original form or null if not set.
+    * {@return the set  MessageId value in the original form or {@code null} if not set}
     */
    public Object getRawMessageId() {
       if (message.getProperties() == null) {
@@ -327,10 +310,7 @@ public class AmqpMessage {
    }
 
    /**
-    * Return the set CorrelationId value in String form, if there are no properties
-    * in the given message return null.
-    *
-    * @return the set correlation ID in String form or null if not set.
+    * {@return the set correlation ID in String form or {@code null} if not set}
     */
    public String getCorrelationId() {
       if (message.getProperties() == null || message.getProperties().getCorrelationId() == null) {
@@ -341,10 +321,7 @@ public class AmqpMessage {
    }
 
    /**
-    * Return the set CorrelationId value in the original form, if there are no properties
-    * in the given message return null.
-    *
-    * @return the set message ID in its original form or null if not set.
+    * {@return the set CorrelationId value in the original form or {@code null} if not set}
     */
    public Object getRawCorrelationId() {
       if (message.getProperties() == null) {
@@ -377,10 +354,7 @@ public class AmqpMessage {
    }
 
    /**
-    * Return the set GroupId value in String form, if there are no properties
-    * in the given message return null.
-    *
-    * @return the set GroupID in String form or null if not set.
+    * {@return the set GroupID in String form or {@code null} if not set}
     */
    public String getGroupId() {
       if (message.getProperties() == null) {
@@ -402,10 +376,7 @@ public class AmqpMessage {
    }
 
    /**
-    * Return the set Subject value in String form, if there are no properties
-    * in the given message return null.
-    *
-    * @return the set Subject in String form or null if not set.
+    * {@return the set Subject in String form or {@code null} if not set}
     */
    public String getSubject() {
       if (message.getProperties() == null) {
@@ -427,10 +398,7 @@ public class AmqpMessage {
    }
 
    /**
-    * Checks the durable value in the Message Headers to determine if
-    * the message was sent as a durable Message.
-    *
-    * @return true if the message is marked as being durable.
+    * {@return {@code true} if the message is marked as being durable; otherwise {@code false}}
     */
    public boolean isDurable() {
       if (message.getHeader() == null || message.getHeader().getDurable() == null) {
@@ -461,7 +429,7 @@ public class AmqpMessage {
    }
 
    /**
-    * Gets the priority header on the message.
+    * {@return the priority header on the message}
     */
    public short getPriority() {
       return getWrappedMessage().getPriority();
@@ -479,7 +447,7 @@ public class AmqpMessage {
    }
 
    /**
-    * Sets the ttl header on the outgoing message.
+    * {@return the ttl header on the outgoing message}
     */
    public long getTimeToLive() {
       return getWrappedMessage().getTtl();
@@ -534,11 +502,11 @@ public class AmqpMessage {
    }
 
    /**
-    * Gets the application property that is mapped to the given name or null
-    * if no property has been set with that name.
+    * Gets the application property that is mapped to the given name or null if no property has been set with that
+    * name.
     *
     * @param key the name used to lookup the property in the application properties.
-    * @return the property value or null if not set.
+    * @return the property value or null if not set
     */
    public Object getApplicationProperty(String key) {
       if (applicationPropertiesMap == null) {
@@ -549,8 +517,8 @@ public class AmqpMessage {
    }
 
    /**
-    * Perform a proper annotation set on the AMQP Message based on a Symbol key and
-    * the target value to append to the current annotations.
+    * Perform a proper annotation set on the AMQP Message based on a Symbol key and the target value to append to the
+    * current annotations.
     *
     * @param key   The name of the Symbol whose value is being set.
     * @param value The new value to set in the annotations of this message.
@@ -562,12 +530,11 @@ public class AmqpMessage {
    }
 
    /**
-    * Given a message annotation name, lookup and return the value associated with
-    * that annotation name.  If the message annotations have not been created yet
-    * then this method will always return null.
+    * Given a message annotation name, lookup and return the value associated with that annotation name.  If the message
+    * annotations have not been created yet then this method will always return null.
     *
     * @param key the Symbol name that should be looked up in the message annotations.
-    * @return the value of the annotation if it exists, or null if not set or not accessible.
+    * @return the value of the annotation if it exists, or null if not set or not accessible
     */
    public Object getMessageAnnotation(String key) {
       if (messageAnnotationsMap == null) {
@@ -578,8 +545,8 @@ public class AmqpMessage {
    }
 
    /**
-    * Perform a proper delivery annotation set on the AMQP Message based on a Symbol
-    * key and the target value to append to the current delivery annotations.
+    * Perform a proper delivery annotation set on the AMQP Message based on a Symbol key and the target value to append
+    * to the current delivery annotations.
     *
     * @param key   The name of the Symbol whose value is being set.
     * @param value The new value to set in the delivery annotations of this message.
@@ -591,12 +558,11 @@ public class AmqpMessage {
    }
 
    /**
-    * Given a message annotation name, lookup and return the value associated with
-    * that annotation name.  If the message annotations have not been created yet
-    * then this method will always return null.
+    * Given a message annotation name, lookup and return the value associated with that annotation name.  If the message
+    * annotations have not been created yet then this method will always return null.
     *
     * @param key the Symbol name that should be looked up in the message annotations.
-    * @return the value of the annotation if it exists, or null if not set or not accessible.
+    * @return the value of the annotation if it exists, or null if not set or not accessible
     */
    public Object getDeliveryAnnotation(String key) {
       if (deliveryAnnotationsMap == null) {
@@ -609,8 +575,8 @@ public class AmqpMessage {
    //----- Methods for manipulating the Message body ------------------------//
 
    /**
-    * Sets a String value into the body of an outgoing Message, throws
-    * an exception if this is an incoming message instance.
+    * Sets a String value into the body of an outgoing Message, throws an exception if this is an incoming message
+    * instance.
     *
     * @param value the String value to store in the Message body.
     * @throws IllegalStateException if the message is read only.
@@ -622,9 +588,8 @@ public class AmqpMessage {
    }
 
    /**
-    * Attempts to retrieve the message body as a String from an AmqpValue body.
+    * {@return the message body as a String from an AmqpValue body}
     *
-    * @return the string
     * @throws NoSuchElementException if the body does not contain a AmqpValue with String.
     */
    public String getText() throws NoSuchElementException {
@@ -640,8 +605,8 @@ public class AmqpMessage {
    }
 
    /**
-    * Sets a byte array value into the body of an outgoing Message, throws
-    * an exception if this is an incoming message instance.
+    * Sets a byte array value into the body of an outgoing Message, throws an exception if this is an incoming message
+    * instance.
     *
     * @param bytes the byte array value to store in the Message body.
     * @throws IllegalStateException if the message is read only.
@@ -653,8 +618,8 @@ public class AmqpMessage {
    }
 
    /**
-    * Sets a described type into the body of an outgoing Message, throws
-    * an exception if this is an incoming message instance.
+    * Sets a described type into the body of an outgoing Message, throws an exception if this is an incoming message
+    * instance.
     *
     * @param described the described type value to store in the Message body.
     * @throws IllegalStateException if the message is read only.
@@ -666,9 +631,8 @@ public class AmqpMessage {
    }
 
    /**
-    * Attempts to retrieve the message body as an DescribedType instance.
+    * {@return the message body as an DescribedType instance if possible; {@code null} otherwise}
     *
-    * @return an DescribedType instance if one is stored in the message body.
     * @throws NoSuchElementException if the body does not contain a DescribedType.
     */
    public DescribedType getDescribedType() throws NoSuchElementException {

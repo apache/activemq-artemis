@@ -18,8 +18,7 @@
 package org.apache.activemq.artemis.core.server;
 
 /**
- * This is a tagging interface,
- * as we need to make sure the LargeMessage is a core large message is certain places.
+ * This is a tagging interface, as we need to make sure the LargeMessage is a core large message is certain places.
  */
 public interface CoreLargeServerMessage extends LargeServerMessage {
 

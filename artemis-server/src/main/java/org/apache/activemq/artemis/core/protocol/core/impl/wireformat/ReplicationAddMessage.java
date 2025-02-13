@@ -113,16 +113,10 @@ public final class ReplicationAddMessage extends PacketImpl {
       buffer.readBytes(recordData);
    }
 
-   /**
-    * @return the id
-    */
    public long getId() {
       return id;
    }
 
-   /**
-    * @return the journalID
-    */
    public byte getJournalID() {
       return journalID;
    }
@@ -131,16 +125,10 @@ public final class ReplicationAddMessage extends PacketImpl {
       return operation;
    }
 
-   /**
-    * @return the recordType
-    */
    public byte getJournalRecordType() {
       return journalRecordType;
    }
 
-   /**
-    * @return the recordData
-    */
    public byte[] getRecordData() {
       return recordData;
    }

@@ -41,9 +41,9 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 /**
  * Utility class for creating ActiveMQ Artemis {@link ClientSessionFactory} objects.
  * <p>
- * Once a {@link ClientSessionFactory} has been created, it can be further configured using its
- * setter methods before creating the sessions. Once a session is created, the factory can no longer
- * be modified (its setter methods will throw a {@link IllegalStateException}.
+ * Once a {@link ClientSessionFactory} has been created, it can be further configured using its setter methods before
+ * creating the sessions. Once a session is created, the factory can no longer be modified (its setter methods will
+ * throw a {@link IllegalStateException}.
  */
 public final class ActiveMQClient {
 
@@ -224,7 +224,8 @@ public final class ActiveMQClient {
    }
 
    /**
-    * Warning: This method has to be called before any clients or servers is started on the JVM otherwise previous ServerLocator would be broken after this call.
+    * Warning: This method has to be called before any clients or servers is started on the JVM otherwise previous
+    * ServerLocator would be broken after this call.
     */
    public static synchronized void injectPools(ExecutorService globalThreadPool,
                                                ScheduledExecutorService scheduledThreadPool,
@@ -286,16 +287,16 @@ public final class ActiveMQClient {
    }
 
    /**
-    * Initializes the global thread pools properties from System properties.  This method will update the global
-    * thread pool configuration based on defined System properties (or defaults if they are not set).
-    * The System properties key names are as follow:
-    *
+    * Initializes the global thread pools properties from System properties.  This method will update the global thread
+    * pool configuration based on defined System properties (or defaults if they are not set). The System properties key
+    * names are as follow:
+    * <p>
     * ActiveMQClient.THREAD_POOL_MAX_SIZE_PROPERTY_KEY="activemq.artemis.client.global.thread.pool.max.size"
     * ActiveMQClient.SCHEDULED_THREAD_POOL_SIZE_PROPERTY_KEY="activemq.artemis.client.global.scheduled.thread.pool.core.size
-    *
-    * The min value for max thread pool size is 2. If the value is not -1, but lower than 2, it will be ignored and will default to 2.
-    * A value of -1 configures an unbounded thread pool.
-    *
+    * <p>
+    * The min value for max thread pool size is 2. If the value is not -1, but lower than 2, it will be ignored and will
+    * default to 2. A value of -1 configures an unbounded thread pool.
+    * <p>
     * Note: If global thread pools have already been created, they will not be updated with these new values.
     */
    public static void initializeGlobalThreadPoolProperties() {
@@ -304,13 +305,13 @@ public final class ActiveMQClient {
    }
 
    /**
-    * Allows programmatical configuration of global thread pools properties.  This method will update the global
-    * thread pool configuration based on the provided values notifying all globalThreadPoolListeners.
-    *
+    * Allows programmatical configuration of global thread pools properties.  This method will update the global thread
+    * pool configuration based on the provided values notifying all globalThreadPoolListeners.
+    * <p>
     * Note: If global thread pools have already been created, they will not be updated with these new values.
-    *
-    * The min value for globalThreadMaxPoolSize is 2. If the value is not -1, but lower than 2, it will be ignored and will default to 2.
-    * A value of -1 configures an unbounded thread pool.
+    * <p>
+    * The min value for globalThreadMaxPoolSize is 2. If the value is not -1, but lower than 2, it will be ignored and
+    * will default to 2. A value of -1 configures an unbounded thread pool.
     */
    public static void setGlobalThreadPoolProperties(int globalThreadMaxPoolSize, int globalScheduledThreadPoolSize, int globalFlowControlThreadPoolSize) {
 
@@ -333,10 +334,10 @@ public final class ActiveMQClient {
    }
 
    /**
-    * Create a ServerLocator which creates session factories using a static list of transportConfigurations, the ServerLocator is not updated automatically
-    * as the cluster topology changes, and no HA backup information is propagated to the client
+    * Create a ServerLocator which creates session factories using a static list of transportConfigurations, the
+    * ServerLocator is not updated automatically as the cluster topology changes, and no HA backup information is
+    * propagated to the client
     *
-    * @param transportConfigurations
     * @return the ServerLocator
     */
    public static ServerLocator createServerLocatorWithoutHA(TransportConfiguration... transportConfigurations) {
@@ -344,11 +345,12 @@ public final class ActiveMQClient {
    }
 
    /**
-    * Create a ServerLocator which creates session factories using a static list of transportConfigurations, the ServerLocator is not updated automatically
-    * as the cluster topology changes, and no HA backup information is propagated to the client
+    * Create a ServerLocator which creates session factories using a static list of transportConfigurations, the
+    * ServerLocator is not updated automatically as the cluster topology changes, and no HA backup information is
+    * propagated to the client
     *
-    * @param ha                      The Locator will support topology updates and ha (this required the server to be clustered, otherwise the first connection will timeout)
-    * @param transportConfigurations
+    * @param ha The Locator will support topology updates and ha (this required the server to be clustered, otherwise
+    *           the first connection will timeout)
     * @return the ServerLocator
     */
    public static ServerLocator createServerLocator(final boolean ha,
@@ -357,12 +359,11 @@ public final class ActiveMQClient {
    }
 
    /**
-    * Create a ServerLocator which creates session factories from a set of active servers, no HA
-    * backup information is propagated to the client
+    * Create a ServerLocator which creates session factories from a set of active servers, no HA backup information is
+    * propagated to the client
     * <p>
     * The UDP address and port are used to listen for active servers in the cluster
     *
-    * @param groupConfiguration
     * @return the ServerLocator
     */
    public static ServerLocator createServerLocatorWithoutHA(final DiscoveryGroupConfiguration groupConfiguration) {
@@ -370,13 +371,11 @@ public final class ActiveMQClient {
    }
 
    /**
-    * Create a ServerLocator which creates session factories from a set of active servers, no HA
-    * backup information is propagated to the client The UDP address and port are used to listen for
-    * active servers in the cluster
+    * Create a ServerLocator which creates session factories from a set of active servers, no HA backup information is
+    * propagated to the client The UDP address and port are used to listen for active servers in the cluster
     *
-    * @param ha                 The Locator will support topology updates and ha (this required the server to be
-    *                           clustered, otherwise the first connection will timeout)
-    * @param groupConfiguration
+    * @param ha The Locator will support topology updates and ha (this required the server to be clustered, otherwise
+    *           the first connection will timeout)
     * @return the ServerLocator
     */
    public static ServerLocator createServerLocator(final boolean ha,
@@ -385,19 +384,19 @@ public final class ActiveMQClient {
    }
 
    /**
-    * Create a ServerLocator which will receive cluster topology updates from the cluster as servers
-    * leave or join and new backups are appointed or removed.
+    * Create a ServerLocator which will receive cluster topology updates from the cluster as servers leave or join and
+    * new backups are appointed or removed.
     * <p>
-    * The initial list of servers supplied in this method is simply to make an initial connection to
-    * the cluster, once that connection is made, up to date cluster topology information is
-    * downloaded and automatically updated whenever the cluster topology changes.
+    * The initial list of servers supplied in this method is simply to make an initial connection to the cluster, once
+    * that connection is made, up to date cluster topology information is downloaded and automatically updated whenever
+    * the cluster topology changes.
     * <p>
-    * If the topology includes backup servers that information is also propagated to the client so
-    * that it can know which server to failover onto in case of active server failure.
+    * If the topology includes backup servers that information is also propagated to the client so that it can know
+    * which server to failover onto in case of active server failure.
     *
-    * @param initialServers The initial set of servers used to make a connection to the cluster.
-    *                       Each one is tried in turn until a successful connection is made. Once a connection
-    *                       is made, the cluster topology is downloaded and the rest of the list is ignored.
+    * @param initialServers The initial set of servers used to make a connection to the cluster. Each one is tried in
+    *                       turn until a successful connection is made. Once a connection is made, the cluster topology
+    *                       is downloaded and the rest of the list is ignored.
     * @return the ServerLocator
     */
    public static ServerLocator createServerLocatorWithHA(TransportConfiguration... initialServers) {
@@ -405,19 +404,17 @@ public final class ActiveMQClient {
    }
 
    /**
-    * Create a ServerLocator which will receive cluster topology updates from the cluster as servers
-    * leave or join and new backups are appointed or removed.
+    * Create a ServerLocator which will receive cluster topology updates from the cluster as servers leave or join and
+    * new backups are appointed or removed.
     * <p>
-    * The discoveryAddress and discoveryPort parameters in this method are used to listen for UDP
-    * broadcasts which contain connection information for members of the cluster. The broadcasted
-    * connection information is simply used to make an initial connection to the cluster, once that
-    * connection is made, up to date cluster topology information is downloaded and automatically
-    * updated whenever the cluster topology changes.
+    * The discoveryAddress and discoveryPort parameters in this method are used to listen for UDP broadcasts which
+    * contain connection information for members of the cluster. The broadcasted connection information is simply used
+    * to make an initial connection to the cluster, once that connection is made, up to date cluster topology
+    * information is downloaded and automatically updated whenever the cluster topology changes.
     * <p>
-    * If the topology includes backup servers that information is also propagated to the client so
-    * that it can know which server to failover onto in case of active server failure.
+    * If the topology includes backup servers that information is also propagated to the client so that it can know
+    * which server to failover onto in case of active server failure.
     *
-    * @param groupConfiguration
     * @return the ServerLocator
     */
    public static ServerLocator createServerLocatorWithHA(final DiscoveryGroupConfiguration groupConfiguration) {

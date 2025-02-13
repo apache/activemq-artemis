@@ -21,10 +21,9 @@ import java.util.Objects;
 
 /**
  * This is base class for outgoing broker configuration types.
- *
- * This is a new feature that at the time we introduced, is only being used for AMQP.
- * Where the broker will create a connection towards another broker using a specific
- * protocol.
+ * <p>
+ * This is a new feature that at the time we introduced, is only being used for AMQP. Where the broker will create a
+ * connection towards another broker using a specific protocol.
  */
 public abstract class BrokerConnectConfiguration implements Serializable {
 

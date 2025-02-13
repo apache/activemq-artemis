@@ -138,11 +138,10 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
       return buffer;
    }
 
-
-   /** depage is now done within the page's executor.
-    * This unit test needs to call the depage within that executor */
+   /**
+    * depage is now done within the page's executor. This unit test needs to call the depage within that executor
+    */
    protected Page depageOnExecutor(final PagingStore store) throws Exception {
       return callOnExecutor(store.getExecutor(), () -> store.depage(), 10, TimeUnit.SECONDS);
    }
-
 }

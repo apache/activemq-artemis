@@ -18,9 +18,6 @@ package org.apache.activemq.artemis.core.server.group.impl;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 
-/**
- * A group binding
- */
 public class GroupBinding {
 
    private long id;

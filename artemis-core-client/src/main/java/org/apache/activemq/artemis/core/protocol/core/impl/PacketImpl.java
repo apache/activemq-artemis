@@ -435,7 +435,9 @@ public class PacketImpl implements Packet {
       return true;
    }
 
-   /** extensions of this class are supposed to use getPacketString to provide toString functionality */
+   /**
+    * extensions of this class are supposed to use getPacketString to provide toString functionality
+    */
    @Override
    public final String toString() {
       return getPacketString() + "]";

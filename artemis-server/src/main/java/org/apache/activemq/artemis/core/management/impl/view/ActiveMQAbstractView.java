@@ -172,9 +172,6 @@ public abstract class ActiveMQAbstractView<T> {
    /**
     * JsonObjectBuilder will throw an NPE if a null value is added.  For this reason we check for null explicitly when
     * adding objects.
-    *
-    * @param o
-    * @return
     */
    protected String toString(Object o) {
       return o == null ? "" : o.toString();

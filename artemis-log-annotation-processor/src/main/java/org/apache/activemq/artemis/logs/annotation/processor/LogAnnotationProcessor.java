@@ -65,9 +65,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
       DEBUG = debugResult;
    }
 
-   /*
-    * define environment variable ARTEMIS_LOG_ANNOTATION_PROCESSOR_DEBUG=true in order to see debug output
-    */
+   // define environment variable ARTEMIS_LOG_ANNOTATION_PROCESSOR_DEBUG=true in order to see debug output
    protected static void debug(String debugMessage) {
       if (DEBUG) {
          System.out.println(debugMessage);

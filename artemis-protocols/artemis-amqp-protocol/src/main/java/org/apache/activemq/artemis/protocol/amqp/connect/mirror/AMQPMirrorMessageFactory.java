@@ -48,8 +48,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirro
 public class AMQPMirrorMessageFactory {
 
    /**
-    * This method is open to make it testable,
-    * do not use on your applications.
+    * This method is open to make it testable. Do not use on your applications.
     */
    public static Message createMessage(String to, SimpleString address, SimpleString queue, Object event, String brokerID, Object body, AckReason ackReason) {
       Header header = new Header();

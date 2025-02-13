@@ -40,7 +40,7 @@ public class UnknownHandlingSelectorTest {
       message.setObjectProperty("nullProp", null);
    }
 
-   /**
+   /*
     * | NOT
     * +------+------
     * |  T   |   F
@@ -55,7 +55,7 @@ public class UnknownHandlingSelectorTest {
       assertSelector("not(unknownProp)", false);
    }
 
-   /**
+   /*
     * | AND  |   T   |   F   |   U
     * +------+-------+-------+-------
     * |  T   |   T   |   F   |   U
@@ -76,7 +76,7 @@ public class UnknownHandlingSelectorTest {
       assertSelectorEvaluatesToUnknown("unknownProp AND unknownProp");
    }
 
-   /**
+   /*
     * | OR   |   T   |   F   |   U
     * +------+-------+-------+--------
     * |  T   |   T   |   T   |   T

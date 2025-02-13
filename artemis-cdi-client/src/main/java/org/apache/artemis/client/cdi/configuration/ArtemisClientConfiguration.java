@@ -28,12 +28,12 @@ public interface ArtemisClientConfiguration {
    String REMOTE_CONNECTOR = NettyConnectorFactory.class.getName();
 
    /**
-    * @return if present, sends a username for the connection
+    * {@return if present, sends a username for the connection}
     */
    String getUsername();
 
    /**
-    * @return the password for the connection.  If username is set, password must be set
+    * {@return the password for the connection.  If username is set, password must be set}
     */
    String getPassword();
 
@@ -45,32 +45,32 @@ public interface ArtemisClientConfiguration {
    String getUrl();
 
    /**
-    * @return The hostname to connect to
+    * {@return The hostname to connect to}
     */
    String getHost();
 
    /**
-    * @return the port number to connect to
+    * {@return the port number to connect to}
     */
    Integer getPort();
 
    /**
-    * @return the connector factory to use for connections.
+    * {@return the connector factory to use for connections}
     */
    String getConnectorFactory();
 
    /**
-    * @return Whether or not to start the embedded broker
+    * {@return whether to start the embedded broker}
     */
    boolean startEmbeddedBroker();
 
    /**
-    * @return whether or not this is an HA connection
+    * {@return whether this is an HA connection}
     */
    boolean isHa();
 
    /**
-    * @return whether or not the authentication parameters should be used
+    * {@return whether the authentication parameters should be used}
     */
    boolean hasAuthentication();
 }

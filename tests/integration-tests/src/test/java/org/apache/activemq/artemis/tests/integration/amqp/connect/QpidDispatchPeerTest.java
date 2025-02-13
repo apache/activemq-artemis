@@ -52,7 +52,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/** This test will only be executed if you have qdrouterd available on your system, otherwise is ignored by an assume exception. */
+/**
+ * This test will only be executed if you have qdrouterd available on your system, otherwise is ignored by an assume
+ * exception.
+ */
 public class QpidDispatchPeerTest extends AmqpClientTestSupport {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -106,9 +109,10 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
       internalMultipleQueues(true, true, true, false, false);
    }
 
-
-   /** On this test the max reconnect attemps is reached. after a reconnect I will force a stop on the broker connection and retry it.
-    *  The reconnection should succeed. */
+   /**
+    * On this test the max reconnect attemps is reached. after a reconnect I will force a stop on the broker connection
+    * and retry it. The reconnection should succeed.
+    */
    @Test
    @Timeout(60)
    public void testWithMatchingDifferentNamesOnQueueKillMaxAttempts() throws Exception {

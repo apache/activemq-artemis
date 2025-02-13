@@ -65,8 +65,7 @@ public class JMSMappingInboundTransformerTest {
     * Test that a message with no body section, but with the content type set to
     * {@value AMQPMessageSupport#OCTET_STREAM_CONTENT_TYPE} results in a BytesMessage
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateBytesMessageFromNoBodySectionAndContentType() throws Exception {
@@ -84,11 +83,10 @@ public class JMSMappingInboundTransformerTest {
    }
 
    /**
-    * Test that a message with no body section, and no content-type results in a BytesMessage
-    * when not otherwise annotated to indicate the type of JMS message it is.
+    * Test that a message with no body section, and no content-type results in a BytesMessage when not otherwise
+    * annotated to indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateBytesMessageFromNoBodySectionAndNoContentType() throws Exception {
@@ -115,11 +113,10 @@ public class JMSMappingInboundTransformerTest {
 
    /**
     * Test that a data body containing nothing, but with the content type set to
-    * {@value AMQPMessageSupport#OCTET_STREAM_CONTENT_TYPE} results in a BytesMessage when not
-    * otherwise annotated to indicate the type of JMS message it is.
+    * {@value AMQPMessageSupport#OCTET_STREAM_CONTENT_TYPE} results in a BytesMessage when not otherwise annotated to
+    * indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateBytesMessageFromDataWithEmptyBinaryAndContentType() throws Exception {
@@ -136,12 +133,10 @@ public class JMSMappingInboundTransformerTest {
    }
 
    /**
-    * Test that a message with an empty data body section, and with the content type set to an
-    * unknown value results in a BytesMessage when not otherwise annotated to indicate the type
-    * of JMS message it is.
+    * Test that a message with an empty data body section, and with the content type set to an unknown value results in
+    * a BytesMessage when not otherwise annotated to indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateBytesMessageFromDataWithUnknownContentType() throws Exception {
@@ -157,11 +152,10 @@ public class JMSMappingInboundTransformerTest {
    }
 
    /**
-    * Test that a receiving a data body containing nothing and no content type being set results
-    * in a BytesMessage when not otherwise annotated to indicate the type of JMS message it is.
+    * Test that a receiving a data body containing nothing and no content type being set results in a BytesMessage when
+    * not otherwise annotated to indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateBytesMessageFromDataWithEmptyBinaryAndNoContentType() throws Exception {
@@ -297,11 +291,10 @@ public class JMSMappingInboundTransformerTest {
    // ----- AmqpValue transformations ----------------------------------------//
 
    /**
-    * Test that an amqp-value body containing a string results in a TextMessage when not
-    * otherwise annotated to indicate the type of JMS message it is.
+    * Test that an amqp-value body containing a string results in a TextMessage when not otherwise annotated to indicate
+    * the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateTextMessageFromAmqpValueWithString() throws Exception {
@@ -315,11 +308,10 @@ public class JMSMappingInboundTransformerTest {
    }
 
    /**
-    * Test that an amqp-value body containing a null results in an TextMessage when not
-    * otherwise annotated to indicate the type of JMS message it is.
+    * Test that an amqp-value body containing a null results in an TextMessage when not otherwise annotated to indicate
+    * the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateTextMessageFromAmqpValueWithNull() throws Exception {
@@ -333,12 +325,11 @@ public class JMSMappingInboundTransformerTest {
    }
 
    /**
-    * Test that a message with an AmqpValue section containing a Binary, but with the content
-    * type set to {@value AMQPMessageSupport#SERIALIZED_JAVA_OBJECT_CONTENT_TYPE} results in an
-    * ObjectMessage when not otherwise annotated to indicate the type of JMS message it is.
+    * Test that a message with an AmqpValue section containing a Binary, but with the content type set to
+    * {@value AMQPMessageSupport#SERIALIZED_JAVA_OBJECT_CONTENT_TYPE} results in an ObjectMessage when not otherwise
+    * annotated to indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateObjectMessageFromAmqpValueWithBinaryAndContentType() throws Exception {
@@ -353,11 +344,10 @@ public class JMSMappingInboundTransformerTest {
    }
 
    /**
-    * Test that an amqp-value body containing a map results in an MapMessage when not otherwise
-    * annotated to indicate the type of JMS message it is.
+    * Test that an amqp-value body containing a map results in an MapMessage when not otherwise annotated to indicate
+    * the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateAmqpMapMessageFromAmqpValueWithMap() throws Exception {
@@ -372,11 +362,10 @@ public class JMSMappingInboundTransformerTest {
    }
 
    /**
-    * Test that an amqp-value body containing a list results in an StreamMessage when not
-    * otherwise annotated to indicate the type of JMS message it is.
+    * Test that an amqp-value body containing a list results in an StreamMessage when not otherwise annotated to
+    * indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateAmqpStreamMessageFromAmqpValueWithList() throws Exception {
@@ -391,11 +380,10 @@ public class JMSMappingInboundTransformerTest {
    }
 
    /**
-    * Test that an amqp-sequence body containing a list results in an StreamMessage when not
-    * otherwise annotated to indicate the type of JMS message it is.
+    * Test that an amqp-sequence body containing a list results in an StreamMessage when not otherwise annotated to
+    * indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateAmqpStreamMessageFromAmqpSequence() throws Exception {
@@ -410,11 +398,10 @@ public class JMSMappingInboundTransformerTest {
    }
 
    /**
-    * Test that an amqp-value body containing a binary value results in BytesMessage when not
-    * otherwise annotated to indicate the type of JMS message it is.
+    * Test that an amqp-value body containing a binary value results in BytesMessage when not otherwise annotated to
+    * indicate the type of JMS message it is.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateAmqpBytesMessageFromAmqpValueWithBinary() throws Exception {
@@ -429,12 +416,10 @@ public class JMSMappingInboundTransformerTest {
    }
 
    /**
-    * Test that an amqp-value body containing a value which can't be categorized results in an
-    * exception from the transformer and then try the transformer's own fallback transformer to
-    * result in an BytesMessage.
+    * Test that an amqp-value body containing a value which can't be categorized results in an exception from the
+    * transformer and then try the transformer's own fallback transformer to result in an BytesMessage.
     *
-    * @throws Exception
-    *         if an error occurs during the test.
+    * @throws Exception if an error occurs during the test.
     */
    @Test
    public void testCreateBytesMessageFromAmqpValueWithUncategorisedContent() throws Exception {

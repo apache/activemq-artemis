@@ -45,10 +45,9 @@ import org.apache.activemq.artemis.core.settings.impl.Match;
 
 /**
  * Federated Queue, connect to upstream queues routing them to the local queue when a local consumer exist.
- *
- * By default we connect to -1 the current consumer priority on the remote broker, so that if consumers also exist on the remote broker they a dispatched to first.
- * This though is configurable to change this behaviour.
- *
+ * <p>
+ * By default we connect to -1 the current consumer priority on the remote broker, so that if consumers also exist on
+ * the remote broker they a dispatched to first. This though is configurable to change this behaviour.
  */
 public class FederatedQueue extends FederatedAbstract implements ActiveMQServerConsumerPlugin, Serializable {
 
@@ -171,9 +170,6 @@ public class FederatedQueue extends FederatedAbstract implements ActiveMQServerC
 
    /**
     * Before a consumer is closed
-    *
-    * @param consumer
-    * @param failed
     */
    @Override
    public synchronized void beforeCloseConsumer(ServerConsumer consumer, boolean failed) {

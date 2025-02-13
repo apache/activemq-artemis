@@ -46,43 +46,43 @@ public interface QueueControl {
    String MESSAGES_KILLED_DESCRIPTION = "number of messages removed from this queue since it was created due to exceeding the max delivery attempts";
 
    /**
-    * Returns the name of this queue.
+    * {@return the name of this queue}
     */
    @Attribute(desc = "name of this queue")
    String getName();
 
    /**
-    * Returns the address this queue is bound to.
+    * {@return the address this queue is bound to}
     */
    @Attribute(desc = "address this queue is bound to")
    String getAddress();
 
    /**
-    * Returns this queue ID.
+    * {@return this queue ID}
     */
    @Attribute(desc = "ID of this queue")
    long getID();
 
    /**
-    * Returns whether this queue is temporary.
+    * {@return whether this queue is temporary}
     */
    @Attribute(desc = "whether this queue is temporary")
    boolean isTemporary();
 
    /**
-    * Returns whether this queue is used for a retroactive address.
+    * {@return whether this queue is used for a retroactive address}
     */
    @Attribute(desc = "whether this queue is used for a retroactive address")
    boolean isRetroactiveResource();
 
    /**
-    * Returns whether this queue is durable.
+    * {@return whether this queue is durable}
     */
    @Attribute(desc = "whether this queue is durable")
    boolean isDurable();
 
    /**
-    * Returns the user that is associated with creating the queue.
+    * {@return the user that is associated with creating the queue}
     */
    @Attribute(desc = "the user that created the queue")
    String getUser();
@@ -94,175 +94,167 @@ public interface QueueControl {
    String getRoutingType();
 
    /**
-    * Returns the filter associated with this queue.
+    * {@return the filter associated with this queue}
     */
    @Attribute(desc = "filter associated with this queue")
    String getFilter();
 
    /**
-    * Returns the number of messages currently in this queue.
+    * {@return the number of messages currently in this queue}
     */
    @Attribute(desc = MESSAGE_COUNT_DESCRIPTION)
    long getMessageCount();
 
    /**
-    * Returns the persistent size of all messages currently in this queue. The persistent size of a message
-    * is the amount of space the message would take up on disk which is used to track how much data there
-    * is to consume on this queue
+    * {@return the persistent size of all messages currently in this queue; the persistent size of a message is the
+    * amount of space the message would take up on disk which is used to track how much data there is to consume on this
+    * queue}
     */
    @Attribute(desc = PERSISTENT_SIZE_DESCRIPTION)
    long getPersistentSize();
 
    /**
-    * Returns the number of durable messages currently in this queue.
+    * {@return the number of durable messages currently in this queue}
     */
    @Attribute(desc = DURABLE_MESSAGE_COUNT_DESCRIPTION)
    long getDurableMessageCount();
 
    /**
-    * Returns the persistent size of durable messages currently in this queue. The persistent size of a message
-    * is the amount of space the message would take up on disk which is used to track how much data there
-    * is to consume on this queue
+    * {@return the persistent size of durable messages currently in this queue; the persistent size of a message is the
+    * amount of space the message would take up on disk which is used to track how much data there is to consume on this
+    * queue}
     */
    @Attribute(desc = DURABLE_PERSISTENT_SIZE_DESCRIPTION)
    long getDurablePersistentSize();
 
    /**
-    * Returns whether this queue was created for the broker's internal use.
+    * {@return whether this queue was created for the broker's internal use}
     */
    @Attribute(desc = "whether this queue was created for the broker's internal use")
    boolean isInternalQueue();
 
    /**
-    * Returns the number of scheduled messages in this queue.
+    * {@return the number of scheduled messages in this queue}
     */
    @Attribute(desc = SCHEDULED_MESSAGE_COUNT_DESCRIPTION)
    long getScheduledCount();
 
    /**
-    * Returns the size of scheduled messages in this queue.
+    * {@return the size of scheduled messages in this queue}
     */
    @Attribute(desc = SCHEDULED_SIZE_DESCRIPTION)
    long getScheduledSize();
 
    /**
-    * Returns the number of durable scheduled messages in this queue.
+    * {@return the number of durable scheduled messages in this queue}
     */
    @Attribute(desc = DURABLE_SCHEDULED_MESSAGE_COUNT_DESCRIPTION)
    long getDurableScheduledCount();
 
    /**
-    * Returns the size of durable scheduled messages in this queue.
+    * {@return the size of durable scheduled messages in this queue}
     */
    @Attribute(desc = DURABLE_SCHEDULED_SIZE_DESCRIPTION)
    long getDurableScheduledSize();
 
    /**
-    * Returns the number of consumers consuming messages from this queue.
+    * {@return the number of consumers consuming messages from this queue}
     */
    @Attribute(desc = CONSUMER_COUNT_DESCRIPTION)
    int getConsumerCount();
 
    /**
-    * Returns the number of messages that this queue is currently delivering to its consumers.
+    * {@return the number of messages that this queue is currently delivering to its consumers}
     */
    @Attribute(desc = DELIVERING_MESSAGE_COUNT_DESCRIPTION)
    int getDeliveringCount();
 
    /**
-    * Returns the persistent size of messages that this queue is currently delivering to its consumers.
+    * {@return the persistent size of messages that this queue is currently delivering to its consumers}
     */
    @Attribute(desc = DELIVERING_SIZE_DESCRIPTION)
    long getDeliveringSize();
 
    /**
-    * Returns the number of durable messages that this queue is currently delivering to its consumers.
+    * {@return the number of durable messages that this queue is currently delivering to its consumers}
     */
    @Attribute(desc = DURABLE_DELIVERING_MESSAGE_COUNT_DESCRIPTION)
    int getDurableDeliveringCount();
 
    /**
-    * Returns the size of durable messages that this queue is currently delivering to its consumers.
+    * {@return the size of durable messages that this queue is currently delivering to its consumers}
     */
    @Attribute(desc = DURABLE_DELIVERING_SIZE_DESCRIPTION)
    long getDurableDeliveringSize();
 
    /**
-    * Returns the number of messages added to this queue since it was created.
+    * {@return the number of messages added to this queue since it was created}
     */
    @Attribute(desc = MESSAGES_ADDED_DESCRIPTION)
    long getMessagesAdded();
 
    /**
-    * Returns the number of messages added to this queue since it was created.
+    * {@return the number of messages added to this queue since it was created}
     */
    @Attribute(desc = MESSAGES_ACKNOWLEDGED_DESCRIPTION)
    long getMessagesAcknowledged();
 
    /**
-    * Returns the number of messages added to this queue since it was created.
+    * {@return the number of messages added to this queue since it was created}
     */
    @Attribute(desc = "number of messages acknowledged attempts from this queue since it was created")
    long getAcknowledgeAttempts();
 
 
    /**
-    * Returns the number of messages expired from this queue since it was created.
+    * {@return the number of messages expired from this queue since it was created}
     */
    @Attribute(desc = MESSAGES_EXPIRED_DESCRIPTION)
    long getMessagesExpired();
 
    /**
-    * Returns the number of messages removed from this queue since it was created due to exceeding the max delivery attempts.
+    * {@return the number of messages removed from this queue since it was created due to exceeding the max delivery
+    * attempts}
     */
    @Attribute(desc = MESSAGES_KILLED_DESCRIPTION)
    long getMessagesKilled();
 
    /**
-    * Returns the first message on the queue as JSON
+    * {@return the first message on the queue as JSON}
     */
    @Attribute(desc = "first message on the queue as JSON")
    String getFirstMessageAsJSON() throws Exception;
 
    /**
-    * Returns the timestamp of the first message in milliseconds.
+    * {@return the timestamp of the first message in milliseconds}
     */
    @Attribute(desc = "timestamp of the first message in milliseconds")
    Long getFirstMessageTimestamp() throws Exception;
 
    /**
-    * Returns the age of the first message in milliseconds.
+    * {@return the age of the first message in milliseconds}
     */
    @Attribute(desc = "age of the first message in milliseconds")
    Long getFirstMessageAge() throws Exception;
 
    /**
-    * Returns the expiry address associated with this queue.
+    * {@return the expiry address associated with this queue}
     */
    @Attribute(desc = "expiry address associated with this queue")
    String getExpiryAddress();
 
    /**
-    * Returns the dead-letter address associated with this queue.
+    * {@return the dead-letter address associated with this queue}
     */
    @Attribute(desc = "dead-letter address associated with this queue")
    String getDeadLetterAddress();
 
-   /**
-    *
-    */
    @Attribute(desc = "maximum number of consumers allowed on this queue at any one time")
    int getMaxConsumers();
 
-   /**
-    *
-    */
    @Attribute(desc = "purge this queue when the last consumer disconnects")
    boolean isPurgeOnNoConsumers();
 
-   /**
-    *
-    */
    @Attribute(desc = "if the queue is enabled, default it is enabled, when disabled messages will not be routed to the queue")
    boolean isEnabled();
 
@@ -278,49 +270,38 @@ public interface QueueControl {
    @Operation(desc = "Disables routing of messages to the Queue", impact = MBeanOperationInfo.ACTION)
    void disable() throws Exception;
 
-   /**
-    *
-    */
    @Attribute(desc = "is this queue managed by configuration (broker.xml)")
    boolean isConfigurationManaged();
 
-   /**
-    *
-    */
    @Attribute(desc = "If the queue should route exclusively to one consumer")
    boolean isExclusive();
 
-   /**
-    *
-    */
    @Attribute(desc = "is this queue a last value queue")
    boolean isLastValue();
 
    /**
-    *The key used for the last value queues
+    * {@return key used for the last value queues}
     */
    @Attribute(desc = "last value key")
    String getLastValueKey();
 
    /**
-    *Return the Consumers Before Dispatch
-    * @return
+    * {@return the Consumers Before Dispatch}
     */
    @Attribute(desc = "Return the Consumers Before Dispatch")
    int getConsumersBeforeDispatch();
 
    /**
-    *Return the Consumers Before Dispatch
-    * @return
+    * {@return the Delay Before Dispatch}
     */
-   @Attribute(desc = "Return the Consumers Before Dispatch")
+   @Attribute(desc = "Return the Delay Before Dispatch")
    long getDelayBeforeDispatch();
 
    // Operations ----------------------------------------------------
 
    /**
     * Lists all the messages scheduled for delivery for this queue.
-    * <br>
+    * <p>
     * 1 Map represents 1 message, keys are the message's properties and headers, values are the corresponding values.
     */
    @Operation(desc = "List the messages scheduled for delivery", impact = MBeanOperationInfo.INFO)
@@ -334,26 +315,24 @@ public interface QueueControl {
 
    /**
     * Lists all the messages being deliver per consumer.
-    * <br>
-    * The Map's key is a toString representation for the consumer. Each consumer will then return a {@code Map<String,Object>[]} same way is returned by {@link #listScheduledMessages()}
+    * <p>
+    * The Map's key is a toString representation for the consumer. Each consumer will then return a
+    * {@code Map<String,Object>[]} same way is returned by {@link #listScheduledMessages()}
     */
    @Operation(desc = "List all messages being delivered per consumer")
    Map<String, Map<String, Object>[]> listDeliveringMessages() throws Exception;
 
    /**
     * Executes a conversion of {@link #listDeliveringMessages()} to JSON
-    *
-    * @return
-    * @throws Exception
     */
    @Operation(desc = "list all messages being delivered per consumer using JSON form")
    String listDeliveringMessagesAsJSON() throws Exception;
 
    /**
     * Lists all the messages in this queue matching the specified filter.
-    * <br>
+    * <p>
     * 1 Map represents 1 message, keys are the message's properties and headers, values are the corresponding values.
-    * <br>
+    * <p>
     * Using {@code null} or an empty filter will list <em>all</em> messages from this queue.
     */
    @Operation(desc = "List all the messages in the queue matching the given filter", impact = MBeanOperationInfo.INFO)
@@ -361,7 +340,7 @@ public interface QueueControl {
 
    /**
     * Lists all the messages in this queue matching the specified filter using JSON serialization.
-    * <br>
+    * <p>
     * Using {@code null} or an empty filter will list <em>all</em> messages from this queue.
     */
    @Operation(desc = "List all the messages in the queue matching the given filter and returns them using JSON", impact = MBeanOperationInfo.INFO)
@@ -369,7 +348,7 @@ public interface QueueControl {
 
    /**
     * Counts the number of messages in this queue matching the specified filter.
-    * <br>
+    * <p>
     * Using {@code null} or an empty filter will count <em>all</em> messages from this queue.
     */
    @Operation(desc = "Returns the number of the messages in the queue matching the given filter", impact = MBeanOperationInfo.INFO)
@@ -381,7 +360,7 @@ public interface QueueControl {
    /**
     * Counts the number of messages in this queue matching the specified filter, grouped by the given property field.
     * In case of null property will be grouped in "null"
-    * <br>
+    * <p>
     * Using {@code null} or an empty filter will count <em>all</em> messages from this queue.
     */
    @Operation(desc = "Returns the number of the messages in the queue matching the given filter, grouped by the given property field", impact = MBeanOperationInfo.INFO)
@@ -389,16 +368,16 @@ public interface QueueControl {
 
    /**
     * Counts the number of delivering messages in this queue matching the specified filter.
-    * <br>
+    * <p>
     * Using {@code null} or an empty filter will count <em>all</em> messages from this queue.
     */
    @Operation(desc = "Returns the number of the messages in the queue matching the given filter")
    long countDeliveringMessages(@Parameter(name = "filter", desc = "A message filter (can be empty)") String filter) throws Exception;
 
    /**
-    * Counts the number of delivering messages in this queue matching the specified filter, grouped by the given property field.
-    * In case of null property will be grouped in "null"
-    * <br>
+    * Counts the number of delivering messages in this queue matching the specified filter, grouped by the given
+    * property field. In case of null property will be grouped in "null"
+    * <p>
     * Using {@code null} or an empty filter will count <em>all</em> messages from this queue.
     */
    @Operation(desc = "Returns the number of the messages in the queue matching the given filter, grouped by the given property field")
@@ -414,7 +393,7 @@ public interface QueueControl {
 
    /**
     * Removes all the message corresponding to the specified filter.
-    * <br>
+    * <p>
     * Using {@code null} or an empty filter will remove <em>all</em> messages from this queue.
     *
     * @return the number of removed messages
@@ -424,7 +403,7 @@ public interface QueueControl {
 
    /**
     * Removes all the message corresponding to the specified filter.
-    * <br>
+    * <p>
     * Using {@code null} or an empty filter will remove <em>all</em> messages from this queue.
     *
     * @return the number of removed messages
@@ -443,7 +422,7 @@ public interface QueueControl {
 
    /**
     * Expires all the message corresponding to the specified filter.
-    * <br>
+    * <p>
     * Using {@code null} or an empty filter will expire <em>all</em> messages from this queue.
     *
     * @return the number of expired messages
@@ -460,12 +439,10 @@ public interface QueueControl {
    boolean expireMessage(@Parameter(name = "messageID", desc = "A message ID") long messageID) throws Exception;
 
    /**
-    * Retries the message corresponding to the given messageID to the original queue.
-    * This is appropriate on dead messages on Dead letter queues only.
+    * Retries the message corresponding to the given messageID to the original queue. This is appropriate on dead
+    * messages on Dead letter queues only.
     *
-    * @param messageID
-    * @return {@code true} if the message was retried, {@code false} else
-    * @throws Exception
+    * @return {@code true} if the message was retried, {@code false} else
     */
    @Operation(desc = "Retry the message corresponding to the given messageID to the original queue", impact = MBeanOperationInfo.ACTION)
    boolean retryMessage(@Parameter(name = "messageID", desc = "A message ID") long messageID) throws Exception;
@@ -474,8 +451,7 @@ public interface QueueControl {
     * Retries all messages on a DLQ to their respective original queues.
     * This is appropriate on dead messages on Dead letter queues only.
     *
-    * @return the number of retried messages.
-    * @throws Exception
+    * @return the number of retried messages
     */
    @Operation(desc = "Retry all messages on a DLQ to their respective original queues", impact = MBeanOperationInfo.ACTION)
    int retryMessages() throws Exception;
@@ -502,7 +478,7 @@ public interface QueueControl {
    /**
     * Moves all the message corresponding to the specified filter  to the specified other queue.
     * RejectDuplicates = false on this case
-    * <br>
+    * <p>
     * Using {@code null} or an empty filter will move <em>all</em> messages from this queue.
     *
     * @return the number of moved messages
@@ -513,7 +489,7 @@ public interface QueueControl {
 
    /**
     * Moves all the message corresponding to the specified filter  to the specified other queue.
-    * <br>
+    * <p>
     * Using {@code null} or an empty filter will move <em>all</em> messages from this queue.
     *
     * @return the number of moved messages
@@ -550,7 +526,7 @@ public interface QueueControl {
 
    /**
     * Sends all the message corresponding to the specified filter to this queue's dead letter address.
-    * <br>
+    * <p>
     * Using {@code null} or an empty filter will send <em>all</em> messages from this queue.
     *
     * @return the number of sent messages
@@ -559,13 +535,10 @@ public interface QueueControl {
    int sendMessagesToDeadLetterAddress(@Parameter(name = "filter", desc = "A message filter (can be empty)") String filterStr) throws Exception;
 
    /**
-    * @param headers  the message headers and properties to set. Can only
-    *                 container Strings maped to primitive types.
-    * @param body     the text to send
-    * @param durable
-    * @param user
-    * @param password @return
-    * @throws Exception
+    * Sends a TextMessage to a password-protected destination.
+    *
+    * @param headers the message headers and properties to set. Can only container Strings maped to primitive types.
+    * @param body    the text to send
     */
    @Operation(desc = "Sends a TextMessage to a password-protected destination.", impact = MBeanOperationInfo.ACTION)
    String sendMessage(@Parameter(name = "headers", desc = "The headers to add to the message") Map<String, String> headers,
@@ -576,14 +549,12 @@ public interface QueueControl {
                       @Parameter(name = "password", desc = "The users password to authenticate with") String password) throws Exception;
 
    /**
-    * @param headers  the message headers and properties to set. Can only
-    *                 container Strings maped to primitive types.
-    * @param body     the text to send
-    * @param durable
-    * @param user
-    * @param password @return
-    * @param createMessageId whether or not to auto generate a Message ID
-    * @throws Exception
+    * Sends a TextMessage to a password-protected destination.
+    *
+    * @param headers         the message headers and properties to set. Can only container Strings maped to primitive
+    *                        types.
+    * @param body            the text to send
+    * @param createMessageId whether to auto generate a Message ID
     */
    @Operation(desc = "Sends a TextMessage to a password-protected destination.", impact = MBeanOperationInfo.ACTION)
    String sendMessage(@Parameter(name = "headers", desc = "The headers to add to the message") Map<String, String> headers,
@@ -606,7 +577,7 @@ public interface QueueControl {
 
    /**
     * Changes the priority for all the message corresponding to the specified filter to the specified priority.
-    * <br>
+    * <p>
     * Using {@code null} or an empty filter will change <em>all</em> messages from this queue.
     *
     * @return the number of changed messages
@@ -669,7 +640,7 @@ public interface QueueControl {
    String listConsumersAsJSON() throws Exception;
 
    /**
-    * Returns whether the queue is paused.
+    * {@return whether the queue is paused}
     */
    @Attribute(desc = "whether the queue is paused")
    boolean isPaused() throws Exception;
@@ -714,23 +685,21 @@ public interface QueueControl {
    void resetMessagesKilled() throws Exception;
 
    /**
-    * it will flush one cycle on internal executors, so you would be sure that any pending tasks are done before you call
-    * any other measure.
-    * It is useful if you need the exact number of counts on a message
+    * it will flush one cycle on internal executors, so you would be sure that any pending tasks are done before you
+    * call any other measure. It is useful if you need the exact number of counts on a message
     */
    @Operation(desc = "Flush internal executors", impact = MBeanOperationInfo.ACTION)
    void flushExecutor();
 
    /**
-    * Will reset the all the groups.
-    * This is useful if you want a complete rebalance of the groups to consumers
+    * Will reset the all the groups. This is useful if you want a complete rebalance of the groups to consumers
     */
    @Operation(desc = "Resets all groups", impact = MBeanOperationInfo.ACTION)
    void resetAllGroups();
 
    /**
-    * Will reset the group matching the given groupID.
-    * This is useful if you want the given group to be rebalanced to the consumers
+    * Will reset the group matching the given groupID. This is useful if you want the given group to be rebalanced to
+    * the consumers
     */
    @Operation(desc = "Reset the specified group", impact = MBeanOperationInfo.ACTION)
    void resetGroup(@Parameter(name = "groupID", desc = "ID of group to reset") String groupID);
@@ -752,13 +721,13 @@ public interface QueueControl {
    long getRingSize();
 
    /**
-    * Returns whether the groups of this queue are automatically rebalanced.
+    * {@return whether the groups of this queue are automatically rebalanced}
     */
    @Attribute(desc = "whether the groups of this queue are automatically rebalanced")
    boolean isGroupRebalance();
 
    /**
-    * Returns whether the dispatch is paused when groups of this queue are automatically rebalanced.
+    * {@return whether the dispatch is paused when groups of this queue are automatically rebalanced}
     */
    @Attribute(desc = "whether the dispatch is paused when groups of this queue are automatically rebalanced")
    boolean isGroupRebalancePauseDispatch();
@@ -794,19 +763,19 @@ public interface QueueControl {
    void deliverScheduledMessage(@Parameter(name = "messageID", desc = "ID of the message to deliver") long messageId) throws Exception;
 
    /**
-    * Returns whether this queue is available for auto deletion.
+    * {@return whether this queue is available for auto deletion}
     */
    @Attribute(desc = "whether this queue is available for auto deletion")
    boolean isAutoDelete();
 
    /**
-    * Returns the first message on the queue as JSON
+    * {@return the first message on the queue as JSON}
     */
    @Operation(desc = "Returns first message on the queue as JSON", impact = MBeanOperationInfo.INFO)
    String peekFirstMessageAsJSON() throws Exception;
 
    /**
-    * Returns the first scheduled message on the queue as JSON
+    * {@return the first scheduled message on the queue as JSON}
     */
    @Operation(desc = "Returns first scheduled message on the queue as JSON", impact = MBeanOperationInfo.INFO)
    String peekFirstScheduledMessageAsJSON() throws Exception;

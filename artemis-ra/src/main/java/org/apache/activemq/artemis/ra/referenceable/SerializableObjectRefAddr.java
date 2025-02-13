@@ -26,9 +26,9 @@ import java.io.ObjectOutputStream;
 
 /**
  * A SerializableObjectRefAddr.
- *
+ * <p>
  * A RefAddr that can be used for any serializable object.
- *
+ * <p>
  * Basically the address is the serialized form of the object as a byte[]
  */
 public class SerializableObjectRefAddr extends RefAddr {

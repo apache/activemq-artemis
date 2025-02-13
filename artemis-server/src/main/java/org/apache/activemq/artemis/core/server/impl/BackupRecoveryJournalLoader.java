@@ -40,10 +40,11 @@ import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 
-/*
-* Instead of loading into its own post office this will use its parent server (the active server) and load into that.
-* Since the server is already running we have to make sure we don't route any message that may subsequently get deleted or acked.
-* */
+/**
+ * Instead of loading into its own post office this will use its parent server (the active server) and load into that.
+ * Since the server is already running we have to make sure we don't route any message that may subsequently get deleted
+ * or acked.
+ */
 public class BackupRecoveryJournalLoader extends PostOfficeJournalLoader {
 
    private ActiveMQServer parentServer;

@@ -155,7 +155,7 @@ public class SessionTest extends ActiveMQTestBase {
       } else {
          clientSession.createQueue(QueueConfiguration.of(queueName).setDurable(false));
       }
-      /** keep unused variables in order to maintain references to both objects */
+      // keep unused variables in order to maintain references to both objects
       @SuppressWarnings("unused")
       ClientProducer producer = clientSession.createProducer();
       @SuppressWarnings("unused")

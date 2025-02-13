@@ -67,9 +67,7 @@ public class StompWithClientIdValidationTest extends StompTestBase {
 
             if ("STOMP".equals(remotingConnection.getProtocolName())) {
                final String clientId = remotingConnection.getClientID();
-               /*
-                * perform some kind of clientId validation, e.g. check presence or format
-                */
+               // perform some kind of clientId validation, e.g. check presence or format
                if (clientId == null || clientId.isEmpty()) {
                   System.err.println("ClientID not set!");
                   return null;

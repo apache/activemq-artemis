@@ -48,8 +48,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This test is simulating an orphaned consumer situation that was fixed in ARTEMIS-4476.
- * the method QueueControl::listConsumersAsJSON should add a field orphaned=true in case the consumer is orphaned.
+ * This test is simulating an orphaned consumer situation that was fixed in ARTEMIS-4476. the method
+ * QueueControl::listConsumersAsJSON should add a field orphaned=true in case the consumer is orphaned.
  */
 public class DetectOrphanedConsumerTest extends ActiveMQTestBase {
 

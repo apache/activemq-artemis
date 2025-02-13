@@ -178,7 +178,7 @@ public class ProtocolHandler {
                ctx.pipeline().remove(this);
                ctx.pipeline().remove(HTTP_HANDLER);
                ctx.fireChannelRead(msg);
-            } else if (upgrade != null && upgrade.equalsIgnoreCase(NettyConnector.ACTIVEMQ_REMOTING)) { // HORNETQ-1391
+            } else if (upgrade != null && upgrade.equalsIgnoreCase(NettyConnector.ACTIVEMQ_REMOTING)) {
                // Send the response and close the connection if necessary.
                ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN)).addListener(ChannelFutureListener.CLOSE);
             }
@@ -213,7 +213,6 @@ public class ProtocolHandler {
          Set<String> protocolSet = protocolMap.keySet();
          if (!protocolSet.isEmpty()) {
             // Use getBytes(...) as this works with direct and heap buffers.
-            // See https://issues.jboss.org/browse/HORNETQ-1406
             byte[] bytes = new byte[8];
             in.getBytes(0, bytes);
 

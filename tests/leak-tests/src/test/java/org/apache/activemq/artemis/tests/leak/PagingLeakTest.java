@@ -51,7 +51,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-/* at the time this test was written JournalFileImpl was leaking through JournalFileImpl::negative creating a linked list (or leaked-list, pun intended) */
+/*
+ * At the time this test was written JournalFileImpl was leaking through JournalFileImpl::negative creating a linked
+ * list (or leaked-list, pun intended)
+ */
 public class PagingLeakTest extends AbstractLeakTest {
 
    ActiveMQServer server;

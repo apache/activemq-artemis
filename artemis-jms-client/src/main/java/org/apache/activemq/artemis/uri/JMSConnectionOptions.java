@@ -21,9 +21,8 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.uri.schema.serverLocator.ConnectionOptions;
 
 /**
- * This will represent all the possible options you could setup on URLs
- * When parsing the URL this will serve as an intermediate object
- * And it could also be a pl
+ * This will represent all the possible options you could setup on URLs When parsing the URL this will serve as an
+ * intermediate object And it could also be a pl
  */
 public class JMSConnectionOptions extends ConnectionOptions {
 

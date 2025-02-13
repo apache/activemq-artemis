@@ -46,9 +46,9 @@ import java.lang.invoke.MethodHandles;
 
 /**
  * This class is used to search for members on the cluster through the opaque interface {@link BroadcastEndpoint}.
- *
+ * <p>
  * There are two current implementations, and that's probably all we will ever need.
- *
+ * <p>
  * We will probably keep both interfaces for a while as UDP is a simple solution requiring no extra dependencies which
  * is suitable for users looking for embedded solutions.
  */
@@ -82,13 +82,6 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
    /**
     * This is the main constructor, intended to be used
-    *
-    * @param nodeID
-    * @param name
-    * @param timeout
-    * @param endpointFactory
-    * @param service
-    * @throws Exception
     */
    public DiscoveryGroup(final String nodeID,
                          final String name,
@@ -139,8 +132,8 @@ public final class DiscoveryGroup implements ActiveMQComponent {
    }
 
    /**
-    * This will start the DiscoveryRunnable and run it directly.
-    * This is useful for a test process where we need this execution blocking a thread.
+    * This will start the DiscoveryRunnable and run it directly. This is useful for a test process where we need this
+    * execution blocking a thread.
     */
    public void internalRunning() throws Exception {
       endpoint.openClient();

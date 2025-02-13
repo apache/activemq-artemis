@@ -38,9 +38,6 @@ import org.apache.activemq.command.ExceptionResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class ZeroPrefetchConsumerTest extends EmbeddedBrokerTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(ZeroPrefetchConsumerTest.class);

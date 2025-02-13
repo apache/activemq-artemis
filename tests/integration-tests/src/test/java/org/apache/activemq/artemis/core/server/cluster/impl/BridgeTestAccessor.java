@@ -21,8 +21,9 @@ import java.util.function.Function;
 
 import org.apache.activemq.artemis.core.server.MessageReference;
 
-/** it will provide accessors for Bridge during testing.
- * Do not use this outside of the context of UnitTesting. */
+/**
+ * Provide accessors for Bridge during testing. Do not use this outside of the context of UnitTesting.
+ */
 public class BridgeTestAccessor {
 
    public static Map<Long, MessageReference> getRefs(BridgeImpl bridge) {

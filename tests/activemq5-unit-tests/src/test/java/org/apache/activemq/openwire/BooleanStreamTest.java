@@ -25,9 +25,6 @@ import java.io.IOException;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
-/**
- *
- */
 public class BooleanStreamTest extends TestCase {
 
    protected OpenWireFormat openWireformat;

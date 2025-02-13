@@ -232,7 +232,8 @@ public class JMSFQQNConsumerTest extends MultiprotocolJMSClientTestSupport {
       testFQQNTopicConsumerDontExist("AMQP");
    }
 
-   /* this commented out code is just to make a point that this test would not be valid in openwire.
+   /*
+    * this commented out code is just to make a point that this test would not be valid in openwire.
       As openwire is calling the method createSubscription from its 1.1 implementation.
      Hence there's no need to test this over JMS1.1 with openWire
    @Test

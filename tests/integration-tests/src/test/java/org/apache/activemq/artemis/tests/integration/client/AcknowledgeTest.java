@@ -163,9 +163,9 @@ public class AcknowledgeTest extends ActiveMQTestBase {
    }
 
    /**
-    * This is validating a case where a consumer will try to ack a message right after failover, but the consumer at the target server didn't
-    * receive the message yet.
-    * on that case the system should rollback any acks done and redeliver any messages
+    * This is validating a case where a consumer will try to ack a message right after failover, but the consumer at the
+    * target server didn't receive the message yet. on that case the system should rollback any acks done and redeliver
+    * any messages
     */
    @Test
    public void testInvalidACK() throws Exception {

@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.plugin;
 
-/**
- *
- */
 public interface ActiveMQServerPlugin extends
         ActiveMQServerBasePlugin,
         ActiveMQServerConnectionPlugin,

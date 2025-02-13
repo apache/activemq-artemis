@@ -318,8 +318,6 @@ public class JDBCSequentialFileFactoryTest extends ArtemisTestCase {
     * descriptor has enough information.  However, with JDBC we do require that some information is loaded in order to
     * get the underlying BLOB.  This tests ensures that file.size() returns the correct value, without the user calling
     * file.open() with JDBCSequentialFile.
-    *
-    * @throws Exception
     */
    @TestTemplate
    public void testGetFileSizeWorksWhenNotOpen() throws Exception {

@@ -64,14 +64,6 @@ public class Role implements Serializable {
    }
 
    /**
-    * @param name
-    * @param send
-    * @param consume
-    * @param createDurableQueue
-    * @param deleteDurableQueue
-    * @param createNonDurableQueue
-    * @param deleteNonDurableQueue
-    * @param manage
     * @deprecated Use {@link #Role(String, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean)}
     */
    @Deprecated

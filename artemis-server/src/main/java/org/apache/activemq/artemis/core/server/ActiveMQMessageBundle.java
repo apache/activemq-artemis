@@ -263,25 +263,37 @@ public interface ActiveMQMessageBundle {
    IllegalArgumentException errorCreatingTransformerClass(String transformerClassName, Exception e);
 
    /**
-    * Message used on on {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
+    * Message used on on
+    * {@link
+    * org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String,
+    * String)}
     */
    @Message(id = 229076, value = "Executing destroyConnection with {}={} through management's request")
    String destroyConnectionWithSessionMetadataHeader(String key, String value);
 
    /**
-    * Message used on on {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
+    * Message used on on
+    * {@link
+    * org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String,
+    * String)}
     */
    @Message(id = 229077, value = "Closing connection {}")
    String destroyConnectionWithSessionMetadataClosingConnection(String serverSessionString);
 
    /**
-    * Exception used on on {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
+    * Exception used on on
+    * {@link
+    * org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String,
+    * String)}
     */
    @Message(id = 229078, value = "Disconnected per admin's request on {}={}")
    ActiveMQDisconnectedException destroyConnectionWithSessionMetadataSendException(String key, String value);
 
    /**
-    * Message used on on {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
+    * Message used on on
+    * {@link
+    * org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String,
+    * String)}
     */
    @Message(id = 229079, value = "No session found with {}={}")
    String destroyConnectionWithSessionMetadataNoSessionFound(String key, String value);

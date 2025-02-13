@@ -23,9 +23,6 @@ import javax.jms.MessageNotWriteableException;
 
 import junit.framework.TestCase;
 
-/**
- *
- */
 public class ActiveMQBytesMessageTest extends TestCase {
 
    public ActiveMQBytesMessageTest(String name) {
@@ -36,17 +33,11 @@ public class ActiveMQBytesMessageTest extends TestCase {
       junit.textui.TestRunner.run(ActiveMQBytesMessageTest.class);
    }
 
-   /*
-    * @see TestCase#setUp()
-    */
    @Override
    protected void setUp() throws Exception {
       super.setUp();
    }
 
-   /*
-    * @see TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       super.tearDown();
@@ -209,9 +200,7 @@ public class ActiveMQBytesMessageTest extends TestCase {
       }
    }
 
-   /*
-    * Class to test for int readBytes(byte[])
-    */
+   // Class to test for int readBytes(byte[])
    public void testReadBytesbyteArray() {
       ActiveMQBytesMessage msg = new ActiveMQBytesMessage();
       try {
@@ -255,7 +244,6 @@ public class ActiveMQBytesMessageTest extends TestCase {
       }
    }
 
-   /* new */
    public void testClearBody() throws JMSException {
       ActiveMQBytesMessage bytesMessage = new ActiveMQBytesMessage();
       try {

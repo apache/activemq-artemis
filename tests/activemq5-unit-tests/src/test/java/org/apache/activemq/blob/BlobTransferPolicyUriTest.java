@@ -20,9 +20,6 @@ import junit.framework.TestCase;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
-/**
- *
- */
 public class BlobTransferPolicyUriTest extends TestCase {
 
    public void testBlobTransferPolicyIsConfiguredViaUri() throws Exception {

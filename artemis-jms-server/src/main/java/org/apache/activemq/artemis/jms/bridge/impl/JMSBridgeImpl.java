@@ -198,9 +198,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
    private long abortedMessageCount = 0;
 
-   /*
-    * Constructor for MBean
-    */
+   // Constructor for MBean
    public JMSBridgeImpl() {
       messages = new LinkedList<>();
       executor = createExecutor();
@@ -1138,7 +1136,6 @@ public final class JMSBridgeImpl implements JMSBridge {
     *
     * When bridging a batch, we make sure to manually acknowledge the consuming session, if it is CLIENT_ACKNOWLEDGE
     * *before* the batch has been sent
-    *
     */
    private boolean setupJMSObjects() {
       try {
@@ -1303,7 +1300,8 @@ public final class JMSBridgeImpl implements JMSBridge {
    }
 
    /**
-    * Pause the calling thread for the given {@code millis}: it returns {@code true} if not interrupted, {@code false} otherwise.
+    * Pause the calling thread for the given {@code millis}: it returns {@code true} if not interrupted, {@code false}
+    * otherwise.
     */
    private static boolean pause(final long millis) {
       assert millis >= 0;
@@ -1627,8 +1625,8 @@ public final class JMSBridgeImpl implements JMSBridge {
    }
 
    /**
-    * Creates a 3-sized thread pool executor (1 thread for the sourceReceiver, 1 for the timeChecker
-    * and 1 for the eventual failureHandler)
+    * Creates a 3-sized thread pool executor (1 thread for the sourceReceiver, 1 for the timeChecker and 1 for the
+    * eventual failureHandler)
     */
    private ExecutorService createExecutor() {
       ExecutorService service = Executors.newFixedThreadPool(3, new ThreadFactory() {
@@ -1651,9 +1649,8 @@ public final class JMSBridgeImpl implements JMSBridge {
    }
 
    /**
-    * We use a Thread which polls the sourceDestination instead of a MessageListener
-    * to ensure that message delivery does not happen concurrently with
-    * transaction enlistment of the XAResource (see HORNETQ-27)
+    * We use a Thread which polls the sourceDestination instead of a MessageListener to ensure that message delivery
+    * does not happen concurrently with transaction enlistment of the XAResource
     */
    private final class SourceReceiver implements Runnable {
 
@@ -1736,8 +1733,8 @@ public final class JMSBridgeImpl implements JMSBridge {
    private class FailureHandler implements Runnable {
 
       /**
-       * Start the source connection - note the source connection must not be started before
-       * otherwise messages will be received and ignored
+       * Start the source connection - note the source connection must not be started before otherwise messages will be
+       * received and ignored
        */
       protected void startSourceConnection() {
          try {
@@ -2030,9 +2027,7 @@ public final class JMSBridgeImpl implements JMSBridge {
             return false;
          }
 
-         /*
-          * make sure we reset the connected flags
-          * */
+         // make sure we reset the connected flags
          if (result == FailoverEventType.FAILOVER_COMPLETED) {
             if (isSource) {
                connectedSource = true;

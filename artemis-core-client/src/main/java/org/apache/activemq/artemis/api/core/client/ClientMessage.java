@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 public interface ClientMessage extends ICoreMessage {
 
    /**
-    * Returns the number of times this message was delivered.
+    * {@return the number of times this message was delivered.}
     */
    int getDeliveryCount();
 
@@ -47,9 +47,9 @@ public interface ClientMessage extends ICoreMessage {
    /**
     * Acknowledges reception of this message.
     * <p>
-    * If the session responsible to acknowledge this message has {@code autoCommitAcks} set to
-    * {@code true}, the transaction will automatically commit the current transaction. Otherwise,
-    * this acknowledgement will not be committed until the client commits the session transaction.
+    * If the session responsible to acknowledge this message has {@code autoCommitAcks} set to {@code true}, the
+    * transaction will automatically commit the current transaction. Otherwise, this acknowledgement will not be
+    * committed until the client commits the session transaction.
     *
     * @throws ActiveMQException if an error occurred while acknowledging the message.
     * @see ClientSession#isAutoCommitAcks()
@@ -59,9 +59,9 @@ public interface ClientMessage extends ICoreMessage {
    /**
     * Acknowledges reception of a single message.
     * <p>
-    * If the session responsible to acknowledge this message has {@code autoCommitAcks} set to
-    * {@code true}, the transaction will automatically commit the current transaction. Otherwise,
-    * this acknowledgement will not be committed until the client commits the session transaction.
+    * If the session responsible to acknowledge this message has {@code autoCommitAcks} set to {@code true}, the
+    * transaction will automatically commit the current transaction. Otherwise, this acknowledgement will not be
+    * committed until the client commits the session transaction.
     *
     * @throws ActiveMQException if an error occurred while acknowledging the message.
     * @see ClientSession#isAutoCommitAcks()
@@ -69,54 +69,46 @@ public interface ClientMessage extends ICoreMessage {
    ClientMessage individualAcknowledge() throws ActiveMQException;
 
    /**
-    * This can be optionally used to verify if the entire message has been received.
-    * It won't have any effect on regular messages but it may be helpful on large messages.
-    * The use case for this is to make sure there won't be an exception while getting the buffer.
-    * Using getBodyBuffer directly would have the same effect but you could get a Runtime non checked Exception
-    * instead
-    *
-    * @throws ActiveMQException
+    * This can be optionally used to verify if the entire message has been received. It won't have any effect on regular
+    * messages but it may be helpful on large messages. The use case for this is to make sure there won't be an
+    * exception while getting the buffer. Using getBodyBuffer directly would have the same effect but you could get a
+    * Runtime non checked Exception instead
     */
    void checkCompletion() throws ActiveMQException;
 
    /**
-    * Returns the size (in bytes) of this message's body
+    * {@return the size (in bytes) of this message's body}
     */
    int getBodySize();
 
    /**
     * Sets the OutputStream that will receive the content of a message received in a non blocking way.
-    * <br>
+    * <p>
     * This method is used when consuming large messages
     *
     * @return this ClientMessage
-    * @throws ActiveMQException
     */
    ClientMessage setOutputStream(OutputStream out) throws ActiveMQException;
 
    /**
-    * Saves the content of the message to the OutputStream.
-    * It will block until the entire content is transferred to the OutputStream.
-    * <br>
-    *
-    * @throws ActiveMQException
+    * Saves the content of the message to the OutputStream. It will block until the entire content is transferred to the
+    * OutputStream.
     */
    void saveToOutputStream(OutputStream out) throws ActiveMQException;
 
    /**
     * Wait the outputStream completion of the message.
-    *
+    * <p>
     * This method is used when consuming large messages
     *
     * @param timeMilliseconds - 0 means wait forever
     * @return true if it reached the end
-    * @throws ActiveMQException
     */
    boolean waitOutputStreamCompletion(long timeMilliseconds) throws ActiveMQException;
 
    /**
     * Sets the body's IntputStream.
-    * <br>
+    * <p>
     * This method is used when sending large messages
     *
     * @return this ClientMessage
@@ -125,15 +117,13 @@ public interface ClientMessage extends ICoreMessage {
 
    /**
     * Return the bodyInputStream for large messages
-    * @return
     */
    @Override
    InputStream getBodyInputStream();
 
    /**
-    * The buffer to write the body.
-    * Warning: If you just want to read the content of a message, use getDataBuffer() or getReadOnlyBuffer();
-    * @return
+    * The buffer to write the body. Warning: If you just want to read the content of a message, use getDataBuffer() or
+    * getReadOnlyBuffer();
     */
    @Override
    ActiveMQBuffer getBodyBuffer();

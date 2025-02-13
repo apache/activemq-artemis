@@ -25,39 +25,34 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 
 /**
- * Used to validate whether a user is authorized to connect to the
- * server and perform certain functions on certain addresses
- *
- * This is an evolution of {@link ActiveMQSecurityManager4}
- * that integrates with the new Subject caching functionality.
+ * This is an evolution of {@link ActiveMQSecurityManager4} that integrates with the new Subject caching functionality.
  */
 public interface ActiveMQSecurityManager5 extends ActiveMQSecurityManager {
 
    /**
     * is this a valid user.
+    * <p>
+    * This method is called instead of {@link ActiveMQSecurityManager#validateUser(String, String)}.
     *
-    * This method is called instead of
-    * {@link ActiveMQSecurityManager#validateUser(String, String)}.
-    *
-    * @param user     the user
-    * @param password the user's password
+    * @param user               the user
+    * @param password           the user's password
     * @param remotingConnection the user's connection which contains any corresponding SSL certs
-    * @param securityDomain the name of the JAAS security domain to use (can be null)
+    * @param securityDomain     the name of the JAAS security domain to use (can be null)
     * @return the Subject of the authenticated user, else null
     */
    Subject authenticate(String user, String password, RemotingConnection remotingConnection, String securityDomain) throws NoCacheLoginException;
 
    /**
     * Determine whether the given user has the correct role for the given check type.
-    *
+    * <p>
     * This method is called instead of
     * {@link ActiveMQSecurityManager#validateUserAndRole(String, String, Set, CheckType)}.
     *
-    * @param subject    the Subject to authorize
-    * @param roles      the roles configured in the security-settings
-    * @param checkType  which permission to validate
-    * @param address    the address (or FQQN) to grant access to
-    * @return true if the user is authorized, else false
+    * @param subject   the Subject to authorize
+    * @param roles     the roles configured in the security-settings
+    * @param checkType which permission to validate
+    * @param address   the address (or FQQN) to grant access to
+    * @return {@code true} if the user is authorized, else false
     */
    boolean authorize(Subject subject, Set<Role> roles, CheckType checkType, String address);
 

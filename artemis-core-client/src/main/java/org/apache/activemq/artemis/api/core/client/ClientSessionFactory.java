@@ -21,10 +21,11 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
- * A ClientSessionFactory is the entry point to create and configure ActiveMQ Artemis resources to produce and consume messages.
- * <br>
- * It is possible to configure a factory using the setter methods only if no session has been created.
- * Once a session is created, the configuration is fixed and any call to a setter method will throw an IllegalStateException.
+ * A ClientSessionFactory is the entry point to create and configure ActiveMQ Artemis resources to produce and consume
+ * messages.
+ * <p>
+ * It is possible to configure a factory using the setter methods only if no session has been created. Once a session is
+ * created, the configuration is fixed and any call to a setter method will throw an IllegalStateException.
  */
 public interface ClientSessionFactory extends AutoCloseable {
 
@@ -48,10 +49,9 @@ public interface ClientSessionFactory extends AutoCloseable {
    ClientSession createTransactedSession() throws ActiveMQException;
 
    /**
-    * Creates a <em>non-transacted</em> session.
-    * Message sends and acknowledgements are automatically committed by the session. <em>This does not
-    * mean that messages are automatically acknowledged</em>, only that when messages are acknowledged,
-    * the session will automatically commit the transaction containing the acknowledgements.
+    * Creates a <em>non-transacted</em> session. Message sends and acknowledgements are automatically committed by the
+    * session. <em>This does not mean that messages are automatically acknowledged</em>, only that when messages are
+    * acknowledged, the session will automatically commit the transaction containing the acknowledgements.
     *
     * @return a non-transacted ClientSession
     * @throws ActiveMQException if an exception occurs while creating the session
@@ -61,8 +61,9 @@ public interface ClientSessionFactory extends AutoCloseable {
    /**
     * Creates a session.
     *
-    * @param autoCommitSends <code>true</code> to automatically commit message sends, <code>false</code> to commit manually
-    * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
+    * @param autoCommitSends {@code true} to automatically commit message sends, {@code false} to commit manually
+    * @param autoCommitAcks  {@code true} to automatically commit message acknowledgement, {@code false} to commit
+    *                        manually
     * @return a ClientSession
     * @throws ActiveMQException if an exception occurs while creating the session
     */
@@ -71,8 +72,9 @@ public interface ClientSessionFactory extends AutoCloseable {
    /**
     * Creates a session.
     *
-    * @param autoCommitSends <code>true</code> to automatically commit message sends, <code>false</code> to commit manually
-    * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
+    * @param autoCommitSends {@code true} to automatically commit message sends, {@code false} to commit manually
+    * @param autoCommitAcks  {@code true} to automatically commit message acknowledgement, {@code false} to commit
+    *                        manually
     * @param ackBatchSize    the batch size of the acknowledgements
     * @return a ClientSession
     * @throws ActiveMQException if an exception occurs while creating the session
@@ -85,8 +87,9 @@ public interface ClientSessionFactory extends AutoCloseable {
     * Creates a session.
     *
     * @param xa              whether the session support XA transaction semantic or not
-    * @param autoCommitSends <code>true</code> to automatically commit message sends, <code>false</code> to commit manually
-    * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
+    * @param autoCommitSends {@code true} to automatically commit message sends, {@code false} to commit manually
+    * @param autoCommitAcks  {@code true} to automatically commit message acknowledgement, {@code false} to commit
+    *                        manually
     * @return a ClientSession
     * @throws ActiveMQException if an exception occurs while creating the session
     */
@@ -95,14 +98,17 @@ public interface ClientSessionFactory extends AutoCloseable {
    /**
     * Creates a session.
     * <p>
-    * It is possible to <em>pre-acknowledge messages on the server</em> so that the client can avoid additional network trip
-    * to the server to acknowledge messages. While this increase performance, this does not guarantee delivery (as messages
-    * can be lost after being pre-acknowledged on the server). Use with caution if your application design permits it.
+    * It is possible to <em>pre-acknowledge messages on the server</em> so that the client can avoid additional network
+    * trip to the server to acknowledge messages. While this increase performance, this does not guarantee delivery (as
+    * messages can be lost after being pre-acknowledged on the server). Use with caution if your application design
+    * permits it.
     *
     * @param xa              whether the session support XA transaction semantic or not
-    * @param autoCommitSends <code>true</code> to automatically commit message sends, <code>false</code> to commit manually
-    * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
-    * @param preAcknowledge  <code>true</code> to pre-acknowledge messages on the server, <code>false</code> to let the client acknowledge the messages
+    * @param autoCommitSends {@code true} to automatically commit message sends, {@code false} to commit manually
+    * @param autoCommitAcks  {@code true} to automatically commit message acknowledgement, {@code false} to commit
+    *                        manually
+    * @param preAcknowledge  {@code true} to pre-acknowledge messages on the server, {@code false} to let the client
+    *                        acknowledge the messages
     * @return a ClientSession
     * @throws ActiveMQException if an exception occurs while creating the session
     */
@@ -114,16 +120,19 @@ public interface ClientSessionFactory extends AutoCloseable {
    /**
     * Creates an <em>authenticated</em> session.
     * <p>
-    * It is possible to <em>pre-acknowledge messages on the server</em> so that the client can avoid additional network trip
-    * to the server to acknowledge messages. While this increase performance, this does not guarantee delivery (as messages
-    * can be lost after being pre-acknowledged on the server). Use with caution if your application design permits it.
+    * It is possible to <em>pre-acknowledge messages on the server</em> so that the client can avoid additional network
+    * trip to the server to acknowledge messages. While this increase performance, this does not guarantee delivery (as
+    * messages can be lost after being pre-acknowledged on the server). Use with caution if your application design
+    * permits it.
     *
     * @param username        the user name
     * @param password        the user password
     * @param xa              whether the session support XA transaction semantic or not
-    * @param autoCommitSends <code>true</code> to automatically commit message sends, <code>false</code> to commit manually
-    * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
-    * @param preAcknowledge  <code>true</code> to pre-acknowledge messages on the server, <code>false</code> to let the client acknowledge the messages
+    * @param autoCommitSends {@code true} to automatically commit message sends, {@code false} to commit manually
+    * @param autoCommitAcks  {@code true} to automatically commit message acknowledgement, {@code false} to commit
+    *                        manually
+    * @param preAcknowledge  {@code true} to pre-acknowledge messages on the server, {@code false} to let the client
+    *                        acknowledge the messages
     * @return a ClientSession
     * @throws ActiveMQException if an exception occurs while creating the session
     */
@@ -138,16 +147,19 @@ public interface ClientSessionFactory extends AutoCloseable {
    /**
     * Creates an <em>authenticated</em> session.
     * <p>
-    * It is possible to <em>pre-acknowledge messages on the server</em> so that the client can avoid additional network trip
-    * to the server to acknowledge messages. While this increase performance, this does not guarantee delivery (as messages
-    * can be lost after being pre-acknowledged on the server). Use with caution if your application design permits it.
+    * It is possible to <em>pre-acknowledge messages on the server</em> so that the client can avoid additional network
+    * trip to the server to acknowledge messages. While this increase performance, this does not guarantee delivery (as
+    * messages can be lost after being pre-acknowledged on the server). Use with caution if your application design
+    * permits it.
     *
     * @param username        the user name
     * @param password        the user password
     * @param xa              whether the session support XA transaction semantic or not
-    * @param autoCommitSends <code>true</code> to automatically commit message sends, <code>false</code> to commit manually
-    * @param autoCommitAcks  <code>true</code> to automatically commit message acknowledgement, <code>false</code> to commit manually
-    * @param preAcknowledge  <code>true</code> to pre-acknowledge messages on the server, <code>false</code> to let the client acknowledge the messages
+    * @param autoCommitSends {@code true} to automatically commit message sends, {@code false} to commit manually
+    * @param autoCommitAcks  {@code true} to automatically commit message acknowledgement, {@code false} to commit
+    *                        manually
+    * @param preAcknowledge  {@code true} to pre-acknowledge messages on the server, {@code false} to let the client
+    *                        acknowledge the messages
     * @param clientID        the session clientID
     * @return a ClientSession
     * @throws ActiveMQException if an exception occurs while creating the session
@@ -168,7 +180,7 @@ public interface ClientSessionFactory extends AutoCloseable {
    void close();
 
    /**
-    * @return {@code true} if the factory is closed, {@code false} otherwise.
+    * {@return {@code true} if the factory is closed, {@code false} otherwise}
     */
    boolean isClosed();
 
@@ -184,7 +196,7 @@ public interface ClientSessionFactory extends AutoCloseable {
     * Removes a FailoverEventListener to the session.
     *
     * @param listener the listener to remove
-    * @return <code>true</code> if the listener was removed, <code>false</code> else
+    * @return {@code true} if the listener was removed, {@code false} else
     */
    boolean removeFailoverListener(FailoverEventListener listener);
 
@@ -194,21 +206,17 @@ public interface ClientSessionFactory extends AutoCloseable {
    void cleanup();
 
    /**
-    * @return the server locator associated with this session factory
+    * {@return the server locator associated with this session factory}
     */
    ServerLocator getServerLocator();
 
    /**
-    * Returns the code connection used by this session factory.
-    *
-    * @return the core connection
+    * {@return the code connection used by this session factory}
     */
    RemotingConnection getConnection();
 
    /**
-    * Return the configuration used
-    *
-    * @return
+    * {@return the configuration used}
     */
    TransportConfiguration getConnectorConfiguration();
 

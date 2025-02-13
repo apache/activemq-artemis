@@ -29,8 +29,6 @@ import org.junit.jupiter.api.BeforeEach;
  */
 public class BytesMessageTest extends MessageTestBase {
 
-
-
    @Override
    @BeforeEach
    public void setUp() throws Exception {

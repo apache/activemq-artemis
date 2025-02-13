@@ -26,8 +26,8 @@ public class PaddingDecimalFormat extends DecimalFormat {
    private final StringBuilder pad;
 
    /**
-    * Creates a PaddingDecimalFormat using the given pattern and minimum {@code minLength} and the symbols for the default
-    * locale.
+    * Creates a PaddingDecimalFormat using the given pattern and minimum {@code minLength} and the symbols for the
+    * default locale.
     */
    public PaddingDecimalFormat(String pattern, int minLength) {
       super(pattern);

@@ -52,8 +52,6 @@ public class AutogroupIdTest extends ActiveMQTestBase {
 
    private ServerLocator locator;
 
-   /* auto group id tests*/
-
    @Override
    @BeforeEach
    public void setUp() throws Exception {
@@ -68,10 +66,9 @@ public class AutogroupIdTest extends ActiveMQTestBase {
       locator = createInVMNonHALocator();
    }
 
-   /*
-   * tests when the autogroupid is set only 1 consumer (out of 2) gets all the messages from a single producer
-   * */
-
+   /**
+    * Tests when the autogroupid is set only 1 consumer (out of 2) gets all the messages from a single producer.
+    */
    @Test
    public void testGroupIdAutomaticallySet() throws Exception {
       locator.setAutoGroup(true);
@@ -108,9 +105,9 @@ public class AutogroupIdTest extends ActiveMQTestBase {
 
    }
 
-   /*
-   * tests when the autogroupid is set only 2 consumers (out of 3) gets all the messages from 2 producers
-   * */
+   /**
+    * Tests when the autogroupid is set only 2 consumers (out of 3) gets all the messages from 2 producers.
+    */
    @Test
    public void testGroupIdAutomaticallySetMultipleProducers() throws Exception {
       locator.setAutoGroup(true);
@@ -154,9 +151,9 @@ public class AutogroupIdTest extends ActiveMQTestBase {
       assertEquals(0, myMessageHandler3.messagesReceived);
    }
 
-   /*
-   * tests that even though we have a grouping round robin distributor we don't pin the consumer as autogroup is false
-   * */
+   /**
+    * Tests that even though we have a grouping round robin distributor we don't pin the consumer as autogroup is false.
+    */
    @Test
    public void testGroupIdAutomaticallyNotSet() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);

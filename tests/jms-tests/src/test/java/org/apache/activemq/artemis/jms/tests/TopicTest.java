@@ -74,9 +74,6 @@ public class TopicTest extends JMSTestCase {
       ProxyAssertSupport.assertEquals("Topic1", topic.getTopicName());
    }
 
-   /*
-   * See http://jira.jboss.com/jira/browse/JBMESSAGING-399
-   */
    @Test
    public void testRace() throws Exception {
       Connection conn = createConnection();

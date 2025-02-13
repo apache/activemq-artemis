@@ -25,9 +25,8 @@ import junit.framework.TestCase;
 public class QualityOfServiceUtilsTest extends TestCase {
 
    /**
-    * Keeps track of the value that the System has set for the ECN bits, which
-    * should not be overridden when Differentiated Services is set, but may be
-    * overridden when Type of Service is set.
+    * Keeps track of the value that the System has set for the ECN bits, which should not be overridden when
+    * Differentiated Services is set, but may be overridden when Type of Service is set.
     */
    private int ECN;
 

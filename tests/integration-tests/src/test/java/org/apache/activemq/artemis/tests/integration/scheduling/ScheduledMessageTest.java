@@ -68,9 +68,6 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
       startServer();
    }
 
-   /**
-    * @throws Exception
-    */
    protected void startServer() throws Exception {
       configuration = createDefaultInVMConfig();
       server = createServer(true, configuration);

@@ -110,8 +110,6 @@ public class FailoverTest extends FailoverTestBase {
 
    /**
     * Basic fail-back test.
-    *
-    * @throws Exception
     */
    @Test
    @Timeout(120)
@@ -181,10 +179,6 @@ public class FailoverTest extends FailoverTestBase {
       session2.commit();
    }
 
-   /**
-    * @param doFailBack
-    * @throws Exception
-    */
    private void simpleFailover(boolean isReplicated, boolean doFailBack) throws Exception {
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
@@ -247,10 +241,6 @@ public class FailoverTest extends FailoverTestBase {
       session2.commit();
    }
 
-   /**
-    * @param consumer
-    * @throws ActiveMQException
-    */
    protected void assertNoMoreMessages(ClientConsumer consumer) throws ActiveMQException {
       ClientMessage msg = consumer.receiveImmediate();
       assertNull(msg, "there should be no more messages to receive! " + msg);
@@ -262,10 +252,6 @@ public class FailoverTest extends FailoverTestBase {
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
    }
 
-   /**
-    * @return
-    * @throws Exception
-    */
    protected ClientSession createSessionAndQueue() throws Exception {
       ClientSession session = createSession(sf, false, false);
 

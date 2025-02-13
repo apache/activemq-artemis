@@ -101,9 +101,6 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
    /**
     * Opens the supplied file.  If the file does not exist in the database it will create a new one.
-    *
-    * @param file
-    * @throws SQLException
     */
    public void openFile(JDBCSequentialFile file) throws SQLException {
       final long fileId = getFileID(file);
@@ -121,10 +118,6 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
    /**
     * Checks to see if a file with filename and extension exists.  If so returns the ID of the file or returns -1.
-    *
-    * @param file
-    * @return
-    * @throws SQLException
     */
    public long getFileID(JDBCSequentialFile file) throws SQLException {
       try (Connection connection = connectionProvider.getConnection()) {
@@ -148,9 +141,6 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
    /**
     * Loads an existing file.
-    *
-    * @param file
-    * @throws SQLException
     */
    public void loadFile(JDBCSequentialFile file) throws SQLException {
       try (Connection connection = connectionProvider.getConnection()) {
@@ -180,9 +170,6 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
    /**
     * Creates a new database row representing the supplied file.
-    *
-    * @param file
-    * @throws SQLException
     */
    public void createFile(JDBCSequentialFile file) throws SQLException {
       try (Connection connection = connectionProvider.getConnection()) {
@@ -211,10 +198,6 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
    /**
     * Updates the fileName field to the new value.
-    *
-    * @param file
-    * @param newFileName
-    * @throws SQLException
     */
    public void renameFile(JDBCSequentialFile file, String newFileName) throws SQLException {
       try (Connection connection = connectionProvider.getConnection()) {
@@ -233,9 +216,6 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
    /**
     * Deletes the associated row in the database.
-    *
-    * @param file
-    * @throws SQLException
     */
    public void deleteFile(JDBCSequentialFile file) throws SQLException {
       try (Connection connection = connectionProvider.getConnection()) {
@@ -253,11 +233,6 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
    /**
     * Persists data to this files associated database mapping.
-    *
-    * @param file
-    * @param data
-    * @return
-    * @throws SQLException
     */
    public int writeToFile(JDBCSequentialFile file, byte[] data, boolean append) throws SQLException {
       try (Connection connection = connectionProvider.getConnection()) {
@@ -296,11 +271,6 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
    /**
     * Reads data from the file (at file.readPosition) into the byteBuffer.
-    *
-    * @param file
-    * @param bytes
-    * @return
-    * @throws SQLException
     */
    public int readFromFile(JDBCSequentialFile file, ByteBuffer bytes) throws SQLException {
       try (Connection connection = connectionProvider.getConnection()) {
@@ -340,10 +310,6 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
    /**
     * Copy the data content of FileFrom to FileTo
-    *
-    * @param fileFrom
-    * @param fileTo
-    * @throws SQLException
     */
    public void copyFileData(JDBCSequentialFile fileFrom, JDBCSequentialFile fileTo) throws SQLException {
       try (Connection connection = connectionProvider.getConnection()) {

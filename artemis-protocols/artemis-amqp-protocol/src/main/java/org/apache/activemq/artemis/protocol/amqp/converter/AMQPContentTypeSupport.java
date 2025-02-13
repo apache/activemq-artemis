@@ -39,11 +39,11 @@ public final class AMQPContentTypeSupport {
    private static final String ECMASCRIPT = "ecmascript";
 
    /**
-    * @param contentType
-    *        the contentType of the received message
+    * Parse the content type from a message and determine the {@code Charset}.
+    *
+    * @param contentType the contentType of the received message
     * @return the character set to use, or null if not to treat the message as text
-    * @throws ActiveMQAMQPInvalidContentTypeException
-    *         if the content-type is invalid in some way.
+    * @throws ActiveMQAMQPInvalidContentTypeException if the content-type is invalid in some way.
     */
    public static Charset parseContentTypeForTextualCharset(final String contentType) throws ActiveMQAMQPInvalidContentTypeException {
       if (contentType == null || contentType.trim().isEmpty()) {

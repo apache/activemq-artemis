@@ -47,36 +47,21 @@ public interface JMSServerManager extends ActiveMQComponent {
    /**
     * Creates a JMS Queue.
     *
-    * @param queueName      The name of the queue to create
-    * @param selectorString
-    * @param durable
-    * @return true if the queue is created or if it existed and was added to
-    * the Binding Registry
+    * @param queueName The name of the queue to create
+    * @return true if the queue is created or if it existed and was added to the Binding Registry
     * @throws Exception if problems were encountered creating the queue.
     */
-   boolean createQueue(boolean storeConfig,
-                       String queueName,
-                       String selectorString,
-                       boolean durable,
-                       String... bindings) throws Exception;
+   boolean createQueue(boolean storeConfig, String queueName, String selectorString, boolean durable, String... bindings) throws Exception;
 
    /**
     * Creates a JMS Queue.
     *
-    * @param queueName      The name of the core queue to create
+    * @param queueName    The name of the core queue to create
     * @param jmsQueueName the name of this JMS queue
-    * @param selectorString
-    * @param durable
-    * @return true if the queue is created or if it existed and was added to
-    * the Binding Registry
+    * @return true if the queue is created or if it existed and was added to the Binding Registry
     * @throws Exception if problems were encountered creating the queue.
     */
-   boolean createQueue(boolean storeConfig,
-                       String queueName,
-                       String jmsQueueName,
-                       String selectorString,
-                       boolean durable,
-                       String... bindings) throws Exception;
+   boolean createQueue(boolean storeConfig, String queueName, String jmsQueueName, String selectorString, boolean durable, String... bindings) throws Exception;
 
    boolean addTopicToBindingRegistry(String topicName, String binding) throws Exception;
 
@@ -87,10 +72,9 @@ public interface JMSServerManager extends ActiveMQComponent {
    /**
     * Creates a JMS Topic
     *
-    * @param address the core addres of thetopic
-    * @param bindings  the names of the binding for the Binding Registry or BindingRegistry
-    * @return true if the topic was created or if it existed and was added to
-    * the Binding Registry
+    * @param address  the core addres of thetopic
+    * @param bindings the names of the binding for the Binding Registry or BindingRegistry
+    * @return true if the topic was created or if it existed and was added to the Binding Registry
     * @throws Exception if a problem occurred creating the topic
     */
    boolean createTopic(boolean storeConfig, String address, String... bindings) throws Exception;
@@ -98,39 +82,21 @@ public interface JMSServerManager extends ActiveMQComponent {
    /**
     * Creates a JMS Topic
     *
-    * @param address the core addres of thetopic
+    * @param address   the core addres of thetopic
     * @param topicName the name of the topic
     * @param bindings  the names of the binding for the Binding Registry or BindingRegistry
-    * @return true if the topic was created or if it existed and was added to
-    * the Binding Registry
+    * @return true if the topic was created or if it existed and was added to the Binding Registry
     * @throws Exception if a problem occurred creating the topic
     */
    boolean createTopic(String address, boolean storeConfig, String topicName, String... bindings) throws Exception;
 
-   /**
-    * @param storeConfig
-    * @param address
-    * @param autoCreated
-    * @param bindings
-    * @return
-    * @throws Exception
-    */
    boolean createTopic(boolean storeConfig, String address, boolean autoCreated, String... bindings) throws Exception;
 
-   /**
-    * @param storeConfig
-    * @param address
-    * @param topicName
-    * @param autoCreated
-    * @param bindings
-    * @return
-    * @throws Exception
-    */
    boolean createTopic(boolean storeConfig, String address, String topicName, boolean autoCreated, String... bindings) throws Exception;
 
    /**
-    * Remove the topic from the Binding Registry or BindingRegistry.
-    * Calling this method does <em>not</em> destroy the destination.
+    * Remove the topic from the Binding Registry or BindingRegistry. Calling this method does <em>not</em> destroy the
+    * destination.
     *
     * @param name the name of the destination to remove from the BindingRegistry
     * @return true if removed
@@ -139,8 +105,7 @@ public interface JMSServerManager extends ActiveMQComponent {
    boolean removeTopicFromBindingRegistry(String name, String binding) throws Exception;
 
    /**
-    * Remove the topic from the BindingRegistry.
-    * Calling this method does <em>not</em> destroy the destination.
+    * Remove the topic from the BindingRegistry. Calling this method does <em>not</em> destroy the destination.
     *
     * @param name the name of the destination to remove from the BindingRegistry
     * @return true if removed
@@ -149,8 +114,7 @@ public interface JMSServerManager extends ActiveMQComponent {
    boolean removeTopicFromBindingRegistry(String name) throws Exception;
 
    /**
-    * Remove the queue from the BindingRegistry.
-    * Calling this method does <em>not</em> destroy the destination.
+    * Remove the queue from the BindingRegistry. Calling this method does <em>not</em> destroy the destination.
     *
     * @param name the name of the destination to remove from the BindingRegistry
     * @return true if removed
@@ -159,8 +123,7 @@ public interface JMSServerManager extends ActiveMQComponent {
    boolean removeQueueFromBindingRegistry(String name, String binding) throws Exception;
 
    /**
-    * Remove the queue from the BindingRegistry.
-    * Calling this method does <em>not</em> destroy the destination.
+    * Remove the queue from the BindingRegistry. Calling this method does <em>not</em> destroy the destination.
     *
     * @param name the name of the destination to remove from the BindingRegistry
     * @return true if removed
@@ -182,8 +145,7 @@ public interface JMSServerManager extends ActiveMQComponent {
    boolean destroyQueue(String name) throws Exception;
 
    /**
-    * destroys a queue and removes it from the BindingRegistry.
-    * disconnects any consumers connected to the queue.
+    * destroys a queue and removes it from the BindingRegistry. disconnects any consumers connected to the queue.
     *
     * @param name the name of the queue to destroy
     * @return true if destroyed
@@ -217,8 +179,6 @@ public interface JMSServerManager extends ActiveMQComponent {
 
    /**
     * Call this method to have a CF rebound to the Binding Registry and stored on the Journal
-    *
-    * @throws Exception
     */
    ActiveMQConnectionFactory recreateCF(String name, ConnectionFactoryConfiguration cf) throws Exception;
 
@@ -356,8 +316,6 @@ public interface JMSServerManager extends ActiveMQComponent {
 
    /**
     * Set this property if you want JMS resources bound to a registry
-    *
-    * @param registry
     */
    void setRegistry(BindingRegistry registry);
 }

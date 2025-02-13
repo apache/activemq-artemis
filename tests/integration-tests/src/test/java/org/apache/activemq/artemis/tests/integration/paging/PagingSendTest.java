@@ -224,9 +224,12 @@ public class PagingSendTest extends ActiveMQTestBase {
       session.createQueue(QueueConfiguration.of(queueAddr));
 
       // Set up paging on the queue address
-      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(10 * 1024)
-         /** This actually causes the address to start paging messages after 10 x messages with 1024 payload is sent.
-          Presumably due to additional meta-data, message headers etc... **/.setMaxSizeBytes(16 * 1024);
+      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(10 * 1024);
+      /*
+       * This actually causes the address to start paging messages after 10 x messages with 1024 payload is sent.
+       * Presumably due to additional meta-data, message headers etc...
+       */
+      addressSettings.setMaxSizeBytes(16 * 1024);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
 
       sendMessageBatch(batchSize, session, queueAddr);
@@ -270,9 +273,12 @@ public class PagingSendTest extends ActiveMQTestBase {
       session.createQueue(QueueConfiguration.of(queueAddr));
 
       // Set up paging on the queue address
-      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(10 * 1024)
-         /** This actually causes the address to start paging messages after 10 x messages with 1024 payload is sent.
-          Presumably due to additional meta-data, message headers etc... **/.setMaxSizeBytes(16 * 1024);
+      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(10 * 1024);
+      /*
+       * This actually causes the address to start paging messages after 10 x messages with 1024 payload is sent.
+       * Presumably due to additional meta-data, message headers etc...
+       */
+      addressSettings.setMaxSizeBytes(16 * 1024);
       server.getAddressSettingsRepository().addMatch("#", addressSettings);
 
       int numberOfMessages = 0;

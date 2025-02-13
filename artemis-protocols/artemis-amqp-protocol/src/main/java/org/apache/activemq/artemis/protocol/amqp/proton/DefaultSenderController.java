@@ -74,13 +74,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The default {@link SenderController} instance used by and sender context that is not
- * assigned a custom controller. This controller is extensible so that specialized sender
- * controllers can be created from it.
+ * The default {@link SenderController} instance used by and sender context that is not assigned a custom controller.
+ * This controller is extensible so that specialized sender controllers can be created from it.
  * <p>
- * The default controller works best with incoming AMQP clients and JMS over AMQP clients.
- * For intra-broker connections it is likely that a custom sender controller would be a more
- * flexible option that using the default controller.
+ * The default controller works best with incoming AMQP clients and JMS over AMQP clients. For intra-broker connections
+ * it is likely that a custom sender controller would be a more flexible option that using the default controller.
  */
 public class DefaultSenderController implements SenderController {
 

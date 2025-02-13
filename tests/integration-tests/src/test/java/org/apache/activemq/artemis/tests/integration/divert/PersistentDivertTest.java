@@ -186,9 +186,6 @@ public class PersistentDivertTest extends ActiveMQTestBase {
       assertNull(consumer4.receiveImmediate());
    }
 
-   /**
-    * @param message
-    */
    private void checkLargeMessage(final ClientMessage message) {
       for (int j = 0; j < minLargeMessageSize; j++) {
          assertEquals(ActiveMQTestBase.getSamplebyte(j), message.getBodyBuffer().readByte());

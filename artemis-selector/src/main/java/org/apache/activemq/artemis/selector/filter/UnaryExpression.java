@@ -23,8 +23,6 @@ import java.util.List;
 
 /**
  * An expression which performs an operation on two expression values
- *
- * @version $Revision: 1.3 $
  */
 public abstract class UnaryExpression implements Expression {
 
@@ -228,17 +226,11 @@ public abstract class UnaryExpression implements Expression {
       right = expression;
    }
 
-   /**
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return "(" + getExpressionSymbol() + " " + right.toString() + ")";
    }
 
-   /**
-    * @see java.lang.Object#hashCode()
-    */
    @Override
    public int hashCode() {
       int result = right.hashCode();
@@ -246,9 +238,6 @@ public abstract class UnaryExpression implements Expression {
       return result;
    }
 
-   /**
-    * @see java.lang.Object#equals(java.lang.Object)
-    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -273,10 +262,7 @@ public abstract class UnaryExpression implements Expression {
    }
 
    /**
-    * Returns the symbol that represents this binary expression. For example,
-    * addition is represented by "+"
-    *
-    * @return
+    * {@return the symbol that represents this binary expression, e.g. addition is represented by "+"}
     */
    public abstract String getExpressionSymbol();
 

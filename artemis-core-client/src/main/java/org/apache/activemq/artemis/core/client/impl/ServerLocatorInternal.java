@@ -37,7 +37,7 @@ public interface ServerLocatorInternal extends ServerLocator {
 
    /**
     * Used to better identify Cluster Connection Locators on logs. To facilitate eventual debugging.
-    *
+    * <p>
     * This method used to be on tests interface, but I'm now making it part of the public interface since
     */
    ServerLocatorInternal setIdentity(String identity);
@@ -55,8 +55,6 @@ public interface ServerLocatorInternal extends ServerLocator {
 
    /**
     * Like {@link #connect()} but it does not log warnings if it fails to connect.
-    *
-    * @throws ActiveMQException
     */
    ClientSessionFactoryInternal connectNoWarnings() throws ActiveMQException;
 
@@ -68,12 +66,14 @@ public interface ServerLocatorInternal extends ServerLocator {
                      boolean last);
 
    /**
+    * Notify this about a node down event.
+    *
     * @param uniqueEventID 0 means get the previous ID +1
-    * @param nodeID
     */
    default void notifyNodeDown(long uniqueEventID, String nodeID) {
       notifyNodeDown(uniqueEventID, nodeID, false);
    }
+
    void notifyNodeDown(long uniqueEventID, String nodeID, boolean disconnect);
 
    ServerLocatorInternal setClusterConnection(boolean clusterConnection);

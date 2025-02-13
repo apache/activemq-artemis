@@ -30,9 +30,9 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Session;
 
-/*
-* This filter intercepts the login and audits its results
-* */
+/**
+ * This filter intercepts the login and audits its results
+ */
 public class AuthenticationFilter implements Filter {
    @Override
    public void init(FilterConfig filterConfig) {

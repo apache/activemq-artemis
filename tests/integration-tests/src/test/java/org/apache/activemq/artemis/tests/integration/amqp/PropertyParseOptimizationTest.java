@@ -42,8 +42,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 /**
- * This test will validate if application properties are only parsed when there's a filter.
- * You have to disable duplciate-detction to have this optimization working.
+ * This test will validate if application properties are only parsed when there's a filter. You have to disable
+ * duplciate-detction to have this optimization working.
  */
 public class PropertyParseOptimizationTest extends AmqpClientTestSupport {
 

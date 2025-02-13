@@ -21,9 +21,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLStreamHandlerFactory;
 
-/** The sole purpose of this class is to be a tag for eventually looking into MemoryDumps.
- *  When tests are failing, I need to identify the classloaders created by the testsuite.
- *  And this class would make it simpler for that purpose. */
+/**
+ * The sole purpose of this class is to be a tag for eventually looking into MemoryDumps. When tests are failing, I need
+ * to identify the classloaders created by the testsuite. And this class would make it simpler for that purpose.
+ */
 public class TestClassLoader extends URLClassLoader {
 
    public TestClassLoader(URL[] urls, ClassLoader parent) {

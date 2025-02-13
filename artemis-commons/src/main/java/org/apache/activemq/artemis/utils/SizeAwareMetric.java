@@ -56,7 +56,9 @@ public class SizeAwareMetric {
 
    private Runnable underCallback;
 
-   /** To be used in a case where we just measure elements */
+   /**
+    * To be used in a case where we just measure elements
+    */
    public SizeAwareMetric() {
    }
 

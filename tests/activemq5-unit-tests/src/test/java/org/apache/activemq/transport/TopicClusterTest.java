@@ -41,9 +41,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class TopicClusterTest extends OpenwireArtemisBaseTest implements MessageListener {
 
    protected static final int MESSAGE_COUNT = 50;

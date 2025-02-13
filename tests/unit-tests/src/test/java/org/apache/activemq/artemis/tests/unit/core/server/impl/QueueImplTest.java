@@ -1221,8 +1221,6 @@ public class QueueImplTest extends ActiveMQTestBase {
 
    /**
     * Test the paused and resumed states with async deliveries.
-    *
-    * @throws Exception
     */
    @Test
    public void testPauseAndResumeWithAsync() throws Exception {
@@ -1276,8 +1274,6 @@ public class QueueImplTest extends ActiveMQTestBase {
 
    /**
     * Test the paused and resumed states with direct deliveries.
-    *
-    * @throws Exception
     */
 
    @Test

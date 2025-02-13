@@ -102,10 +102,6 @@ public class RolesConfigurationStorageTest extends StorageManagerTestBase {
       checkSettings();
    }
 
-   /**
-    * @param journal
-    * @throws Exception
-    */
    private void checkSettings() throws Exception {
       List<PersistedSecuritySetting> listSetting = journal.recoverSecuritySettings();
 

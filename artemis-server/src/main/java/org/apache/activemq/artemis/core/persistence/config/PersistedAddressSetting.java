@@ -21,9 +21,10 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
 /**
- * This class is only kept for compatibility reasons. The encode method should be dead code at this point and
- * only the decode should be used when versioning is at play.
- * Deprecated Use PersistedAddressSettingJSON instead
+ * This class is only kept for compatibility reasons. The encode method should be dead code at this point and only the
+ * decode should be used when versioning is at play.
+ *
+ * @deprecated Use PersistedAddressSettingJSON instead
  */
 @Deprecated
 public class PersistedAddressSetting extends AbstractPersistedAddressSetting implements EncodingSupport {
@@ -33,9 +34,6 @@ public class PersistedAddressSetting extends AbstractPersistedAddressSetting imp
       super();
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return "PersistedAddressSetting [storeId=" + storeId +

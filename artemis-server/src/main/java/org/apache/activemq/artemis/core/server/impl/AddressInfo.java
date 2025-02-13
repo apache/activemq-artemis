@@ -109,22 +109,12 @@ public class AddressInfo {
       this(name, createEmptySet());
    }
 
-   /**
-    * Creates an AddressInfo object with a Set of routing types
-    * @param name
-    * @param routingTypes
-    */
    public AddressInfo(SimpleString name, EnumSet<RoutingType> routingTypes) {
       this.name = CompositeAddress.extractAddressName(name);
       this.createdTimestamp = System.currentTimeMillis();
       setRoutingTypes(routingTypes);
    }
 
-   /**
-    * Creates an AddressInfo object with a single RoutingType associated with it.
-    * @param name
-    * @param routingType
-    */
    public AddressInfo(SimpleString name, RoutingType routingType) {
       this.name = CompositeAddress.extractAddressName(name);
       this.createdTimestamp = System.currentTimeMillis();

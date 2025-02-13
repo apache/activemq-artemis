@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.core.server.cluster.quorum;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 
 /**
- * A quorum can be registered with the {@link QuorumManager} to receive notifications about the state of a cluster.
- * It can then use the {@link QuorumManager} for the quorum within a cluster to vote on a specific outcome.
+ * A quorum can be registered with the {@link QuorumManager} to receive notifications about the state of a cluster. It
+ * can then use the {@link QuorumManager} for the quorum within a cluster to vote on a specific outcome.
  */
 public interface Quorum {
 

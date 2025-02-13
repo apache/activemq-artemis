@@ -95,8 +95,7 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase {
    final Semaphore pendingCredit = new Semaphore(5000);
 
    /**
-    * to be called after a message is consumed
-    * so the flow control of the test kicks in.
+    * to be called after a message is consumed so the flow control of the test kicks in.
     */
    protected final void afterConsume(Message message) {
       if (message != null) {
@@ -184,7 +183,7 @@ public abstract class AbstractSendReceivePerfTest extends JMSTestBase {
       }
    }
 
-   /* This will by default send non persistent messages */
+   // This will by default send non persistent messages
    protected void sendMessages(Connection c, String qName) throws JMSException {
       Session s = null;
       s = c.createSession(false, Session.AUTO_ACKNOWLEDGE);

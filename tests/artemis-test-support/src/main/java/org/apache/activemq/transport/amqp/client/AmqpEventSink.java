@@ -21,8 +21,7 @@ import java.io.IOException;
 import org.apache.qpid.proton.engine.Delivery;
 
 /**
- * Interface used by classes that want to process AMQP events sent from
- * the transport layer.
+ * Interface used by classes that want to process AMQP events sent from the transport layer.
  */
 public interface AmqpEventSink {
 

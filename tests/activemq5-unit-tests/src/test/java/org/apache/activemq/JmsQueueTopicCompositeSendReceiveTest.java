@@ -23,9 +23,6 @@ import javax.jms.Topic;
 
 import org.apache.activemq.test.JmsTopicSendReceiveTest;
 
-/**
- *
- */
 public class JmsQueueTopicCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
 
    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(JmsQueueTopicCompositeSendReceiveTest.class);
@@ -34,8 +31,6 @@ public class JmsQueueTopicCompositeSendReceiveTest extends JmsTopicSendReceiveTe
 
    /**
     * Sets a test to have a queue destination and non-persistent delivery mode.
-    *
-    * @see junit.framework.TestCase#setUp()
     */
    @Override
    protected void setUp() throws Exception {
@@ -53,33 +48,16 @@ public class JmsQueueTopicCompositeSendReceiveTest extends JmsTopicSendReceiveTe
 
    }
 
-   /**
-    * Returns the consumer subject.
-    *
-    * @return String - consumer subject
-    * @see org.apache.activemq.test.TestSupport#getConsumerSubject()
-    */
    @Override
    protected String getConsumerSubject() {
       return "FOO.BAR.HUMBUG";
    }
 
-   /**
-    * Returns the producer subject.
-    *
-    * @return String - producer subject
-    * @see org.apache.activemq.test.TestSupport#getProducerSubject()
-    */
    @Override
    protected String getProducerSubject() {
       return "queue://FOO.BAR.HUMBUG,topic://FOO.BAR.HUMBUG2";
    }
 
-   /**
-    * Test if all the messages sent are being received.
-    *
-    * @throws Exception
-    */
    @Override
    public void testSendReceive() throws Exception {
       super.testSendReceive();

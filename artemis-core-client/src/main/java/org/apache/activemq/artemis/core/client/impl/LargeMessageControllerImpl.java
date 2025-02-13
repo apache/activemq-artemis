@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -43,11 +42,10 @@ import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.UTF8Util;
 
 /**
- * This class aggregates several {@link org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage}
- * as it was being handled
- * by a single buffer. This buffer can be consumed as messages are arriving, and it will hold the
- * packets until they are read using the ChannelBuffer interface, or the setOutputStream or
- * saveStream are called.
+ * This class aggregates several
+ * {@link org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionReceiveContinuationMessage} as it was
+ * being handled by a single buffer. This buffer can be consumed as messages are arriving, and it will hold the packets
+ * until they are read using the ChannelBuffer interface, or the setOutputStream or saveStream are called.
  */
 public class LargeMessageControllerImpl implements LargeMessageController {
 
@@ -272,7 +270,6 @@ public class LargeMessageControllerImpl implements LargeMessageController {
 
    /**
     * @param timeWait Milliseconds to Wait. 0 means forever
-    * @throws ActiveMQException
     */
    @Override
    public synchronized boolean waitCompletion(final long timeWait) throws ActiveMQException {
@@ -325,9 +322,6 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       return largeData;
    }
 
-   /**
-    * @throws ActiveMQException
-    */
    private void checkException() throws ActiveMQException {
       // it's not needed to copy it as we never set it back to null
       // once the exception is set, the controller is pretty much useless
@@ -899,14 +893,12 @@ public class LargeMessageControllerImpl implements LargeMessageController {
    }
 
    /**
-    * Transfers the specified source buffer's data to this buffer starting at
-    * the current {@code writerIndex} until the source buffer's position
-    * reaches its limit, and increases the {@code writerIndex} by the
-    * number of the transferred bytes.
+    * Transfers the specified source buffer's data to this buffer starting at the current {@code writerIndex} until the
+    * source buffer's position reaches its limit, and increases the {@code writerIndex} by the number of the transferred
+    * bytes.
     *
     * @param src The source buffer
-    * @throws IndexOutOfBoundsException if {@code src.remaining()} is greater than
-    *                                   {@code this.writableBytes}
+    * @throws IndexOutOfBoundsException if {@code src.remaining()} is greater than {@code this.writableBytes}
     */
    @Override
    public void writeBytes(ByteBuf src, int srcIndex, int length) {
@@ -1103,11 +1095,6 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       throw new UnsupportedOperationException();
    }
 
-   /**
-    * @param output
-    * @param packet
-    * @throws ActiveMQException
-    */
    private void sendPacketToOutput(final OutputStream output, final LargeData packet) throws ActiveMQException {
       try {
          output.write(packet.getChunk());
@@ -1244,9 +1231,6 @@ public class LargeMessageControllerImpl implements LargeMessageController {
          close();
       }
 
-      /**
-       * @throws FileNotFoundException
-       */
       private FileChannel checkOpen() throws IOException {
          FileChannel channel = cachedChannel;
          if (cachedFile != null || !channel.isOpen()) {

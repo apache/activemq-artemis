@@ -58,13 +58,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Federated Address, replicate messages from the remote brokers address to itself.
- *
+ * <p>
  * Only when a queue exists on the local broker do we replicate, this is to avoid un-needed replication
- *
- * All messages are replicated, this is on purpose so should a number queues exist with different filters
- * we dont have have a consumer per queue filter.
- *
- *
+ * <p>
+ * All messages are replicated, this is on purpose so should a number queues exist with different filters we dont have
+ * have a consumer per queue filter.
  */
 public class FederatedAddress extends FederatedAbstract implements ActiveMQServerBindingPlugin, ActiveMQServerAddressPlugin, Serializable {
 

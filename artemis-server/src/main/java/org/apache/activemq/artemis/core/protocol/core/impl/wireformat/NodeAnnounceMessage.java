@@ -95,9 +95,6 @@ public class NodeAnnounceMessage extends PacketImpl {
       return scaleDownGroupName;
    }
 
-   /**
-    * @return the currentEventID
-    */
    public long getCurrentEventID() {
       return currentEventID;
    }

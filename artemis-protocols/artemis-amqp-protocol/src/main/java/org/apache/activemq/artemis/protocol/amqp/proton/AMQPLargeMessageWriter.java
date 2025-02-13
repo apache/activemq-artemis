@@ -44,9 +44,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 
 /**
- * A writer of {@link AMQPLargeMessage} content that handles the read from
- * large message file and write into the AMQP sender with some respect for
- * the AMQP frame size in use by this connection.
+ * A writer of {@link AMQPLargeMessage} content that handles the read from large message file and write into the AMQP
+ * sender with some respect for the AMQP frame size in use by this connection.
  */
 public class AMQPLargeMessageWriter implements MessageWriter {
 
@@ -272,7 +271,7 @@ public class AMQPLargeMessageWriter implements MessageWriter {
 
    /**
     * This must be used when either the delivery annotations or re-encoded buffer is bigger than the frame size.
-    * <br>
+    * <p>
     * This will create one expandable buffer, send and flush it.
     */
    private void sendAndFlushInitialPacket(DeliveryAnnotations deliveryAnnotationsToEncode, LargeBodyReader context) throws Exception {

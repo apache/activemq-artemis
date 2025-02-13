@@ -68,8 +68,8 @@ import static org.apache.activemq.transport.amqp.AmqpSupport.TEMP_QUEUE_CAPABILI
 import static org.apache.activemq.transport.amqp.AmqpSupport.TEMP_TOPIC_CAPABILITY;
 
 /**
- * Test support class for tests that will be using the AMQP Proton wrapper client. This is to
- * make it easier to migrate tests from ActiveMQ5
+ * Test support class for tests that will be using the AMQP Proton wrapper client. This is to make it easier to migrate
+ * tests from ActiveMQ5
  */
 public class AmqpClientTestSupport extends AmqpTestSupport {
 

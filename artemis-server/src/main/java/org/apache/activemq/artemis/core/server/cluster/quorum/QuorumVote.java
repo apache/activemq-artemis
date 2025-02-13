@@ -34,25 +34,26 @@ public abstract class QuorumVote<V extends Vote, T> {
    }
 
    /**
-    * called by the {@link org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager} when one of the nodes in the quorum is
-    * successfully connected to. The QuorumVote can then decide whether or not a decision can be made with just that information.
+    * called by the {@link org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager} when one of the nodes
+    * in the quorum is successfully connected to. The QuorumVote can then decide whether a decision can be made with
+    * just that information.
     *
     * @return the vote to use
     */
    public abstract Vote connected();
 
    /**
-    * called by the {@link org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager} fails to connect to a node in the quorum.
-    * The QuorumVote can then decide whether or not a decision can be made with just that information however the node
-    * cannot cannot be asked.
+    * called by the {@link org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager} fails to connect to a
+    * node in the quorum. The QuorumVote can then decide whether a decision can be made with just that information
+    * however the node cannot cannot be asked.
     *
     * @return the vote to use
     */
    public abstract Vote notConnected();
 
    /**
-    * called by the {@link org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager} when a vote can be made, either from the
-    * cluster or decided by itself.
+    * called by the {@link org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager} when a vote can be
+    * made, either from the cluster or decided by itself.
     *
     * @param vote the vote to make.
     */
@@ -66,14 +67,16 @@ public abstract class QuorumVote<V extends Vote, T> {
    public abstract T getDecision();
 
    /**
-    * called by the {@link org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager} when all the votes have been cast and received.
+    * called by the {@link org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager} when all the votes have
+    * been cast and received.
     *
     * @param voteTopology the topology of where the votes were sent.
     */
    public abstract void allVotesCast(Topology voteTopology);
 
    /**
-    * the name of this quorum vote, used for identifying the correct {@link org.apache.activemq.artemis.core.server.cluster.quorum.QuorumVoteHandler}
+    * the name of this quorum vote, used for identifying the correct
+    * {@link org.apache.activemq.artemis.core.server.cluster.quorum.QuorumVoteHandler}
     *
     * @return the name of the wuorum vote
     */

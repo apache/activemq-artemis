@@ -21,8 +21,9 @@ import java.util.Objects;
 import org.apache.qpid.proton.codec.ReadableBuffer;
 
 /**
- * Abstraction of {@code byte[] }<a href="https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm">Knuth-Morris-Pratt</a>'s needle to be used
- * to perform pattern matching over {@link ReadableBuffer}.
+ * Abstraction of {@code byte[] }<a
+ * href="https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm">Knuth-Morris-Pratt</a>'s needle to
+ * be used to perform pattern matching over {@link ReadableBuffer}.
  */
 final class KMPNeedle {
 
@@ -58,9 +59,9 @@ final class KMPNeedle {
 
    /**
     * https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm search algorithm:
-    *
-    * This version differ from the original algorithm, because allows to fail fast (and faster) if
-    * the remaining haystack to be processed is < of the remaining needle to be matched.
+    * <p>
+    * This version differ from the original algorithm, because allows to fail fast (and faster) if the remaining
+    * haystack to be processed is < of the remaining needle to be matched.
     */
    public int searchInto(ReadableBuffer haystack, int start, int end) {
       if (end < 0 || start < 0 || end < start) {

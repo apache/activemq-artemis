@@ -42,9 +42,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @version
- */
 public class JmsTempDestinationTest {
    private Connection connection;
    private ActiveMQConnectionFactory factory;
@@ -58,9 +55,6 @@ public class JmsTempDestinationTest {
       connections.add(connection);
    }
 
-   /**
-    * @see junit.framework.TestCase#tearDown()
-    */
    @After
    public void tearDown() throws Exception {
       for (Iterator<Connection> iter = connections.iterator(); iter.hasNext(); ) {
@@ -75,8 +69,6 @@ public class JmsTempDestinationTest {
 
    /**
     * Make sure Temp destination can only be consumed by local connection
-    *
-    * @throws JMSException
     */
    @Test
    public void testTempDestOnlyConsumedByLocalConn() throws JMSException {
@@ -115,10 +107,7 @@ public class JmsTempDestinationTest {
    }
 
    /**
-    * Make sure that a temp queue does not drop message if there is an active
-    * consumers.
-    *
-    * @throws JMSException
+    * Make sure that a temp queue does not drop message if there is an active consumers.
     */
    @Test
    public void testTempQueueHoldsMessagesWithConsumers() throws JMSException {
@@ -139,10 +128,7 @@ public class JmsTempDestinationTest {
    }
 
    /**
-    * Make sure that a temp queue does not drop message if there are no active
-    * consumers.
-    *
-    * @throws JMSException
+    * Make sure that a temp queue does not drop message if there are no active consumers.
     */
    @Test
    public void testTempQueueHoldsMessagesWithoutConsumers() throws JMSException {
@@ -165,8 +151,6 @@ public class JmsTempDestinationTest {
 
    /**
     * Test temp queue works under load
-    *
-    * @throws JMSException
     */
    @Test
    public void testTmpQueueWorksUnderLoad() throws JMSException {
@@ -199,12 +183,7 @@ public class JmsTempDestinationTest {
    }
 
    /**
-    * Make sure you cannot publish to a temp destination that does not exist
-    * anymore.
-    *
-    * @throws JMSException
-    * @throws InterruptedException
-    * @throws URISyntaxException
+    * Make sure you cannot publish to a temp destination that does not exist anymore.
     */
    @Test
    public void testPublishFailsForClosedConnection() throws Exception {
@@ -245,11 +224,7 @@ public class JmsTempDestinationTest {
    }
 
    /**
-    * Make sure you cannot publish to a temp destination that does not exist
-    * anymore.
-    *
-    * @throws JMSException
-    * @throws InterruptedException
+    * Make sure you cannot publish to a temp destination that does not exist anymore.
     */
    @Test
    public void testPublishFailsForDestroyedTempDestination() throws Exception {
@@ -293,8 +268,6 @@ public class JmsTempDestinationTest {
 
    /**
     * Test you can't delete a Destination with Active Subscribers
-    *
-    * @throws JMSException
     */
    @Test
    public void testDeleteDestinationWithSubscribersFails() throws JMSException {

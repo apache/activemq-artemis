@@ -264,9 +264,6 @@ public class SelectorTest {
       assertSelector(message, "modelClassId LIKE 'com.whatever.something.%' AND modelInstanceId = '170' AND (modelRequestError IS NULL OR modelCorrelatedClientId = 'whatever')", true);
    }
 
-   /**
-    * Test cases from Mats Henricson
-    */
    @Test
    public void testMatsHenricsonUseCases() throws Exception {
       MockMessage message = createMessage();

@@ -28,9 +28,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
  */
 public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boolean> {
 
-
-   /** NOTE: The following String is used to identify the targetNode implementation at other servers.
-    *        Renaming such string would cause incompatibility changes. */
+   /**
+    * NOTE: The following String is used to identify the targetNode implementation at other servers. Renaming such
+    * string would cause incompatibility changes.
+    */
    public static final SimpleString PRIMARY_FAILOVER_VOTE = SimpleString.of("PrimaryFailoverQuorumVote");
    public static final SimpleString OLD_PRIMARY_FAILOVER_VOTE = SimpleString.of("LiveFailoverQuorumVote");
 
@@ -78,8 +79,6 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
    }
    /**
     * if we can connect to a node
-    *
-    * @return
     */
    @Override
    public Vote connected() {
@@ -87,8 +86,6 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
    }
    /**
     * if we cant connect to the node
-    *
-    * @return
     */
    @Override
    public Vote notConnected() {

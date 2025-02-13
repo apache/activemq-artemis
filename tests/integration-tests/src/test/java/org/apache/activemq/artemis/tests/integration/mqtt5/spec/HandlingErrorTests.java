@@ -29,7 +29,7 @@ import org.eclipse.paho.mqttv5.common.MqttException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-4.13.1-1] When a Server detects a Malformed Packet or Protocol Error, and a Reason Code is given in the specification, it MUST close the Network Connection.
@@ -37,10 +37,10 @@ import org.junit.jupiter.api.Timeout;
 
 public class HandlingErrorTests extends MQTT5TestSupport {
 
-   /*
+   /**
     * [MQTT-4.13.2-1] The CONNACK and DISCONNECT packets allow a Reason Code of 0x80 or greater to indicate that the
     * Network Connection will be closed. If a Reason Code of 0x80 or greater is specified, then the Network Connection
-    * MUST be closed whether or not the CONNACK or DISCONNECT is sent.
+    * MUST be closed whether the CONNACK or DISCONNECT is sent.
     *
     * This is one possible error condition where a Reason Code > 0x80 is specified and the network connection is closed.
     */

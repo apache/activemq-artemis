@@ -27,20 +27,12 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-/**
- *
- */
 public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a message is sent
     *
     * @param session the session that sends the message
-    * @param tx
-    * @param message
-    * @param direct
-    * @param noAutoCreateQueue
-    * @throws ActiveMQException
     */
    default void beforeSend(ServerSession session, Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue) throws ActiveMQException {
       //by default call the old method for backwards compatibility
@@ -51,12 +43,6 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
     * After a message is sent
     *
     * @param session the session that sends the message
-    * @param tx
-    * @param message
-    * @param direct
-    * @param noAutoCreateQueue
-    * @param result
-    * @throws ActiveMQException
     */
    default void afterSend(ServerSession session, Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue,
                           RoutingStatus result) throws ActiveMQException {
@@ -67,13 +53,7 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
    /**
     * When there was an exception sending the message
     *
-    * @param session
-    * @param tx
-    * @param message
-    * @param direct
-    * @param noAutoCreateQueue
     * @param e the exception that occurred when sending the message
-    * @throws ActiveMQException
     */
    default void onSendException(ServerSession session, Transaction tx, Message message, boolean direct, boolean noAutoCreateQueue,
                                 Exception e) throws ActiveMQException {
@@ -82,12 +62,6 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a message is sent
-    *
-    * @param tx
-    * @param message
-    * @param direct
-    * @param noAutoCreateQueue
-    * @throws ActiveMQException
     *
     * @deprecated use {@link #beforeSend(ServerSession, Transaction, Message, boolean, boolean)}
     */
@@ -99,13 +73,6 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
    /**
     * After a message is sent
     *
-    * @param tx
-    * @param message
-    * @param direct
-    * @param noAutoCreateQueue
-    * @param result
-    * @throws ActiveMQException
-    *
     * @deprecated use {@link #afterSend(ServerSession, Transaction, Message, boolean, boolean, RoutingStatus)}
     */
    @Deprecated
@@ -116,12 +83,6 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a message is routed
-    *
-    * @param message
-    * @param context
-    * @param direct
-    * @param rejectDuplicates
-    * @throws ActiveMQException
     */
    default void beforeMessageRoute(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates) throws ActiveMQException {
 
@@ -129,13 +90,6 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * After a message is routed
-    *
-    * @param message
-    * @param context
-    * @param direct
-    * @param rejectDuplicates
-    * @param result
-    * @throws ActiveMQException
     */
    default void afterMessageRoute(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates,
                                   RoutingStatus result) throws ActiveMQException {
@@ -145,12 +99,7 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
    /**
     * When there was an error routing the message
     *
-    * @param message
-    * @param context
-    * @param direct
-    * @param rejectDuplicates
     * @param e the exception that occurred during message routing
-    * @throws ActiveMQException
     */
    default void onMessageRouteException(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates,
                                         Exception e) throws ActiveMQException {
@@ -162,7 +111,6 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
     *
     * @param consumer the consumer the message will be delivered to
     * @param reference message reference
-    * @throws ActiveMQException
     */
    default boolean canAccept(ServerConsumer consumer, MessageReference reference) throws ActiveMQException {
       return true;
@@ -173,7 +121,6 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
     *
     * @param consumer the consumer the message will be delivered to
     * @param reference message reference
-    * @throws ActiveMQException
     */
    default void beforeDeliver(ServerConsumer consumer, MessageReference reference) throws ActiveMQException {
       //by default call the old method for backwards compatibility
@@ -185,7 +132,6 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
     *
     * @param consumer the consumer the message was delivered to
     * @param reference message reference
-    * @throws ActiveMQException
     */
    default void afterDeliver(ServerConsumer consumer, MessageReference reference) throws ActiveMQException {
       //by default call the old method for backwards compatibility
@@ -194,9 +140,6 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a message is delivered to a client consumer
-    *
-    * @param reference
-    * @throws ActiveMQException
     *
     * @deprecated use throws ActiveMQException {@link #beforeDeliver(ServerConsumer, MessageReference)}
     */
@@ -208,9 +151,6 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
    /**
     * After a message is delivered to a client consumer
     *
-    * @param reference
-    * @throws ActiveMQException
-    *
     * @deprecated use {@link #afterDeliver(ServerConsumer, MessageReference)}
     */
    @Deprecated
@@ -221,10 +161,8 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
    /**
     * A message has been expired
     *
-    * @param message The expired message
+    * @param message              The expired message
     * @param messageExpiryAddress The message expiry address if exists
-    * @throws ActiveMQException
-    *
     * @deprecated use {@link #messageExpired(MessageReference, SimpleString, ServerConsumer)}
     */
    @Deprecated
@@ -235,11 +173,9 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
    /**
     * A message has been expired
     *
-    * @param message The expired message
+    * @param message              The expired message
     * @param messageExpiryAddress The message expiry address if exists
-    * @param consumer the Consumer that acknowledged the message - this field is optional
-    * and can be null
-    * @throws ActiveMQException
+    * @param consumer             the Consumer that acknowledged the message - this field is optional and can be null
     */
    default void messageExpired(MessageReference message, SimpleString messageExpiryAddress, ServerConsumer consumer) throws ActiveMQException {
       messageExpired(message, messageExpiryAddress);
@@ -248,10 +184,8 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
    /**
     * A message has been acknowledged
     *
-    * @param ref The acked message
+    * @param ref    The acked message
     * @param reason The ack reason
-    * @throws ActiveMQException
-    *
     * @deprecated use {@link #messageAcknowledged(MessageReference, AckReason, ServerConsumer)}
     */
    @Deprecated
@@ -262,12 +196,9 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
    /**
     * A message has been acknowledged
     *
-    * @param ref The acked message
-    * @param reason The ack reason
-    * @param consumer the Consumer that acknowledged the message - this field is optional
-    * and can be null
-    * @throws ActiveMQException
-    *
+    * @param ref      The acked message
+    * @param reason   The ack reason
+    * @param consumer the Consumer that acknowledged the message - this field is optional and can be null
     */
    @Deprecated
    default void messageAcknowledged(MessageReference ref, AckReason reason, ServerConsumer consumer) throws ActiveMQException {
@@ -278,13 +209,10 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
    /**
     * A message has been acknowledged
     *
-    * @param tx The transaction associated with the ack
-    * @param ref The acked message
-    * @param reason The ack reason
-    * @param consumer the Consumer that acknowledged the message - this field is optional
-    * and can be null
-    * @throws ActiveMQException
-    *
+    * @param tx       The transaction associated with the ack
+    * @param ref      The acked message
+    * @param reason   The ack reason
+    * @param consumer the Consumer that acknowledged the message - this field is optional and can be null
     */
    default void messageAcknowledged(Transaction tx, MessageReference ref, AckReason reason, ServerConsumer consumer) throws ActiveMQException {
       //by default call the old method for backwards compatibility
@@ -294,15 +222,14 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
    /**
     * A message has been moved
     *
-    * @param tx The transaction associated with the move
-    * @param ref The ref of the message moved
-    * @param reason The move reason
+    * @param tx          The transaction associated with the move
+    * @param ref         The ref of the message moved
+    * @param reason      The move reason
     * @param destAddress the destination address for the move operation
     * @param destQueueID the destination queueID for the move operation - this field is optional and can be null
-    * @param consumer the consumer that moved the message - this field is optional and can be null
-    * @param newMessage the new message created by the move operation
-    * @param result routing status of the move operation
-    * @throws ActiveMQException
+    * @param consumer    the consumer that moved the message - this field is optional and can be null
+    * @param newMessage  the new message created by the move operation
+    * @param result      routing status of the move operation
     */
    default void messageMoved(final Transaction tx,
                              final MessageReference ref,

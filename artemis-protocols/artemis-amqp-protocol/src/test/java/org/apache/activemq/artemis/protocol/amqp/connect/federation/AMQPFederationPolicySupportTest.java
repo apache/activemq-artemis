@@ -77,8 +77,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 
 /**
- * Tests for basic error checking and expected outcomes of the federation
- * policy support class.
+ * Tests for basic error checking and expected outcomes of the federation policy support class.
  */
 public class AMQPFederationPolicySupportTest {
 

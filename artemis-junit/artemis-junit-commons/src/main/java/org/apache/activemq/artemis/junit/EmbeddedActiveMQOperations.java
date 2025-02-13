@@ -27,16 +27,14 @@ import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 public interface EmbeddedActiveMQOperations {
 
    /**
-    * Start the embedded ActiveMQ Artemis server. The server will normally be started by JUnit using
-    * the before() method. This method allows the server to be started manually to support advanced
-    * testing scenarios.
+    * Start the embedded ActiveMQ Artemis server. The server will normally be started by JUnit using the before()
+    * method. This method allows the server to be started manually to support advanced testing scenarios.
     */
    void start();
 
    /**
-    * Stop the embedded ActiveMQ Artemis server The server will normally be stopped by JUnit using
-    * the after() method. This method allows the server to be stopped manually to support advanced
-    * testing scenarios.
+    * Stop the embedded ActiveMQ Artemis server The server will normally be stopped by JUnit using the after() method.
+    * This method allows the server to be stopped manually to support advanced testing scenarios.
     */
    void stop();
 
@@ -44,6 +42,7 @@ public interface EmbeddedActiveMQOperations {
 
    /**
     * Disables/Enables creating durable messages. By default, durable messages are created
+    *
     * @param useDurableMessage if true, durable messages will be created
     */
    void setUseDurableMessage(boolean useDurableMessage);
@@ -52,6 +51,7 @@ public interface EmbeddedActiveMQOperations {
 
    /**
     * Disables/Enables creating durable queues. By default, durable queues are created
+    *
     * @param useDurableQueue if true, durable messages will be created
     */
    void setUseDurableQueue(boolean useDurableQueue);
@@ -59,33 +59,36 @@ public interface EmbeddedActiveMQOperations {
    long getDefaultReceiveTimeout();
 
    /**
-    * Sets the default timeout in milliseconds used when receiving messages. Defaults to 50
-    * milliseconds
+    * Sets the default timeout in milliseconds used when receiving messages. Defaults to 50 milliseconds
+    *
     * @param defaultReceiveTimeout received timeout in milliseconds
     */
    void setDefaultReceiveTimeout(long defaultReceiveTimeout);
 
    /**
-    * Get the EmbeddedActiveMQ server. This may be required for advanced configuration of the
-    * EmbeddedActiveMQ server.
+    * Get the EmbeddedActiveMQ server. This may be required for advanced configuration of the EmbeddedActiveMQ server.
+    *
     * @return the embedded ActiveMQ broker
     */
    EmbeddedActiveMQ getServer();
 
    /**
     * Get the name of the EmbeddedActiveMQ server
+    *
     * @return name of the embedded server
     */
    String getServerName();
 
    /**
     * Get the VM URL for the embedded EmbeddedActiveMQ server
+    *
     * @return the VM URL for the embedded server
     */
    String getVmURL();
 
    /**
     * Get the number of messages in a specific queue.
+    *
     * @param queueName the name of the queue
     * @return the number of messages in the queue; -1 if queue is not found
     */
@@ -93,6 +96,7 @@ public interface EmbeddedActiveMQOperations {
 
    /**
     * Get the number of messages in a specific queue.
+    *
     * @param queueName the name of the queue
     * @return the number of messages in the queue; -1 if queue is not found
     */
@@ -121,8 +125,8 @@ public interface EmbeddedActiveMQOperations {
    /**
     * Create a ClientMessage.
     * <p>
-    * If useDurableMessage is false, a non-durable message is created. Otherwise, a durable message
-    * is created.
+    * If useDurableMessage is false, a non-durable message is created. Otherwise, a durable message is created.
+    *
     * @return a new ClientMessage
     */
    ClientMessage createMessage();
@@ -130,8 +134,8 @@ public interface EmbeddedActiveMQOperations {
    /**
     * Create a ClientMessage with the specified body.
     * <p>
-    * If useDurableMessage is false, a non-durable message is created. Otherwise, a durable message
-    * is created.
+    * If useDurableMessage is false, a non-durable message is created. Otherwise, a durable message is created.
+    *
     * @param body the body for the new message
     * @return a new ClientMessage with the specified body
     */
@@ -140,8 +144,8 @@ public interface EmbeddedActiveMQOperations {
    /**
     * Create a ClientMessage with the specified body.
     * <p>
-    * If useDurableMessage is false, a non-durable message is created. Otherwise, a durable message
-    * is created.
+    * If useDurableMessage is false, a non-durable message is created. Otherwise, a durable message is created.
+    *
     * @param body the body for the new message
     * @return a new ClientMessage with the specified body
     */
@@ -150,8 +154,8 @@ public interface EmbeddedActiveMQOperations {
    /**
     * Create a ClientMessage with the specified message properties.
     * <p>
-    * If useDurableMessage is false, a non-durable message is created. Otherwise, a durable message
-    * is created.
+    * If useDurableMessage is false, a non-durable message is created. Otherwise, a durable message is created.
+    *
     * @param properties message properties for the new message
     * @return a new ClientMessage with the specified message properties
     */
@@ -160,9 +164,9 @@ public interface EmbeddedActiveMQOperations {
    /**
     * Create a ClientMessage with the specified body and message properties.
     * <p>
-    * If useDurableMessage is false, a non-durable message is created. Otherwise, a durable message
-    * is created.
-    * @param body the body for the new message
+    * If useDurableMessage is false, a non-durable message is created. Otherwise, a durable message is created.
+    *
+    * @param body       the body for the new message
     * @param properties message properties for the new message
     * @return a new ClientMessage with the specified body and message properties
     */
@@ -171,9 +175,9 @@ public interface EmbeddedActiveMQOperations {
    /**
     * Create a ClientMessage with the specified body and message properties.
     * <p>
-    * If useDurableMessage is false, a non-durable message is created. Otherwise, a durable message
-    * is created.
-    * @param body the body for the new message
+    * If useDurableMessage is false, a non-durable message is created. Otherwise, a durable message is created.
+    *
+    * @param body       the body for the new message
     * @param properties message properties for the new message
     * @return a new ClientMessage with the specified body and message properties
     */
@@ -181,6 +185,7 @@ public interface EmbeddedActiveMQOperations {
 
    /**
     * Send a message to an address
+    *
     * @param address the target queueName for the message
     * @param message the message to send
     */
@@ -188,43 +193,46 @@ public interface EmbeddedActiveMQOperations {
 
    /**
     * Create a new message with the specified body, and send the message to an address
+    *
     * @param address the target queueName for the message
-    * @param body the body for the new message
+    * @param body    the body for the new message
     * @return the message that was sent
     */
    ClientMessage sendMessage(String address, byte[] body);
 
    /**
     * Create a new message with the specified body, and send the message to an address
+    *
     * @param address the target queueName for the message
-    * @param body the body for the new message
+    * @param body    the body for the new message
     * @return the message that was sent
     */
    ClientMessage sendMessage(String address, String body);
 
    /**
     * Create a new message with the specified properties, and send the message to an address
-    * @param address the target queueName for the message
+    *
+    * @param address    the target queueName for the message
     * @param properties message properties for the new message
     * @return the message that was sent
     */
    ClientMessage sendMessageWithProperties(String address, Map<String, Object> properties);
 
    /**
-    * Create a new message with the specified body and properties, and send the message to an
-    * address
-    * @param address the target queueName for the message
-    * @param body the body for the new message
+    * Create a new message with the specified body and properties, and send the message to an address
+    *
+    * @param address    the target queueName for the message
+    * @param body       the body for the new message
     * @param properties message properties for the new message
     * @return the message that was sent
     */
    ClientMessage sendMessageWithProperties(String address, byte[] body, Map<String, Object> properties);
 
    /**
-    * Create a new message with the specified body and properties, and send the message to an
-    * address
-    * @param address the target queueName for the message
-    * @param body the body for the new message
+    * Create a new message with the specified body and properties, and send the message to an address
+    *
+    * @param address    the target queueName for the message
+    * @param body       the body for the new message
     * @param properties message properties for the new message
     * @return the message that was sent
     */
@@ -232,6 +240,7 @@ public interface EmbeddedActiveMQOperations {
 
    /**
     * Send a message to an queueName
+    *
     * @param address the target queueName for the message
     * @param message the message to send
     */
@@ -239,43 +248,46 @@ public interface EmbeddedActiveMQOperations {
 
    /**
     * Create a new message with the specified body, and send the message to an queueName
+    *
     * @param address the target queueName for the message
-    * @param body the body for the new message
+    * @param body    the body for the new message
     * @return the message that was sent
     */
    ClientMessage sendMessage(SimpleString address, byte[] body);
 
    /**
     * Create a new message with the specified body, and send the message to an queueName
+    *
     * @param address the target queueName for the message
-    * @param body the body for the new message
+    * @param body    the body for the new message
     * @return the message that was sent
     */
    ClientMessage sendMessage(SimpleString address, String body);
 
    /**
     * Create a new message with the specified properties, and send the message to an queueName
-    * @param address the target queueName for the message
+    *
+    * @param address    the target queueName for the message
     * @param properties message properties for the new message
     * @return the message that was sent
     */
    ClientMessage sendMessageWithProperties(SimpleString address, Map<String, Object> properties);
 
    /**
-    * Create a new message with the specified body and properties, and send the message to an
-    * queueName
-    * @param address the target queueName for the message
-    * @param body the body for the new message
+    * Create a new message with the specified body and properties, and send the message to an queueName
+    *
+    * @param address    the target queueName for the message
+    * @param body       the body for the new message
     * @param properties message properties for the new message
     * @return the message that was sent
     */
    ClientMessage sendMessageWithProperties(SimpleString address, byte[] body, Map<String, Object> properties);
 
    /**
-    * Create a new message with the specified body and properties, and send the message to an
-    * queueName
-    * @param address the target queueName for the message
-    * @param body the body for the new message
+    * Create a new message with the specified body and properties, and send the message to an queueName
+    *
+    * @param address    the target queueName for the message
+    * @param body       the body for the new message
     * @param properties message properties for the new message
     * @return the message that was sent
     */
@@ -283,6 +295,7 @@ public interface EmbeddedActiveMQOperations {
 
    /**
     * Receive a message from the specified queue using the default receive timeout
+    *
     * @param queueName name of the source queue
     * @return the received ClientMessage, null if the receive timed-out
     */
@@ -290,14 +303,16 @@ public interface EmbeddedActiveMQOperations {
 
    /**
     * Receive a message from the specified queue using the specified receive timeout
+    *
     * @param queueName name of the source queue
-    * @param timeout receive timeout in milliseconds
+    * @param timeout   receive timeout in milliseconds
     * @return the received ClientMessage, null if the receive timed-out
     */
    ClientMessage receiveMessage(String queueName, long timeout);
 
    /**
     * Receive a message from the specified queue using the default receive timeout
+    *
     * @param queueName name of the source queue
     * @return the received ClientMessage, null if the receive timed-out
     */
@@ -305,42 +320,45 @@ public interface EmbeddedActiveMQOperations {
 
    /**
     * Receive a message from the specified queue using the specified receive timeout
+    *
     * @param queueName name of the source queue
-    * @param timeout receive timeout in milliseconds
+    * @param timeout   receive timeout in milliseconds
     * @return the received ClientMessage, null if the receive timed-out
     */
    ClientMessage receiveMessage(SimpleString queueName, long timeout);
 
    /**
-    * Browse a message (receive but do not consume) from the specified queue using the default
-    * receive timeout
+    * Browse a message (receive but do not consume) from the specified queue using the default receive timeout
+    *
     * @param queueName name of the source queue
     * @return the received ClientMessage, null if the receive timed-out
     */
    ClientMessage browseMessage(String queueName);
 
    /**
-    * Browse a message (receive but do not consume) a message from the specified queue using the
-    * specified receive timeout
+    * Browse a message (receive but do not consume) a message from the specified queue using the specified receive
+    * timeout
+    *
     * @param queueName name of the source queue
-    * @param timeout receive timeout in milliseconds
+    * @param timeout   receive timeout in milliseconds
     * @return the received ClientMessage, null if the receive timed-out
     */
    ClientMessage browseMessage(String queueName, long timeout);
 
    /**
-    * Browse a message (receive but do not consume) from the specified queue using the default
-    * receive timeout
+    * Browse a message (receive but do not consume) from the specified queue using the default receive timeout
+    *
     * @param queueName name of the source queue
     * @return the received ClientMessage, null if the receive timed-out
     */
    ClientMessage browseMessage(SimpleString queueName);
 
    /**
-    * Browse a message (receive but do not consume) a message from the specified queue using the
-    * specified receive timeout
+    * Browse a message (receive but do not consume) a message from the specified queue using the specified receive
+    * timeout
+    *
     * @param queueName name of the source queue
-    * @param timeout receive timeout in milliseconds
+    * @param timeout   receive timeout in milliseconds
     * @return the received ClientMessage, null if the receive timed-out
     */
    ClientMessage browseMessage(SimpleString queueName, long timeout);

@@ -60,8 +60,10 @@ public interface Queue extends Bindable, CriticalComponent {
 
    void setRoutingType(RoutingType routingType);
 
-   /** the current queue and consumer settings will allow use of the Reference Execution and callback.
-    *  This is because  */
+   /**
+    * the current queue and consumer settings will allow use of the Reference Execution and callback.
+    *  This is because
+    */
    boolean allowsReferenceCallback();
 
    boolean isDurable();
@@ -74,16 +76,17 @@ public interface Queue extends Bindable, CriticalComponent {
 
    void refDown(MessageReference messageReference);
 
-   /** Remove item with a supplied non-negative {@literal (>= 0) } ID.
-    *  If the idSupplier returns {@literal < 0} the ID is considered a non value (null) and it will be ignored.
+   /**
+    * Remove item with a supplied non-negative {@literal (>= 0) } ID. If the idSupplier returns {@literal < 0} the ID is
+    * considered a non value (null) and it will be ignored.
     *
-    *  @see org.apache.activemq.artemis.utils.collections.LinkedList#setNodeStore(NodeStore) */
+    * @see org.apache.activemq.artemis.utils.collections.LinkedList#setNodeStore(NodeStore)
+    */
    MessageReference removeWithSuppliedID(String serverID, long id, NodeStoreFactory<MessageReference> nodeStore);
 
    /**
-    * The queue definition could be durable, but the messages could eventually be considered non durable.
-    * (e.g. purgeOnNoConsumers)
-    * @return
+    * The queue definition could be durable, but the messages could eventually be considered non durable. (e.g.
+    * purgeOnNoConsumers)
     */
    boolean isDurableMessage();
 
@@ -187,16 +190,16 @@ public interface Queue extends Bindable, CriticalComponent {
    default void setMirrorController(boolean mirrorController) {
    }
 
-    /**
-    * This will hold a reference counter for every consumer present on the queue.
-    * The ReferenceCounter will know what to do when the counter became zeroed.
-    * This is used to control what to do with temporary queues, especially
-    * on shared subscriptions where the queue needs to be deleted when all the
-    * consumers are closed.
+   /**
+    * This will hold a reference counter for every consumer present on the queue. The ReferenceCounter will know what to
+    * do when the counter became zeroed. This is used to control what to do with temporary queues, especially on shared
+    * subscriptions where the queue needs to be deleted when all the consumers are closed.
     */
    ReferenceCounter getConsumersRefCount();
 
-   /* Called when a message is cancelled back into the queue */
+   /**
+    * Called when a message is cancelled back into the queue
+    */
    void addSorted(List<MessageReference> refs, boolean scheduling);
 
    void reload(MessageReference ref);
@@ -212,7 +215,9 @@ public interface Queue extends Bindable, CriticalComponent {
 
    void addHead(MessageReference ref, boolean scheduling);
 
-   /* Called when a message is cancelled back into the queue */
+   /**
+    * Called when a message is cancelled back into the queue
+    */
    void addSorted(MessageReference ref, boolean scheduling);
 
    void addHead(List<MessageReference> refs, boolean scheduling);
@@ -248,7 +253,9 @@ public interface Queue extends Bindable, CriticalComponent {
 
    void deleteQueue(boolean removeConsumers) throws Exception;
 
-   /** This method will push a removeAddress call into server's remove address */
+   /**
+    * This method will push a removeAddress call into server's remove address
+    */
    void removeAddress() throws Exception;
 
    void destroyPaging() throws Exception;
@@ -256,9 +263,9 @@ public interface Queue extends Bindable, CriticalComponent {
    long getMessageCount();
 
    /**
-    * This is the size of the messages in the queue when persisted on disk which is used for metrics tracking
-    * to give an idea of the amount of data on the queue to be consumed
-    *
+    * This is the size of the messages in the queue when persisted on disk which is used for metrics tracking to give an
+    * idea of the amount of data on the queue to be consumed
+    * <p>
     * Note that this includes all messages on the queue, even messages that are non-durable which may only be in memory
     */
    long getPersistentSize();
@@ -294,10 +301,8 @@ public interface Queue extends Bindable, CriticalComponent {
    List<MessageReference> getScheduledMessages();
 
    /**
-    * Return a Map consisting of consumer.toString and its messages
-    * Delivering message is a property of the consumer, this method will aggregate the results per Server's consumer object
-    *
-    * @return
+    * Return a Map consisting of consumer.toString and its messages. Delivering message is a property of the consumer.
+    * This method will aggregate the results per Server's consumer object.
     */
    Map<String, List<MessageReference>> getDeliveringMessages();
 
@@ -351,11 +356,7 @@ public interface Queue extends Bindable, CriticalComponent {
    int sendMessagesToDeadLetterAddress(Filter filter) throws Exception;
 
    /**
-    *
-    * @param tx
-    * @param ref
-    * @return whether or not the message was actually sent to a DLA with bindings
-    * @throws Exception
+    * {@return whether the message was actually sent to a DLA with bindings}
     */
    boolean sendToDeadLetterAddress(Transaction tx, MessageReference ref) throws Exception;
 
@@ -408,20 +409,13 @@ public interface Queue extends Bindable, CriticalComponent {
    int getGroupCount();
 
    /**
-    *
-    * @param ref
-    * @param timeBase
-    * @param ignoreRedeliveryDelay
-    * @return a Pair of Booleans: the first indicates whether or not redelivery happened; the second indicates whether
-    *         or not the message was actually sent to a DLA with bindings
-    * @throws Exception
+    * {@return a Pair of Booleans: the first indicates whether redelivery happened; the second indicates whether or not
+    * the message was actually sent to a DLA with bindings}
     */
    Pair<Boolean, Boolean> checkRedelivery(MessageReference ref, long timeBase, boolean ignoreRedeliveryDelay) throws Exception;
 
    /**
     * It will iterate through memory only (not paging)
-    *
-    * @return
     */
    LinkedListIterator<MessageReference> iterator();
 
@@ -450,38 +444,27 @@ public interface Queue extends Bindable, CriticalComponent {
    SimpleString getDeadLetterAddress();
 
    /**
-    * Pauses the queue. It will receive messages but won't give them to the consumers until resumed.
-    * If a queue is paused, pausing it again will only throw a warning.
-    * To check if a queue is paused, invoke <i>isPaused()</i>
+    * Pauses the queue. It will receive messages but won't give them to the consumers until resumed. If a queue is
+    * paused, pausing it again will only throw a warning. To check if a queue is paused, invoke <i>isPaused()</i>
     */
    void pause();
 
    /**
-    * Pauses the queue. It will receive messages but won't give them to the consumers until resumed.
-    * If a queue is paused, pausing it again will only throw a warning.
-    * To check if a queue is paused, invoke <i>isPaused()</i>
+    * Pauses the queue. It will receive messages but won't give them to the consumers until resumed. If a queue is
+    * paused, pausing it again will only throw a warning. To check if a queue is paused, invoke {@link #isPaused()}.
     */
    void pause(boolean persist);
 
    void reloadPause(long recordID);
 
    /**
-    * Resumes the delivery of message for the queue.
-    * If a queue is resumed, resuming it again will only throw a warning.
-    * To check if a queue is resumed, invoke <i>isPaused()</i>
+    * Resumes the delivery of message for the queue. If a queue is resumed, resuming it again will only throw a warning.
+    * To check if a queue is resumed, invoke {@link #isPaused()}.
     */
    void resume();
 
-   /**
-    * @return true if paused, false otherwise.
-    */
    boolean isPaused();
 
-   /**
-    * if the pause was persisted
-    *
-    * @return
-    */
    boolean isPersistedPause();
 
    Executor getExecutor();
@@ -498,8 +481,6 @@ public interface Queue extends Bindable, CriticalComponent {
 
    /**
     * We can't send stuff to DLQ on queues used on clustered-bridge-communication
-    *
-    * @return
     */
    boolean isInternalQueue();
 
@@ -534,17 +515,13 @@ public interface Queue extends Bindable, CriticalComponent {
 
    void postAcknowledge(MessageReference ref, AckReason reason, boolean delivering);
 
-   /**
-    * @return the user associated with this queue
-    */
    SimpleString getUser();
 
-   /**
-    * @param user the user associated with this queue
-    */
    void setUser(SimpleString user);
 
-   /** This is to perform a check on the counter again */
+   /**
+    * This is to perform a check on the counter again
+    */
    void recheckRefCount(OperationContext context);
 
    default void errorProcessing(Consumer consumer, Throwable t, MessageReference messageReference) {

@@ -85,7 +85,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-
    private final long id;
 
    private final long sequentialID;
@@ -129,8 +128,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    /**
-    * if we are a browse only consumer we don't need to worry about acknowledgements or being
-    * started/stopped by the session.
+    * if we are a browse only consumer we don't need to worry about acknowledgements or being started/stopped by the
+    * session.
     */
    private final boolean browseOnly;
 
@@ -397,10 +396,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       }
    }
 
-   /** i
-    *
-    * @see SessionCallback#supportsDirectDelivery()
-    */
    @Override
    public boolean supportsDirectDelivery() {
       return callback.supportsDirectDelivery();
@@ -612,7 +607,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
          props.putIntProperty(ManagementHelper.HDR_CONSUMER_COUNT, messageQueue.getConsumerCount());
 
-         // HORNETQ-946
          props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.of(session.getUsername()));
 
          props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.of(session.getRemotingConnection().getRemoteAddress()));
@@ -672,8 +666,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    /**
     * Prompt delivery and send a "forced delivery" message to the consumer.
     * <p>
-    * When the consumer receives such a "forced delivery" message, it discards it and knows that
-    * there are no other messages to be delivered.
+    * When the consumer receives such a "forced delivery" message, it discards it and knows that there are no other
+    * messages to be delivered.
     */
    @Override
    public void forceDelivery(final long sequence)  {
@@ -693,7 +687,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    public synchronized void forceDelivery(final long sequence, final Runnable r) {
       promptDelivery();
 
-      // JBPAPP-6030 - Using the executor to avoid distributed dead locks
+      // Using the executor to avoid distributed dead locks
       messageQueue.getExecutor().execute(() -> {
          try {
             // We execute this on the same executor to make sure the force delivery message is written after
@@ -863,11 +857,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    /**
-    * Remove references based on the protocolData.
-    * there will be an interval defined between protocolDataStart and protocolDataEnd.
-    * This method will fetch the delivering references, remove them from the delivering list and return a list.
-    *
-    * This will be useful for other protocols that will need this such as openWire or MQTT.
+    * Remove references based on the protocolData. There will be an interval defined between protocolDataStart and
+    * protocolDataEnd. This method will fetch the delivering references, remove them from the delivering list and return
+    * a list.
+    * <p>
+    * This will be useful for other protocols that will need this such as OpenWire or MQTT.
     */
    @Override
    public synchronized List<MessageReference> scanDeliveringReferences(boolean remove,
@@ -1145,9 +1139,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       return availableCredits;
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return "ServerConsumerImpl [id=" + id + ", filter=" + filter + ", binding=" + binding + ", closed=" + isClosed + "]";
@@ -1223,7 +1214,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    private void applyPrefixForLegacyConsumer(Message message) {
-      /**
+      /*
        * check to see if:
        * 1) This is a "core" connection
        * 2) The "core" connection belongs to a JMS client
@@ -1261,8 +1252,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    /**
-    * Internal encapsulation of the logic on sending LargeMessages.
-    * This Inner class was created to avoid a bunch of loose properties about the current LargeMessage being sent
+    * Internal encapsulation of the logic on sending LargeMessages. This Inner class was created to avoid a bunch of
+    * loose properties about the current LargeMessage being sent
     */
    private final class CoreLargeMessageDeliverer {
 
@@ -1621,8 +1612,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    static class ServerConsumerMetrics extends TransactionOperationAbstract {
 
       /**
-       * Since messages can be delivered (incremented) and acknowledged (decremented) at the same time we have to protect
-       * the encode size and make it atomic. The other fields are ok since they are only accessed from a single thread.
+       * Since messages can be delivered (incremented) and acknowledged (decremented) at the same time we have to
+       * protect the encode size and make it atomic. The other fields are ok since they are only accessed from a single
+       * thread.
        */
       private static final AtomicLongFieldUpdater<ServerConsumerMetrics> messagesInTransitSizeUpdater = AtomicLongFieldUpdater.newUpdater(ServerConsumerMetrics.class, "messagesInTransitSize");
 

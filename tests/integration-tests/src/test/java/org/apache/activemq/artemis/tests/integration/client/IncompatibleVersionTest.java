@@ -199,14 +199,14 @@ public class IncompatibleVersionTest extends SpawnedTestBase {
             try {
                serverProcess.destroy();
             } catch (Throwable t) {
-               /* ignore */
+               // ignore
             }
          }
          if (client != null) {
             try {
                client.destroy();
             } catch (Throwable t) {
-               /* ignore */
+               // ignore
             }
          }
       }

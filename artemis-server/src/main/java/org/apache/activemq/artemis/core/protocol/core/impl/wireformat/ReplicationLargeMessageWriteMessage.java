@@ -32,10 +32,6 @@ public final class ReplicationLargeMessageWriteMessage extends PacketImpl {
       super(PacketImpl.REPLICATION_LARGE_MESSAGE_WRITE);
    }
 
-   /**
-    * @param messageId
-    * @param body
-    */
    public ReplicationLargeMessageWriteMessage(final long messageId, final byte[] body) {
       this();
 
@@ -67,16 +63,10 @@ public final class ReplicationLargeMessageWriteMessage extends PacketImpl {
       buffer.readBytes(body);
    }
 
-   /**
-    * @return the messageId
-    */
    public long getMessageId() {
       return messageId;
    }
 
-   /**
-    * @return the body
-    */
    public byte[] getBody() {
       return body;
    }

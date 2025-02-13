@@ -53,8 +53,6 @@ public class JoramAMQPAggregationTest extends Assert {
 
    /**
     * Should be overridden
-    *
-    * @return
     */
    protected static Properties getProviderProperties() throws IOException {
       Properties props = new Properties();

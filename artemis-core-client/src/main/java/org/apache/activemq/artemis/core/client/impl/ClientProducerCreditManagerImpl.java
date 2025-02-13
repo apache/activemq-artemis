@@ -48,9 +48,6 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       this.windowSize = windowSize;
    }
 
-
-   /** This will determine the flow control as asynchronous,
-    *  no actual block should happen instead a callback will be sent whenever blockages change  */
    @Override
    public void setCallback(ClientProducerFlowCallback callback) {
       this.callback = callback;

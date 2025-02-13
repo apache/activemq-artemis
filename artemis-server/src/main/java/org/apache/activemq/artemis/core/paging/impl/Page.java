@@ -62,7 +62,9 @@ public final class Page  {
       return referenceCounter.decrement();
    }
 
-   /** to be called when the page is supposed to be released */
+   /**
+    * to be called when the page is supposed to be released
+    */
    public void releaseTask(Consumer<Page> releaseTask) {
       referenceCounter.setTask(() -> releaseTask.accept(this));
    }
@@ -183,8 +185,10 @@ public final class Page  {
       storageManager.pageWrite(storeName, message, pageId, lineUp, originallyReplicated);
    }
 
-   /** This write will not interact back with the storage manager.
-    *  To avoid ping pongs with Journal retaining events and any other stuff. */
+   /**
+    * This write will not interact back with the storage manager. To avoid ping pongs with Journal retaining events and
+    * any other stuff.
+    */
    public synchronized void writeDirect(PagedMessage message) throws Exception {
       if (!file.isOpen()) {
          throw ActiveMQMessageBundle.BUNDLE.cannotWriteToClosedFile(file);
@@ -236,8 +240,8 @@ public final class Page  {
    }
 
    /**
-    * sendEvent means it's a close happening from a major event such moveNext.
-    * While reading the cache we don't need (and shouldn't inform the backup
+    * sendEvent means it's a close happening from a major event such moveNext. While reading the cache we don't need
+    * (and shouldn't inform the backup
     */
    public synchronized void close(boolean sendReplicaClose, boolean waitSync) throws Exception {
       if (readFileBuffer != null) {
@@ -363,10 +367,6 @@ public final class Page  {
       return (int) (pageId ^ (pageId >>> 32));
    }
 
-   /**
-    * @param position
-    * @param msgNumber
-    */
    private void markFileAsSuspect(final String fileName, final int position, final int msgNumber) {
       ActiveMQServerLogger.LOGGER.pageSuspectFile(fileName, position, msgNumber);
       suspiciousRecords = true;

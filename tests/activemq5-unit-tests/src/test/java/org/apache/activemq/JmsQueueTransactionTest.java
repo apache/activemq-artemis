@@ -32,9 +32,6 @@ import org.apache.activemq.test.JmsResourceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class JmsQueueTransactionTest extends JmsTransactionTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsQueueTransactionTest.class);
@@ -50,10 +47,7 @@ public class JmsQueueTransactionTest extends JmsTransactionTestSupport {
    }
 
    /**
-    * Tests if the the connection gets reset, the messages will still be
-    * received.
-    *
-    * @throws Exception
+    * Tests if the the connection gets reset, the messages will still be received.
     */
    public void testReceiveTwoThenCloseConnection() throws Exception {
       Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message")};
@@ -105,10 +99,7 @@ public class JmsQueueTransactionTest extends JmsTransactionTestSupport {
    }
 
    /**
-    * Tests sending and receiving messages with two sessions(one for producing
-    * and another for consuming).
-    *
-    * @throws Exception
+    * Tests sending and receiving messages with two sessions(one for producing and another for consuming).
     */
    public void testSendReceiveInSeperateSessionTest() throws Exception {
       session.close();
@@ -146,11 +137,8 @@ public class JmsQueueTransactionTest extends JmsTransactionTestSupport {
    }
 
    /**
-    * Tests the queue browser. Browses the messages then the consumer tries to
-    * receive them. The messages should still be in the queue even when it was
-    * browsed.
-    *
-    * @throws Exception
+    * Tests the queue browser. Browses the messages then the consumer tries to receive them. The messages should still
+    * be in the queue even when it was browsed.
     */
    public void testReceiveBrowseReceive() throws Exception {
       Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message"), session.createTextMessage("Third Message")};

@@ -40,11 +40,12 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 /**
  * An interceptor to keep a replicated backup server from reaching "up-to-date" status.
  * <p>
- * There are 3 test scenarios for 'adding data to a remote backup':<br/>
- * 1. sync data that already existed <br/>
- * 2. adding `new` Journal updates (that arrived after the backup appeared) WHILE sync'ing happens<br/>
- * 3. adding `new` Journal updates AFTER sync'ing is done<br/>
- * <p>
+ * There are 3 test scenarios for 'adding data to a remote backup':
+ * <ol>
+ * <li>sync data that already existed
+ * <li>adding `new` Journal updates (that arrived after the backup appeared) WHILE sync'ing happens
+ * <li>adding `new` Journal updates AFTER sync'ing is done
+ * </ol>
  * These 'withDelay' tests were created to test/verify data transfers of type 2. because there is so
  * little data, if we don't delay the sync message, we cannot be sure we are testing scenario .2.
  * because the sync will be done too fast.
@@ -73,8 +74,6 @@ public class BackupSyncDelay implements Interceptor {
    }
 
    /**
-    * @param backup
-    * @param live
     * @param packetCode which packet is going to be intercepted.
     */
    public BackupSyncDelay(ActiveMQServer backup, ActiveMQServer live, byte packetCode) {
@@ -84,10 +83,6 @@ public class BackupSyncDelay implements Interceptor {
       handler = new ReplicationChannelHandler(packetCode);
    }
 
-   /**
-    * @param backupServer
-    * @param liveServer
-    */
    public BackupSyncDelay(TestableServer backupServer, TestableServer liveServer) {
       this(backupServer.getServer(), liveServer.getServer(), PacketImpl.REPLICATION_START_FINISH_SYNC);
    }

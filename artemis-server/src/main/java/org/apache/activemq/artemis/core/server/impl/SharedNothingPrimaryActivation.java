@@ -293,8 +293,6 @@ public class SharedNothingPrimaryActivation extends PrimaryActivation {
     * Determines whether there is another server already running with this server's nodeID.
     * <p>
     * This can happen in case of a successful fail-over followed by the primary's restart (attempting a fail-back).
-    *
-    * @throws Exception
     */
    private boolean isNodeIdUsed() throws Exception {
       if (activeMQServer.getConfiguration().getClusterConfigurations().isEmpty())
@@ -408,14 +406,11 @@ public class SharedNothingPrimaryActivation extends PrimaryActivation {
       }
 
       /**
-       * In a cluster of replicated primary/backup pairs if a backup crashes and then its primary crashes the cluster will
-       * retain the topology information of the primary such that when the primary server restarts it will check the
-       * cluster to see if its nodeID is present (which it will be) and then it will activate as a backup rather than
-       * a primary. To prevent this situation an additional check is necessary to see if the server with the matching
-       * nodeID is actually active or not which is done by attempting to make a connection to it.
-       *
-       * @param transportConfiguration
-       * @return
+       * In a cluster of replicated primary/backup pairs if a backup crashes and then its primary crashes the cluster
+       * will retain the topology information of the primary such that when the primary server restarts it will check
+       * the cluster to see if its nodeID is present (which it will be) and then it will activate as a backup rather
+       * than a primary. To prevent this situation an additional check is necessary to see if the server with the
+       * matching nodeID is actually active or not which is done by attempting to make a connection to it.
        */
       private boolean isActive(TransportConfiguration transportConfiguration) {
          boolean result = false;

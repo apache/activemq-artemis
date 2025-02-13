@@ -148,10 +148,6 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase {
       checkJournalOperation();
    }
 
-   /**
-    * @throws InterruptedException
-    * @throws Exception
-    */
    protected void checkJournalOperation() throws Exception {
       if (startCompactAt == currentOperation) {
          threadCompact();

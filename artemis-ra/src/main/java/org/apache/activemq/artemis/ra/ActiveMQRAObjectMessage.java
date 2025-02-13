@@ -25,29 +25,21 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * A wrapper for a message
+ * A wrapper for a {@link ObjectMessage}.
  */
 public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements ObjectMessage {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * Create a new wrapper
-    *
-    * @param message the message
-    * @param session the session
-    */
    public ActiveMQRAObjectMessage(final ObjectMessage message, final ActiveMQRASession session) {
       super(message, session);
 
       logger.trace("constructor({}, {})", message, session);
    }
 
+
    /**
-    * Get the object
-    *
-    * @return The object
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Serializable getObject() throws JMSException {
@@ -56,11 +48,9 @@ public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements Object
       return ((ObjectMessage) message).getObject();
    }
 
+
    /**
-    * Set the object
-    *
-    * @param object The object
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setObject(final Serializable object) throws JMSException {

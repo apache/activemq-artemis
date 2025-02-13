@@ -101,14 +101,11 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    //shared by client and core/server
-   // XXX not on schema?
    private static long DEFAULT_CLIENT_FAILURE_CHECK_PERIOD = 30000;
 
-   // XXX not on schema?
    private static long DEFAULT_FILE_DEPLOYER_SCAN_PERIOD = 5000;
 
-   // These defaults are applied depending on whether the journal type
-   // is NIO or AIO.
+   // These defaults are applied depending on whether the journal type is NIO or AIO.
    private static int DEFAULT_JOURNAL_MAX_IO_AIO = 4096;
    private static int DEFAULT_JOURNAL_POOL_FILES = -1;
    private static int DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO = ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO;
@@ -117,7 +114,6 @@ public final class ActiveMQDefaultConfiguration {
    private static int DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO = ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO;
    private static int DEFAULT_JOURNAL_BUFFER_SIZE_NIO = ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_NIO;
 
-   // XXX not on schema.
    //properties passed to acceptor/connectors.
    private static String PROP_MASK_PASSWORD = "activemq.usemaskedpassword";
    private static String PROP_PASSWORD_CODEC = "activemq.passwordcodec";
@@ -713,21 +709,23 @@ public final class ActiveMQDefaultConfiguration {
    private static final boolean DEFAULT_MIRROR_PAGE_TRANSACTION = false;
 
    /**
-    * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
+    * If {@code true} then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on
+    * the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can
+    * inject their own Protocol Managers.
     */
    public static boolean isDefaultResolveProtocols() {
       return DEFAULT_RESOLVE_PROTOCOLS;
    }
 
    /**
-    * true means that the server will load configuration from the configuration files
+    * {@code true} means that the server will load configuration from the configuration files
     */
    public static boolean isDefaultFileDeploymentEnabled() {
       return DEFAULT_FILE_DEPLOYMENT_ENABLED;
    }
 
    /**
-    * true means that the server will use the file based journal for persistence.
+    * {@code true} means that the server will use the file based journal for persistence.
     */
    public static boolean isDefaultPersistenceEnabled() {
       return DEFAULT_PERSISTENCE_ENABLED;
@@ -756,21 +754,21 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * true means that security is enabled
+    * {@code true} means that security is enabled
     */
    public static boolean isDefaultSecurityEnabled() {
       return DEFAULT_SECURITY_ENABLED;
    }
 
    /**
-    * true means that graceful shutdown is enabled
+    * {@code true} means that graceful shutdown is enabled
     */
    public static boolean isDefaultGracefulShutdownEnabled() {
       return DEFAULT_GRACEFUL_SHUTDOWN_ENABLED;
    }
 
    /**
-    * true means that graceful shutdown is enabled
+    * {@code true} means that graceful shutdown is enabled
     */
    public static long getDefaultGracefulShutdownTimeout() {
       return DEFAULT_GRACEFUL_SHUTDOWN_TIMEOUT;
@@ -805,7 +803,7 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * true means that the server supports wild card routing
+    * {@code true} means that the server supports wild card routing
     */
    public static boolean isDefaultWildcardRoutingEnabled() {
       return DEFAULT_WILDCARD_ROUTING_ENABLED;
@@ -816,7 +814,8 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * the name of the management address to send management messages to. It is prefixed with "jms.queue" so that JMS clients can send messages to it.
+    * the name of the management address to send management messages to. It is prefixed with "jms.queue" so that JMS
+    * clients can send messages to it.
     */
    public static SimpleString getDefaultManagementAddress() {
       return DEFAULT_MANAGEMENT_ADDRESS;
@@ -865,14 +864,15 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are masked.
+    * This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are
+    * masked.
     */
    public static Boolean isDefaultMaskPassword() {
       return DEFAULT_MASK_PASSWORD;
    }
 
    /**
-    * true means that the management API is available via JMX
+    * {@code true} means that the management API is available via JMX
     */
    public static boolean isDefaultJmxManagementEnabled() {
       return DEFAULT_JMX_MANAGEMENT_ENABLED;
@@ -890,7 +890,7 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * true means that message counters are enabled
+    * {@code true} means that message counters are enabled
     */
    public static boolean isDefaultMessageCounterEnabled() {
       return DEFAULT_MESSAGE_COUNTER_ENABLED;
@@ -911,14 +911,16 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * if set, this will override how long (in ms) to keep a connection alive without receiving a ping. -1 disables this setting.
+    * if set, this will override how long (in ms) to keep a connection alive without receiving a ping. -1 disables this
+    * setting.
     */
    public static long getDefaultConnectionTtlOverride() {
       return DEFAULT_CONNECTION_TTL_OVERRIDE;
    }
 
    /**
-    * should certain incoming packets on the server be handed off to a thread from the thread pool for processing or should they be handled on the remoting thread?
+    * should certain incoming packets on the server be handed off to a thread from the thread pool for processing or
+    * should they be handled on the remoting thread?
     */
    public static boolean isDefaultAsyncConnectionExecutionEnabled() {
       return DEFAULT_ASYNC_CONNECTION_EXECUTION_ENABLED;
@@ -973,14 +975,15 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * true means that ID's are persisted to the journal
+    * {@code true} means that ID's are persisted to the journal
     */
    public static boolean isDefaultPersistIdCache() {
       return DEFAULT_PERSIST_ID_CACHE;
    }
 
    /**
-    * True means that the delivery count is persisted before delivery. False means that this only happens after a message has been cancelled.
+    * {@code true} means that the delivery count is persisted before delivery. False means that this only happens after
+    * a message has been cancelled.
     */
    public static boolean isDefaultPersistDeliveryCountBeforeDelivery() {
       return DEFAULT_PERSIST_DELIVERY_COUNT_BEFORE_DELIVERY;
@@ -1001,7 +1004,7 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * true means that the server will create the bindings directory on start up
+    * {@code true} means that the server will create the bindings directory on start up
     */
    public static boolean isDefaultCreateBindingsDir() {
       return DEFAULT_CREATE_BINDINGS_DIR;
@@ -1034,14 +1037,14 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * true means that the journal directory will be created
+    * {@code true} means that the journal directory will be created
     */
    public static boolean isDefaultCreateJournalDir() {
       return DEFAULT_CREATE_JOURNAL_DIR;
    }
 
    /**
-    * if true wait for transaction data to be synchronized to the journal before returning response to client
+    * if {@code true} wait for transaction data to be synchronized to the journal before returning response to client
     */
    public static boolean isDefaultJournalSyncTransactional() {
       return DEFAULT_JOURNAL_SYNC_TRANSACTIONAL;
@@ -1052,7 +1055,7 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * if true wait for non transaction data to be synced to the journal before returning response to client.
+    * if {@code true} wait for non transaction data to be synced to the journal before returning response to client.
     */
    public static boolean isDefaultJournalSyncNonTransactional() {
       return DEFAULT_JOURNAL_SYNC_NON_TRANSACTIONAL;
@@ -1081,8 +1084,6 @@ public final class ActiveMQDefaultConfiguration {
 
    /**
     * How many journal files can be resued
-    *
-    * @return
     */
    public static int getDefaultJournalPoolFiles() {
       return DEFAULT_JOURNAL_POOL_FILES;
@@ -1149,14 +1150,16 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Period the discovery group waits after receiving the last broadcast from a particular server before removing that servers connector pair entry from its list.
+    * Period the discovery group waits after receiving the last broadcast from a particular server before removing that
+    * servers connector pair entry from its list.
     */
    public static int getDefaultBroadcastRefreshTimeout() {
       return DEFAULT_BROADCAST_REFRESH_TIMEOUT;
    }
 
    /**
-    * how long to keep a connection alive in the absence of any data arriving from the client. This should be greater than the ping period.
+    * how long to keep a connection alive in the absence of any data arriving from the client. This should be greater
+    * than the ping period.
     */
    public static long getDefaultConnectionTtl() {
       return DEFAULT_CONNECTION_TTL;
@@ -1212,14 +1215,16 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Upon reconnection this configures the number of time the same node on the topology will be retried before reseting the server locator and using the initial connectors
+    * Upon reconnection this configures the number of time the same node on the topology will be retried before reseting
+    * the server locator and using the initial connectors
     */
    public static int getDefaultBridgeConnectSameNode() {
       return DEFAULT_BRIDGE_CONNECT_SAME_NODE;
    }
 
    /**
-    * The period (in milliseconds) used to check if the cluster connection has failed to receive pings from another server
+    * The period (in milliseconds) used to check if the cluster connection has failed to receive pings from another
+    * server
     */
    public static long getDefaultClusterFailureCheckPeriod() {
       return DEFAULT_CLUSTER_FAILURE_CHECK_PERIOD;
@@ -1349,7 +1354,7 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * If true then the server will request a backup on another node
+    * If {@code true} then the server will request a backup on another node
     */
    public static boolean isDefaultHapolicyRequestBackup() {
       return DEFAULT_HAPOLICY_REQUEST_BACKUP;
@@ -1370,7 +1375,7 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Whether or not this server will accept backup requests from other servers.
+    * Whether this server will accept backup requests from other servers.
     */
    public static int getDefaultHapolicyMaxBackups() {
       return DEFAULT_HAPOLICY_MAX_BACKUPS;
@@ -1384,14 +1389,17 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Whether to check the cluster for an active server using our own server ID when starting up. This option is only necessary for performing 'fail-back' on replicating servers. Strictly speaking this setting only applies to primary servers and not to backups.
+    * Whether to check the cluster for an active server using our own server ID when starting up. This option is only
+    * necessary for performing 'fail-back' on replicating servers. Strictly speaking this setting only applies to
+    * primary servers and not to backups.
     */
    public static boolean isDefaultCheckForActiveServer() {
       return DEFAULT_CHECK_FOR_ACTIVE_SERVER;
    }
 
    /**
-    * This specifies how many times a replicated backup server can restart after moving its files on start. Once there are this number of backup journal files the server will stop permanently after if fails back.
+    * This specifies how many times a replicated backup server can restart after moving its files on start. Once there
+    * are this number of backup journal files the server will stop permanently after if fails back.
     */
    public static int getDefaultMaxSavedReplicatedJournalsSize() {
       return DEFAULT_MAX_SAVED_REPLICATED_JOURNALS_SIZE;
@@ -1405,7 +1413,9 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Whether a server will automatically stop when another places a request to take over its place. The use case is when a regular server stops and its backup takes over its duties, later the main server restarts and requests the server (the former backup) to stop operating.
+    * Whether a server will automatically stop when another places a request to take over its place. The use case is
+    * when a regular server stops and its backup takes over its duties, later the main server restarts and requests the
+    * server (the former backup) to stop operating.
     */
    public static boolean isDefaultAllowAutoFailback() {
       return DEFAULT_ALLOW_AUTO_FAILBACK;
@@ -1454,7 +1464,8 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * its possible that you only want a server to partake in scale down as a receiver, via a group. In this case set scale-down to false
+    * its possible that you only want a server to partake in scale down as a receiver, via a group. In this case set
+    * scale-down to false
     */
    public static boolean isDefaultScaleDownEnabled() {
       return DEFAULT_SCALE_DOWN_ENABLED;
@@ -1468,7 +1479,9 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * How long a group binding will be used, -1 means for ever. Bindings are removed after this wait elapses. On the remote node this is used to determine how often you should re-query the main coordinator in order to update the last time used accordingly.
+    * How long a group binding will be used, -1 means for ever. Bindings are removed after this wait elapses. On the
+    * remote node this is used to determine how often you should re-query the main coordinator in order to update the
+    * last time used accordingly.
     */
    public static int getDefaultGroupingHandlerGroupTimeout() {
       return DEFAULT_GROUPING_HANDLER_GROUP_TIMEOUT;
@@ -1765,7 +1778,8 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * The period (in milliseconds) used to check if the federation connection has failed to receive pings from another server
+    * The period (in milliseconds) used to check if the federation connection has failed to receive pings from another
+    * server
     */
    public static long getDefaultFederationFailureCheckPeriod() {
       return DEFAULT_FEDERATION_FAILURE_CHECK_PERIOD;
@@ -1828,21 +1842,21 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Whether or not to report JVM memory metrics
+    * Whether to report JVM memory metrics
     */
    public static boolean getDefaultJvmMemoryMetrics() {
       return DEFAULT_JVM_MEMORY_METRICS;
    }
 
    /**
-    * Whether or not to report JVM GC metrics
+    * Whether to report JVM GC metrics
     */
    public static boolean getDefaultJvmGcMetrics() {
       return DEFAULT_JVM_GC_METRICS;
    }
 
    /**
-    * Whether or not to report JVM thread metrics
+    * Whether to report JVM thread metrics
     */
    public static boolean getDefaultJvmThreadMetrics() {
       return DEFAULT_JVM_THREAD_METRICS;
@@ -1865,42 +1879,42 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Whether or not to report Netty pool metrics
+    * Whether to report Netty pool metrics
     */
    public static Boolean getDefaultNettyPoolMetrics() {
       return DEFAULT_NETTY_POOL_METRICS;
    }
 
    /**
-    * Whether or not to report file descriptor metrics
+    * Whether to report file descriptor metrics
     */
    public static Boolean getDefaultFileDescriptorsMetrics() {
       return DEFAULT_FILE_DESCRIPTORS_METRICS;
    }
 
    /**
-    * Whether or not to report processor metrics
+    * Whether to report processor metrics
     */
    public static Boolean getDefaultProcessorMetrics() {
       return DEFAULT_PROCESSOR_METRICS;
    }
 
    /**
-    * Whether or not to report uptime metrics
+    * Whether to report uptime metrics
     */
    public static Boolean getDefaultUptimeMetrics() {
       return DEFAULT_UPTIME_METRICS;
    }
 
    /**
-    * Whether or not to report logging metrics
+    * Whether to report logging metrics
     */
    public static Boolean getDefaultLoggingMetrics() {
       return DEFAULT_LOGGING_METRICS;
    }
 
    /**
-    * Whether or not to report security cache metrics
+    * Whether to report security cache metrics
     */
    public static Boolean getDefaultSecurityCacheMetrics() {
       return DEFAULT_SECURITY_CACHE_METRICS;
@@ -1945,9 +1959,11 @@ public final class ActiveMQDefaultConfiguration {
    }
 
 
-   /** This configures the Mirror Ack Manager number of attempts on queues before trying page acks.
-    *  It is not intended to be configured through the XML.
-    *  The default value here is 5. */
+   /*
+    * This configures the Mirror Ack Manager number of attempts on queues before trying page acks.
+    * It is not intended to be configured through the XML.
+    * The default value here is 5.
+    */
    public static int getMirrorAckManagerQueueAttempts() {
       return DEFAULT_MIRROR_ACK_MANAGER_QUEUE_ATTEMPTS;
    }

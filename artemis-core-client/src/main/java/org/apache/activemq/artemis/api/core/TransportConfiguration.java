@@ -28,12 +28,10 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 /**
- * A TransportConfiguration is used by a client to specify connections to a server and its backup if
- * one exists.
+ * A TransportConfiguration is used by a client to specify connections to a server and its backup if one exists.
  * <p>
- * Typically the constructors take the class name and parameters for needed to create the
- * connection. These will be different dependent on which connector is being used, i.e. Netty or
- * InVM etc. For example:
+ * Typically the constructors take the class name and parameters for needed to create the connection. These will be
+ * different dependent on which connector is being used, i.e. Netty or InVM etc. For example:
  *
  * <pre>
  * HashMap&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();
@@ -98,8 +96,8 @@ public class TransportConfiguration implements Serializable {
    }
 
    /**
-    * Creates a TransportConfiguration with a specific name providing the class name of the {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory}
-    * and any parameters needed.
+    * Creates a TransportConfiguration with a specific name providing the class name of the
+    * {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory} and any parameters needed.
     *
     * @param className The class name of the ConnectorFactory
     * @param params    The parameters needed by the ConnectorFactory
@@ -110,8 +108,8 @@ public class TransportConfiguration implements Serializable {
    }
 
    /**
-    * Creates a TransportConfiguration with a specific name providing the class name of the {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory}
-    * and any parameters needed.
+    * Creates a TransportConfiguration with a specific name providing the class name of the
+    * {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory} and any parameters needed.
     *
     * @param className  The class name of the ConnectorFactory
     * @param params     The parameters needed by the ConnectorFactory
@@ -139,8 +137,8 @@ public class TransportConfiguration implements Serializable {
    }
 
    /**
-    * Creates a TransportConfiguration providing the class name of the {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory}
-    * and any parameters needed.
+    * Creates a TransportConfiguration providing the class name of the
+    * {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory} and any parameters needed.
     *
     * @param className The class name of the ConnectorFactory
     * @param params    The parameters needed by the ConnectorFactory
@@ -150,7 +148,8 @@ public class TransportConfiguration implements Serializable {
    }
 
    /**
-    * Creates a TransportConfiguration providing the class name of the {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory}
+    * Creates a TransportConfiguration providing the class name of the
+    * {@link org.apache.activemq.artemis.spi.core.remoting.ConnectorFactory}
     *
     * @param className The class name of the ConnectorFactory
     */
@@ -159,9 +158,7 @@ public class TransportConfiguration implements Serializable {
    }
 
    /**
-    * Returns the name of this TransportConfiguration.
-    *
-    * @return the name
+    * {@return the name of this TransportConfiguration}
     */
    public String getName() {
       return name;
@@ -172,18 +169,14 @@ public class TransportConfiguration implements Serializable {
    }
 
    /**
-    * Returns the class name of ConnectorFactory being used by this TransportConfiguration
-    *
-    * @return The factory's class name
+    * {@return the class name of ConnectorFactory being used by this TransportConfiguration}
     */
    public String getFactoryClassName() {
       return factoryClassName;
    }
 
    /**
-    * Returns any parameters set for this TransportConfiguration
-    *
-    * @return the parameters
+    * {@return any parameters set for this TransportConfiguration}
     */
    public Map<String, Object> getParams() {
       return params;
@@ -247,12 +240,10 @@ public class TransportConfiguration implements Serializable {
    }
 
    /**
-    * There's a case on ClusterConnections that we need to find an equivalent Connector and we can't
-    * use a Netty Cluster Connection on an InVM ClusterConnection (inVM used on tests) for that
-    * reason I need to test if the two instances of the TransportConfiguration are equivalent while
-    * a test a connector against an acceptor
+    * There's a case on ClusterConnections that we need to find an equivalent Connector and we can't use a Netty Cluster
+    * Connection on an InVM ClusterConnection (inVM used on tests) for that reason I need to test if the two instances
+    * of the TransportConfiguration are equivalent while a test a connector against an acceptor
     *
-    * @param otherConfig
     * @return {@code true} if the factory class names are equivalents
     */
    public boolean isEquivalent(TransportConfiguration otherConfig) {
@@ -292,7 +283,7 @@ public class TransportConfiguration implements Serializable {
 
             String key = entry.getKey();
 
-            // HORNETQ-1281 - don't log passwords
+            // don't log passwords
             String val;
             if (key.toLowerCase().contains("password")) {
                val = "****";

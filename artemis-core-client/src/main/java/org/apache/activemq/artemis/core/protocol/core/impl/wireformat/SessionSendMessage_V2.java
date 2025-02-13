@@ -26,7 +26,9 @@ public class SessionSendMessage_V2 extends SessionSendMessage {
 
    private long correlationID;
 
-   /** This will be using the CoreMessage because it is meant for the core-protocol */
+   /**
+    * This will be using the CoreMessage because it is meant for the core-protocol
+    */
    public SessionSendMessage_V2(final ICoreMessage message,
                                 final boolean requiresResponse,
                                 final SendAcknowledgementHandler handler) {

@@ -210,7 +210,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          createAcceptor(info);
       }
 
-      /**
+      /*
        * Don't start the acceptors here.  Only start the acceptors at the every end of the start-up process to avoid
        * race conditions. See {@link #startAcceptors()}.
        */
@@ -826,10 +826,6 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    /**
     * Locates protocols from the internal default map and moves them into the input protocol map.
-    *
-    * @param protocolList
-    * @param transportConfig
-    * @param protocolMap
     */
    private void locateProtocols(String protocolList,
                                 Object transportConfig,
@@ -849,8 +845,6 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    /**
     * Finds protocol support from a given classloader.
-    *
-    * @param loader
     */
    private void resolveProtocols(ClassLoader loader) {
       ServiceLoader<ProtocolManagerFactory> serviceLoader = ServiceLoader.load(ProtocolManagerFactory.class, loader);
@@ -859,8 +853,6 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    /**
     * Loads the protocols found into a map.
-    *
-    * @param protocolManagerFactoryCollection
     */
    private void loadProtocolManagerFactories(Iterable<ProtocolManagerFactory> protocolManagerFactoryCollection) {
       for (ProtocolManagerFactory next : protocolManagerFactoryCollection) {

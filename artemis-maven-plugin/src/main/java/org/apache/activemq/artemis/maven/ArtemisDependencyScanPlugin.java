@@ -53,7 +53,9 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
    @Parameter
    private String pathSeparator = File.pathSeparator;
 
-   /** Where to copy the exploded dependencies. */
+   /**
+    * Where to copy the exploded dependencies.
+    */
    @Parameter
    private File targetFolder;
 

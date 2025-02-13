@@ -247,12 +247,6 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
       return recordsSnapshot.contains(id);
    }
 
-
-
-   /**
-    * @throws Exception
-    */
-
    protected void openFile() throws Exception {
       flush(false);
 
@@ -286,9 +280,6 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
       recordsSnapshot.add(id);
    }
 
-   /**
-    * @return the writingChannel
-    */
    protected ActiveMQBuffer getWritingChannel() {
       return writingChannel;
    }

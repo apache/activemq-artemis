@@ -27,14 +27,12 @@ public class TokenBucketLimiterImpl implements TokenBucketLimiter {
    private final boolean spin;
 
    /**
-    * Even thought we don't use TokenBucket in multiThread
-    * the implementation should keep this volatile for correctness
+    * Even thought we don't use TokenBucket in multiThread the implementation should keep this volatile for correctness
     */
    private volatile long last;
 
    /**
-    * Even thought we don't use TokenBucket in multiThread
-    * the implementation should keep this volatile for correctness
+    * Even thought we don't use TokenBucket in multiThread the implementation should keep this volatile for correctness
     */
    private int tokens;
 

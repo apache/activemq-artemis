@@ -33,26 +33,23 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 
 /**
  * Test the different types of messages provided by JMS.
- * <br />
+ * <p>
  * JMS provides 6 types of messages which differs by the type of their body:
  * <ol>
- * <li><code>Message</code> which doesn't have a body</li>
- * <li><code>TextMessage</code> with a <code>String</code> as body</li>
- * <li><code>ObjectMessage</code> with any <code>Object</code> as body</li>
- * <li><code>BytesMessage</code> with a body made of <code>bytes</code></li>
- * <li><code>MapMessage</code> with name-value pairs of Java primitives in its body</li>
- * <li><code>StreamMessage</code> with a stream of Java primitives as body</li>
+ * <li>{@code Message} which doesn't have a body</li>
+ * <li>{@code TextMessage} with a {@code String} as body</li>
+ * <li>{@code ObjectMessage} with any {@code Object} as body</li>
+ * <li>{@code BytesMessage} with a body made of {@code bytes}</li>
+ * <li>{@code MapMessage} with name-value pairs of Java primitives in its body</li>
+ * <li>{@code StreamMessage} with a stream of Java primitives as body</li>
  * </ol>
- * <br />
- * For each of this type of message, we test that a message can be sent and received
- * with an empty body or not.
+ * For each of this type of message, we test that a message can be sent and received with an empty body or not.
  */
 public class MessageTypeTest extends PTPTestCase {
 
    /**
-    * Send a <code>StreamMessage</code> with 2 Java primitives in its body (a <code>
-    * String</code> and a <code>double</code>).
-    * <br />
+    * Send a {@code StreamMessage} with 2 Java primitives in its body (a {@code String} and a {@code double}).
+    * <p>
     * Receive it and test that the values of the primitives of the body are correct
     */
    @Test
@@ -74,10 +71,9 @@ public class MessageTypeTest extends PTPTestCase {
    }
 
    /**
-    * Send a <code>StreamMessage</code> with an empty body.
-    * <br />
-    * Receive it and test if the message is effectively an instance of
-    * <code>StreamMessage</code>
+    * Send a {@code StreamMessage} with an empty body.
+    * <p>
+    * Receive it and test if the message is effectively an instance of {@code StreamMessage}
     */
    @Test
    public void testStreamMessage_1() {
@@ -93,8 +89,8 @@ public class MessageTypeTest extends PTPTestCase {
    }
 
    /**
-    * Test in MapMessage the conversion between <code>getObject("foo")</code> and
-    * <code>getDouble("foo")</code> (the later returning a java.lang.Double and the former a double)
+    * Test in MapMessage the conversion between {@code getObject("foo")} and {@code getDouble("foo")} (the later
+    * returning a java.lang.Double and the former a double)
     */
    @Test
    public void testMapMessageConversion() {
@@ -115,11 +111,8 @@ public class MessageTypeTest extends PTPTestCase {
    }
 
    /**
-    * Test that the if the name parameter of the set methods of a <code>MapMessage</code> is <code>null</code>,
-    * the method must throw the error <code>java.lang.IllegalArgumentException</code>.
-    * <br />
-    *
-    * @since JMS 1.1
+    * Test that the if the name parameter of the set methods of a {@code MapMessage} is {@code null}, the method must
+    * throw the error {@code java.lang.IllegalArgumentException}.
     */
    @Test
    public void testNullInSetMethodsForMapMessage() {
@@ -134,11 +127,8 @@ public class MessageTypeTest extends PTPTestCase {
    }
 
    /**
-    * Test that the if the name parameter of the set methods of a <code>MapMessage</code> is an empty String,
-    * the method must throw the error <code>java.lang.IllegalArgumentException</code>.
-    * <br />
-    *
-    * @since JMS 1.1
+    * Test that the if the name parameter of the set methods of a {@code MapMessage} is an empty String, the method must
+    * throw the error {@code java.lang.IllegalArgumentException}.
     */
    @Test
    public void testEmptyStringInSetMethodsForMapMessage() {
@@ -153,9 +143,9 @@ public class MessageTypeTest extends PTPTestCase {
    }
 
    /**
-    * Test that the <code>MapMessage.getMapNames()</code> method returns an
-    * empty <code>Enumeration</code> when no map has been defined before.
-    * <br />
+    * Test that the {@code MapMessage.getMapNames()} method returns an empty {@code Enumeration} when no map has been
+    * defined before.
+    * <p>
     * Also test that the same method returns the correct names of the map.
     */
    @Test
@@ -173,9 +163,8 @@ public class MessageTypeTest extends PTPTestCase {
    }
 
    /**
-    * Send a <code>MapMessage</code> with 2 Java primitives in its body (a <code>
-    * String</code> and a <code>double</code>).
-    * <br />
+    * Send a {@code MapMessage} with 2 Java primitives in its body (a {@code String} and a {@code double}).
+    * <p>
     * Receive it and test that the values of the primitives of the body are correct
     */
    @Test
@@ -197,10 +186,9 @@ public class MessageTypeTest extends PTPTestCase {
    }
 
    /**
-    * Send a <code>MapMessage</code> with an empty body.
-    * <br />
-    * Receive it and test if the message is effectively an instance of
-    * <code>MapMessage</code>
+    * Send a {@code MapMessage} with an empty body.
+    * <p>
+    * Receive it and test if the message is effectively an instance of {@code MapMessage}
     */
    @Test
    public void testMapMessage_1() {
@@ -216,9 +204,9 @@ public class MessageTypeTest extends PTPTestCase {
    }
 
    /**
-    * Send an <code>ObjectMessage</code> with a <code>Vector</code> (composed of a <code>
-    * String</code> and a <code>double</code>) in its body.
-    * <br />
+    * Send an {@code ObjectMessage} with a {@code Vector} (composed of a {@code String} and a {@code double}) in its
+    * body.
+    * <p>
     * Receive it and test that the values of the primitives of the body are correct
     */
    @Test
@@ -242,10 +230,9 @@ public class MessageTypeTest extends PTPTestCase {
    }
 
    /**
-    * Send a <code>ObjectMessage</code> with an empty body.
-    * <br />
-    * Receive it and test if the message is effectively an instance of
-    * <code>ObjectMessage</code>
+    * Send a {@code ObjectMessage} with an empty body.
+    * <p>
+    * Receive it and test if the message is effectively an instance of {@code ObjectMessage}
     */
    @Test
    public void testObjectMessage_1() {
@@ -261,9 +248,8 @@ public class MessageTypeTest extends PTPTestCase {
    }
 
    /**
-    * Send a <code>BytesMessage</code> with 2 Java primitives in its body (a <code>
-    * String</code> and a <code>double</code>).
-    * <br />
+    * Send a {@code BytesMessage} with 2 Java primitives in its body (a {@code String} and a {@code double}).
+    * <p>
     * Receive it and test that the values of the primitives of the body are correct
     */
    @Test
@@ -288,10 +274,9 @@ public class MessageTypeTest extends PTPTestCase {
    }
 
    /**
-    * Send a <code>BytesMessage</code> with an empty body.
-    * <br />
-    * Receive it and test if the message is effectively an instance of
-    * <code>BytesMessage</code>
+    * Send a {@code BytesMessage} with an empty body.
+    * <p>
+    * Receive it and test if the message is effectively an instance of {@code BytesMessage}
     */
    @Test
    public void testBytesMessage_1() {
@@ -307,10 +292,9 @@ public class MessageTypeTest extends PTPTestCase {
    }
 
    /**
-    * Send a <code>TextMessage</code> with a <code>String</code> in its body.
-    * <br />
-    * Receive it and test that the received <code>String</code> corresponds to
-    * the sent one.
+    * Send a {@code TextMessage} with a {@code String} in its body.
+    * <p>
+    * Receive it and test that the received {@code String} corresponds to the sent one.
     */
    @Test
    public void testTextMessage_2() {
@@ -329,10 +313,9 @@ public class MessageTypeTest extends PTPTestCase {
    }
 
    /**
-    * Send a <code>TextMessage</code> with an empty body.
-    * <br />
-    * Receive it and test if the message is effectively an instance of
-    * <code>TextMessage</code>
+    * Send a {@code TextMessage} with an empty body.
+    * <p>
+    * Receive it and test if the message is effectively an instance of {@code TextMessage}
     */
    @Test
    public void testTextMessage_1() {

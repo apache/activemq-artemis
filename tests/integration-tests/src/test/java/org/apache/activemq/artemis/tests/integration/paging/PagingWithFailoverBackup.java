@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.tests.integration.paging;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 
 /**
- * There is no difference between this class and {@link PagingWithFailoverServer}
- * other than helping us identify it on the logs, as it will show with a different name through spawned logs
+ * There is no difference between this class and {@link PagingWithFailoverServer} other than helping us identify it on
+ * the logs, as it will show with a different name through spawned logs
  */
 public class PagingWithFailoverBackup extends PagingWithFailoverServer {
 

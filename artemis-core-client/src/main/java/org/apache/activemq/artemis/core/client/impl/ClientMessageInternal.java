@@ -23,21 +23,12 @@ public interface ClientMessageInternal extends ClientMessage {
 
    TypedProperties getProperties();
 
-   /**
-    * Size used for FlowControl
-    */
    int getFlowControlSize();
 
-   /**
-    * Size used for FlowControl
-    */
    void setFlowControlSize(int flowControlSize);
 
    void onReceipt(ClientConsumerInternal consumer);
 
-   /**
-    * Discard unused packets (used on large-message)
-    */
    void discardBody();
 
    boolean isCompressed();

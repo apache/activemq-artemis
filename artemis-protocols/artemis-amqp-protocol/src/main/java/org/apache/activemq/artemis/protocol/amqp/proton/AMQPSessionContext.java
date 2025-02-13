@@ -121,10 +121,6 @@ public class AMQPSessionContext extends ProtonInitializable {
       }
    }
 
-   /**
-    * @param consumer
-    * @param queueName
-    */
    public void disconnect(Object consumer, String queueName) {
       ProtonServerSenderContext protonConsumer = senders.remove(consumer);
       if (protonConsumer != null) {

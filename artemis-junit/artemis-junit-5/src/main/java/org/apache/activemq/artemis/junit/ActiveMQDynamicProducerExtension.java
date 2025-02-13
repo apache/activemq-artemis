@@ -28,21 +28,22 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 /**
  * A JUnit Extension that embeds an dynamic (i.e. unbound) ActiveMQ Artemis ClientProducer into a test.
  * <p>
- * This JUnit Extension is designed to simplify using ActiveMQ Artemis clients in unit tests.  Adding the extension to a test will startup
- * an unbound ClientProducer, which can then be used to feed messages to any address on the ActiveMQ Artemis server.
+ * This JUnit Extension is designed to simplify using ActiveMQ Artemis clients in unit tests.  Adding the extension to a
+ * test will startup an unbound ClientProducer, which can then be used to feed messages to any address on the ActiveMQ
+ * Artemis server.
  *
- * <pre><code>
+ * <pre>{@code
  * public class SimpleTest {
- *     &#64;RegisterExtension
+ *     @RegisterExtension
  *     private ActiveMQDynamicProducerExtension producer = new ActiveMQDynamicProducerExtension("vm://0");
  *
- *     &#64;Test
+ *     @Test
  *     public void testSomething() throws Exception {
  *         // Use the embedded ClientProducer here
  *         producer.sendMessage( "test.address", "String Body" );
  *     }
  * }
- * </code></pre>
+ * }</pre>
  */
 public class ActiveMQDynamicProducerExtension implements BeforeAllCallback, AfterAllCallback, ActiveMQDynamicProducerOperations, ActiveMQProducerOperations {
 

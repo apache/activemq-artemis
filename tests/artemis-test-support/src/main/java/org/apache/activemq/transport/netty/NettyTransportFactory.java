@@ -30,16 +30,12 @@ public final class NettyTransportFactory {
    }
 
    /**
-    * Creates an instance of the given Transport and configures it using the properties set on
-    * the given remote broker URI.
+    * Creates an instance of the given Transport and configures it using the properties set on the given remote broker
+    * URI.
     *
-    * @param remoteURI
-    *        The URI used to connect to a remote Peer.
-    *
-    * @return a new Transport instance.
-    *
-    * @throws Exception
-    *         if an error occurs while creating the Transport instance.
+    * @param remoteURI The URI used to connect to a remote Peer.
+    * @return a new Transport instance
+    * @throws Exception if an error occurs while creating the Transport instance.
     */
    public static NettyTransport createTransport(URI remoteURI) throws Exception {
       Map<String, String> map = PropertyUtil.parseQuery(remoteURI.getQuery());

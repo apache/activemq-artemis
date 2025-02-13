@@ -46,12 +46,8 @@ public interface Bindings extends UnproposalListener {
    MessageLoadBalancingType getMessageLoadBalancingType();
 
    /**
-    *
     * @param message the message being copied
-    * @param originatingQueue
-    * @param context
     * @return a Copy of the message if redistribution succeeded, or null if it wasn't redistributed
-    * @throws Exception
     */
    Message redistribute(Message message, Queue originatingQueue, RoutingContext context) throws Exception;
 

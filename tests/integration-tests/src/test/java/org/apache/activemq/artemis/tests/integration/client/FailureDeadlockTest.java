@@ -60,9 +60,7 @@ public class FailureDeadlockTest extends ActiveMQTestBase {
       cf2 = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
    }
 
-   // https://jira.jboss.org/jira/browse/JBMESSAGING-1702
-   // Test that two failures concurrently executing and calling the same exception listener
-   // don't deadlock
+   // Test that two failures concurrently executing and calling the same exception listener don't deadlock
    @Test
    public void testDeadlock() throws Exception {
       for (int i = 0; i < 100; i++) {

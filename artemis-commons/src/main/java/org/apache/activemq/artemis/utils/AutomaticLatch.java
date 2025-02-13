@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.artemis.utils;
 
-/** An automatic latch has the same semantic as the ReusableLatch
- *  However this class has a replaceable callback that could be called
- *  when the number of elements reach zero.
- *  With that you can either block to wait completion, or to send a callback to be
- *  used when it reaches 0. */
+/**
+ * An automatic latch has the same semantic as the ReusableLatch However this class has a replaceable callback that
+ * could be called when the number of elements reach zero. With that you can either block to wait completion, or to send
+ * a callback to be used when it reaches 0.
+ */
 public class AutomaticLatch extends AbstractLatch {
 
    volatile Runnable afterCompletion;

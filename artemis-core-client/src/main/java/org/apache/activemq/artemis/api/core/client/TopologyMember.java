@@ -21,18 +21,17 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
  * A member of the topology.
- *
- * Each TopologyMember represents a single server and possibly any backup server that may take over
- * its duties (using the nodeId of the original server).
+ * <p>
+ * Each TopologyMember represents a single server and possibly any backup server that may take over its duties (using
+ * the nodeId of the original server).
  */
 public interface TopologyMember {
 
    /**
-    * Returns the {@code backup-group-name} of the primary server and backup servers associated with
-    * Topology entry.
+    * Returns the {@code backup-group-name} of the primary server and backup servers associated with Topology entry.
     * <p>
-    * This is a server configuration value. A (remote) backup will only work with primary servers that
-    * have a matching {@code backup-group-name}.
+    * This is a server configuration value. A (remote) backup will only work with primary servers that have a matching
+    * {@code backup-group-name}.
     * <p>
     * This value does not apply to "shared-storage" backup and primary pairs.
     *
@@ -43,57 +42,46 @@ public interface TopologyMember {
    /**
     * Returns the {@code scale-down-group-name} of the server with this Topology entry.
     * <p>
-    * This is a server configuration value. An active server will only send its messages to another active server
-    * with matching {@code scale-down-group-name}.
+    * This is a server configuration value. An active server will only send its messages to another active server with
+    * matching {@code scale-down-group-name}.
     *
     * @return the {@code scale-down-group-name}
     */
    String getScaleDownGroupName();
 
    /**
-    * @return configuration relative to the live server
+    * {@return configuration relative to the live server}
     */
    @Deprecated(forRemoval = true)
    TransportConfiguration getLive();
 
    /**
-    * @return configuration relative to the primary server
+    * {@return configuration relative to the primary server}
     */
    TransportConfiguration getPrimary();
 
    /**
-    * Returns the TransportConfiguration relative to the backup server if any.
-    *
-    * @return a {@link TransportConfiguration} for the backup, or null if the primary server has no
-    * backup server.
+    * {@return a {@link TransportConfiguration} for the backup, or null if the primary server has no backup server.}
     */
    TransportConfiguration getBackup();
 
    /**
-    * Returns the nodeId of the server.
-    *
-    * @return the nodeId
+    * {@return the nodeId of the server}
     */
    String getNodeId();
 
    /**
-    * @return long value representing a unique event ID
+    * {@return long value representing a unique event ID}
     */
    long getUniqueEventID();
 
    /**
-    * Returns true if this TopologyMember is the target of this remoting connection
-    *
-    * @param connection
-    * @return
+    * {@return {@code true} if this {@code TopologyMember} is the target of this remoting connection}
     */
    boolean isMember(RemotingConnection connection);
 
    /**
-    * Returns true if this configuration is the target of this remoting connection
-    *
-    * @param configuration
-    * @return
+    * {@return {@code true} if this configuration is the target of this remoting connection}
     */
    boolean isMember(TransportConfiguration configuration);
 

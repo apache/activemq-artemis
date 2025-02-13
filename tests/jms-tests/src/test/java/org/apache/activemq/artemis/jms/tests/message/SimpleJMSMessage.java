@@ -32,13 +32,11 @@ public class SimpleJMSMessage implements Message {
 
    private boolean ignoreSetDestination;
 
-
-
    public SimpleJMSMessage() {
       properties.put("JMSXDeliveryCount", 0);
    }
 
-   /*
+   /**
     * This constructor is used to simulate an activemq message in which the set of the destination is ignored after receipt.
     */
    public SimpleJMSMessage(final Destination dest) {

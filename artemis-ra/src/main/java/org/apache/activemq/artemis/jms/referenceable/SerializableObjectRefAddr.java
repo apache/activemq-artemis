@@ -20,7 +20,7 @@ import javax.naming.NamingException;
 
 /**
  * Done for back compatibility with the package/class move.
- *
+ * <p>
  * Should be removed on next major version change.
  */
 public class SerializableObjectRefAddr extends org.apache.activemq.artemis.ra.referenceable.SerializableObjectRefAddr {

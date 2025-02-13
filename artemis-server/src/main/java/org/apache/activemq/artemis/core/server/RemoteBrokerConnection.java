@@ -17,8 +17,7 @@
 package org.apache.activemq.artemis.core.server;
 
 /**
- * A remote broker connection defines a view of the remote end of an active
- * {@link BrokerConnection}.
+ * A remote broker connection defines a view of the remote end of an active {@link BrokerConnection}.
  */
 public interface RemoteBrokerConnection {
 
@@ -37,21 +36,19 @@ public interface RemoteBrokerConnection {
    void shutdown() throws Exception;
 
    /**
-    * Returns the name of the broker connection as defined on the remote server. This value
-    * is unique on the remote server but is only unique on the local end when combined with
-    * the unique node Id from which the broker connection was initiated.
-    *
-    * @return the unique name of the remote broker connection.
+    * {@return the name of the broker connection as defined on the remote server; this value is unique on the remote
+    * server but is only unique on the local end when combined with the unique node Id from which the broker connection
+    * was initiated}
     */
    String getName();
 
    /**
-    * @return the node Id of the remote broker that created the incoming connection.
+    * {@return the node Id of the remote broker that created the incoming connection}
     */
    String getNodeId();
 
    /**
-    * @return the protocol that underlies the broker connection implementation.
+    * {@return the protocol that underlies the broker connection implementation}
     */
    String getProtocol();
 

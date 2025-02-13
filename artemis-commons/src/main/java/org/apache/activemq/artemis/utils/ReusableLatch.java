@@ -17,18 +17,23 @@
 package org.apache.activemq.artemis.utils;
 
 /**
- * <p>This class will use the framework provided to by AbstractQueuedSynchronizer.</p>
- * <p>AbstractQueuedSynchronizer is the framework for any sort of concurrent synchronization, such as Semaphores, events, etc, based on AtomicIntegers.</p>
- *
- * <p>This class works just like CountDownLatch, with the difference you can also increase the counter</p>
- *
- * <p>It could be used for sync points when one process is feeding the latch while another will wait when everything is done. (e.g. waiting IO completions to finish)</p>
- *
- * <p>On ActiveMQ Artemis we have the requirement of increment and decrement a counter until the user fires a ready event (commit). At that point we just act as a regular countDown.</p>
- *
- * <p>Note: This latch is reusable. Once it reaches zero, you can call up again, and reuse it on further waits.</p>
- *
- * <p>For example: prepareTransaction will wait for the current completions, and further adds will be called on the latch. Later on when commit is called you can reuse the same latch.</p>
+ * This class will use the framework provided to by AbstractQueuedSynchronizer.
+ * <p>
+ * AbstractQueuedSynchronizer is the framework for any sort of concurrent synchronization, such as Semaphores, events,
+ * etc, based on AtomicIntegers.
+ * <p>
+ * This class works just like CountDownLatch, with the difference you can also increase the counter
+ * <p>
+ * It could be used for sync points when one process is feeding the latch while another will wait when everything is
+ * done. (e.g. waiting IO completions to finish)
+ * <p>
+ * On ActiveMQ Artemis we have the requirement of increment and decrement a counter until the user fires a ready event
+ * (commit). At that point we just act as a regular countDown.
+ * <p>
+ * Note: This latch is reusable. Once it reaches zero, you can call up again, and reuse it on further waits.
+ * <p>
+ * For example: prepareTransaction will wait for the current completions, and further adds will be called on the latch.
+ * Later on when commit is called you can reuse the same latch.
  */
 public class ReusableLatch extends AbstractLatch {
 

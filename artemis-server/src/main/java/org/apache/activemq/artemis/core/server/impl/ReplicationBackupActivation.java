@@ -49,8 +49,8 @@ import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequ
 import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequenceStateMachine.tryActivate;
 
 /**
- * This activation can be used by a primary while trying to fail-back ie {@code failback == true} or
- * by a natural-born backup ie {@code failback == false}.<br>
+ * This activation can be used by a primary while trying to fail-back ie {@code failback == true} or by a natural-born
+ * backup ie {@code failback == false}.
  */
 public final class ReplicationBackupActivation extends Activation implements DistributedLockManager.UnavailableManagerListener {
 
@@ -117,9 +117,9 @@ public final class ReplicationBackupActivation extends Activation implements Dis
    }
 
    /**
-    * This util class exists because {@link NodeLocator} need a {@link NodeLocator.BackupRegistrationListener}
-    * to forward backup registration failure events: this is used to switch on/off backup registration event listening
-    * on an existing locator.
+    * This util class exists because {@link NodeLocator} need a {@link NodeLocator.BackupRegistrationListener} to
+    * forward backup registration failure events: this is used to switch on/off backup registration event listening on
+    * an existing locator.
     */
    private static final class RegistrationFailureForwarder implements NodeLocator.BackupRegistrationListener, AutoCloseable {
 

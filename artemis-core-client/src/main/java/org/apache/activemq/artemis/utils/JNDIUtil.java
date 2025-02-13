@@ -61,10 +61,9 @@ public class JNDIUtil {
    }
 
    /**
-    * Context.rebind() requires that all intermediate contexts and the target context (that named by
-    * all but terminal atomic component of the name) must already exist, otherwise
-    * NameNotFoundException is thrown. This method behaves similar to Context.rebind(), but creates
-    * intermediate contexts, if necessary.
+    * Context.rebind() requires that all intermediate contexts and the target context (that named by all but terminal
+    * atomic component of the name) must already exist, otherwise NameNotFoundException is thrown. This method behaves
+    * similar to Context.rebind(), but creates intermediate contexts, if necessary.
     */
    public static void rebind(final Context c, final String jndiName, final Object o) throws NamingException {
       Context context = c;

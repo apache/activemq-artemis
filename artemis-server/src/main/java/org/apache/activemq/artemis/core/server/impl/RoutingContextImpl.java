@@ -52,7 +52,7 @@ public class RoutingContextImpl implements RoutingContext {
    // if we wanted to bypass the load balancing configured elsewhere
    private MessageLoadBalancingType loadBalancingType;
 
-   /* To be set by the Mirror target on the server, to avoid ping pongs or reflections of messages between mirrors */
+   // To be set by the Mirror target on the server, to avoid ping pongs or reflections of messages between mirrors
    private MirrorController mirrorControllerSource;
 
    private RoutingType routingType;

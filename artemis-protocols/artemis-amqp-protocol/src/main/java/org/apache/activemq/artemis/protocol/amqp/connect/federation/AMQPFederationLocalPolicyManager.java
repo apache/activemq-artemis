@@ -31,9 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A federation policy manager for policies that operate on the local side of this broker
- * connection. These policies will create consumers on the remote which federate message
- * back to this broker instance.
+ * A federation policy manager for policies that operate on the local side of this broker connection. These policies
+ * will create consumers on the remote which federate message back to this broker instance.
  */
 public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPolicyManager implements ActiveMQServerBindingPlugin {
 
@@ -46,7 +45,7 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
    }
 
    /**
-    * @return the immutable federation policy configuration that backs this manager.
+    * {@return the immutable federation policy configuration that backs this manager}
     */
    public abstract FederationReceiveFromResourcePolicy getPolicy();
 
@@ -94,8 +93,8 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
 
    @Override
    protected final void handleConnectionRestored() {
-      // Capture state for the current connection on each connection as different URIs could have
-      // different options we need to capture in the current configuration state.
+      // Capture state for the current connection on each connection as different URIs could have different options we
+      // need to capture in the current configuration state.
       configuration = new AMQPFederationConsumerConfiguration(federation.getConfiguration(), getPolicy().getProperties());
 
       if (isActive()) {
@@ -104,44 +103,37 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
    }
 
    /**
-    * Create a new {@link AMQPFederationConsumer} instance using the consumer information
-    * given. This is called when local demand for a matched resource requires a new consumer to
-    * be created. A subclass must override this to perform the create operation.
+    * Create a new {@link AMQPFederationConsumer} instance using the consumer information given. This is called when
+    * local demand for a matched resource requires a new consumer to be created. A subclass must override this to
+    * perform the create operation.
     *
-    * @param consumerInfo
-    *    The {@link FederationConsumerInfo} that defines the consumer to be created.
-    *
-    * @return a new {@link AMQPFederationConsumer} instance that will reside in this manager.
+    * @param consumerInfo The {@link FederationConsumerInfo} that defines the consumer to be created.
+    * @return a new {@link AMQPFederationConsumer} instance that will reside in this manager
     */
    protected abstract AMQPFederationConsumer createFederationConsumer(FederationConsumerInfo consumerInfo);
 
    /**
-    * Scans all bindings and push them through the normal bindings checks that
-    * would be done on an add. This allows for checks on demand after a start or
-    * after a connection is restored.
+    * Scans all bindings and push them through the normal bindings checks that would be done on an add. This allows for
+    * checks on demand after a start or after a connection is restored.
     */
    protected abstract void scanAllBindings();
 
    /**
-    * The subclass implements this method and should remove all tracked federation
-    * consumer data and also close all consumers either by first safely stopping the
-    * consumer or if offline simply closing the consumer. If the force flag is set to
-    * true the implementation should close the consumer without attempting to stop it
-    * by draining link credit before the close.
+    * The subclass implements this method and should remove all tracked federation consumer data and also close all
+    * consumers either by first safely stopping the consumer or if offline simply closing the consumer. If the force
+    * flag is set to true the implementation should close the consumer without attempting to stop it by draining link
+    * credit before the close.
     *
-    * @param force
-    *    Should the implementation simply close the consumers without attempting a stop.
+    * @param force Should the implementation simply close the consumers without attempting a stop.
     */
    protected abstract void safeCleanupManagerResources(boolean force);
 
    /**
-    * Attempts to close a federation consumer and signals the installed federation plugin
-    * of the impending and post closed state. The method will not double close a consumer
-    * as it checks the closed state. The method is synchronized to allow for use in asynchronous
-    * call backs from federation consumers.
+    * Attempts to close a federation consumer and signals the installed federation plugin of the impending and post
+    * closed state. The method will not double close a consumer as it checks the closed state. The method is
+    * synchronized to allow for use in asynchronous call backs from federation consumers.
     *
-    * @param federationConsuner
-    *    A federation consumer to close, or null in which case no action is taken.
+    * @param federationConsuner A federation consumer to close, or null in which case no action is taken.
     */
    protected synchronized void tryCloseFederationConsumer(AMQPFederationConsumer federationConsuner) {
       if (federationConsuner != null) {
@@ -158,11 +150,9 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
    }
 
    /**
-    * Signal any registered plugins for this federation instance that a remote consumer
-    * is being created.
+    * Signal any registered plugins for this federation instance that a remote consumer is being created.
     *
-    * @param info
-    *    The {@link FederationConsumerInfo} that describes the remote federation consumer
+    * @param info The {@link FederationConsumerInfo} that describes the remote federation consumer
     */
    protected final void signalPluginBeforeCreateFederationConsumer(FederationConsumerInfo info) {
       try {
@@ -177,11 +167,9 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
    }
 
    /**
-    * Signal any registered plugins for this federation instance that a remote consumer
-    * has been created.
+    * Signal any registered plugins for this federation instance that a remote consumer has been created.
     *
-    * @param consumer
-    *    The {@link FederationConsumerInfo} that describes the remote consumer
+    * @param consumer The {@link FederationConsumerInfo} that describes the remote consumer
     */
    protected final void signalPluginAfterCreateFederationConsumer(FederationConsumer consumer) {
       try {
@@ -196,11 +184,9 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
    }
 
    /**
-    * Signal any registered plugins for this federation instance that a remote consumer
-    * is about to be closed.
+    * Signal any registered plugins for this federation instance that a remote consumer is about to be closed.
     *
-    * @param consumer
-    *    The {@link FederationConsumer} that that is about to be closed.
+    * @param consumer The {@link FederationConsumer} that that is about to be closed.
     */
    protected final void signalPluginBeforeCloseFederationConsumer(FederationConsumer consumer) {
       try {
@@ -215,11 +201,9 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
    }
 
    /**
-    * Signal any registered plugins for this federation instance that a remote consumer
-    * has now been closed.
+    * Signal any registered plugins for this federation instance that a remote consumer has now been closed.
     *
-    * @param consumer
-    *    The {@link FederationConsumer} that that has been closed.
+    * @param consumer The {@link FederationConsumer} that that has been closed.
     */
    protected final void signalPluginAfterCloseFederationConsumer(FederationConsumer consumer) {
       try {
@@ -234,13 +218,11 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
    }
 
    /**
-    * Query all registered plugins for this federation instance to determine if any wish to
-    * prevent a federation consumer from being created for the given resource.
+    * Query all registered plugins for this federation instance to determine if any wish to prevent a federation
+    * consumer from being created for the given resource.
     *
-    * @param address
-    *    The address on which the manager is intending to create a remote consumer for.
-    *
-    * @return true if any registered plugin signaled that creation should be suppressed.
+    * @param address The address on which the manager is intending to create a remote consumer for.
+    * @return true if any registered plugin signaled that creation should be suppressed
     */
    protected final boolean isPluginBlockingFederationConsumerCreate(AddressInfo address) {
       final AtomicBoolean canCreate = new AtomicBoolean(true);
@@ -261,15 +243,12 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
    }
 
    /**
-    * Query all registered plugins for this federation instance to determine if any wish to
-    * prevent a federation consumer from being created for the given Queue.
+    * Query all registered plugins for this federation instance to determine if any wish to prevent a federation
+    * consumer from being created for the given Queue.
     *
-    * @param divert
-    *    The {@link Divert} that triggered the manager to attempt to create a remote consumer.
-    * @param queue
-    *    The {@link Queue} that triggered the manager to attempt to create a remote consumer.
-    *
-    * @return true if any registered plugin signaled that creation should be suppressed.
+    * @param divert The {@link Divert} that triggered the manager to attempt to create a remote consumer.
+    * @param queue  The {@link Queue} that triggered the manager to attempt to create a remote consumer.
+    * @return true if any registered plugin signaled that creation should be suppressed
     */
    protected final boolean isPluginBlockingFederationConsumerCreate(Divert divert, Queue queue) {
       final AtomicBoolean canCreate = new AtomicBoolean(true);
@@ -290,13 +269,11 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
    }
 
    /**
-    * Query all registered plugins for this federation instance to determine if any wish to
-    * prevent a federation consumer from being created for the given Queue.
+    * Query all registered plugins for this federation instance to determine if any wish to prevent a federation
+    * consumer from being created for the given Queue.
     *
-    * @param queue
-    *    The {@link Queue} that triggered the manager to attempt to create a remote consumer.
-    *
-    * @return true if any registered plugin signaled that creation should be suppressed.
+    * @param queue The {@link Queue} that triggered the manager to attempt to create a remote consumer.
+    * @return true if any registered plugin signaled that creation should be suppressed
     */
    protected final boolean isPluginBlockingFederationConsumerCreate(Queue queue) {
       final AtomicBoolean canCreate = new AtomicBoolean(true);

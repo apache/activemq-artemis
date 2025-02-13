@@ -26,34 +26,35 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.w3c.dom.Element;
 
 /**
- * A Deployable is an object that can be configured via an xml configuration element in the main configuration file "broker.xml"
- * It holds all the information needed by the FileDeploymentManager to parse the configuration and build the component
+ * A Deployable is an object that can be configured via an xml configuration element in the main configuration file
+ * "broker.xml" It holds all the information needed by the FileDeploymentManager to parse the configuration and build
+ * the component
  */
 public interface Deployable {
 
-   /*
-   * parse the element from the xml configuration
-   */
+   /**
+    * parse the element from the xml configuration
+    */
    void parse(Element config, URL url) throws Exception;
 
-   /*
-   * has this Deployable been parsed
-   */
+   /**
+    * has this Deployable been parsed
+    */
    boolean isParsed();
 
-   /*
-   * The name of the root xml element for this Deployable, i.e. core or jms
-   */
+   /**
+    * The name of the root xml element for this Deployable, i.e. core or jms
+    */
    String getRootElement();
 
-   /*
-   * The schema that should be used to validate the xml
-   */
+   /**
+    * The schema that should be used to validate the xml
+    */
    String getSchema();
 
-   /*
-   * builds the service. The implementation should add a component to the components map passed in if it needs to.
-   */
+   /**
+    * builds the service. The implementation should add a component to the components map passed in if it needs to.
+    */
    void buildService(ActiveMQSecurityManager securityManager,
                      MBeanServer mBeanServer,
                      Map<String, Deployable> deployables,

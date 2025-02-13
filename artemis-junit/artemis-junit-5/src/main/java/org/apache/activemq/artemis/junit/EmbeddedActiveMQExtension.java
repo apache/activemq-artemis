@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * This JUnit Extension is designed to simplify using embedded servers in unit tests. Adding the extension to a test will startup
  * an embedded server, which can then be used by client applications.
  *
- * <pre><code>
+ * <pre>{@code
  * public class SimpleTest {
  *     &#64;RegisterExtension
  *     private EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  *         // Use the embedded server here
  *     }
  * }
- * </code></pre>
+ * }</pre>
  */
 public class EmbeddedActiveMQExtension implements BeforeAllCallback, AfterAllCallback, EmbeddedActiveMQOperations {
 

@@ -36,8 +36,7 @@ public class DefaultOpenSSLContextFactory implements OpenSSLContextFactory {
 
    /**
     * @param additionalOpts not used by this implementation
-    *
-    * @return an {@link SslContext} instance for the given configuration.
+    * @return an {@link SslContext} instance for the given configuration
     */
    @Override
    public SslContext getClientSslContext(final SSLContextConfig config, final Map<String, Object> additionalOpts) throws Exception {
@@ -49,8 +48,7 @@ public class DefaultOpenSSLContextFactory implements OpenSSLContextFactory {
 
    /**
     * @param additionalOpts not used by this implementation
-    *
-    * @return an {@link SslContext} instance for the given configuration.
+    * @return an {@link SslContext} instance for the given configuration
     */
    @Override
    public SslContext getServerSslContext(final SSLContextConfig config, final Map<String, Object> additionalOpts) throws Exception {

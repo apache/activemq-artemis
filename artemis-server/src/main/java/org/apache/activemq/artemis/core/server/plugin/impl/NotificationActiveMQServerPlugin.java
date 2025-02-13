@@ -37,9 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/**
- *
- */
 public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -59,8 +56,6 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
 
    /**
     * used to pass configured properties to Plugin
-    *
-    * @param properties
     */
    @Override
    public void init(Map<String, String> properties) {
@@ -186,58 +181,34 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
       }
    }
 
-   /**
-    * @return the sendConnectionNotifications
-    */
    public boolean isSendConnectionNotifications() {
       return sendConnectionNotifications;
    }
 
-   /**
-    * @param sendConnectionNotifications the sendConnectionNotifications to set
-    */
    public void setSendConnectionNotifications(boolean sendConnectionNotifications) {
       this.sendConnectionNotifications = sendConnectionNotifications;
    }
 
-   /**
-    * @return the sendDeliveredNotifications
-    */
    public boolean isSendDeliveredNotifications() {
       return sendDeliveredNotifications;
    }
 
-   /**
-    * @param sendDeliveredNotifications the sendDeliveredNotifications to set
-    */
    public void setSendDeliveredNotifications(boolean sendDeliveredNotifications) {
       this.sendDeliveredNotifications = sendDeliveredNotifications;
    }
 
-   /**
-    * @return the sendExpiredNotifications
-    */
    public boolean isSendExpiredNotifications() {
       return sendExpiredNotifications;
    }
 
-   /**
-    * @param sendExpiredNotifications the sendExpiredNotifications to set
-    */
    public void setSendExpiredNotifications(boolean sendExpiredNotifications) {
       this.sendExpiredNotifications = sendExpiredNotifications;
    }
 
-   /**
-    * @return the sendAddressNotifications
-    */
    public boolean isSendAddressNotifications() {
       return sendAddressNotifications;
    }
 
-   /**
-    * @param sendAddressNotifications the sendAddressNotifications to set
-    */
    public void setSendAddressNotifications(boolean sendAddressNotifications) {
       this.sendAddressNotifications = sendAddressNotifications;
    }

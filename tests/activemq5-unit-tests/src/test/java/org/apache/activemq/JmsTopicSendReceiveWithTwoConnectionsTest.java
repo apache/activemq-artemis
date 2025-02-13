@@ -25,9 +25,6 @@ import javax.jms.Session;
 
 import org.apache.activemq.transport.tcp.TcpTransportFactory;
 
-/**
- * @version
- */
 public class JmsTopicSendReceiveWithTwoConnectionsTest extends JmsSendReceiveTestSupport {
 
    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(JmsTopicSendReceiveWithTwoConnectionsTest.class);

@@ -41,12 +41,10 @@ public class ServerUtil {
    }
 
    /**
-    * @param artemisInstance
-    * @param serverName      it will be used on logs
-    * @param id              it will be used to add on the port
-    * @param timeout
-    * @return
-    * @throws Exception
+    * Start the server.
+    *
+    * @param serverName it will be used on logs
+    * @param id         it will be used to add on the port
     */
    public static Process startServer(String artemisInstance, String serverName, int id, int timeout) throws Exception {
       return startServer(artemisInstance, serverName, id, timeout, null);
@@ -122,8 +120,7 @@ public class ServerUtil {
          ProcessLogger outputLogger = new ProcessLogger(true, process.getInputStream(), jobName, false);
          outputLogger.start();
 
-         // Adding a reader to System.err, so the VM won't hang on a System.err.println as identified on this forum thread:
-         // http://www.jboss.org/index.html?module=bb&op=viewtopic&t=151815
+         // Adding a reader to System.err, so the VM won't hang on a System.err.println
          ProcessLogger errorLogger = new ProcessLogger(true, process.getErrorStream(), jobName, true);
          errorLogger.start();
          return process;

@@ -32,9 +32,10 @@ import java.lang.invoke.MethodHandles;
 /**
  * Stops the backup in case of an error at the start of Replication.
  * <p>
- * Using an interceptor for the task to avoid a server reference inside of the 'basic' channel-0
- * handler at {@link org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager.Channel0Handler}. As {@link org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager}
- * is also shipped in the activemq-core-client JAR (which does not include {@link org.apache.activemq.artemis.core.server.ActiveMQServer}).
+ * Using an interceptor for the task to avoid a server reference inside of the 'basic' channel-0 handler at
+ * {@link org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager.Channel0Handler}. As
+ * {@link org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManager} is also shipped in the
+ * activemq-core-client JAR (which does not include {@link org.apache.activemq.artemis.core.server.ActiveMQServer}).
  */
 final class ReplicationError implements Interceptor {
 

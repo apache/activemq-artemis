@@ -35,17 +35,21 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactResult;
 
-/** The following substitutions are made for each line
- * X{group} with the groupID
- * X{artifact} with the artifactID
- * X{version} with the version
- * X{classifier} with the classifier of the component
- * X{package} a combination of the maven group:artifact:classifier
- * X{url} with the url
- * X{file} with the fileName
- * X{fileMD} with the fileName on a LINK with MD style
- * X{URI} with the URI
- * X{detail} with the detail provided in the config */
+/**
+ * The following substitutions are made for each line
+ * <ul>
+ * <li>{@code X{group}} with the groupID
+ * <li>{@code X{artifact}} with the artifactID
+ * <li>{@code X{version}} with the version
+ * <li>{@code X{classifier}} with the classifier of the component
+ * <li>{@code X{package}} a combination of the maven group:artifact:classifier
+ * <li>{@code X{url}} with the url
+ * <li>{@code X{file}} with the fileName
+ * <li>{@code X{fileMD}} with the fileName on a LINK with MD style
+ * <li>{@code X{URI}} with the URI
+ * <li>{@code X{detail}} with the detail provided in the config
+ * </ul>
+ */
 @Mojo(name = "dependency-doc", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
 

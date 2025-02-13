@@ -18,7 +18,7 @@ package org.apache.activemq.transport.amqp.client.sasl;
 
 /**
  * Implements the SASL PLAIN authentication Mechanism.
- *
+ * <p>
  * User name and Password values are sent without being encrypted.
  */
 public class PlainMechanism extends AbstractMechanism {

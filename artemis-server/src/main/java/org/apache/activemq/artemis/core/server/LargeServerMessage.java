@@ -57,8 +57,6 @@ public interface LargeServerMessage extends ReplicatedLargeMessage {
 
    /**
     * This will return the File suitable for appending the message
-    * @return
-    * @throws ActiveMQException
     */
    SequentialFile getAppendFile() throws ActiveMQException;
 

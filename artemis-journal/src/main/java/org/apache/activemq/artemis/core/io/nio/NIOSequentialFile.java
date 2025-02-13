@@ -53,7 +53,8 @@ public class NIOSequentialFile extends AbstractSequentialFile {
 
    private static final boolean DEBUG_OPENS = false;
 
-   /* This value has been tuned just to reduce the memory footprint
+   /*
+    * This value has been tuned just to reduce the memory footprint
       of read/write of the whole file size: given that this value
       is > 8192, RandomAccessFile JNI code will use malloc/free instead
       of using a copy on the stack, but it has been proven to NOT be
@@ -94,8 +95,8 @@ public class NIOSequentialFile extends AbstractSequentialFile {
    }
 
    /**
-    * this.maxIO represents the default maxIO.
-    * Some operations while initializing files on the journal may require a different maxIO
+    * this.maxIO represents the default maxIO. Some operations while initializing files on the journal may require a
+    * different maxIO
     */
    @Override
    public synchronized void open() throws IOException {
@@ -420,13 +421,6 @@ public class NIOSequentialFile extends AbstractSequentialFile {
       }
    }
 
-   /**
-    * @param bytes
-    * @param sync
-    * @param callback
-    * @throws IOException
-    * @throws Exception
-    */
    private void doInternalWrite(final ByteBuffer bytes,
                                 final boolean sync,
                                 final IOCallback callback,

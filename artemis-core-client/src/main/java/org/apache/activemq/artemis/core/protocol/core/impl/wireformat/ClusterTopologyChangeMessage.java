@@ -58,9 +58,6 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
       super(CLUSTER_TOPOLOGY);
    }
 
-   /**
-    * @param clusterTopologyV2
-    */
    public ClusterTopologyChangeMessage(byte clusterTopologyV2) {
       super(clusterTopologyV2);
    }

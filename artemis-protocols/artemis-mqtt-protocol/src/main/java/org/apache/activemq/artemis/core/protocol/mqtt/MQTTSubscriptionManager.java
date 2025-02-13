@@ -51,9 +51,7 @@ public class MQTTSubscriptionManager {
 
    private final ConcurrentMap<String, ServerConsumer> consumers;
 
-   /*
-    * We filter out certain messages (e.g. management messages, notifications)
-    */
+   // We filter out certain messages (e.g. management messages, notifications)
    private final SimpleString messageFilter;
 
    /*
@@ -289,9 +287,7 @@ public class MQTTSubscriptionManager {
    /**
     * As per MQTT Spec. Subscribes this client to a number of MQTT topics.
     *
-    * @param subscriptions
-    * @return An array of integers representing the list of accepted QoS for each topic.
-    * @throws Exception
+    * @return An array of integers representing the list of accepted QoS for each topic
     */
    int[] addSubscriptions(List<MqttTopicSubscription> subscriptions, Integer subscriptionIdentifier) throws Exception {
       MQTTSessionState state = session.getState();

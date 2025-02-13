@@ -29,10 +29,8 @@ public interface ServerMessage extends MessageInternal {
    MessageReference createReference(Queue queue);
 
    /**
-    * This will force encoding of the address, and will re-check the buffer
-    * This is to avoid setMessageTransient which set the address without changing the buffer
-    *
-    * @param address
+    * This will force encoding of the address, and will re-check the buffer. This is to avoid setMessageTransient which
+    * set the address without changing the buffer
     */
    void forceAddress(SimpleString address);
 

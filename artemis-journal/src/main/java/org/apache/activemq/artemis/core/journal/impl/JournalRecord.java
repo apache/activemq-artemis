@@ -19,9 +19,9 @@ package org.apache.activemq.artemis.core.journal.impl;
 import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 /**
- * This holds the relationship a record has with other files in regard to reference counting.
- * Note: This class used to be called PosFiles
- *
+ * This holds the relationship a record has with other files in regard to reference counting. Note: This class used to
+ * be called PosFiles
+ * <p>
  * Used on the ref-count for reclaiming
  */
 public class JournalRecord {

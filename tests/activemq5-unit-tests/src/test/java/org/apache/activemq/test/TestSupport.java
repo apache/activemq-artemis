@@ -35,8 +35,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Useful base class for unit test cases
- *
- *
  */
 public abstract class TestSupport extends TestCase {
 
@@ -51,38 +49,24 @@ public abstract class TestSupport extends TestCase {
       super(name);
    }
 
-   /**
-    * Creates an ActiveMQMessage.
-    *
-    * @return ActiveMQMessage
-    */
    protected ActiveMQMessage createMessage() {
       return new ActiveMQMessage();
    }
 
-   /**
-    * Creates a destination.
-    *
-    * @param subject - topic or queue name.
-    * @return Destination - either an ActiveMQTopic or ActiveMQQUeue.
-    */
-   protected Destination createDestination(String subject) {
+   protected Destination createDestination(String name) {
       if (topic) {
-         return new ActiveMQTopic(subject);
+         return new ActiveMQTopic(name);
       } else {
-         return new ActiveMQQueue(subject);
+         return new ActiveMQQueue(name);
       }
    }
 
    /**
     * Tests if firstSet and secondSet are equal.
     *
-    * @param messsage - string to be displayed when the assertion fails.
-    * @param firstSet[] - set of messages to be compared with its counterpart
-    *                in the secondset.
-    * @param secondSet[] - set of messages to be compared with its counterpart
-    *                in the firstset.
-    * @throws javax.jms.JMSException
+    * @param messsage    - string to be displayed when the assertion fails.
+    * @param firstSet[]  - set of messages to be compared with its counterpart in the secondset.
+    * @param secondSet[] - set of messages to be compared with its counterpart in the firstset.
     */
    protected void assertTextMessagesEqual(Message[] firstSet, Message[] secondSet) throws JMSException {
       assertTextMessagesEqual("", firstSet, secondSet);
@@ -91,11 +75,9 @@ public abstract class TestSupport extends TestCase {
    /**
     * Tests if firstSet and secondSet are equal.
     *
-    * @param messsage - string to be displayed when the assertion fails.
-    * @param firstSet[] - set of messages to be compared with its counterpart
-    *                in the secondset.
-    * @param secondSet[] - set of messages to be compared with its counterpart
-    *                in the firstset.
+    * @param messsage    - string to be displayed when the assertion fails.
+    * @param firstSet[]  - set of messages to be compared with its counterpart in the secondset.
+    * @param secondSet[] - set of messages to be compared with its counterpart in the firstset.
     */
    protected void assertTextMessagesEqual(String messsage,
                                           Message[] firstSet,
@@ -114,7 +96,6 @@ public abstract class TestSupport extends TestCase {
     *
     * @param m1 - message to be compared with m2.
     * @param m2 - message to be compared with m1.
-    * @throws javax.jms.JMSException
     */
    protected void assertEquals(TextMessage m1, TextMessage m2) throws JMSException {
       assertEquals("", m1, m2);
@@ -123,9 +104,9 @@ public abstract class TestSupport extends TestCase {
    /**
     * Tests if m1 and m2 are equal.
     *
-    * @param message - string to be displayed when the assertion fails.
-    * @param m1 - message to be compared with m2.
-    * @param m2 - message to be compared with m1.
+    * @param message string to be displayed when the assertion fails.
+    * @param m1      message to be compared with m2.
+    * @param m2      message to be compared with m1.
     */
    protected void assertTextMessageEqual(String message, TextMessage m1, TextMessage m2) throws JMSException {
       assertFalse(message + ": expected {" + m1 + "}, but was {" + m2 + "}", m1 == null ^ m2 == null);
@@ -140,9 +121,8 @@ public abstract class TestSupport extends TestCase {
    /**
     * Tests if m1 and m2 are equal.
     *
-    * @param m1 - message to be compared with m2.
-    * @param m2 - message to be compared with m1.
-    * @throws javax.jms.JMSException
+    * @param m1 message to be compared with m2.
+    * @param m2 message to be compared with m1.
     */
    protected void assertEquals(Message m1, Message m2) throws JMSException {
       assertEquals("", m1, m2);
@@ -152,8 +132,8 @@ public abstract class TestSupport extends TestCase {
     * Tests if m1 and m2 are equal.
     *
     * @param message - error message.
-    * @param m1 - message to be compared with m2.
-    * @param m2 -- message to be compared with m1.
+    * @param m1      message to be compared with m2.
+    * @param m2      message to be compared with m1.
     */
    protected void assertEquals(String message, Message m1, Message m2) throws JMSException {
       assertFalse(message + ": expected {" + m1 + "}, but was {" + m2 + "}", m1 == null ^ m2 == null);
@@ -182,7 +162,6 @@ public abstract class TestSupport extends TestCase {
     * Creates an ActiveMQConnectionFactory.
     *
     * @return ActiveMQConnectionFactory
-    * @throws Exception
     */
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
@@ -192,7 +171,6 @@ public abstract class TestSupport extends TestCase {
     * Factory method to create a new connection.
     *
     * @return connection
-    * @throws Exception
     */
    protected Connection createConnection() throws Exception {
       return getConnectionFactory().createConnection();
@@ -202,7 +180,6 @@ public abstract class TestSupport extends TestCase {
     * Creates an ActiveMQ connection factory.
     *
     * @return connectionFactory
-    * @throws Exception
     */
    public ActiveMQConnectionFactory getConnectionFactory() throws Exception {
       if (connectionFactory == null) {
@@ -213,29 +190,14 @@ public abstract class TestSupport extends TestCase {
       return connectionFactory;
    }
 
-   /**
-    * Returns the consumer subject.
-    *
-    * @return String
-    */
    protected String getConsumerSubject() {
       return getSubject();
    }
 
-   /**
-    * Returns the producer subject.
-    *
-    * @return String
-    */
    protected String getProducerSubject() {
       return getSubject();
    }
 
-   /**
-    * Returns the subject.
-    *
-    * @return String
-    */
    protected String getSubject() {
       return getClass().getName() + "." + getName();
    }

@@ -54,8 +54,6 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
 
    /**
     * Test that the connectors added via the service registry are added to the connectorsService,
-    *
-    * @throws Exception
     */
    @Test
    public void testConnectorsServiceUsesInjectedConnectorServiceFactory() throws Exception {
@@ -75,8 +73,6 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
 
    /**
     * Test that the connectors added via the config are added to the connectors service.
-    *
-    * @throws Exception
     */
    @Test
    public void testConnectorsServiceUsesConfiguredConnectorServices() throws Exception {
@@ -94,8 +90,6 @@ public class ConnectorsServiceTest extends ActiveMQTestBase {
 
    /**
     * Test that connectors can be created and destroyed directly.
-    *
-    * @throws Exception
     */
    @Test
    public void testConnectorServiceUsedDirectly() throws Exception {

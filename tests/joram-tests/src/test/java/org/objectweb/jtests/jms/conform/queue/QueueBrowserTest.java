@@ -30,22 +30,16 @@ import org.objectweb.jtests.jms.framework.PTPTestCase;
 import org.objectweb.jtests.jms.framework.TestConfig;
 
 /**
- * Test the <code>javax.jms.QueueBrowser</code> features.
+ * Test the {@code javax.jms.QueueBrowser} features.
  */
 public class QueueBrowserTest extends PTPTestCase {
 
-   /**
-    * The <code>QueueBrowser</code> of the receiver's session
-    */
    protected QueueBrowser receiverBrowser;
 
-   /**
-    * The <code>QueueBrowser</code> of the sender's session
-    */
    protected QueueBrowser senderBrowser;
 
    /**
-    * Test the <code>QueueBrowser</code> of the sender.
+    * Test the {@code QueueBrowser} of the sender.
     */
    @Test
    public void testSenderBrowser() {
@@ -103,8 +97,8 @@ public class QueueBrowserTest extends PTPTestCase {
    }
 
    /**
-    * Test that a <code>QueueBrowser</cdeo> created with a message selector
-    * browses only the messages matching this selector.
+    * Test that a {@code QueueBrowser} created with a message selector browses only the messages matching this
+    * selector.
     */
    @Test
    public void testBrowserWithMessageSelector() {

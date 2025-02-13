@@ -21,9 +21,6 @@ import javax.jms.MessageConsumer;
 import javax.jms.Topic;
 import javax.jms.TopicSession;
 
-/**
- *
- */
 public class JmsTopicSendReceiveSubscriberTest extends JmsTopicSendReceiveTest {
 
    @Override

@@ -28,8 +28,8 @@ import java.lang.invoke.MethodHandles;
 /**
  * A XAResourceRecovery instance that can be used to recover any JMS provider.
  * <p>
- * In reality only recover, rollback and commit will be called but we still need to be implement all
- * methods just in case.
+ * In reality only recover, rollback and commit will be called but we still need to be implement all methods just in
+ * case.
  * <p>
  * To enable this add the following to the jbossts-properties file
  * <pre>
@@ -89,15 +89,13 @@ public class ActiveMQXAResourceRecovery {
       /*
        * The way hasMoreResources is supposed to work is as follows:
        * For each "sweep" the recovery manager will call hasMoreResources, then if it returns
-       * true it will call getXAResource.
+       * {@code true} it will call getXAResource.
        * It will repeat that until hasMoreResources returns false.
        * Then the sweep is over.
-       * For the next sweep hasMoreResources should return true, etc.
+       * For the next sweep hasMoreResources should return {@code true}, etc.
        *
        * In our case where we only need to return one XAResource per sweep,
-       * hasMoreResources should basically alternate between true and false.
-       *
-       *
+       * hasMoreResources should basically alternate between {@code true} and false.
        */
 
       hasMore = !hasMore;

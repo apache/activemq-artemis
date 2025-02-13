@@ -28,13 +28,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 public abstract class AbstractProtocolManagerFactory<P extends BaseInterceptor> implements ProtocolManagerFactory<P> {
 
    /**
-    * This method exists because java templates won't store the type of P at runtime.
-    * So it's not possible to write a generic method with having the Class Type.
-    * This will serve as a tool for sub classes to filter properly* * *
-    *
-    * @param type
-    * @param listIn
-    * @return
+    * This method exists because Java templates won't store the type of P at runtime. So it's not possible to write a
+    * generic method with having the Class Type. This will serve as a tool for sub classes to filter properly,
     */
    protected List<P> internalFilterInterceptors(Class<P> type, List<? extends BaseInterceptor> listIn) {
       if (listIn == null) {

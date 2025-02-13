@@ -97,16 +97,13 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
    volatile boolean readable = true;
 
-   /** afterFlush and afterFlushSet properties
-    *  are set by afterFlush methods.
-    *  This is to be called after the flush loop.
-    *  this is usually to be used by flow control events that
-    *  have to take place after the incoming bytes are settled.
-    *
-    *  There is only one afterFlush most of the time, and for that reason
-    *   as an optimization we will try to use a single place most of the time
-    *   however if more are needed we will use the list.
-    *  */
+   /**
+    * afterFlush and afterFlushSet properties are set by afterFlush methods. This is to be called after the flush loop.
+    * this is usually to be used by flow control events that have to take place after the incoming bytes are settled.
+    * <p>
+    * There is only one afterFlush most of the time, and for that reason as an optimization we will try to use a single
+    * place most of the time however if more are needed we will use the list.
+    */
    private Runnable afterFlush;
    protected Set<Runnable> afterFlushSet;
 
@@ -204,9 +201,8 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    }
 
    /**
-    * We cannot flush until the initial handshake was finished.
-    * If this happens before the handshake, the connection response will happen without SASL
-    * and the client will respond and fail with an invalid code.
+    * We cannot flush until the initial handshake was finished. If this happens before the handshake, the connection
+    * response will happen without SASL and the client will respond and fail with an invalid code.
     */
    public void scheduledFlush() {
       if (receivedFirstPacket) {

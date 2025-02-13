@@ -22,7 +22,7 @@ package org.apache.activemq.artemis.api.core.management;
 public interface JGroupsChannelBroadcastGroupControl extends BaseBroadcastGroupControl {
 
    /**
-    * Returns the JGroups channel name
+    * {@return the JGroups channel name}
     */
    @Attribute(desc = "Returns the JGroups channel name")
    String getChannelName() throws Exception;

@@ -65,13 +65,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * as worked through ARTEMIS-4476 we fixed the possibility of a ghost consumer (a term coined by a user),
- * where the connection is gone but the consumer still in memory.
+ * as worked through ARTEMIS-4476 we fixed the possibility of a ghost consumer (a term coined by a user), where the
+ * connection is gone but the consumer still in memory.
  * <p>
  * The fix involved on calling the disconnect from the proper threads.
  * <p>
- * And as a line of defense the ServerConsumer and AMQP handler are also validating the connection states.
- * If a connection is in destroyed state tries to create a consumer, the system should throw an error.
+ * And as a line of defense the ServerConsumer and AMQP handler are also validating the connection states. If a
+ * connection is in destroyed state tries to create a consumer, the system should throw an error.
  */
 public class OrphanedConsumerDefenseTest extends ActiveMQTestBase {
 

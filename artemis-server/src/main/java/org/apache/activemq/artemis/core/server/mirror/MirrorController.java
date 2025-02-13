@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
  * This represents the contract we will use to send messages to replicas.
- * */
+ */
 public interface MirrorController {
    default boolean isRetryACK() {
       return false;

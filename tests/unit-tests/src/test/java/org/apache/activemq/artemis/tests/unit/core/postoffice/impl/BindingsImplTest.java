@@ -250,33 +250,21 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.transaction.Transaction#rollback()
-       */
       @Override
       public void rollback() throws Exception {
 
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.transaction.Transaction#setState(org.apache.activemq.artemis.core.transaction.Transaction.State)
-       */
       @Override
       public void setState(final State state) {
 
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.transaction.Transaction#suspend()
-       */
       @Override
       public void suspend() {
 
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.transaction.Transaction#getDistinctQueues()
-       */
       public Set<Queue> getDistinctQueues() {
          return Collections.emptySet();
       }
@@ -301,7 +289,6 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
       @Override
       public RefsOperation createRefsOperation(Queue queue, AckReason reason) {
-         // TODO Auto-generated method stub
          return null;
       }
 
@@ -313,17 +300,11 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
    private final class FakeFilter implements Filter {
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.filter.Filter#getFilterString()
-       */
       @Override
       public SimpleString getFilterString() {
          return null;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.filter.Filter#match(org.apache.activemq.artemis.core.server.ServerMessage)
-       */
       @Override
       public boolean match(final Message message) {
          return false;
@@ -339,7 +320,6 @@ public class BindingsImplTest extends ActiveMQTestBase {
       public boolean match(Filterable filterable) {
          return false;
       }
-
    }
 
    private class FakeBinding implements Binding {
@@ -368,35 +348,23 @@ public class BindingsImplTest extends ActiveMQTestBase {
          return null;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#getBindable()
-       */
       @Override
       public Bindable getBindable() {
 
          return null;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#getClusterName()
-       */
       @Override
       public SimpleString getClusterName() {
 
          return null;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#getDistance()
-       */
       @Override
       public int getDistance() {
          return 0;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#getFilter()
-       */
       @Override
       public Filter getFilter() {
          return filter;
@@ -407,26 +375,16 @@ public class BindingsImplTest extends ActiveMQTestBase {
          return 0L;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#getRoutingName()
-       */
       @Override
       public SimpleString getRoutingName() {
          return name;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#getType()
-       */
       @Override
       public BindingType getType() {
-
          return null;
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#getUniqueName()
-       */
       @Override
       public SimpleString getUniqueName() {
          return uniqueName;
@@ -447,9 +405,6 @@ public class BindingsImplTest extends ActiveMQTestBase {
          routedCount.incrementAndGet();
       }
 
-      /* (non-Javadoc)
-       * @see org.apache.activemq.artemis.core.postoffice.Binding#toManagementString()
-       */
       @Override
       public String toManagementString() {
          return null;
@@ -462,9 +417,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
 
       @Override
       public void routeWithAck(Message message, RoutingContext context) {
-
       }
-
    }
 
    private final class FakeRemoteBinding extends FakeBinding implements RemoteQueueBinding  {

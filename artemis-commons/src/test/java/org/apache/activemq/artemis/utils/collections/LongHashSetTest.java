@@ -34,8 +34,9 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 /**
- * These tests are based on <a href="https://github.com/real-logic/agrona/blob/master/agrona/src/test/java/org/agrona/collections/IntHashSetTest.java">Agrona IntHashSetTest</a>
- * to guarantee a similar coverage to what's provided for a similar collection.
+ * These tests are based on <a
+ * href="https://github.com/real-logic/agrona/blob/master/agrona/src/test/java/org/agrona/collections/IntHashSetTest.java">Agrona
+ * IntHashSetTest</a> to guarantee a similar coverage to what's provided for a similar collection.
  */
 public class LongHashSetTest {
 

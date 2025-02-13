@@ -66,9 +66,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Consumer implementation for Federated Queues that receives from a remote
- * AMQP peer and forwards those messages onto the internal broker Queue for
- * consumption by an attached resource.
+ * Consumer implementation for Federated Queues that receives from a remote AMQP peer and forwards those messages onto
+ * the internal broker Queue for consumption by an attached resource.
  */
 public final class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
 
@@ -229,8 +228,8 @@ public final class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
    }
 
    /**
-    * Wrapper around the standard receiver context that provides federation specific entry
-    * points and customizes inbound delivery handling for this Queue receiver.
+    * Wrapper around the standard receiver context that provides federation specific entry points and customizes inbound
+    * delivery handling for this Queue receiver.
     */
    private class AMQPFederatedQueueDeliveryReceiver extends ProtonServerReceiverContext {
 
@@ -244,14 +243,10 @@ public final class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
       /**
        * Creates the federation receiver instance.
        *
-       * @param session
-       *    The server session context bound to the receiver instance.
-       * @param consumerInfo
-       *     The {@link FederationConsumerInfo} that defines the consumer being created.
-       * @param receiver
-       *    The proton receiver that will be wrapped in this server context instance.
-       * @param creditRunnable
-       *    The {@link Runnable} to provide to the base class for managing link credit.
+       * @param session        The server session context bound to the receiver instance.
+       * @param consumerInfo   The {@link FederationConsumerInfo} that defines the consumer being created.
+       * @param receiver       The proton receiver that will be wrapped in this server context instance.
+       * @param creditRunnable The {@link Runnable} to provide to the base class for managing link credit.
        */
       AMQPFederatedQueueDeliveryReceiver(Queue localQueue, Receiver receiver) {
          super(session.getSessionSPI(), session.getAMQPConnectionContext(), session, receiver);

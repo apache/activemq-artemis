@@ -24,31 +24,28 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueAttributes;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * A ClientSession is a single-threaded parent object required for producing and consuming messages.
  * <p>
- * Only a single thread may be used to operate on the session and its child producers and consumers,
- * other than close() methods which may be called from another thread. Setting a MessageHandler on a
- * consumer renders the session, and all its child producers and consumers, to be dedicated to the
- * session-wide handler delivery thread of control.
+ * Only a single thread may be used to operate on the session and its child producers and consumers, other than close()
+ * methods which may be called from another thread. Setting a MessageHandler on a consumer renders the session, and all
+ * its child producers and consumers, to be dedicated to the session-wide handler delivery thread of control.
  */
 public interface ClientSession extends XAResource, AutoCloseable {
 
    /**
-    * This is used to identify a ClientSession as used by the JMS Layer
-    * The JMS Layer will add this through Meta-data, so the server or management layers
-    * can identify session created over core API purely or through the JMS Layer
+    * This is used to identify a ClientSession as used by the JMS Layer The JMS Layer will add this through Meta-data,
+    * so the server or management layers can identify session created over core API purely or through the JMS Layer
     */
    String JMS_SESSION_IDENTIFIER_PROPERTY = "jms-session";
 
    /**
-    * Just like {@link ClientSession.AddressQuery#JMS_SESSION_IDENTIFIER_PROPERTY} this is
-    * used to identify the ClientID over JMS Session.
-    * However this is only used when the JMS Session.clientID is set (which is optional).
-    * With this property management tools and the server can identify the jms-client-id used over JMS
+    * Just like {@link ClientSession.AddressQuery#JMS_SESSION_IDENTIFIER_PROPERTY} this is used to identify the ClientID
+    * over JMS Session. However this is only used when the JMS Session.clientID is set (which is optional). With this
+    * property management tools and the server can identify the jms-client-id used over JMS
     */
    String JMS_SESSION_CLIENT_ID_PROPERTY = "jms-client-id";
 
@@ -60,22 +57,22 @@ public interface ClientSession extends XAResource, AutoCloseable {
    interface AddressQuery {
 
       /**
-       * Returns <code>true</code> if the binding exists, <code>false</code> else.
+       * {@return {@code true} if the binding exists, {@code false} else}
        */
       boolean isExists();
 
       /**
-       * Returns the names of the queues bound to the binding.
+       * {@return the names of the queues bound to the binding}
        */
       List<SimpleString> getQueueNames();
 
       /**
-       * Returns <code>true</code> if auto-queue-creation for this address is enabled, <code>false</code> else.
+       * {@return {@code true} if auto-queue-creation for this address is enabled, {@code false} else}
        */
       boolean isAutoCreateQueues();
 
       /**
-       * Returns <code>true</code> if auto-address-creation for this address is enabled, <code>false</code> else.
+       * {@return {@code true} if auto-address-creation for this address is enabled, {@code false} else}
        */
       boolean isAutoCreateAddresses();
 
@@ -108,50 +105,48 @@ public interface ClientSession extends XAResource, AutoCloseable {
    interface QueueQuery {
 
       /**
-       * Returns <code>true</code> if the queue exists, <code>false</code> else.
+       * {@return {@code true} if the queue exists, {@code false} else}
        */
       boolean isExists();
 
       /**
-       * Return <code>true</code> if the queue is temporary, <code>false</code> else.
+       * {@return {@code true} if the queue is temporary, {@code false} else}
        */
       boolean isTemporary();
 
       /**
-       * Returns <code>true</code> if the queue is durable, <code>false</code> else.
+       * {@return {@code true} if the queue is durable, {@code false} else}
        */
       boolean isDurable();
 
       /**
-       * Returns <code>true</code> if auto-creation for this queue is enabled and if the queue queried is a JMS queue,
-       * <code>false</code> else.
+       * {@return {@code true} if auto-creation for this queue is enabled and if the queue queried is a JMS queue,
+       * {@code false} else}
        */
       boolean isAutoCreateQueues();
 
       /**
-       * Returns the number of consumers attached to the queue.
+       * {@return the number of consumers attached to the queue}
        */
       int getConsumerCount();
 
       /**
-       * Returns the number of messages in the queue.
+       * {@return the number of messages in the queue}
        */
       long getMessageCount();
 
       /**
-       * Returns the queue's filter string (or {@code null} if the queue has no filter).
+       * {@return the queue's filter string (or {@code null} if the queue has no filter)}
        */
       SimpleString getFilterString();
 
       /**
-       * Returns the address that the queue is bound to.
+       * {@return the address that the queue is bound to}
        */
       SimpleString getAddress();
 
       /**
        * Return the name of the queue
-       *
-       * @return
        */
       SimpleString getName();
 
@@ -201,16 +196,15 @@ public interface ClientSession extends XAResource, AutoCloseable {
    // Lifecycle operations ------------------------------------------
 
    /**
-    * Starts the session.
-    * The session must be started before ClientConsumers created by the session can consume messages from the queue.
+    * Starts the session. The session must be started before ClientConsumers created by the session can consume messages
+    * from the queue.
     *
     * @throws ActiveMQException if an exception occurs while starting the session
     */
    ClientSession start() throws ActiveMQException;
 
    /**
-    * Stops the session.
-    * ClientConsumers created by the session can not consume messages when the session is stopped.
+    * Stops the session. ClientConsumers created by the session can not consume messages when the session is stopped.
     *
     * @throws ActiveMQException if an exception occurs while stopping the session
     */
@@ -225,9 +219,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
    void close() throws ActiveMQException;
 
    /**
-    * Returns whether the session is closed or not.
-    *
-    * @return <code>true</code> if the session is closed, <code>false</code> else
+    * {@return {@code true} if the session is closed, {@code false} else}
     */
    boolean isClosed();
 
@@ -242,7 +234,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Removes a FailureListener to the session.
     *
     * @param listener the listener to remove
-    * @return <code>true</code> if the listener was removed, <code>false</code> else
+    * @return {@code true} if the listener was removed, {@code false} else
     */
    boolean removeFailureListener(SessionFailureListener listener);
 
@@ -257,40 +249,28 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * Removes a FailoverEventListener to the session.
     *
     * @param listener the listener to remove
-    * @return <code>true</code> if the listener was removed, <code>false</code> else
+    * @return {@code true} if the listener was removed, {@code false} else
     */
    boolean removeFailoverListener(FailoverEventListener listener);
 
    /**
-    * Returns the server's incrementingVersion.
-    *
-    * @return the server's <code>incrementingVersion</code>
+    * {@return the server's {@code incrementingVersion}}
     */
    int getVersion();
 
    /**
     * Create Address with a single initial routing type
-    * @param address
-    * @param autoCreated
-    * @throws ActiveMQException
     */
    void createAddress(SimpleString address, EnumSet<RoutingType> routingTypes, boolean autoCreated) throws ActiveMQException;
 
    /**
     * Create Address with a single initial routing type
-    * @param address
-    * @param autoCreated
-    * @throws ActiveMQException
     */
    @Deprecated
    void createAddress(SimpleString address, Set<RoutingType> routingTypes, boolean autoCreated) throws ActiveMQException;
 
    /**
     * Create Address with a single initial routing type
-    * @param address
-    * @param routingType
-    * @param autoCreated
-    * @throws ActiveMQException
     */
    void createAddress(SimpleString address, RoutingType routingType, boolean autoCreated) throws ActiveMQException;
 
@@ -331,7 +311,6 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * </ul>
     *
     * @param queueConfiguration the configuration to use when creating the queue
-    * @throws ActiveMQException
     */
    void createQueue(QueueConfiguration queueConfiguration) throws ActiveMQException;
 
@@ -362,12 +341,14 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueName the name of the queue
     * @param durable   whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(SimpleString address, SimpleString queueName, boolean durable) throws ActiveMQException;
 
    /**
-    * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is closed the queue will be deleted
+    * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is
+    * closed the queue will be deleted
     * <p>
     * Notice: you will get an exception if the address or the filter doesn't match to an already existent queue
     *
@@ -375,12 +356,14 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueName the name of the queue
     * @param durable   if the queue is durable
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createSharedQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createSharedQueue(SimpleString address, SimpleString queueName, boolean durable) throws ActiveMQException;
 
    /**
-    * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is closed the queue will be deleted
+    * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is
+    * closed the queue will be deleted
     * <p>
     * Notice: you will get an exception if the address or the filter doesn't match to an already existent queue
     *
@@ -389,6 +372,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param filter    whether the queue is durable or not
     * @param durable   if the queue is durable
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createSharedQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createSharedQueue(SimpleString address,
@@ -403,6 +387,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueName the name of the queue
     * @param durable   whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(String address, String queueName, boolean durable) throws ActiveMQException;
@@ -413,6 +398,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(String address, String queueName) throws ActiveMQException;
@@ -423,6 +409,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(SimpleString address, SimpleString queueName) throws ActiveMQException;
@@ -435,6 +422,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param filter    only messages which match this filter will be put in the queue
     * @param durable   whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(SimpleString address,
@@ -450,6 +438,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable   whether the queue is durable or not
     * @param filter    only messages which match this filter will be put in the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(String address, String queueName, String filter, boolean durable) throws ActiveMQException;
@@ -463,6 +452,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable     whether the queue is durable or not
     * @param autoCreated whether to mark this queue as autoCreated or not
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(SimpleString address,
@@ -480,6 +470,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable     whether the queue is durable or not
     * @param autoCreated whether to mark this queue as autoCreated or not
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(String address, String queueName, String filter, boolean durable, boolean autoCreated) throws ActiveMQException;
@@ -490,6 +481,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createTemporaryQueue(SimpleString address, SimpleString queueName) throws ActiveMQException;
@@ -500,6 +492,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param address   the queue will be bound to this address
     * @param queueName the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createTemporaryQueue(String address, String queueName) throws ActiveMQException;
@@ -511,6 +504,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueName the name of the queue
     * @param filter    only messages which match this filter will be put in the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createTemporaryQueue(SimpleString address,
@@ -524,50 +518,53 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param queueName the name of the queue
     * @param filter    only messages which match this filter will be put in the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createTemporaryQueue(String address, String queueName, String filter) throws ActiveMQException;
 
-   /** Deprecate **/
-
-
    /**
     * Creates a <em>non-temporary</em> queue.
     *
-    * @param address   the queue will be bound to this address
+    * @param address     the queue will be bound to this address
     * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName the name of the queue
-    * @param durable   whether the queue is durable or not
+    * @param queueName   the name of the queue
+    * @param durable     whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, boolean durable) throws ActiveMQException;
 
    /**
-    * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is closed the queue will be deleted
+    * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is
+    * closed the queue will be deleted
     * <p>
     * Notice: you will get an exception if the address or the filter doesn't match to an already existent queue
     *
-    * @param address   the queue will be bound to this address
+    * @param address     the queue will be bound to this address
     * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName the name of the queue
-    * @param durable   if the queue is durable
+    * @param queueName   the name of the queue
+    * @param durable     if the queue is durable
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createSharedQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, boolean durable) throws ActiveMQException;
 
    /**
-    * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is closed the queue will be deleted
+    * Creates a transient queue. A queue that will exist as long as there are consumers. When the last consumer is
+    * closed the queue will be deleted
     * <p>
     * Notice: you will get an exception if the address or the filter doesn't match to an already existent queue
     *
-    * @param address   the queue will be bound to this address
+    * @param address     the queue will be bound to this address
     * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName the name of the queue
-    * @param filter    whether the queue is durable or not
-    * @param durable   if the queue is durable
+    * @param queueName   the name of the queue
+    * @param filter      whether the queue is durable or not
+    * @param durable     if the queue is durable
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createSharedQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
@@ -576,16 +573,17 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates Shared queue. A queue that will exist as long as there are consumers or is durable.
     *
-    * @param address   the queue will be bound to this address
-    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName the name of the queue
-    * @param filter    whether the queue is durable or not
-    * @param durable   if the queue is durable
-    * @param maxConsumers how many concurrent consumers will be allowed on this queue
+    * @param address            the queue will be bound to this address
+    * @param routingType        the routing type for this queue, MULTICAST or ANYCAST
+    * @param queueName          the name of the queue
+    * @param filter             whether the queue is durable or not
+    * @param durable            if the queue is durable
+    * @param maxConsumers       how many concurrent consumers will be allowed on this queue
     * @param purgeOnNoConsumers whether to delete the contents of the queue when the last consumer disconnects
-    * @param exclusive    if the queue is exclusive queue
-    * @param lastValue    if the queue is last value queue
+    * @param exclusive          if the queue is exclusive queue
+    * @param lastValue          if the queue is last value queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createSharedQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
@@ -594,23 +592,24 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates Shared queue. A queue that will exist as long as there are consumers or is durable.
     *
-    * @param address   the queue will be bound to this address
-    * @param queueName the name of the queue
+    * @param address         the queue will be bound to this address
+    * @param queueName       the name of the queue
     * @param queueAttributes attributes for the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createSharedQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createSharedQueue(SimpleString address, SimpleString queueName, QueueAttributes queueAttributes) throws ActiveMQException;
 
-
    /**
     * Creates a <em>non-temporary</em> queue.
     *
-    * @param address   the queue will be bound to this address
+    * @param address     the queue will be bound to this address
     * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName the name of the queue
-    * @param durable   whether the queue is durable or not
+    * @param queueName   the name of the queue
+    * @param durable     whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(String address, RoutingType routingType, String queueName, boolean durable) throws ActiveMQException;
@@ -618,10 +617,11 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>non-temporary</em> queue <em>non-durable</em> queue.
     *
-    * @param address   the queue will be bound to this address
+    * @param address     the queue will be bound to this address
     * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName the name of the queue
+    * @param queueName   the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(String address, RoutingType routingType, String queueName) throws ActiveMQException;
@@ -629,10 +629,11 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>non-temporary</em> queue <em>non-durable</em> queue.
     *
-    * @param address   the queue will be bound to this address
+    * @param address     the queue will be bound to this address
     * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName the name of the queue
+    * @param queueName   the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName) throws ActiveMQException;
@@ -640,12 +641,13 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>non-temporary</em> queue.
     *
-    * @param address   the queue will be bound to this address
+    * @param address     the queue will be bound to this address
     * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName the name of the queue
-    * @param filter    only messages which match this filter will be put in the queue
-    * @param durable   whether the queue is durable or not
+    * @param queueName   the name of the queue
+    * @param filter      only messages which match this filter will be put in the queue
+    * @param durable     whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
@@ -654,12 +656,13 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>non-temporary</em>queue.
     *
-    * @param address   the queue will be bound to this address
+    * @param address     the queue will be bound to this address
     * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName the name of the queue
-    * @param filter    only messages which match this filter will be put in the queue
-    * @param durable   whether the queue is durable or not
+    * @param queueName   the name of the queue
+    * @param filter      only messages which match this filter will be put in the queue
+    * @param durable     whether the queue is durable or not
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable) throws ActiveMQException;
@@ -674,6 +677,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable     whether the queue is durable or not
     * @param autoCreated whether to mark this queue as autoCreated or not
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
@@ -682,15 +686,15 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>non-temporary</em> queue.
     *
-    * @param address      the queue will be bound to this address
-    * @param routingType  the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName    the name of the queue
-    * @param filter       only messages which match this filter will be put in the queue
-    * @param durable      whether the queue is durable or not
-    * @param autoCreated  whether to mark this queue as autoCreated or not
-    * @param maxConsumers how many concurrent consumers will be allowed on this queue
+    * @param address            the queue will be bound to this address
+    * @param routingType        the routing type for this queue, MULTICAST or ANYCAST
+    * @param queueName          the name of the queue
+    * @param filter             only messages which match this filter will be put in the queue
+    * @param durable            whether the queue is durable or not
+    * @param autoCreated        whether to mark this queue as autoCreated or not
+    * @param maxConsumers       how many concurrent consumers will be allowed on this queue
     * @param purgeOnNoConsumers whether to delete the contents of the queue when the last consumer disconnects
-    * @throws ActiveMQException
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
@@ -699,17 +703,17 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>non-temporary</em> queue.
     *
-    * @param address      the queue will be bound to this address
-    * @param routingType  the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName    the name of the queue
-    * @param filter       only messages which match this filter will be put in the queue
-    * @param durable      whether the queue is durable or not
-    * @param autoCreated  whether to mark this queue as autoCreated or not
-    * @param maxConsumers how many concurrent consumers will be allowed on this queue
+    * @param address            the queue will be bound to this address
+    * @param routingType        the routing type for this queue, MULTICAST or ANYCAST
+    * @param queueName          the name of the queue
+    * @param filter             only messages which match this filter will be put in the queue
+    * @param durable            whether the queue is durable or not
+    * @param autoCreated        whether to mark this queue as autoCreated or not
+    * @param maxConsumers       how many concurrent consumers will be allowed on this queue
     * @param purgeOnNoConsumers whether to delete the contents of the queue when the last consumer disconnects
-    * @param exclusive whether the queue should be exclusive
-    * @param lastValue whether the queue should be lastValue
-    * @throws ActiveMQException
+    * @param exclusive          whether the queue should be exclusive
+    * @param lastValue          whether the queue should be lastValue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter,
@@ -718,11 +722,11 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>non-temporary</em> queue.
     *
-    * @param address      the queue will be bound to this address
-    * @param queueName    the name of the queue
-    * @param autoCreated  whether to mark this queue as autoCreated or not
+    * @param address         the queue will be bound to this address
+    * @param queueName       the name of the queue
+    * @param autoCreated     whether to mark this queue as autoCreated or not
     * @param queueAttributes attributes for the queue
-    * @throws ActiveMQException
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(SimpleString address, SimpleString queueName, boolean autoCreated, QueueAttributes queueAttributes) throws ActiveMQException;
@@ -737,6 +741,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @param durable     whether the queue is durable or not
     * @param autoCreated whether to mark this queue as autoCreated or not
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable, boolean autoCreated) throws ActiveMQException;
@@ -744,15 +749,15 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>non-temporary</em>queue.
     *
-    * @param address     the queue will be bound to this address
-    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName   the name of the queue
-    * @param filter      only messages which match this filter will be put in the queue
-    * @param durable     whether the queue is durable or not
-    * @param autoCreated whether to mark this queue as autoCreated or not
-    * @param maxConsumers how many concurrent consumers will be allowed on this queue
+    * @param address            the queue will be bound to this address
+    * @param routingType        the routing type for this queue, MULTICAST or ANYCAST
+    * @param queueName          the name of the queue
+    * @param filter             only messages which match this filter will be put in the queue
+    * @param durable            whether the queue is durable or not
+    * @param autoCreated        whether to mark this queue as autoCreated or not
+    * @param maxConsumers       how many concurrent consumers will be allowed on this queue
     * @param purgeOnNoConsumers whether to delete the contents of the queue when the last consumer disconnects
-    * @throws ActiveMQException
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable, boolean autoCreated,
@@ -761,17 +766,17 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>non-temporary</em>queue.
     *
-    * @param address     the queue will be bound to this address
-    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName   the name of the queue
-    * @param filter      only messages which match this filter will be put in the queue
-    * @param durable     whether the queue is durable or not
-    * @param autoCreated whether to mark this queue as autoCreated or not
-    * @param maxConsumers how many concurrent consumers will be allowed on this queue
+    * @param address            the queue will be bound to this address
+    * @param routingType        the routing type for this queue, MULTICAST or ANYCAST
+    * @param queueName          the name of the queue
+    * @param filter             only messages which match this filter will be put in the queue
+    * @param durable            whether the queue is durable or not
+    * @param autoCreated        whether to mark this queue as autoCreated or not
+    * @param maxConsumers       how many concurrent consumers will be allowed on this queue
     * @param purgeOnNoConsumers whether to delete the contents of the queue when the last consumer disconnects
-    * @param exclusive whether the queue should be exclusive
-    * @param lastValue whether the queue should be lastValue
-    * @throws ActiveMQException
+    * @param exclusive          whether the queue should be exclusive
+    * @param lastValue          whether the queue should be lastValue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createQueue(String address, RoutingType routingType, String queueName, String filter, boolean durable, boolean autoCreated,
@@ -780,10 +785,11 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>temporary</em> queue.
     *
-    * @param address   the queue will be bound to this address
+    * @param address     the queue will be bound to this address
     * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName the name of the queue
+    * @param queueName   the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createTemporaryQueue(SimpleString address, RoutingType routingType, SimpleString queueName) throws ActiveMQException;
@@ -791,10 +797,11 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>temporary</em> queue.
     *
-    * @param address   the queue will be bound to this address
+    * @param address     the queue will be bound to this address
     * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName the name of the queue
+    * @param queueName   the name of the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createTemporaryQueue(String address, RoutingType routingType, String queueName) throws ActiveMQException;
@@ -802,15 +809,16 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>temporary</em> queue with a filter.
     *
-    * @param address   the queue will be bound to this address
-    * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName the name of the queue
-    * @param filter    only messages which match this filter will be put in the queue
-    * @param maxConsumers how many concurrent consumers will be allowed on this queue
+    * @param address            the queue will be bound to this address
+    * @param routingType        the routing type for this queue, MULTICAST or ANYCAST
+    * @param queueName          the name of the queue
+    * @param filter             only messages which match this filter will be put in the queue
+    * @param maxConsumers       how many concurrent consumers will be allowed on this queue
     * @param purgeOnNoConsumers whether to delete the contents of the queue when the last consumer disconnects
-    * @param exclusive    if the queue is exclusive queue
-    * @param lastValue    if the queue is last value queue
+    * @param exclusive          if the queue is exclusive queue
+    * @param lastValue          if the queue is last value queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createTemporaryQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter, int maxConsumers,
@@ -819,10 +827,11 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>temporary</em> queue with a filter.
     *
-    * @param address   the queue will be bound to this address
-    * @param queueName the name of the queue
+    * @param address         the queue will be bound to this address
+    * @param queueName       the name of the queue
     * @param queueAttributes attributes for the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createTemporaryQueue(SimpleString address, SimpleString queueName, QueueAttributes queueAttributes) throws ActiveMQException;
@@ -830,11 +839,12 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>temporary</em> queue with a filter.
     *
-    * @param address   the queue will be bound to this address
+    * @param address     the queue will be bound to this address
     * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName the name of the queue
-    * @param filter    only messages which match this filter will be put in the queue
+    * @param queueName   the name of the queue
+    * @param filter      only messages which match this filter will be put in the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createTemporaryQueue(SimpleString address, RoutingType routingType, SimpleString queueName, SimpleString filter) throws ActiveMQException;
@@ -842,11 +852,12 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a <em>temporary</em> queue with a filter.
     *
-    * @param address   the queue will be bound to this address
+    * @param address     the queue will be bound to this address
     * @param routingType the routing type for this queue, MULTICAST or ANYCAST
-    * @param queueName the name of the queue
-    * @param filter    only messages which match this filter will be put in the queue
+    * @param queueName   the name of the queue
+    * @param filter      only messages which match this filter will be put in the queue
     * @throws ActiveMQException in an exception occurs while creating the queue
+    * @deprecated use {@link #createQueue(QueueConfiguration)} instead
     */
    @Deprecated
    void createTemporaryQueue(String address, RoutingType routingType, String queueName, String filter) throws ActiveMQException;
@@ -910,13 +921,12 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a ClientConsumer to consume or browse messages from the queue with the given name.
     * <p>
-    * If <code>browseOnly</code> is <code>true</code>, the ClientConsumer will receive the messages
-    * from the queue but they will not be consumed (the messages will remain in the queue). Note
-    * that paged messages will not be in the queue, and will therefore not be visible if
-    * {@code browseOnly} is {@code true}.
+    * If {@code browseOnly} is {@code true}, the ClientConsumer will receive the messages from the queue but they will
+    * not be consumed (the messages will remain in the queue). Note that paged messages will not be in the queue, and
+    * will therefore not be visible if {@code browseOnly} is {@code true}.
     * <p>
-    * If <code>browseOnly</code> is <code>false</code>, the ClientConsumer will behave like consume
-    * the messages from the queue and the messages will effectively be removed from the queue.
+    * If {@code browseOnly} is {@code false}, the ClientConsumer will behave like consume the messages from the queue
+    * and the messages will effectively be removed from the queue.
     *
     * @param queueName  name of the queue to consume messages from
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
@@ -928,13 +938,12 @@ public interface ClientSession extends XAResource, AutoCloseable {
    /**
     * Creates a ClientConsumer to consume or browse messages from the queue with the given name.
     * <p>
-    * If <code>browseOnly</code> is <code>true</code>, the ClientConsumer will receive the messages
-    * from the queue but they will not be consumed (the messages will remain in the queue). Note
-    * that paged messages will not be in the queue, and will therefore not be visible if
-    * {@code browseOnly} is {@code true}.
+    * If {@code browseOnly} is {@code true}, the ClientConsumer will receive the messages from the queue but they will
+    * not be consumed (the messages will remain in the queue). Note that paged messages will not be in the queue, and
+    * will therefore not be visible if {@code browseOnly} is {@code true}.
     * <p>
-    * If <code>browseOnly</code> is <code>false</code>, the ClientConsumer will behave like consume
-    * the messages from the queue and the messages will effectively be removed from the queue.
+    * If {@code browseOnly} is {@code false}, the ClientConsumer will behave like consume the messages from the queue
+    * and the messages will effectively be removed from the queue.
     *
     * @param queueName  name of the queue to consume messages from
     * @param browseOnly whether the ClientConsumer will only browse the queue or consume messages.
@@ -944,16 +953,14 @@ public interface ClientSession extends XAResource, AutoCloseable {
    ClientConsumer createConsumer(String queueName, boolean browseOnly) throws ActiveMQException;
 
    /**
-    * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with
-    * the given name.
+    * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with the given name.
     * <p>
-    * If <code>browseOnly</code> is <code>true</code>, the ClientConsumer will receive the messages
-    * from the queue but they will not be consumed (the messages will remain in the queue). Note
-    * that paged messages will not be in the queue, and will therefore not be visible if
-    * {@code browseOnly} is {@code true}.
+    * If {@code browseOnly} is {@code true}, the ClientConsumer will receive the messages from the queue but they will
+    * not be consumed (the messages will remain in the queue). Note that paged messages will not be in the queue, and
+    * will therefore not be visible if {@code browseOnly} is {@code true}.
     * <p>
-    * If <code>browseOnly</code> is <code>false</code>, the ClientConsumer will behave like consume
-    * the messages from the queue and the messages will effectively be removed from the queue.
+    * If {@code browseOnly} is {@code false}, the ClientConsumer will behave like consume the messages from the queue
+    * and the messages will effectively be removed from the queue.
     *
     * @param queueName  name of the queue to consume messages from
     * @param filter     only messages which match this filter will be consumed
@@ -964,16 +971,14 @@ public interface ClientSession extends XAResource, AutoCloseable {
    ClientConsumer createConsumer(String queueName, String filter, boolean browseOnly) throws ActiveMQException;
 
    /**
-    * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with
-    * the given name.
+    * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with the given name.
     * <p>
-    * If <code>browseOnly</code> is <code>true</code>, the ClientConsumer will receive the messages
-    * from the queue but they will not be consumed (the messages will remain in the queue). Note
-    * that paged messages will not be in the queue, and will therefore not be visible if
-    * {@code browseOnly} is {@code true}.
+    * If {@code browseOnly} is {@code true}, the ClientConsumer will receive the messages from the queue but they will
+    * not be consumed (the messages will remain in the queue). Note that paged messages will not be in the queue, and
+    * will therefore not be visible if {@code browseOnly} is {@code true}.
     * <p>
-    * If <code>browseOnly</code> is <code>false</code>, the ClientConsumer will behave like consume
-    * the messages from the queue and the messages will effectively be removed from the queue.
+    * If {@code browseOnly} is {@code false}, the ClientConsumer will behave like consume the messages from the queue
+    * and the messages will effectively be removed from the queue.
     *
     * @param queueName  name of the queue to consume messages from
     * @param filter     only messages which match this filter will be consumed
@@ -981,21 +986,17 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @return a ClientConsumer
     * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
-   ClientConsumer createConsumer(SimpleString queueName,
-                                 SimpleString filter,
-                                 boolean browseOnly) throws ActiveMQException;
+   ClientConsumer createConsumer(SimpleString queueName, SimpleString filter, boolean browseOnly) throws ActiveMQException;
 
    /**
-    * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with
-    * the given name.
+    * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with the given name.
     * <p>
-    * If <code>browseOnly</code> is <code>true</code>, the ClientConsumer will receive the messages
-    * from the queue but they will not be consumed (the messages will remain in the queue). Note
-    * that paged messages will not be in the queue, and will therefore not be visible if
-    * {@code browseOnly} is {@code true}.
+    * If {@code browseOnly} is {@code true}, the ClientConsumer will receive the messages from the queue but they will
+    * not be consumed (the messages will remain in the queue). Note that paged messages will not be in the queue, and
+    * will therefore not be visible if {@code browseOnly} is {@code true}.
     * <p>
-    * If <code>browseOnly</code> is <code>false</code>, the ClientConsumer will behave like consume
-    * the messages from the queue and the messages will effectively be removed from the queue.
+    * If {@code browseOnly} is {@code false}, the ClientConsumer will behave like consume the messages from the queue
+    * and the messages will effectively be removed from the queue.
     *
     * @param queueName  name of the queue to consume messages from
     * @param filter     only messages which match this filter will be consumed
@@ -1004,22 +1005,17 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @return a ClientConsumer
     * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
-   ClientConsumer createConsumer(SimpleString queueName,
-                                 SimpleString filter,
-                                 int priority,
-                                 boolean browseOnly) throws ActiveMQException;
+   ClientConsumer createConsumer(SimpleString queueName, SimpleString filter, int priority, boolean browseOnly) throws ActiveMQException;
 
    /**
-    * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with
-    * the given name.
+    * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with the given name.
     * <p>
-    * If <code>browseOnly</code> is <code>true</code>, the ClientConsumer will receive the messages
-    * from the queue but they will not be consumed (the messages will remain in the queue). Note
-    * that paged messages will not be in the queue, and will therefore not be visible if
-    * {@code browseOnly} is {@code true}.
+    * If {@code browseOnly} is {@code true}, the ClientConsumer will receive the messages from the queue but they will
+    * not be consumed (the messages will remain in the queue). Note that paged messages will not be in the queue, and
+    * will therefore not be visible if {@code browseOnly} is {@code true}.
     * <p>
-    * If <code>browseOnly</code> is <code>false</code>, the ClientConsumer will behave like consume
-    * the messages from the queue and the messages will effectively be removed from the queue.
+    * If {@code browseOnly} is {@code false}, the ClientConsumer will behave like consume the messages from the queue
+    * and the messages will effectively be removed from the queue.
     *
     * @param queueName  name of the queue to consume messages from
     * @param filter     only messages which match this filter will be consumed
@@ -1029,24 +1025,17 @@ public interface ClientSession extends XAResource, AutoCloseable {
     * @return a ClientConsumer
     * @throws ActiveMQException if an exception occurs while creating the ClientConsumer
     */
-   ClientConsumer createConsumer(SimpleString queueName,
-                                 SimpleString filter,
-                                 int windowSize,
-                                 int maxRate,
-                                 boolean browseOnly) throws ActiveMQException;
-
+   ClientConsumer createConsumer(SimpleString queueName, SimpleString filter, int windowSize, int maxRate, boolean browseOnly) throws ActiveMQException;
 
    /**
-    * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with
-    * the given name.
+    * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with the given name.
     * <p>
-    * If <code>browseOnly</code> is <code>true</code>, the ClientConsumer will receive the messages
-    * from the queue but they will not be consumed (the messages will remain in the queue). Note
-    * that paged messages will not be in the queue, and will therefore not be visible if
-    * {@code browseOnly} is {@code true}.
+    * If {@code browseOnly} is {@code true}, the ClientConsumer will receive the messages from the queue but they will
+    * not be consumed (the messages will remain in the queue). Note that paged messages will not be in the queue, and
+    * will therefore not be visible if {@code browseOnly} is {@code true}.
     * <p>
-    * If <code>browseOnly</code> is <code>false</code>, the ClientConsumer will behave like consume
-    * the messages from the queue and the messages will effectively be removed from the queue.
+    * If {@code browseOnly} is {@code false}, the ClientConsumer will behave like consume the messages from the queue
+    * and the messages will effectively be removed from the queue.
     *
     * @param queueName  name of the queue to consume messages from
     * @param filter     only messages which match this filter will be consumed
@@ -1065,16 +1054,14 @@ public interface ClientSession extends XAResource, AutoCloseable {
                                  boolean browseOnly) throws ActiveMQException;
 
    /**
-    * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with
-    * the given name.
+    * Creates a ClientConsumer to consume or browse messages matching the filter from the queue with the given name.
     * <p>
-    * If <code>browseOnly</code> is <code>true</code>, the ClientConsumer will receive the messages
-    * from the queue but they will not be consumed (the messages will remain in the queue). Note
-    * that paged messages will not be in the queue, and will therefore not be visible if
-    * {@code browseOnly} is {@code true}.
+    * If {@code browseOnly} is {@code true}, the ClientConsumer will receive the messages from the queue but they will
+    * not be consumed (the messages will remain in the queue). Note that paged messages will not be in the queue, and
+    * will therefore not be visible if {@code browseOnly} is {@code true}.
     * <p>
-    * If <code>browseOnly</code> is <code>false</code>, the ClientConsumer will behave like consume
-    * the messages from the queue and the messages will effectively be removed from the queue.
+    * If {@code browseOnly} is {@code false}, the ClientConsumer will behave like consume the messages from the queue
+    * and the messages will effectively be removed from the queue.
     *
     * @param queueName  name of the queue to consume messages from
     * @param filter     only messages which match this filter will be consumed
@@ -1093,8 +1080,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
    // Producer Operations -------------------------------------------
 
    /**
-    * Creates a producer with no default address.
-    * Address must be specified every time a message is sent
+    * Creates a producer with no default address. Address must be specified every time a message is sent
     *
     * @return a ClientProducer
     * @see ClientProducer#send(SimpleString, org.apache.activemq.artemis.api.core.Message)
@@ -1183,16 +1169,12 @@ public interface ClientSession extends XAResource, AutoCloseable {
    // Transaction operations ----------------------------------------
 
    /**
-    * Returns the XAResource associated to the session.
-    *
-    * @return the XAResource associated to the session
+    * {@return the XAResource associated to the session}
     */
    XAResource getXAResource();
 
    /**
-    * Return <code>true</code> if the session supports XA, <code>false</code> else.
-    *
-    * @return <code>true</code> if the session supports XA, <code>false</code> else.
+    * {@return {@code true} if the session supports XA, {@code false} else}
     */
    boolean isXA();
 
@@ -1227,37 +1209,29 @@ public interface ClientSession extends XAResource, AutoCloseable {
    void rollback(boolean considerLastMessageAsDelivered) throws ActiveMQException;
 
    /**
-    * Returns <code>true</code> if the current transaction has been flagged to rollback, <code>false</code> else.
-    *
-    * @return <code>true</code> if the current transaction has been flagged to rollback, <code>false</code> else.
+    * {@return {@code true} if the current transaction has been flagged to rollback, {@code false} else}
     */
    boolean isRollbackOnly();
 
    /**
-    * Returns whether the session will <em>automatically</em> commit its transaction every time a message is sent
-    * by a ClientProducer created by this session, <code>false</code> else
-    *
-    * @return <code>true</code> if the session <em>automatically</em> commit its transaction every time a message is sent, <code>false</code> else
+    * {@return whether the session will <em>automatically</em> commit its transaction every time a message is sent by a
+    * ClientProducer created by this session, {@code false} else}
     */
    boolean isAutoCommitSends();
 
    /**
-    * Returns whether the session will <em>automatically</em> commit its transaction every time a message is acknowledged
-    * by a ClientConsumer created by this session, <code>false</code> else
-    *
-    * @return <code>true</code> if the session <em>automatically</em> commit its transaction every time a message is acknowledged, <code>false</code> else
+    * {@return {@code true} if the session <em>automatically</em> commit its transaction every time a message is
+    * acknowledged by a ClientConsumer created by this session, {@code false} else}
     */
    boolean isAutoCommitAcks();
 
    /**
-    * Returns whether the ClientConsumer created by the session will <em>block</em> when they acknowledge a message.
-    *
-    * @return <code>true</code> if the session's ClientConsumer block when they acknowledge a message, <code>false</code> else
+    * {@return {@code true} if the session's ClientConsumer block when they acknowledge a message, {@code false} else}
     */
    boolean isBlockOnAcknowledge();
 
    /**
-    * Sets a <code>SendAcknowledgementHandler</code> for this session.
+    * Sets a {@code SendAcknowledgementHandler} for this session.
     *
     * @param handler a SendAcknowledgementHandler
     * @return this ClientSession
@@ -1266,24 +1240,19 @@ public interface ClientSession extends XAResource, AutoCloseable {
 
    /**
     * Attach any metadata to the session.
-    *
-    * @throws ActiveMQException
     */
    void addMetaData(String key, String data) throws ActiveMQException;
 
    /**
-    * Attach any metadata to the session. Throws an exception if there's already a metadata available.
-    * You can use this metadata to ensure that there is no other session with the same meta-data you are passing as an argument.
-    * This is useful to simulate unique client-ids, where you may want to avoid multiple instances of your client application connected.
-    *
-    * @throws ActiveMQException
+    * Attach any metadata to the session. Throws an exception if there's already a metadata available. You can use this
+    * metadata to ensure that there is no other session with the same meta-data you are passing as an argument. This is
+    * useful to simulate unique client-ids, where you may want to avoid multiple instances of your client application
+    * connected.
     */
    void addUniqueMetaData(String key, String data) throws ActiveMQException;
 
    /**
-    * Return the sessionFactory used to created this Session.
-    *
-    * @return
+    * {@return the {@code ClientSessionFactory} used to created this {@code ClientSession}}
     */
    ClientSessionFactory getSessionFactory();
 }

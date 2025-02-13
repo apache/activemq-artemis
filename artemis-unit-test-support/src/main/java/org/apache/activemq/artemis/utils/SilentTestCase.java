@@ -25,8 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 /**
  * Test case that hijacks sys-out and sys-err.
  * <p>
- * It is meant to avoid cluttering either during test execution when the tested code (expectedly)
- * writes to these.
+ * It is meant to avoid cluttering either during test execution when the tested code (expectedly) writes to these.
  */
 public abstract class SilentTestCase {
 

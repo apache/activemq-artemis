@@ -28,9 +28,6 @@ import org.apache.activemq.transport.tcp.TcpTransportFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsTopicSendReceiveTest.class);
@@ -88,7 +85,7 @@ public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
 
       LOG.info("Closing down connection");
 
-      /** TODO we should be able to shut down properly */
+      // TODO we should be able to shut down properly
       session.close();
       connection.close();
       ArtemisBrokerHelper.stopArtemisBroker();
@@ -99,7 +96,6 @@ public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
     * Creates a session.
     *
     * @return session
-    * @throws JMSException
     */
    protected Session createConsumerSession() throws JMSException {
       if (useSeparateSession) {
@@ -112,8 +108,7 @@ public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
    /**
     * Creates a durable suscriber or a consumer.
     *
-    * @return MessageConsumer - durable suscriber or consumer.
-    * @throws JMSException
+    * @return MessageConsumer durable suscriber or consumer
     */
    protected MessageConsumer createConsumer() throws JMSException {
       if (durable) {

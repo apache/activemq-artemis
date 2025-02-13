@@ -299,10 +299,9 @@ public class MQTTTest extends MQTTTestSupport {
    @Test
    @Timeout(60)
    public void testSendAtMostOnceReceiveExactlyOnce() throws Exception {
-      /**
-       * Although subscribing with EXACTLY ONCE, the message gets published
-       * with AT_MOST_ONCE - in MQTT the QoS is always determined by the
-       * message as published - not the wish of the subscriber
+      /*
+       * Although subscribing with EXACTLY ONCE, the message gets published with AT_MOST_ONCE - in MQTT the QoS is
+       * always determined by the message as published - not the wish of the subscriber
        */
       final MQTTClientProvider provider = getMQTTClientProvider();
       initializeConnection(provider);

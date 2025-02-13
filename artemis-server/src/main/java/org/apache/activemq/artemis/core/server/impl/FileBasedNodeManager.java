@@ -57,9 +57,10 @@ public abstract class FileBasedNodeManager extends NodeManager {
    }
 
    /**
-    * If {@code createIfNotExists} and activation sequence file doesn't exist yet, it returns {@code null},
-    * otherwise it opens it.<br>
-    * if {@code !createIfNotExists} it just open to create it.
+    * If {@code createIfNotExists} and activation sequence file doesn't exist yet, it returns {@code null}, otherwise it
+    * opens it.
+    * <p>
+    * If {@code !createIfNotExists} it just open to create it.
     */
    private FileChannel useActivationSequenceChannel(final boolean createIfNotExists) throws IOException {
       FileChannel channel = this.activationSequenceChannel;
@@ -147,9 +148,7 @@ public abstract class FileBasedNodeManager extends NodeManager {
             ActiveMQServerLogger.LOGGER.nodeManagerCantOpenFile(serverLockFile, e);
             throw e;
          } catch (IOException e) {
-            /*
-             * on some OS's this may fail weirdly even tho the parent dir exists, retrying will work, some weird timing issue i think
-             * */
+            // on some OS's this may fail weirdly even tho the parent dir exists, retrying will work, some weird timing issue i think
             if (count < 5) {
                try {
                   Thread.sleep(100);

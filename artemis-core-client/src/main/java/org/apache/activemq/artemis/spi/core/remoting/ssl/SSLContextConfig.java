@@ -21,9 +21,9 @@ import java.util.Objects;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 
 /**
- * This class holds configuration parameters for SSL context initialization.
- * To be used with {@link SSLContextFactory} and {@link OpenSSLContextFactory}.
- * <br>
+ * This class holds configuration parameters for SSL context initialization. To be used with {@link SSLContextFactory}
+ * and {@link OpenSSLContextFactory}.
+ * <p>
  * Use {@link SSLContextConfig#builder()} to create new immutable instances.
  */
 public final class SSLContextConfig {

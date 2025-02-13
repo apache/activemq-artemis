@@ -29,7 +29,7 @@ import org.eclipse.paho.mqttv5.common.MqttException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-4.12.0-3] The Client responds to an AUTH packet from the Server by sending a further AUTH packet. This packet MUST contain a Reason Code of 0x18 (Continue authentication).

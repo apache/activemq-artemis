@@ -43,8 +43,8 @@ import org.apache.activemq.artemis.spi.core.security.scram.UserData;
 import org.slf4j.Logger;
 
 /**
- * abstract class that implements the SASL-SCRAM authentication scheme, concrete implementations
- * must supply the {@link SCRAM} type to use and be register via SPI
+ * abstract class that implements the SASL-SCRAM authentication scheme, concrete implementations must supply the
+ * {@link SCRAM} type to use and be register via SPI
  */
 public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
 

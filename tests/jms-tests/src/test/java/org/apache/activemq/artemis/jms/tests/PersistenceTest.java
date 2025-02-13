@@ -379,7 +379,7 @@ public class PersistenceTest extends JMSTestCase {
       }
    }
 
-   /*
+   /**
     * Test durable subscription state survives a server crash
     */
    @Test
@@ -431,7 +431,7 @@ public class PersistenceTest extends JMSTestCase {
       }
    }
 
-   /*
+   /**
     * Test durable subscription state survives a restart
     */
    @Test

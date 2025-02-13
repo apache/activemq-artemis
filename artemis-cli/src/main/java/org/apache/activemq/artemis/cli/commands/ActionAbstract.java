@@ -82,9 +82,11 @@ public abstract class ActionAbstract implements Action, Runnable {
    @Override
    public String getBrokerInstance() {
       if (brokerInstance == null) {
-         /* We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths.  For Windows
-         the ARTEMIS_HOME variable will include back slashes (An invalid file URI character path separator).  For this
-         reason we overwrite the ARTEMIS_HOME variable with backslashes replaced with forward slashes. */
+         /*
+          * We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths. For Windows
+          * the ARTEMIS_HOME variable will include back slashes (An invalid file URI character path separator). For this
+          * reason we overwrite the ARTEMIS_HOME variable with backslashes replaced with forward slashes.
+          */
          brokerInstance = System.getProperty("artemis.instance");
          if (brokerInstance != null) {
             brokerInstance = brokerInstance.replace("\\", "/");
@@ -188,9 +190,11 @@ public abstract class ActionAbstract implements Action, Runnable {
    @Override
    public String getBrokerHome() {
       if (brokerHome == null) {
-         /* We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths.  For Windows
-         the ARTEMIS_HOME variable will include back slashes (An invalid file URI character path separator).  For this
-         reason we overwrite the ARTEMIS_HOME variable with backslashes replaced with forward slashes. */
+         /*
+          * We use File URI for locating files.  The ARTEMIS_HOME variable is used to determine file paths. For Windows
+          * the ARTEMIS_HOME variable will include back slashes (An invalid file URI character path separator). For this
+          * reason we overwrite the ARTEMIS_HOME variable with backslashes replaced with forward slashes.
+          */
          brokerHome = System.getProperty("artemis.home");
          if (brokerHome != null) {
             brokerHome = brokerHome.replace("\\", "/");

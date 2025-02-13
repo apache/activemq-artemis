@@ -29,6 +29,7 @@ public class DigestCallback implements Callback {
 
    /**
     * set the digest to use
+    *
     * @param digest the digest
     */
    public void setDigest(MessageDigest digest) {
@@ -36,7 +37,7 @@ public class DigestCallback implements Callback {
    }
 
    /**
-    * @return the digest or <code>null</code> if not known
+    * {@return the digest or {@code null} if not known}
     */
    public MessageDigest getDigest() {
       return digest;

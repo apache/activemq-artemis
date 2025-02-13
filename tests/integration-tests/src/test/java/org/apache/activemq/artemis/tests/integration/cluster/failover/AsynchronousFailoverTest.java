@@ -44,7 +44,7 @@ import java.lang.invoke.MethodHandles;
 
 /**
  * A MultiThreadFailoverTest
- * <br>
+ * <p>
  * Test Failover where failure is prompted by another thread
  */
 public class AsynchronousFailoverTest extends FailoverTestBase {

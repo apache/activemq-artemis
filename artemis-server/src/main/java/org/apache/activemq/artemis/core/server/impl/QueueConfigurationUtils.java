@@ -23,11 +23,13 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 public class QueueConfigurationUtils {
 
    /**
-    * This method inspects the {@code QueueConfiguration} and applies default values to it based on the {@code
-    * AddressSettings} as well as {@code static} defaults. The {@code static} values are applied only after the values
-    * from the {@code AddressSettings} are applied. Values are only changed to defaults if they are {@code null}.
+    * This method inspects the {@code QueueConfiguration} and applies default values to it based on the
+    * {@code AddressSettings} as well as {@code static} defaults. The {@code static} values are applied only after the
+    * values from the {@code AddressSettings} are applied. Values are only changed to defaults if they are
+    * {@code null}.
+    *
     * @param config the {@code QueueConfiguration} to modify with default values
-    * @param as the {@code AddressSettings} to use when applying dynamic default values
+    * @param as     the {@code AddressSettings} to use when applying dynamic default values
     */
    public static void applyDefaults(final QueueConfiguration config, AddressSettings as) {
       applyDynamicDefaults(config, as);
@@ -35,10 +37,11 @@ public class QueueConfigurationUtils {
    }
 
    /**
-    * This method inspects the {@code QueueConfiguration} and applies default values to it based on the {@code
-    * AddressSettings}. Values are only changed to defaults if they are {@code null}.
+    * This method inspects the {@code QueueConfiguration} and applies default values to it based on the
+    * {@code AddressSettings}. Values are only changed to defaults if they are {@code null}.
+    *
     * @param config the {@code QueueConfiguration} to modify with default values
-    * @param as the {@code AddressSettings} to use when applying dynamic default values
+    * @param as     the {@code AddressSettings} to use when applying dynamic default values
     */
    public static void applyDynamicDefaults(final QueueConfiguration config, AddressSettings as) {
       if (config.getMaxConsumers() == null) {
@@ -100,10 +103,11 @@ public class QueueConfigurationUtils {
    /**
     * This method inspects the {@code QueueConfiguration} and applies default values to it based on the {@code static}
     * defaults. Values are only changed to defaults if they are {@code null}.
-    * <br>
+    * <p>
     * Static defaults are not applied directly in {@code QueueConfiguration} because {@code null} values allow us to
     * determine whether the fields have actually been set. This allows us, for example, to omit unset fields from JSON
     * payloads during queue-related management operations.
+    *
     * @param config the {@code QueueConfiguration} to modify with default values
     */
    public static void applyStaticDefaults(final QueueConfiguration config) {

@@ -29,8 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Connection instance used to connect to the Broker using Proton as
- * the AMQP protocol handler.
+ * Connection instance used to connect to the Broker using Proton as the AMQP protocol handler.
  */
 public class AmqpClient {
 
@@ -60,11 +59,11 @@ public class AmqpClient {
    }
 
    /**
-    * Creates a connection with the broker at the given location, this method initiates a
-    * connect attempt immediately and will fail if the remote peer cannot be reached.
+    * Creates a connection with the broker at the given location, this method initiates a connect attempt immediately
+    * and will fail if the remote peer cannot be reached.
     *
+    * @return a new connection object used to interact with the connected peer
     * @throws Exception if an error occurs attempting to connect to the Broker.
-    * @return a new connection object used to interact with the connected peer.
     */
    public AmqpConnection connect() throws Exception {
 
@@ -77,11 +76,11 @@ public class AmqpClient {
    }
 
    /**
-    * Creates a connection with the broker at the given location, this method initiates a
-    * connect attempt immediately and will fail if the remote peer cannot be reached.
+    * Creates a connection with the broker at the given location, this method initiates a connect attempt immediately
+    * and will fail if the remote peer cannot be reached.
     *
+    * @return a new connection object used to interact with the connected peer
     * @throws Exception if an error occurs attempting to connect to the Broker.
-    * @return a new connection object used to interact with the connected peer.
     */
    public AmqpConnection connect(boolean noContainerId) throws Exception {
 
@@ -94,13 +93,12 @@ public class AmqpClient {
       return connection;
    }
 
-
    /**
-    * Creates a connection with the broker at the given location, this method initiates a
-    * connect attempt immediately and will fail if the remote peer cannot be reached.
+    * Creates a connection with the broker at the given location, this method initiates a connect attempt immediately
+    * and will fail if the remote peer cannot be reached.
     *
+    * @return a new connection object used to interact with the connected peer
     * @throws Exception if an error occurs attempting to connect to the Broker.
-    * @return a new connection object used to interact with the connected peer.
     */
    public AmqpConnection connect(String containerId) throws Exception {
 
@@ -113,15 +111,13 @@ public class AmqpClient {
       return connection;
    }
 
-
    /**
-    * Creates a connection object using the configured values for user, password, remote URI
-    * etc.  This method does not immediately initiate a connection to the remote leaving that
-    * to the caller which provides a connection object that can have additional configuration
-    * changes applied before the <code>connect</code> method is invoked.
+    * Creates a connection object using the configured values for user, password, remote URI etc.  This method does not
+    * immediately initiate a connection to the remote leaving that to the caller which provides a connection object that
+    * can have additional configuration changes applied before the {@code connect} method is invoked.
     *
+    * @return a new connection object used to interact with the connected peer
     * @throws Exception if an error occurs attempting to connect to the Broker.
-    * @return a new connection object used to interact with the connected peer.
     */
    public AmqpConnection createConnection() throws Exception {
       if (username == null && password != null) {
@@ -142,14 +138,14 @@ public class AmqpClient {
    }
 
    /**
-    * @return the user name value given when constructed.
+    * {@return the user name value given when constructed}
     */
    public String getUsername() {
       return username;
    }
 
    /**
-    * @return the password value given when constructed.
+    * {@return the password value given when constructed}
     */
    public String getPassword() {
       return password;
@@ -178,15 +174,14 @@ public class AmqpClient {
    }
 
    /**
-    * @return the currently set address to use to connect to the AMQP peer.
+    * {@return the currently set address to use to connect to the AMQP peer}
     */
    public URI getRemoteURI() {
       return remoteURI;
    }
 
    /**
-    * Sets the offered capabilities that should be used when a new connection attempt
-    * is made.
+    * Sets the offered capabilities that should be used when a new connection attempt is made.
     *
     * @param offeredCapabilities the list of capabilities to offer when connecting.
     */
@@ -199,15 +194,14 @@ public class AmqpClient {
    }
 
    /**
-    * @return an unmodifiable view of the currently set offered capabilities
+    * {@return an unmodifiable view of the currently set offered capabilities}
     */
    public List<Symbol> getOfferedCapabilities() {
       return Collections.unmodifiableList(offeredCapabilities);
    }
 
    /**
-    * Sets the offered connection properties that should be used when a new connection
-    * attempt is made.
+    * Sets the offered connection properties that should be used when a new connection attempt is made.
     *
     * @param offeredProperties the map of properties to offer when connecting.
     */
@@ -220,22 +214,22 @@ public class AmqpClient {
    }
 
    /**
-    * @return an unmodifiable view of the currently set connection properties.
+    * {@return an unmodifiable view of the currently set connection properties}
     */
    public Map<Symbol, Object> getOfferedProperties() {
       return Collections.unmodifiableMap(offeredProperties);
    }
 
    /**
-    * @return the currently set state inspector used to check state after various events.
+    * {@return the currently set state inspector used to check state after various events}
     */
    public AmqpValidator getStateInspector() {
       return stateInspector;
    }
 
    /**
-    * Sets the state inspector used to check that the AMQP resource is valid after
-    * specific lifecycle events such as open and close.
+    * Sets the state inspector used to check that the AMQP resource is valid after specific lifecycle events such as
+    * open and close.
     *
     * @param stateInspector the new state inspector to use.
     */
@@ -256,8 +250,8 @@ public class AmqpClient {
     * Creates an anonymous connection with the broker at the given location.
     *
     * @param broker the address of the remote broker instance.
+    * @return a new connection object used to interact with the connected peer
     * @throws Exception if an error occurs attempting to connect to the Broker.
-    * @return a new connection object used to interact with the connected peer.
     */
    public static AmqpConnection connect(URI broker) throws Exception {
       return connect(broker, null, null);
@@ -269,8 +263,8 @@ public class AmqpClient {
     * @param broker   the address of the remote broker instance.
     * @param username the user name to use to connect to the broker or null for anonymous.
     * @param password the password to use to connect to the broker, must be null if user name is null.
+    * @return a new connection object used to interact with the connected peer
     * @throws Exception if an error occurs attempting to connect to the Broker.
-    * @return a new connection object used to interact with the connected peer.
     */
    public static AmqpConnection connect(URI broker, String username, String password) throws Exception {
       if (username == null && password != null) {

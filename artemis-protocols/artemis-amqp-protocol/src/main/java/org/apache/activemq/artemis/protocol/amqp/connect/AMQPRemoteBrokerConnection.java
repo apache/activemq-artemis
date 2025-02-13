@@ -39,9 +39,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A Utility class that represents the remote end of an incoming AMQP broker
- * connection used to provide a common root for services that are active on
- * a given incoming broker connection.
+ * A Utility class that represents the remote end of an incoming AMQP broker connection used to provide a common root
+ * for services that are active on a given incoming broker connection.
  */
 public class AMQPRemoteBrokerConnection implements RemoteBrokerConnection {
 
@@ -71,21 +70,21 @@ public class AMQPRemoteBrokerConnection implements RemoteBrokerConnection {
    }
 
    /**
-    * @return the server instance that owns this remote broker connection
+    * {@return the server instance that owns this remote broker connection}
     */
    public ActiveMQServer getServer() {
       return server;
    }
 
    /**
-    * @return the connection context for this incoming broker connection.
+    * {@return the connection context for this incoming broker connection}
     */
    public AMQPConnectionContext getConnection() {
       return connection;
    }
 
    /**
-    * @return the remote node ID if it was provided or null if not supplied on connect.
+    * @return the remote node ID if it was provided or null if not supplied on connect
     */
    @Override
    public String getNodeId() {
@@ -93,7 +92,7 @@ public class AMQPRemoteBrokerConnection implements RemoteBrokerConnection {
    }
 
    /**
-    * @return the remote broker connection name if it was provided or null if not supplied on connect.
+    * @return the remote broker connection name if it was provided or null if not supplied on connect
     */
    @Override
    public String getName() {
@@ -106,10 +105,8 @@ public class AMQPRemoteBrokerConnection implements RemoteBrokerConnection {
    }
 
    /**
-    * Returns <code>true</code> if the remote broker connection was established with enough information to uniquely
-    * identify the connection source for purposes of adding the remote connection into the server management services.
-    *
-    * @return <code>true</code> if the remote broker connection was created with sufficient information to add to management.
+    * {@return {@code true} if the remote broker connection was established with enough information to uniquely identify
+    * the connection source for purposes of adding the remote connection into the server management services}
     */
    public boolean isManagable() {
       return remoteConnectionName != null &&
@@ -119,29 +116,29 @@ public class AMQPRemoteBrokerConnection implements RemoteBrokerConnection {
    }
 
    /**
-    * @return has this remote broker connection been initialized.
+    * {@return has this remote broker connection been initialized}
     */
    public boolean isInitialized() {
       return state.ordinal() > State.UNINITIALIZED.ordinal();
    }
 
    /**
-    * @return has this remote broker connection been started.
+    * {@return has this remote broker connection been started}
     */
    public boolean isStarted() {
       return state == State.STARTED;
    }
 
    /**
-    * @return has this remote broker connection been shutdown.
+    * {@return has this remote broker connection been shutdown}
     */
    public boolean isShutdown() {
       return state == State.SHUTDOWN;
    }
 
    /**
-    * Initialize the remote broker connection object which moves it to the started state where
-    * it will remain until shutdown.
+    * Initialize the remote broker connection object which moves it to the started state where it will remain until
+    * shutdown.
     *
     * @throws ActiveMQException if an error occurs on initialization.
     */
@@ -163,8 +160,8 @@ public class AMQPRemoteBrokerConnection implements RemoteBrokerConnection {
    }
 
    /**
-    * Shutdown the remote broker connection object which removes any management objects and
-    * informs any registered services of the shutdown.
+    * Shutdown the remote broker connection object which removes any management objects and informs any registered
+    * services of the shutdown.
     */
    @Override
    public synchronized void shutdown() {
@@ -190,13 +187,10 @@ public class AMQPRemoteBrokerConnection implements RemoteBrokerConnection {
    }
 
    /**
-    * Add a new federation target to this remote broker connection instance which will
-    * be started if this federation instance has already been started.
+    * Add a new federation target to this remote broker connection instance which will be started if this federation
+    * instance has already been started.
     *
-    * @param federation
-    *
-    * @return this remote broker connection instance.
-    *
+    * @return this remote broker connection instance
     * @throws ActiveMQException if an error occurs while adding the federation to this connection.
     */
    public synchronized AMQPRemoteBrokerConnection addFederationTarget(AMQPFederationTarget federation) throws ActiveMQException {
@@ -212,18 +206,13 @@ public class AMQPRemoteBrokerConnection implements RemoteBrokerConnection {
    }
 
    /**
-    * Utility methods for checking the current connection for an existing remote broker connection instance
-    * and returning it, or creating a new instance if none yet exists and initializing it.
+    * Utility methods for checking the current connection for an existing remote broker connection instance and
+    * returning it, or creating a new instance if none yet exists and initializing it.
     *
-    * @param server
-    *    The server instance that has accepted the remote broker connection.
-    * @param connection
-    *    The connection context object that is assigned to the active connection.
-    * @param protonConnection
-    *    The proton connection instance where the connection attachments are stored.
-    *
-    * @return a remote broker connection instance that has been initialized that is scoped to the active connection.
-    *
+    * @param server           The server instance that has accepted the remote broker connection.
+    * @param connection       The connection context object that is assigned to the active connection.
+    * @param protonConnection The proton connection instance where the connection attachments are stored.
+    * @return a remote broker connection instance that has been initialized that is scoped to the active connection
     * @throws ActiveMQException if an error occurs while attempting to get a remote broker connection instance.
     */
    @SuppressWarnings("unchecked")

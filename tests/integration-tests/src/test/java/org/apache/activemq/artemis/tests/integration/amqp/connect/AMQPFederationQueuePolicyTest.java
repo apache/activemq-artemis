@@ -130,8 +130,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * Tests for AMQP Broker federation handling of the receive from and send to queue policy
- * configuration handling.
+ * Tests for AMQP Broker federation handling of the receive from and send to queue policy configuration handling.
  */
 public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 

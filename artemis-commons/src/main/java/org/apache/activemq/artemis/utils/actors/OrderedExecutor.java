@@ -25,7 +25,7 @@ import java.lang.invoke.MethodHandles;
 
 /**
  * An executor that always runs all tasks in order, using a delegate executor to run the tasks.
- * <br>
+ * <p>
  * More specifically, any call B to the {@link #execute(Runnable)} method that happens-after another call A to the
  * same method, will result in B's task running after A's.
  */
@@ -44,8 +44,10 @@ public class OrderedExecutor extends ProcessorBase<Runnable> implements ArtemisE
       return fair;
    }
 
+   /**
+    * If this OrderedExecutor is fair, it will yield for another executors after each task ran
+    */
    @Override
-   /** If this OrderedExecutor is fair, it will yield for another executors after each task ran */
    public OrderedExecutor setFair(boolean fair) {
       this.fair = fair;
       return this;

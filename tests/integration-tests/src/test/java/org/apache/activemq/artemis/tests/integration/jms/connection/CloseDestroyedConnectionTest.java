@@ -79,7 +79,7 @@ public class CloseDestroyedConnectionTest extends JMSTestBase {
       }
    }
 
-   /*
+   /**
     * Closing a connection that is destroyed should cleanly close everything without throwing exceptions
     */
    @Test

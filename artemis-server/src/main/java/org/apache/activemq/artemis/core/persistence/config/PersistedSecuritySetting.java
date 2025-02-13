@@ -25,7 +25,6 @@ import static org.apache.activemq.artemis.utils.DataConstants.SIZE_NULL;
 
 public class PersistedSecuritySetting implements EncodingSupport {
 
-
    private long storeId;
 
    private SimpleString addressMatch;
@@ -58,21 +57,6 @@ public class PersistedSecuritySetting implements EncodingSupport {
    public PersistedSecuritySetting() {
    }
 
-   /**
-    * @param addressMatch
-    * @param sendRoles
-    * @param consumeRoles
-    * @param createDurableQueueRoles
-    * @param deleteDurableQueueRoles
-    * @param createNonDurableQueueRoles
-    * @param deleteNonDurableQueueRoles
-    * @param manageRoles
-    * @param browseRoles
-    * @param createAddressRoles
-    * @param deleteAddressRoles
-    * @param viewRoles
-    * @param editRoles
-    */
    public PersistedSecuritySetting(final String addressMatch,
                                    final String sendRoles,
                                    final String consumeRoles,
@@ -111,83 +95,49 @@ public class PersistedSecuritySetting implements EncodingSupport {
       storeId = id;
    }
 
-   /**
-    * @return the addressMatch
-    */
    public SimpleString getAddressMatch() {
       return addressMatch;
    }
 
-   /**
-    * @return the sendRoles
-    */
    public String getSendRoles() {
       return stringFrom(sendRoles);
    }
 
-   /**
-    * @return the consumeRoles
-    */
    public String getConsumeRoles() {
       return stringFrom(consumeRoles);
    }
 
-   /**
-    * @return the createDurableQueueRoles
-    */
    public String getCreateDurableQueueRoles() {
       return stringFrom(createDurableQueueRoles);
    }
 
-   /**
-    * @return the deleteDurableQueueRoles
-    */
    public String getDeleteDurableQueueRoles() {
       return stringFrom(deleteDurableQueueRoles);
    }
 
-   /**
-    * @return the createNonDurableQueueRoles
-    */
    public String getCreateNonDurableQueueRoles() {
       return stringFrom(createNonDurableQueueRoles);
    }
 
-   /**
-    * @return the deleteNonDurableQueueRoles
-    */
    public String getDeleteNonDurableQueueRoles() {
       return stringFrom(deleteNonDurableQueueRoles);
    }
 
-   /**
-    * @return the manageRoles
-    */
    public String getManageRoles() {
       return stringFrom(manageRoles);
    }
 
-   /**
-    * @return the browseRoles
-    */
    public String getBrowseRoles() {
       return stringFrom(browseRoles);
    }
 
-   /**
-    * @return the createAddressRoles
-    */
    public String getCreateAddressRoles() {
       return stringFrom(createAddressRoles);
    }
 
-   /**
-    * @return the deleteAddressRoles
-    */
    public String getDeleteAddressRoles() {
       return stringFrom(deleteAddressRoles);
    }
-
 
    public String getViewRoles() {
       return stringFrom(viewRoles);
@@ -260,9 +210,6 @@ public class PersistedSecuritySetting implements EncodingSupport {
       }
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#hashCode()
-    */
    @Override
    public int hashCode() {
       final int prime = 31;
@@ -284,9 +231,6 @@ public class PersistedSecuritySetting implements EncodingSupport {
       return result;
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#equals(java.lang.Object)
-    */
    @Override
    public boolean equals(Object obj) {
       if (this == obj)
@@ -366,9 +310,6 @@ public class PersistedSecuritySetting implements EncodingSupport {
       return true;
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return "PersistedSecuritySetting [storeId=" + storeId +

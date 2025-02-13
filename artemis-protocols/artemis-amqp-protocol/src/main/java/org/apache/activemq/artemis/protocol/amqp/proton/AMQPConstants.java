@@ -22,9 +22,9 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 public class AMQPConstants {
 
    /*
-   * Connection Properties
-   * http://docs.oasis-open.org/amqp/core/v1.0/amqp-core-complete-v1.0.pdf#subsection.2.7.1
-   * */
+    * Connection Properties
+    * http://docs.oasis-open.org/amqp/core/v1.0/amqp-core-complete-v1.0.pdf#subsection.2.7.1
+    */
    public static class Connection {
 
       public static final int DEFAULT_IDLE_TIMEOUT = -1;

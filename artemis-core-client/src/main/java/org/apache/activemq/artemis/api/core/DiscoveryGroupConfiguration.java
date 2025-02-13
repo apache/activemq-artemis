@@ -24,11 +24,12 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 /**
  * This file represents how we are using Discovery.
  * <p>
- * The discovery configuration could either use plain UDP, or JGroups.<br>
- * If using UDP, all the UDP properties will be filled and the jgroups properties will be
- * {@code null}.<br>
- * If using JGroups, all the UDP properties will be -1 or {@code null} and the jgroups properties
- * will be filled.<br>
+ * The discovery configuration could either use plain UDP or JGroups.
+ * <p>
+ * If using UDP, all the UDP properties will be filled and the jgroups properties will be {@code null}.
+ * <p>
+ * If using JGroups, all the UDP properties will be -1 or {@code null} and the jgroups properties will be filled.
+ * <p>
  * If by any reason, both properties are filled, the JGroups takes precedence. That means, if
  * {@code jgroupsFile != null} then the Grouping method used will be JGroups.
  */
@@ -42,9 +43,7 @@ public final class DiscoveryGroupConfiguration implements Serializable {
 
    private long discoveryInitialWaitTimeout = ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT;
 
-   /*
-   * This is the actual object used by the class, it has to be transient so we can handle deserialization with a 2.2 client
-   * */
+   // This is the actual object used by the class, it has to be transient so we can handle deserialization with a 2.2 client
    private BroadcastEndpointFactory endpointFactory;
 
    public DiscoveryGroupConfiguration() {
@@ -58,32 +57,20 @@ public final class DiscoveryGroupConfiguration implements Serializable {
       return refreshTimeout;
    }
 
-   /**
-    * @param name the name to set
-    */
    public DiscoveryGroupConfiguration setName(final String name) {
       this.name = name;
       return this;
    }
 
-   /**
-    * @param refreshTimeout the refreshTimeout to set
-    */
    public DiscoveryGroupConfiguration setRefreshTimeout(final long refreshTimeout) {
       this.refreshTimeout = refreshTimeout;
       return this;
    }
 
-   /**
-    * @return the discoveryInitialWaitTimeout
-    */
    public long getDiscoveryInitialWaitTimeout() {
       return discoveryInitialWaitTimeout;
    }
 
-   /**
-    * @param discoveryInitialWaitTimeout the discoveryInitialWaitTimeout to set
-    */
    public DiscoveryGroupConfiguration setDiscoveryInitialWaitTimeout(long discoveryInitialWaitTimeout) {
       this.discoveryInitialWaitTimeout = discoveryInitialWaitTimeout;
       return this;

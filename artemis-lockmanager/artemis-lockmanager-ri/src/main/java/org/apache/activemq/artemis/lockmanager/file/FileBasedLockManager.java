@@ -32,9 +32,8 @@ import org.apache.activemq.artemis.lockmanager.MutableLong;
 import org.apache.activemq.artemis.lockmanager.UnavailableStateException;
 
 /**
- * This is an implementation suitable to be used just on unit tests and it won't attempt
- * to manage nor purge existing stale locks files. It's part of the tests life-cycle to properly
- * set-up and tear-down the environment.
+ * This is an implementation suitable to be used just on unit tests and it won't attempt to manage nor purge existing
+ * stale locks files. It's part of the tests life-cycle to properly set-up and tear-down the environment.
  */
 public class FileBasedLockManager implements DistributedLockManager {
 

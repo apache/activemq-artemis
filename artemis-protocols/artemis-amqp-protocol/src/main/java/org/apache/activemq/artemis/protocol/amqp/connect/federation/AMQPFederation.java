@@ -44,9 +44,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A single AMQP Federation instance that can be tied to an AMQP broker connection or
- * used on a remote peer to control the reverse case of when the remote configures the
- * target side of the connection.
+ * A single AMQP Federation instance that can be tied to an AMQP broker connection or used on a remote peer to control
+ * the reverse case of when the remote configures the target side of the connection.
  */
 public abstract class AMQPFederation implements Federation {
 
@@ -60,10 +59,9 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Value used to store the federation instance used by an AMQP connection that
-    * is performing remote command and control operations or is the target of said
-    * operations. Only one federation instance is allowed per connection and will
-    * be checked.
+    * Value used to store the federation instance used by an AMQP connection that is performing remote command and
+    * control operations or is the target of said operations. Only one federation instance is allowed per connection and
+    * will be checked.
     */
    public static final String FEDERATION_INSTANCE_RECORD = "FEDERATION_INSTANCE_RECORD";
 
@@ -112,7 +110,7 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * @return the {@link WildcardConfiguration} that is in use by this server federation.
+    * {@return the {@link WildcardConfiguration} that is in use by this server federation}
     */
    public WildcardConfiguration getWildcardConfiguration() {
       return wildcardConfiguration;
@@ -128,7 +126,7 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * @return the metrics instance tied to this federation instance.
+    * {@return the metrics instance tied to this federation instance}
     */
    public AMQPFederationMetrics getMetrics() {
       return metrics;
@@ -145,24 +143,24 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * @return <code>true</code> if the federation has been marked as connected.
+    * {@return {@code true} if the federation has been marked as connected}
     */
    public boolean isConnected() {
       return connected;
    }
 
    /**
-    * @return the session context assigned to this federation instance
+    * {@return the session context assigned to this federation instance}
     */
    public abstract AMQPConnectionContext getConnectionContext();
 
    /**
-    * @return the session context assigned to this federation instance
+    * {@return the session context assigned to this federation instance}
     */
    public abstract AMQPSessionContext getSessionContext();
 
    /**
-    * @return the federation configuration that is in effect.
+    * {@return the federation configuration that is in effect}
     */
    public abstract AMQPFederationConfiguration getConfiguration();
 
@@ -207,8 +205,8 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Stops this federation instance and shuts down all remote resources that
-    * the federation currently has open and active.
+    * Stops this federation instance and shuts down all remote resources that the federation currently has open and
+    * active.
     *
     * @throws ActiveMQException if an error occurs during the stop process.
     */
@@ -262,13 +260,11 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Performs the prefixing for federation events queues that places the events queues into
-    * the name-space of federation related internal queues.
+    * Performs the prefixing for federation events queues that places the events queues into the name-space of
+    * federation related internal queues.
     *
-    * @param suffix
-    *    A suffix to append to the federation events link (normally the AMQP link name).
-    *
-    * @return the full internal queue name to use for the given suffix.
+    * @param suffix A suffix to append to the federation events link (normally the AMQP link name).
+    * @return the full internal queue name to use for the given suffix
     */
    String prefixEventsLinkQueueName(String suffix) {
       final StringBuilder builder = new StringBuilder();
@@ -284,13 +280,11 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Performs the prefixing for federation control queue name that places the queues
-    * into the name-space of federation related internal queues.
+    * Performs the prefixing for federation control queue name that places the queues into the name-space of federation
+    * related internal queues.
     *
-    * @param suffix
-    *    A suffix to append to the federation control link (normally the AMQP link name).
-    *
-    * @return the full internal queue name to use for the given suffix.
+    * @param suffix A suffix to append to the federation control link (normally the AMQP link name).
+    * @return the full internal queue name to use for the given suffix
     */
    String prefixControlLinkQueueName(String suffix) {
       final StringBuilder builder = new StringBuilder();
@@ -306,16 +300,12 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Adds a remote linked closed event interceptor that can intercept the closed event and
-    * if it returns true indicate that the close has been handled and that no further action
-    * need to be taken for this event.
+    * Adds a remote linked closed event interceptor that can intercept the closed event and if it returns true indicate
+    * that the close has been handled and that no further action need to be taken for this event.
     *
-    * @param id
-    *    A unique Id value that identifies the interceptor for later removal.
-    * @param interceptor
-    *    The predicate that will be called for any link close.
-    *
-    * @return this {@link AMQPFederation} instance.
+    * @param id          A unique Id value that identifies the interceptor for later removal.
+    * @param interceptor The predicate that will be called for any link close.
+    * @return this {@link AMQPFederation} instance
     */
    public AMQPFederation addLinkClosedInterceptor(String id, Predicate<Link> interceptor) {
       linkClosedinterceptors.put(id, interceptor);
@@ -325,10 +315,8 @@ public abstract class AMQPFederation implements Federation {
    /**
     * Remove a previously registered link close interceptor from the list of close interceptor bindings.
     *
-    * @param id
-    *   The id of the interceptor to remove
-    *
-    * @return this {@link AMQPFederation} instance.
+    * @param id The id of the interceptor to remove
+    * @return this {@link AMQPFederation} instance
     */
    public AMQPFederation removeLinkClosedInterceptor(String id) {
       linkClosedinterceptors.remove(id);
@@ -336,14 +324,11 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Adds a new {@link FederationReceiveFromQueuePolicy} entry to the set of policies that this
-    * federation will use to create demand on the remote when local demand is present.
+    * Adds a new {@link FederationReceiveFromQueuePolicy} entry to the set of policies that this federation will use to
+    * create demand on the remote when local demand is present.
     *
-    * @param queuePolicy
-    *    The policy to add to the set of configured {@link FederationReceiveFromQueuePolicy} instance.
-    *
-    * @return this {@link AMQPFederation} instance.
-    *
+    * @param queuePolicy The policy to add to the set of configured {@link FederationReceiveFromQueuePolicy} instance.
+    * @return this {@link AMQPFederation} instance
     * @throws ActiveMQException if an error occurs processing the added policy
     */
    public synchronized AMQPFederation addQueueMatchPolicy(FederationReceiveFromQueuePolicy queuePolicy) throws ActiveMQException {
@@ -368,14 +353,12 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Adds a new {@link FederationReceiveFromAddressPolicy} entry to the set of policies that this
-    * federation will use to create demand on the remote when local demand is present.
+    * Adds a new {@link FederationReceiveFromAddressPolicy} entry to the set of policies that this federation will use
+    * to create demand on the remote when local demand is present.
     *
-    * @param addressPolicy
-    *    The policy to add to the set of configured {@link FederationReceiveFromAddressPolicy} instance.
-    *
-    * @return this {@link AMQPFederation} instance.
-    *
+    * @param addressPolicy The policy to add to the set of configured {@link FederationReceiveFromAddressPolicy}
+    *                      instance.
+    * @return this {@link AMQPFederation} instance
     * @throws ActiveMQException if an error occurs processing the added policy
     */
    public synchronized AMQPFederation addAddressMatchPolicy(FederationReceiveFromAddressPolicy addressPolicy) throws ActiveMQException {
@@ -400,14 +383,12 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Gets the remote federation address policy manager assigned to the given name, if none is yet
-    * managed by this federation instance a new manager is created and added to this managers tracking
-    * state for remote policy managers.
+    * Gets the remote federation address policy manager assigned to the given name, if none is yet managed by this
+    * federation instance a new manager is created and added to this managers tracking state for remote policy
+    * managers.
     *
-    * @param policyName
-    *    The name of the policy whose manager is being queried for.
-    *
-    * @return an {@link AMQPFederationRemoteAddressPolicyManager} that matches the given name and type.
+    * @param policyName The name of the policy whose manager is being queried for.
+    * @return an {@link AMQPFederationRemoteAddressPolicyManager} that matches the given name and type
     */
    public synchronized AMQPFederationRemoteAddressPolicyManager getRemoteAddressPolicyManager(String policyName) {
       if (!remoteAddressPolicyManagers.containsKey(policyName)) {
@@ -431,14 +412,12 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Gets the remote federation queue policy manager assigned to the given name, if none is yet
-    * managed by this federation instance a new manager is created and added to this managers tracking
-    * state for remote policy managers.
+    * Gets the remote federation queue policy manager assigned to the given name, if none is yet managed by this
+    * federation instance a new manager is created and added to this managers tracking state for remote policy
+    * managers.
     *
-    * @param policyName
-    *    The name of the policy whose manager is being queried for.
-    *
-    * @return an {@link AMQPFederationRemoteQueuePolicyManager} that matches the given name and type.
+    * @param policyName The name of the policy whose manager is being queried for.
+    * @return an {@link AMQPFederationRemoteQueuePolicyManager} that matches the given name and type
     */
    public synchronized AMQPFederationRemoteQueuePolicyManager getRemoteQueuePolicyManager(String policyName) {
       if (!remoteQueuePolicyManagers.containsKey(policyName)) {
@@ -462,11 +441,10 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Register an event sender instance with this federation for use in sending federation level
-    * events from this federation instance to the remote peer.
+    * Register an event sender instance with this federation for use in sending federation level events from this
+    * federation instance to the remote peer.
     *
-    * @param dispatcher
-    *    The event sender instance to be registered.
+    * @param dispatcher The event sender instance to be registered.
     */
    synchronized void registerEventSender(AMQPFederationEventDispatcher dispatcher) {
       if (eventDispatcher != null) {
@@ -477,11 +455,10 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Register an event receiver instance with this federation for use in receiving federation level
-    * events sent to this federation instance from the remote peer.
+    * Register an event receiver instance with this federation for use in receiving federation level events sent to this
+    * federation instance from the remote peer.
     *
-    * @param dispatcher
-    *    The event receiver instance to be registered.
+    * @param dispatcher The event receiver instance to be registered.
     */
    synchronized void registerEventReceiver(AMQPFederationEventProcessor processor) {
       if (eventProcessor != null) {
@@ -492,14 +469,12 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Register an address by name that was either not present when an address federation consumer
-    * was initiated or was removed and the active address federation consumer was force closed.
-    * Upon (re)creation of the registered address a one time event will be sent to the remote
-    * federation instance which allows it to check if demand still exists and make another attempt
-    * at creating a consumer to federate messages from that address.
+    * Register an address by name that was either not present when an address federation consumer was initiated or was
+    * removed and the active address federation consumer was force closed. Upon (re)creation of the registered address a
+    * one time event will be sent to the remote federation instance which allows it to check if demand still exists and
+    * make another attempt at creating a consumer to federate messages from that address.
     *
-    * @param address
-    *     The address that is currently missing which should be watched for creation.
+    * @param address The address that is currently missing which should be watched for creation.
     */
    synchronized void registerMissingAddress(String address) {
       if (eventDispatcher != null) {
@@ -508,14 +483,12 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Register a queue by name that was either not present when an queue federation consumer was
-    * initiated or was removed and the active queue federation consumer was force closed. Upon
-    * (re)creation of the registered address and queue a one time event will be sent to the remote
-    * federation instance which allows it to check if demand still exists and make another attempt
-    * at creating a consumer to federate messages from that queue.
+    * Register a queue by name that was either not present when an queue federation consumer was initiated or was
+    * removed and the active queue federation consumer was force closed. Upon (re)creation of the registered address and
+    * queue a one time event will be sent to the remote federation instance which allows it to check if demand still
+    * exists and make another attempt at creating a consumer to federate messages from that queue.
     *
-    * @param queue
-    *     The queue that is currently missing which should be watched for creation.
+    * @param queue The queue that is currently missing which should be watched for creation.
     */
    synchronized void registerMissingQueue(String queue) {
       if (eventDispatcher != null) {
@@ -524,13 +497,11 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Triggers scan of federation address policies for local address demand on the given address
-    * that was added on the remote peer which was previously absent and could not be auto created
-    * or was removed while a federation receiver was attached and caused an existing federation
-    * receiver to be closed.
+    * Triggers scan of federation address policies for local address demand on the given address that was added on the
+    * remote peer which was previously absent and could not be auto created or was removed while a federation receiver
+    * was attached and caused an existing federation receiver to be closed.
     *
-    * @param addressName
-    *       The address that has been added on the remote peer.
+    * @param addressName The address that has been added on the remote peer.
     */
    synchronized void processRemoteAddressAdded(String addressName) {
       localAddressPolicyManagers.values().forEach(policy -> {
@@ -544,14 +515,12 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Triggers scan of federation queue policies for local queue demand on the given queue
-    * that was added on the remote peer which was previously absent at the time of a federation
-    * receiver attach or was removed and caused an existing federation receiver to be closed.
+    * Triggers scan of federation queue policies for local queue demand on the given queue that was added on the remote
+    * peer which was previously absent at the time of a federation receiver attach or was removed and caused an existing
+    * federation receiver to be closed.
     *
-    * @param addressName
-    *       The address that has been added on the remote peer.
-    * @param queueName
-    *       The queue that has been added on the remote peer.
+    * @param addressName The address that has been added on the remote peer.
+    * @param queueName   The queue that has been added on the remote peer.
     */
    synchronized void processRemoteQueueAdded(String addressName, String queueName) {
       localQueuePolicyManagers.values().forEach(policy -> {
@@ -565,26 +534,23 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Error signaling API that must be implemented by the specific federation implementation
-    * to handle error when creating a federation resource such as an outgoing receiver link.
+    * Error signaling API that must be implemented by the specific federation implementation to handle error when
+    * creating a federation resource such as an outgoing receiver link.
     *
-    * @param cause
-    *    The error that caused the resource creation to fail.
+    * @param cause The error that caused the resource creation to fail.
     */
    protected abstract void signalResourceCreateError(Exception cause);
 
    /**
-    * Error signaling API that must be implemented by the specific federation implementation
-    * to handle errors encountered during normal operations.
+    * Error signaling API that must be implemented by the specific federation implementation to handle errors
+    * encountered during normal operations.
     *
-    * @param cause
-    *    The error that caused the operation to fail.
+    * @param cause The error that caused the operation to fail.
     */
    protected abstract void signalError(Exception cause);
 
    /**
-    * Provides an entry point for the concrete federation implementation to respond
-    * to being initialized.
+    * Provides an entry point for the concrete federation implementation to respond to being initialized.
     *
     * @throws ActiveMQException if an error is thrown during initialization handling.
     */
@@ -593,8 +559,7 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Provides an entry point for the concrete federation implementation to respond
-    * to being started.
+    * Provides an entry point for the concrete federation implementation to respond to being started.
     *
     * @throws ActiveMQException if an error is thrown during start handling.
     */
@@ -603,8 +568,7 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Provides an entry point for the concrete federation implementation to respond
-    * to being stopped.
+    * Provides an entry point for the concrete federation implementation to respond to being stopped.
     *
     * @throws ActiveMQException if an error is thrown during stop handling.
     */
@@ -613,8 +577,7 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /**
-    * Provides an entry point for the concrete federation implementation to respond
-    * to being shutdown.
+    * Provides an entry point for the concrete federation implementation to respond to being shutdown.
     *
     * @throws ActiveMQException if an error is thrown during initialization handling.
     */
@@ -692,11 +655,10 @@ public abstract class AMQPFederation implements Federation {
    }
 
    /*
-    * This section contains internal management support APIs for resources managed by this
-    * Federation instance. The resources that are managed by a federation source or target
-    * call into this batch of API to add and remove themselves into management which allows
-    * the given federation source or target the control over how the resources are represented
-    * in the management hierarchy.
+    * This section contains internal management support APIs for resources managed by this Federation instance. The
+    * resources that are managed by a federation source or target call into this batch of API to add and remove
+    * themselves into management which allows the given federation source or target the control over how the resources
+    * are represented in the management hierarchy.
     */
 
    abstract void registerFederationManagement() throws Exception;

@@ -36,8 +36,8 @@ public interface Transaction {
    Object getProtocolData();
 
    /**
-    * Protocol managers can use this field to store any object needed.
-    * An example would be the Session used by the transaction on openwire
+    * Protocol managers can use this field to store any object needed. An example would be the Session used by the
+    * transaction on openwire
     */
    void setProtocolData(Object data);
 
@@ -51,9 +51,10 @@ public interface Transaction {
 
    void rollback() throws Exception;
 
-   /** In a ServerSession failure scenario,\
-    *  we may try to rollback, however only if it's not prepared.
-    *  In case it's prepared, we will just let it be and let the transaction manager to deal with it */
+   /**
+    * In a ServerSession failure scenario,\ we may try to rollback, however only if it's not prepared. In case it's
+    * prepared, we will just let it be and let the transaction manager to deal with it
+    */
    boolean tryRollback();
 
    long getID();
@@ -77,9 +78,8 @@ public interface Transaction {
    void afterWired(Runnable runnable);
 
    /**
-    * This is an operation that will be called right after the storage is completed.
-    * addOperation could only happen after paging and replication, while these operations will just be
-    * about the storage
+    * This is an operation that will be called right after the storage is completed. addOperation could only happen
+    * after paging and replication, while these operations will just be about the storage
     */
    void afterStore(TransactionOperation sync);
 
@@ -88,8 +88,8 @@ public interface Transaction {
    boolean hasTimedOut(long currentTime, int defaultTimeout);
 
    /**
-    * To validate if the Transaction had previously timed out.
-    * This is to check the reason why a TX has been rolled back.
+    * To validate if the Transaction had previously timed out. This is to check the reason why a TX has been rolled
+    * back.
     */
    boolean hasTimedOut();
 
@@ -107,7 +107,9 @@ public interface Transaction {
 
    boolean isAsync();
 
-   /** To be used on control transactions that are meant as internal and don't really require a hard sync. */
+   /**
+    * To be used on control transactions that are meant as internal and don't really require a hard sync.
+    */
    Transaction setAsync(boolean async);
 
    default boolean isAllowPageTransaction() {

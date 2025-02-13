@@ -19,8 +19,9 @@ package org.apache.activemq.artemis.core.server.impl;
 import java.util.HashMap;
 
 /**
- * Implementation of MessageGroups that simply uses a HashMap, this is the existing and default behaviour of message groups in artemis.
- *
+ * Implementation of MessageGroups that simply uses a HashMap, this is the existing and default behaviour of message
+ * groups in artemis.
+ * <p>
  * Effectively every Group Id is mapped raw, it also is unbounded.
  *
  * @param <C> the value type.

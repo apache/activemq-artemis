@@ -251,9 +251,6 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
       journal.stop();
    }
 
-   /**
-    * @throws Exception
-    */
    private void reloadJournal() throws Exception {
       assertEquals(0, errors.get());
 
@@ -450,8 +447,8 @@ public class JournalCleanupCompactStressTest extends ActiveMQTestBase {
    }
 
    /**
-    * Adds stuff to the journal, but it will take a long time to remove them.
-    * This will cause cleanup and compacting to happen more often
+    * Adds stuff to the journal, but it will take a long time to remove them. This will cause cleanup and compacting to
+    * happen more often
     */
    class SlowAppenderNoTX extends Thread {
 

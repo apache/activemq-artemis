@@ -25,8 +25,8 @@ import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
 /**
- * Helper class to create Java Objects from the
- * JSON serialization returned by {@link QueueControl#listMessageCounterHistory()}.
+ * Helper class to create Java Objects from the JSON serialization returned by
+ * {@link QueueControl#listMessageCounterHistory()}.
  */
 public final class DayCounterInfo {
 
@@ -51,8 +51,8 @@ public final class DayCounterInfo {
    }
 
    /**
-    * Returns an array of RoleInfo corresponding to the JSON serialization returned
-    * by {@link QueueControl#listMessageCounterHistory()}.
+    * {@return an array of RoleInfo corresponding to the JSON serialization returned by {@link
+    * QueueControl#listMessageCounterHistory()}}
     */
    public static DayCounterInfo[] fromJSON(final String jsonString) {
       JsonObject json = JsonUtil.readJsonObject(jsonString);
@@ -78,16 +78,13 @@ public final class DayCounterInfo {
       this.counters = counters;
    }
 
-   /**
-    * Returns the date of the counter.
-    */
    public String getDate() {
       return date;
    }
 
    /**
-    * Returns a 24-length array corresponding to the number of messages added to the queue
-    * for the given hour of the day.
+    * {@return a 24-length array corresponding to the number of messages added to the queue
+    * for the given hour of the day}
     */
    public long[] getCounters() {
       return counters;

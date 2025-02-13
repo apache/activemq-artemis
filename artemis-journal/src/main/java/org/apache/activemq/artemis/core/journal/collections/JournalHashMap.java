@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * K = Key
  * V = Value
  * C = Context
- * */
+ */
 public class JournalHashMap<K, V, C> implements Map<K, V> {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -191,7 +191,9 @@ public class JournalHashMap<K, V, C> implements Map<K, V> {
       }
    }
 
-   /** This is to be called from a single thread during reload, no need to be synchronized */
+   /**
+    * This is to be called from a single thread during reload, no need to be synchronized
+    */
    public void reload(MapRecord<K, V> reloadValue) {
       map.put(reloadValue.getKey(), reloadValue);
    }
@@ -259,9 +261,12 @@ public class JournalHashMap<K, V, C> implements Map<K, V> {
       return record.value;
    }
 
-   /** This method will remove the element from the HashMap immediately however the record is still part of a transaction.
-    *  This is not playing with rollbacks. So a rollback on the transaction wouldn't place the elements back.
-    *  This is intended to make sure the operation would be atomic in case of a failure, while an appendRollback is not expected. */
+   /**
+    * This method will remove the element from the HashMap immediately however the record is still part of a
+    * transaction. This is not playing with rollbacks. So a rollback on the transaction wouldn't place the elements
+    * back. This is intended to make sure the operation would be atomic in case of a failure, while an appendRollback is
+    * not expected.
+    */
    public synchronized V remove(Object key, long transactionID) {
       MapRecord<K, V> record = map.remove(key);
       this.removed(record, transactionID);
@@ -284,7 +289,9 @@ public class JournalHashMap<K, V, C> implements Map<K, V> {
       return map.keySet();
    }
 
-   /** Not implemented yet, you may use valuesCopy.*/
+   /**
+    * Not implemented yet, you may use valuesCopy.
+    */
    @Override
    public Collection<V> values() {
       throw new UnsupportedOperationException("not implemented yet. You may use valuesCopy");
@@ -296,7 +303,9 @@ public class JournalHashMap<K, V, C> implements Map<K, V> {
       return values;
    }
 
-   /** Not implemented yet, you may use entrySetCoy */
+   /**
+    * Not implemented yet, you may use entrySetCoy
+    */
    @Override
    public synchronized Set<Entry<K, V>> entrySet() {
       throw new UnsupportedOperationException("not implemented yet. You may use entrySetCopy");

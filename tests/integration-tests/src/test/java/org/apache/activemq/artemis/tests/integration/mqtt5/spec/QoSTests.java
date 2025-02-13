@@ -47,7 +47,7 @@ import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-4.3.1-1] In the QoS 0 delivery protocol, the sender MUST send a PUBLISH packet with QoS 0 and DUP flag set to 0.

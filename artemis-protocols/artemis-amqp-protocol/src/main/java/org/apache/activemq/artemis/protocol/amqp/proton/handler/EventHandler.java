@@ -24,9 +24,6 @@ import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Session;
 import org.apache.qpid.proton.engine.Transport;
 
-/**
- * EventHandler
- */
 public interface EventHandler {
 
    default void onAuthInit(ProtonHandler handler, Connection connection, boolean sasl) {

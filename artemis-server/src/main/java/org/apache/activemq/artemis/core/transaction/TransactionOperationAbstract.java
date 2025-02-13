@@ -81,9 +81,6 @@ public abstract class TransactionOperationAbstract implements TransactionOperati
       return Collections.emptyList();
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.transaction.TransactionOperation#getListOnConsumer(long)
-    */
    @Override
    public List<MessageReference> getListOnConsumer(long consumerID) {
       return Collections.emptyList();

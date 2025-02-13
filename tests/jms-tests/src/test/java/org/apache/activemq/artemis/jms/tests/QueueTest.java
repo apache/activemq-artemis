@@ -57,7 +57,6 @@ public class QueueTest extends JMSTestCase {
       }
    }
 
-   // http://jira.jboss.com/jira/browse/JBMESSAGING-1101
    @Test
    public void testBytesMessagePersistence() throws Exception {
       Connection conn = null;
@@ -104,7 +103,6 @@ public class QueueTest extends JMSTestCase {
       }
    }
 
-   // added for http://jira.jboss.org/jira/browse/JBMESSAGING-899
    @Test
    public void testClosedConsumerAfterStart() throws Exception {
       // This loop is to increase chances of a failure.

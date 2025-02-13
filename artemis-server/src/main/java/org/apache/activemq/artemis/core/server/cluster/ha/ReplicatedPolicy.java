@@ -38,19 +38,15 @@ public class ReplicatedPolicy implements HAPolicy<PrimaryActivation> {
    private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
 
    /*
-   * these are only set by the ReplicaPolicy after failover to decide if the primary server can failback, these should
-   * not be exposed in configuration.
-   * */
+    * these are only set by the ReplicaPolicy after failover to decide if the primary server can failback, these should
+    * not be exposed in configuration.
+    */
    private boolean allowAutoFailBack = ActiveMQDefaultConfiguration.isDefaultAllowAutoFailback();
 
-   /*
-   * whether this broker should vote to remain active
-   * */
+   // whether this broker should vote to remain active
    private boolean voteOnReplicationFailure;
 
-   /*
-   * what quorum size to use for voting
-   * */
+   // what quorum size to use for voting
    private int quorumSize;
 
    private int voteRetries;
@@ -59,9 +55,7 @@ public class ReplicatedPolicy implements HAPolicy<PrimaryActivation> {
 
    private long retryReplicationWait;
 
-   /*
-   * this is only used as the policy when the server is started as a backup after a failover
-   * */
+   // this is only used as the policy when the server is started as a backup after a failover
    private ReplicaPolicy replicaPolicy;
 
    private final NetworkHealthCheck networkHealthCheck;
@@ -184,9 +178,6 @@ public class ReplicatedPolicy implements HAPolicy<PrimaryActivation> {
       this.replicaPolicy = replicaPolicy;
    }
 
-   /*
-   * these 2 methods are the same, leaving both as the second is correct but the first is needed until more refactoring is done
-   * */
    @Override
    public String getBackupGroupName() {
       return groupName;

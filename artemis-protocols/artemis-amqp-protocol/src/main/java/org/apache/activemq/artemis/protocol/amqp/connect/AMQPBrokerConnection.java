@@ -127,9 +127,9 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
-    * Default value for the core message tunneling feature that indicates if core protocol messages
-    * should be streamed as binary blobs as the payload of an custom AMQP message which avoids any
-    * conversions of the messages to / from AMQP.
+    * Default value for the core message tunneling feature that indicates if core protocol messages should be streamed
+    * as binary blobs as the payload of an custom AMQP message which avoids any conversions of the messages to / from
+    * AMQP.
     */
    public static final boolean DEFAULT_CORE_MESSAGE_TUNNELING_ENABLED = true;
 
@@ -160,12 +160,14 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    final Executor connectExecutor;
    final ScheduledExecutorService scheduledExecutorService;
 
-   /** This is just for logging.
-    *  the actual connection will come from the amqpConnection configuration*/
+   /**
+    * This is just for logging. the actual connection will come from the amqpConnection configuration
+    */
    String host;
 
-   /** This is just for logging.
-    *  the actual connection will come from the amqpConnection configuration*/
+   /**
+    * This is just for logging. the actual connection will come from the amqpConnection configuration
+    */
    int port;
 
    public AMQPBrokerConnection(AMQPBrokerConnectionManager bridgeManager,
@@ -376,16 +378,13 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    }
 
    /**
-    * Adds a remote link closed event interceptor that can intercept the closed event and if it
-    * returns true indicate that the close has been handled and that normal broker connection
-    * remote link closed handling should be ignored.
+    * Adds a remote link closed event interceptor that can intercept the closed event and if it returns {@code true}
+    * indicate that the close has been handled and that normal broker connection remote link closed handling should be
+    * ignored.
     *
-    * @param id
-    *    A unique Id value that identifies the intercepter for later removal.
-    * @param interceptor
-    *    The predicate that will be called for any link close.
-    *
-    * @return this broker connection instance.
+    * @param id          A unique Id value that identifies the intercepter for later removal.
+    * @param interceptor The predicate that will be called for any link close.
+    * @return this broker connection instance
     */
    public AMQPBrokerConnection addLinkClosedInterceptor(String id, Predicate<Link> interceptor) {
       linkClosedInterceptors.put(id, interceptor);
@@ -395,10 +394,8 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    /**
     * Remove a previously registered link close interceptor from the broker connection.
     *
-    * @param id
-    *   The id of the interceptor to remove
-    *
-    * @return this broker connection instance.
+    * @param id The id of the interceptor to remove
+    * @return this broker connection instance
     */
    public AMQPBrokerConnection removeLinkClosedInterceptor(String id) {
       linkClosedInterceptors.remove(id);
@@ -941,30 +938,24 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    }
 
    /**
-    * Provides an error API for resources of the broker connection that
-    * encounter errors during the normal operation of the resource that
-    * represent a terminal outcome for the connection. The connection
-    * retry counter will be reset to zero for these types of errors as
-    * these indicate a connection interruption that should initiate the
-    * start of a reconnect cycle if reconnection is configured.
+    * Provides an error API for resources of the broker connection that encounter errors during the normal operation of
+    * the resource that represent a terminal outcome for the connection. The connection retry counter will be reset to
+    * zero for these types of errors as these indicate a connection interruption that should initiate the start of a
+    * reconnect cycle if reconnection is configured.
     *
-    * @param error
-    *    The exception that describes the terminal connection error.
+    * @param error The exception that describes the terminal connection error.
     */
    public void runtimeError(Throwable error) {
       error(error, 0);
    }
 
    /**
-    * Provides an error API for resources of the broker connection that
-    * encounter errors during the connection / resource initialization
-    * phase that should constitute a terminal outcome for the connection.
-    * The connection retry counter will be incremented for these types of
-    * errors which can result in eventual termination of reconnect attempts
-    * when the limit is exceeded.
+    * Provides an error API for resources of the broker connection that encounter errors during the connection /
+    * resource initialization phase that should constitute a terminal outcome for the connection. The connection retry
+    * counter will be incremented for these types of errors which can result in eventual termination of reconnect
+    * attempts when the limit is exceeded.
     *
-    * @param error
-    *    The exception that describes the terminal connection error.
+    * @param error The exception that describes the terminal connection error.
     */
    public void connectError(Throwable error) {
       error(error, lastRetryCounter);

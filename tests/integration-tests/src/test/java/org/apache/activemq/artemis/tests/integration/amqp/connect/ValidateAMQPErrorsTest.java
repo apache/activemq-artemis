@@ -68,8 +68,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This test will make sure the Broker Connection will react accordingly to a few
- * misconfigs and possible errors on either side of the connection.
+ * This test will make sure the Broker Connection will react accordingly to a few misconfigs and possible errors on
+ * either side of the connection.
  */
 public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
 
@@ -83,8 +83,8 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
    }
 
    /**
-    * Connecting to itself should issue an error.
-    * and the max retry should still be counted, not just keep connecting forever.
+    * Connecting to itself should issue an error. and the max retry should still be counted, not just keep connecting
+    * forever.
     */
    @Test
    @Timeout(30)
@@ -393,8 +393,6 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
 
    /**
     * Refuse the first mirror link, verify broker handles it and reconnects
-    *
-    * @throws Exception
     */
    @Test
    @Timeout(30)

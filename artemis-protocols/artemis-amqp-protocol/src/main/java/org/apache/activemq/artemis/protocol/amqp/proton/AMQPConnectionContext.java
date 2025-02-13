@@ -126,7 +126,9 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    private final boolean useCoreSubscriptionNaming;
 
-   /** Outgoing means created by the AMQP Bridge */
+   /**
+    * Outgoing means created by the AMQP Bridge
+    */
    private final boolean bridgeConnection;
 
    private final ScheduleOperator scheduleOp = new ScheduleOperator(new ScheduleRunnable());
@@ -206,15 +208,12 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    }
 
    /**
-    * Adds a listener that will be invoked any time an AMQP link is remotely closed
-    * before having been closed on this end of the connection.
+    * Adds a listener that will be invoked any time an AMQP link is remotely closed before having been closed on this
+    * end of the connection.
     *
-    * @param id
-    *    A unique ID assigned to the listener used to later remove it if needed.
-    * @param linkCloseListener
-    *    The instance of a closed listener.
-    *
-    * @return this connection context instance.
+    * @param id                A unique ID assigned to the listener used to later remove it if needed.
+    * @param linkCloseListener The instance of a closed listener.
+    * @return this connection context instance
     */
    public AMQPConnectionContext addLinkRemoteCloseListener(String id, LinkCloseListener linkCloseListener) {
       linkCloseListeners.put(id, linkCloseListener);
@@ -224,17 +223,15 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    /**
     * Remove the link remote close listener that is identified by the given ID.
     *
-    * @param id
-    *    The unique ID assigned to the listener when it was added.
+    * @param id The unique ID assigned to the listener when it was added.
     */
    public void removeLinkRemoteCloseListener(String id) {
       linkCloseListeners.remove(id);
    }
 
    /**
-    * Clear all link remote close listeners, usually done before connection
-    * termination to avoid any remote close events triggering processing
-    * after the connection shutdown has already started.
+    * Clear all link remote close listeners, usually done before connection termination to avoid any remote close events
+    * triggering processing after the connection shutdown has already started.
     */
    public void clearLinkRemoteCloseListeners() {
       linkCloseListeners.clear();
@@ -651,9 +648,9 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       initialize();
 
       /*
-       * This can be null which is in effect an empty map, also we really don't need to check this for in bound connections
-       * but its here in case we add support for outbound connections.
-       * */
+       * This can be null which is in effect an empty map, also we really don't need to check this for in bound
+       * connections but its here in case we add support for outbound connections.
+       */
       if (connection.getRemoteProperties() == null || !connection.getRemoteProperties().containsKey(CONNECTION_OPEN_FAILED)) {
          long nextKeepAliveTime = handler.tick(true);
 

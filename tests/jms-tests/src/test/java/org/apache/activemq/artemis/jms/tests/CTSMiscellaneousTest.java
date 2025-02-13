@@ -47,7 +47,8 @@ public class CTSMiscellaneousTest extends JMSTest {
    }
 
 
-   /* By default we send non persistent messages asynchronously for performance reasons
+   /*
+    * By default we send non persistent messages asynchronously for performance reasons
     * when running with strictTCK we send them synchronously
     */
    @Test

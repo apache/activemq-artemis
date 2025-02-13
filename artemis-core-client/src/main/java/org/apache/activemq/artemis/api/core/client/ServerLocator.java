@@ -30,20 +30,17 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactor
 /**
  * The serverLocator locates a server, but beyond that it locates a server based on a list.
  * <p>
- * If you are using straight TCP on the configuration, and if you configure your serverLocator to be
- * HA, the locator will always get an updated list of members to the server, the server will send
- * the updated list to the client.
+ * If you are using straight TCP on the configuration, and if you configure your serverLocator to be HA, the locator
+ * will always get an updated list of members to the server, the server will send the updated list to the client.
  * <p>
- * If you use UDP or JGroups (exclusively JGroups or UDP), the initial discovery is done by the
- * grouping finder, after the initial connection is made the server will always send updates to the
- * client. But the listeners will listen for updates on grouping.
+ * If you use UDP or JGroups (exclusively JGroups or UDP), the initial discovery is done by the grouping finder, after
+ * the initial connection is made the server will always send updates to the client. But the listeners will listen for
+ * updates on grouping.
  */
 public interface ServerLocator extends AutoCloseable {
 
    /**
-    * Returns true if close was already called
-    *
-    * @return {@code true} if closed, {@code false} otherwise.
+    * {@return {@code true} if closed, {@code false} otherwise}
     */
    boolean isClosed();
 
@@ -58,63 +55,55 @@ public interface ServerLocator extends AutoCloseable {
     * Creates a ClientSessionFactory using whatever load balancing policy is in force
     *
     * @return The ClientSessionFactory
-    * @throws Exception
     */
    ClientSessionFactory createSessionFactory() throws Exception;
 
    /**
-    * Creates a {@link ClientSessionFactory} to a specific server. The server must already be known
-    * about by this ServerLocator. This method allows the user to make a connection to a specific
-    * server bypassing any load balancing policy in force
+    * Creates a {@link ClientSessionFactory} to a specific server. The server must already be known about by this
+    * ServerLocator. This method allows the user to make a connection to a specific server bypassing any load balancing
+    * policy in force
     *
-    * @param nodeID
-    * @return a ClientSessionFactory instance or {@code null} if the node is not present on the
-    * topology
-    * @throws Exception if a failure happened in creating the ClientSessionFactory or the
-    *                   ServerLocator does not know about the passed in transportConfiguration
+    * @return a ClientSessionFactory instance or {@code null} if the node is not present on the topology
+    * @throws Exception if a failure happened in creating the ClientSessionFactory or the ServerLocator does not know
+    *                   about the passed in transportConfiguration
     */
    ClientSessionFactory createSessionFactory(String nodeID) throws Exception;
 
    /**
-    * Creates a {@link ClientSessionFactory} to a specific server. The server must already be known
-    * about by this ServerLocator. This method allows the user to make a connection to a specific
-    * server bypassing any load balancing policy in force
+    * Creates a {@link ClientSessionFactory} to a specific server. The server must already be known about by this
+    * ServerLocator. This method allows the user to make a connection to a specific server bypassing any load balancing
+    * policy in force
     *
-    * @param transportConfiguration
     * @return a {@link ClientSessionFactory} instance
-    * @throws Exception if a failure happened in creating the ClientSessionFactory or the
-    *                   ServerLocator does not know about the passed in transportConfiguration
+    * @throws Exception if a failure happened in creating the ClientSessionFactory or the ServerLocator does not know
+    *                   about the passed in transportConfiguration
     */
    ClientSessionFactory createSessionFactory(TransportConfiguration transportConfiguration) throws Exception;
 
    /**
-    * Creates a {@link ClientSessionFactory} to a specific server. The server must already be known
-    * about by this ServerLocator. This method allows the user to make a connection to a specific
-    * server bypassing any load balancing policy in force
+    * Creates a {@link ClientSessionFactory} to a specific server. The server must already be known about by this
+    * ServerLocator. This method allows the user to make a connection to a specific server bypassing any load balancing
+    * policy in force
     *
-    * @param transportConfiguration
-    * @param reconnectAttempts           number of attempts of reconnection to perform
+    * @param reconnectAttempts number of attempts of reconnection to perform
     * @return a {@link ClientSessionFactory} instance
-    * @throws Exception if a failure happened in creating the ClientSessionFactory or the
-    *                   ServerLocator does not know about the passed in transportConfiguration
+    * @throws Exception if a failure happened in creating the ClientSessionFactory or the ServerLocator does not know
+    *                   about the passed in transportConfiguration
     */
    ClientSessionFactory createSessionFactory(TransportConfiguration transportConfiguration,
                                              int reconnectAttempts) throws Exception;
 
    /**
-    * Creates a {@link ClientSessionFactory} to a specific server. The server must already be known
-    * about by this ServerLocator. This method allows the user to make a connection to a specific
-    * server bypassing any load balancing policy in force
+    * Creates a {@link ClientSessionFactory} to a specific server. The server must already be known about by this
+    * ServerLocator. This method allows the user to make a connection to a specific server bypassing any load balancing
+    * policy in force
     *
-    * @deprecated This method is no longer acceptable to create a client session factory.
-    * Replaced by {@link ServerLocator#createSessionFactory(TransportConfiguration, int)}.
-    *
-    * @param transportConfiguration
-    * @param reconnectAttempts           number of attempts of reconnection to perform
-    * @param failoverOnInitialConnection
+    * @param reconnectAttempts number of attempts of reconnection to perform
     * @return a {@link ClientSessionFactory} instance
-    * @throws Exception if a failure happened in creating the ClientSessionFactory or the
-    *                   ServerLocator does not know about the passed in transportConfiguration
+    * @throws Exception if a failure happened in creating the ClientSessionFactory or the ServerLocator does not know
+    *                   about the passed in transportConfiguration
+    * @deprecated This method is no longer acceptable to create a client session factory. Replaced by
+    * {@link ServerLocator#createSessionFactory(TransportConfiguration, int)}.
     */
    @Deprecated
    ClientSessionFactory createSessionFactory(TransportConfiguration transportConfiguration,
@@ -124,16 +113,14 @@ public interface ServerLocator extends AutoCloseable {
    /**
     * Returns the period used to check if a client has failed to receive pings from the server.
     * <p>
-    * Period is in milliseconds, default value is
-    * {@link ActiveMQClient#DEFAULT_CLIENT_FAILURE_CHECK_PERIOD}.
+    * Period is in milliseconds, default value is {@link ActiveMQClient#DEFAULT_CLIENT_FAILURE_CHECK_PERIOD}.
     *
     * @return the period used to check if a client has failed to receive pings from the server
     */
    long getClientFailureCheckPeriod();
 
    /**
-    * Sets the period (in milliseconds) used to check if a client has failed to receive pings from
-    * the server.
+    * Sets the period (in milliseconds) used to check if a client has failed to receive pings from the server.
     * <p>
     * Value must be -1 (to disable) or greater than 0.
     *
@@ -143,22 +130,22 @@ public interface ServerLocator extends AutoCloseable {
    ServerLocator setClientFailureCheckPeriod(long clientFailureCheckPeriod);
 
    /**
-    * When <code>true</code>, consumers created through this factory will create temporary files to
-    * cache large messages.
+    * When {@code true}, consumers created through this factory will create temporary files to cache large messages.
     * <p>
     * There is 1 temporary file created for each large message.
     * <p>
     * Default value is {@link ActiveMQClient#DEFAULT_CACHE_LARGE_MESSAGE_CLIENT}.
     *
-    * @return <code>true</code> if consumers created through this factory will cache large messages
-    * in temporary files, <code>false</code> else
+    * @return {@code true} if consumers created through this factory will cache large messages in temporary files,
+    * {@code false} else
     */
    boolean isCacheLargeMessagesClient();
 
    /**
-    * Sets whether large messages received by consumers created through this factory will be cached in temporary files or not.
+    * Sets whether large messages received by consumers created through this factory will be cached in temporary files
+    * or not.
     *
-    * @param cached <code>true</code> to cache large messages in temporary files, <code>false</code> else
+    * @param cached {@code true} to cache large messages in temporary files, {@code false} else
     * @return this ServerLocator
     */
    ServerLocator setCacheLargeMessagesClient(boolean cached);
@@ -166,9 +153,8 @@ public interface ServerLocator extends AutoCloseable {
    /**
     * Returns the connection <em>time-to-live</em>.
     * <p>
-    * This TTL determines how long the server will keep a connection alive in the absence of any
-    * data arriving from the client. Value is in milliseconds, default value is
-    * {@link ActiveMQClient#DEFAULT_CONNECTION_TTL}.
+    * This TTL determines how long the server will keep a connection alive in the absence of any data arriving from the
+    * client. Value is in milliseconds, default value is {@link ActiveMQClient#DEFAULT_CONNECTION_TTL}.
     *
     * @return the connection time-to-live in milliseconds
     */
@@ -188,8 +174,9 @@ public interface ServerLocator extends AutoCloseable {
     * Returns the blocking calls timeout.
     * <p>
     * If client's blocking calls to the server take more than this timeout, the call will throw a
-    * {@link org.apache.activemq.artemis.api.core.ActiveMQException} with the code {@link org.apache.activemq.artemis.api.core.ActiveMQExceptionType#CONNECTION_TIMEDOUT}. Value
-    * is in milliseconds, default value is {@link ActiveMQClient#DEFAULT_CALL_TIMEOUT}.
+    * {@link org.apache.activemq.artemis.api.core.ActiveMQException} with the code
+    * {@link org.apache.activemq.artemis.api.core.ActiveMQExceptionType#CONNECTION_TIMEDOUT}. Value is in milliseconds,
+    * default value is {@link ActiveMQClient#DEFAULT_CALL_TIMEOUT}.
     *
     * @return the blocking calls timeout
     */
@@ -206,11 +193,11 @@ public interface ServerLocator extends AutoCloseable {
    ServerLocator setCallTimeout(long callTimeout);
 
    /**
-    * Returns the blocking calls failover timeout when the client is awaiting failover,
-    * this is over and above the normal call timeout.
+    * Returns the blocking calls failover timeout when the client is awaiting failover, this is over and above the
+    * normal call timeout.
     * <p>
-    * If client is in the process of failing over when a blocking call is called then the client will wait this long before
-    * actually trying the send.
+    * If client is in the process of failing over when a blocking call is called then the client will wait this long
+    * before actually trying the send.
     *
     * @return the blocking calls failover timeout
     */
@@ -231,10 +218,10 @@ public interface ServerLocator extends AutoCloseable {
    /**
     * Returns the large message size threshold.
     * <p>
-    * Messages whose size is if greater than this value will be handled as <em>large messages</em>.
-    * Value is in bytes, default value is {@link ActiveMQClient#DEFAULT_MIN_LARGE_MESSAGE_SIZE}.
+    * Messages whose size is if greater than this value will be handled as <em>large messages</em>. Value is in bytes,
+    * default value is {@link ActiveMQClient#DEFAULT_MIN_LARGE_MESSAGE_SIZE}.
     *
-    * @return the message size threshold to treat messages as large messages.
+    * @return the message size threshold to treat messages as large messages
     */
    int getMinLargeMessageSize();
 
@@ -260,8 +247,8 @@ public interface ServerLocator extends AutoCloseable {
    /**
     * Sets the window size for flow control of the consumers created through this factory.
     * <p>
-    * Value must be -1 (to disable flow control), 0 (to not buffer any messages) or greater than 0
-    * (to set the maximum size of the buffer)
+    * Value must be -1 (to disable flow control), 0 (to not buffer any messages) or greater than 0 (to set the maximum
+    * size of the buffer)
     *
     * @param consumerWindowSize window size (in bytes) used for consumer flow control
     * @return this ServerLocator
@@ -271,10 +258,11 @@ public interface ServerLocator extends AutoCloseable {
    /**
     * Returns the maximum rate of message consumption for consumers created through this factory.
     * <p>
-    * This value controls the rate at which a consumer can consume messages. A consumer will never consume messages at a rate faster than the rate specified.
+    * This value controls the rate at which a consumer can consume messages. A consumer will never consume messages at a
+    * rate faster than the rate specified.
     * <p>
-    * Value is -1 (to disable) or a positive integer corresponding to the maximum desired message consumption rate specified in units of messages per second.
-    * Default value is {@link ActiveMQClient#DEFAULT_CONSUMER_MAX_RATE}.
+    * Value is -1 (to disable) or a positive integer corresponding to the maximum desired message consumption rate
+    * specified in units of messages per second. Default value is {@link ActiveMQClient#DEFAULT_CONSUMER_MAX_RATE}.
     *
     * @return the consumer max rate
     */
@@ -283,7 +271,8 @@ public interface ServerLocator extends AutoCloseable {
    /**
     * Sets the maximum rate of message consumption for consumers created through this factory.
     * <p>
-    * Value must -1 (to disable) or a positive integer corresponding to the maximum desired message consumption rate specified in units of messages per second.
+    * Value must -1 (to disable) or a positive integer corresponding to the maximum desired message consumption rate
+    * specified in units of messages per second.
     *
     * @param consumerMaxRate maximum rate of message consumption (in messages per seconds)
     * @return this ServerLocator
@@ -313,10 +302,11 @@ public interface ServerLocator extends AutoCloseable {
    /**
     * Returns the window size for flow control of the producers created through this factory.
     * <p>
-    * Value must be -1 (to disable flow control) or greater than 0 to determine the maximum amount of bytes at any give time (to prevent overloading the connection).
-    * Default value is {@link ActiveMQClient#DEFAULT_PRODUCER_WINDOW_SIZE}.
+    * Value must be -1 (to disable flow control) or greater than 0 to determine the maximum amount of bytes at any give
+    * time (to prevent overloading the connection). Default value is
+    * {@link ActiveMQClient#DEFAULT_PRODUCER_WINDOW_SIZE}.
     *
-    * @return the window size for flow control of the producers created through this factory.
+    * @return the window size for flow control of the producers created through this factory
     */
    int getProducerWindowSize();
 
@@ -333,10 +323,11 @@ public interface ServerLocator extends AutoCloseable {
    /**
     * Returns the maximum rate of message production for producers created through this factory.
     * <p>
-    * This value controls the rate at which a producer can produce messages. A producer will never produce messages at a rate faster than the rate specified.
+    * This value controls the rate at which a producer can produce messages. A producer will never produce messages at a
+    * rate faster than the rate specified.
     * <p>
-    * Value is -1 (to disable) or a positive integer corresponding to the maximum desired message production rate specified in units of messages per second.
-    * Default value is {@link ActiveMQClient#DEFAULT_PRODUCER_MAX_RATE}.
+    * Value is -1 (to disable) or a positive integer corresponding to the maximum desired message production rate
+    * specified in units of messages per second. Default value is {@link ActiveMQClient#DEFAULT_PRODUCER_MAX_RATE}.
     *
     * @return maximum rate of message production (in messages per seconds)
     */
@@ -345,7 +336,8 @@ public interface ServerLocator extends AutoCloseable {
    /**
     * Sets the maximum rate of message production for producers created through this factory.
     * <p>
-    * Value must -1 (to disable) or a positive integer corresponding to the maximum desired message production rate specified in units of messages per second.
+    * Value must -1 (to disable) or a positive integer corresponding to the maximum desired message production rate
+    * specified in units of messages per second.
     *
     * @param producerMaxRate maximum rate of message production (in messages per seconds)
     * @return this ServerLocator
@@ -353,32 +345,31 @@ public interface ServerLocator extends AutoCloseable {
    ServerLocator setProducerMaxRate(int producerMaxRate);
 
    /**
-    * Returns whether consumers created through this factory will block while
-    * sending message acknowledgments or do it asynchronously.
+    * Returns whether consumers created through this factory will block while sending message acknowledgments or do it
+    * asynchronously.
     * <p>
     * Default value is {@link ActiveMQClient#DEFAULT_BLOCK_ON_ACKNOWLEDGE}.
     *
-    * @return whether consumers will block while sending message
-    * acknowledgments or do it asynchronously
+    * @return whether consumers will block while sending message acknowledgments or do it asynchronously
     */
    boolean isBlockOnAcknowledge();
 
    /**
-    * Sets whether consumers created through this factory will block while
-    * sending message acknowledgments or do it asynchronously.
+    * Sets whether consumers created through this factory will block while sending message acknowledgments or do it
+    * asynchronously.
     *
-    * @param blockOnAcknowledge <code>true</code> to block when sending message
-    *                           acknowledgments or <code>false</code> to send them
+    * @param blockOnAcknowledge {@code true} to block when sending message acknowledgments or {@code false} to send them
     *                           asynchronously
     * @return this ServerLocator
     */
    ServerLocator setBlockOnAcknowledge(boolean blockOnAcknowledge);
 
    /**
-    * Returns whether producers created through this factory will block while sending <em>durable</em> messages or do it asynchronously.
-    * <br>
-    * If the session is configured to send durable message asynchronously, the client can set a SendAcknowledgementHandler on the ClientSession
-    * to be notified once the message has been handled by the server.
+    * Returns whether producers created through this factory will block while sending <em>durable</em> messages or do it
+    * asynchronously.
+    * <p>
+    * If the session is configured to send durable message asynchronously, the client can set a
+    * SendAcknowledgementHandler on the ClientSession to be notified once the message has been handled by the server.
     * <p>
     * Default value is {@link ActiveMQClient#DEFAULT_BLOCK_ON_DURABLE_SEND}.
     *
@@ -387,18 +378,21 @@ public interface ServerLocator extends AutoCloseable {
    boolean isBlockOnDurableSend();
 
    /**
-    * Sets whether producers created through this factory will block while sending <em>durable</em> messages or do it asynchronously.
+    * Sets whether producers created through this factory will block while sending <em>durable</em> messages or do it
+    * asynchronously.
     *
-    * @param blockOnDurableSend <code>true</code> to block when sending durable messages or <code>false</code> to send them asynchronously
+    * @param blockOnDurableSend {@code true} to block when sending durable messages or {@code false} to send them
+    *                           asynchronously
     * @return this ServerLocator
     */
    ServerLocator setBlockOnDurableSend(boolean blockOnDurableSend);
 
    /**
-    * Returns whether producers created through this factory will block while sending <em>non-durable</em> messages or do it asynchronously.
-    * <br>
-    * If the session is configured to send non-durable message asynchronously, the client can set a SendAcknowledgementHandler on the ClientSession
-    * to be notified once the message has been handled by the server.
+    * Returns whether producers created through this factory will block while sending <em>non-durable</em> messages or
+    * do it asynchronously.
+    * <p>
+    * If the session is configured to send non-durable message asynchronously, the client can set a
+    * SendAcknowledgementHandler on the ClientSession to be notified once the message has been handled by the server.
     * <p>
     * Default value is {@link ActiveMQClient#DEFAULT_BLOCK_ON_NON_DURABLE_SEND}.
     *
@@ -407,36 +401,40 @@ public interface ServerLocator extends AutoCloseable {
    boolean isBlockOnNonDurableSend();
 
    /**
-    * Sets whether producers created through this factory will block while sending <em>non-durable</em> messages or do it asynchronously.
+    * Sets whether producers created through this factory will block while sending <em>non-durable</em> messages or do
+    * it asynchronously.
     *
-    * @param blockOnNonDurableSend <code>true</code> to block when sending non-durable messages or <code>false</code> to send them asynchronously
+    * @param blockOnNonDurableSend {@code true} to block when sending non-durable messages or {@code false} to send them
+    *                              asynchronously
     * @return this ServerLocator
     */
    ServerLocator setBlockOnNonDurableSend(boolean blockOnNonDurableSend);
 
    /**
-    * Returns whether producers created through this factory will automatically
-    * assign a group ID to the messages they sent.
+    * Returns whether producers created through this factory will automatically assign a group ID to the messages they
+    * sent.
     * <p>
-    * if <code>true</code>, a random unique group ID is created and set on each message for the property
-    * {@link org.apache.activemq.artemis.api.core.Message#HDR_GROUP_ID}.
-    * Default value is {@link ActiveMQClient#DEFAULT_AUTO_GROUP}.
+    * if {@code true}, a random unique group ID is created and set on each message for the property
+    * {@link org.apache.activemq.artemis.api.core.Message#HDR_GROUP_ID}. Default value is
+    * {@link ActiveMQClient#DEFAULT_AUTO_GROUP}.
     *
     * @return whether producers will automatically assign a group ID to their messages
     */
    boolean isAutoGroup();
 
    /**
-    * Sets whether producers created through this factory will automatically
-    * assign a group ID to the messages they sent.
+    * Sets whether producers created through this factory will automatically assign a group ID to the messages they
+    * sent.
     *
-    * @param autoGroup <code>true</code> to automatically assign a group ID to each messages sent through this factory, <code>false</code> else
+    * @param autoGroup {@code true} to automatically assign a group ID to each messages sent through this factory,
+    *                  {@code false} else
     * @return this ServerLocator
     */
    ServerLocator setAutoGroup(boolean autoGroup);
 
    /**
-    * Returns the group ID that will be eventually set on each message for the property {@link org.apache.activemq.artemis.api.core.Message#HDR_GROUP_ID}.
+    * Returns the group ID that will be eventually set on each message for the property
+    * {@link org.apache.activemq.artemis.api.core.Message#HDR_GROUP_ID}.
     * <p>
     * Default value is is {@code null} and no group ID will be set on the messages.
     *
@@ -460,12 +458,10 @@ public interface ServerLocator extends AutoCloseable {
    boolean isPreAcknowledge();
 
    /**
-    * Sets to <code>true</code> to pre-acknowledge consumed messages on the
-    * server before they are sent to consumers, else set to <code>false</code>
-    * to let clients acknowledge the message they consume.
+    * Sets to {@code true} to pre-acknowledge consumed messages on the server before they are sent to consumers, else
+    * set to {@code false} to let clients acknowledge the message they consume.
     *
-    * @param preAcknowledge <code>true</code> to enable pre-acknowledgment,
-    *                       <code>false</code> else
+    * @param preAcknowledge {@code true} to enable pre-acknowledgment, {@code false} else
     * @return this ServerLocator
     */
    ServerLocator setPreAcknowledge(boolean preAcknowledge);
@@ -490,8 +486,8 @@ public interface ServerLocator extends AutoCloseable {
    ServerLocator setAckBatchSize(int ackBatchSize);
 
    /**
-    * Returns an array of TransportConfigurations representing the static list of servers used
-    * when creating this object
+    * Returns an array of TransportConfigurations representing the static list of servers used when creating this
+    * object
     *
     * @return array with all static {@link TransportConfiguration}s
     */
@@ -503,20 +499,20 @@ public interface ServerLocator extends AutoCloseable {
    DiscoveryGroupConfiguration getDiscoveryGroupConfiguration();
 
    /**
-    * Returns whether this factory will use global thread pools (shared among all the factories in the same JVM)
-    * or its own pools.
+    * Returns whether this factory will use global thread pools (shared among all the factories in the same JVM) or its
+    * own pools.
     * <p>
     * Default value is {@link ActiveMQClient#DEFAULT_USE_GLOBAL_POOLS}.
     *
-    * @return <code>true</code> if this factory uses global thread pools, <code>false</code> else
+    * @return {@code true} if this factory uses global thread pools, {@code false} else
     */
    boolean isUseGlobalPools();
 
    /**
-    * Sets whether this factory will use global thread pools (shared among all the factories in the same JVM)
-    * or its own pools.
+    * Sets whether this factory will use global thread pools (shared among all the factories in the same JVM) or its own
+    * pools.
     *
-    * @param useGlobalPools <code>true</code> to let this factory uses global thread pools, <code>false</code> else
+    * @param useGlobalPools {@code true} to let this factory uses global thread pools, {@code false} else
     * @return this ServerLocator
     */
    ServerLocator setUseGlobalPools(boolean useGlobalPools);
@@ -526,15 +522,14 @@ public interface ServerLocator extends AutoCloseable {
     * <p>
     * Default value is {@link ActiveMQClient#DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE}.
     *
-    * @return the maximum size of the scheduled thread pool.
+    * @return the maximum size of the scheduled thread pool
     */
    int getScheduledThreadPoolMaxSize();
 
    /**
     * Sets the maximum size of the scheduled thread pool.
     * <p>
-    * This setting is relevant only if this factory does not use global pools.
-    * Value must be greater than 0.
+    * This setting is relevant only if this factory does not use global pools. Value must be greater than 0.
     *
     * @param scheduledThreadPoolMaxSize maximum size of the scheduled thread pool.
     * @return this ServerLocator
@@ -546,15 +541,15 @@ public interface ServerLocator extends AutoCloseable {
     * <p>
     * Default value is {@link ActiveMQClient#DEFAULT_THREAD_POOL_MAX_SIZE}.
     *
-    * @return the maximum size of the thread pool.
+    * @return the maximum size of the thread pool
     */
    int getThreadPoolMaxSize();
 
    /**
     * Sets the maximum size of the thread pool.
     * <p>
-    * This setting is relevant only if this factory does not use global pools.
-    * Value must be -1 (for unlimited thread pool) or greater than 0.
+    * This setting is relevant only if this factory does not use global pools. Value must be -1 (for unlimited thread
+    * pool) or greater than 0.
     *
     * @param threadPoolMaxSize maximum size of the thread pool.
     * @return this ServerLocator
@@ -566,15 +561,15 @@ public interface ServerLocator extends AutoCloseable {
     * <p>
     * Default value is {@link ActiveMQClient#DEFAULT_FLOW_CONTROL_THREAD_POOL_MAX_SIZE}.
     *
-    * @return the maximum size of the flow-control thread pool.
+    * @return the maximum size of the flow-control thread pool
     */
    int getFlowControlThreadPoolMaxSize();
 
    /**
     * Sets the maximum size of the flow-control thread pool.
     * <p>
-    * This setting is relevant only if this factory does not use global pools.
-    * Value must be -1 (for unlimited thread pool) or greater than 0.
+    * This setting is relevant only if this factory does not use global pools. Value must be -1 (for unlimited thread
+    * pool) or greater than 0.
     *
     * @param flowControlThreadPoolMaxSize maximum size of the flow-control thread pool.
     * @return this ServerLocator
@@ -633,8 +628,8 @@ public interface ServerLocator extends AutoCloseable {
     * <p>
     * Value must be greater than 0.
     *
-    * @param maxRetryInterval maximum retry interval to apply in the case a retry interval multiplier
-    *                         has been specified
+    * @param maxRetryInterval maximum retry interval to apply in the case a retry interval multiplier has been
+    *                         specified
     * @return this ServerLocator
     */
    ServerLocator setMaxRetryInterval(long maxRetryInterval);
@@ -644,7 +639,7 @@ public interface ServerLocator extends AutoCloseable {
     * <p>
     * Default value is {@link ActiveMQClient#DEFAULT_RECONNECT_ATTEMPTS}.
     *
-    * @return the maximum number of attempts to retry connection in case of failure.
+    * @return the maximum number of attempts to retry connection in case of failure
     */
    int getReconnectAttempts();
 
@@ -669,12 +664,13 @@ public interface ServerLocator extends AutoCloseable {
    ServerLocator setInitialConnectAttempts(int reconnectAttempts);
 
    /**
-    * @return the number of attempts to be made for first initial connection.
+    * {@return the number of attempts to be made for first initial connection}
     */
    int getInitialConnectAttempts();
 
    /**
-    * Sets the maximum number of failover attempts to establish a connection to other primary servers after a connection failure.
+    * Sets the maximum number of failover attempts to establish a connection to other primary servers after a connection
+    * failure.
     * <p>
     * Value must be -1 (to retry infinitely), 0 (to never retry connection) or greater than 0.
     *
@@ -684,13 +680,13 @@ public interface ServerLocator extends AutoCloseable {
    ServerLocator setFailoverAttempts(int attempts);
 
    /**
-    * @return the number of failover attempts after a connection failure.
+    * {@return the number of failover attempts after a connection failure}
     */
    int getFailoverAttempts();
 
    /**
-    * Returns true if the client will automatically attempt to connect to the backup server if the initial
-    * connection to the primary server fails
+    * Returns true if the client will automatically attempt to connect to the backup server if the initial connection to
+    * the primary server fails
     * <p>
     * Default value is {@link ActiveMQClient#DEFAULT_FAILOVER_ON_INITIAL_CONNECTION}.
     */
@@ -700,7 +696,6 @@ public interface ServerLocator extends AutoCloseable {
    /**
     * Sets the value for FailoverOnInitialReconnection
     *
-    * @param failover
     * @return this ServerLocator
     */
    @Deprecated
@@ -709,7 +704,8 @@ public interface ServerLocator extends AutoCloseable {
    /**
     * Returns the class name of the connection load balancing policy.
     * <p>
-    * Default value is "org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy".
+    * Default value is
+    * "org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy".
     *
     * @return the class name of the connection load balancing policy
     */
@@ -718,7 +714,8 @@ public interface ServerLocator extends AutoCloseable {
    /**
     * Sets the class name of the connection load balancing policy.
     * <p>
-    * Value must be the name of a class implementing {@link org.apache.activemq.artemis.api.core.client.loadbalance.ConnectionLoadBalancingPolicy}.
+    * Value must be the name of a class implementing
+    * {@link org.apache.activemq.artemis.api.core.client.loadbalance.ConnectionLoadBalancingPolicy}.
     *
     * @param loadBalancingPolicyClassName class name of the connection load balancing policy
     * @return this ServerLocator
@@ -754,11 +751,13 @@ public interface ServerLocator extends AutoCloseable {
    int getOnMessageCloseTimeout();
 
    /**
-    * Sets the timeout in milliseconds for onMessage completion when closing ClientConsumers created through this factory.
+    * Sets the timeout in milliseconds for onMessage completion when closing ClientConsumers created through this
+    * factory.
     * <p>
     * A value of -1 means wait until the onMessage completes no matter how long it takes.
     *
-    * @param onMessageCloseTimeout how long to wait in milliseconds for the ClientConsumer's MessageHandler's onMessage method to finish before closing or stopping the ClientConsumer.
+    * @param onMessageCloseTimeout how long to wait in milliseconds for the ClientConsumer's MessageHandler's onMessage
+    *                              method to finish before closing or stopping the ClientConsumer.
     * @return this ServerLocator
     */
    ServerLocator setOnMessageCloseTimeout(int onMessageCloseTimeout);
@@ -783,7 +782,7 @@ public interface ServerLocator extends AutoCloseable {
     * Removes an incoming interceptor.
     *
     * @param interceptor interceptor to remove
-    * @return <code>true</code> if the incoming interceptor is removed from this factory, <code>false</code> else
+    * @return {@code true} if the incoming interceptor is removed from this factory, {@code false} else
     */
    boolean removeIncomingInterceptor(Interceptor interceptor);
 
@@ -791,7 +790,7 @@ public interface ServerLocator extends AutoCloseable {
     * Removes an outgoing interceptor.
     *
     * @param interceptor interceptor to remove
-    * @return <code>true</code> if the outgoing interceptor is removed from this factory, <code>false</code> else
+    * @return {@code true} if the outgoing interceptor is removed from this factory, {@code false} else
     */
    boolean removeOutgoingInterceptor(Interceptor interceptor);
 
@@ -801,12 +800,6 @@ public interface ServerLocator extends AutoCloseable {
    @Override
    void close();
 
-   /**
-    *
-    *
-    * @param useTopologyForLoadBalancing
-    * @return
-    */
    ServerLocator setUseTopologyForLoadBalancing(boolean useTopologyForLoadBalancing);
 
    boolean getUseTopologyForLoadBalancing();
@@ -819,8 +812,7 @@ public interface ServerLocator extends AutoCloseable {
    Topology getTopology();
 
    /**
-    * Whether this server receives topology notifications from the cluster as servers join or leave
-    * the cluster.
+    * Whether this server receives topology notifications from the cluster as servers join or leave the cluster.
     *
     * @return {@code true} if the locator receives topology updates from the cluster
     */
@@ -829,45 +821,36 @@ public interface ServerLocator extends AutoCloseable {
    /**
     * Verify if all of the transports are using inVM.
     *
-    * @return {@code true} if the locator has all inVM transports.
+    * @return {@code true} if the locator has all inVM transports
     */
    boolean allInVM();
 
    /**
     * Whether to compress large messages.
-    *
-    * @return
     */
    boolean isCompressLargeMessage();
 
    /**
     * Sets whether to compress or not large messages.
     *
-    * @param compressLargeMessages
     * @return this ServerLocator
     */
    ServerLocator setCompressLargeMessage(boolean compressLargeMessages);
 
    /**
     * What compression level is in use
-    *
-    * @return
     */
    int getCompressionLevel();
 
    /**
-    * Sets what compressionLevel to use when compressing messages
-    * Value must be -1 (default), or 0-9
+    * Sets what compressionLevel to use when compressing messages Value must be -1 (default), or 0-9
     *
-    * @param compressionLevel
     * @return this ServerLocator
     */
    ServerLocator setCompressionLevel(int compressionLevel);
 
-   // XXX No javadocs
    ServerLocator addClusterTopologyListener(ClusterTopologyListener listener);
 
-   // XXX No javadocs
    void removeClusterTopologyListener(ClusterTopologyListener listener);
 
    ClientProtocolManagerFactory getProtocolManagerFactory();
@@ -875,20 +858,32 @@ public interface ServerLocator extends AutoCloseable {
    ServerLocator setProtocolManagerFactory(ClientProtocolManagerFactory protocolManager);
 
    /**
-    * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor needs a default Constructor to be used with this method.
+    * Set the list of {@link Interceptor}s to use for incoming packets.
+    *
+    * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor
+    *                        needs a default Constructor to be used with this method.
     * @return this
     */
    ServerLocator setIncomingInterceptorList(String interceptorList);
 
    String getIncomingInterceptorList();
 
+   /**
+    * Set the list of {@link Interceptor}s to use for outgoing packets.
+    *
+    * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor
+    *                        needs a default Constructor to be used with this method.
+    * @return this
+    */
    ServerLocator setOutgoingInterceptorList(String interceptorList);
 
    String getOutgoingInterceptorList();
 
    boolean setThreadPools(Executor threadPool, ScheduledExecutorService scheduledThreadPoolExecutor, Executor flowControlThreadPool);
 
-   /** This will only instantiate internal objects such as the topology */
+   /**
+    * This will only instantiate internal objects such as the topology
+    */
    void initialize() throws ActiveMQException;
 
    ServerLocatorConfig getLocatorConfig();

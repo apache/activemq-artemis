@@ -110,7 +110,6 @@ public class CoreClientOverHttpTest extends ActiveMQTestBase {
       session.close();
    }
 
-   // https://issues.jboss.org/browse/JBPAPP-5542
    @Test
    public void testCoreHttpClient8kPlus() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);

@@ -39,8 +39,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * This will use {@link InetAddress#isReachable(int)} to determine if the network is alive.
- * It will have a set of addresses, and if any address is reached the network will be considered alive.
+ * This will use {@link InetAddress#isReachable(int)} to determine if the network is alive. It will have a set of
+ * addresses, and if any address is reached the network will be considered alive.
  */
 public class NetworkHealthCheck extends ActiveMQScheduledComponent {
 
@@ -306,7 +306,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
    }
 
    /**
-    * @return true if no checks were done or if one address/url responds; false if all addresses/urls fail
+    * {@return true if no checks were done or if one address/url responds; false if all addresses/urls fail}
     */
    public boolean check() {
       if (isEmpty()) {

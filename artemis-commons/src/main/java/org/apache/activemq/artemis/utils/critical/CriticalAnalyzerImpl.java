@@ -44,7 +44,8 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
    public CriticalAnalyzerImpl() {
       // this will make the scheduled component to start its own pool
 
-      /* Important: The scheduled component should have its own thread pool...
+      /*
+       * Important: The scheduled component should have its own thread pool...
        *  otherwise in case of a deadlock, or a starvation of the server the analyzer won't pick up any
        *  issues and won't be able to shutdown the server or halt the VM
        */

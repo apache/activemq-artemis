@@ -51,9 +51,6 @@ public class MessageListenerRedeliveryTest extends TestCase {
       connection = createConnection();
    }
 
-   /**
-    * @see junit.framework.TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       if (connection != null) {

@@ -28,9 +28,8 @@ import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFro
 import org.apache.activemq.artemis.utils.CompositeAddress;
 
 /**
- * Information and identification class for Federation consumers created to federate
- * queues and addresses. Instances of this class should be usable in Collections
- * classes where equality and hashing support is needed.
+ * Information and identification class for Federation consumers created to federate queues and addresses. Instances of
+ * this class should be usable in Collections classes where equality and hashing support is needed.
  */
 public class AMQPFederationGenericConsumerInfo implements FederationConsumerInfo {
 
@@ -61,20 +60,14 @@ public class AMQPFederationGenericConsumerInfo implements FederationConsumerInfo
    /**
     * Factory for creating federation address consumer information objects from server resources.
     *
-    * @param address
-    *       The address being federated, the remote consumer will be created under this address.
-    * @param queueName
-    *       The name of the remote queue that will be created in order to route messages here.
-    * @param routingType
-    *       The routing type to assign the remote consumer.
-    * @param filterString
-    *       A filter string used by the federation instance to limit what enters the remote queue.
-    * @param federation
-    *       The parent {@link Federation} that this federation consumer is created for
-    * @param policy
-    *       The {@link FederationReceiveFromAddressPolicy} that triggered this information object to be created.
-    *
-    * @return a newly created and configured {@link FederationConsumerInfo} instance.
+    * @param address      The address being federated, the remote consumer will be created under this address.
+    * @param queueName    The name of the remote queue that will be created in order to route messages here.
+    * @param routingType  The routing type to assign the remote consumer.
+    * @param filterString A filter string used by the federation instance to limit what enters the remote queue.
+    * @param federation   The parent {@link Federation} that this federation consumer is created for
+    * @param policy       The {@link FederationReceiveFromAddressPolicy} that triggered this information object to be
+    *                     created.
+    * @return a newly created and configured {@link FederationConsumerInfo} instance
     */
    public static AMQPFederationGenericConsumerInfo build(String address, String queueName, RoutingType routingType, String filterString, Federation federation, FederationReceiveFromAddressPolicy policy) {
       return new AMQPFederationGenericConsumerInfo(Role.ADDRESS_CONSUMER,

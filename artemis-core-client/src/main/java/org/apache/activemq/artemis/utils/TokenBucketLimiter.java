@@ -27,7 +27,7 @@ package org.apache.activemq.artemis.utils;
 public interface TokenBucketLimiter {
 
    /**
-    * Returns the rate in cycles per second (which is the same as saying 'in Hertz').
+    * {@return the rate in cycles per second (which is the same as saying 'in Hertz')}
     *
     * @see <a href="https://en.wikipedia.org/wiki/Hertz">Hertz</a>
     */

@@ -42,8 +42,6 @@ public class JMSDurableTopicRedeliverTest extends JmsTopicRedeliverTest {
 
    /**
     * Sends and consumes the messages.
-    *
-    * @throws Exception
     */
    @Test
    public void testRedeliverNewSession() throws Exception {

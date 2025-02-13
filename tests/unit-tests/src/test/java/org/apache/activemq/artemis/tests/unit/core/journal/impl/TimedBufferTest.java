@@ -428,8 +428,8 @@ public class TimedBufferTest extends ActiveMQTestBase {
    };
 
    /**
-    * This test is showing the behaviour of the TimedBuffer with a blocking API (NIO/MAPPED) and
-    * how the timeout value is not == 1/IOPS like the ASYNCIO case
+    * This test is showing the behaviour of the TimedBuffer with a blocking API (NIO/MAPPED) and how the timeout value
+    * is not == 1/IOPS like the ASYNCIO case
     */
    @Test
    public void timeoutShouldMatchFlushIOPSWithNotBlockingFlush() {
@@ -469,8 +469,8 @@ public class TimedBufferTest extends ActiveMQTestBase {
    }
 
    /**
-    * This test is showing the behaviour of the TimedBuffer with a blocking API (NIO/MAPPED) and
-    * how the timeout value is not == 1/IOPS like the ASYNCIO case
+    * This test is showing the behaviour of the TimedBuffer with a blocking API (NIO/MAPPED) and how the timeout value
+    * is not == 1/IOPS like the ASYNCIO case
     */
    @Test
    public void timeoutShouldMatchFlushIOPSWithBlockingFlush() {

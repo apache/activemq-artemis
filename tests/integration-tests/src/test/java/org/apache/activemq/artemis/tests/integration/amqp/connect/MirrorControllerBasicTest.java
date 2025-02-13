@@ -89,9 +89,10 @@ public class MirrorControllerBasicTest extends ActiveMQTestBase {
       connection.close();
    }
 
-
-   /** this test will take the Message generated from mirror controller and send it through PostOffice
-    *  to validate the format of the message and its delivery */
+   /**
+    * this test will take the Message generated from mirror controller and send it through PostOffice to validate the
+    * format of the message and its delivery
+    */
    @Test
    public void testDirectSend() throws Exception {
       server.addAddressInfo(new AddressInfo("test").addRoutingType(RoutingType.ANYCAST));

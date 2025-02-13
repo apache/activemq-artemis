@@ -201,8 +201,10 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       Wait.assertEquals(0, dlqView::getMessageCount);
    }
 
-   /** This test is validating a broker feature where the message copy through the DLQ will receive an annotation.
-    *  It is also testing filter on that annotation. */
+   /**
+    * This test is validating a broker feature where the message copy through the DLQ will receive an annotation. It is
+    * also testing filter on that annotation.
+    */
    @Test
    @Timeout(60)
    public void testExpiryThroughTTLValidateAnnotation() throws Exception {
@@ -274,8 +276,10 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-   /** This test is validating a broker feature where the message copy through the DLQ will receive an annotation.
-    *  It is also testing filter on that annotation. */
+   /**
+    * This test is validating a broker feature where the message copy through the DLQ will receive an annotation. It is
+    * also testing filter on that annotation.
+    */
    @Test
    @Timeout(60)
    public void testExpiryQpidJMS() throws Exception {

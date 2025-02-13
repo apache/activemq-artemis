@@ -103,9 +103,7 @@ public class SecurityTest extends ActiveMQTestBase {
       }
    }
 
-   /*
-    * create session tests
-    */
+   // create session tests
    private static final String addressA = "addressA";
 
    private static final String queueA = "queueA";
@@ -361,8 +359,6 @@ public class SecurityTest extends ActiveMQTestBase {
 
    /**
     * Verify role permissions are applied properly when using OpenWire
-    *
-    * @throws Exception
     */
    @Test
    public void testJAASSecurityManagerOpenWireNegative() throws Exception {
@@ -500,10 +496,11 @@ public class SecurityTest extends ActiveMQTestBase {
    /**
     * This test requires a client-side certificate that will be trusted by the server but whose dname will be rejected
     * by the CertLogin login module. I created this cert with the follow commands:
-    *
+    * <pre>{@code
     * keytool -genkey -keystore bad-client-keystore.jks -storepass securepass -keypass securepass -dname "CN=Bad Client, OU=Artemis, O=ActiveMQ, L=AMQ, S=AMQ, C=AMQ" -keyalg RSA
     * keytool -export -keystore bad-client-keystore.jks -file activemq-jks.cer -storepass securepass
     * keytool -import -keystore client-ca-truststore.jks -file activemq-jks.cer -storepass securepass -keypass securepass -noprompt -alias bad
+    * }</pre>
     */
    @Test
    public void testJAASSecurityManagerAuthenticationWithBadClientCert() throws Exception {
@@ -1195,10 +1192,6 @@ public class SecurityTest extends ActiveMQTestBase {
       }
    }
 
-   /**
-    * @return
-    * @throws Exception
-    */
    private ActiveMQServer createServer() throws Exception {
       configuration = createDefaultInVMConfig().setSecurityEnabled(true);
       ActiveMQServer server = createServer(false, configuration);
@@ -1484,7 +1477,6 @@ public class SecurityTest extends ActiveMQTestBase {
 
       roles.add(role);
 
-      // This was added to validate https://issues.jboss.org/browse/SOA-3363
       securityRepository.addMatch(SecurityTest.addressA, roles);
       boolean failed = false;
       try {
@@ -1492,7 +1484,6 @@ public class SecurityTest extends ActiveMQTestBase {
       } catch (ActiveMQException e) {
          failed = true;
       }
-      // This was added to validate https://issues.jboss.org/browse/SOA-3363 ^^^^^
 
       assertTrue(failed, "Failure expected on send after removing the match");
    }

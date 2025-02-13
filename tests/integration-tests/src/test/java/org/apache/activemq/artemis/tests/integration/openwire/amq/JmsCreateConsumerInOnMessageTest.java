@@ -48,8 +48,6 @@ public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implemen
 
    /**
     * Tests if a consumer can be created asynchronusly
-    *
-    * @throws Exception
     */
    @Test
    public void testCreateConsumer() throws Exception {
@@ -76,8 +74,6 @@ public class JmsCreateConsumerInOnMessageTest extends BasicOpenWireTest implemen
 
    /**
     * Use the asynchronous subscription mechanism
-    *
-    * @param message
     */
    @Override
    public void onMessage(Message message) {

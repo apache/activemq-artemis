@@ -26,14 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An abstract base for managing federation consumer instances that holds the demand
- * currently present for a federated resource and the consumer that exists to service
- * that demand. This object manages the state of the consumer and the various stages
- * it can pass through during its lifetime.
- *
- * All interactions with the consumer tracking entry should occur under the lock of
- * the parent manager instance and this manager will perform any asynchronous work
- * with a lock held on the parent manager instance.
+ * An abstract base for managing federation consumer instances that holds the demand currently present for a federated
+ * resource and the consumer that exists to service that demand. This object manages the state of the consumer and the
+ * various stages it can pass through during its lifetime.
+ * <p>
+ * All interactions with the consumer tracking entry should occur under the lock of the parent manager instance and this
+ * manager will perform any asynchronous work with a lock held on the parent manager instance.
  */
 public abstract class AMQPFederationConsumerManager {
 
@@ -62,10 +60,9 @@ public abstract class AMQPFederationConsumerManager {
    }
 
    /**
-    * An orderly shutdown of the federation consumer which will perform a drain
-    * of link credit before closing the consumer to ensure that all in-flight
-    * messages and dispositions are processed before the link is detached.
-    *
+    * An orderly shutdown of the federation consumer which will perform a drain of link credit before closing the
+    * consumer to ensure that all in-flight messages and dispositions are processed before the link is detached.
+    * <p>
     * The federation manager should be calling this method with its lock held.
     */
    public void shutdown() {
@@ -73,9 +70,9 @@ public abstract class AMQPFederationConsumerManager {
    }
 
    /**
-    * An immediate close of the federation consumer which does not drain link credit
-    * or wait for any pending operations to complete.
-    *
+    * An immediate close of the federation consumer which does not drain link credit or wait for any pending operations
+    * to complete.
+    * <p>
     * The federation manager should be calling this method with its lock held.
     */
    public void shutdownNow() {
@@ -108,12 +105,11 @@ public abstract class AMQPFederationConsumerManager {
    }
 
    /**
-    * Attempt to recover a stopped consumer if this manager is not in the closed
-    * state and there is active demand registered. When in the stopped state the
-    * existing consumer will be restarted and if no active consumer exists then a
-    * new consumer is created. If this is called while a consumer is in the started
-    * state then this operation is a no-op and the consumer is left as is.
-    *
+    * Attempt to recover a stopped consumer if this manager is not in the closed state and there is active demand
+    * registered. When in the stopped state the existing consumer will be restarted and if no active consumer exists
+    * then a new consumer is created. If this is called while a consumer is in the started state then this operation is
+    * a no-op and the consumer is left as is.
+    * <p>
     * The federation manager should be calling this method with its lock held.
     */
    public void recover() {
@@ -131,23 +127,22 @@ public abstract class AMQPFederationConsumerManager {
    }
 
    /**
-    * Add new demand to the consumer manager which creates or sustains the consumer lifetime
-    * that this manager maintains. When the first element of demand is added a new consumer
-    * is attached and when the last unit of demand is removed the consumer will be closed.
-    *
+    * Add new demand to the consumer manager which creates or sustains the consumer lifetime that this manager
+    * maintains. When the first element of demand is added a new consumer is attached and when the last unit of demand
+    * is removed the consumer will be closed.
+    * <p>
     * The federation manager should be calling this method with its lock held.
     *
-    * @param demand
-    *    A new unit of demand to add to this consumer manager.
+    * @param demand A new unit of demand to add to this consumer manager.
     */
    public void addDemand(Object demand) {
       checkClosed();
 
       demandTracking.add(demand);
 
-      // This will create a new consumer only if there isn't one currently assigned to this
-      // entry and any configured federation plugins don't block it from doing so. An already
-      // stopping consumer will check on stop if it should restart.
+      // This will create a new consumer only if there isn't one currently assigned to this entry and any configured
+      // federation plugins don't block it from doing so. An already stopping consumer will check on stop if it should
+      // restart.
       if (state == State.STOPPED) {
          tryRestartFederationConsumer();
       } else if (state == State.READY) {
@@ -156,15 +151,13 @@ public abstract class AMQPFederationConsumerManager {
    }
 
    /**
-    * Remove the given element from the tracked consumer demand. If the tracked demand reaches
-    * zero then the managed consumer should be closed and the manager awaits future demand to
-    * be added. The manager can opt to hold a stopped consumer open for some period of time to
-    * avoid spurious open and closes as demand is added and removed.
-    *
+    * Remove the given element from the tracked consumer demand. If the tracked demand reaches zero then the managed
+    * consumer should be closed and the manager awaits future demand to be added. The manager can opt to hold a stopped
+    * consumer open for some period of time to avoid spurious open and closes as demand is added and removed.
+    * <p>
     * The federation manager should be calling this method with its lock held.
     *
-    * @param demand
-    *    The element of demand that should be removed from tracking.
+    * @param demand The element of demand that should be removed from tracking.
     */
    public void removeDemand(Object demand) {
       checkClosed();
@@ -178,10 +171,7 @@ public abstract class AMQPFederationConsumerManager {
       }
    }
 
-   /*
-    * Must be called with locks in place from the parent manager to prevent concurrent
-    * access to state changing APIs.
-    */
+   // Must be called with locks in place from the parent manager to prevent concurrent access to state changing APIs.
    private void tryCreateFederationConsumer() {
       if (!isPluginBlockingFederationConsumerCreate()) {
          state = State.STARTING;
@@ -201,13 +191,12 @@ public abstract class AMQPFederationConsumerManager {
             }
          });
 
-         // Handle remote close with remove of consumer which means that future demand will
-         // attempt to create a new consumer for that demand. Ensure that thread safety is
-         // accounted for here as the notification can be asynchronous. We do not automatically
-         // recreate a consumer here as we anticipate the remote will send an event when there
-         // is an update for resources we are interested in or we will close the connection due
-         // to a close happening for an unexplained or unanticipated reason. This event only
-         // files if the consumer wasn't locally closed first.
+         // Handle remote close with remove of consumer which means that future demand will attempt to create a new
+         // consumer for that demand. Ensure that thread safety is accounted for here as the notification can be
+         // asynchronous. We do not automatically recreate a consumer here as we anticipate the remote will send an
+         // event when there is an update for resources we are interested in or we will close the connection due to a
+         // close happening for an unexplained or unanticipated reason. This event only files if the consumer wasn't
+         // locally closed first.
          consumer.setRemoteClosedHandler((closedConsumer) -> {
             synchronized (manager) {
                safeCloseCurrentFederationConsumer();
@@ -222,10 +211,7 @@ public abstract class AMQPFederationConsumerManager {
       }
    }
 
-   /*
-    * Must be called with locks in place from the parent manager to prevent concurrent
-    * access to state changing APIs.
-    */
+   // Must be called with locks in place from the parent manager to prevent concurrent access to state changing APIs.
    private void tryRestartFederationConsumer() {
       state = State.STARTING;
 
@@ -277,10 +263,7 @@ public abstract class AMQPFederationConsumerManager {
       }
    }
 
-   /*
-    * Must be called with locks in place from the parent manager to prevent concurrent
-    * access to state changing APIs.
-    */
+   // Must be called with locks in place from the parent manager to prevent concurrent access to state changing APIs.
    private void tryStopFederationConsumer() {
       if (consumer != null && state != State.STOPPING) {
          // Retain closed state if close is attempting a safe shutdown.
@@ -307,10 +290,7 @@ public abstract class AMQPFederationConsumerManager {
       }
    }
 
-   /*
-    * Must be called with locks in place from the parent manager to prevent concurrent
-    * access to state changing APIs.
-    */
+   // Must be called with locks in place from the parent manager to prevent concurrent access to state changing APIs.
    private void handleFederationConsumerStopped(AMQPFederationConsumer stoppedConsumer, boolean didStop) {
       // Remote close or local resource remove could have beaten us here and already cleaned up the consumer.
       if (state == State.STOPPING) {
@@ -393,20 +373,18 @@ public abstract class AMQPFederationConsumerManager {
    }
 
    /**
-    * Creates a new federation consumer that this manager will monitor and maintain. The returned
-    * consumer should be in an initial state ready for this manager to initialize once it is fully
-    * configured.
+    * Creates a new federation consumer that this manager will monitor and maintain. The returned consumer should be in
+    * an initial state ready for this manager to initialize once it is fully configured.
     *
-    * @return a newly create {@link AMQPFederationConsumer} for use by this manager.
+    * @return a newly create {@link AMQPFederationConsumer} for use by this manager
     */
    protected abstract AMQPFederationConsumer createFederationConsumer();
 
    /**
-    * Query all registered plugins for this federation instance to determine if any wish to
-    * prevent a federation consumer from being created for the given resource managed by
-    * the implementation class.
+    * Query all registered plugins for this federation instance to determine if any wish to prevent a federation
+    * consumer from being created for the given resource managed by the implementation class.
     *
-    * @return true if any registered plugin signaled that creation should be suppressed.
+    * @return {@code true} if any registered plugin signaled that creation should be suppressed
     */
    protected abstract boolean isPluginBlockingFederationConsumerCreate();
 

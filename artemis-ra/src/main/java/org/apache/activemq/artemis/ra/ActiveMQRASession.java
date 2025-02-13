@@ -60,43 +60,22 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * A joint interface for JMS sessions
+ * A joint interface for {@link QueueSession}, {@link TopicSession}, {@link XAQueueSession}, and {@link XATopicSession}.
  */
 public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSession, XATopicSession {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The managed connection
-    */
    private ActiveMQRAManagedConnection mc;
 
-   /**
-    * The connection request info
-    */
    private final ActiveMQRAConnectionRequestInfo cri;
 
-   /**
-    * The session factory
-    */
    private ActiveMQRASessionFactory sf;
 
-   /**
-    * The message consumers
-    */
    private final Set<MessageConsumer> consumers;
 
-   /**
-    * The message producers
-    */
    private final Set<MessageProducer> producers;
 
-   /**
-    * Constructor
-    *
-    * @param mc  The managed connection
-    * @param cri The connection request info
-    */
    public ActiveMQRASession(final ActiveMQRAManagedConnection mc, final ActiveMQRAConnectionRequestInfo cri) {
       logger.trace("constructor({}, {})", mc, cri);
 
@@ -107,11 +86,6 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       producers = new HashSet<>();
    }
 
-   /**
-    * Set the session factory
-    *
-    * @param sf The session factory
-    */
    public void setActiveMQSessionFactory(final ActiveMQRASessionFactory sf) {
       logger.trace("setActiveMQSessionFactory({})", sf);
 
@@ -151,10 +125,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a bytes message
-    *
-    * @return The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public BytesMessage createBytesMessage() throws JMSException {
@@ -166,10 +137,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a map message
-    *
-    * @return The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public MapMessage createMapMessage() throws JMSException {
@@ -181,10 +149,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a message
-    *
-    * @return The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Message createMessage() throws JMSException {
@@ -196,10 +161,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create an object message
-    *
-    * @return The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public ObjectMessage createObjectMessage() throws JMSException {
@@ -211,11 +173,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create an object message
-    *
-    * @param object The object
-    * @return The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public ObjectMessage createObjectMessage(final Serializable object) throws JMSException {
@@ -227,10 +185,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a stream message
-    *
-    * @return The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public StreamMessage createStreamMessage() throws JMSException {
@@ -242,10 +197,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a text message
-    *
-    * @return The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public TextMessage createTextMessage() throws JMSException {
@@ -257,11 +209,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a text message
-    *
-    * @param string The text
-    * @return The message
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public TextMessage createTextMessage(final String string) throws JMSException {
@@ -273,10 +221,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Get transacted
-    *
-    * @return True if transacted; otherwise false
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public boolean getTransacted() throws JMSException {
@@ -287,10 +232,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Get the message listener -- throws IllegalStateException
-    *
-    * @return The message listener
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public MessageListener getMessageListener() throws JMSException {
@@ -300,10 +242,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Set the message listener -- Throws IllegalStateException
-    *
-    * @param listener The message listener
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setMessageListener(final MessageListener listener) throws JMSException {
@@ -313,9 +252,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Always throws an Error.
-    *
-    * @throws Error Method not allowed.
+    * {@inheritDoc}
     */
    @Override
    public void run() {
@@ -325,10 +262,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Closes the session. Sends a ConnectionEvent.CONNECTION_CLOSED to the
-    * managed connection.
-    *
-    * @throws JMSException Failed to close session.
+    * {@inheritDoc}
     */
    @Override
    public void close() throws JMSException {
@@ -339,9 +273,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Commit
-    *
-    * @throws JMSException Failed to close session.
+    * {@inheritDoc}
     */
    @Override
    public void commit() throws JMSException {
@@ -367,9 +299,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Rollback
-    *
-    * @throws JMSException Failed to close session.
+    * {@inheritDoc}
     */
    @Override
    public void rollback() throws JMSException {
@@ -395,9 +325,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Recover
-    *
-    * @throws JMSException Failed to close session.
+    * {@inheritDoc}
     */
    @Override
    public void recover() throws JMSException {
@@ -418,11 +346,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a topic
-    *
-    * @param topicName The topic name
-    * @return The topic
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Topic createTopic(final String topicName) throws JMSException {
@@ -446,11 +370,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a topic subscriber
-    *
-    * @param topic The topic
-    * @return The subscriber
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public TopicSubscriber createSubscriber(final Topic topic) throws JMSException {
@@ -474,13 +394,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a topic subscriber
-    *
-    * @param topic           The topic
-    * @param messageSelector The message selector
-    * @param noLocal         If true inhibits the delivery of messages published by its own connection
-    * @return The subscriber
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public TopicSubscriber createSubscriber(final Topic topic,
@@ -508,12 +422,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a durable topic subscriber
-    *
-    * @param topic The topic
-    * @param name  The name
-    * @return The subscriber
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public TopicSubscriber createDurableSubscriber(final Topic topic, final String name) throws JMSException {
@@ -543,14 +452,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a topic subscriber
-    *
-    * @param topic           The topic
-    * @param name            The name
-    * @param messageSelector The message selector
-    * @param noLocal         If true inhibits the delivery of messages published by its own connection
-    * @return The subscriber
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public TopicSubscriber createDurableSubscriber(final Topic topic,
@@ -580,11 +482,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a topic publisher
-    *
-    * @param topic The topic
-    * @return The publisher
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public TopicPublisher createPublisher(final Topic topic) throws JMSException {
@@ -608,10 +506,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a temporary topic
-    *
-    * @return The temporary topic
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public TemporaryTopic createTemporaryTopic() throws JMSException {
@@ -638,10 +533,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Unsubscribe
-    *
-    * @param name The name
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void unsubscribe(final String name) throws JMSException {
@@ -662,11 +554,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a browser
-    *
-    * @param queue The queue
-    * @return The browser
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public QueueBrowser createBrowser(final Queue queue) throws JMSException {
@@ -686,12 +574,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a browser
-    *
-    * @param queue           The queue
-    * @param messageSelector The message selector
-    * @return The browser
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public QueueBrowser createBrowser(final Queue queue, final String messageSelector) throws JMSException {
@@ -713,11 +596,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a queue
-    *
-    * @param queueName The queue name
-    * @return The queue
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Queue createQueue(final String queueName) throws JMSException {
@@ -737,11 +616,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a queue receiver
-    *
-    * @param queue The queue
-    * @return The queue receiver
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public QueueReceiver createReceiver(final Queue queue) throws JMSException {
@@ -765,12 +640,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a queue receiver
-    *
-    * @param queue           The queue
-    * @param messageSelector
-    * @return The queue receiver
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public QueueReceiver createReceiver(final Queue queue, final String messageSelector) throws JMSException {
@@ -796,11 +666,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a queue sender
-    *
-    * @param queue The queue
-    * @return The queue sender
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public QueueSender createSender(final Queue queue) throws JMSException {
@@ -824,10 +690,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a temporary queue
-    *
-    * @return The temporary queue
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public TemporaryQueue createTemporaryQueue() throws JMSException {
@@ -854,11 +717,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a message consumer
-    *
-    * @param destination The destination
-    * @return The message consumer
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public MessageConsumer createConsumer(final Destination destination) throws JMSException {
@@ -882,12 +741,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a message consumer
-    *
-    * @param destination     The destination
-    * @param messageSelector The message selector
-    * @return The message consumer
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public MessageConsumer createConsumer(final Destination destination,
@@ -914,13 +768,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a message consumer
-    *
-    * @param destination     The destination
-    * @param messageSelector The message selector
-    * @param noLocal         If true inhibits the delivery of messages published by its own connection
-    * @return The message consumer
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public MessageConsumer createConsumer(final Destination destination,
@@ -949,11 +797,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Create a message producer
-    *
-    * @param destination The destination
-    * @return The message producer
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public MessageProducer createProducer(final Destination destination) throws JMSException {
@@ -977,10 +821,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Get the acknowledge mode
-    *
-    * @return The mode
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public int getAcknowledgeMode() throws JMSException {
@@ -991,7 +832,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Get the XA resource
+    * {@inheritDoc}
     */
    @Override
    public XAResource getXAResource() {
@@ -1014,9 +855,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Returns the ID of the Node that this session is associated with.
-    *
-    * @return Node ID
+    * {@return the ID of the Node that this session is associated with.}
     */
    public String getNodeId() throws JMSException {
       ActiveMQSession session = (ActiveMQSession) getSessionInternal();
@@ -1025,10 +864,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Get the session
-    *
-    * @return The session
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Session getSession() throws JMSException {
@@ -1048,10 +884,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Get the queue session
-    *
-    * @return The queue session
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public QueueSession getQueueSession() throws JMSException {
@@ -1071,10 +904,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    }
 
    /**
-    * Get the topic session
-    *
-    * @return The topic session
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public TopicSession getTopicSession() throws JMSException {
@@ -1242,11 +1072,6 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       }
    }
 
-   /**
-    * Set the managed connection
-    *
-    * @param managedConnection The managed connection
-    */
    void setManagedConnection(final ActiveMQRAManagedConnection managedConnection) {
       logger.trace("setManagedConnection({})", managedConnection);
 
@@ -1264,20 +1089,12 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       return mc;
    }
 
-   /**
-    * Destroy
-    */
    void destroy() {
       logger.trace("destroy()");
 
       mc = null;
    }
 
-   /**
-    * Start
-    *
-    * @throws JMSException Thrown if an error occurs
-    */
    void start() throws JMSException {
       logger.trace("start()");
 
@@ -1286,11 +1103,6 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       }
    }
 
-   /**
-    * Stop
-    *
-    * @throws JMSException Thrown if an error occurs
-    */
    void stop() throws JMSException {
       logger.trace("stop()");
 
@@ -1299,11 +1111,6 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       }
    }
 
-   /**
-    * Check strict
-    *
-    * @throws JMSException Thrown if an error occurs
-    */
    void checkStrict() throws JMSException {
       logger.trace("checkStrict()");
 
@@ -1312,11 +1119,6 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       }
    }
 
-   /**
-    * Close session
-    *
-    * @throws JMSException Thrown if an error occurs
-    */
    void closeSession() throws JMSException {
       if (mc != null) {
          logger.trace("Closing session");
@@ -1359,11 +1161,6 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       }
    }
 
-   /**
-    * Add consumer
-    *
-    * @param consumer The consumer
-    */
    void addConsumer(final MessageConsumer consumer) {
       logger.trace("addConsumer({})", consumer);
 
@@ -1372,11 +1169,6 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       }
    }
 
-   /**
-    * Remove consumer
-    *
-    * @param consumer The consumer
-    */
    void removeConsumer(final MessageConsumer consumer) {
       logger.trace("removeConsumer({})", consumer);
 
@@ -1385,11 +1177,6 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       }
    }
 
-   /**
-    * Add producer
-    *
-    * @param producer The producer
-    */
    void addProducer(final MessageProducer producer) {
       logger.trace("addProducer({})", producer);
 
@@ -1398,11 +1185,6 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       }
    }
 
-   /**
-    * Remove producer
-    *
-    * @param producer The producer
-    */
    void removeProducer(final MessageProducer producer) {
       logger.trace("removeProducer({})", producer);
 
@@ -1457,13 +1239,6 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       }
    }
 
-   /**
-    * Get the queue session
-    *
-    * @return The queue session
-    * @throws JMSException          Thrown if an error occurs
-    * @throws IllegalStateException The session is closed
-    */
    QueueSession getQueueSessionInternal() throws JMSException {
       Session s = getSessionInternal();
       if (!(s instanceof QueueSession)) {
@@ -1472,13 +1247,6 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       return (QueueSession) s;
    }
 
-   /**
-    * Get the topic session
-    *
-    * @return The topic session
-    * @throws JMSException          Thrown if an error occurs
-    * @throws IllegalStateException The session is closed
-    */
    TopicSession getTopicSessionInternal() throws JMSException {
       Session s = getSessionInternal();
       if (!(s instanceof TopicSession)) {

@@ -43,8 +43,8 @@ public class ConfigurationValidationTest extends ServerTestBase {
    }
 
    /**
-    * test does not pass in eclipse (because it can not find artemis-configuration.xsd).
-    * It runs fine on the CLI with the proper env setting.
+    * test does not pass in eclipse (because it can not find artemis-configuration.xsd). It runs fine on the CLI with
+    * the proper env setting.
     */
    @Test
    public void testMinimalConfiguration() throws Exception {

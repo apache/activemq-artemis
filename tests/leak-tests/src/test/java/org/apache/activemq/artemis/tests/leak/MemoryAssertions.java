@@ -51,7 +51,9 @@ public class MemoryAssertions {
       basicMemoryAsserts(true);
    }
 
-   /** most tests should have these as 0 after execution. */
+   /**
+    * most tests should have these as 0 after execution.
+    */
    public static void basicMemoryAsserts(boolean validateMessages) throws Exception {
       CheckLeak checkLeak = new CheckLeak();
       assertMemory(checkLeak, 0, OpenWireConnection.class.getName());

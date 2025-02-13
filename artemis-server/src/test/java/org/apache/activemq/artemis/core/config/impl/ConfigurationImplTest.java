@@ -2431,7 +2431,6 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
    /**
     * To test ARTEMIS-926
-    * @throws Throwable
     */
    @Test
    public void testSetSystemPropertyCME() throws Throwable {

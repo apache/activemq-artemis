@@ -53,9 +53,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(ParameterizedTestExtension.class)
 public class SCRAMTest {
 
-   /**
-    *
-    */
    private final SCRAM mechanism;
    private static final byte[] SALT = new byte[32];
    private static final String SNONCE = "server";

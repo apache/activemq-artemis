@@ -29,7 +29,7 @@ import java.lang.invoke.MethodHandles;
 
 /**
  * A UTF8Util
- *
+ * <p>
  * This class will write UTFs directly to the ByteOutput (through the MessageBuffer interface)
  */
 public final class UTF8Util {

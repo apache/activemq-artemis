@@ -31,19 +31,19 @@ import java.util.stream.Stream;
 
 /**
  * This class's purpose is to hold the consumers.
- *
- * CopyOnWriteArraySet is used as the underlying collection to the PriorityCollection, as it is concurrent safe,
- * but also lock less for a read path, which is our HOT path.
- * Also it was the underlying collection previously used in QueueImpl, before we abstracted it out to support priority consumers.
- *
- * There can only be one resettable iterable view,
- * A new iterable view is created on modification, this is to keep the read HOT path performent, BUT
- * the iterable view changes only after reset so changes in the underlying collection are only seen after a reset,
- *
+ * <p>
+ * CopyOnWriteArraySet is used as the underlying collection to the PriorityCollection, as it is concurrent safe, but
+ * also lock less for a read path, which is our HOT path. Also it was the underlying collection previously used in
+ * QueueImpl, before we abstracted it out to support priority consumers.
+ * <p>
+ * There can only be one resettable iterable view, A new iterable view is created on modification, this is to keep the
+ * read HOT path performent, BUT the iterable view changes only after reset so changes in the underlying collection are
+ * only seen after a reset,
+ * <p>
  * All other iterators created by iterators() method are not reset-able and are created on delegating iterator().
  *
- * @param <T> The type this class may hold, this is generic as can be anything that extends PriorityAware,
- *         but intent is this is the QueueImpl:ConsumerHolder.
+ * @param <T> The type this class may hold, this is generic as can be anything that extends PriorityAware, but intent is
+ *            this is the QueueImpl:ConsumerHolder.
  */
 public class QueueConsumersImpl<T extends PriorityAware> implements QueueConsumers<T> {
 

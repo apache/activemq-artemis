@@ -16,26 +16,26 @@
  */
 package org.apache.activemq.artemis.junit;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
 import javax.jms.BytesMessage;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 
 /**
- * Deprecated in favor of EmbeddedActiveMQDelegate. Since Artemis 2.0 all JMS specific broker
- * management classes, interfaces, and methods have been deprecated in favor of their more general
- * counter-parts.
+ * Deprecated in favor of EmbeddedActiveMQDelegate. Since Artemis 2.0 all JMS specific broker management classes,
+ * interfaces, and methods have been deprecated in favor of their more general counter-parts.
+ *
  * @param <I> implementing type
  * @see EmbeddedActiveMQDelegate
+ * @deprecated use {@link EmbeddedActiveMQDelegate} instead
  */
 @Deprecated
 public interface EmbeddedJMSOperations<I> {
@@ -48,16 +48,16 @@ public interface EmbeddedJMSOperations<I> {
    /**
     * Start the embedded EmbeddedJMSResource.
     * <p>
-    * The server will normally be started by JUnit using the before() method. This method allows the
-    * server to be started manually to support advanced testing scenarios.
+    * The server will normally be started by JUnit using the before() method. This method allows the server to be
+    * started manually to support advanced testing scenarios.
     */
    void start();
 
    /**
     * Stop the embedded ActiveMQ broker, blocking until the broker has stopped.
     * <p>
-    * The broker will normally be stopped by JUnit using the after() method. This method allows the
-    * broker to be stopped manually to support advanced testing scenarios.
+    * The broker will normally be stopped by JUnit using the after() method. This method allows the broker to be stopped
+    * manually to support advanced testing scenarios.
     */
    void stop();
 
@@ -65,18 +65,19 @@ public interface EmbeddedJMSOperations<I> {
     * Get the EmbeddedJMS server.
     * <p>
     * This may be required for advanced configuration of the EmbeddedJMS server.
-    * @return
     */
    EmbeddedJMS getJmsServer();
 
    /**
     * Get the name of the EmbeddedJMS server
+    *
     * @return name of the server
     */
    String getServerName();
 
    /**
     * Get the VM URL for the embedded EmbeddedActiveMQ server
+    *
     * @return the VM URL for the embedded server
     */
    String getVmURL();
@@ -84,9 +85,10 @@ public interface EmbeddedJMSOperations<I> {
    /**
     * Get the Queue corresponding to a JMS Destination.
     * <p>
-    * The full name of the JMS destination including the prefix should be provided - i.e.
-    * queue://myQueue or topic://myTopic. If the destination type prefix is not included in the
-    * destination name, a prefix of "queue://" is assumed.
+    * The full name of the JMS destination including the prefix should be provided - i.e. queue://myQueue or
+    * topic://myTopic. If the destination type prefix is not included in the destination name, a prefix of "queue://" is
+    * assumed.
+    *
     * @param destinationName the full name of the JMS Destination
     * @return the number of messages in the JMS Destination
     */
@@ -95,9 +97,9 @@ public interface EmbeddedJMSOperations<I> {
    /**
     * Get the Queues corresponding to a JMS Topic.
     * <p>
-    * The full name of the JMS Topic including the prefix should be provided - i.e. topic://myTopic.
-    * If the destination type prefix is not included in the destination name, a prefix of "topic://"
-    * is assumed.
+    * The full name of the JMS Topic including the prefix should be provided - i.e. topic://myTopic. If the destination
+    * type prefix is not included in the destination name, a prefix of "topic://" is assumed.
+    *
     * @param topicName the full name of the JMS Destination
     * @return the number of messages in the JMS Destination
     */
@@ -106,12 +108,12 @@ public interface EmbeddedJMSOperations<I> {
    /**
     * Get the number of messages in a specific JMS Destination.
     * <p>
-    * The full name of the JMS destination including the prefix should be provided - i.e.
-    * queue://myQueue or topic://myTopic. If the destination type prefix is not included in the
-    * destination name, a prefix of "queue://" is assumed. NOTE: For JMS Topics, this returned count
-    * will be the total number of messages for all subscribers. For example, if there are two
-    * subscribers on the topic and a single message is published, the returned count will be two
-    * (one message for each subscriber).
+    * The full name of the JMS destination including the prefix should be provided - i.e. queue://myQueue or
+    * topic://myTopic. If the destination type prefix is not included in the destination name, a prefix of "queue://" is
+    * assumed. NOTE: For JMS Topics, this returned count will be the total number of messages for all subscribers. For
+    * example, if there are two subscribers on the topic and a single message is published, the returned count will be
+    * two (one message for each subscriber).
+    *
     * @param destinationName the full name of the JMS Destination
     * @return the number of messages in the JMS Destination
     */

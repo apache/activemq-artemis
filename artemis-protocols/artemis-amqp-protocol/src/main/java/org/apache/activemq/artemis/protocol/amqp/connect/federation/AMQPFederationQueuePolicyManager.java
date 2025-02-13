@@ -66,7 +66,7 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
    }
 
    /**
-    * @return the receive from address policy that backs the address policy manager.
+    * {@return the receive from address policy that backs the address policy manager}
     */
    @Override
    public FederationReceiveFromQueuePolicy getPolicy() {
@@ -185,15 +185,11 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
    }
 
    /**
-    * Checks if the remote queue added falls within the set of queues that match the
-    * configured queue policy and if so scans for local demand on that queue to see
-    * if a new attempt to federate the queue is needed.
+    * Checks if the remote queue added falls within the set of queues that match the configured queue policy and if so
+    * scans for local demand on that queue to see if a new attempt to federate the queue is needed.
     *
-    * @param addressName
-    *    The address that was added on the remote.
-    * @param queueName
-    *    The queue that was added on the remote.
-    *
+    * @param addressName The address that was added on the remote.
+    * @param queueName   The queue that was added on the remote.
     * @throws Exception if an error occurs while processing the queue added event.
     */
    public synchronized void afterRemoteQueueAdded(String addressName, String queueName) throws Exception {
@@ -217,45 +213,36 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
    }
 
    /**
-    * Performs the test against the configured queue policy to check if the target
-    * queue and its associated address is a match or not. A subclass can override
-    * this method and provide its own match tests in combination with the configured
-    * matching policy.
+    * Performs the test against the configured queue policy to check if the target queue and its associated address is a
+    * match or not. A subclass can override this method and provide its own match tests in combination with the
+    * configured matching policy.
     *
-    * @param address
-    *    The address that is being tested for a policy match.
-    * @param queueName
-    *    The name of the queue that is being tested for a policy match.
-    *
-    * @return <code>true</code> if the address given is a match against the policy.
+    * @param address   The address that is being tested for a policy match.
+    * @param queueName The name of the queue that is being tested for a policy match.
+    * @return {@code true} if the address given is a match against the policy
     */
    private boolean testIfQueueMatchesPolicy(String address, String queueName) {
       return policy.test(address, queueName);
    }
 
    /**
-    * Performs the test against the configured queue policy to check if the target
-    * queue minus its associated address is a match or not. A subclass can override
-    * this method and provide its own match tests in combination with the configured
-    * matching policy.
+    * Performs the test against the configured queue policy to check if the target queue minus its associated address is
+    * a match or not. A subclass can override this method and provide its own match tests in combination with the
+    * configured matching policy.
     *
-    * @param queueName
-    *    The name of the queue that is being tested for a policy match.
-    *
-    * @return <code>true</code> if the address given is a match against the policy.
+    * @param queueName The name of the queue that is being tested for a policy match.
+    * @return {@code true} if the address given is a match against the policy
     */
    private boolean testIfQueueMatchesPolicy(String queueName) {
       return policy.testQueue(queueName);
    }
 
    /**
-    * Create a new {@link FederationConsumerInfo} based on the given {@link ServerConsumer}
-    * and the configured {@link FederationReceiveFromQueuePolicy}. A subclass must override this
-    * method to return a consumer information object with additional data used be that implementation.
+    * Create a new {@link FederationConsumerInfo} based on the given {@link ServerConsumer} and the configured
+    * {@link FederationReceiveFromQueuePolicy}. A subclass must override this method to return a consumer information
+    * object with additional data used be that implementation.
     *
-    * @param consumer
-    *    The {@link ServerConsumer} to use as a basis for the consumer information object.
-    *
+    * @param consumer The {@link ServerConsumer} to use as a basis for the consumer information object.
     * @return a new {@link FederationConsumerInfo} instance based on the server consumer
     */
    private FederationConsumerInfo createConsumerInfo(ServerConsumer consumer) {
@@ -293,16 +280,12 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
    }
 
    /**
-    * Creates a {@link Predicate} that should return true if the given consumer is a federation
-    * created consumer which should not be further federated.
+    * Creates a {@link Predicate} that should return true if the given consumer is a federation created consumer which
+    * should not be further federated.
     *
-    * @param server
-    *    The server instance for use in creating the filtering {@link Predicate}.
-    * @param policy
-    *    The configured Queue matching policy that can provide additional match criteria.
-    *
-    * @return a {@link Predicate} that will return true if the consumer should be filtered.
-    *
+    * @param server The server instance for use in creating the filtering {@link Predicate}.
+    * @param policy The configured Queue matching policy that can provide additional match criteria.
+    * @return a {@link Predicate} that will return true if the consumer should be filtered
     * @throws ActiveMQException if an error occurs while creating the new consumer filter.
     */
    private Predicate<ServerConsumer> createFederationConsumerMatcher(ActiveMQServer server, FederationReceiveFromQueuePolicy policy) throws ActiveMQException {
@@ -358,7 +341,7 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
       }
 
       /**
-       * @return the name of the Queue this federation consumer manager is attached to.
+       * {@return the name of the Queue this federation consumer manager is attached to}
        */
       public String getQueueName() {
          return queue.getName().toString();

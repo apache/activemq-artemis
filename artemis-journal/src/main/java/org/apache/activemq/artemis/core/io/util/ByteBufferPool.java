@@ -19,7 +19,8 @@ package org.apache.activemq.artemis.core.io.util;
 import java.nio.ByteBuffer;
 
 /**
- * Object Pool that allows to borrow and release {@link ByteBuffer}s according to a specific type (direct/heap).<br>
+ * Object Pool that allows to borrow and release {@link ByteBuffer}s according to a specific type (direct/heap).
+ * <p>
  * The suggested usage pattern is:
  * <pre>{@code
  *    ByteBuffer buffer = pool.borrow(size);
@@ -30,19 +31,23 @@ import java.nio.ByteBuffer;
 public interface ByteBufferPool {
 
    /**
-    * It returns a {@link ByteBuffer} with {@link ByteBuffer#capacity()} &gt;= {@code size}.<br>
-    * The {@code buffer} is zeroed until {@code size} if {@code zeroed=true}, with {@link ByteBuffer#position()}=0 and {@link ByteBuffer#limit()}={@code size}.
+    * It returns a {@link ByteBuffer} with {@link ByteBuffer#capacity()} &gt;= {@code size}.
+    * <p>
+    * The {@code buffer} is zeroed until {@code size} if {@code zeroed=true}, with {@link ByteBuffer#position()}=0 and
+    * {@link ByteBuffer#limit()}={@code size}.
     */
    ByteBuffer borrow(int size, boolean zeroed);
 
    /**
-    * It pools or free {@code buffer} that cannot be used anymore.<br>
+    * It pools or free {@code buffer} that cannot be used anymore.
+    * <p>
     * If {@code buffer} is of a type different from the one that the pool can borrow, it will ignore it.
     */
    void release(ByteBuffer buffer);
 
    /**
-    * Factory method that creates a thread-local pool of capacity 1 of {@link ByteBuffer}s of the specified type (direct/heap).
+    * Factory method that creates a thread-local pool of capacity 1 of {@link ByteBuffer}s of the specified type
+    * (direct/heap).
     */
    static ByteBufferPool threadLocal(boolean direct) {
       return new ThreadLocalByteBufferPool(direct);

@@ -47,16 +47,16 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * plugin to log various events within the broker, configured with the following booleans
- *
- * LOG_CONNECTION_EVENTS - connections creation/destroy
- * LOG_SESSION_EVENTS - sessions creation/close
- * LOG_CONSUMER_EVENTS - consumers creation/close
- * LOG_DELIVERING_EVENTS - messages delivered to consumer, acked by consumer
- * LOG_SENDING_EVENTS -  messaged is sent, message is routed
- * LOG_INTERNAL_EVENTS - critical failures, bridge deployments, queue creation/destroyed, message expired
+ * plugin to log various events within the broker, configured with the following booleans:
+ * <ul>
+ * <li>{@code LOG_CONNECTION_EVENTS} - connections creation/destroy
+ * <li>{@code LOG_SESSION_EVENTS} - sessions creation/close
+ * <li>{@code LOG_CONSUMER_EVENTS} - consumers creation/close
+ * <li>{@code LOG_DELIVERING_EVENTS} - messages delivered to consumer, acked by consumer
+ * <li>{@code LOG_SENDING_EVENTS} -  messaged is sent, message is routed
+ * <li>{@code LOG_INTERNAL_EVENTS} - critical failures, bridge deployments, queue creation/destroyed, message expired
+ * </ul>
  */
-
 public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serializable {
 
    public static final String LOG_ALL_EVENTS = "LOG_ALL_EVENTS";
@@ -107,8 +107,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * used to pass configured properties to Plugin
-    *
-    * @param properties
     */
    @Override
    public void init(Map<String, String> properties) {
@@ -128,7 +126,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     * A connection has been created.
     *
     * @param connection The newly created connection
-    * @throws ActiveMQException
     */
    @Override
    public void afterCreateConnection(RemotingConnection connection) throws ActiveMQException {
@@ -139,9 +136,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * A connection has been destroyed.
-    *
-    * @param connection
-    * @throws ActiveMQException
     */
    @Override
    public void afterDestroyConnection(RemotingConnection connection) throws ActiveMQException {
@@ -152,21 +146,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * Before a session is created.
-    *
-    * @param name
-    * @param username
-    * @param minLargeMessageSize
-    * @param connection
-    * @param autoCommitSends
-    * @param autoCommitAcks
-    * @param preAcknowledge
-    * @param xa
-    * @param publicAddress
-    * @param callback
-    * @param autoCreateQueues
-    * @param context
-    * @param prefixes
-    * @throws ActiveMQException
     */
    @Override
    public void beforeCreateSession(String name,
@@ -193,7 +172,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     * After a session has been created.
     *
     * @param session The newly created session
-    * @throws ActiveMQException
     */
    @Override
    public void afterCreateSession(ServerSession session) throws ActiveMQException {
@@ -218,10 +196,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * Before a session is closed
-    *
-    * @param session
-    * @param failed
-    * @throws ActiveMQException
     */
    @Override
    public void beforeCloseSession(ServerSession session, boolean failed) throws ActiveMQException {
@@ -232,10 +206,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * After a session is closed
-    *
-    * @param session
-    * @param failed
-    * @throws ActiveMQException
     */
    @Override
    public void afterCloseSession(ServerSession session, boolean failed) throws ActiveMQException {
@@ -246,11 +216,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * Before session metadata is added to the session
-    *
-    * @param session
-    * @param key
-    * @param data
-    * @throws ActiveMQException
     */
    @Override
    public void beforeSessionMetadataAdded(ServerSession session, String key, String data) throws ActiveMQException {
@@ -261,11 +226,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * After session metadata is added to the session
-    *
-    * @param session
-    * @param key
-    * @param data
-    * @throws ActiveMQException
     */
    @Override
    public void afterSessionMetadataAdded(ServerSession session, String key, String data) throws ActiveMQException {
@@ -281,13 +241,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * Before a consumer is created
-    *
-    * @param consumerID
-    * @param queueBinding
-    * @param filterString
-    * @param browseOnly
-    * @param supportLargeMessage
-    * @throws ActiveMQException
     */
    @Override
    public void beforeCreateConsumer(long consumerID,
@@ -306,7 +259,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     * After a consumer has been created
     *
     * @param consumer the created consumer
-    * @throws ActiveMQException
     */
    @Override
    public void afterCreateConsumer(ServerConsumer consumer) throws ActiveMQException {
@@ -319,10 +271,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * Before a consumer is closed
-    *
-    * @param consumer
-    * @param failed
-    * @throws ActiveMQException
     */
    @Override
    public void beforeCloseConsumer(ServerConsumer consumer, boolean failed) throws ActiveMQException {
@@ -334,10 +282,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * After a consumer is closed
-    *
-    * @param consumer
-    * @param failed
-    * @throws ActiveMQException
     */
    @Override
    public void afterCloseConsumer(ServerConsumer consumer, boolean failed) throws ActiveMQException {
@@ -350,9 +294,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * Before a queue is created
-    *
-    * @param queueConfig
-    * @throws ActiveMQException
     */
    @Override
    public void beforeCreateQueue(QueueConfiguration queueConfig) throws ActiveMQException {
@@ -365,7 +306,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     * After a queue has been created
     *
     * @param queue The newly created queue
-    * @throws ActiveMQException
     */
    @Override
    public void afterCreateQueue(Queue queue) throws ActiveMQException {
@@ -376,13 +316,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * Before a queue is destroyed
-    *
-    * @param queueName
-    * @param session
-    * @param checkConsumerCount
-    * @param removeConsumers
-    * @param autoDeleteAddress
-    * @throws ActiveMQException
     */
    @Override
    public void beforeDestroyQueue(SimpleString queueName,
@@ -398,14 +331,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * After a queue has been destroyed
-    *
-    * @param queue
-    * @param address
-    * @param session
-    * @param checkConsumerCount
-    * @param removeConsumers
-    * @param autoDeleteAddress
-    * @throws ActiveMQException
     */
    @Override
    public void afterDestroyQueue(Queue queue,
@@ -424,12 +349,7 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
    /**
     * Before a message is sent
     *
-    * @param session           the session that sends the message
-    * @param tx
-    * @param message
-    * @param direct
-    * @param noAutoCreateQueue
-    * @throws ActiveMQException
+    * @param session the session that sends the message
     */
    @Override
    public void beforeSend(ServerSession session,
@@ -445,14 +365,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * After a message is sent
-    *
-    * @param session
-    * @param tx
-    * @param message
-    * @param direct
-    * @param noAutoCreateQueue
-    * @param result
-    * @throws ActiveMQException
     */
    @Override
    public void afterSend(ServerSession session,
@@ -514,12 +426,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * Before a message is routed
-    *
-    * @param message
-    * @param context
-    * @param direct
-    * @param rejectDuplicates
-    * @throws ActiveMQException
     */
    @Override
    public void beforeMessageRoute(Message message,
@@ -533,13 +439,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
 
    /**
     * After a message is routed
-    *
-    * @param message
-    * @param context
-    * @param direct
-    * @param rejectDuplicates
-    * @param result
-    * @throws ActiveMQException
     */
    @Override
    public void afterMessageRoute(Message message,
@@ -580,7 +479,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     *
     * @param consumer  the consumer the message will be delivered to
     * @param reference message reference
-    * @throws ActiveMQException
     */
    @Override
    public void beforeDeliver(ServerConsumer consumer, MessageReference reference) throws ActiveMQException {
@@ -595,7 +493,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     *
     * @param consumer  the consumer the message was delivered to
     * @param reference message reference
-    * @throws ActiveMQException
     */
    @Override
    public void afterDeliver(ServerConsumer consumer, MessageReference reference) throws ActiveMQException {
@@ -631,7 +528,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     * @param ref      The acked message
     * @param reason   The ack reason
     * @param consumer The consumer acking the ref
-    * @throws ActiveMQException
     */
    @Override
    public void messageAcknowledged(final Transaction tx, final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws ActiveMQException {
@@ -671,7 +567,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     * Before a bridge is deployed
     *
     * @param config The bridge configuration
-    * @throws ActiveMQException
     */
    @Override
    public void beforeDeployBridge(BridgeConfiguration config) throws ActiveMQException {
@@ -684,7 +579,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     * After a bridge has been deployed
     *
     * @param bridge The newly deployed bridge
-    * @throws ActiveMQException
     */
    @Override
    public void afterDeployBridge(Bridge bridge) throws ActiveMQException {
@@ -696,9 +590,6 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
    /**
     * A Critical failure has been detected.
     * This will be called before the broker is stopped
-    *
-    * @param components
-    * @throws ActiveMQException
     */
    @Override
    public void criticalFailure(CriticalComponent components) throws ActiveMQException {
@@ -720,7 +611,5 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
          logger.debug("LoggingPlugin logDeliveringEvents={}", logDeliveringEvents);
          logger.debug("LoggingPlugin logInternalEvents={}", logInternalEvents);
       }
-
    }
-
 }

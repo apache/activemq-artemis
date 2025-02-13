@@ -50,10 +50,7 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
 
    /*ackbatchSize tests*/
 
-   /*
-   * tests that wed don't acknowledge until the correct ackBatchSize is reached
-   * */
-
+   // tests that we don't acknowledge until the correct ackBatchSize is reached
    private int getMessageEncodeSize(final SimpleString address) throws Exception {
       ServerLocator locator = createInVMNonHALocator();
       ClientSessionFactory cf = createSessionFactory(locator);
@@ -106,9 +103,7 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
       session.close();
    }
 
-   /*
-   * tests that when the ackBatchSize is 0 we ack every message directly
-   * */
+   // tests that when the ackBatchSize is 0 we ack every message directly
    @Test
    public void testAckBatchSizeZero() throws Exception {
       ActiveMQServer server = createServer(false);

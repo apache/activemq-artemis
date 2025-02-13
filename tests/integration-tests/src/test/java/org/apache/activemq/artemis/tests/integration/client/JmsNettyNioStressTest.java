@@ -51,28 +51,21 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.Test;
 
 /**
- * -- https://issues.jboss.org/browse/HORNETQ-746
- * Stress test using netty with NIO and many JMS clients concurrently, to try
- * and induce a deadlock.
- * <br>
- * A large number of JMS clients are started concurrently. Some produce to queue
- * 1 over one connection, others consume from queue 1 and produce to queue 2
- * over a second connection, and others consume from queue 2 over a third
+ * Stress test using netty with NIO and many JMS clients concurrently, to try and induce a deadlock.
+ * <p>
+ * A large number of JMS clients are started concurrently. Some produce to queue 1 over one connection, others consume
+ * from queue 1 and produce to queue 2 over a second connection, and others consume from queue 2 over a third
  * connection.
- * <br>
- * Each operation is done in a JMS transaction, sending/consuming one message
- * per transaction.
- * <br>
- * The server is set up with netty, with only one NIO worker and 1 activemq
- * server worker. This increases the chance for the deadlock to occur.
- * <br>
- * If the deadlock occurs, all threads will block/die. A simple transaction
- * counting strategy is used to verify that the count has reached the expected
- * value.
+ * <p>
+ * Each operation is done in a JMS transaction, sending/consuming one message per transaction.
+ * <p>
+ * The server is set up with netty, with only one NIO worker and 1 activemq server worker. This increases the chance for
+ * the deadlock to occur.
+ * <p>
+ * If the deadlock occurs, all threads will block/die. A simple transaction counting strategy is used to verify that the
+ * count has reached the expected value.
  */
 public class JmsNettyNioStressTest extends ActiveMQTestBase {
-
-
 
    // Remove this method to re-enable those tests
    @Test

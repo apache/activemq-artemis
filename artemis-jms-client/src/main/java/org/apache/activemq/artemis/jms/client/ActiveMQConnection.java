@@ -61,8 +61,8 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 /**
  * ActiveMQ Artemis implementation of a JMS Connection.
  * <p>
- * The flat implementation of {@link TopicConnection} and {@link QueueConnection} is per design,
- * following the common usage of these as one flat API in JMS 1.1.
+ * The flat implementation of {@link TopicConnection} and {@link QueueConnection} is per design, following the common
+ * usage of these as one flat API in JMS 1.1.
  */
 public class ActiveMQConnection extends ActiveMQConnectionForContextImpl implements TopicConnection, QueueConnection {
 
@@ -173,12 +173,10 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    }
 
    /**
-    * This internal method serves basically the Resource Adapter.
-    * The resource adapter plays with an XASession and a non XASession.
-    * When there is no enlisted transaction, the EE specification mandates that the commit should
-    * be done as if it was a nonXA Session (i.e. SessionTransacted).
-    * For that reason we have this method to force that nonXASession, since the JMS Javadoc
-    * mandates createSession to return a XASession.
+    * This internal method serves basically the Resource Adapter. The resource adapter plays with an XASession and a non
+    * XASession. When there is no enlisted transaction, the EE specification mandates that the commit should be done as
+    * if it was a nonXA Session (i.e. SessionTransacted). For that reason we have this method to force that
+    * nonXASession, since the JMS Javadoc mandates createSession to return a XASession.
     */
    public synchronized Session createNonXASession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
@@ -187,12 +185,10 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    }
 
    /**
-    * This internal method serves basically the Resource Adapter.
-    * The resource adapter plays with an XASession and a non XASession.
-    * When there is no enlisted transaction, the EE specification mandates that the commit should
-    * be done as if it was a nonXA Session (i.e. SessionTransacted).
-    * For that reason we have this method to force that nonXASession, since the JMS Javadoc
-    * mandates createSession to return a XASession.
+    * This internal method serves basically the Resource Adapter. The resource adapter plays with an XASession and a non
+    * XASession. When there is no enlisted transaction, the EE specification mandates that the commit should be done as
+    * if it was a nonXA Session (i.e. SessionTransacted). For that reason we have this method to force that
+    * nonXASession, since the JMS Javadoc mandates createSession to return a XASession.
     */
    public synchronized Session createNonXATopicSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
@@ -201,12 +197,10 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    }
 
    /**
-    * This internal method serves basically the Resource Adapter.
-    * The resource adapter plays with an XASession and a non XASession.
-    * When there is no enlisted transaction, the EE specification mandates that the commit should
-    * be done as if it was a nonXA Session (i.e. SessionTransacted).
-    * For that reason we have this method to force that nonXASession, since the JMS Javadoc
-    * mandates createSession to return a XASession.
+    * This internal method serves basically the Resource Adapter. The resource adapter plays with an XASession and a non
+    * XASession. When there is no enlisted transaction, the EE specification mandates that the commit should be done as
+    * if it was a nonXA Session (i.e. SessionTransacted). For that reason we have this method to force that
+    * nonXASession, since the JMS Javadoc mandates createSession to return a XASession.
     */
    public synchronized Session createNonXAQueueSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
       checkClosed();
@@ -498,7 +492,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
     * Sets a FailureListener for the session which is notified if a failure occurs on the session.
     *
     * @param listener the listener to add
-    * @throws JMSException
     */
    public void setFailoverListener(final FailoverEventListener listener) throws JMSException {
       checkClosed();
@@ -510,8 +503,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    }
 
    /**
-    * @return {@link FailoverEventListener} the current failover event listener for this connection
-    * @throws JMSException
+    * {@return {@link FailoverEventListener} the current failover event listener for this connection}
     */
    public FailoverEventListener getFailoverListener() throws JMSException {
       checkClosed();
@@ -612,13 +604,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    }
 
 
-   /**
-    * @param transacted
-    * @param acknowledgeMode
-    * @param session
-    * @param type
-    * @return
-    */
    protected ActiveMQSession createAMQSession(boolean isXA,
                                               boolean transacted,
                                               int acknowledgeMode,

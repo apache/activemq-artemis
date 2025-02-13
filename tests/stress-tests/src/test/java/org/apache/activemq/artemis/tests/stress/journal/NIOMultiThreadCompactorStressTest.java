@@ -119,17 +119,10 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
       }
    }
 
-   /**
-    * @return
-    */
    protected JournalType getJournalType() {
       return JournalType.NIO;
    }
 
-   /**
-    * @param xid
-    * @throws ActiveMQException
-    */
    private void addEmptyTransaction(final Xid xid) throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession session = sf.createSession(true, false, false);
@@ -226,11 +219,6 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
 
    }
 
-   /**
-    * @param numberOfMessagesExpected
-    * @param queue
-    * @throws ActiveMQException
-    */
    private void drainQueue(final int numberOfMessagesExpected, final SimpleString queue) throws ActiveMQException {
       ClientSession sess = sf.createSession(true, true);
 
@@ -253,9 +241,6 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
       sess.close();
    }
 
-   /**
-    * @throws ActiveMQException
-    */
    private void addBogusData(final int nmessages, final String queue) throws ActiveMQException {
       ClientSession session = sf.createSession(false, false);
       try {

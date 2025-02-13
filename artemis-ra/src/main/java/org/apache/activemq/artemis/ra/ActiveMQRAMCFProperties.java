@@ -31,28 +31,17 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * Serial version UID
-    */
    static final long serialVersionUID = -5951352236582886862L;
 
-   /**
-    * The queue type
-    */
    private static final String QUEUE_TYPE = Queue.class.getName();
 
-   /**
-    * The topic type
-    */
    private static final String TOPIC_TYPE = Topic.class.getName();
-   /**
-   * If true then for outbound connections a local tx will be used if no JTA is configured
-   */
+
    private boolean allowLocalTransactions;
 
    /**
-    * If true then for outbound connections will always assume that they are part of a transaction.
-    * This is helpful when running in containers where access to the Transaction manager can't be configured
+    * If {@code true} then for outbound connections will always assume that they are part of a transaction. This is
+    * helpful when running in containers where access to the Transaction manager can't be configured
     */
    private boolean inJtaTransaction;
 
@@ -60,30 +49,16 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
 
    public String strConnectionParameters;
 
-   /**
-    * The connection type
-    */
    private int type = ActiveMQRAConnectionFactory.CONNECTION;
 
-   /**
-    * Use tryLock
-    */
    private Integer useTryLock;
 
-   /**
-    * Constructor
-    */
    public ActiveMQRAMCFProperties() {
       logger.trace("constructor()");
 
       useTryLock = null;
    }
 
-   /**
-    * Get the connection type
-    *
-    * @return The type
-    */
    public int getType() {
       logger.trace("getType()");
 
@@ -102,9 +77,6 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
       setParsedConnectorClassNames(ActiveMQRaUtils.parseConnectorConnectorConfig(connectorClassName));
    }
 
-   /**
-    * @return the connectionParameters
-    */
    public String getStrConnectionParameters() {
       return strConnectionParameters;
    }
@@ -117,7 +89,7 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
    /**
     * Set the default session type.
     *
-    * @param defaultType either javax.jms.Topic or javax.jms.Queue
+    * @param defaultType either {@literal javax.jms.Topic} or {@literal javax.jms.Queue}
     */
    public void setSessionDefaultType(final String defaultType) {
       logger.trace("setSessionDefaultType({})", type);
@@ -131,11 +103,6 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
       }
    }
 
-   /**
-    * Get the default session type.
-    *
-    * @return The default session type
-    */
    public String getSessionDefaultType() {
       logger.trace("getSessionDefaultType()");
 
@@ -148,22 +115,12 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
       }
    }
 
-   /**
-    * Get the useTryLock.
-    *
-    * @return the useTryLock.
-    */
    public Integer getUseTryLock() {
       logger.trace("getUseTryLock()");
 
       return useTryLock;
    }
 
-   /**
-    * Set the useTryLock.
-    *
-    * @param useTryLock the useTryLock.
-    */
    public void setUseTryLock(final Integer useTryLock) {
       logger.trace("setUseTryLock({})", useTryLock);
 

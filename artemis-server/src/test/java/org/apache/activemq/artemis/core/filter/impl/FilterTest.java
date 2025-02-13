@@ -725,7 +725,6 @@ public class FilterTest extends SilentTestCase {
    //      FilterParser parse = new FilterParser();
    //      SimpleStringReader reader = new SimpleStringReader(SimpleString.of(largeString));
    //      parse.ReInit(reader);
-   //      // the server would fail at doing this when HORNETQ-545 wasn't solved
    //      parse.getNextToken();
    //   }
 

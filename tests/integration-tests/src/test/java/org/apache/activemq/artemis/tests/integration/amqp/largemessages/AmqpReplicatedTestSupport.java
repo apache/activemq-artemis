@@ -76,7 +76,8 @@ public abstract class AmqpReplicatedTestSupport extends AmqpTestSupport {
    }
 
    /**
-    * Override this if is needed a different implementation of {@link NodeManager} to be used into {@link #createReplicatedConfigs()}.
+    * Override this if is needed a different implementation of {@link NodeManager} to be used into
+    * {@link #createReplicatedConfigs()}.
     */
    protected NodeManager createReplicatedBackupNodeManager(Configuration backupConfig) {
       return new InVMNodeManager(true, backupConfig.getJournalLocation());

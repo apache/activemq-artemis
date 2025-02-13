@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * An ID generator that allocates a batch of IDs of size {@link #checkpointSize} and records the ID
- * in the journal only when starting a new batch.
+ * An ID generator that allocates a batch of IDs of size {@link #checkpointSize} and records the ID in the journal only
+ * when starting a new batch.
  *
  * @see IDGenerator
  */

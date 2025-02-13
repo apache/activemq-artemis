@@ -179,10 +179,9 @@ public interface ActiveMQClientLogger {
    void packetOutOfOrder(Object obj, Throwable t);
 
    /**
-    * Warns about usage of {@link org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler} or JMS's {@code CompletionWindow} with
-    * confirmations disabled (confirmationWindowSize=-1).
+    * Warns about usage of {@link org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler} or JMS's
+    * {@code CompletionWindow} with confirmations disabled (confirmationWindowSize=-1).
     */
-
    @LogMessage(id = 212053, value = "CompletionListener/SendAcknowledgementHandler used with confirmationWindowSize=-1. Enable confirmationWindowSize to receive acks from server!", level = LogMessage.Level.WARN)
    void confirmationWindowDisabledWarning();
 

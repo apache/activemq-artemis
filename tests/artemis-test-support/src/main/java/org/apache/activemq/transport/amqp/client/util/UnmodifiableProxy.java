@@ -33,9 +33,8 @@ import org.apache.qpid.proton.engine.Session;
 import org.apache.qpid.proton.engine.Transport;
 
 /**
- * Utility that creates proxy objects for the Proton objects which won't allow any mutating
- * operations to be applied so that the test code does not interact with the proton engine
- * outside the client serialization thread.
+ * Utility that creates proxy objects for the Proton objects which won't allow any mutating operations to be applied so
+ * that the test code does not interact with the proton engine outside the client serialization thread.
  */
 public final class UnmodifiableProxy {
 

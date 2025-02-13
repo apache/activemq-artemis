@@ -33,61 +33,50 @@ public interface SenderController {
    }
 
    /**
-    * Used as an initial state for message writers in controllers to ensure that a
-    * valid version is chosen when a message is dispatched.
+    * Used as an initial state for message writers in controllers to ensure that a valid version is chosen when a
+    * message is dispatched.
     */
    MessageWriter REJECTING_MESSAGE_WRITER = new RejectingOutgoingMessageWriter();
 
    /**
     * Initialize sender controller state and handle open of AMQP sender resources
     *
-    * @param senderContext
-    *    The sender context that is requesting controller initialization.
-    *
-    * @return a server consumer that has been initialize by the controller.
-    *
+    * @param senderContext The sender context that is requesting controller initialization.
+    * @return a server consumer that has been initialize by the controller
     * @throws Exception if an error occurs during initialization.
     */
    Consumer init(ProtonServerSenderContext senderContext) throws Exception;
 
    /**
-    * Handle close of the sever sender AMQP resources either from remote link
-    * detach or local close usually due to connection drop.
+    * Handle close of the sever sender AMQP resources either from remote link detach or local close usually due to
+    * connection drop.
     *
-    * @param remoteClose
-    *    Indicates if the remote link detached the sender or local action closed it.
-    *
+    * @param remoteClose Indicates if the remote link detached the sender or local action closed it.
     * @throws Exception if an error occurs during close.
     */
    void close(boolean remoteClose) throws Exception;
 
    /**
-    * Called when the sender is being locally closed due to some error or forced
-    * shutdown due to resource deletion etc. The default implementation of this
-    * API does nothing in response to this call.
+    * Called when the sender is being locally closed due to some error or forced shutdown due to resource deletion etc.
+    * The default implementation of this API does nothing in response to this call.
     *
-    * @param error
-    *    The error condition that triggered the close.
+    * @param error The error condition that triggered the close.
     */
    default void close(ErrorCondition error) {
 
    }
 
    /**
-    * Controller selects a outgoing delivery writer that will handle the encoding and writing
-    * of the target {@link Message} carried in the given {@link MessageReference}. The selection
-    * process should take into account how the message pre-processing will mutate the outgoing
-    * message.
+    * Controller selects a outgoing delivery writer that will handle the encoding and writing of the target
+    * {@link Message} carried in the given {@link MessageReference}. The selection process should take into account how
+    * the message pre-processing will mutate the outgoing message.
+    * <p>
+    * The default implementation performs no caching of writers and should be overridden in subclasses to reduce GC
+    * churn, the default version is suitable for tests.
     *
-    * The default implementation performs no caching of writers and should be overridden in
-    * subclasses to reduce GC churn, the default version is suitable for tests.
-    *
-    * @param sender
-    *    The server sender that will make use of the returned delivery context.
-    * @param reference
-    *    The message that must be sent using an outgoing context
-    *
-    * @return an {@link MessageWriter} to use when sending the message in the reference.
+    * @param sender    The server sender that will make use of the returned delivery context.
+    * @param reference The message that must be sent using an outgoing context
+    * @return an {@link MessageWriter} to use when sending the message in the reference
     */
    default MessageWriter selectOutgoingMessageWriter(ProtonServerSenderContext sender, MessageReference reference) {
       final MessageWriter selected;

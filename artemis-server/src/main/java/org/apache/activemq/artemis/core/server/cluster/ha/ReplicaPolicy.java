@@ -40,14 +40,10 @@ public class ReplicaPolicy extends BackupPolicy {
 
    private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
 
-   /*
-   * what quorum size to use for voting
-   * */
+   // what quorum size to use for voting
    private int quorumSize;
 
-   /*
-   * whether this broker should vote to remain active
-   * */
+   // whether this broker should vote to remain active
    private boolean voteOnReplicationFailure;
 
    private ReplicatedPolicy replicatedPolicy;
@@ -147,9 +143,6 @@ public class ReplicaPolicy extends BackupPolicy {
       this.replicatedPolicy = replicatedPolicy;
    }
 
-   /*
-   * these 2 methods are the same, leaving both as the second is correct but the first is needed until more refactoring is done
-   * */
    @Override
    public String getBackupGroupName() {
       return groupName;

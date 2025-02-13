@@ -82,8 +82,6 @@ public class JmsTopicRedeliverTest extends BasicOpenWireTest {
 
    /**
     * Sends and consumes the messages.
-    *
-    * @throws Exception
     */
    @Test
    public void testRecover() throws Exception {

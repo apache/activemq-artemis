@@ -62,9 +62,6 @@ public class SimpleAddressManager implements AddressManager {
 
    private final ConcurrentMap<Long, LocalQueueBinding> localBindingsMap = new ConcurrentHashMap<>();
 
-   /**
-    * {@code HashMap<Address, Binding>}
-    */
    protected final ConcurrentMap<SimpleString, Bindings> mappings = new ConcurrentHashMap<>();
 
    private final ConcurrentMap<SimpleString, Pair<Binding, Address>> nameMap = new ConcurrentHashMap<>();

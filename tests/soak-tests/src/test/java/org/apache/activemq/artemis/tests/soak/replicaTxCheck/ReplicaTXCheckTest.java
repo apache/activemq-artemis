@@ -137,10 +137,9 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
    }
 
    /**
-    * this test is using three pairs of servers.
-    * It will send messages to one pair, then it consumes from that pair and sends to a second pair
-    * if killTarget==true the target pair is the one that's being killed, otherwise is the one with the consumers
-    * if useStop==true then the server is stopped with a regular stop call, otherwise it's halted
+    * This test is using three pairs of servers. It will send messages to one pair, then it consumes from that pair and
+    * sends to a second pair if killTarget==true the target pair is the one that's being killed, otherwise is the one
+    * with the consumers if useStop==true then the server is stopped with a regular stop call, otherwise it's halted
     */
    void testTXCheck(String protocol, boolean killTarget, boolean useStop) throws Exception {
 

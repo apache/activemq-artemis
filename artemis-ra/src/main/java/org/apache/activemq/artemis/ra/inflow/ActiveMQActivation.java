@@ -68,46 +68,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/**
- * The activation.
- */
 public class ActiveMQActivation {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The onMessage method
-    */
    public static final Method ONMESSAGE;
 
-   /**
-    * The resource adapter
-    */
    private final ActiveMQResourceAdapter ra;
 
-   /**
-    * The activation spec
-    */
    private final ActiveMQActivationSpec spec;
 
-   /**
-    * The message endpoint factory
-    */
    private final MessageEndpointFactory endpointFactory;
 
-   /**
-    * Whether delivery is active
-    */
    private final AtomicBoolean deliveryActive = new AtomicBoolean(false);
 
-   /**
-    * The destination type
-    */
    private boolean isTopic = false;
 
-   /**
-    * Is the delivery transacted
-    */
    private boolean isDeliveryTransacted;
 
    private ActiveMQDestination destination;
@@ -177,55 +153,30 @@ public class ActiveMQActivation {
       }
    }
 
-   /**
-    * Get the activation spec
-    *
-    * @return The value
-    */
    public ActiveMQActivationSpec getActivationSpec() {
       logger.trace("getActivationSpec()");
 
       return spec;
    }
 
-   /**
-    * Get the message endpoint factory
-    *
-    * @return The value
-    */
    public MessageEndpointFactory getMessageEndpointFactory() {
       logger.trace("getMessageEndpointFactory()");
 
       return endpointFactory;
    }
 
-   /**
-    * Get whether delivery is transacted
-    *
-    * @return The value
-    */
    public boolean isDeliveryTransacted() {
       logger.trace("isDeliveryTransacted()");
 
       return isDeliveryTransacted;
    }
 
-   /**
-    * Get the work manager
-    *
-    * @return The value
-    */
    public WorkManager getWorkManager() {
       logger.trace("getWorkManager()");
 
       return ra.getWorkManager();
    }
 
-   /**
-    * Is the destination a topic
-    *
-    * @return The value
-    */
    public boolean isTopic() {
       logger.trace("isTopic()");
 
@@ -244,22 +195,16 @@ public class ActiveMQActivation {
       scheduleWork(new SetupActivation());
    }
 
-   /**
-    * @return the topicTemporaryQueue
-    */
    public SimpleString getTopicTemporaryQueue() {
       return topicTemporaryQueue;
    }
 
-   /**
-    * @param topicTemporaryQueue the topicTemporaryQueue to set
-    */
    public void setTopicTemporaryQueue(SimpleString topicTemporaryQueue) {
       this.topicTemporaryQueue = topicTemporaryQueue;
    }
 
    /**
-    * @return the list of XAResources for this activation endpoint
+    * {@return the list of XAResources for this activation endpoint}
     */
    public List<XAResource> getXAResources() {
       List<XAResource> xaresources = new ArrayList<>();
@@ -351,9 +296,6 @@ public class ActiveMQActivation {
       logger.debug("Setup complete {}", this);
    }
 
-   /**
-    * Teardown the activation
-    */
    protected void teardown(boolean useInterrupt) {
 
       synchronized (teardownLock) {
@@ -475,7 +417,6 @@ public class ActiveMQActivation {
    /**
     * Setup a session
     *
-    * @param cf
     * @return The connection
     * @throws Exception Thrown if an error occurs
     */
@@ -614,11 +555,6 @@ public class ActiveMQActivation {
       return spec.getQueuePrefix() + queue;
    }
 
-   /**
-    * Get a string representation
-    *
-    * @return The value
-    */
    @Override
    public String toString() {
       StringBuilder buffer = new StringBuilder();

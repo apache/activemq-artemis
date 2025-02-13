@@ -113,9 +113,6 @@ public final class ChannelImpl implements Channel {
 
    private volatile long id;
 
-   /**
-    * This is used in
-    */
    private final AtomicInteger reconnectID = new AtomicInteger(0);
 
    private ChannelHandler handler;
@@ -469,9 +466,10 @@ public final class ChannelImpl implements Channel {
    }
 
    /**
-    * Due to networking issues or server issues the server may take longer to answer than expected.. the client may timeout the call throwing an exception
-    * and the client could eventually retry another call, but the server could then answer a previous command issuing a class-cast-exception.
-    * The expectedPacket will be used to filter out undesirable packets that would belong to previous calls.
+    * Due to networking issues or server issues the server may take longer to answer than expected.. the client may
+    * timeout the call throwing an exception and the client could eventually retry another call, but the server could
+    * then answer a previous command issuing a class-cast-exception. The expectedPacket will be used to filter out
+    * undesirable packets that would belong to previous calls.
     */
    @Override
    public Packet sendBlocking(final Packet packet,
@@ -592,9 +590,10 @@ public final class ChannelImpl implements Channel {
    }
 
    /**
+    * {@return the name of the interceptor that returned {@code false} or {@code null} if no interceptors returned
+    * {@code false}}
+    *
     * @param packet the packet to intercept
-    * @return the name of the interceptor that returned <code>false</code> or <code>null</code> if no interceptors
-    * returned <code>false</code>.
     */
    public static String invokeInterceptors(final Packet packet,
                                            final List<Interceptor> interceptors,

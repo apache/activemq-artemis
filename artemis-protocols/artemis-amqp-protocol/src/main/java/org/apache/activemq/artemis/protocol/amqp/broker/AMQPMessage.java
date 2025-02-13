@@ -141,8 +141,8 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    protected static final int VALUE_NOT_PRESENT = -1;
 
    /**
-    * This has been made public just for testing purposes: it's not stable
-    * and developers shouldn't rely on this for developing purposes.
+    * This has been made public just for testing purposes: it's not stable and developers shouldn't rely on this for
+    * developing purposes.
     */
    public enum MessageDataScanningStatus {
       NOT_SCANNED(0), RELOAD_PERSISTENCE(1), SCANNED(2);
@@ -235,10 +235,8 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    /**
     * Creates a new {@link AMQPMessage} instance from binary encoded message data.
     *
-    * @param messageFormat
-    *       The Message format tag given the in Transfer that carried this message
-    * @param extraProperties
-    *       Broker specific extra properties that should be carried with this message
+    * @param messageFormat   The Message format tag given the in Transfer that carried this message
+    * @param extraProperties Broker specific extra properties that should be carried with this message
     */
    public AMQPMessage(long messageFormat, TypedProperties extraProperties, CoreMessageObjectPools coreMessageObjectPools) {
       this.messageFormat = messageFormat;
@@ -303,9 +301,11 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       isPaged = true;
    }
 
-   /** This will return application properties without attempting to decode it.
-    * That means, if applicationProperties were never parsed before, this will return null, even if there is application properties.
-    *  This was created as an internal method for testing, as we need to validate if the application properties are not decoded until needed. */
+   /**
+    * This will return application properties without attempting to decode it. That means, if applicationProperties were
+    * never parsed before, this will return null, even if there is application properties. This was created as an
+    * internal method for testing, as we need to validate if the application properties are not decoded until needed.
+    */
    protected ApplicationProperties getDecodedApplicationProperties() {
       return applicationProperties;
    }
@@ -322,8 +322,8 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    // must be used to make changes to mutable portions of the message.
 
    /**
-    * Creates and returns a Proton-J MessageImpl wrapper around the message data. Changes to
-    * the returned Message are not reflected in this message.
+    * Creates and returns a Proton-J MessageImpl wrapper around the message data. Changes to the returned Message are
+    * not reflected in this message.
     *
     * @return a MessageImpl that wraps the AMQP message data in this {@link AMQPMessage}
     */
@@ -362,10 +362,8 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    }
 
    /**
-    * Returns a copy of the message Header if one is present, changes to the returned
-    * Header instance do not affect the original Message.
-    *
-    * @return a copy of the Message Header if one exists or null if none present.
+    * {@return a <em>copy</em> of this message's {@code Header} if one exists or {@code null} if none present; changes
+    * to the returned {@code Header} instance do not affect the original message}
     */
    public final Header getHeader() {
       ensureScanning();
@@ -373,12 +371,16 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    }
 
 
-   /** Returns the current already scanned header. */
+   /**
+    * {@return the current, already scanned {@code Header}}
+    */
    final Header getCurrentHeader() {
       return header;
    }
 
-   /** Return the current already scanned properties.*/
+   /**
+    * {@return the current already scanned {@coce Properties}}
+    */
    final Properties getCurrentProperties() {
       return properties;
    }
@@ -401,10 +403,8 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    }
 
    /**
-    * Returns a copy of the MessageAnnotations in the message if present or null.  Changes to the
-    * returned DeliveryAnnotations instance do not affect the original Message.
-    *
-    * @return a copy of the {@link DeliveryAnnotations} present in the message or null if non present.
+    * {@return a <em>copy</em> of the {@link DeliveryAnnotations} present in the message or {@code null} if non
+    * present; changes to the returned DeliveryAnnotations instance do not affect the original message}
     */
    public final DeliveryAnnotations getDeliveryAnnotations() {
       ensureScanning();
@@ -413,15 +413,15 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    /**
     * Sets the delivery annotations to be included when encoding the message for sending it on the wire.
+    * <p>
+    * The broker can add additional message annotations as long as the annotations being added follow the rules from the
+    * spec. If the user adds something that the remote doesn't understand and it is not prefixed with "x-opt" the remote
+    * can just kill the link. See:
+    * <p>
+    * http://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-messaging-v1.0-os.html#type-annotations
     *
-    * The broker can add additional message annotations as long as the annotations being added follow the
-    * rules from the spec. If the user adds something that the remote doesn't understand and it is not
-    * prefixed with "x-opt" the remote can just kill the link. See:
-    *
-    *     http://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-messaging-v1.0-os.html#type-annotations
-    *
-    * @deprecated use MessageReference.setProtocolData(deliveryAnnotations)
     * @param deliveryAnnotations delivery annotations used in the sendBuffer() method
+    * @deprecated use {@link MessageReference#setProtocolData(Class, Object)}
     */
    @Deprecated
    public final void setDeliveryAnnotationsForSendBuffer(DeliveryAnnotations deliveryAnnotations) {
@@ -429,10 +429,8 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    }
 
    /**
-    * Returns a copy of the DeliveryAnnotations in the message if present or null.  Changes to the
-    * returned MessageAnnotations instance do not affect the original Message.
-    *
-    * @return a copy of the {@link MessageAnnotations} present in the message or null if non present.
+    * {@return a <em>copy</em> of the message's {@link MessageAnnotations} or {@code null} if none present; changes to
+    * the returned {@link MessageAnnotations} instance do not affect the original message}
     */
    public final MessageAnnotations getMessageAnnotations() {
       ensureScanning();
@@ -440,10 +438,8 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    }
 
    /**
-    * Returns a copy of the message Properties if one is present, changes to the returned
-    * Properties instance do not affect the original Message.
-    *
-    * @return a copy of the Message Properties if one exists or null if none present.
+    * {@return a <em>copy</em> of the message's {@link Properties} if one exists or {@code null} if none present;
+    * changes to the returned {@link Properties} instance do not affect the original message}
     */
    public final Properties getProperties() {
       ensureScanning();
@@ -451,28 +447,27 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    }
 
    /**
-    * Returns a copy of the {@link ApplicationProperties} present in the message if present or null.
-    * Changes to the returned MessageAnnotations instance do not affect the original Message.
-    *
-    * @return a copy of the {@link ApplicationProperties} present in the message or null if non present.
+    * {@return a <em>copy</em> of the message's {@link ApplicationProperties} or {@code null} if none present; changes
+    * to the returned {@link ApplicationProperties} instance do not affect the original message}
     */
    public final ApplicationProperties getApplicationProperties() {
       ensureScanning();
       return scanForMessageSection(applicationPropertiesPosition, ApplicationProperties.class);
    }
 
-   /** This is different from toString, as this will print an expanded version of the buffer
-    *  in Hex and programmers's readable format */
+   /**
+    * This is different from toString, as this will print an expanded version of the buffer in Hex and programmers's
+    * readable format
+    */
    public final String toDebugString() {
       return ByteUtil.debugByteArray(getData().array());
    }
 
    /**
-    * Retrieves the AMQP Section that composes the body of this message by decoding a
-    * fresh copy from the encoded message data.  Changes to the returned value are not
-    * reflected in the value encoded in the original message.
+    * Retrieves the AMQP Section that composes the body of this message by decoding a fresh copy from the encoded
+    * message data.  Changes to the returned value are not reflected in the value encoded in the original message.
     *
-    * @return the Section that makes up the body of this message.
+    * @return the Section that makes up the body of this message
     */
    public final Section getBody() {
       ensureScanning();
@@ -484,11 +479,10 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    }
 
    /**
-    * Retrieves the AMQP Footer encoded in the data of this message by decoding a
-    * fresh copy from the encoded message data.  Changes to the returned value are not
-    * reflected in the value encoded in the original message.
+    * Retrieves the AMQP Footer encoded in the data of this message by decoding a fresh copy from the encoded message
+    * data.  Changes to the returned value are not reflected in the value encoded in the original message.
     *
-    * @return the Footer that was encoded into this AMQP Message.
+    * @return the Footer that was encoded into this AMQP Message
     */
    public final Footer getFooter() {
       ensureScanning();
@@ -763,9 +757,8 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    // utilities for checking memory usage and encoded size characteristics.
 
    /**
-    * Would be called by the Artemis Core components to encode the message into
-    * the provided send buffer.  Because of how Proton message data handling works
-    * this method is not currently used by the AMQP protocol head and will not be
+    * Would be called by the Artemis Core components to encode the message into the provided send buffer.  Because of
+    * how Proton message data handling works this method is not currently used by the AMQP protocol head and will not be
     * called for out-bound sends.
     *
     * @see #getSendBuffer(int, MessageReference) for the actual method used for message sends.
@@ -780,15 +773,12 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    /**
     * Gets a ByteBuf from the Message that contains the encoded bytes to be sent on the wire.
     * <p>
-    * When possible this method will present the bytes to the caller without copying them into
-    * a new buffer copy.  If copying is needed a new Netty buffer is created and returned. The
-    * caller should ensure that the reference count on the returned buffer is always decremented
-    * to avoid a leak in the case of a copied buffer being returned.
+    * When possible this method will present the bytes to the caller without copying them into a new buffer copy.  If
+    * copying is needed a new Netty buffer is created and returned. The caller should ensure that the reference count on
+    * the returned buffer is always decremented to avoid a leak in the case of a copied buffer being returned.
     *
-    * @param deliveryCount
-    *       The new delivery count for this message.
-    *
-    * @return a Netty ByteBuf containing the encoded bytes of this Message instance.
+    * @param deliveryCount The new delivery count for this message.
+    * @return a Netty ByteBuf containing the encoded bytes of this Message instance
     */
    public ReadableBuffer getSendBuffer(int deliveryCount, MessageReference reference) {
       ensureMessageDataScanned();
@@ -810,7 +800,9 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       }
    }
 
-   /** it will create a copy with the relevant delivery annotation and its copy */
+   /**
+    * it will create a copy with the relevant delivery annotation and its copy
+    */
    protected ReadableBuffer createDeliveryCopy(int deliveryCount, DeliveryAnnotations deliveryAnnotations) {
       ReadableBuffer duplicate = getData().duplicate();
 
@@ -1183,12 +1175,12 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    }
 
    /**
-    * Before we added AMQP into Artemis the name getUserID was already taken by JMSMessageID.
-    * We cannot simply change the names now as it would break the API for existing clients.
-    *
+    * Before we added AMQP into Artemis the name getUserID was already taken by JMSMessageID. We cannot simply change
+    * the names now as it would break the API for existing clients.
+    * <p>
     * This is to return and read the proper AMQP userID.
     *
-    * @return the UserID value in the AMQP Properties if one is present.
+    * @return the UserID value in the AMQP Properties if one is present
     */
    public final Object getAMQPUserID() {
       ensureMessageDataScanned();

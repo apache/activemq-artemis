@@ -29,9 +29,6 @@ import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 
-/**
- * A MessageCounterManager
- */
 public class MessageCounterManagerImpl implements MessageCounterManager {
 
    public static final long DEFAULT_SAMPLE_PERIOD = ActiveMQDefaultConfiguration.getDefaultMessageCounterSamplePeriod();

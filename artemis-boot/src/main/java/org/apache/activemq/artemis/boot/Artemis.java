@@ -28,10 +28,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * <p>
- * A main class which setups up a classpath and then passes
- * execution off to the ActiveMQ Artemis cli main.
- * </p>
+ * A main class which setups up a classpath and then passes execution off to the ActiveMQ Artemis cli main.
  */
 public class Artemis {
 

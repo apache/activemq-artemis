@@ -30,7 +30,7 @@ import static org.apache.activemq.artemis.utils.Preconditions.checkArgument;
 
 /**
  * Concurrent hash set for primitive longs
- *
+ * <p>
  * Provides similar methods as a ConcurrentSet&lt;Long&gt; but since it's an open hash map with linear probing, no node
  * allocations are required to store the values.
  * <p>
@@ -136,7 +136,6 @@ public class ConcurrentLongHashSet {
    /**
     * Remove an existing entry if found
     *
-    * @param item
     * @return true if removed or false if item was not present
     */
    public boolean remove(long item) {

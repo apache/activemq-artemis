@@ -42,29 +42,19 @@ public class LargeMessagePersister implements Persister<LargeServerMessage> {
    protected LargeMessagePersister() {
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.journal.EncodingSupport#decode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
-    */
    @Override
    public LargeServerMessage decode(final ActiveMQBuffer buffer, LargeServerMessage message, CoreMessageObjectPools objectPools) {
       ((CoreMessage)message).decodeHeadersAndProperties(buffer.byteBuf());
       return message;
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.journal.EncodingSupport#encode(org.apache.activemq.artemis.spi.core.remoting.ActiveMQBuffer)
-    */
    @Override
    public void encode(final ActiveMQBuffer buffer, LargeServerMessage message) {
       ((CoreMessage)message).encodeHeadersAndProperties(buffer.byteBuf());
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.journal.EncodingSupport#getEncodeSize()
-    */
    @Override
    public int getEncodeSize(LargeServerMessage message) {
       return message.toMessage().getEncodeSize();
    }
-
 }

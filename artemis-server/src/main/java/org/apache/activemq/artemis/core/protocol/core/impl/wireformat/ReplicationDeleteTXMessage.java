@@ -82,9 +82,6 @@ public class ReplicationDeleteTXMessage extends PacketImpl {
       buffer.readBytes(recordData);
    }
 
-   /**
-    * @return the id
-    */
    public long getId() {
       return id;
    }
@@ -93,16 +90,10 @@ public class ReplicationDeleteTXMessage extends PacketImpl {
       return txId;
    }
 
-   /**
-    * @return the journalID
-    */
    public byte getJournalID() {
       return journalID;
    }
 
-   /**
-    * @return the recordData
-    */
    public byte[] getRecordData() {
       return recordData;
    }

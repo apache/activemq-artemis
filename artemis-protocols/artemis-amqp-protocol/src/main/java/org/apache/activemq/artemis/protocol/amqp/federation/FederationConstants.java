@@ -18,14 +18,13 @@
 package org.apache.activemq.artemis.protocol.amqp.federation;
 
 /**
- * Some predefined constants used in various scenarios when building and managing a
- * federation between peers.
+ * Some predefined constants used in various scenarios when building and managing a federation between peers.
  */
 public abstract class FederationConstants {
 
    /**
-    * Constant value used in properties or other protocol constructs to indicate
-    * the name of the broker federation that an operation belongs to.
+    * Constant value used in properties or other protocol constructs to indicate the name of the broker federation that
+    * an operation belongs to.
     */
    public static final String FEDERATION_NAME = "federation-name";
 

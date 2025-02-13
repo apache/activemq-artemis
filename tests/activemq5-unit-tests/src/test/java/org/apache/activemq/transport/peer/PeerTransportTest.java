@@ -39,9 +39,6 @@ import org.apache.activemq.util.MessageIdList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class PeerTransportTest extends TestCase {
 
    protected static final int MESSAGE_COUNT = 50;
@@ -133,9 +130,6 @@ public class PeerTransportTest extends TestCase {
       }
    }
 
-   /**
-    * @throws Exception
-    */
    public void testSendReceive() throws Exception {
       for (int i = 0; i < MESSAGE_COUNT; i++) {
          for (int x = 0; x < producers.length; x++) {

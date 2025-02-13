@@ -188,7 +188,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String DELETE_NON_DURABLE_QUEUE_NAME = "deleteNonDurableQueue";
 
-   // HORNETQ-309 we keep supporting these attribute names for compatibility
+   // We keep supporting these attribute names for compatibility
    private static final String CREATETEMPQUEUE_NAME = "createTempQueue";
 
    private static final String DELETETEMPQUEUE_NAME = "deleteTempQueue";
@@ -398,16 +398,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private boolean printPageMaxSizeUsed = false;
 
-   /**
-    * @return the validateAIO
-    */
    public boolean isValidateAIO() {
       return validateAIO;
    }
 
-   /**
-    * @param validateAIO the validateAIO to set
-    */
    public void setValidateAIO(final boolean validateAIO) {
       this.validateAIO = validateAIO;
    }
@@ -755,10 +749,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       config.setJournalType(JournalType.getType(s));
 
       if (config.getJournalType() == JournalType.ASYNCIO) {
-         // https://jira.jboss.org/jira/browse/HORNETQ-295
-         // We do the check here to see if AIO is supported so we can use the correct defaults and/or use
-         // correct settings in xml
-         // If we fall back later on these settings can be ignored
+         // We do the check here to see if AIO is supported so we can use the correct defaults and/or use correct
+         // settings in xml. If we fall back later on these settings can be ignored.
          boolean supportsAIO = AIOSequentialFileFactory.isSupported();
 
          if (!supportsAIO) {
@@ -947,10 +939,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
    }
 
-   /**
-    * @param e
-    * @param config
-    */
    private void parseSecurity(final Element e, final Configuration config) throws Exception {
       NodeList elements = e.getElementsByTagName("security-settings");
       if (elements.getLength() != 0) {
@@ -1013,10 +1001,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return properties;
    }
 
-   /**
-    * @param e
-    * @param config
-    */
    private void parseMetrics(final Element e, final Configuration config) {
       NodeList metrics = e.getElementsByTagName("metrics");
       NodeList metricsPlugin = e.getElementsByTagName("metrics-plugin");
@@ -1078,10 +1062,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return metricsPlugin;
    }
 
-   /**
-    * @param e
-    * @param config
-    */
    private void parseQueues(final Element e, final Configuration config) {
       NodeList elements = e.getElementsByTagName("queues");
       if (elements.getLength() != 0) {
@@ -1102,10 +1082,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return queueConfigurations;
    }
 
-   /**
-    * @param e
-    * @param config
-    */
    private void parseAddresses(final Element e, final Configuration config) {
       NodeList elements = e.getElementsByTagName("addresses");
 
@@ -1118,10 +1094,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
    }
 
-   /**
-    * @param e
-    * @param config
-    */
    private void parseAddressSettings(final Element e, final Configuration config) {
       NodeList elements = e.getElementsByTagName("address-settings");
 
@@ -1140,10 +1112,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
    }
 
-   /**
-    * @param e
-    * @param config
-    */
    private void parseResourceLimits(final Element e, final Configuration config) {
       NodeList elements = e.getElementsByTagName("resource-limit-settings");
 
@@ -1156,10 +1124,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
    }
 
-   /**
-    * @param node
-    * @return
-    */
    protected Pair<String, Set<Role>> parseSecurityRoles(final Node node, final Map<String, Set<String>> roleMappings) {
       final String match = node.getAttributes().getNamedItem("match").getNodeValue();
 
@@ -1238,7 +1202,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    /**
     * Translate and expand a set of role names to a set of mapped role names, also includes the original role names
-    * @param roles the original set of role names
+    *
+    * @param roles        the original set of role names
     * @param roleMappings a one-to-many mapping of original role names to mapped role names
     * @return the final set of mapped role names
     */
@@ -1276,14 +1241,19 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    }
 
    /**
-    * Computes the map of internal ActiveMQ role names to sets of external (e.g. LDAP) role names.  For example, given a role
-    * "myrole" with a DN of "cn=myrole,dc=local,dc=com":
+    * Computes the map of internal ActiveMQ role names to sets of external (e.g. LDAP) role names.  For example, given a
+    * role "myrole" with a DN of "cn=myrole,dc=local,dc=com":
+    * <pre>{@code
     *      from="cn=myrole,dc=local,dc=com", to="amq,admin,guest"
     *      from="cn=myOtherRole,dc=local,dc=com", to="amq"
+    * }</pre>
     * The resulting map will consist of:
+    * <pre>{@code
     *      amq => {"cn=myrole,dc=local,dc=com","cn=myOtherRole",dc=local,dc=com"}
     *      admin => {"cn=myrole,dc=local,dc=com"}
     *      guest => {"cn=myrole,dc=local,dc=com"}
+    * }</pre>
+    *
     * @param item the role-mapping node
     * @return the map of local ActiveMQ role names to the set of mapped role names
     */
@@ -1307,10 +1277,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return mappedRoleNames;
    }
 
-   /**
-    * @param node
-    * @return
-    */
    protected Pair<String, AddressSettings> parseAddressSettings(final Node node) {
       String match = getAttributeValue(node, "match");
 
@@ -1489,10 +1455,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return setting;
    }
 
-   /**
-    * @param node
-    * @return
-    */
    protected ResourceLimitSettings parseResourceLimitSettings(final Node node) {
       ResourceLimitSettings resourceLimitSettings = new ResourceLimitSettings();
 
@@ -2964,9 +2926,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
    }
 
-   /**RedirectConfiguration
-    * @param e
-    */
    protected void parseWildcardConfiguration(final Element e, final Configuration mainConfig) {
       WildcardConfiguration conf = mainConfig.getWildcardConfiguration();
 

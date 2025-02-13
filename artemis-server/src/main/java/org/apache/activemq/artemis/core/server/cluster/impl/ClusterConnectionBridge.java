@@ -307,12 +307,9 @@ public class ClusterConnectionBridge extends BridgeImpl {
       }
    }
 
-
    /**
     * Takes in a string of an address filter or comma separated list and generates an appropriate JMS selector for
     * filtering queues.
-    *
-    * @param address
     */
    public static String createSelectorFromAddress(String address) {
       StringBuilder stringBuilder = new StringBuilder();
@@ -388,9 +385,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
    }
 
    /**
-    * Create a filter rule,in addition to SESSION_CREATED notifications, all other notifications using managementNotificationAddress
-    * as the routing address will be filtered.
-    * @return
+    * Create a filter rule,in addition to SESSION_CREATED notifications, all other notifications using
+    * managementNotificationAddress as the routing address will be filtered.
     */
    private String createPermissiveManagementNotificationToFilter() {
       StringBuilder filterBuilder = new StringBuilder(ManagementHelper.HDR_NOTIFICATION_TYPE).append(" = '")

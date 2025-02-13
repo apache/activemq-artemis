@@ -34,14 +34,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * BrokerBenchmark is used to get an idea of the raw performance of a broker.
- * Since the broker data structures using in message dispatching are under high
- * contention from client requests, it's performance should be monitored closely
- * since it typically is the biggest bottleneck in a high performance messaging
- * fabric. The benchmarks are run under all the following combinations options:
- * Queue vs. Topic, 1 vs. 10 producer threads, 1 vs. 10 consumer threads, and
- * Persistent vs. Non-Persistent messages. Message Acking uses client ack style
- * batch acking since that typically has the best ack performance.
+ * BrokerBenchmark is used to get an idea of the raw performance of a broker. Since the broker data structures using in
+ * message dispatching are under high contention from client requests, it's performance should be monitored closely
+ * since it typically is the biggest bottleneck in a high performance messaging fabric. The benchmarks are run under all
+ * the following combinations options: Queue vs. Topic, 1 vs. 10 producer threads, 1 vs. 10 consumer threads, and
+ * Persistent vs. Non-Persistent messages. Message Acking uses client ack style batch acking since that typically has
+ * the best ack performance.
  */
 public class BrokerBenchmark extends BrokerTestSupport {
 

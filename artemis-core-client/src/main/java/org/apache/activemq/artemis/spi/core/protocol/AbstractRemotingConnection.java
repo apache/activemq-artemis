@@ -224,9 +224,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       return res;
    }
 
-   /*
-    * This can be called concurrently by more than one thread so needs to be locked
-    */
+   // This can be called concurrently by more than one thread so needs to be locked
    @Override
    public void fail(final ActiveMQException me) {
       fail(me, null);

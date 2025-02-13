@@ -19,8 +19,7 @@ package org.apache.activemq.transport.amqp.client;
 import javax.jms.JMSException;
 
 /**
- * Exception that indicates a blocking operation timed out while waiting
- * for the remote to acknowledge or process it.
+ * Exception that indicates a blocking operation timed out while waiting for the remote to acknowledge or process it.
  */
 public class AmqpOperationTimedOutException extends JMSException {
 

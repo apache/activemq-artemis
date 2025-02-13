@@ -43,13 +43,6 @@ public abstract class DataFileGenerator extends org.junit.Assert {
       generateControlFiles();
    }
 
-   /**
-    * @param srcdir
-    * @return
-    * @throws ClassNotFoundException
-    * @throws InstantiationException
-    * @throws IllegalAccessException
-    */
    public static List<DataFileGenerator> getAllDataFileGenerators() throws Exception {
       // System.out.println("Looking for generators in : "+classFileDir);
       List<DataFileGenerator> l = new ArrayList<>();

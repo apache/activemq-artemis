@@ -192,8 +192,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    public static final String CLUSTER_PASSWORD = "UnitTestsClusterPassword";
 
    /**
-    * Add a "sendCallNumber" property to messages sent using helper classes. Meant to help in
-    * debugging.
+    * Add a "sendCallNumber" property to messages sent using helper classes. Meant to help in debugging.
     */
    private static final String SEND_CALL_NUMBER = "sendCallNumber";
    private static final String OS_TYPE = System.getProperty("os.name").toLowerCase();
@@ -489,8 +488,10 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       DatabaseStorageConfiguration dbStorageConfiguration = new DatabaseStorageConfiguration();
       String connectionURI = getTestJDBCConnectionUrl();
 
-      /** The connectionURI could be passed into the testsuite as a system property (say you are testing against Oracle).
-       *  So, we only schedule the drop on Derby if we are using a derby memory database */
+      /*
+       * The connectionURI could be passed into the testsuite as a system property (say you are testing against Oracle).
+       *  So, we only schedule the drop on Derby if we are using a derby memory database
+       */
       if (connectionURI.contains("derby") && connectionURI.contains("memory") && !derbyDropped) {
          // some tests will reinitialize the server and call this method more than one time
          // and we should only schedule one task
@@ -535,7 +536,9 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
 
-   /** This exists as an extension point for tests, so tests can replace it */
+   /**
+    * This exists as an extension point for tests, so tests can replace it
+    */
    protected ClusterConnectionConfiguration createBasicClusterConfig(String connectorName,
                                                                                       String... connectors) {
       return basicClusterConnectionConfig(connectorName, connectors);
@@ -599,8 +602,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    /**
     * Verifies whether weak references are released after a few GCs.
-    *
-    * @param references
     */
    public static void checkWeakReferences(final WeakReference<?>... references) {
       int i = 0;
@@ -749,10 +750,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       return o;
    }
 
-   /**
-    * @param connectorConfigs
-    * @return
-    */
    protected List<String> registerConnectors(final ActiveMQServer server,
                                                   final List<TransportConfiguration> connectorConfigs) {
       // The connectors need to be pre-configured at main config object but this method is taking
@@ -769,9 +766,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       return connectors;
    }
 
-   /**
-    * @return the testDir
-    */
    protected final String getTestDir() {
       return temporaryFolder.getAbsolutePath();
    }
@@ -832,9 +826,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       recreateDirectory(getTemporaryDir(testDir1));
    }
 
-   /**
-    * @return the journalDir
-    */
    public String getJournalDir() {
       return getJournalDir(0, false);
    }
@@ -851,23 +842,14 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       return getJournalDir(testDir) + directoryNameSuffix(index, backup);
    }
 
-   /**
-    * @return the bindingsDir
-    */
    protected String getBindingsDir() {
       return getBindingsDir(0, false);
    }
 
-   /**
-    * @return the bindingsDir
-    */
    protected static String getBindingsDir(final String testDir1) {
       return testDir1 + "/bindings";
    }
 
-   /**
-    * @return the bindingsDir
-    */
    protected String getBindingsDir(final int index, final boolean backup) {
       return getBindingsDir(getTestDir(), index, backup);
    }
@@ -876,9 +858,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       return getBindingsDir(testDir) + directoryNameSuffix(index, backup);
    }
 
-   /**
-    * @return the pageDir
-    */
    protected String getPageDir() {
       return getPageDir(0, false);
    }
@@ -888,9 +867,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    }
 
-   /**
-    * @return the pageDir
-    */
    protected static String getPageDir(final String testDir1) {
       return testDir1 + "/page";
    }
@@ -903,16 +879,10 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       return getPageDir(testDir) + directoryNameSuffix(index, backup);
    }
 
-   /**
-    * @return the largeMessagesDir
-    */
    protected String getLargeMessagesDir() {
       return getLargeMessagesDir(0, false);
    }
 
-   /**
-    * @return the largeMessagesDir
-    */
    protected static String getLargeMessagesDir(final String testDir1) {
       return testDir1 + "/large-msg";
    }
@@ -931,30 +901,18 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       return index + "-" + (backup ? "B" : "L");
    }
 
-   /**
-    * @return the clientLargeMessagesDir
-    */
    protected String getClientLargeMessagesDir() {
       return getClientLargeMessagesDir(getTestDir());
    }
 
-   /**
-    * @return the clientLargeMessagesDir
-    */
    protected String getClientLargeMessagesDir(final String testDir1) {
       return testDir1 + "/client-large-msg";
    }
 
-   /**
-    * @return the temporaryDir
-    */
    protected final String getTemporaryDir() {
       return getTemporaryDir(getTestDir());
    }
 
-   /**
-    * @return the temporaryDir
-    */
    protected String getTemporaryDir(final String testDir1) {
       return testDir1 + "/temp";
    }
@@ -1018,8 +976,9 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
    /**
-    * It validates a Bean (POJO) using simple setters and getters with random values.
-    * You can pass a list of properties to be ignored, as some properties will have a pre-defined domain (not being possible to use random-values on them)
+    * It validates a Bean (POJO) using simple setters and getters with random values. You can pass a list of properties
+    * to be ignored, as some properties will have a pre-defined domain (not being possible to use random-values on
+    * them)
     */
    protected void validateGettersAndSetters(final Object pojo, final String... ignoredProperties) throws Exception {
       Set<String> ignoreSet = new HashSet<>();
@@ -1063,10 +1022,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       }
    }
 
-   /**
-    * @param queue
-    * @throws InterruptedException
-    */
    protected void waitForNotPaging(Queue queue) throws InterruptedException {
       waitForNotPaging(queue.getPagingStore());
    }
@@ -1302,19 +1257,10 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       }
    }
 
-   /**
-    * @param backup
-    */
    public static final void waitForRemoteBackupSynchronization(final ActiveMQServer backup) {
       waitForRemoteBackup(null, 20, true, backup);
    }
 
-   /**
-    * @param sessionFactoryP
-    * @param seconds
-    * @param waitForSync
-    * @param backup
-    */
    public static final void waitForRemoteBackup(ClientSessionFactory sessionFactoryP,
                                                 int seconds,
                                                 boolean waitForSync,
@@ -1655,10 +1601,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       return addServerLocator(locator);
    }
 
-   /**
-    * @param serverID
-    * @return
-    */
    protected final TransportConfiguration createInVMTransportConnectorConfig(final int serverID, String name1) {
       Map<String, Object> server1Params = new HashMap<>();
 
@@ -1694,11 +1636,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    /**
     * Send durable messages with pre-specified body.
-    *
-    * @param session
-    * @param producer
-    * @param numMessages
-    * @throws ActiveMQException
     */
    public final void sendMessages(ClientSession session,
                                   ClientProducer producer,
@@ -1783,8 +1720,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
    /**
-    * Reads a journal system and returns a Pair of List of RecordInfo,
-    * independent of being deleted or not
+    * Reads a journal system and returns a Pair of List of RecordInfo, independent of being deleted or not
     */
    protected Pair<List<RecordInfo>, List<PreparedTransactionInfo>> loadMessageJournal(Configuration config) throws Exception {
       JournalImpl messagesJournal = null;
@@ -1812,12 +1748,8 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
    /**
-    * Reads a journal system and returns a {@literal Map<Integer,AtomicInteger>} of recordTypes and the number of records per type,
-    * independent of being deleted or not
-    *
-    * @param config
-    * @return
-    * @throws Exception
+    * Reads a journal system and returns a {@literal Map<Integer,AtomicInteger>} of recordTypes and the number of
+    * records per type, independent of being deleted or not
     */
    protected HashMap<Integer, AtomicInteger> countJournal(Configuration config) throws Exception {
       File location = config.getJournalLocation();
@@ -1852,10 +1784,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
    /**
     * This method will load a journal and count the living records
-    *
-    * @param config
-    * @return
-    * @throws Exception
     */
    protected HashMap<Integer, AtomicInteger> countJournalLivingRecords(Configuration config) throws Exception {
       return internalCountJournalLivingRecords(config, true);
@@ -1864,10 +1792,7 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    /**
     * This method will load a journal and count the living records
     *
-    * @param config
-    * @param messageJournal if true counts MessageJournal, if false counts BindingsJournal
-    * @return
-    * @throws Exception
+    * @param messageJournal if {@code true} counts MessageJournal, if false counts BindingsJournal
     */
    protected HashMap<Integer, AtomicInteger> internalCountJournalLivingRecords(Configuration config,
                                                                                boolean messageJournal) throws Exception {
@@ -1909,9 +1834,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
 
       private final Map<Integer, AtomicInteger> recordsType;
 
-      /**
-       * @param recordsType
-       */
       private RecordTypeCounter(Map<Integer, AtomicInteger> recordsType) {
          this.recordsType = recordsType;
       }
@@ -1972,15 +1894,15 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
    /**
+    * Block calling thread and wait for a specified number of bindings.
+    *
     * @param server                the server where's being checked
     * @param address               the name of the address being checked
-    * @param local                 if true we are looking for local bindings, false we are looking for remoting servers
+    * @param local                 if {@code true} we are looking for local bindings, false we are looking for remoting
+    *                              servers
     * @param expectedBindingCount  the expected number of counts
     * @param expectedConsumerCount the expected number of consumers
     * @param timeout               the timeout used on the check
-    * @return
-    * @throws Exception
-    * @throws InterruptedException
     */
    protected boolean waitForBindings(final ActiveMQServer server,
                                      final String address,
@@ -2028,9 +1950,10 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    protected int getNumberOfFiles(File directory) {
       return directory.listFiles().length;
    }
+
    /**
-    * Deleting a file on LargeDir is an asynchronous process. We need to keep looking for a while if
-    * the file hasn't been deleted yet.
+    * Deleting a file on LargeDir is an asynchronous process. We need to keep looking for a while if the file hasn't
+    * been deleted yet.
     */
    protected void validateNoFilesOnLargeDir(final String directory, final int expect) throws Exception {
       File largeMessagesFileDir = new File(directory);
@@ -2038,8 +1961,8 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
    /**
-    * Deleting a file on LargeDire is an asynchronous process. Wee need to keep looking for a while
-    * if the file hasn't been deleted yet
+    * Deleting a file on LargeDire is an asynchronous process. Wee need to keep looking for a while if the file hasn't
+    * been deleted yet
     */
    protected void validateNoFilesOnLargeDir() throws Exception {
       validateNoFilesOnLargeDir(getLargeMessagesDir(), 0);
@@ -2092,9 +2015,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       }
    }
 
-   /**
-    *
-    */
    private void closeAllOtherComponents() {
       synchronized (otherComponents) {
          for (ActiveMQComponent c : otherComponents) {
@@ -2231,12 +2151,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       return getMessageCount(service.getPostOffice(), address);
    }
 
-   /**
-    * @param address
-    * @param postOffice
-    * @return
-    * @throws Exception
-    */
    protected int getMessageCount(final PostOffice postOffice, final String address) throws Exception {
       int messageCount = 0;
 
@@ -2259,12 +2173,6 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       return (int) queue.getMessageCount();
    }
 
-   /**
-    * @param postOffice
-    * @param address
-    * @return
-    * @throws Exception
-    */
    protected int getMessagesAdded(final PostOffice postOffice, final String address) throws Exception {
       int messageCount = 0;
 
@@ -2311,10 +2219,9 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    }
 
    /**
-    * Creates the Locator without adding it to the list where the tearDown will take place
-    * This is because we don't want it closed in certain tests where we are issuing failures
+    * Creates the Locator without adding it to the list where the tearDown will take place This is because we don't want
+    * it closed in certain tests where we are issuing failures
     *
-    * @param isNetty
     * @return the locator
     */
    public ServerLocator internalCreateNonHALocator(boolean isNetty) {
@@ -2593,11 +2500,8 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
    /**
     * Asserts that latch completes within a (rather large interval).
     * <p>
-    * Use this instead of just calling {@code latch.await()}. Otherwise your test may hang the whole
-    * test run if it fails to count-down the latch.
-    *
-    * @param latch
-    * @throws InterruptedException
+    * Use this instead of just calling {@code latch.await()}. Otherwise your test may hang the whole test run if it
+    * fails to count-down the latch.
     */
    public static void waitForLatch(CountDownLatch latch) throws InterruptedException {
       assertTrue(latch.await(1, TimeUnit.MINUTES), "Latch has got to return within a minute");

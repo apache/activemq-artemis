@@ -66,7 +66,8 @@ public class ServiceUtils {
    }
 
    /**
-    * Find the <em>first</em> transaction manager loaded from the {@code TransactionManagerLocator} service or {@code null} if none is loaded.
+    * Find the <em>first</em> transaction manager loaded from the {@code TransactionManagerLocator} service or
+    * {@code null} if none is loaded.
     */
    private static TransactionManager findTransactionManager() {
       return AccessController.doPrivileged((PrivilegedAction<TransactionManager>) () -> {
@@ -79,8 +80,8 @@ public class ServiceUtils {
    }
 
    /**
-    * Find the <em>first</em> wrapper factory loaded from the {@code ActiveMQXAResourceWrapperFactory} service or
-    * use the default {@code ActiveMQXAResourceWrapperFactoryImpl} if none is loaded.
+    * Find the <em>first</em> wrapper factory loaded from the {@code ActiveMQXAResourceWrapperFactory} service or use
+    * the default {@code ActiveMQXAResourceWrapperFactoryImpl} if none is loaded.
     */
    private static ActiveMQXAResourceWrapperFactory findActiveMQXAResourceWrapperFactory() {
       return AccessController.doPrivileged((PrivilegedAction<ActiveMQXAResourceWrapperFactory>) () -> {

@@ -47,11 +47,15 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
    // the journal record id that is holding the current value
    private long recordID = -1;
 
-   /** while we rebuild the counters, we will use the recordedValues */
+   /**
+    * while we rebuild the counters, we will use the recordedValues
+    */
    private volatile long recordedValue = -1;
    private static final AtomicLongFieldUpdater<PageSubscriptionCounterImpl> recordedValueUpdater = AtomicLongFieldUpdater.newUpdater(PageSubscriptionCounterImpl.class, "recordedValue");
 
-   /** while we rebuild the counters, we will use the recordedValues */
+   /**
+    * while we rebuild the counters, we will use the recordedValues
+    */
    private volatile long recordedSize = -1;
    private static final AtomicLongFieldUpdater<PageSubscriptionCounterImpl> recordedSizeUpdater = AtomicLongFieldUpdater.newUpdater(PageSubscriptionCounterImpl.class, "recordedSize");
 
@@ -156,9 +160,6 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
 
    /**
     * This method will install the TXs
-    *
-    * @param tx
-    * @param add
     */
    @Override
    public void applyIncrementOnTX(Transaction tx, int add, long size) {
@@ -399,32 +400,21 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
       private volatile int count;
       private volatile long persistentSize;
 
-      /**
-       * @param id
-       * @param count
-       * @param persistentSize
-       */
       PendingCounter(long id, int count, long persistentSize) {
          super();
          this.id = id;
          this.count = count;
          this.persistentSize = persistentSize;
       }
-      /**
-       * @return the id
-       */
+
       public long getId() {
          return id;
       }
-      /**
-       * @return the count
-       */
+
       public int getCount() {
          return count;
       }
-      /**
-       * @return the size
-       */
+
       public long getPersistentSize() {
          return persistentSize;
       }

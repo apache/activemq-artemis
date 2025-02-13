@@ -35,7 +35,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-4.8.2-1] A Shared Subscription's Topic Filter MUST start with $share/ and MUST contain a ShareName that is at least one character long.
@@ -50,7 +50,7 @@ import org.junit.jupiter.api.Timeout;
 
 public class SubscriptionTests extends MQTT5TestSupport {
 
-   /*
+   /**
     * [MQTT-4.8.2-3] The Server MUST respect the granted QoS for the Client's subscription.
     */
    @Test
@@ -114,7 +114,7 @@ public class SubscriptionTests extends MQTT5TestSupport {
       consumer2.close();
    }
 
-   /*
+   /**
     * [MQTT-4.8.2-6] If a Client responds with a PUBACK or PUBREC containing a Reason Code of 0x80 or greater to a
     * PUBLISH packet from the Server, the Server MUST discard the Application Message and not attempt to send it to any
     * other Subscriber.

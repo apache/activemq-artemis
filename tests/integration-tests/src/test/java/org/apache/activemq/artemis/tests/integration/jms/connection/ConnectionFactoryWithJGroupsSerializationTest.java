@@ -83,13 +83,9 @@ public class ConnectionFactoryWithJGroupsSerializationTest extends JMSTestBase {
       }
    }
 
-
-   //HORNETQ-1389
-   //Here we deploy two Connection Factories with JGroups discovery groups.
-   //The first one uses a runtime JChannel object, which is the case before the fix.
-   //The second one uses the raw jgroups config string, which is the case after fix.
-   //So the first one will get serialization exception in the test
-   //while the second will not.
+   //Here we deploy two Connection Factories with JGroups discovery groups. The first one uses a runtime JChannel
+   // object, which is the case before the fix. The second one uses the raw jgroups config string, which is the case
+   // after fix. So the first one will get serialization exception in the test while the second will not.
    @Test
    public void testSerialization() throws Exception {
       jmsCf1 = (ActiveMQConnectionFactory) namingContext.lookup("/ConnectionFactory1");
