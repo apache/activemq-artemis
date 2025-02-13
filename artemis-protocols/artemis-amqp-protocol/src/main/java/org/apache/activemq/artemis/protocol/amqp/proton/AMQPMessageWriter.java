@@ -33,9 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An writer of AMQP (non-large) messages or messages which will convert any
- * non-AMQP message to AMQP before writing the encoded bytes into the AMQP
- * sender.
+ * An writer of AMQP (non-large) messages or messages which will convert any non-AMQP message to AMQP before writing the
+ * encoded bytes into the AMQP sender.
  */
 public class AMQPMessageWriter implements MessageWriter {
 

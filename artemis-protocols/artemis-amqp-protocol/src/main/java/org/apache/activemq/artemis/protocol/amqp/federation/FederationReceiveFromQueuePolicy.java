@@ -32,8 +32,8 @@ import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.Match;
 
 /**
- * Policy used to provide federation of remote to local broker queues, once created the policy
- * configuration is immutable.
+ * Policy used to provide federation of remote to local broker queues, once created the policy configuration is
+ * immutable.
  */
 public class FederationReceiveFromQueuePolicy implements FederationReceiveFromResourcePolicy, BiPredicate<String, String> {
 

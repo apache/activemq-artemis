@@ -596,9 +596,6 @@ public class BridgeTest extends ActiveMQTestBase {
       assertEquals(1, array.size(), "number of connections returned from query");
    }
 
-   /**
-    * @param server1Params
-    */
    private void addTargetParameters(final Map<String, Object> server1Params) {
       if (isNetty()) {
          server1Params.put("port", org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + 1);
@@ -607,9 +604,6 @@ public class BridgeTest extends ActiveMQTestBase {
       }
    }
 
-   /**
-    * @param message
-    */
    private void readLargeMessages(final ClientMessage message, int kiloBlocks) {
       byte[] byteRead = new byte[1024];
 
@@ -775,7 +769,6 @@ public class BridgeTest extends ActiveMQTestBase {
 
    }
 
-   // Created to verify JBPAPP-6057
    @TestTemplate
    public void testStartLater() throws Exception {
       Map<String, Object> server0Params = new HashMap<>();
@@ -2375,9 +2368,7 @@ public class BridgeTest extends ActiveMQTestBase {
    /**
     * It will inspect the journal directly and determine if there are queues on this journal,
     *
-    * @param serverToInvestigate
     * @return a Map containing the reference counts per queue
-    * @throws Exception
     */
    protected Map<Long, AtomicInteger> loadQueues(ActiveMQServer serverToInvestigate) throws Exception {
       SequentialFileFactory messagesFF = new NIOSequentialFileFactory(serverToInvestigate.getConfiguration().getJournalLocation(), 1);

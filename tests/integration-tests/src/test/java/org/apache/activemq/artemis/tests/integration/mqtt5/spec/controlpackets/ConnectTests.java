@@ -55,7 +55,7 @@ import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-3.1.0-1] After a Network Connection is established by a Client to a Server, the first packet sent from the Client to the Server MUST be a CONNECT packet. *

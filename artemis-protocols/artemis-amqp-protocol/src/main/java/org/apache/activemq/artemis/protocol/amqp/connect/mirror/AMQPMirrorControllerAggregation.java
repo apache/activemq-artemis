@@ -30,7 +30,9 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-/** this will be used when there are multiple replicas in use. */
+/**
+ * this will be used when there are multiple replicas in use.
+ */
 public class AMQPMirrorControllerAggregation implements MirrorController, ActiveMQComponent {
 
 

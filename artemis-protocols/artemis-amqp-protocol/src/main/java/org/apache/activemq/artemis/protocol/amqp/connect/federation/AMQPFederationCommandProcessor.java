@@ -47,8 +47,8 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_ADDRESS_POLICY;
 
 /**
- * A specialized AMQP Receiver that handles commands from a remote Federation connection such
- * as handling incoming policies that should be applied to local addresses and queues.
+ * A specialized AMQP Receiver that handles commands from a remote Federation connection such as handling incoming
+ * policies that should be applied to local addresses and queues.
  */
 public class AMQPFederationCommandProcessor extends ProtonAbstractReceiver {
 
@@ -67,12 +67,9 @@ public class AMQPFederationCommandProcessor extends ProtonAbstractReceiver {
    /**
     * Create the new federation command receiver
     *
-    * @param federation
-    *    The AMQP Federation instance that this command consumer resides in.
-    * @param session
-    *    The associated session for this federation command consumer.
-    * @param receiver
-    *    The proton {@link Receiver} that this command consumer reads from.
+    * @param federation The AMQP Federation instance that this command consumer resides in.
+    * @param session    The associated session for this federation command consumer.
+    * @param receiver   The proton {@link Receiver} that this command consumer reads from.
     */
    public AMQPFederationCommandProcessor(AMQPFederationTarget federation, AMQPSessionContext session, Receiver receiver) {
       super(session.getSessionSPI(), session.getAMQPConnectionContext(), session, receiver);

@@ -141,9 +141,6 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
       //      queueNameRegex = buffer.readNullableSimpleString();
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#hashCode()
-    */
    @Override
    public int hashCode() {
       final int prime = 31;
@@ -176,9 +173,6 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
       return maxQueues != null ? maxQueues.equals(that.maxQueues) : that.maxQueues == null;
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return "ResourceLimitSettings [match=" + match +

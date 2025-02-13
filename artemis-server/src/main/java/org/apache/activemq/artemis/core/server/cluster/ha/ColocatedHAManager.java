@@ -50,9 +50,6 @@ public class ColocatedHAManager implements HAManager {
       server = activeMQServer;
    }
 
-   /**
-    * starts the HA manager.
-    */
    @Override
    public void start() {
       if (started)
@@ -63,9 +60,6 @@ public class ColocatedHAManager implements HAManager {
       started = true;
    }
 
-   /**
-    * stop any backups
-    */
    @Override
    public void stop() {
       for (ActiveMQServer activeMQServer : backupServers.values()) {
@@ -100,11 +94,6 @@ public class ColocatedHAManager implements HAManager {
       }
    }
 
-   /**
-    * return the current backup servers
-    *
-    * @return the backups
-    */
    @Override
    public Map<String, ActiveMQServer> getBackupServers() {
       return backupServers;
@@ -115,9 +104,7 @@ public class ColocatedHAManager implements HAManager {
     *
     * @param connectorPair the connector for the node to request a backup from
     * @param backupSize    the current size of the requested nodes backups
-    * @param replicated
-    * @return true if the request wa successful.
-    * @throws Exception
+    * @return true if the request wa successful
     */
    public boolean requestBackup(Pair<TransportConfiguration, TransportConfiguration> connectorPair,
                                 int backupSize,
@@ -165,12 +152,11 @@ public class ColocatedHAManager implements HAManager {
 
    /**
     * activate a backup server replicating from a specified node.
-    *
+    * <p>
     * decline and the requesting server can cast a re vote
     *
     * @param nodeID the id of the node to replicate from
     * @return true if the server was created and started
-    * @throws Exception
     */
    private synchronized boolean activateReplicatedBackup(SimpleString nodeID) throws Exception {
       final TopologyMember member;
@@ -208,15 +194,10 @@ public class ColocatedHAManager implements HAManager {
    /**
     * update the backups configuration
     *
-    * @param backupConfiguration    the configuration to update
-    * @param name                   the new name of the backup
-    * @param portOffset             the offset for the acceptors and any connectors that need changing
-    * @param remoteConnectors       the connectors that don't need off setting, typically remote
-    * @param journalDirectory
-    * @param bindingsDirectory
-    * @param largeMessagesDirectory
-    * @param pagingDirectory
-    * @param fullServer
+    * @param backupConfiguration the configuration to update
+    * @param name                the new name of the backup
+    * @param portOffset          the offset for the acceptors and any connectors that need changing
+    * @param remoteConnectors    the connectors that don't need off setting, typically remote
     */
    private static void updateSharedStoreConfiguration(Configuration backupConfiguration,
                                                       String name,
@@ -281,12 +262,13 @@ public class ColocatedHAManager implements HAManager {
    }
 
    /**
-    * Offset the port for Netty connector/acceptor (unless HTTP upgrade is enabled) and the server ID for invm connector/acceptor.
-    *
-    * The port is not offset for Netty connector/acceptor when HTTP upgrade is enabled. In this case, the app server that
-    * embed ActiveMQ is "owning" the port and is charge to delegate the HTTP upgrade to the correct broker (that can be
-    * the main one or any colocated backup hosted on the main broker). Delegation to the correct broker is done by looking at the
-    * {@link TransportConstants#ACTIVEMQ_SERVER_NAME} property [ARTEMIS-803]
+    * Offset the port for Netty connector/acceptor (unless HTTP upgrade is enabled) and the server ID for invm
+    * connector/acceptor.
+    * <p>
+    * The port is not offset for Netty connector/acceptor when HTTP upgrade is enabled. In this case, the app server
+    * that embed ActiveMQ is "owning" the port and is charge to delegate the HTTP upgrade to the correct broker (that
+    * can be the main one or any colocated backup hosted on the main broker). Delegation to the correct broker is done
+    * by looking at the {@link TransportConstants#ACTIVEMQ_SERVER_NAME} property [ARTEMIS-803]
     */
    private static void updatebackupParams(String name, int portOffset, Map<String, Object> params) {
       if (params != null) {

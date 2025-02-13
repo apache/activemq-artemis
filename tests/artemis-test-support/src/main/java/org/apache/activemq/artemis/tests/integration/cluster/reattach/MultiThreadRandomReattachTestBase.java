@@ -228,7 +228,6 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       }, NUM_THREADS, false);
    }
 
-   // Added do replicate HORNETQ-264
    @Test
    public void testO() throws Exception {
       runTestMultipleThreads(new RunnableT() {
@@ -1002,9 +1001,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       s.close();
    }
 
-   /*
-    * This test tests failure during create connection
-    */
+   // This test tests failure during create connection
    protected void doTestL(final ClientSessionFactory sf) throws Exception {
       final int numSessions = 100;
 
@@ -1100,9 +1097,6 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       runMultipleThreadsFailoverTest(runnable, numThreads, getNumIterations(), failOnCreateConnection, failDelay);
    }
 
-   /**
-    * @return
-    */
    @Override
    protected ServerLocator createLocator() throws Exception {
       ServerLocator locator = createInVMNonHALocator().setReconnectAttempts(15).setConfirmationWindowSize(1024 * 1024);

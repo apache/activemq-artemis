@@ -24,9 +24,9 @@ import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 
 /**
  * The ClientRequestor class helps making requests.
- * <br>
- * The ClientRequestor constructor is given a ClientSession and a request address.
- * It creates a temporary queue for the responses and provides a request method that sends the request message and waits for its reply.
+ * <p>
+ * The ClientRequestor constructor is given a ClientSession and a request address. It creates a temporary queue for the
+ * responses and provides a request method that sends the request message and waits for its reply.
  */
 public final class ClientRequestor implements AutoCloseable {
 
@@ -40,12 +40,11 @@ public final class ClientRequestor implements AutoCloseable {
 
    /**
     * Constructor for the ClientRequestor.
-    *
+    * <p>
     * The implementation expects a ClientSession with automatic commits of sends and acknowledgements
     *
     * @param session        a ClientSession uses to handle requests and replies
     * @param requestAddress the address to send request messages to
-    * @throws Exception
     */
    public ClientRequestor(final ClientSession session, final SimpleString requestAddress) throws Exception {
       queueSession = session;
@@ -64,25 +63,23 @@ public final class ClientRequestor implements AutoCloseable {
    }
 
    /**
-    * Sends a message to the request address and wait indefinitely for a reply.
-    * The temporary queue is used for the REPLYTO_HEADER_NAME, and only one reply per request is expected
+    * Sends a message to the request address and wait indefinitely for a reply. The temporary queue is used for the
+    * REPLYTO_HEADER_NAME, and only one reply per request is expected
     *
     * @param request the message to send
     * @return the reply message
-    * @throws Exception
     */
    public ClientMessage request(final ClientMessage request) throws Exception {
       return request(request, 0);
    }
 
    /**
-    * Sends a message to the request address and wait for the given timeout for a reply.
-    * The temporary queue is used for the REPLYTO_HEADER_NAME, and only one reply per request is expected
+    * Sends a message to the request address and wait for the given timeout for a reply. The temporary queue is used for
+    * the REPLYTO_HEADER_NAME, and only one reply per request is expected
     *
     * @param request the message to send
     * @param timeout the timeout to wait for a reply (in milliseconds)
     * @return the reply message or {@code null} if no message is replied before the timeout elapses
-    * @throws Exception
     */
    public ClientMessage request(final ClientMessage request, final long timeout) throws Exception {
       request.putStringProperty(ClientMessageImpl.REPLYTO_HEADER_NAME, replyQueue);

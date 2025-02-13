@@ -36,6 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
+/**
+ * A {@code Topology} describes the other cluster nodes that this server knows about.
+ */
 public final class Topology {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -47,19 +50,15 @@ public final class Topology {
    /**
     * Used to debug operations.
     * <p>
-    * Someone may argue this is not needed. But it's impossible to debug anything related to
-    * topology without knowing what node or what object missed a Topology update. Hence I added some
-    * information to locate debugging here.
+    * Someone may argue this is not needed. But it's impossible to debug anything related to topology without knowing
+    * what node or what object missed a Topology update. Hence I added some information to locate debugging here.
     */
    private volatile Object owner;
 
    private final TopologyManager manager;
 
    /**
-    * topology describes the other cluster nodes that this server knows about:
-    *
-    * keys are node IDs
-    * values are a pair of live/backup transport configurations
+    * Keys are node IDs. Values are a pair of primary/backup transport configurations.
     */
    private final Map<String, TopologyMemberImpl> topology;
 
@@ -143,8 +142,6 @@ public final class Topology {
 
    /**
     * After the node is started, it will resend the notifyPrimary a couple of times to avoid gossip between two servers
-    *
-    * @param nodeId
     */
    public void resendNode(final String nodeId) {
       synchronized (this) {
@@ -187,11 +184,11 @@ public final class Topology {
    }
 
    /**
-    * @param uniqueEventID an unique identifier for when the change was made. We will use current
-    *                      time millis for starts, and a ++ of that number for shutdown.
-    * @param nodeId
-    * @param memberInput
-    * @return {@code true} if an update did take place. Note that backups are *always* updated.
+    * Update a member
+    *
+    * @param uniqueEventID an unique identifier for when the change was made. We will use current time millis for
+    *                      starts, and a ++ of that number for shutdown.
+    * @return {@code true} if an update did take place. Note that backups are *always* updated
     */
    public boolean updateMember(final long uniqueEventID, final String nodeId, final TopologyMemberImpl memberInput) {
 
@@ -260,10 +257,6 @@ public final class Topology {
       }
    }
 
-   /**
-    * @param nodeId
-    * @param memberToSend
-    */
    private void sendMemberUp(final String nodeId, final TopologyMemberImpl memberToSend) {
       final List<ClusterTopologyListener> copy = copyListeners();
 
@@ -288,9 +281,6 @@ public final class Topology {
       }
    }
 
-   /**
-    * @return
-    */
    private List<ClusterTopologyListener> copyListeners() {
       List<ClusterTopologyListener> listenersCopy;
       synchronized (topologyListeners) {
@@ -429,9 +419,9 @@ public final class Topology {
    }
 
    /**
-    * The owner exists mainly for debug purposes.
-    * When enabling logging and tracing, the Topology updates will include the owner, what will enable to identify
-    * what instances are receiving the updates, what will enable better debugging.
+    * The owner exists mainly for debug purposes. When enabling logging and tracing, the Topology updates will include
+    * the owner, what will enable to identify what instances are receiving the updates, what will enable better
+    * debugging.
     */
    public void setOwner(final Object owner) {
       this.owner = owner;

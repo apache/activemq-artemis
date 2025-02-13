@@ -63,7 +63,7 @@ import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*
+/**
  * General tests for things not covered directly in the specification.
  */
 public class MQTT5Test extends MQTT5TestSupport {
@@ -115,7 +115,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       Wait.assertEquals(topic, receivedTopic::get, 500, 50);
    }
 
-   /*
+   /**
     * Ensure that the broker adds a timestamp on the message when sending via MQTT
     */
    @Test
@@ -201,7 +201,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       Wait.assertEquals(0L, () -> server.locateQueue(MQTTUtil.MQTT_SESSION_STORE).getMessageCount(), 5000, 100);
    }
 
-   /*
+   /**
     * Trying to reproduce error from https://issues.apache.org/jira/browse/ARTEMIS-1184
     */
    @Test
@@ -234,7 +234,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       assertNull(server.getAddressInfo(SimpleString.of(DESTINATION)));
    }
 
-   /*
+   /**
     * There is no normative statement in the spec about supporting user properties on will messages, but it is implied
     * in various places.
     */
@@ -283,7 +283,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       assertTrue(latch.await(2, TimeUnit.SECONDS));
    }
 
-   /*
+   /**
     * It's possible for a client to change their session expiry interval via the DISCONNECT packet. Ensure we respect
     * a new session expiry interval when disconnecting.
     */
@@ -304,7 +304,7 @@ public class MQTT5Test extends MQTT5TestSupport {
       Wait.assertEquals(0, () -> getSessionStates().size(), 5000, 10);
    }
 
-   /*
+   /**
     * If the Will flag is false then don't send a will message even if the session expiry is > 0
     */
    @Test

@@ -57,9 +57,8 @@ import static org.apache.activemq.artemis.utils.DataConstants.STRING;
 /**
  * Property Value Conversion.
  * <p>
- * This implementation follows section 3.5.4 of the <i>Java Message Service</i> specification
- * (Version 1.1 April 12, 2002).
- * <p>
+ * This implementation follows section 3.5.4 of the <i>Java Message Service</i> specification (Version 1.1 April 12,
+ * 2002).
  */
 public class TypedProperties {
 
@@ -498,8 +497,8 @@ public class TypedProperties {
    }
 
    /**
-    * Performs a search among the valid key properties contained in {@code buffer}, starting from {@code from}
-    * assuming it to be a valid encoded {@link TypedProperties} content.
+    * Performs a search among the valid key properties contained in {@code buffer}, starting from {@code from} assuming
+    * it to be a valid encoded {@link TypedProperties} content.
     *
     * @throws IllegalStateException if any not-valid property is found while searching the {@code key} property
     */

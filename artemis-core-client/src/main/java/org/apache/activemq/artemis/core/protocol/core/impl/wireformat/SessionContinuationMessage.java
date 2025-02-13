@@ -41,9 +41,6 @@ public abstract class SessionContinuationMessage extends PacketImpl {
       super(type);
    }
 
-   /**
-    * @return the body
-    */
    public byte[] getBody() {
       if (size <= 0) {
          return new byte[0];
@@ -52,20 +49,15 @@ public abstract class SessionContinuationMessage extends PacketImpl {
       }
    }
 
-   /**
-    * @return the continues
-    */
    public boolean isContinues() {
       return continues;
    }
 
    /**
-    * Returns the exact expected encoded size of {@code this} packet.
-    * It will be used to allocate the proper encoding buffer in {@link #createPacket}, hence any
-    * wrong value will result in a thrown exception or a resize of the encoding
-    * buffer during the encoding process, depending to the implementation of {@link #createPacket}.
-    * Any child of {@code this} class are required to override this method if their encoded size is changed
-    * from the base class.
+    * Returns the exact expected encoded size of {@code this} packet. It will be used to allocate the proper encoding
+    * buffer in {@link #createPacket}, hence any wrong value will result in a thrown exception or a resize of the
+    * encoding buffer during the encoding process, depending to the implementation of {@link #createPacket}. Any child
+    * of {@code this} class are required to override this method if their encoded size is changed from the base class.
     *
     * @return the size in bytes of the expected encoded packet
     */

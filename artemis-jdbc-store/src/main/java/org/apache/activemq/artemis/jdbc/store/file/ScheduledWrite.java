@@ -74,7 +74,9 @@ public class ScheduledWrite {
       }
    }
 
-   /** Remove references letting buffer to be ready for GC */
+   /**
+    * Remove references letting buffer to be ready for GC
+    */
    public void releaseBuffer() {
       amqBuffer = null;
       ioBuffer = null;

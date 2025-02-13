@@ -340,9 +340,6 @@ public class TransactionImpl implements Transaction {
       }
    }
 
-   /**
-    * @throws Exception
-    */
    protected void doCommit() throws Exception {
       if (containsPersistent || xid != null && state == State.PREPARED) {
          // ^^ These are the scenarios where we require a storage.commit

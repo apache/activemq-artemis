@@ -107,8 +107,8 @@ final class MappedFile implements AutoCloseable {
    /**
     * Reads a sequence of bytes from this file into the given buffer.
     * <p>
-    * <p> Bytes are read starting at this file's current position, and
-    * then the position is updated with the number of bytes actually read.
+    * Bytes are read starting at this file's current position, and then the position is updated with the number of bytes
+    * actually read.
     */
    public int read(ByteBuffer dst, int dstStart, int dstLength) throws IOException {
       final int remaining = this.length - this.position;
@@ -128,7 +128,7 @@ final class MappedFile implements AutoCloseable {
    /**
     * Writes an encoded sequence of bytes to this file from the given buffer.
     * <p>
-    * <p> Bytes are written starting at this file's current position,
+    * Bytes are written starting at this file's current position,
     */
    public void write(EncodingSupport encodingSupport) throws IOException {
       final int encodedSize = encodingSupport.getEncodeSize();
@@ -143,7 +143,7 @@ final class MappedFile implements AutoCloseable {
    /**
     * Writes a sequence of bytes to this file from the given buffer.
     * <p>
-    * <p> Bytes are written starting at this file's current position,
+    * Bytes are written starting at this file's current position,
     */
    public void write(ByteBuf src, int srcStart, int srcLength) throws IOException {
       final int nextPosition = this.position + srcLength;
@@ -164,7 +164,7 @@ final class MappedFile implements AutoCloseable {
    /**
     * Writes a sequence of bytes to this file from the given buffer.
     * <p>
-    * <p> Bytes are written starting at this file's current position,
+    * Bytes are written starting at this file's current position,
     */
    public void write(ByteBuffer src, int srcStart, int srcLength) throws IOException {
       final int nextPosition = this.position + srcLength;
@@ -183,7 +183,7 @@ final class MappedFile implements AutoCloseable {
    /**
     * Writes a sequence of bytes to this file from the given buffer.
     * <p>
-    * <p> Bytes are written starting at this file's current position,
+    * Bytes are written starting at this file's current position,
     */
    public void zeros(int position, final int count) throws IOException {
       checkCapacity(position + count);

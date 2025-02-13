@@ -34,8 +34,6 @@ public class URIParserTest {
 
    /**
     * this is just a simple test to validate the model
-    *
-    * @throws Throwable
     */
    @Test
    public void testSchemaFruit() throws Throwable {
@@ -53,8 +51,6 @@ public class URIParserTest {
 
    /**
     * this is just a simple test to validate the model
-    *
-    * @throws Throwable
     */
    @Test
    public void testGenerateWithEncoding() throws Throwable {
@@ -74,8 +70,6 @@ public class URIParserTest {
 
    /**
     * Even thought there's no host Property on FruitBase.. this should still work fine without throwing any exceptions
-    *
-    * @throws Throwable
     */
    @Test
    public void testSchemaNoHosProperty() throws Throwable {
@@ -88,8 +82,6 @@ public class URIParserTest {
 
    /**
     * Even thought there's no host Property on FruitBase.. this should still work fine without throwing any exceptions
-    *
-    * @throws Throwable
     */
    @Test
    public void testSchemaNoHostOnURL() throws Throwable {

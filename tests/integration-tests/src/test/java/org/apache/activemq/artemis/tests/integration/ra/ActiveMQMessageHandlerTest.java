@@ -372,9 +372,6 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       qResourceAdapter.stop();
    }
 
-   /**
-    * @return
-    */
    @Override
    protected ActiveMQResourceAdapter newResourceAdapter() {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();
@@ -705,7 +702,6 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
       qResourceAdapter.stop();
    }
 
-   //https://issues.jboss.org/browse/JBPAPP-8017
    @Test
    public void testNonDurableSubscriptionDeleteAfterCrash() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();

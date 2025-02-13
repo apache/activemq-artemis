@@ -24,18 +24,18 @@ public interface HashProcessor {
 
    /**
     * produce hash text from plain text
+    *
     * @param plainText Plain text input
     * @return the Hash value of the input plain text
-    * @throws Exception
     */
    String hash(String plainText) throws Exception;
 
    /**
     * compare the plain char array against the hash value
+    *
     * @param inputValue value of the plain text
     * @param storedHash the existing hash value
-    * @return true if the char array matches the hash value,
-    * otherwise false.
+    * @return true if the char array matches the hash value, otherwise false.
     */
    boolean compare(char[] inputValue, String storedHash);
 }

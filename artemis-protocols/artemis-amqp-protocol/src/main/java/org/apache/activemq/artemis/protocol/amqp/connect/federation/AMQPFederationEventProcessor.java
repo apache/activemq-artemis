@@ -49,9 +49,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A specialized AMQP Receiver that handles events from a remote Federation connection such
- * as addition of addresses or queues where federation was requested but they did not exist
- * at the time and the federation consumer was rejected.
+ * A specialized AMQP Receiver that handles events from a remote Federation connection such as addition of addresses or
+ * queues where federation was requested but they did not exist at the time and the federation consumer was rejected.
  */
 public class AMQPFederationEventProcessor extends ProtonAbstractReceiver {
 
@@ -66,12 +65,9 @@ public class AMQPFederationEventProcessor extends ProtonAbstractReceiver {
    /**
     * Create the new federation event receiver
     *
-    * @param federation
-    *    The AMQP Federation instance that this event consumer resides in.
-    * @param session
-    *    The associated session for this federation event consumer.
-    * @param receiver
-    *    The proton {@link Receiver} that this event consumer reads from.
+    * @param federation The AMQP Federation instance that this event consumer resides in.
+    * @param session    The associated session for this federation event consumer.
+    * @param receiver   The proton {@link Receiver} that this event consumer reads from.
     */
    public AMQPFederationEventProcessor(AMQPFederation federation, AMQPSessionContext session, Receiver receiver) {
       super(session.getSessionSPI(), session.getAMQPConnectionContext(), session, receiver);
@@ -94,10 +90,9 @@ public class AMQPFederationEventProcessor extends ProtonAbstractReceiver {
          // Indicate that event link capabilities is supported.
          receiver.setOfferedCapabilities(new Symbol[]{FEDERATION_EVENT_LINK});
 
-         // When the federation source creates a events sender link to send events to the
-         // federation target side we land here on the target as this end should not be
-         // active yet, the federation source should request a dynamic target node to be
-         // created and we should return the address when opening this end.
+         // When the federation source creates a events sender link to send events to the federation target side we land
+         // here on the target as this end should not be active yet, the federation source should request a dynamic
+         // target node to be created and we should return the address when opening this end.
          final Terminus remoteTerminus = (Terminus) receiver.getRemoteTarget();
 
          if (remoteTerminus == null || !remoteTerminus.getDynamic()) {
@@ -161,9 +156,9 @@ public class AMQPFederationEventProcessor extends ProtonAbstractReceiver {
 
    @Override
    protected Runnable createCreditRunnable(AMQPConnectionContext connection) {
-      // The events processor is not bound to the configurable credit on the connection as it could be set
-      // to zero if trying to create pull federation consumers so we avoid any chance of that happening as
-      // otherwise there would be no credit granted for the remote to send us events.
+      // The events processor is not bound to the configurable credit on the connection as it could be set to zero if
+      // trying to create pull federation consumers so we avoid any chance of that happening as otherwise there would be
+      // no credit granted for the remote to send us events.
       return createCreditRunnable(PROCESSOR_RECEIVER_CREDITS, PROCESSOR_RECEIVER_CREDITS_LOW, receiver, connection, this);
    }
 

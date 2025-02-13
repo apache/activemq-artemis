@@ -438,9 +438,8 @@ public class TransactedSessionTest extends JMSTestCase {
    }
 
    /**
-    * Make sure redelivered flag is set on redelivery via rollback, different setup: we close the
-    * rolled back session and we receive the message whose acknowledgment was cancelled on a new
-    * session.
+    * Make sure redelivered flag is set on redelivery via rollback, different setup: we close the rolled back session
+    * and we receive the message whose acknowledgment was cancelled on a new session.
     */
    @Test
    public void testRedeliveredQueue2() throws Exception {
@@ -950,7 +949,6 @@ public class TransactedSessionTest extends JMSTestCase {
     * Rollback the receiving session
     * Close the connection
     * Create a new connection, session and consumer - verify messages are redelivered
-    *
     */
 
    @Test
@@ -1019,10 +1017,9 @@ public class TransactedSessionTest extends JMSTestCase {
 
    }
 
-   /*
+   /**
     * Send multiple messages in multiple contiguous sessions
     */
-
    @Test
    public void testSendMultipleQueue() throws Exception {
       Connection conn = createConnection();

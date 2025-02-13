@@ -26,6 +26,5 @@
  * Summary of the new features in MQTT 5 vs. 3.1.1:
  *
  *   https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901293
- *
  */
 package org.apache.activemq.artemis.tests.integration.mqtt5;

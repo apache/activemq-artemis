@@ -30,8 +30,8 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 public class SelectorTest extends PTPTestCase {
 
    /**
-    * Test that an empty string as a message selector indicates that there
-    * is no message selector for the message consumer.
+    * Test that an empty string as a message selector indicates that there is no message selector for the message
+    * consumer.
     */
    @Test
    public void testEmptyStringAsSelector() throws Exception {
@@ -51,12 +51,10 @@ public class SelectorTest extends PTPTestCase {
 
    /**
     * Tats that String literals are well handled by the message selector.
-    * <br />
     * <ul>
-    * <li><code>"string = 'literal''s;"</code> is <code>true</code> for "literal's" and <code>false</code> for "literal"</li>
+    * <li>{@code "string = 'literal''s;"} is {@code true} for "literal's" and {@code false} for "literal"</li>
     * </ul>
     */
-
    @Test
    public void testStringLiterals() throws Exception {
       if (receiver != null) {
@@ -80,8 +78,8 @@ public class SelectorTest extends PTPTestCase {
    }
 
    /**
-    * Test that the JMS property <code>JMSDeliveryMode</code> is treated as having the values <code>'PERSISTENT'</code>
-    * or <code>'NON_PERSISTENT'</code> when used in a message selector (chapter 3.8.1.3).
+    * Test that the JMS property {@code JMSDeliveryMode} is treated as having the values {@code 'PERSISTENT'} or
+    * {@code 'NON_PERSISTENT'} when used in a message selector (chapter 3.8.1.3).
     */
    @Test
    public void testJMSDeliveryModeInSelector() throws Exception {
@@ -108,9 +106,8 @@ public class SelectorTest extends PTPTestCase {
    }
 
    /**
-    * Test that conversions that apply to the <code>get</code> methods for properties do not
-    * apply when a property is used in a message selector expression.
-    * Based on the example of chapter 3.8.1.1 about identifiers.
+    * Test that conversions that apply to the {@code get} methods for properties do not apply when a property is used in
+    * a message selector expression. Based on the example of chapter 3.8.1.1 about identifiers.
     */
    @Test
    public void testIdentifierConversion() throws Exception {
@@ -135,9 +132,8 @@ public class SelectorTest extends PTPTestCase {
 
    /**
     * Test the message selector using the filter example provided by the JMS specifications.
-    * <br />
     * <ul>
-    * <li><code>"JMSType = 'car' AND color = 'blue' AND weight > 2500"</code></li>
+    * <li>{@code "JMSType = 'car' AND color = 'blue' AND weight > 2500"}</li>
     * </ul>
     */
    @Test
@@ -167,9 +163,8 @@ public class SelectorTest extends PTPTestCase {
 
    /**
     * Test the ">" condition in message selector.
-    * <br />
     * <ul>
-    * <li><code>"weight > 2500"</code> is <code>true</code> for 3000 and <code>false</code> for 1000</li>
+    * <li>{@code "weight > 2500"} is {@code true} for 3000 and {@code false} for 1000</li>
     * </ul>
     */
    @Test
@@ -195,9 +190,8 @@ public class SelectorTest extends PTPTestCase {
 
    /**
     * Test the "=" condition in message selector.
-    * <br />
     * <ul>
-    * <li><code>"weight = 2500"</code>  is <code>true</code> for 2500 and <code>false</code> for 1000</li>
+    * <li>{@code "weight = 2500"}  is {@code true} for 2500 and {@code false} for 1000</li>
     * </ul>
     */
    @Test
@@ -223,9 +217,8 @@ public class SelectorTest extends PTPTestCase {
 
    /**
     * Test the "<>" (not equal) condition in message selector.
-    * <br />
     * <ul>
-    * <li><code>"weight <> 2500"</code>  is <code>true</code> for 1000 and <code>false</code> for 2500</li>
+    * <li>{@code "weight <> 2500"}  is {@code true} for 1000 and {@code false} for 2500</li>
     * </ul>
     */
    @Test
@@ -251,9 +244,8 @@ public class SelectorTest extends PTPTestCase {
 
    /**
     * Test the BETWEEN condition in message selector.
-    * <br />
     * <ul>
-    * <li>"age BETWEEN 15 and 19" is <code>true</code> for 17 and <code>false</code> for 20</li>
+    * <li>"age BETWEEN 15 and 19" is {@code true} for 17 and {@code false} for 20</li>
     * </ul>
     */
    @Test
@@ -281,9 +273,8 @@ public class SelectorTest extends PTPTestCase {
 
    /**
     * Test the IN condition in message selector.
-    * <br />
     * <ul>
-    * <li>"Country IN ('UK', 'US', 'France')" is <code>true</code> for 'UK' and <code>false</code> for 'Peru'</li>
+    * <li>"Country IN ('UK', 'US', 'France')" is {@code true} for 'UK' and {@code false} for 'Peru'</li>
     * </ul>
     */
    @Test
@@ -311,9 +302,8 @@ public class SelectorTest extends PTPTestCase {
 
    /**
     * Test the LIKE ... ESCAPE condition in message selector
-    * <br />
     * <ul>
-    * <li>"underscored LIKE '\_%' ESCAPE '\'" is <code>true</code> for '_foo' and <code>false</code> for 'bar'</li>
+    * <li>"underscored LIKE '\_%' ESCAPE '\'" is {@code true} for '_foo' and {@code false} for 'bar'</li>
     * </ul>
     */
    @Test
@@ -341,9 +331,8 @@ public class SelectorTest extends PTPTestCase {
 
    /**
     * Test the LIKE condition with '_' in the pattern.
-    * <br />
     * <ul>
-    * <li>"word LIKE 'l_se'" is <code>true</code> for 'lose' and <code>false</code> for 'loose'</li>
+    * <li>"word LIKE 'l_se'" is {@code true} for 'lose' and {@code false} for 'loose'</li>
     * </ul>
     */
    @Test
@@ -371,9 +360,8 @@ public class SelectorTest extends PTPTestCase {
 
    /**
     * Test the LIKE condition with '%' in the pattern.
-    * <br />
     * <ul>
-    * <li>"phone LIKE '12%3'" is <code>true</code> for '12993' and <code>false</code> for '1234'</li>
+    * <li>"phone LIKE '12%3'" is {@code true} for '12993' and {@code false} for '1234'</li>
     * </ul>
     */
    @Test
@@ -400,10 +388,9 @@ public class SelectorTest extends PTPTestCase {
    }
 
    /**
-    * Test the <code>NULL</code> value in message selector.
-    * <br />
+    * Test the {@code NULL} value in message selector.
     * <ul>
-    * <li><code>"prop IS NULL"</code></li>
+    * <li>{@code "prop IS NULL"}</li>
     * </ul>
     */
    @Test

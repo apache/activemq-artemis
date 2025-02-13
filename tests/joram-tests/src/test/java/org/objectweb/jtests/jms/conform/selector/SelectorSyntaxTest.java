@@ -29,11 +29,11 @@ import org.objectweb.jtests.jms.framework.PTPTestCase;
 public class SelectorSyntaxTest extends PTPTestCase {
 
    /**
-    * Test that identifiers that start with a valid Java identifier start character are valid.
-    * A valid identifier means that the method <code>Character.isJavaIdentifierStart</code> returns
-    * <code>true</code> for this identifier first character.
+    * Test that identifiers that start with a valid Java identifier start character are valid. A valid identifier means
+    * that the method {@code Character.isJavaIdentifierStart} returns {@code true} for this identifier first character.
     *
-    * @see <a href="http://java.sun.com/j2se/1.3/docs/api/java/lang/Character.html#isJavaIdentifierStart(char)">Character.isJavaIdentifierStart(char)</a>
+    * @see <a
+    * href="http://java.sun.com/j2se/1.3/docs/api/java/lang/Character.html#isJavaIdentifierStart(char)">Character.isJavaIdentifierStart(char)</a>
     */
    @Test
    public void testValidIdentifiersStart() {
@@ -92,7 +92,7 @@ public class SelectorSyntaxTest extends PTPTestCase {
    }
 
    /**
-    * Test that identifiers can't be <code>NULL</code>.
+    * Test that identifiers can't be {@code NULL}.
     */
    @Test
    public void testIdentifierNULL() {
@@ -106,7 +106,7 @@ public class SelectorSyntaxTest extends PTPTestCase {
    }
 
    /**
-    * Test that identifiers can't be <code>TRUE</code>.
+    * Test that identifiers can't be {@code TRUE}.
     */
    @Test
    public void testIdentifierTRUE() {
@@ -118,7 +118,7 @@ public class SelectorSyntaxTest extends PTPTestCase {
    }
 
    /**
-    * Test that identifiers can't be <code>FALSE</code>.
+    * Test that identifiers can't be {@code FALSE}.
     */
    @Test
    public void testIdentifierFALSE() {
@@ -130,7 +130,7 @@ public class SelectorSyntaxTest extends PTPTestCase {
    }
 
    /**
-    * Test that identifiers can't be <code>NOT</code>.
+    * Test that identifiers can't be {@code NOT}.
     */
    @Test
    public void testIdentifierNOT() {
@@ -142,7 +142,7 @@ public class SelectorSyntaxTest extends PTPTestCase {
    }
 
    /**
-    * Test that identifiers can't be <code>AND</code>.
+    * Test that identifiers can't be {@code AND}.
     */
    @Test
    public void testIdentifierAND() {
@@ -154,7 +154,7 @@ public class SelectorSyntaxTest extends PTPTestCase {
    }
 
    /**
-    * Test that identifiers can't be <code>OR</code>.
+    * Test that identifiers can't be {@code OR}.
     */
    @Test
    public void testIdentifierOR() {
@@ -166,7 +166,7 @@ public class SelectorSyntaxTest extends PTPTestCase {
    }
 
    /**
-    * Test that identifiers can't be <code>BETWEEN</code>.
+    * Test that identifiers can't be {@code BETWEEN}.
     */
    @Test
    public void testIdentifierBETWEEN() {
@@ -178,7 +178,7 @@ public class SelectorSyntaxTest extends PTPTestCase {
    }
 
    /**
-    * Test that identifiers can't be <code>LIKE</code>.
+    * Test that identifiers can't be {@code LIKE}.
     */
    @Test
    public void testIdentifierLIKE() {
@@ -190,7 +190,7 @@ public class SelectorSyntaxTest extends PTPTestCase {
    }
 
    /**
-    * Test that identifiers can't be <code>IN</code>.
+    * Test that identifiers can't be {@code IN}.
     */
    @Test
    public void testIdentifierIN() {
@@ -202,7 +202,7 @@ public class SelectorSyntaxTest extends PTPTestCase {
    }
 
    /**
-    * Test that identifiers can't be <code>IS</code>.
+    * Test that identifiers can't be {@code IS}.
     */
    @Test
    public void testIdentifierIS() {
@@ -214,7 +214,7 @@ public class SelectorSyntaxTest extends PTPTestCase {
    }
 
    /**
-    * Test that identifiers can't be <code>ESCAPE</code>.
+    * Test that identifiers can't be {@code ESCAPE}.
     */
    @Test
    public void testIdentifierESCAPE() {

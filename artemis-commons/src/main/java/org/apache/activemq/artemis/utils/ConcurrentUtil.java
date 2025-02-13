@@ -24,8 +24,9 @@ public class ConcurrentUtil {
    /**
     * Await for condition, handling
     * <a href="http://errorprone.info/bugpattern/WaitNotInLoop">spurious wakeups</a>.
+    *
     * @param condition condition to await for
-    * @param timeout the maximum time to wait in milliseconds
+    * @param timeout   the maximum time to wait in milliseconds
     * @return value from {@link Condition#await(long, TimeUnit)}
     */
    public static boolean await(final Condition condition, final long timeout) throws InterruptedException {

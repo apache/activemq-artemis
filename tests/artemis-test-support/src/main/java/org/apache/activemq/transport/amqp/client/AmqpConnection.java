@@ -251,10 +251,9 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    }
 
    /**
-    * Creates a new Session instance used to create AMQP resources like
-    * senders and receivers.
+    * Creates a new Session instance used to create AMQP resources like senders and receivers.
     *
-    * @return a new AmqpSession that can be used to create links.
+    * @return a new AmqpSession that can be used to create links
     * @throws Exception if an error occurs during creation.
     */
    public AmqpSession createSession() throws Exception {
@@ -281,14 +280,14 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    //----- Configuration accessors ------------------------------------------//
 
    /**
-    * @return the user name that was used to authenticate this connection.
+    * {@return the user name that was used to authenticate this connection}
     */
    public String getUsername() {
       return username;
    }
 
    /**
-    * @return the password that was used to authenticate this connection.
+    * {@return the password that was used to authenticate this connection}
     */
    public String getPassword() {
       return password;
@@ -303,22 +302,22 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    }
 
    /**
-    * @return the URI of the remote peer this connection attached to.
+    * {@return the URI of the remote peer this connection attached to}
     */
    public URI getRemoteURI() {
       return remoteURI;
    }
 
    /**
-    * @return the container ID that will be set as the container Id.
+    * {@return the container ID that will be set as the container Id}
     */
    public String getContainerId() {
       return this.containerId;
    }
 
    /**
-    * Sets the container Id that will be configured on the connection prior to
-    * connecting to the remote peer.  Calling this after connect has no effect.
+    * Sets the container Id that will be configured on the connection prior to connecting to the remote peer.  Calling
+    * this after connect has no effect.
     *
     * @param containerId the container Id to use on the connection.
     */
@@ -327,7 +326,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
    }
 
    /**
-    * @return the currently set Max Frame Size value.
+    * {@return the currently set Max Frame Size value}
     */
    public int getMaxFrameSize() {
       return maxFrameSize;

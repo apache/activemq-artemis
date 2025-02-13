@@ -38,11 +38,12 @@ import java.lang.invoke.MethodHandles;
 import static org.apache.activemq.artemis.core.postoffice.impl.IntegerCache.boxedInts;
 
 /**
- * {@link InMemoryDuplicateIDCache} and {@link PersistentDuplicateIDCache} impls have been separated for performance
- * and memory footprint reasons.<br>
- * Instead of using a single {@link DuplicateIDCache} impl, we've let 2 different impls to contain just the bare
- * minimum data in order to have 2 different memory footprint costs at runtime, while making easier to track dependencies
- * eg in-memory cache won't need any {@link StorageManager} because no storage operations are expected to happen.
+ * {@link InMemoryDuplicateIDCache} and {@link PersistentDuplicateIDCache} impls have been separated for performance and
+ * memory footprint reasons.
+ * <p>
+ * Instead of using a single {@link DuplicateIDCache} impl, we've let 2 different impls to contain just the bare minimum
+ * data in order to have 2 different memory footprint costs at runtime, while making easier to track dependencies eg
+ * in-memory cache won't need any {@link StorageManager} because no storage operations are expected to happen.
  */
 final class InMemoryDuplicateIDCache implements DuplicateIDCache {
 

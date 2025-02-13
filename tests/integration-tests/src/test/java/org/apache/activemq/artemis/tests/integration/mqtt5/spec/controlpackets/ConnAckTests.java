@@ -52,7 +52,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-3.2.2-1] Byte 1 is the "Connect Acknowledge Flags". Bits 7-1 are reserved and MUST be set to 0.
@@ -84,7 +84,6 @@ import org.junit.jupiter.api.Timeout;
  *
  * [MQTT-3.2.2-19] The Server MUST NOT send this (i.e. Reason String) property if it would increase the size of the CONNACK packet beyond the Maximum Packet Size specified by the Client.
  * [MQTT-3.2.2-20] The Server MUST NOT send this (i.e. User Property) property if it would increase the size of the CONNACK packet beyond the Maximum Packet Size specified by the Client.
- *
  */
 
 public class ConnAckTests  extends MQTT5TestSupport {
@@ -412,7 +411,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
     * [MQTT-3.2.2-18] If Topic Alias Maximum is absent or 0, the Client MUST NOT send any Topic Aliases on to the
     * Server.
     *
-    * This doesn't test whether or not the client actually sends topic aliases as that's up to the client
+    * This doesn't test whether the client actually sends topic aliases as that's up to the client
     * implementation. This just tests that the expected property value is returned to the client based on the broker's
     * setting.
     *
@@ -433,7 +432,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
    /*
     * [MQTT-3.2.2-18] Topic Alias Maximum is absent, the Client MUST NOT send any Topic Aliases on to the Server.
     *
-    * This doesn't test whether or not the client actually sends topic aliases as that's up to the client
+    * This doesn't test whether the client actually sends topic aliases as that's up to the client
     * implementation. This just tests that the expected property value is returned to the client based on the broker's
     * setting.
     *

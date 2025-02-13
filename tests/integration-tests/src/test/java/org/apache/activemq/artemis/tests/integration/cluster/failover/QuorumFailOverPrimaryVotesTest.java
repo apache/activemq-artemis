@@ -57,8 +57,10 @@ public class QuorumFailOverPrimaryVotesTest extends StaticClusterWithBackupFailo
 
    }
 
-   /** Ignored per https://issues.apache.org/jira/browse/ARTEMIS-2484.
-    *   Please remove this javadoc and the @Ignore when fixed */
+   /**
+    * Ignored per https://issues.apache.org/jira/browse/ARTEMIS-2484. Please remove this javadoc and the @Ignore when
+    * fixed
+    */
    @Disabled
    @Test
    public void testQuorumVotingPrimaryNotDead() throws Exception {

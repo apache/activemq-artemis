@@ -2156,7 +2156,9 @@ public class AMQPMessageTest {
    }
 
 
-   /** It validates we are not adding a header if we don't need to */
+   /**
+    * It validates we are not adding a header if we don't need to
+    */
    @Test
    public void testGetSendBufferWithDeliveryAnnotationsAndNoHeader() {
       MessageImpl protonMessage = (MessageImpl) Message.Factory.create();

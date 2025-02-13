@@ -43,9 +43,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** This test will keep a consumer active on both nodes. Up to the point an ack would give up.
- *  It has configured a massive number of retries, so even after keeping the consumer on for some time should not make the ack retry to go away.
- *  as soon as the consumer gives up the message the retry should succeed. */
+/**
+ * This test will keep a consumer active on both nodes. Up to the point an ack would give up. It has configured a
+ * massive number of retries, so even after keeping the consumer on for some time should not make the ack retry to go
+ * away. as soon as the consumer gives up the message the retry should succeed.
+ */
 public class MirrorInfiniteRetryReplicaTest extends SmokeTestBase {
 
    private static final String QUEUE_NAME = "MirrorInfiniteRetryReplicaTestQueue";

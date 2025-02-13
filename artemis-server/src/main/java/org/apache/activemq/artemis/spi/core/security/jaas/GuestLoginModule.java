@@ -34,9 +34,8 @@ import java.lang.invoke.MethodHandles;
 
 /**
  * Always login the user with a default 'guest' identity.
- *
- * Useful for unauthenticated communication channels being used in the
- * same broker as authenticated ones.
+ * <p>
+ * Useful for unauthenticated communication channels being used in the same broker as authenticated ones.
  */
 public class GuestLoginModule implements AuditLoginModule {
 

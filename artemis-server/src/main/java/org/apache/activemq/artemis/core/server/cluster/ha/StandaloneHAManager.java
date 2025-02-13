@@ -21,9 +21,9 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
-/*
-* this implementation doesn't really do anything at the minute but this may change so Im leaving it here, Andy...
-* */
+/**
+ * This implementation doesn't really do anything at the minute but this may change so I'm leaving it here, Andy...
+ */
 public class StandaloneHAManager implements HAManager {
 
    Map<String, ActiveMQServer> servers = new HashMap<>();

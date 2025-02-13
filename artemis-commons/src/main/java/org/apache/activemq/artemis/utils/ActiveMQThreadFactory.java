@@ -42,8 +42,8 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
    private final String prefix;
 
    /**
-    * Construct a new instance.  The access control context of the calling thread will be the one used to create
-    * new threads if a security manager is installed.
+    * Construct a new instance.  The access control context of the calling thread will be the one used to create new
+    * threads if a security manager is installed.
     *
     * @param groupName the name of the thread group to assign threads to by default
     * @param daemon    whether the created threads should be daemon threads
@@ -54,8 +54,8 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
    }
 
    /**
-    * Construct a new instance.  The access control context of the calling thread will be the one used to create
-    * new threads if a security manager is installed.
+    * Construct a new instance.  The access control context of the calling thread will be the one used to create new
+    * threads if a security manager is installed.
     *
     * @param groupName the name of the thread group to assign threads to by default
     * @param daemon    whether the created threads should be daemon threads
@@ -99,7 +99,9 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
       }
    }
 
-   /** It will wait all threads to finish */
+   /**
+    * It will wait all threads to finish
+    */
    public boolean join(int timeout, TimeUnit timeUnit) {
       try {
          return active.await(timeout, timeUnit);

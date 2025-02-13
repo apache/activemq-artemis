@@ -39,8 +39,7 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 public class MessageHeaderTest extends PTPTestCase {
 
    /**
-    * Test that the <code>MessageProducer.setPriority()</code> changes effectively
-    * priority of the message.
+    * Test that the {@code MessageProducer.setPriority()} changes effectively priority of the message.
     */
    @Test
    public void testJMSPriority_2() {
@@ -58,9 +57,8 @@ public class MessageHeaderTest extends PTPTestCase {
    }
 
    /**
-    * Test that the priority set by <code>Message.setJMSPriority()</code> is ignored when a
-    * message is sent and that it holds the value specified when sending the message (i.e.
-    * <code>Message.DEFAULT_PRIORITY</code> in this test).
+    * Test that the priority set by {@code Message.setJMSPriority()} is ignored when a message is sent and that it holds
+    * the value specified when sending the message (i.e. {@code Message.DEFAULT_PRIORITY} in this test).
     */
    @Test
    public void testJMSPriority_1() {
@@ -78,8 +76,8 @@ public class MessageHeaderTest extends PTPTestCase {
    }
 
    /**
-    * Test that the value of the <code>JMSExpiration<code> header field is the same
-    * for the sent message and the received one.
+    * Test that the value of the {@code JMSExpiration} header field is the same for the sent message and the
+    * received one.
     */
    @Test
    public void testJMSExpiration() {
@@ -95,8 +93,8 @@ public class MessageHeaderTest extends PTPTestCase {
    }
 
    /**
-    * Test that the <code>JMSMessageID</code> is set by the provider when the <code>send</code> method returns
-    * and that it starts with <code>"ID:"</code>.
+    * Test that the {@code JMSMessageID} is set by the provider when the {@code send} method returns and that it starts
+    * with {@code "ID:"}.
     */
    @Test
    public void testJMSMessageID_2() {
@@ -114,8 +112,7 @@ public class MessageHeaderTest extends PTPTestCase {
    }
 
    /**
-    * Test that the <code>JMSMessageID</code> header field value is
-    * ignored when the message is sent.
+    * Test that the {@code JMSMessageID} header field value is ignored when the message is sent.
     */
    @Test
    public void testJMSMessageID_1() {
@@ -131,9 +128,9 @@ public class MessageHeaderTest extends PTPTestCase {
    }
 
    /**
-    * Test that the <code>JMSDeliveryMode</code> header field value is ignored
-    * when the message is sent and that it holds the value specified by the sending
-    * method (i.e. <code>Message.DEFAULT_ROUTING_TYPE</code> in this test when the message is received.
+    * Test that the {@code JMSDeliveryMode} header field value is ignored when the message is sent and that it holds the
+    * value specified by the sending method (i.e. {@code Message.DEFAULT_ROUTING_TYPE} in this test when the message is
+    * received.
     */
    @Test
    public void testJMSDeliveryMode() {
@@ -154,10 +151,9 @@ public class MessageHeaderTest extends PTPTestCase {
    }
 
    /**
-    * Test that the <code>JMSDestination</code> header field value is ignored when the message
-    * is sent and that after completion of the sending method, it holds the <code>Destination</code>
-    * specified by the sending method.
-    * Also test that the value of the header on the received message is the same that on the sent message.
+    * Test that the {@code JMSDestination} header field value is ignored when the message is sent and that after
+    * completion of the sending method, it holds the {@code Destination} specified by the sending method. Also test that
+    * the value of the header on the received message is the same that on the sent message.
     */
    @Test
    public void testJMSDestination() {
@@ -193,9 +189,8 @@ public class MessageHeaderTest extends PTPTestCase {
    }
 
    /**
-    * Test that a <code>Destination</code> set by the <code>setJMSReplyTo()</code>
-    * method on a sended message corresponds to the <code>Destination</code> get by
-    * the </code>getJMSReplyTo()</code> method.
+    * Test that a {@code Destination} set by the {@code setJMSReplyTo()} method on a sended message corresponds to the
+    * {@code Destination} get by the {@code getJMSReplyTo()} method.
     */
    @Test
    public void testJMSReplyTo_1() {
@@ -215,9 +210,8 @@ public class MessageHeaderTest extends PTPTestCase {
    }
 
    /**
-    * Test that if the JMS ReplyTo header field has been set as a <code>TemporaryQueue</code>,
-    * it will be rightly get also as a <code>TemporaryQueue</code>
-    * (and not only as a <code>Queue</code>).
+    * Test that if the JMS ReplyTo header field has been set as a {@code TemporaryQueue}, it will be rightly get also as
+    * a {@code TemporaryQueue} (and not only as a {@code Queue}).
     */
    @Test
    public void testJMSReplyTo_2() {

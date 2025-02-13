@@ -42,11 +42,11 @@ import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 
 /**
  * A queue that will discard messages if a newer message with the same
- * {@link org.apache.activemq.artemis.core.message.impl.CoreMessage#HDR_LAST_VALUE_NAME} property value. In other words it only retains the last
- * value
+ * {@link org.apache.activemq.artemis.core.message.impl.CoreMessage#HDR_LAST_VALUE_NAME} property value. In other words
+ * it only retains the last value
  * <p>
- * This is useful for example, for stock prices, where you're only interested in the latest value
- * for a particular stock
+ * This is useful for example, for stock prices, where you're only interested in the latest value for a particular
+ * stock
  */
 @SuppressWarnings("ALL")
 public class LastValueQueue extends QueueImpl {

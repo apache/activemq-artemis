@@ -73,8 +73,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    protected final AMQPSessionCallback sessionSPI;
 
    /**
-    * The model proton uses requires us to hold a lock in certain times
-    * to sync the credits we have versus the credits that are being held in proton
+    * The model proton uses requires us to hold a lock in certain times to sync the credits we have versus the credits
+    * that are being held in proton
     */
    private final Object creditsLock = new Object();
    private final boolean amqpTreatRejectAsUnmodifiedDeliveryFailed;
@@ -201,9 +201,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       }
    }
 
-   /*
-    * start the sender
-    */
    public void start() throws ActiveMQAMQPException {
       sessionSPI.start();
 
@@ -219,7 +216,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    }
 
    /**
-    * create the actual underlying ActiveMQ Artemis Server Consumer
+    * Create the actual underlying ActiveMQ Artemis Server Consumer
     */
    @Override
    public void initialize() throws Exception {
@@ -248,9 +245,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       }
    }
 
-   /*
-    * close the sender
-    */
    @Override
    public void close(ErrorCondition condition) throws ActiveMQAMQPException {
       if (!closed) {
@@ -276,9 +270,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       }
    }
 
-   /*
-    * close the sender
-    */
    @Override
    public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
       if (!closed) {

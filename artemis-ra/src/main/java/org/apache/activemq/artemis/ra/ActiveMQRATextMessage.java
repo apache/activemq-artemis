@@ -24,18 +24,12 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * A wrapper for a message
+ * A wrapper for a {@link TextMessage}.
  */
 public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMessage {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * Create a new wrapper
-    *
-    * @param message the message
-    * @param session the session
-    */
    public ActiveMQRATextMessage(final TextMessage message, final ActiveMQRASession session) {
       super(message, session);
 
@@ -43,10 +37,7 @@ public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMess
    }
 
    /**
-    * Get text
-    *
-    * @return The text
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public String getText() throws JMSException {
@@ -56,10 +47,7 @@ public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMess
    }
 
    /**
-    * Set text
-    *
-    * @param string The text
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setText(final String string) throws JMSException {

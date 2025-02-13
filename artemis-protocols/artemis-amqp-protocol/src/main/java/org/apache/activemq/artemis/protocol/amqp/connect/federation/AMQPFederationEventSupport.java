@@ -46,17 +46,13 @@ import io.netty.buffer.PooledByteBufAllocator;
 public final class AMQPFederationEventSupport {
 
    /**
-    * Encode an event that indicates that a Queue that belongs to a federation
-    * request which was not present at the time of the request or was later removed
-    * is now present and the remote should check for demand and attempt to federate
+    * Encode an event that indicates that a Queue that belongs to a federation request which was not present at the time
+    * of the request or was later removed is now present and the remote should check for demand and attempt to federate
     * the resource once again.
     *
-    * @param address
-    *    The address that the queue is currently bound to.
-    * @param queue
-    *    The queue that was part of a previous federation request.
-    *
-    * @return the AMQP message with the encoded event data.
+    * @param address The address that the queue is currently bound to.
+    * @param queue   The queue that was part of a previous federation request.
+    * @return the AMQP message with the encoded event data
     */
    public static AMQPMessage encodeQueueAddedEvent(String address, String queue) {
       final Map<Symbol, Object> annotations = new LinkedHashMap<>();
@@ -87,15 +83,12 @@ public final class AMQPFederationEventSupport {
    }
 
    /**
-    * Encode an event that indicates that an Address that belongs to a federation
-    * request which was not present at the time of the request or was later removed
-    * is now present and the remote should check for demand and attempt to federate
-    * the resource once again.
+    * Encode an event that indicates that an Address that belongs to a federation request which was not present at the
+    * time of the request or was later removed is now present and the remote should check for demand and attempt to
+    * federate the resource once again.
     *
-    * @param address
-    *    The address portion of the previously failed federation request
-    *
-    * @return the AMQP message with the encoded event data.
+    * @param address The address portion of the previously failed federation request
+    * @return the AMQP message with the encoded event data
     */
    public static AMQPMessage encodeAddressAddedEvent(String address) {
       final Map<Symbol, Object> annotations = new LinkedHashMap<>();
@@ -125,15 +118,11 @@ public final class AMQPFederationEventSupport {
    }
 
    /**
-    * Decode and return the Map containing the event data for a Queue that was
-    * the target of a previous federation request which was not present on the
-    * remote server or was later removed has now been (re)added.
+    * Decode and return the Map containing the event data for a Queue that was the target of a previous federation
+    * request which was not present on the remote server or was later removed has now been (re)added.
     *
-    * @param message
-    *    The event message that carries the event data in its body.
-    *
-    * @return a {@link Map} containing the payload of the incoming event.
-    *
+    * @param message The event message that carries the event data in its body.
+    * @return a {@link Map} containing the payload of the incoming event
     * @throws ActiveMQException if an error occurs while decoding the event data.
     */
    @SuppressWarnings("unchecked")
@@ -173,15 +162,11 @@ public final class AMQPFederationEventSupport {
    }
 
    /**
-    * Decode and return the Map containing the event data for an Address that was
-    * the target of a previous federation request which was not present on the
-    * remote server or was later removed has now been (re)added.
+    * Decode and return the Map containing the event data for an Address that was the target of a previous federation
+    * request which was not present on the remote server or was later removed has now been (re)added.
     *
-    * @param message
-    *    The event message that carries the event data in its body.
-    *
-    * @return a {@link Map} containing the payload of the incoming event.
-    *
+    * @param message The event message that carries the event data in its body.
+    * @return a {@link Map} containing the payload of the incoming event
     * @throws ActiveMQException if an error occurs while decoding the event data.
     */
    @SuppressWarnings("unchecked")

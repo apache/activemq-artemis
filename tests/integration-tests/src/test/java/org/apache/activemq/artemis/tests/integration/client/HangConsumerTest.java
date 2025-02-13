@@ -85,9 +85,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This test will simulate a consumer hanging on the delivery packet due to unbehaved clients
- * and it will make sure we can still perform certain operations on the queue such as produce
- * and verify the counters
+ * This test will simulate a consumer hanging on the delivery packet due to unbehaved clients and it will make sure we
+ * can still perform certain operations on the queue such as produce and verify the counters
  */
 public class HangConsumerTest extends ActiveMQTestBase {
 
@@ -182,31 +181,20 @@ public class HangConsumerTest extends ActiveMQTestBase {
       }
    }
 
-   /**
-    *
-    */
    protected void releaseConsumers() {
       callbackSemaphore.release();
    }
 
-   /**
-    * @throws InterruptedException
-    */
    protected void awaitBlocking() throws InterruptedException {
       assertTrue(this.inCall.await(5000));
    }
 
-   /**
-    * @throws InterruptedException
-    */
    protected void blockConsumers() throws InterruptedException {
       this.callbackSemaphore.acquire();
    }
 
    /**
     * This would recreate the scenario where a queue was duplicated
-    *
-    * @throws Exception
     */
    @Test
    public void testHangDuplicateQueues() throws Exception {
@@ -214,15 +202,6 @@ public class HangConsumerTest extends ActiveMQTestBase {
       final CountDownLatch latchDelete = new CountDownLatch(1);
       class MyQueueWithBlocking extends QueueImpl {
 
-         /**
-          * @param queueConfiguration
-          * @param pageSubscription
-          * @param scheduledExecutor
-          * @param postOffice
-          * @param storageManager
-          * @param addressSettingsRepository
-          * @param executor
-          */
          MyQueueWithBlocking(final QueueConfiguration queueConfiguration,
                              final Filter filter,
                              final PagingStore pagingStore,
@@ -334,10 +313,8 @@ public class HangConsumerTest extends ActiveMQTestBase {
    }
 
    /**
-    * This would force a journal duplication on bindings even with the scenario that generated fixed,
-    * the server shouldn't hold of from starting
-    *
-    * @throws Exception
+    * This would force a journal duplication on bindings even with the scenario that generated fixed, the server
+    * shouldn't hold of from starting
     */
    @Test
    public void testForceDuplicationOnBindings() throws Exception {
@@ -419,9 +396,8 @@ public class HangConsumerTest extends ActiveMQTestBase {
    }
 
    /**
-    * This will simulate what would happen with topic creationg where a single record is supposed to be created on the journal
-    *
-    * @throws Exception
+    * This will simulate what would happen with topic creationg where a single record is supposed to be created on the
+    * journal
     */
    @Test
    public void testDuplicateDestinationsOnTopic() throws Exception {
@@ -481,9 +457,6 @@ public class HangConsumerTest extends ActiveMQTestBase {
          this.targetCallback = parameter;
       }
 
-      /* (non-Javadoc)
-       * @see SessionCallback#sendProducerCreditsMessage(int, SimpleString)
-       */
       @Override
       public void sendProducerCreditsMessage(int credits, SimpleString address) {
          targetCallback.sendProducerCreditsMessage(credits, address);
@@ -496,7 +469,6 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
       @Override
       public void browserFinished(ServerConsumer consumer) {
-
       }
 
       @Override
@@ -506,7 +478,6 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
       @Override
       public void afterDelivery() throws Exception {
-
       }
 
       @Override
@@ -514,9 +485,6 @@ public class HangConsumerTest extends ActiveMQTestBase {
          targetCallback.sendProducerCreditsFailMessage(credits, address);
       }
 
-      /* (non-Javadoc)
-       * @see SessionCallback#sendJmsMessage(org.apache.activemq.artemis.core.server.ServerMessage, long, int)
-       */
       @Override
       public int sendMessage(MessageReference ref, ServerConsumer consumer, int deliveryCount) {
          inCall.countDown();
@@ -535,9 +503,6 @@ public class HangConsumerTest extends ActiveMQTestBase {
          }
       }
 
-      /* (non-Javadoc)
-       * @see SessionCallback#sendLargeMessage(org.apache.activemq.artemis.core.server.ServerMessage, long, long, int)
-       */
       @Override
       public int sendLargeMessage(MessageReference ref,
                                   ServerConsumer consumer,
@@ -546,9 +511,6 @@ public class HangConsumerTest extends ActiveMQTestBase {
          return targetCallback.sendLargeMessage(ref, consumer, bodySize, deliveryCount);
       }
 
-      /* (non-Javadoc)
-       * @see SessionCallback#sendLargeMessageContinuation(long, byte[], boolean, boolean)
-       */
       @Override
       public int sendLargeMessageContinuation(ServerConsumer consumer,
                                               byte[] body,
@@ -557,9 +519,6 @@ public class HangConsumerTest extends ActiveMQTestBase {
          return targetCallback.sendLargeMessageContinuation(consumer, body, continues, requiresResponse);
       }
 
-      /* (non-Javadoc)
-       * @see SessionCallback#closed()
-       */
       @Override
       public void closed() {
          targetCallback.closed();
@@ -568,7 +527,6 @@ public class HangConsumerTest extends ActiveMQTestBase {
       @Override
       public void disconnect(ServerConsumer consumerId, String errorMessage) {
       }
-
    }
 
    class MyActiveMQServer extends ActiveMQServerImpl {

@@ -136,9 +136,6 @@ public class LegacyJMSConfiguration implements Deployable {
 
    /**
     * Parse the topic node as a TopicConfiguration object
-    *
-    * @param node
-    * @throws Exception
     */
    public void parseTopicConfiguration(final Node node) throws Exception {
       String topicName = node.getAttributes().getNamedItem(NAME_ATTR).getNodeValue();
@@ -149,9 +146,6 @@ public class LegacyJMSConfiguration implements Deployable {
 
    /**
     * Parse the Queue Configuration node as a QueueConfiguration object
-    *
-    * @param node
-    * @throws Exception
     */
    public void parseQueueConfiguration(final Node node) throws Exception {
       Element e = (Element) node;

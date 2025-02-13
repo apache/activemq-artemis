@@ -318,10 +318,6 @@ public class FileLockNodeManager extends FileBasedNodeManager {
       writeFileLockStatus(PAUSED);
    }
 
-   /**
-    * @param status
-    * @throws NodeManagerException
-    */
    private void writeFileLockStatus(byte status) throws NodeManagerException {
       if (replicatedBackup && channel == null) {
          return;

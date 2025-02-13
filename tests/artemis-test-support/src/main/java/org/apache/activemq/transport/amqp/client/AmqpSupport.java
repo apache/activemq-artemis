@@ -84,11 +84,10 @@ public class AmqpSupport {
    //----- Utility Methods --------------------------------------------------//
 
    /**
-    * Given an ErrorCondition instance create a new Exception that best matches
-    * the error type.
+    * Given an ErrorCondition instance create a new Exception that best matches the error type.
     *
     * @param errorCondition The ErrorCondition returned from the remote peer.
-    * @return a new Exception instance that best matches the ErrorCondition value.
+    * @return a new Exception instance that best matches the ErrorCondition value
     */
    public static Exception convertToException(ErrorCondition errorCondition) {
       Exception remoteError = null;
@@ -125,11 +124,11 @@ public class AmqpSupport {
    }
 
    /**
-    * Attempt to read and return the embedded error message in the given ErrorCondition
-    * object.  If no message can be extracted a generic message is returned.
+    * Attempt to read and return the embedded error message in the given ErrorCondition object.  If no message can be
+    * extracted a generic message is returned.
     *
     * @param errorCondition The ErrorCondition to extract the error message from.
-    * @return an error message extracted from the given ErrorCondition.
+    * @return an error message extracted from the given ErrorCondition
     */
    public static String extractErrorMessage(ErrorCondition errorCondition) {
       String message = "Received error from remote peer without description";
@@ -148,13 +147,13 @@ public class AmqpSupport {
    }
 
    /**
-    * When a redirect type exception is received this method is called to create the
-    * appropriate redirect exception type containing the error details needed.
+    * When a redirect type exception is received this method is called to create the appropriate redirect exception type
+    * containing the error details needed.
     *
     * @param error     the Symbol that defines the redirection error type.
     * @param message   the basic error message that should used or amended for the returned exception.
     * @param condition the ErrorCondition that describes the redirection.
-    * @return an Exception that captures the details of the redirection error.
+    * @return an Exception that captures the details of the redirection error
     */
    public static Exception createRedirectException(Symbol error, String message, ErrorCondition condition) {
       Exception result = null;

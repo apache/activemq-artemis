@@ -64,7 +64,7 @@ public class AddressImpl implements Address {
    /**
     * This method should actually be called `isMatchedBy`.
     *
-    * @return `true` if this equals otherAddr or this address is matched by a pattern represented by otherAddr
+    * @return {@code true} if this equals otherAddr or this address is matched by a pattern represented by otherAddr
     */
    @Override
    public boolean matches(final Address otherAddr) {

@@ -19,10 +19,8 @@ package org.apache.activemq.artemis.utils.collections;
 import java.util.Collection;
 
 /**
- * Provides an Array Iterator that is able to reset, allowing you to iterate over the full array.
- * It achieves this though by moving end position mark to the the current cursors position,
- * so it round robins, even with reset.
- * @param <E>
+ * Provides an Array Iterator that is able to reset, allowing you to iterate over the full array. It achieves this
+ * though by moving end position mark to the the current cursors position, so it round robins, even with reset.
  */
 public class ArrayResettableIterator<E> implements ResettableIterator<E> {
 

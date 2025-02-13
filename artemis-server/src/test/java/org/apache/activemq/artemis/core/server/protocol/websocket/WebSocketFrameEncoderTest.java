@@ -45,9 +45,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-/**
- * WebSocketContinuationFrameEncoderTest
- */
 @ExtendWith(MockitoExtension.class)
 public class WebSocketFrameEncoderTest {
 

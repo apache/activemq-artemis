@@ -38,8 +38,7 @@ public class SystemUsage implements Service {
    private String checkLimitsLogLevel = "warn";
 
    /**
-    * True if someone called setSendFailIfNoSpace() on this particular usage
-    * manager
+    * True if someone called setSendFailIfNoSpace() on this particular usage manager
     */
    private boolean sendFailIfNoSpaceExplicitySet;
    private boolean sendFailIfNoSpace;
@@ -84,30 +83,18 @@ public class SystemUsage implements Service {
       return name;
    }
 
-   /**
-    * @return the memoryUsage
-    */
    public MemoryUsage getMemoryUsage() {
       return this.memoryUsage;
    }
 
-   /**
-    * @return the storeUsage
-    */
    public StoreUsage getStoreUsage() {
       return this.storeUsage;
    }
 
-   /**
-    * @return the tempDiskUsage
-    */
    public TempUsage getTempUsage() {
       return this.tempUsage;
    }
 
-   /**
-    * @return the schedulerUsage
-    */
    public JobSchedulerUsage getJobSchedulerUsage() {
       return this.jobSchedulerUsage;
    }
@@ -250,16 +237,10 @@ public class SystemUsage implements Service {
       this.jobSchedulerUsage.setExecutor(getExecutor());
    }
 
-   /**
-    * @return the executor
-    */
    public ThreadPoolExecutor getExecutor() {
       return this.executor;
    }
 
-   /**
-    * @param executor the executor to set
-    */
    public void setExecutor(ThreadPoolExecutor executor) {
       this.executor = executor;
       if (this.memoryUsage != null) {

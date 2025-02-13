@@ -20,16 +20,15 @@ import java.util.Map;
 import javax.net.ssl.SSLContext;
 
 /**
- * Service interface to create a SSLContext for a configuration.
- * This is NOT used by OpenSSL.
- * To create and use your own implementation you need to create a file
- * <code>META-INF/services/org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory</code>
- * in your jar and fill it with the full qualified name of your implementation.
+ * Service interface to create a SSLContext for a configuration. This is NOT used by OpenSSL. To create and use your own
+ * implementation you need to create a file
+ * {@code META-INF/services/org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory} in your jar and fill it
+ * with the full qualified name of your implementation.
  */
 public interface SSLContextFactory extends Comparable<SSLContextFactory> {
 
    /**
-    * @return an {@link SSLContext} for the given configuration.
+    * @return an {@link SSLContext} for the given configuration
     *
     * @deprecated use {@link #getSSLContext(SSLContextConfig, Map)} instead
     */
@@ -58,7 +57,7 @@ public interface SSLContextFactory extends Comparable<SSLContextFactory> {
    /**
     * @param additionalOpts implementation specific additional options.
     *
-    * @return an {@link SSLContext} for the given configuration.
+    * @return an {@link SSLContext} for the given configuration
     */
    default SSLContext getSSLContext(SSLContextConfig config, Map<String, Object> additionalOpts) throws Exception {
       return getSSLContext(additionalOpts,
@@ -72,10 +71,11 @@ public interface SSLContextFactory extends Comparable<SSLContextFactory> {
    }
 
    /**
-    * The priority for the SSLContextFactory when resolving the service to get the implementation.
-    * This is used when selecting the implementation when several implementations are loaded.
-    * The highest priority implementation will be used.
-    * @return the priority.
+    * The priority for the SSLContextFactory when resolving the service to get the implementation. This is used when
+    * selecting the implementation when several implementations are loaded. The highest priority implementation will be
+    * used.
+    *
+    * @return the priority
     */
    int getPriority();
 

@@ -42,8 +42,6 @@ public class JmsClientAckTest extends BasicOpenWireTest {
 
    /**
     * Tests if acknowledged messages are being consumed.
-    *
-    * @throws JMSException
     */
    @Test
    public void testAckedMessageAreConsumed() throws JMSException {
@@ -73,8 +71,6 @@ public class JmsClientAckTest extends BasicOpenWireTest {
 
    /**
     * Tests if acknowledged messages are being consumed.
-    *
-    * @throws JMSException
     */
    @Test
    public void testLastMessageAcked() throws JMSException {
@@ -110,8 +106,6 @@ public class JmsClientAckTest extends BasicOpenWireTest {
 
    /**
     * Tests if unacknowledged messages are being re-delivered when the consumer connects again.
-    *
-    * @throws JMSException
     */
    @Test
    public void testUnAckedMessageAreNotConsumedOnSessionClose() throws JMSException {
@@ -143,8 +137,6 @@ public class JmsClientAckTest extends BasicOpenWireTest {
 
    /**
     * Tests if acknowledged messages are being consumed.
-    *
-    * @throws JMSException
     */
    @Test
    public void testAckedMessageDeliveringWithPrefetch() throws Exception {

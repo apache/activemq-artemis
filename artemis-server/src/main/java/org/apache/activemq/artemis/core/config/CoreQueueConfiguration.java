@@ -177,89 +177,56 @@ public class CoreQueueConfiguration implements Serializable {
          .setRoutingType(queueConfiguration.getRoutingType() != null ? queueConfiguration.getRoutingType() : ActiveMQDefaultConfiguration.getDefaultRoutingType());
    }
 
-   /**
-    * @param address the address to set
-    */
    public CoreQueueConfiguration setAddress(final String address) {
       this.address = address;
       return this;
    }
 
-   /**
-    * @param name the name to set
-    */
    public CoreQueueConfiguration setName(final String name) {
       this.name = name;
       return this;
    }
 
-   /**
-    * @param filterString the filterString to set
-    */
    public CoreQueueConfiguration setFilterString(final String filterString) {
       this.filterString = filterString;
       return this;
    }
 
-   /**
-    * @param durable the durable to set; default value is true
-    */
    public CoreQueueConfiguration setDurable(final boolean durable) {
       this.durable = durable;
       return this;
    }
 
-   /**
-    * @param maxConsumers for this queue, default is -1 (unlimited)
-    */
    public CoreQueueConfiguration setMaxConsumers(Integer maxConsumers) {
       this.maxConsumers = maxConsumers;
       return this;
    }
 
-   /**
-    * @param consumersBeforeDispatch for this queue, default is 0 (dispatch as soon as 1 consumer)
-    */
    public CoreQueueConfiguration setConsumersBeforeDispatch(Integer consumersBeforeDispatch) {
       this.consumersBeforeDispatch = consumersBeforeDispatch;
       return this;
    }
 
-   /**
-    * @param delayBeforeDispatch for this queue, default is 0 (start dispatch with no delay)
-    */
    public CoreQueueConfiguration setDelayBeforeDispatch(Long delayBeforeDispatch) {
       this.delayBeforeDispatch = delayBeforeDispatch;
       return this;
    }
 
-   /**
-    * @param ringSize for this queue, default is -1
-    */
    public CoreQueueConfiguration setRingSize(Long ringSize) {
       this.ringSize = ringSize;
       return this;
    }
 
-   /**
-    * @param enabled for this queue, default is true
-    */
    public CoreQueueConfiguration setEnabled(Boolean enabled) {
       this.enabled = enabled;
       return this;
    }
 
-   /**
-    * @param purgeOnNoConsumers delete this queue when consumer count reaches 0, default is false
-    */
    public CoreQueueConfiguration setPurgeOnNoConsumers(Boolean purgeOnNoConsumers) {
       this.purgeOnNoConsumers = purgeOnNoConsumers;
       return this;
    }
 
-   /**
-    * @param user the use you want to associate with creating the queue
-    */
    public CoreQueueConfiguration setUser(String user) {
       this.user = user;
       return this;

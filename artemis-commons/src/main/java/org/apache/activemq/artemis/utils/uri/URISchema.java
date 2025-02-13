@@ -72,8 +72,8 @@ public abstract class URISchema<T, P> {
    }
 
    /**
-    * It will create a new Object for the URI selected schema.
-    * the propertyOverrides is used to replace whatever was defined on the URL string
+    * It will create a new Object for the URI selected schema. the propertyOverrides is used to replace whatever was
+    * defined on the URL string
     *
     * @param uri               The URI
     * @param propertyOverrides used to replace whatever was defined on the URL string
@@ -87,8 +87,7 @@ public abstract class URISchema<T, P> {
    protected abstract T internalNewObject(URI uri, Map<String, String> query, P param) throws Exception;
 
    /**
-    * This is the default implementation.
-    * Sub classes are should provide a proper implementation for their schemas.
+    * This is the default implementation. Sub classes are should provide a proper implementation for their schemas.
     */
    protected URI internalNewURI(T bean) throws Exception {
       String query = BeanSupport.getData(null, bean);

@@ -124,8 +124,8 @@ public class SocketProxy {
       return proxyUrl;
    }
 
-   /*
-    * close all proxy connections and acceptor
+   /**
+    * Close all proxy connections and acceptor
     */
    public void close() {
       List<Bridge> connections;
@@ -140,9 +140,8 @@ public class SocketProxy {
       closed.countDown();
    }
 
-   /*
-    * close all proxy receive connections, leaving acceptor
-    * open
+   /**
+    * Close all proxy receive connections, leaving acceptor open
     */
    public void halfClose() {
       List<Bridge> connections;
@@ -159,8 +158,8 @@ public class SocketProxy {
       return closed.await(timeoutSeconds, TimeUnit.SECONDS);
    }
 
-   /*
-    * called after a close to restart the acceptor on the same port
+   /**
+    * Called after a close to restart the acceptor on the same port
     */
    public void reopen() {
       LOG.info("reopen");
@@ -171,9 +170,8 @@ public class SocketProxy {
       }
    }
 
-   /*
-    * pause accepting new connections and data transfer through existing proxy
-    * connections. All sockets remain open
+   /**
+    * Pause accepting new connections and data transfer through existing proxy connections. All sockets remain open.
     */
    public void pause() {
       synchronized (connections) {
@@ -185,8 +183,8 @@ public class SocketProxy {
       }
    }
 
-   /*
-    * continue after pause
+   /**
+    * Continue after pause
     */
    public void goOn() {
       synchronized (connections) {
@@ -391,5 +389,4 @@ public class SocketProxy {
          }
       }
    }
-
 }

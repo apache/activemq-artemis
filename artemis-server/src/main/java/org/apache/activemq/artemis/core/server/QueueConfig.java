@@ -256,11 +256,11 @@ public final class QueueConfig {
 
       /**
        * Returns a new {@link QueueConfig} using the parameters configured on the {@link Builder}.
-       * <br>
+       * <p>
        * The reference parameters aren't defensively copied from the {@link Builder} to the {@link QueueConfig}.
-       * <br>
-       * This method creates a new {@link PageSubscription} only if {@link #pagingManager} is not {@code null} and
-       * if {@link FilterUtils#isTopicIdentification} returns {@code false} on {@link #filter}.
+       * <p>
+       * This method creates a new {@link PageSubscription} only if {@link #pagingManager} is not {@code null} and if
+       * {@link FilterUtils#isTopicIdentification} returns {@code false} on {@link #filter}.
        *
        * @throws IllegalStateException if the creation of {@link PageSubscription} fails
        */
@@ -288,10 +288,10 @@ public final class QueueConfig {
    }
 
    /**
-    * Returns a new {@link Builder} of a durable, not temporary and autoCreated {@link QueueConfig} with the given {@code id} and {@code name}.
-    * <br>
-    * The {@code address} is defaulted to the {@code name} value.
-    * The reference parameters aren't defensively copied.
+    * Returns a new {@link Builder} of a durable, not temporary and autoCreated {@link QueueConfig} with the given
+    * {@code id} and {@code name}.
+    * <p>
+    * The {@code address} is defaulted to the {@code name} value. The reference parameters aren't defensively copied.
     *
     * @param id   the id of the queue to be created
     * @param name the name of the queue to be created
@@ -302,8 +302,9 @@ public final class QueueConfig {
    }
 
    /**
-    * Returns a new {@link Builder} of a durable, not temporary and autoCreated {@link QueueConfig} with the given {@code id}, {@code name} and {@code address}.
-    * <br>
+    * Returns a new {@link Builder} of a durable, not temporary and autoCreated {@link QueueConfig} with the given
+    * {@code id}, {@code name} and {@code address}.
+    * <p>
     * The reference parameters aren't defensively copied.
     *
     * @param id      the id of the queue to be created

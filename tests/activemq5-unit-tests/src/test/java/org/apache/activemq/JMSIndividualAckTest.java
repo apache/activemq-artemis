@@ -25,9 +25,6 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-/**
- *
- */
 public class JMSIndividualAckTest extends TestSupport {
 
    private Connection connection;
@@ -38,9 +35,6 @@ public class JMSIndividualAckTest extends TestSupport {
       connection = createConnection();
    }
 
-   /**
-    * @see junit.framework.TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
@@ -52,8 +46,6 @@ public class JMSIndividualAckTest extends TestSupport {
 
    /**
     * Tests if acknowledged messages are being consumed.
-    *
-    * @throws JMSException
     */
    public void testAckedMessageAreConsumed() throws JMSException {
       connection.start();
@@ -82,8 +74,6 @@ public class JMSIndividualAckTest extends TestSupport {
 
    /**
     * Tests if acknowledged messages are being consumed.
-    *
-    * @throws JMSException
     */
    public void testLastMessageAcked() throws JMSException {
       connection.start();
@@ -126,8 +116,6 @@ public class JMSIndividualAckTest extends TestSupport {
 
    /**
     * Tests if unacknowledged messages are being re-delivered when the consumer connects again.
-    *
-    * @throws JMSException
     */
    public void testUnAckedMessageAreNotConsumedOnSessionClose() throws JMSException {
       connection.start();

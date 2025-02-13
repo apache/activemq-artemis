@@ -67,23 +67,10 @@ public class NetworkTestSupport extends BrokerTestSupport {
       return broker;
    }
 
-   /**
-    * @return
-    * @throws Exception
-    * @throws IOException
-    * @throws URISyntaxException
-    */
    protected TransportConnector createRemoteConnector() throws Exception, IOException, URISyntaxException {
       return new TransportConnector(TransportFactory.bind(new URI(getRemoteURI())));
    }
 
-   /**
-    * @param value
-    * @return
-    * @throws Exception
-    * @throws IOException
-    * @throws URISyntaxException
-    */
    protected TransportConnector createConnector() throws Exception, IOException, URISyntaxException {
       return new TransportConnector(TransportFactory.bind(new URI(getLocalURI())));
    }
@@ -137,10 +124,8 @@ public class NetworkTestSupport extends BrokerTestSupport {
    }
 
    /**
-    * Simulates a broker restart. The memory based persistence adapter is
-    * reused so that it does not "loose" it's "persistent" messages.
-    *
-    * @throws Exception
+    * Simulates a broker restart. The memory based persistence adapter is reused so that it does not "loose" it's
+    * "persistent" messages.
     */
    protected void restartRemoteBroker() throws Exception {
 

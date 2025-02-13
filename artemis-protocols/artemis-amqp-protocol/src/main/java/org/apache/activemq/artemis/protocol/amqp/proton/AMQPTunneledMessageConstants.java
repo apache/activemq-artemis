@@ -17,15 +17,13 @@
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
 /**
- * Message constants used for handling the "tunneling" of other protocol messages
- * in an AMQP delivery sent from one broker to another without conversion.
- *
- * A tunneled Core message is sent with a custom message format indicating either
- * a standard or large core message is carried within. The message is encoded using
- * the standard (message format zero) AMQP message structure. The core message is
- * encoded in the body section as two or more Data sections. The first being the
- * message headers and properties encoding. Any remaining Data sections comprise
- * the body of the Core message.
+ * Message constants used for handling the "tunneling" of other protocol messages in an AMQP delivery sent from one
+ * broker to another without conversion.
+ * <p>
+ * A tunneled Core message is sent with a custom message format indicating either a standard or large core message is
+ * carried within. The message is encoded using the standard (message format zero) AMQP message structure. The core
+ * message is encoded in the body section as two or more Data sections. The first being the message headers and
+ * properties encoding. Any remaining Data sections comprise the body of the Core message.
  */
 public class AMQPTunneledMessageConstants {
 
@@ -36,19 +34,13 @@ public class AMQPTunneledMessageConstants {
     */
    private static final int ARTEMIS_TUNNELED_MESSAGE_FORMAT_PREFIX = 0x468C0000;
 
-   /*
-    * Used to indicate that the format contains a Core message (non-large).
-    */
+   // Used to indicate that the format contains a Core message (non-large).
    private static final int ARTEMIS_CORE_MESSAGE_TYPE = 0x00000100;
 
-   /*
-    * Used to indicate that the format contains a Core large message.
-    */
+   // Used to indicate that the format contains a Core large message.
    private static final int ARTEMIS_CORE_LARGE_MESSAGE_TYPE = 0x00000200;
 
-   /*
-    * Indicate version one of the message format
-    */
+   // Indicate version one of the message format
    private static final int ARTEMIS_MESSAGE_FORMAT_V1 = 0x00;
 
    /**

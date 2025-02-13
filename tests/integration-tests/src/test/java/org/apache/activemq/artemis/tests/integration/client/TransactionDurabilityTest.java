@@ -45,8 +45,6 @@ public class TransactionDurabilityTest extends ActiveMQTestBase {
     * R1 then rolls back, and the server is restarted - unfortunately since the delete record was written R1 is not ready to be consumed again.
     *
     * It's therefore crucial the messages aren't deleted from storage until AFTER any ack records are committed to storage.
-    *
-    *
     */
    @Test
    public void testRolledBackAcknowledgeWithSameMessageAckedByOtherSession() throws Exception {

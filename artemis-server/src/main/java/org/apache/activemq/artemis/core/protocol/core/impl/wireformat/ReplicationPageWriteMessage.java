@@ -101,16 +101,10 @@ public class ReplicationPageWriteMessage extends PacketImpl implements MessagePa
       }
    }
 
-   /**
-    * @return the pageNumber
-    */
    public long getPageNumber() {
       return pageNumber;
    }
 
-   /**
-    * @return the pagedMessage
-    */
    public PagedMessage getPagedMessage() {
       return pagedMessage;
    }

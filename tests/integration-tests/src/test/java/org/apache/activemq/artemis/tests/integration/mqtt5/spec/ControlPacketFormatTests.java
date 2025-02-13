@@ -44,7 +44,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not explicitly tested here):
  *
  * [MQTT-2.1.3-1] Where a flag bit is marked as “Reserved” it is reserved for future use and MUST be set to the value listed.

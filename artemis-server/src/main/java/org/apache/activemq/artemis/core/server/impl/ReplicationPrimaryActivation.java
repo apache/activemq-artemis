@@ -57,8 +57,8 @@ import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequ
 import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequenceStateMachine.tryActivate;
 
 /**
- * This is going to be {@link #run()} just by natural born primary, at the first start.
- * Both during a failover or a failback, {@link #run()} isn't going to be used, but only {@link #getActivationChannelHandler(Channel, Acceptor)}.
+ * This is going to be {@link #run()} just by natural born primary, at the first start. Both during a failover or a
+ * failback, {@link #run()} isn't going to be used, but only {@link #getActivationChannelHandler(Channel, Acceptor)}.
  */
 public class ReplicationPrimaryActivation extends PrimaryActivation implements DistributedLock.UnavailableLockListener {
 
@@ -272,8 +272,8 @@ public class ReplicationPrimaryActivation extends PrimaryActivation implements D
    }
 
    /**
-    * This is handling awaiting backup announcement before trying to failover.
-    * This broker is an active backup broker ready to restart as passive.
+    * This is handling awaiting backup announcement before trying to failover. This broker is an active backup broker
+    * ready to restart as passive.
     */
    private void awaitBackupAnnouncementOnFailbackRequest(ClusterConnection clusterConnection) throws Exception {
       final String nodeID = activeMQServer.getNodeID().toString();

@@ -112,13 +112,11 @@ public class ParameterisedAddress {
    }
 
    /**
-    * Given an address string, extract only the query portion if the address is
-    * parameterized, otherwise return an empty {@link Map}.
+    * Given an address string, extract only the query portion if the address is parameterized, otherwise return an empty
+    * {@link Map}.
     *
-    * @param address
-    *       The address to operate on.
-    *
-    * @return a {@link Map} containing the parameters associated with the given address.
+    * @param address The address to operate on.
+    * @return a {@link Map} containing the parameters associated with the given address
     */
    @SuppressWarnings("unchecked")
    public static Map<String, String> extractParameters(String address) {
@@ -132,13 +130,11 @@ public class ParameterisedAddress {
    }
 
    /**
-    * Given an address string, extract only the address portion if the address is
-    * parameterized, otherwise just return the provided address.
+    * Given an address string, extract only the address portion if the address is parameterized, otherwise just return
+    * the provided address.
     *
-    * @param address
-    *       The address to operate on.
-    *
-    * @return the original address minus any appended parameters.
+    * @param address The address to operate on.
+    * @return the original address minus any appended parameters
     */
    public static String extractAddress(String address) {
       final int index = address != null ? address.indexOf('?') : -1;

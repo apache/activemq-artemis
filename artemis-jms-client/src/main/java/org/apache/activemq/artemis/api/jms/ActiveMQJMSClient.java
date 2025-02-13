@@ -60,30 +60,22 @@ public class ActiveMQJMSClient {
       DEFAULT_ENABLE_1X_PREFIXES = prefixes;
    }
 
-   /**
-    * Creates an ActiveMQConnectionFactory;
-    *
-    * @return the ActiveMQConnectionFactory
-    */
    public static ActiveMQConnectionFactory createConnectionFactory(final String url, String name) throws Exception {
       ConnectionFactoryParser parser = new ConnectionFactoryParser();
       return parser.newObject(parser.expandURI(url), name);
    }
 
    /**
-    * Creates an ActiveMQConnectionFactory that receives cluster topology updates from the cluster as
-    * servers leave or join and new backups are appointed or removed.
+    * Creates an ActiveMQConnectionFactory that receives cluster topology updates from the cluster as servers leave or
+    * join and new backups are appointed or removed.
     * <p>
-    * The discoveryAddress and discoveryPort parameters in this method are used to listen for UDP
-    * broadcasts which contain connection information for members of the cluster. The broadcasted
-    * connection information is simply used to make an initial connection to the cluster, once that
-    * connection is made, up to date cluster topology information is downloaded and automatically
-    * updated whenever the cluster topology changes. If the topology includes backup servers that
-    * information is also propagated to the client so that it can know which server to failover onto
-    * in case of server failure.
+    * The discoveryAddress and discoveryPort parameters in this method are used to listen for UDP broadcasts which
+    * contain connection information for members of the cluster. The broadcasted connection information is simply used
+    * to make an initial connection to the cluster, once that connection is made, up to date cluster topology
+    * information is downloaded and automatically updated whenever the cluster topology changes. If the topology
+    * includes backup servers that information is also propagated to the client so that it can know which server to
+    * failover onto in case of server failure.
     *
-    * @param groupConfiguration
-    * @param jmsFactoryType
     * @return the ActiveMQConnectionFactory
     */
    public static ActiveMQConnectionFactory createConnectionFactoryWithHA(final DiscoveryGroupConfiguration groupConfiguration,
@@ -92,12 +84,11 @@ public class ActiveMQJMSClient {
    }
 
    /**
-    * Create an ActiveMQConnectionFactory which creates session factories from a set of active servers, no HA backup information is propagated to the client
-    *
+    * Create an ActiveMQConnectionFactory which creates session factories from a set of active servers, no HA backup
+    * information is propagated to the client
+    * <p>
     * The UDP address and port are used to listen for active servers in the cluster
     *
-    * @param groupConfiguration
-    * @param jmsFactoryType
     * @return the ActiveMQConnectionFactory
     */
    public static ActiveMQConnectionFactory createConnectionFactoryWithoutHA(final DiscoveryGroupConfiguration groupConfiguration,
@@ -106,19 +97,17 @@ public class ActiveMQJMSClient {
    }
 
    /**
-    * Create an ActiveMQConnectionFactory which will receive cluster topology updates from the cluster
-    * as servers leave or join and new backups are appointed or removed.
+    * Create an ActiveMQConnectionFactory which will receive cluster topology updates from the cluster as servers leave
+    * or join and new backups are appointed or removed.
     * <p>
-    * The initial list of servers supplied in this method is simply to make an initial connection to
-    * the cluster, once that connection is made, up to date cluster topology information is
-    * downloaded and automatically updated whenever the cluster topology changes. If the topology
-    * includes backup servers that information is also propagated to the client so that it can know
-    * which server to failover onto in case of server failure.
+    * The initial list of servers supplied in this method is simply to make an initial connection to the cluster, once
+    * that connection is made, up to date cluster topology information is downloaded and automatically updated whenever
+    * the cluster topology changes. If the topology includes backup servers that information is also propagated to the
+    * client so that it can know which server to failover onto in case of server failure.
     *
-    * @param jmsFactoryType
-    * @param initialServers The initial set of servers used to make a connection to the cluster.
-    *                       Each one is tried in turn until a successful connection is made. Once a connection
-    *                       is made, the cluster topology is downloaded and the rest of the list is ignored.
+    * @param initialServers The initial set of servers used to make a connection to the cluster. Each one is tried in
+    *                       turn until a successful connection is made. Once a connection is made, the cluster topology
+    *                       is downloaded and the rest of the list is ignored.
     * @return the ActiveMQConnectionFactory
     */
    public static ActiveMQConnectionFactory createConnectionFactoryWithHA(JMSFactoryType jmsFactoryType,
@@ -130,11 +119,9 @@ public class ActiveMQJMSClient {
     * Create an ActiveMQConnectionFactory which creates session factories using a static list of
     * transportConfigurations.
     * <p>
-    * The ActiveMQConnectionFactory is not updated automatically as the cluster topology changes, and
-    * no HA backup information is propagated to the client
+    * The ActiveMQConnectionFactory is not updated automatically as the cluster topology changes, and no HA backup
+    * information is propagated to the client
     *
-    * @param jmsFactoryType
-    * @param transportConfigurations
     * @return the ActiveMQConnectionFactory
     */
    public static ActiveMQConnectionFactory createConnectionFactoryWithoutHA(JMSFactoryType jmsFactoryType,
@@ -144,9 +131,9 @@ public class ActiveMQJMSClient {
 
    /**
     * Creates a client-side representation of a JMS Topic.
-    *
-    * This method is deprecated. Use {@link org.apache.activemq.artemis.jms.client.ActiveMQSession#createTopic(String)} as that method will know the proper
-    * prefix used at the target server.
+    * <p>
+    * This method is deprecated. Use {@link org.apache.activemq.artemis.jms.client.ActiveMQSession#createTopic(String)}
+    * as that method will know the proper prefix used at the target server.
     *
     * @param name the name of the topic
     * @return The Topic
@@ -162,10 +149,10 @@ public class ActiveMQJMSClient {
 
    /**
     * Creates a client-side representation of a JMS Queue.
+    * <p>
+    * This method is deprecated. Use {@link org.apache.activemq.artemis.jms.client.ActiveMQSession#createQueue(String)}
+    * (String)} as that method will know the proper prefix used at the target server. *
     *
-    * This method is deprecated. Use {@link org.apache.activemq.artemis.jms.client.ActiveMQSession#createQueue(String)} (String)} as that method will know the proper
-    * prefix used at the target server.
-    * *
     * @param name the name of the queue
     * @return The Queue
     */

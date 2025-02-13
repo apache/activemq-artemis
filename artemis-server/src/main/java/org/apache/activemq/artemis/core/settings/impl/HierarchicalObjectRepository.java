@@ -54,19 +54,17 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    private T defaultmatch;
 
    /**
-    * the matches; separate wildcard matches from exact matches to reduce the searching necessary with a
-    * large number of exact matches
+    * the matches; separate wildcard matches from exact matches to reduce the searching necessary with a large number of
+    * exact matches
     */
    private final Map<String, Match<T>> wildcardMatches = new HashMap<>();
    private final Map<String, Match<T>> exactMatches = new HashMap<>();
    private final Map<String, Match<T>> literalMatches = new HashMap<>();
 
    /**
-    * Certain values cannot be removed after installed.
-    * This is because we read a few records from the main config.
-    * JBoss AS deployer may remove them on undeploy, while we don't want to accept that since
-    * this could cause issues on shutdown.
-    * Notice you can still change these values. You just can't remove them.
+    * Certain values cannot be removed after installed. This is because we read a few records from the main config.
+    * JBoss AS deployer may remove them on undeploy, while we don't want to accept that since this could cause issues on
+    * shutdown. Notice you can still change these values. You just can't remove them.
     */
    private final Set<String> immutables = new HashSet<>();
 
@@ -85,23 +83,17 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
 
    private final char literalMatchMarkerEnd;
 
-   /**
-    * a cache
-    */
    private final Map<String, T> cache = new ConcurrentHashMap<>();
 
    /**
     * Need a lock instead of using multiple {@link ConcurrentHashMap}s.
     * <p>
-    * We could have a race between the state of {@link #wildcardMatches}, {@link #exactMatches},
-    * and {@link #cache}:
-    * <p>
-    * Thread1: calls {@link #addMatch(String, T)}: i. cleans cache; ii. adds match to Map.<br>
-    * Thread2: could add an (out-dated) entry to the cache between 'i. clean cache' and 'ii. add
-    * match to Map'.
-    * <p>
-    * The lock is OK with regards to performance because we can search the cache before entering the
-    * lock.
+    * We could have a race between the state of {@link #wildcardMatches}, {@link #exactMatches}, and {@link #cache}:
+    * <ul>
+    * <li>Thread1: calls {@link #addMatch(String, T)}: i. cleans cache; ii. adds match to Map.
+    * <li>Thread2: could add an (out-dated) entry to the cache between 'i. clean cache' and 'ii. add match to Map'.
+    * </ul>
+    * The lock is OK with regards to performance because we can search the cache before entering the lock.
     * <p>
     * The lock is required for the 'add match to cache' part.
     */
@@ -242,10 +234,8 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    }
 
    /**
-    * return the value held against the nearest match
-    *
+    * {@return the value held against the nearest match}
     * @param match the match to look for
-    * @return the value
     */
    @Override
    public T getMatch(final String match) {
@@ -281,9 +271,6 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
 
    /**
     * merge all the possible matches, if the values implement Mergeable then a full merge is done
-    *
-    * @param orderedMatches
-    * @return
     */
    private T merge(final Collection<Match<T>> orderedMatches) {
       Iterator<Match<T>> matchIterator = orderedMatches.iterator();
@@ -315,9 +302,9 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
          if (immutables.contains(modMatch)) {
             logger.debug("Cannot remove match {} since it came from a main config", modMatch);
          } else {
-            /**
-             * Clear the cache before removing the match, but only if the match used wildcards. This
-             * will force any thread at {@link #getMatch(String)} to get the lock to recompute.
+            /*
+             * Clear the cache before removing the match, but only if the match used wildcards. This will force any
+             * thread at {@link #getMatch(String)} to get the lock to recompute.
              */
             if (usesWildcards(modMatch)) {
                clearCache();
@@ -369,7 +356,6 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    }
 
    /**
-    *
     * @return the default match for this repo
     */
    @Override
@@ -439,12 +425,6 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       }
    }
 
-   /**
-    * return matches
-    *
-    * @param match
-    * @return
-    */
    private List<Match<T>> getMatches(final String match) {
       List<Match<T>> matches = new ArrayList<>();
 

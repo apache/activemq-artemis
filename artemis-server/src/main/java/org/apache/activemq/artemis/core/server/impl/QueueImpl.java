@@ -156,8 +156,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public static final int CHECK_QUEUE_SIZE_PERIOD = 1000;
 
    /**
-    * If The system gets slow for any reason, this is the maximum time a Delivery or
-    * or depage executor should be hanging on
+    * If The system gets slow for any reason, this is the maximum time a Delivery or or depage executor should be
+    * hanging on
     */
    public static final int DELIVERY_TIMEOUT = 1000;
 
@@ -169,19 +169,20 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile boolean queueDestroyed = false;
 
-   // Variable to control if we should print a flow controlled message or not.
-   // Once it was flow controlled, we will stop warning until it's cleared once again
+   // Variable to control if we should print a flow controlled message or not. Once it was flow controlled, we will stop
+   // warning until it's cleared once again
    private volatile boolean pageFlowControlled = false;
 
    private volatile long pageFlowControlledLastLog = 0;
 
-   // It is not expected to have an user really changing this. This is a system property now in case users disagree and find value on changing it.
-   // In case there is in fact value on changing it we may consider bringing it as an address-settings or broker.xml
+   // It is not expected to have a user really changing this. This is a system property now in case users disagree and
+   // find value on changing it. In case there is in fact value on changing it we may consider bringing it as an
+   // address-settings in broker.xml
    private static final long PAGE_FLOW_CONTROL_PRINT_INTERVAL = Long.parseLong(System.getProperty("ARTEMIS_PAGE_FLOW_CONTROL_PRINT_INTERVAL", "60000"));
 
-   // once we delivered messages from paging, we need to call asyncDelivery upon acks
-   // if we flow control paging, ack more messages will open the space to deliver more messages
-   // hence we will need this flag to determine if it was paging before.
+   // Once we delivered messages from paging we need to call asyncDelivery upon acks if we flow control paging, ack more
+   // messages will open the space to deliver more messages hence we will need this flag to determine if it was paging
+   // before.
    private volatile boolean pageDelivered = false;
 
    private final PagingStore pagingStore;
@@ -198,9 +199,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile boolean hasUnMatchedPending = false;
 
-   // Messages will first enter intermediateMessageReferences
-   // Before they are added to messageReferences
-   // This is to avoid locking the queue on the producer
+   // Messages will first enter intermediateMessageReferences before they are added to messageReferences. This is to
+   // avoid locking the queue on the producer
    private final MpscUnboundedArrayQueue<MessageReference> intermediateMessageReferences;
 
    // This is where messages are stored
@@ -331,8 +331,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    /**
-    * This is to avoid multi-thread races on calculating direct delivery,
-    * to guarantee ordering will be always be correct
+    * This is to avoid multi-thread races on calculating direct delivery, to guarantee ordering will be always be
+    * correct
     */
    private final Object directDeliveryGuard = new Object();
 
@@ -824,7 +824,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   /* Called when a message is cancelled back into the queue */
    @Override
    public void addHead(final MessageReference ref, boolean scheduling) {
       if (logger.isTraceEnabled()) {
@@ -850,7 +849,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   /* Called when a message is cancelled back into the queue */
    @Override
    public void addSorted(final MessageReference ref, boolean scheduling) {
       if (logger.isTraceEnabled()) {
@@ -875,7 +873,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   /* Called when a message is cancelled back into the queue */
    @Override
    public void addHead(final List<MessageReference> refs, boolean scheduling) {
       try (ArtemisCloseable metric = measureCritical(CRITICAL_PATH_ADD_HEAD)) {
@@ -891,7 +888,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   /* Called when a message is cancelled back into the queue */
    @Override
    public void addSorted(final List<MessageReference> refs, boolean scheduling) {
       if (refs.size() > MAX_DELIVERIES_IN_LOOP) {
@@ -1099,7 +1095,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   /* Only used on tests */
+   // Only used on tests
    public void deliverNow() {
       deliverAsync();
 
@@ -1641,9 +1637,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       acknowledge(tx, ref, AckReason.NORMAL, null, true);
    }
 
-   /** The parameter delivering can be sent as false in situation where the ack is coming outside of the context of delivering.
-    *  Example: Mirror replication will call the ack here without any consumer involved. On that case no previous delivery happened,
-    *           hence no information about delivering statistics should be updated. */
+   /**
+    * The parameter delivering can be sent as false in situation where the ack is coming outside of the context of
+    * delivering. Example: Mirror replication will call the ack here without any consumer involved. On that case no
+    * previous delivery happened, hence no information about delivering statistics should be updated.
+    */
    @Override
    public void acknowledge(final Transaction tx, final MessageReference ref, final AckReason reason, final ServerConsumer consumer, boolean delivering) throws Exception {
       final boolean transactional = tx != null;
@@ -1743,7 +1741,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       getRefsOperation(tx, AckReason.NORMAL).addAck(ref);
 
-      // https://issues.jboss.org/browse/HORNETQ-609
       incDelivering(ref);
 
       messagesAcknowledged.incrementAndGet();
@@ -1804,9 +1801,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       expire(ref, null, true);
    }
 
-   /** The parameter delivering can be sent as false in situation where the ack is coming outside of the context of delivering.
-    *  Example: Mirror replication will call the ack here without any consumer involved. On that case no previous delivery happened,
-    *           hence no information about delivering statistics should be updated. */
+   /**
+    * The parameter delivering can be sent as false in situation where the ack is coming outside of the context of
+    * delivering. Example: Mirror replication will call the ack here without any consumer involved. On that case no
+    * previous delivery happened, hence no information about delivering statistics should be updated.
+    */
    @Override
    public void expire(final MessageReference ref, final ServerConsumer consumer, boolean delivering) throws Exception {
       expire(null, ref, consumer, delivering);
@@ -1999,14 +1998,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    /**
-    * This is a generic method for any method interacting on the Queue to move or delete messages
-    * Instead of duplicate the feature we created an abstract class where you pass the logic for
-    * each message.
-    *
-    * @param filter1
-    * @param messageAction
-    * @return
-    * @throws Exception
+    * This is a generic method for any method interacting on the Queue to move or delete messages Instead of duplicate
+    * the feature we created an abstract class where you pass the logic for each message.
     */
    private int iterQueue(final int flushLimit,
                          final Filter filter1,
@@ -2720,17 +2713,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return directDeliver && supportsDirectDeliver;
    }
 
-   /**
-    * @return if queue is internal
-    */
    @Override
    public boolean isInternalQueue() {
       return queueConfiguration.isInternal();
    }
 
-   /**
-    * @param internalQueue the internalQueue to set
-    */
    @Override
    public void setInternalQueue(boolean internalQueue) {
       queueConfiguration.setInternal(internalQueue);
@@ -2769,11 +2756,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    /**
-    * The caller of this method requires synchronized on the queue.
-    * I'm not going to add synchronized to this method just for a precaution,
-    * as I'm not 100% sure this won't cause any extra runtime.
-    *
-    * @param ref
+    * The caller of this method requires synchronized on the queue. I'm not going to add synchronized to this method
+    * just for a precaution, as I'm not 100% sure this won't cause any extra runtime.
     */
    private void internalAddHead(final MessageReference ref) {
       if (RefCountMessage.isRefTraceEnabled()) {
@@ -2791,11 +2775,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    /**
-    * The caller of this method requires synchronized on the queue.
-    * I'm not going to add synchronized to this method just for a precaution,
-    * as I'm not 100% sure this won't cause any extra runtime.
-    *
-    * @param ref
+    * The caller of this method requires synchronized on the queue. I'm not going to add synchronized to this method
+    * just for a precaution, as I'm not 100% sure this won't cause any extra runtime.
     */
    private void internalAddSorted(final MessageReference ref) {
       if (RefCountMessage.isRefTraceEnabled()) {
@@ -2849,10 +2830,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   /** This method is to only be used during deliveryAsync when the queue was destroyed
-    and the async process left more messages to be delivered
-    This is a race between destroying the queue and async sends that came after
-    the deleteQueue already happened. */
+   /**
+    * This method is to only be used during deliveryAsync when the queue was destroyed and the async process left more
+    * messages to be delivered. This is a race between destroying the queue and async sends that came after the
+    * deleteQueue already happened.
+    */
    private void removeMessagesWhileDelivering() throws Exception {
       assert queueDestroyed : "Method to be used only when the queue was destroyed";
       Transaction tx = new TransactionImpl(storageManager);
@@ -3107,10 +3089,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    /**
-    *
     * This is a check on page sizing.
-    *
-    * @return
     */
    private boolean needsDepage() {
       final int maxReadMessages = pageSubscription.getPagingStore().getMaxPageReadMessages();
@@ -3494,7 +3473,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       RoutingContext routingContext = new RoutingContextImpl(tx);
 
-      /* this algorithm will look at the old route and find the new remote queue bindings where the messages should go
+      /*
+       * this algorithm will look at the old route and find the new remote queue bindings where the messages should go
        * and route them there directly
        */
       while (oldBuffer.hasRemaining()) {
@@ -3711,9 +3691,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   /*
-    * This method delivers the reference on the callers thread - this can give us better latency in the case there is nothing in the queue
-    */
+   // This method delivers the reference on the callers thread - this can give us better latency in the case there is nothing in the queue
    private boolean deliverDirect(final MessageReference ref) {
       //The order to enter the deliverLock re QueueImpl::this lock is very important:
       //- acquire deliverLock::lock
@@ -3836,7 +3814,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   /** This will print errors and decide what to do with the errored consumer from the protocol layer. */
+   /**
+    * This will print errors and decide what to do with the errored consumer from the protocol layer.
+    */
    @Override
    public void errorProcessing(Consumer consumer, Throwable t, MessageReference reference) {
       ActiveMQServerLogger.LOGGER.removingBadConsumer(consumer, reference, t);
@@ -3894,9 +3874,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       postAcknowledge(ref, reason, true);
    }
 
-   /** The parameter delivering can be sent as false in situation where the ack is coming outside of the context of delivering.
-    *  Example: Mirror replication will call the ack here without any consumer involved. On that case no previous delivery happened,
-    *           hence no information about delivering statistics should be updated. */
+   /**
+    * The parameter delivering can be sent as false in situation where the ack is coming outside of the context of
+    * delivering. Example: Mirror replication will call the ack here without any consumer involved. On that case no
+    * previous delivery happened, hence no information about delivering statistics should be updated.
+    */
    @Override
    public void postAcknowledge(final MessageReference ref, AckReason reason, boolean delivering) {
       QueueImpl queue = (QueueImpl) ref.getQueue();
@@ -4150,9 +4132,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    /**
-    * There's no need of having multiple instances of this class. a Single instance per QueueImpl should be more than sufficient.
-    * previous versions of this class were using a synchronized object. The current version is using the deliverRunner
-    * instance, and to avoid confusion on the implementation I'm requesting to keep this single instanced per QueueImpl.
+    * There's no need of having multiple instances of this class. a Single instance per QueueImpl should be more than
+    * sufficient. previous versions of this class were using a synchronized object. The current version is using the
+    * deliverRunner instance, and to avoid confusion on the implementation I'm requesting to keep this single instanced
+    * per QueueImpl.
     */
    private final class DeliverRunner implements Runnable {
 
@@ -4201,11 +4184,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       /**
+       * The custom action to take on the message from the queue iterator.
        *
-       * @param tx   the transaction which the message action should participate in
-       * @param ref  the message reference which the action should act upon
-       * @return     true if the action should result in the removal of the message from the queue; false otherwise
-       * @throws Exception
+       * @param tx  the transaction which the message action should participate in
+       * @param ref the message reference which the action should act upon
+       * @return true if the action should result in the removal of the message from the queue; false otherwise
        */
       public abstract boolean actMessage(Transaction tx, MessageReference ref) throws Exception;
 
@@ -4214,7 +4197,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   /* For external use we need to use a synchronized version since the list is not thread safe */
+   // For external use we need to use a synchronized version since the list is not thread safe
    private class SynchronizedIterator implements LinkedListIterator<MessageReference> {
 
       private final LinkedListIterator<MessageReference> iter;
@@ -4413,8 +4396,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public void decDelivering(final MessageReference reference) {
       deliveringMetrics.decrementMetrics(reference);
       if (pageDelivered) {
-         /* we check for async delivery after acks
-            in case paging stopped for lack of space */
+         // We check for async delivery after acks in case paging stopped for lack of space
          deliverAsync();
       }
    }

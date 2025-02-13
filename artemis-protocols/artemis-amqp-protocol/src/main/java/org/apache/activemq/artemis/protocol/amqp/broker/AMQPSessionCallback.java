@@ -231,21 +231,15 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    /**
-    * Creates a server consume that reads from the given named queue and forwards the read messages to
-    * the AMQP sender to dispatch to the remote peer. The consumer priority value is extracted from the
-    * remote link properties that were assigned by the remote receiver.
+    * Creates a server consume that reads from the given named queue and forwards the read messages to the AMQP sender
+    * to dispatch to the remote peer. The consumer priority value is extracted from the remote link properties that were
+    * assigned by the remote receiver.
     *
-    * @param protonSender
-    *    The {@link ProtonServerReceiverContext} that will be attached to the resulting consumer
-    * @param queue
-    *    The target queue that the consumer reads from.
-    * @param filter
-    *    The filter assigned to the consumer of the target queue.
-    * @param browserOnly
-    *    Should the consumer act as a browser on the target queue.
-    *
-    * @return a new {@link ServerConsumer} attached to the given queue.
-    *
+    * @param protonSender The {@link ProtonServerReceiverContext} that will be attached to the resulting consumer
+    * @param queue        The target queue that the consumer reads from.
+    * @param filter       The filter assigned to the consumer of the target queue.
+    * @param browserOnly  Should the consumer act as a browser on the target queue.
+    * @return a new {@link ServerConsumer} attached to the given queue
     * @throws Exception if an error occurs while creating the consumer instance.
     */
    public ServerConsumer createSender(ProtonServerSenderContext protonSender,
@@ -256,22 +250,15 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    /**
-    * Creates a server consume that reads from the given named queue and forwards the read messages to
-    * the AMQP sender to dispatch to the remote peer.
+    * Creates a server consume that reads from the given named queue and forwards the read messages to the AMQP sender
+    * to dispatch to the remote peer.
     *
-    * @param protonSender
-    *    The {@link ProtonServerReceiverContext} that will be attached to the resulting consumer
-    * @param queue
-    *    The target queue that the consumer reads from.
-    * @param filter
-    *    The filter assigned to the consumer of the target queue.
-    * @param browserOnly
-    *    Should the consumer act as a browser on the target queue.
-    * @param priority
-    *    The priority to assign the new consumer (server defaults are used if not set).
-    *
-    * @return a new {@link ServerConsumer} attached to the given queue.
-    *
+    * @param protonSender The {@link ProtonServerReceiverContext} that will be attached to the resulting consumer
+    * @param queue        The target queue that the consumer reads from.
+    * @param filter       The filter assigned to the consumer of the target queue.
+    * @param browserOnly  Should the consumer act as a browser on the target queue.
+    * @param priority     The priority to assign the new consumer (server defaults are used if not set).
+    * @return a new {@link ServerConsumer} attached to the given queue
     * @throws Exception if an error occurs while creating the consumer instance.
     */
    public ServerConsumer createSender(ProtonServerSenderContext protonSender,
@@ -684,7 +671,9 @@ public class AMQPSessionCallback implements SessionCallback {
       });
    }
 
-   /** Will execute a Runnable on an Address when there's space in memory*/
+   /**
+    * Will execute a Runnable on an Address when there's space in memory
+    */
    public void flow(final SimpleString address,
                     Runnable runnable) {
       try {
@@ -720,7 +709,8 @@ public class AMQPSessionCallback implements SessionCallback {
       storageManager.setContext(oldContext);
    }
 
-   /** Set the proper operation context in the Thread Local.
+   /**
+    * Set the proper operation context in the Thread Local.
     *  Return the old context*/
    public OperationContext recoverContext() {
       OperationContext oldContext = storageManager.getContext();
@@ -811,16 +801,12 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    /**
-    * Adds key / value based metadata into the underlying server session implementation
-    * for use by the connection resources.
+    * Adds key / value based metadata into the underlying server session implementation for use by the connection
+    * resources.
     *
-    * @param key
-    *    The key to add into the linked server session.
-    * @param value
-    *    The value to add into the linked server session attached to the given key.
-    *
-    * @return this {@link AMQPSessionCallback} instance.
-    *
+    * @param key   The key to add into the linked server session.
+    * @param value The value to add into the linked server session attached to the given key.
+    * @return this {@link AMQPSessionCallback} instance
     * @throws Exception if an error occurs while adding the metadata.
     */
    public AMQPSessionCallback addMetaData(String key, String value) throws Exception {

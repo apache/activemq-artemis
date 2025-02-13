@@ -131,8 +131,8 @@ public class JournalCompatibilityTest extends VersionedBase {
    }
 
    /**
-    * Test that the server starts properly using an old journal even though persistent size
-    * metrics were not originaly stored
+    * Test that the server starts properly using an old journal even though persistent size metrics were not originaly
+    * stored
     */
    @TestTemplate
    public void testSendReceiveQueueMetrics() throws Throwable {
@@ -149,9 +149,8 @@ public class JournalCompatibilityTest extends VersionedBase {
    }
 
    /**
-    * Test that the metrics are recovered when paging.  Even though the paging counts won't
-    * be persisted the journal the server should still start properly.  The persistent sizes
-    * will be recovered when the messages are depaged
+    * Test that the metrics are recovered when paging.  Even though the paging counts won't be persisted the journal the
+    * server should still start properly.  The persistent sizes will be recovered when the messages are depaged
     */
    @TestTemplate
    public void testSendReceiveSizeQueueMetricsPaging() throws Throwable {

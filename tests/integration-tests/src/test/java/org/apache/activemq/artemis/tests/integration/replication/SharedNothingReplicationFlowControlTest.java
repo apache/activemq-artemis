@@ -448,10 +448,9 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       ccconf.setConnectorName("backup");
       conf.addClusterConfiguration(ccconf);
 
-      /**
-       * Set a bad url then, as a result the backup node would make a decision
-       * of replicating from live node in the case of connection failure.
-       * Set big check period to not schedule checking which would stop server.
+      /*
+       * Set a bad url then, as a result the backup node would make a decision of replicating from live node in the case
+       * of connection failure. Set big check period to not schedule checking which would stop server.
        */
       conf.setNetworkCheckPeriod(1000000).setNetworkCheckURLList("http://localhost:28787").setSecurityEnabled(false).setJMXManagementEnabled(false).setJournalType(JournalType.MAPPED).setJournalFileSize(1024 * 512).setConnectionTTLOverride(60_000L);
 

@@ -30,8 +30,7 @@ import org.apache.qpid.proton.amqp.transport.Open;
 import org.apache.qpid.proton.amqp.transport.Transfer;
 
 /**
- * Abstract base for a validation hook that is used in tests to check
- * the values of incoming or outgoing AMQP frames.
+ * Abstract base for a validation hook that is used in tests to check the values of incoming or outgoing AMQP frames.
  */
 public class AmqpFrameValidator {
 

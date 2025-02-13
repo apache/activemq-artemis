@@ -68,10 +68,10 @@ public class TransportConstants {
 
    public static final String USE_KQUEUE_PROP_NAME = "useKQueue";
 
-   @Deprecated
    /**
     * @deprecated Use USE_GLOBAL_WORKER_POOL_PROP_NAME
     */
+   @Deprecated
    public static final String USE_NIO_GLOBAL_WORKER_POOL_PROP_NAME = "useNioGlobalWorkerPool";
 
    public static final String USE_GLOBAL_WORKER_POOL_PROP_NAME = "useGlobalWorkerPool";
@@ -145,14 +145,15 @@ public class TransportConstants {
    public static final String NETTY_VERSION;
 
    /**
-    * Disable Nagle's algorithm.<br>
+    * Disable Nagle's algorithm.
+    * <p>
     * Valid for (client) Sockets.
     *
     * @see <a
-    * href="http://design.jboss.org/jbossorg/branding/Javadocs/doc/api/org/jboss/netty/channel/socket/SocketChannelConfig.html#setTcpNoDelay%28boolean%29">
-    * Netty note on this option</a>
-    * @see <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/net/socketOpt.html">Oracle
-    * doc on tcpNoDelay</a>
+    * href="https://netty.io/4.1/api/io/netty/channel/socket/SocketChannelConfig.html#setTcpNoDelay-boolean-">Netty note
+    * on this option</a>
+    * @see <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/net/socketOpt.html">Oracle doc on
+    * tcpNoDelay</a>
     */
    public static final String TCP_NODELAY_PROPNAME = "tcpNoDelay";
 
@@ -160,10 +161,10 @@ public class TransportConstants {
 
    public static final String TCP_RECEIVEBUFFER_SIZE_PROPNAME = "tcpReceiveBufferSize";
 
-   @Deprecated
    /**
     * @deprecated Use REMOTING_THREADS_PROPNAME
     */
+   @Deprecated
    public static final String NIO_REMOTING_THREADS_PROPNAME = "nioRemotingThreads";
 
    public static final String WRITE_BUFFER_LOW_WATER_MARK_PROPNAME = "writeBufferLowWaterMark";
@@ -364,17 +365,20 @@ public class TransportConstants {
 
    public static final String DISABLE_STOMP_SERVER_HEADER = "disableStompServerHeader";
 
-   /** We let this to be defined as a System Variable, as we need a different timeout over our testsuite.
-    *  When running on a real server, this is the default we want.
-    *  When running on a test suite, we need it to be 0, You should see a property on the main pom.xml.
+   /**
+    * We let this to be defined as a System Variable, as we need a different timeout over our testsuite. When running on
+    * a real server, this is the default we want. When running on a test suite, we need it to be 0, You should see a
+    * property on the main pom.xml.
     */
    public static final int DEFAULT_QUIET_PERIOD = parseDefaultVariable("DEFAULT_QUIET_PERIOD", 100);
 
    public static final String SHUTDOWN_TIMEOUT = "shutdownTimeout";
 
-   /** We let this to be defined as a System Variable, as we need a different timeout over our testsuite.
-    *  When running on a real server, this is the default we want.
-    *  When running on a test suite, we need it to be 0, You should see a property on the main pom.xml */
+   /**
+    * We let this to be defined as a System Variable, as we need a different timeout over our testsuite. When running on
+    * a real server, this is the default we want. When running on a test suite, we need it to be 0, You should see a
+    * property on the main pom.xml
+    */
    public static final int DEFAULT_SHUTDOWN_TIMEOUT = parseDefaultVariable("DEFAULT_SHUTDOWN_TIMEOUT", 3_000);
 
    public static final boolean DEFAULT_PROXY_ENABLED = false;

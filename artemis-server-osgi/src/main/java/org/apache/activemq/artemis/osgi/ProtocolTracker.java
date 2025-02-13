@@ -30,10 +30,9 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
- * Tracks the available ProtocolManagerFactory services as well as the required protocols.
- * When a new service appears the factory is added to the server.
- * When all needed protocols are present the server is started.
- * When required a service disappears the server is stopped.
+ * Tracks the available ProtocolManagerFactory services as well as the required protocols. When a new service appears
+ * the factory is added to the server. When all needed protocols are present the server is started. When required a
+ * service disappears the server is stopped.
  */
 @SuppressWarnings("rawtypes")
 public class ProtocolTracker implements ServiceTrackerCustomizer<ProtocolManagerFactory<Interceptor>, ProtocolManagerFactory<Interceptor>> {

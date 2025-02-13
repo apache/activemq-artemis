@@ -21,23 +21,20 @@ import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 
 /**
  * A ClientConsumer receives messages from ActiveMQ Artemis queues.
- * <br>
- * Messages can be consumed synchronously by using the <code>receive()</code> methods
- * which will block until a message is received (or a timeout expires) or asynchronously
- * by setting a {@link MessageHandler}.
- * <br>
- * These 2 types of consumption are exclusive: a ClientConsumer with a MessageHandler set will
- * throw ActiveMQException if its <code>receive()</code> methods are called.
+ * <p>
+ * Messages can be consumed synchronously by using the {@code receive()} methods which will block until a message is
+ * received (or a timeout expires) or asynchronously by setting a {@link MessageHandler}.
+ * <p>
+ * These 2 types of consumption are exclusive: a ClientConsumer with a MessageHandler set will throw ActiveMQException
+ * if its {@code receive()} methods are called.
  *
  * @see ClientSession#createConsumer(String)
  */
 public interface ClientConsumer extends AutoCloseable {
 
    /**
-    * The server's ID associated with this consumer.
-    * ActiveMQ Artemis implements this as a long but this could be protocol dependent.
-    *
-    * @return
+    * The server's ID associated with this consumer. ActiveMQ Artemis implements this as a long but this could be
+    * protocol dependent.
     */
    ConsumerContext getConsumerContext();
 
@@ -67,14 +64,14 @@ public interface ClientConsumer extends AutoCloseable {
    ClientMessage receive(long timeout) throws ActiveMQException;
 
    /**
-    * Receives a message from a queue. This call will force a network trip to ActiveMQ Artemis server to
-    * ensure that there are no messages in the queue which can be delivered to this consumer.
+    * Receives a message from a queue. This call will force a network trip to ActiveMQ Artemis server to ensure that
+    * there are no messages in the queue which can be delivered to this consumer.
     * <p>
-    * This call will never wait indefinitely for a message, it will return {@code null} if no
-    * messages are available for this consumer.
+    * This call will never wait indefinitely for a message, it will return {@code null} if no messages are available for
+    * this consumer.
     * <p>
-    * Note however that there is a performance cost as an additional network trip to the server may
-    * required to check the queue status.
+    * Note however that there is a performance cost as an additional network trip to the server may required to check
+    * the queue status.
     * <p>
     * Calling this method on a closed consumer will throw an ActiveMQException.
     *
@@ -84,8 +81,6 @@ public interface ClientConsumer extends AutoCloseable {
    ClientMessage receiveImmediate() throws ActiveMQException;
 
    /**
-    * Returns the MessageHandler associated to this consumer.
-    * <p>
     * Calling this method on a closed consumer will throw an ActiveMQException.
     *
     * @return the MessageHandler associated to this consumer or {@code null}
@@ -96,8 +91,8 @@ public interface ClientConsumer extends AutoCloseable {
    /**
     * Sets the MessageHandler for this consumer to consume messages asynchronously.
     * <p>
-    * Note that setting a handler dedicates the parent session, and its child producers
-    * and consumers, to the session-wide handler delivery thread of control.
+    * Note that setting a handler dedicates the parent session, and its child producers and consumers, to the
+    * session-wide handler delivery thread of control.
     * <p>
     * Calling this method on a closed consumer will throw a ActiveMQException.
     *
@@ -109,25 +104,18 @@ public interface ClientConsumer extends AutoCloseable {
    /**
     * Closes the consumer.
     * <p>
-    * Once this consumer is closed, it can not receive messages, whether synchronously or
-    * asynchronously.
-    *
-    * @throws ActiveMQException
+    * Once this consumer is closed, it can not receive messages, whether synchronously or asynchronously.
     */
    @Override
    void close() throws ActiveMQException;
 
    /**
-    * Returns whether the consumer is closed or not.
-    *
-    * @return <code>true</code> if this consumer is closed, <code>false</code> else
+    * {@return {@code true} if this consumer is closed, {@code false} else}
     */
    boolean isClosed();
 
    /**
-    * Returns the last exception thrown by a call to this consumer's MessageHandler.
-    *
-    * @return the last exception thrown by a call to this consumer's MessageHandler or {@code null}
+    * {@return the last exception thrown by a call to this consumer's MessageHandler or {@code null}}
     */
    Exception getLastException();
 }

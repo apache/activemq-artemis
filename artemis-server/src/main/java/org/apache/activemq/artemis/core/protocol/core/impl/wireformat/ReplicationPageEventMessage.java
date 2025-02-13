@@ -84,23 +84,14 @@ public class ReplicationPageEventMessage extends PacketImpl {
       isDelete = buffer.readBoolean();
    }
 
-   /**
-    * @return the pageNumber
-    */
    public long getPageNumber() {
       return pageNumber;
    }
 
-   /**
-    * @return the storeName
-    */
    public SimpleString getStoreName() {
       return storeName;
    }
 
-   /**
-    * @return the isDelete
-    */
    public boolean isDelete() {
       return isDelete;
    }

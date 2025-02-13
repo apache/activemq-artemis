@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 /**
- * A Metrics class that supports nesting to provide various elements in the federation
- * space a view of its own Metrics for federation operations.
+ * A Metrics class that supports nesting to provide various elements in the federation space a view of its own Metrics
+ * for federation operations.
  */
 public final class AMQPFederationMetrics {
 
@@ -63,8 +63,8 @@ public final class AMQPFederationMetrics {
    }
 
    /**
-    * Metrics for a single consumer instance that will also updates to the parents
-    * when the Metrics are updated by the consumer.
+    * Metrics for a single consumer instance that will also updates to the parents when the Metrics are updated by the
+    * consumer.
     */
    public static class ConsumerMetrics {
 
@@ -90,8 +90,8 @@ public final class AMQPFederationMetrics {
    }
 
    /**
-    * Metrics for a single producer instance that will also updates to the parents
-    * when the Metrics are updated by the producer.
+    * Metrics for a single producer instance that will also updates to the parents when the Metrics are updated by the
+    * producer.
     */
    public static class ProducerMetrics {
 

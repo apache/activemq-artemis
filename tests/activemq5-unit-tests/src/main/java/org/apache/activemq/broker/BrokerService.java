@@ -71,9 +71,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Manages the life-cycle of an ActiveMQ Broker. A BrokerService consists of a
- * number of transport connectors, network connectors and a bunch of properties
- * which can be used to configure the broker as its lazily created.
+ * Manages the life-cycle of an ActiveMQ Broker. A BrokerService consists of a number of transport connectors, network
+ * connectors and a bunch of properties which can be used to configure the broker as its lazily created.
  */
 public class BrokerService implements Service {
 

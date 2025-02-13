@@ -40,8 +40,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
- * Multiple Threads producing Messages, with Multiple Consumers with different queues, each queue with a different filter
- * This is similar to MultipleThreadFilterTwoTest but it uses multiple queues
+ * Multiple Threads producing Messages, with Multiple Consumers with different queues, each queue with a different
+ * filter This is similar to MultipleThreadFilterTwoTest but it uses multiple queues
  */
 public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
 
@@ -97,9 +97,6 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
          }
       }
 
-      /**
-       * @throws ActiveMQException
-       */
       private void sendMessages(int msgs) throws ActiveMQException {
          ClientProducer producer = prodSession.createProducer(ADDRESS);
 
@@ -171,9 +168,6 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
          }
       }
 
-      /**
-       *
-       */
       public void close() {
          try {
             consumerSession.close();

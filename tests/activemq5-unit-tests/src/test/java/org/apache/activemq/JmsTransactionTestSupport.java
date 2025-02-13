@@ -39,9 +39,6 @@ import org.apache.activemq.test.TestSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public abstract class JmsTransactionTestSupport extends TestSupport implements MessageListener {
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsTransactionTestSupport.class);
@@ -72,11 +69,6 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
       super(name);
    }
 
-   /*
-    * (non-Javadoc)
-    *
-    * @see junit.framework.TestCase#setUp()
-    */
    @Override
    protected void setUp() throws Exception {
       broker = createBroker();
@@ -111,17 +103,10 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
       session.rollback();
    }
 
-   /**
-    */
    protected BrokerService createBroker() throws Exception, URISyntaxException {
       return BrokerFactory.createBroker(new URI("broker://()/localhost?persistent=false"));
    }
 
-   /*
-    * (non-Javadoc)
-    *
-    * @see junit.framework.TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       LOG.info("Closing down connection");
@@ -150,8 +135,6 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
 
    /**
     * Sends a batch of messages and validates that the messages are received.
-    *
-    * @throws Exception
     */
    public void testSendReceiveTransactedBatches() throws Exception {
 
@@ -182,10 +165,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
    }
 
    /**
-    * Sends a batch of messages and validates that the rollbacked message was
-    * not consumed.
-    *
-    * @throws Exception
+    * Sends a batch of messages and validates that the rollbacked message was not consumed.
     */
    public void testSendRollback() throws Exception {
       Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message")};
@@ -228,7 +208,6 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
 
    /**
     * spec section 3.6 acking a message with automation acks has no effect.
-    * @throws Exception
     */
    public void testAckMessageInTx() throws Exception {
       Message[] outbound = new Message[]{session.createTextMessage("First Message")};
@@ -256,11 +235,9 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
    }
 
    /**
-    * Sends a batch of messages and validates that the message sent before
-    * session close is not consumed.
-    *
+    * Sends a batch of messages and validates that the message sent before session close is not consumed.
+    * <p>
     * This test only works with local transactions, not xa.
-    * @throws Exception
     */
    public void testSendSessionClose() throws Exception {
       Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message")};
@@ -303,10 +280,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
    }
 
    /**
-    * Sends a batch of messages and validates that the message sent before
-    * session close is not consumed.
-    *
-    * @throws Exception
+    * Sends a batch of messages and validates that the message sent before session close is not consumed.
     */
    public void testSendSessionAndConnectionClose() throws Exception {
       Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message")};
@@ -351,10 +325,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
    }
 
    /**
-    * Sends a batch of messages and validates that the rollbacked message was
-    * redelivered.
-    *
-    * @throws Exception
+    * Sends a batch of messages and validates that the rollbacked message was redelivered.
     */
    public void testReceiveRollback() throws Exception {
       Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message")};
@@ -402,10 +373,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
    }
 
    /**
-    * Sends a batch of messages and validates that the rollbacked message was
-    * redelivered.
-    *
-    * @throws Exception
+    * Sends a batch of messages and validates that the rollbacked message was redelivered.
     */
    public void testReceiveTwoThenRollback() throws Exception {
       Message[] outbound = new Message[]{session.createTextMessage("First Message"), session.createTextMessage("Second Message")};
@@ -456,10 +424,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
    }
 
    /**
-    * Sends a batch of messages and validates that the rollbacked message was
-    * not consumed.
-    *
-    * @throws Exception
+    * Sends a batch of messages and validates that the rollbacked message was not consumed.
     */
    public void testSendReceiveWithPrefetchOne() throws Exception {
       setPrefetchToOne();
@@ -486,10 +451,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
    }
 
    /**
-    * Perform the test that validates if the rollbacked message was redelivered
-    * multiple times.
-    *
-    * @throws Exception
+    * Perform the test that validates if the rollbacked message was redelivered multiple times.
     */
    public void testReceiveTwoThenRollbackManyTimes() throws Exception {
       for (int i = 0; i < 5; i++) {
@@ -498,10 +460,8 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
    }
 
    /**
-    * Sends a batch of messages and validates that the rollbacked message was
-    * not consumed. This test differs by setting the message prefetch to one.
-    *
-    * @throws Exception
+    * Sends a batch of messages and validates that the rollbacked message was not consumed. This test differs by setting
+    * the message prefetch to one.
     */
    public void testSendRollbackWithPrefetchOfOne() throws Exception {
       setPrefetchToOne();
@@ -509,11 +469,8 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
    }
 
    /**
-    * Sends a batch of messages and and validates that the rollbacked message
-    * was redelivered. This test differs by setting the message prefetch to
-    * one.
-    *
-    * @throws Exception
+    * Sends a batch of messages and and validates that the rollbacked message was redelivered. This test differs by
+    * setting the message prefetch to one.
     */
    public void testReceiveRollbackWithPrefetchOfOne() throws Exception {
       setPrefetchToOne();
@@ -521,8 +478,7 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
    }
 
    /**
-    * Tests if the messages can still be received if the consumer is closed
-    * (session is not closed).
+    * Tests if the messages can still be received if the consumer is closed (session is not closed).
     *
     * @throws Exception see http://jira.codehaus.org/browse/AMQ-143
     */
@@ -614,8 +570,6 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
 
    /**
     * Recreates the connection.
-    *
-    * @throws javax.jms.JMSException
     */
    protected void reconnect() throws Exception {
 
@@ -631,8 +585,6 @@ public abstract class JmsTransactionTestSupport extends TestSupport implements M
 
    /**
     * Recreates the connection.
-    *
-    * @throws javax.jms.JMSException
     */
    protected void reconnectSession() throws JMSException {
       if (session != null) {

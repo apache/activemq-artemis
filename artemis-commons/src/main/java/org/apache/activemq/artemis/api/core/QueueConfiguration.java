@@ -114,9 +114,8 @@ public class QueueConfiguration implements Serializable {
    /**
     * Instance factory which invokes {@link #setName(SimpleString)}
     *
-    * @see #setName(SimpleString)
-    *
     * @param name the name to use for the queue
+    * @see #setName(SimpleString)
     */
    public static QueueConfiguration of(final String name) {
       return new QueueConfiguration(name);
@@ -125,16 +124,15 @@ public class QueueConfiguration implements Serializable {
    /**
     * Instance factory which invokes {@link #setName(SimpleString)}
     *
-    * @see #setName(SimpleString)
-    *
     * @param name the name to use for the queue
+    * @see #setName(SimpleString)
     */
    public static QueueConfiguration of(final SimpleString name) {
       return new QueueConfiguration(name);
    }
 
    /**
-    * @param queueConfiguration create a copy of this
+    * {@return the {@code QueueConfiguration} instance which is a copy of the input parameter}
     */
    public static QueueConfiguration of(final QueueConfiguration queueConfiguration) {
       return new QueueConfiguration(queueConfiguration);
@@ -149,10 +147,8 @@ public class QueueConfiguration implements Serializable {
    }
 
    /**
-    * @deprecated
-    * Use {@link #of(QueueConfiguration)} instead.
-    *
     * @param o create a copy of this
+    * @deprecated Use {@link #of(QueueConfiguration)} instead.
     */
    @Deprecated(forRemoval = true)
    public QueueConfiguration(final QueueConfiguration o) {
@@ -193,12 +189,9 @@ public class QueueConfiguration implements Serializable {
    /**
     * Instantiate this object and invoke {@link #setName(SimpleString)}
     *
-    * @see #setName(SimpleString)
-    *
-    * @deprecated
-    * Use {@link #of(SimpleString)} instead.
-    *
     * @param name the name to use for the queue
+    * @see #setName(SimpleString)
+    * @deprecated Use {@link #of(SimpleString)} instead.
     */
    @Deprecated(forRemoval = true)
    public QueueConfiguration(SimpleString name) {
@@ -208,12 +201,9 @@ public class QueueConfiguration implements Serializable {
    /**
     * Instantiate this object and invoke {@link #setName(SimpleString)}
     *
-    * @see #setName(SimpleString)
-    *
-    * @deprecated
-    * Use {@link #of(String)} instead.
-    *
     * @param name the name to use for the queue
+    * @see #setName(SimpleString)
+    * @deprecated Use {@link #of(String)} instead.
     */
    @Deprecated(forRemoval = true)
    public QueueConfiguration(String name) {
@@ -259,7 +249,7 @@ public class QueueConfiguration implements Serializable {
     * example, if you pass the value "TRUE" for the key "auto-created" the {@code String} "TRUE" will be converted to
     * the {@code Boolean} {@code true}.
     *
-    * @param key the key to set to the value
+    * @param key   the key to set to the value
     * @param value the value to set for the key
     * @return this {@code QueueConfiguration}
     */
@@ -340,7 +330,7 @@ public class QueueConfiguration implements Serializable {
    }
 
    /**
-    * @return the name of the address; if the address is {@code null} then return the value of {@link #getName()}.
+    * {@return the name of the address; if the address is {@code null} then return the value of {@link #getName()}}
     */
    public SimpleString getAddress() {
       return address == null ? getName() : address;
@@ -366,6 +356,8 @@ public class QueueConfiguration implements Serializable {
    }
 
    /**
+    * Converts the input {@code String} and invokes {@link #setAddress(SimpleString)}
+    *
     * @see QueueConfiguration#setAddress(SimpleString)
     */
    public QueueConfiguration setAddress(String address) {
@@ -396,6 +388,8 @@ public class QueueConfiguration implements Serializable {
    }
 
    /**
+    * Converts the input {@code String} and invokes {@link #setName(SimpleString)}
+    *
     * @see QueueConfiguration#setName(SimpleString)
     */
    public QueueConfiguration setName(String name) {
@@ -442,7 +436,6 @@ public class QueueConfiguration implements Serializable {
 
    /**
     * defaults to {@code true}
-    * @return
     */
    public Boolean isDurable() {
       return durable == null ? true : durable;
@@ -639,7 +632,6 @@ public class QueueConfiguration implements Serializable {
 
    /**
     * defaults to {@code false}
-    * @return
     */
    public Boolean isConfigurationManaged() {
       return configurationManaged == null ? false : configurationManaged;
@@ -652,7 +644,6 @@ public class QueueConfiguration implements Serializable {
 
    /**
     * defaults to {@code false}
-    * @return
     */
    public Boolean isTemporary() {
       return temporary == null ? false : temporary;
@@ -674,7 +665,6 @@ public class QueueConfiguration implements Serializable {
 
    /**
     * defaults to {@code false}
-    * @return
     */
    public Boolean isInternal() {
       return internal == null ? false : internal;
@@ -687,7 +677,6 @@ public class QueueConfiguration implements Serializable {
 
    /**
     * defaults to {@code false}
-    * @return
     */
    public Boolean isTransient() {
       return _transient == null ? false : _transient;
@@ -700,7 +689,6 @@ public class QueueConfiguration implements Serializable {
 
    /**
     * defaults to {@code false}
-    * @return
     */
    public Boolean isAutoCreated() {
       return autoCreated == null ? false : autoCreated;
@@ -715,7 +703,6 @@ public class QueueConfiguration implements Serializable {
     * Based on if the name or address uses FQQN when set
     *
     * defaults to {@code false}
-    * @return
     */
    public Boolean isFqqn() {
       return fqqn == null ? Boolean.FALSE : fqqn;
@@ -834,7 +821,6 @@ public class QueueConfiguration implements Serializable {
     * This method returns a {@code QueueConfiguration} created from the JSON-formatted input {@code String}. The input
     * should be a simple object of key/value pairs. Valid keys are referenced in {@link #set(String, String)}.
     *
-    * @param jsonString
     * @return the {@code QueueConfiguration} created from the JSON-formatted input {@code String}
     */
    public static QueueConfiguration fromJSON(String jsonString) {

@@ -413,41 +413,26 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
             return (String) proxy.invokeOperation("listMessageCounterHistory");
          }
 
-         /**
-          * Returns the first message on the queue as JSON
-          */
          @Override
          public String getFirstMessageAsJSON() throws Exception {
             return (String) proxy.invokeOperation("getFirstMessageAsJSON");
          }
 
-         /**
-          * Returns the first message on the queue as JSON
-          */
          @Override
          public String peekFirstMessageAsJSON() throws Exception {
             return (String) proxy.invokeOperation("peekFirstMessageAsJSON");
          }
 
-         /**
-          * Returns the first scheduled message on the queue as JSON
-          */
          @Override
          public String peekFirstScheduledMessageAsJSON() throws Exception {
             return (String) proxy.invokeOperation("peekFirstScheduledMessageAsJSON");
          }
 
-         /**
-          * Returns the timestamp of the first message in milliseconds.
-          */
          @Override
          public Long getFirstMessageTimestamp() throws Exception {
             return (Long) proxy.invokeOperation("getFirstMessageTimestamp");
          }
 
-         /**
-          * Returns the age of the first message in milliseconds.
-          */
          @Override
          public Long getFirstMessageAge() throws Exception {
             return (Long) proxy.invokeOperation(Long.class, "getFirstMessageAge");

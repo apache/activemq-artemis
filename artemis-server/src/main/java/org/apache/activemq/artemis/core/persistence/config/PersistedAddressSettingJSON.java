@@ -37,10 +37,6 @@ public class PersistedAddressSettingJSON extends AbstractPersistedAddressSetting
       return super.getSetting();
    }
 
-   /**
-    * @param addressMatch
-    * @param setting
-    */
    public PersistedAddressSettingJSON(SimpleString addressMatch, AddressSettings setting, SimpleString jsonSetting) {
       super(addressMatch, setting);
       this.jsonSetting = jsonSetting;

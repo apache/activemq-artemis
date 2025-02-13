@@ -20,8 +20,6 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * Represents a property expression
- *
- * @version $Revision: 1.5 $
  */
 public class PropertyExpression implements Expression {
 
@@ -44,25 +42,16 @@ public class PropertyExpression implements Expression {
       return name.toString();
    }
 
-   /**
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return name.toString();
    }
 
-   /**
-    * @see java.lang.Object#hashCode()
-    */
    @Override
    public int hashCode() {
       return name.hashCode();
    }
 
-   /**
-    * @see java.lang.Object#equals(java.lang.Object)
-    */
    @Override
    public boolean equals(Object o) {
       if (o == null || !this.getClass().equals(o.getClass())) {

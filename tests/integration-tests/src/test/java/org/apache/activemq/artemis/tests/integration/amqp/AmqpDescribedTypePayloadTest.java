@@ -44,8 +44,8 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * Test that the broker can pass through an AMQP message with a described type in the message
- * body regardless of transformer in use.
+ * Test that the broker can pass through an AMQP message with a described type in the message body regardless of
+ * transformer in use.
  */
 public class AmqpDescribedTypePayloadTest extends JMSClientTestSupport {
 

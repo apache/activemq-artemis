@@ -406,11 +406,8 @@ public abstract class VersionedStompFrameHandler {
    }
 
    /**
-    * this method is called when a newer version of handler is created. It should
-    * take over the state of the decoder of the existingHandler so that
-    * the decoding can be continued. For V10 handler it's never called.
-    *
-    * @param existingHandler
+    * this method is called when a newer version of handler is created. It should take over the state of the decoder of
+    * the existingHandler so that the decoding can be continued. For V10 handler it's never called.
     */
    public void initDecoder(VersionedStompFrameHandler existingHandler) {
       throw BUNDLE.invalidCall();

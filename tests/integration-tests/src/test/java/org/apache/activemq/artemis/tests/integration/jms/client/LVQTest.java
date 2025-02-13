@@ -37,9 +37,6 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * LVQ Test
- */
 public class LVQTest extends JMSTestBase {
 
    @Override

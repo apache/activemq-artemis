@@ -31,20 +31,12 @@ import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class ActiveMQMapMessageTest extends TestCase {
 
    private static final Logger LOG = LoggerFactory.getLogger(ActiveMQMapMessageTest.class);
 
    private String name = "testName";
 
-   /**
-    * Constructor for ActiveMQMapMessageTest.
-    *
-    * @param name
-    */
    public ActiveMQMapMessageTest(String name) {
       super(name);
    }
@@ -53,17 +45,11 @@ public class ActiveMQMapMessageTest extends TestCase {
       junit.textui.TestRunner.run(ActiveMQMapMessageTest.class);
    }
 
-   /*
-    * @see TestCase#setUp()
-    */
    @Override
    protected void setUp() throws Exception {
       super.setUp();
    }
 
-   /*
-    * @see TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       super.tearDown();

@@ -51,7 +51,9 @@ import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.BrowserWebDriverContainer;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
-/** The server for ConsoleTest is created on the pom as there are some properties that are passed by argument on the CI */
+/**
+ * The server for ConsoleTest is created on the pom as there are some properties that are passed by argument on the CI
+ */
 @ExtendWith(ParameterizedTestExtension.class)
 public abstract class ConsoleTest extends SmokeTestBase {
 

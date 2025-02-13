@@ -63,9 +63,9 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
    protected final CriticalAnalyzer criticalAnalyzer;
 
    /**
-    * Asynchronous writes need to be done at another executor.
-    * This needs to be done at NIO, or else we would have the callers thread blocking for the return.
-    * At AIO this is necessary as context switches on writes would fire flushes at the kernel.
+    * Asynchronous writes need to be done at another executor. This needs to be done at NIO, or else we would have the
+    * callers thread blocking for the return. At AIO this is necessary as context switches on writes would fire flushes
+    * at the kernel.
     */
    protected ExecutorService writeExecutor;
 

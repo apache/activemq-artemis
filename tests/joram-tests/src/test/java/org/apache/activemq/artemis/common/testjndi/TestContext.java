@@ -45,22 +45,17 @@ import java.lang.invoke.MethodHandles;
 /**
  * A read-only Context
  * <p>
- * This version assumes it and all its subcontext are
- * read-only and any attempt to modify (e.g. through bind) will result in an
- * OperationNotSupportedException. Each Context in the tree builds a cache of
- * the entries in all sub-contexts to optimise the performance of lookup.
+ * This version assumes it and all its subcontext are read-only and any attempt to modify (e.g. through bind) will
+ * result in an OperationNotSupportedException. Each Context in the tree builds a cache of the entries in all
+ * sub-contexts to optimise the performance of lookup.
  * <p>
- * <p>
- * This implementation is intended to optimise the performance of lookup(String)
- * to about the level of a HashMap get. It has been observed that the scheme
- * resolution phase performed by the JVM takes considerably longer, so for
- * optimum performance lookups should be coded like:
- * </p>
- * <code>
- * Context componentContext = (Context)new InitialContext().lookup("java:comp");
- * String envEntry = (String) componentContext.lookup("env/myEntry");
- * String envEntry2 = (String) componentContext.lookup("env/myEntry2");
- * </code>
+ * This implementation is intended to optimise the performance of lookup(String) to about the level of a HashMap get. It
+ * has been observed that the scheme resolution phase performed by the JVM takes considerably longer, so for optimum
+ * performance lookups should be coded like:
+ * <pre>{@code
+ * Context componentContext = (Context)new InitialContext().lookup("java:comp"); String envEntry = (String)
+ * componentContext.lookup("env/myEntry"); String envEntry2 = (String) componentContext.lookup("env/myEntry2");
+ * }</pre>
  */
 @SuppressWarnings("unchecked")
 public class TestContext implements Context, Serializable {
@@ -139,19 +134,11 @@ public class TestContext implements Context, Serializable {
    }
 
    /**
-    * internalBind is intended for use only during setup or possibly by
-    * suitably synchronized superclasses. It binds every possible lookup into a
-    * map in each context. To do this, each context strips off one name segment
-    * and if necessary creates a new context for it. Then it asks that context
-    * to bind the remaining name. It returns a map containing all the bindings
-    * from the next context, plus the context it just created (if it in fact
-    * created it). (the names are suitably extended by the segment originally
-    * lopped off).
-    *
-    * @param name
-    * @param value
-    * @return
-    * @throws NamingException
+    * internalBind is intended for use only during setup or possibly by suitably synchronized superclasses. It binds
+    * every possible lookup into a map in each context. To do this, each context strips off one name segment and if
+    * necessary creates a new context for it. Then it asks that context to bind the remaining name. It returns a map
+    * containing all the bindings from the next context, plus the context it just created (if it in fact created it).
+    * (the names are suitably extended by the segment originally lopped off).
     */
    protected Map<String, Object> internalBind(String name, Object value) throws NamingException {
       assert name != null && !name.isEmpty();

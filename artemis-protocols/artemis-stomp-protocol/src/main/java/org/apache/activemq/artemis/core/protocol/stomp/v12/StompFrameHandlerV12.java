@@ -64,8 +64,7 @@ public class StompFrameHandlerV12 extends StompFrameHandlerV11 {
    }
 
    /**
-    * Version 1.2's ACK frame only requires 'id' header
-    * here we use id = messageID
+    * Version 1.2's ACK frame only requires 'id' header here we use id = messageID
     */
    @Override
    public StompFrame onAck(StompFrame request) {

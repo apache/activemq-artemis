@@ -38,11 +38,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * There is a bug in JDK1.3, 1.4 whereby writeUTF fails if more than 64K bytes are written
- * we need to work with all size of strings
- *
+ * There is a bug in JDK1.3, 1.4 whereby writeUTF fails if more than 64K bytes are written we need to work with all size
+ * of strings
+ * <p>
  * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4806007
- * http://jira.jboss.com/jira/browse/JBAS-2641
  */
 public class String64KLimitTest extends ActiveMQTestBase {
 

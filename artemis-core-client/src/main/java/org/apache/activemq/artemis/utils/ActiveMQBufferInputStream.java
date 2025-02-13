@@ -26,12 +26,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
  */
 public class ActiveMQBufferInputStream extends InputStream {
 
-   /* (non-Javadoc)
-    * @see java.io.InputStream#read()
-    */
-
    private ActiveMQBuffer bb;
-
 
    public ActiveMQBufferInputStream(final ActiveMQBuffer paramByteBuffer) {
       bb = paramByteBuffer;
@@ -130,9 +125,6 @@ public class ActiveMQBufferInputStream extends InputStream {
       return false;
    }
 
-   /**
-    * @return
-    */
    private int remainingBytes() {
       return bb.writerIndex() - bb.readerIndex();
    }

@@ -34,8 +34,8 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 public class ConnectionTest extends PTPTestCase {
 
    /**
-    * Test that invoking the <code>acknowledge()</code> method of a received message
-    * from a closed connection's session must throw an <code>IllegalStateException</code>.
+    * Test that invoking the {@code acknowledge()} method of a received message from a closed connection's session must
+    * throw an {@code IllegalStateException}.
     */
    @Test
    public void testAcknowledge() {
@@ -66,8 +66,9 @@ public class ConnectionTest extends PTPTestCase {
    }
 
    /**
-    * Test that an attempt to use a <code>Connection</code> which has been closed
-    * throws a <code>javax.jms.IllegalStateException</code>.
+    * Test that an attempt to use a {@code Connection} which has been closed
+    *
+    * @throws a {@code javax.jms.IllegalStateException}.
     */
    @Test
    public void testUseClosedConnection() {
@@ -84,8 +85,7 @@ public class ConnectionTest extends PTPTestCase {
    }
 
    /**
-    * Test that a <code>MessageProducer</code> can send messages while a
-    * <code>Connection</code> is stopped.
+    * Test that a {@code MessageProducer} can send messages while a {@code Connection} is stopped.
     */
    @Test
    public void testMessageSentWhenConnectionClosed() {

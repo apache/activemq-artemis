@@ -885,7 +885,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
          }
       }
 
-      /** Some independent adds and updates */
+      // Some independent adds and updates
       for (int i = 0; i < 1000; i++) {
          long id = idGenerator.generateID();
          add(id);

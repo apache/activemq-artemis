@@ -35,16 +35,17 @@ import org.apache.commons.collections.buffer.CircularFifoBuffer;
 
 /**
  * Each instance of OperationContextImpl is associated with an executor (usually an ordered Executor).
- *
- * Tasks are hold until the operations are complete and executed in the natural order as soon as the operations are returned
- * from replication and storage.
- *
+ * <p>
+ * Tasks are hold until the operations are complete and executed in the natural order as soon as the operations are
+ * returned from replication and storage.
+ * <p>
  * If there are no pending IO operations, the tasks are just executed at the callers thread without any context switch.
- *
- * So, if you are doing operations that are not dependent on IO (e.g NonPersistentMessages) you wouldn't have any context switch.
- *
- * If you need to track store operations you can set the system property "ARTEMIS_OPCONTEXT_MAX_DEBUG_TRACKERS"
- * with the max number of trackers that you want to keep in memory.
+ * <p>
+ * So, if you are doing operations that are not dependent on IO (e.g NonPersistentMessages) you wouldn't have any
+ * context switch.
+ * <p>
+ * If you need to track store operations you can set the system property "ARTEMIS_OPCONTEXT_MAX_DEBUG_TRACKERS" with the
+ * max number of trackers that you want to keep in memory.
  */
 public class OperationContextImpl implements OperationContext {
 
@@ -358,9 +359,6 @@ public class OperationContextImpl implements OperationContext {
       }
    }
 
-   /**
-    * @param task
-    */
    private void execute(final IOCallback task) {
       EXECUTORS_PENDING_UPDATER.incrementAndGet(this);
       try {
@@ -380,10 +378,6 @@ public class OperationContextImpl implements OperationContext {
       }
    }
 
-   /*
-    * (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.replication.ReplicationToken#complete()
-    */
    public void complete() {
    }
 

@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.jms.referenceable;
 
 /**
  * Done for back compatibility with the package/class move.
- *
+ * <p>
  * Should be removed on next major version change.
  */
 public class ConnectionFactoryObjectFactory extends org.apache.activemq.artemis.ra.referenceable.ActiveMQRAConnectionFactoryObjectFactory {

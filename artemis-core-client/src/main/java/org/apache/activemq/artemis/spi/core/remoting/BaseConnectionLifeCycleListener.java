@@ -25,14 +25,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 public interface BaseConnectionLifeCycleListener<ProtocolClass> {
 
    /**
-    * This method is used both by client connector creation and server connection creation through
-    * acceptors. On the client side the {@code component} parameter is normally passed as
-    * {@code null}.
+    * This method is used both by client connector creation and server connection creation through acceptors. On the
+    * client side the {@code component} parameter is normally passed as {@code null}.
     * <p>
-    * Leaving this method here and adding a different one at
-    * {@code ServerConnectionLifeCycleListener} is a compromise for a reasonable split between the
-    * activemq-server and activemq-client packages while avoiding to pull too much into activemq-core.
-    * The pivotal point keeping us from removing the method is {@link ConnectorFactory} and the
+    * Leaving this method here and adding a different one at {@code ServerConnectionLifeCycleListener} is a compromise
+    * for a reasonable split between the activemq-server and activemq-client packages while avoiding to pull too much
+    * into activemq-core. The pivotal point keeping us from removing the method is {@link ConnectorFactory} and the
     * usage of it.
     *
     * @param component  This will probably be an {@code Acceptor} and only used on the server side.

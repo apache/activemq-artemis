@@ -473,7 +473,7 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       coreMessage.setRoutingType(destination.isQueue() ? RoutingType.ANYCAST : RoutingType.MULTICAST);
 
       try {
-         /**
+         /*
           * Using a completionListener requires wrapping using a {@link CompletionListenerWrapper},
           * so we avoid it if we can.
           */
@@ -510,10 +510,6 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       private final Message jmsMessage;
       private final ActiveMQMessageProducer producer;
 
-      /**
-       * @param jmsMessage
-       * @param producer
-       */
       private CompletionListenerWrapper(CompletionListener listener,
                                         Message jmsMessage,
                                         ActiveMQMessageProducer producer) {
@@ -553,14 +549,14 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
             try {
                streamMessage.reset();
             } catch (JMSException e) {
-               // HORNETQ-1209 XXX ignore?
+               // ignore?
             }
          }
          if (jmsMessage instanceof BytesMessage bytesMessage) {
             try {
                bytesMessage.reset();
             } catch (JMSException e) {
-               // HORNETQ-1209 XXX ignore?
+               // ignore?
             }
          }
 

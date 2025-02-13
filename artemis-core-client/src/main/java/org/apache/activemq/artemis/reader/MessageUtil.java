@@ -135,7 +135,7 @@ public class MessageUtil {
    }
 
    public static void clearProperties(Message message) {
-      /**
+      /*
        * JavaDoc for this method states:
        *    Clears a message's properties.
        *    The message's header fields and body are not cleared.

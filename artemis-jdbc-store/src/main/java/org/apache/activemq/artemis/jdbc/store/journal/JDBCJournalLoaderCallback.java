@@ -33,8 +33,10 @@ class JDBCJournalLoaderCallback implements LoaderCallback {
 
    private final TransactionFailureCallback failureCallback;
 
-   /* We keep track of list entries for each ID.  This preserves order and allows multiple record insertions with the
-   same ID.  We use this for deleting records */
+   /*
+    * We keep track of list entries for each ID. This preserves order and allows multiple record insertions with the
+    * same ID.  We use this for deleting records.
+    */
    private final Map<Long, List<Integer>> deleteReferences = new HashMap<>();
 
    private final List<RecordInfo> committedRecords;

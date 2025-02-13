@@ -779,10 +779,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
-   /**
-    * @param refs
-    * @return
-    */
    private Map<String, Object>[] convertMessagesToMaps(List<MessageReference> refs) throws ActiveMQException {
       final int attributeSizeLimit = addressSettingsRepository.getMatch(address).getManagementMessageAttributeSizeLimit();
       Map<String, Object>[] messages = new Map[refs.size()];
@@ -885,12 +881,11 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    /**
-    * this method returns a Map representing the first message.
-    * or null if there's no first message.
-    * @return
-    * @throws Exception
+    * this method returns a Map representing the first message. or null if there's no first message.
+    *
     * @deprecated Use {@link #peekFirstMessage()} instead.
     */
+   @Deprecated
    protected Map<String, Object> getFirstMessage() throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getFirstMessage(queue);
@@ -913,8 +908,8 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    /**
-    * this method returns a Map representing the first message.
-    * or null if there's no first message.
+    * this method returns a Map representing the first message. or null if there's no first message.
+    *
     * @return A result of {@link Message#toMap()}
     */
    protected Map<String, Object> peekFirstMessage() {
@@ -938,8 +933,8 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    /**
-    * this method returns a Map representing the first scheduled message.
-    * or null if there's no first message.
+    * this method returns a Map representing the first scheduled message. or null if there's no first message.
+    *
     * @return A result of {@link Message#toMap()}
     */
    protected Map<String, Object> peekFirstScheduledMessage() {
@@ -966,6 +961,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
     * @deprecated Use {@link #peekFirstMessageAsJSON()} instead.
     */
    @Override
+   @Deprecated
    public String getFirstMessageAsJSON() throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getFirstMessageAsJSON(queue);
@@ -978,7 +974,8 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    /**
     * Uses {@link #peekFirstMessage()} and returns the result as JSON.
-    * @return A {@link Message} instance as a JSON object, or <code>"null"</code> if there's no such message.
+    *
+    * @return A {@link Message} instance as a JSON object, or {@code "null"} if there's no such message
     */
    @Override
    public String peekFirstMessageAsJSON() {
@@ -994,7 +991,8 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    /**
     * Uses {@link #peekFirstScheduledMessage()} and returns the result as JSON.
-    * @return A {@link Message} instance as a JSON object, or <code>"null"</code> if there's no such message.
+    *
+    * @return A {@link Message} instance as a JSON object, or {@code "null"} if there's no such message
     */
    @Override
    public String peekFirstScheduledMessageAsJSON() {

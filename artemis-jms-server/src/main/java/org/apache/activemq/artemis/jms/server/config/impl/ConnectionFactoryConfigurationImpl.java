@@ -32,9 +32,11 @@ import org.apache.activemq.artemis.utils.DataConstants;
 /**
  * This class contains the configuration properties of a connection factory.
  * <p>
- * It is also persisted on the journal at the time of management is used to created a connection factory and set to store.
+ * It is also persisted on the journal at the time of management is used to created a connection factory and set to
+ * store.
  * <p>
- * Every property on this class has to be also set through encoders through EncodingSupport implementation at this class.
+ * Every property on this class has to be also set through encoders through EncodingSupport implementation at this
+ * class.
  */
 public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConfiguration {
 
@@ -162,17 +164,11 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       return persisted;
    }
 
-   /**
-    * @return the discoveryGroupName
-    */
    @Override
    public String getDiscoveryGroupName() {
       return discoveryGroupName;
    }
 
-   /**
-    * @param discoveryGroupName the discoveryGroupName to set
-    */
    @Override
    public ConnectionFactoryConfiguration setDiscoveryGroupName(String discoveryGroupName) {
       this.discoveryGroupName = discoveryGroupName;

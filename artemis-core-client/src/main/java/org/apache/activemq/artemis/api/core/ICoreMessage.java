@@ -28,7 +28,9 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
  */
 public interface ICoreMessage extends Message {
 
-   /** The buffer will belong to this message, until release is called. */
+   /**
+    * The buffer will belong to this message, until release is called.
+    */
    Message setBuffer(ByteBuf buffer);
 
    ByteBuf getBuffer();
@@ -41,45 +43,34 @@ public interface ICoreMessage extends Message {
    InputStream getBodyInputStream();
 
    /**
-    * Returns a new Buffer slicing the current Body.
+    * {@return a new Buffer slicing the current Body}
     */
    ActiveMQBuffer getReadOnlyBodyBuffer();
 
    /**
-    * Returns the length in bytes of the body buffer.
+    * {@return the length in bytes of the body buffer}
     */
    int getBodyBufferSize();
 
    /**
-    * Returns a readOnlyBodyBuffer or a decompressed one if the message is compressed.
-    * or the large message buffer.
-    * @return
+    * {@return a readOnlyBodyBuffer or a decompressed one if the message is compressed or the large message buffer}
     */
    ActiveMQBuffer getDataBuffer();
 
-   /**
-    * Return the type of the message
-    */
    @Override
    byte getType();
 
-   /**
-    * the type of the message
-    */
    @Override
    CoreMessage setType(byte type);
 
    /**
     * We are really interested if this is a LargeServerMessage.
-    *
-    * @return
     */
    boolean isServerMessage();
 
    /**
-    * The buffer to write the body.
-    * Warning: If you just want to read the content of a message, use getDataBuffer() or getReadOnlyBuffer();
-    * @return
+    * The buffer to write the body. Warning: If you just want to read the content of a message, use
+    * {@link #getDataBuffer()} or {@link #getReadOnlyBodyBuffer()}
     */
    @Override
    ActiveMQBuffer getBodyBuffer();
@@ -87,13 +78,12 @@ public interface ICoreMessage extends Message {
    int getEndOfBodyPosition();
 
    /**
-    * Used on large messages treatment.
-    * this method is used to transfer properties from a temporary CoreMessage to a definitive one.
-    * This is used when before a Message was defined as a LargeMessages, its properties are then moved from the
-    * Temporary message to its final LargeMessage object.
-    *
-    * Be careful as this will not perform a copy of the Properties.
-    * For real copy, use the copy methods or copy constructors.
+    * Used on large messages treatment. this method is used to transfer properties from a temporary CoreMessage to a
+    * definitive one. This is used when before a Message was defined as a LargeMessages, its properties are then moved
+    * from the Temporary message to its final LargeMessage object.
+    * <p>
+    * Be careful as this will not perform a copy of the Properties. For real copy, use the copy methods or copy
+    * constructors.
     */
    void moveHeadersAndProperties(Message msg);
 
@@ -105,8 +95,7 @@ public interface ICoreMessage extends Message {
    void receiveBuffer_1X(ByteBuf buffer);
 
    /**
-    * @return Returns the message in Map form, useful when encoding to JSON
-    * @param valueSizeLimit
+    * {@inheritDoc}
     */
    @Override
    default Map<String, Object> toMap(int valueSizeLimit) {
@@ -126,7 +115,6 @@ public interface ICoreMessage extends Message {
 
       return map;
    }
-
 
    default boolean isConfirmed() {
       return false;

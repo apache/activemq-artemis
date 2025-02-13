@@ -216,9 +216,6 @@ public class ThreadLeakCheckDelegate {
 
    /**
     * if it's an expected thread... we will just move along ignoring it
-    *
-    * @param thread
-    * @return
     */
    private boolean isExpectedThread(Thread thread) {
       final String threadName = thread.getName();

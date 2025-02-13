@@ -26,8 +26,7 @@ import java.lang.annotation.Target;
 /**
  * Info for a MBean Operation.
  * <p>
- * This annotation is used only for methods which can be invoked
- * through a GUI.
+ * This annotation is used only for methods which can be invoked through a GUI.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

@@ -35,32 +35,33 @@ public interface Server extends Remote {
    int getServerID() throws Exception;
 
    /**
-    * @param attrOverrides - server attribute overrides that will take precedence over values
-    *                      read from configuration files.
+    * Start this server.
+    *
+    * @param attrOverrides server attribute overrides that will take precedence over values read from configuration
+    *                      files.
     */
    void start(Map<String, Object> configuration, boolean clearDatabase) throws Exception;
 
    /**
-    * @return true if the server was stopped indeed, or false if the server was stopped already
-    * when the method was invoked.
+    * Stop this server.
+    *
+    * @return true if the server was stopped indeed, or false if the server was stopped already when the method was
+    * invoked.
     */
    boolean stop() throws Exception;
 
    /**
-    * For a remote server, it "abruptly" kills the VM running the server. For a local server
-    * it just stops the server.
+    * For a remote server, it "abruptly" kills the VM running the server. For a local server it just stops the server.
     */
    void kill() throws Exception;
 
    /**
-    * When kill is called you are actually scheduling the server to be killed in few milliseconds.
-    * There are certain cases where we need to assure the server was really killed.
-    * For that we have this simple ping we can use to verify if the server still alive or not.
+    * When kill is called you are actually scheduling the server to be killed in few milliseconds. There are certain
+    * cases where we need to assure the server was really killed. For that we have this simple ping we can use to verify
+    * if the server still alive or not.
     */
    void ping() throws Exception;
 
-   /**
-    */
    void startServerPeer() throws Exception;
 
    void stopServerPeer() throws Exception;
@@ -68,19 +69,8 @@ public interface Server extends Remote {
    boolean isStarted() throws Exception;
 
    /**
-    * Only for in-VM use!
+    * Only for in-VM use
     */
-   // MessageStore getMessageStore() throws Exception;
-
-   /**
-    * Only for in-VM use!
-    */
-   // DestinationManager getDestinationManager() throws Exception;
-   // StorageManager getPersistenceManager() throws Exception;
-   //
-   // /**
-   // * Only for in-VM use
-   // */
    ActiveMQServer getServerPeer() throws Exception;
 
    void createQueue(String name, String jndiName) throws Exception;
@@ -91,48 +81,6 @@ public interface Server extends Remote {
 
    void destroyTopic(String name, String jndiName) throws Exception;
 
-   // /**
-   // * Simulates a topic deployment (copying the topic descriptor in the deploy directory).
-   // */
-   // void deployTopic(String name, String jndiName, boolean manageConfirmations) throws Exception;
-   //
-   // /**
-   // * Simulates a topic deployment (copying the topic descriptor in the deploy directory).
-   // */
-   // void deployTopic(String name, String jndiName, int fullSize, int pageSize,
-   // int downCacheSize, boolean manageConfirmations) throws Exception;
-   //
-   // /**
-   // * Creates a topic programmatically.
-   // */
-   // void deployTopicProgrammatically(String name, String jndiName) throws Exception;
-   //
-   // /**
-   // * Simulates a queue deployment (copying the queue descriptor in the deploy directory).
-   // */
-   // void deployQueue(String name, String jndiName, boolean manageConfirmations) throws Exception;
-   //
-   // /**
-   // * Simulates a queue deployment (copying the queue descriptor in the deploy directory).
-   // */
-   // void deployQueue(String name, String jndiName, int fullSize, int pageSize,
-   // int downCacheSize, boolean manageConfirmations) throws Exception;
-   //
-   // /**
-   // * Creates a queue programmatically.
-   // */
-   // void deployQueueProgrammatically(String name, String jndiName) throws Exception;
-
-   /**
-    * Simulates a destination un-deployment (deleting the destination descriptor from the deploy
-    * directory).
-    */
-   // void undeployDestination(boolean isQueue, String name) throws Exception;
-
-   /**
-    * Destroys a programmatically created destination.
-    */
-   // boolean undeployDestinationProgrammatically(boolean isQueue, String name) throws Exception;
    void deployConnectionFactory(String clientId,
                                 JMSFactoryType type,
                                 String objectName,

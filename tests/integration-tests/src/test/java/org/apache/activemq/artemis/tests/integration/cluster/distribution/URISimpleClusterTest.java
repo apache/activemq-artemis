@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * A SymmetricClusterTest
- *
+ * <p>
  * Most of the cases are covered in OneWayTwoNodeClusterTest - we don't duplicate them all here
  */
 public class URISimpleClusterTest extends ClusterTestBase {

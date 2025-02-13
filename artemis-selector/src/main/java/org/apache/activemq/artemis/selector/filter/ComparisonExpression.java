@@ -23,8 +23,6 @@ import java.util.regex.Pattern;
 
 /**
  * A filter performing a comparison of two objects
- *
- * @version $Revision: 1.2 $
  */
 public abstract class ComparisonExpression extends BinaryExpression implements BooleanExpression {
 
@@ -33,10 +31,6 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
    boolean convertStringExpressions = false;
    private static final Set<Character> REGEXP_CONTROL_CHARS = new HashSet<>();
 
-   /**
-    * @param left
-    * @param right
-    */
    public ComparisonExpression(Expression left, Expression right) {
       super(left, right);
       convertStringExpressions = CONVERT_STRING_EXPRESSIONS.get() != null;
@@ -77,8 +71,6 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
 
       Pattern likePattern;
 
-      /**
-       */
       LikeExpression(Expression right, String like, int escape) {
          super(right);
 
@@ -341,8 +333,6 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
 
    /**
     * Only Numeric expressions can be used in {@code >}, {@code >=}, {@code <} or {@code <=} expressions.
-    *
-    * @param expr
     */
    public static void checkLessThanOperand(Expression expr) {
       if (expr instanceof ConstantExpression constantExpression) {
@@ -360,10 +350,8 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
    }
 
    /**
-    * Validates that the expression can be used in {@code ==} or {@code <>} expression. Cannot
-    * not be NULL TRUE or FALSE literals.
-    *
-    * @param expr
+    * Validates that the expression can be used in {@code ==} or {@code <>} expression. Cannot not be NULL TRUE or FALSE
+    * literals.
     */
    public static void checkEqualOperand(Expression expr) {
       if (expr instanceof ConstantExpression constantExpression) {
@@ -374,10 +362,6 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
       }
    }
 
-   /**
-    * @param left
-    * @param right
-    */
    private static void checkEqualOperandCompatibility(Expression left, Expression right) {
       if (left instanceof ConstantExpression && right instanceof ConstantExpression) {
          if (left instanceof BooleanExpression && !(right instanceof BooleanExpression)) {

@@ -17,25 +17,25 @@
 package org.apache.activemq.artemis.api.core.management;
 
 /**
- * An API for a RemoteBrokerConnectionControl object that is used to view information about
- * active remote broker connections.
+ * An API for a RemoteBrokerConnectionControl object that is used to view information about active remote broker
+ * connections.
  */
 public interface RemoteBrokerConnectionControl {
 
    /**
-    * Returns the name of the remote broker connection
+    * {@return the name of the remote broker connection}
     */
    @Attribute(desc = "name of the remote broker connection")
    String getName();
 
    /**
-    * Returns the Node ID of the remote broker connection
+    * {@return the Node ID of the remote broker connection}
     */
    @Attribute(desc = "Node ID of the remote broker connection")
    String getNodeId();
 
    /**
-    * Returns the wire protocol this broker connection is using.
+    * {@return the wire protocol this broker connection is using}
     */
    @Attribute(desc = "the wire protocol this broker connection is using")
    String getProtocol();

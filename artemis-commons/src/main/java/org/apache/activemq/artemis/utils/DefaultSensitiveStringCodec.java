@@ -39,15 +39,12 @@ import java.lang.invoke.MethodHandles;
 
 /**
  * A DefaultSensitiveDataCodec
- *
- * The default implementation of SensitiveDataCodec.
- * This class is used when the user indicates in the config
- * file to use a masked password but doesn't give a
- * codec implementation.
- *
- * It supports one-way hash (digest) and two-way (encrypt-decrpt) algorithms
- * The two-way uses "Blowfish" algorithm
- * The one-way uses "PBKDF2" hash algorithm
+ * <p>
+ * The default implementation of SensitiveDataCodec. This class is used when the user indicates in the config file to
+ * use a masked password but doesn't give a codec implementation.
+ * <p>
+ * It supports one-way hash (digest) and two-way (encrypt-decrpt) algorithms The two-way uses "Blowfish" algorithm The
+ * one-way uses "PBKDF2" hash algorithm
  */
 public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
 
@@ -94,10 +91,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
    }
 
    /**
-    * This main class is as documented on configuration-index.md, where the user can mask the password here. *
-    *
-    * @param args
-    * @throws Exception
+    * This main class is as documented on configuration-index.md, where the user can mask the password here.
     */
    public static void main(String[] args) throws Exception {
       if (args.length != 1) {

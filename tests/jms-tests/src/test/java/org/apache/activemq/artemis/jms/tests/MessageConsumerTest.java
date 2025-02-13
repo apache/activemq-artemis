@@ -524,7 +524,8 @@ public class MessageConsumerTest extends JMSTestCase {
    // closed consumer tests
    //
 
-   /* Test that an ack can be sent after the consumer that received the message has been closed.
+   /*
+    * Test that an ack can be sent after the consumer that received the message has been closed.
     * Acks are scoped per session.
     */
 
@@ -682,8 +683,8 @@ public class MessageConsumerTest extends JMSTestCase {
    }
 
    /**
-    * Basically the same test as before, with more than one message and a slightly different
-    * way of checking the messages are back in the queue.
+    * Basically the same test as before, with more than one message and a slightly different way of checking the
+    * messages are back in the queue.
     */
    @Test
    public void testSendMessageAndCloseConsumer2() throws Exception {
@@ -1118,9 +1119,6 @@ public class MessageConsumerTest extends JMSTestCase {
       }
    }
 
-   /**
-    * http://www.jboss.org/index.html?module=bb&op=viewtopic&t=71350
-    */
    @Test
    public void testRedel7() throws Exception {
       Connection conn = null;
@@ -1172,9 +1170,6 @@ public class MessageConsumerTest extends JMSTestCase {
       }
    }
 
-   /**
-    * http://www.jboss.org/index.html?module=bb&op=viewtopic&t=71350
-    */
    @Test
    public void testRedel8() throws Exception {
       Connection conn = null;
@@ -2693,9 +2688,8 @@ public class MessageConsumerTest extends JMSTestCase {
    }
 
    /**
-    * Topics shouldn't persist messages for non durable subscribers and redeliver them on reconnection
-    * even if delivery mode of persistent is specified
-    * See JMS spec. sec. 6.12
+    * Topics shouldn't persist messages for non durable subscribers and redeliver them on reconnection even if delivery
+    * mode of persistent is specified See JMS spec. sec. 6.12
     */
    @Test
    public void testNoRedeliveryOnNonDurableSubscriber() throws Exception {
@@ -3416,7 +3410,6 @@ public class MessageConsumerTest extends JMSTestCase {
       }
    }
 
-   // http://jira.jboss.org/jira/browse/JBMESSAGING-1294 - commented out until 2.0 beta
    @Test
    public void testExceptionMessageListener1() throws Exception {
       Connection conn = createConnection();

@@ -23,9 +23,9 @@ import io.netty.util.internal.PlatformDependent;
 /**
  * Thread-safe {@code <T>} interner.
  * <p>
- * Differently from {@link String#intern()} it contains a fixed amount of entries and
- * when used by concurrent threads it doesn't ensure the uniqueness of the entries ie
- * the same entry could be allocated multiple times by concurrent calls.
+ * Differently from {@link String#intern()} it contains a fixed amount of entries and when used by concurrent threads it
+ * doesn't ensure the uniqueness of the entries ie the same entry could be allocated multiple times by concurrent
+ * calls.
  */
 public abstract class AbstractByteBufPool<T> {
 
@@ -47,8 +47,8 @@ public abstract class AbstractByteBufPool<T> {
    }
 
    /**
-    * Batch hash code implementation that works at its best if {@code bytes}
-    * contains a {@link org.apache.activemq.artemis.api.core.SimpleString} encoded.
+    * Batch hash code implementation that works at its best if {@code bytes} contains a
+    * {@link org.apache.activemq.artemis.api.core.SimpleString} encoded.
     */
    private static int hashCode(final ByteBuf bytes, final int offset, final int length) {
       if (PlatformDependent.isUnaligned() && PlatformDependent.hasUnsafe()) {
@@ -110,8 +110,8 @@ public abstract class AbstractByteBufPool<T> {
    }
 
    /**
-    * Returns {@code true} if {@code length}'s {@code byteBuf} content from {@link ByteBuf#readerIndex()} can be pooled,
-    * {@code false} otherwise.
+    * {@return {@code true} if {@code length}'s {@code byteBuf} content from {@link ByteBuf#readerIndex()} can be
+    * pooled, {@code false} otherwise}
     */
    protected abstract boolean canPool(ByteBuf byteBuf, int length);
 
@@ -121,8 +121,8 @@ public abstract class AbstractByteBufPool<T> {
    protected abstract T create(ByteBuf byteBuf, int length);
 
    /**
-    * Returns {@code true} if the {@code entry} content is the same of {@code byteBuf} at the specified {@code offset}
-    * and {@code length} {@code false} otherwise.
+    * {@return {@code true} if the {@code entry} content is the same of {@code byteBuf} at the specified {@code offset}
+    * and {@code length} {@code false} otherwise}
     */
    protected abstract boolean isEqual(T entry, ByteBuf byteBuf, int offset, int length);
 

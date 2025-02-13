@@ -137,9 +137,9 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME;
 
 /**
- * Controls access to the journals and other storage files such as the ones used to store pages and
- * large messages.  This class must control writing of any non-transient data, as it is the key point
- * for synchronizing any replicating backup server.
+ * Controls access to the journals and other storage files such as the ones used to store pages and large messages.
+ * This class must control writing of any non-transient data, as it is the key point for synchronizing any replicating
+ * backup server.
  * <p>
  * Using this class also ensures that locks are acquired in the right order, avoiding dead-locks.
  */
@@ -291,9 +291,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    /**
     * Called during initialization.  Used by implementations to setup Journals, Stores etc...
-    *
-    * @param config
-    * @param criticalErrorListener
     */
    protected abstract void init(Configuration config, IOCriticalErrorListener criticalErrorListener);
 
@@ -710,12 +707,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                logger.trace("calling getContext(true).done() for txID={}, lineupContext={} syncTransactional={}... forcing call on getContext(true).done",
                   txID, lineUpContext, syncTransactional);
             }
-            /**
-             * If {@code lineUpContext == false}, it means that we have previously lined up a
-             * context somewhere else (specifically see @{link TransactionImpl#asyncAppendCommit}),
-             * hence we need to mark it as done even if {@code syncTransactional = false} as in this
-             * case {@code getContext(syncTransactional=false)} would pass a dummy context to the
-             * {@code messageJournal.appendCommitRecord(...)} call above.
+            /*
+             * If lineUpContext == false, it means that we have previously lined up a context somewhere else
+             * (specifically see TransactionImpl#asyncAppendCommit), hence we need to mark it as done even if
+             * syncTransactional = false as in this case getContext(syncTransactional=false) would pass a dummy context
+             * to the messageJournal.appendCommitRecord(...) call above.
              */
             getContext(true).done();
          }
@@ -1460,12 +1456,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       }
    }
 
-   /**
-    * @param queueID
-    * @param pageSubscriptions
-    * @param queueInfos
-    * @return
-    */
    private static PageSubscription locateSubscription(final long queueID,
                                                       final Map<Long, PageSubscription> pageSubscriptions,
                                                       final Map<Long, QueueBindingInfo> queueInfos,
@@ -1866,9 +1856,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       }
    }
 
-   /**
-    * TODO: Is this still being used ?
-    */
+   // TODO: Is this still being used ?
    public JournalLoadInformation[] loadInternalOnly() throws Exception {
       try (ArtemisCloseable lock = closeableReadLock()) {
          JournalLoadInformation[] info = new JournalLoadInformation[2];
@@ -2176,11 +2164,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       }
    }
 
-   /**
-    * @param id
-    * @param buffer
-    * @return
-    */
    protected static PersistedSecuritySetting newSecurityRecord(long id, ActiveMQBuffer buffer) {
       PersistedSecuritySetting roles = new PersistedSecuritySetting();
       roles.decode(buffer);
@@ -2188,11 +2171,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       return roles;
    }
 
-   /**
-    * @param id
-    * @param buffer
-    * @return
-    */
    static PersistedAddressSetting newAddressEncoding(long id, ActiveMQBuffer buffer) {
       PersistedAddressSetting setting = new PersistedAddressSetting();
       setting.decode(buffer);
@@ -2256,11 +2234,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       return persistedKeyValuePair;
    }
 
-   /**
-    * @param id
-    * @param buffer
-    * @return
-    */
    static GroupingEncoding newGroupEncoding(long id, ActiveMQBuffer buffer) {
       GroupingEncoding encoding = new GroupingEncoding();
       encoding.decode(buffer);
@@ -2268,11 +2241,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       return encoding;
    }
 
-   /**
-    * @param id
-    * @param buffer
-    * @return
-    */
    protected static PersistentQueueBindingEncoding newQueueBindingEncoding(long id, ActiveMQBuffer buffer) {
       PersistentQueueBindingEncoding bindingEncoding = new PersistentQueueBindingEncoding();
 
@@ -2282,11 +2250,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       return bindingEncoding;
    }
 
-   /**
-    * @param id
-    * @param buffer
-    * @return
-    */
    protected static QueueStatusEncoding newQueueStatusEncoding(long id, ActiveMQBuffer buffer) {
       QueueStatusEncoding statusEncoding = new QueueStatusEncoding();
 

@@ -22,8 +22,8 @@ import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 
 /**
- * Helper class to create Java Objects from the
- * JSON serialization returned by {@link ActiveMQServerControl#listNetworkTopology()}.
+ * Helper class to create Java Objects from the JSON serialization returned by
+ * {@link ActiveMQServerControl#listNetworkTopology()}.
  */
 public class NodeInfo {
    private final String id;
@@ -43,8 +43,8 @@ public class NodeInfo {
    }
 
    /**
-    * Returns an array of NodeInfo corresponding to the JSON serialization returned
-    * by {@link ActiveMQServerControl#listNetworkTopology()}.
+    * {@return an array of NodeInfo corresponding to the JSON serialization returned by {@link
+    * ActiveMQServerControl#listNetworkTopology()}}
     */
    public static NodeInfo[] from(final String jsonString) throws Exception {
       JsonArray array = JsonUtil.readJsonArray(jsonString);

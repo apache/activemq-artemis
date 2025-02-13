@@ -27,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A linked list implementation which allows multiple iterators to exist at the same time on the queue, and which see any
- * elements added or removed from the queue either directly or via iterators.
+ * A linked list implementation which allows multiple iterators to exist at the same time on the queue, and which see
+ * any elements added or removed from the queue either directly or via iterators.
  * <p>
  * This class is not thread safe.
  */
@@ -220,11 +220,10 @@ public class LinkedListImpl<E> implements LinkedList<E> {
             return;
          }
 
-         // in our usage, most of the times we will just add to the end
-         // as the QueueImpl cancellations in AMQP will return the buffer back to the queue, in the order they were consumed.
-         // There is an exception to that case, when there are more messages on the queue.
-         // This would be an optimization for our usage.
-         // avoiding scanning the entire List just to add at the end, so we compare the end first.
+         // In our usage, most of the times we will just add to the end as the QueueImpl cancellations in AMQP will
+         // return the buffer back to the queue in the order they were consumed. There is an exception to that case,
+         // when there are more messages on the queue. This would be an optimization for our usage - avoiding scanning
+         // the entire List just to add at the end, so we compare the end first.
          if (comparator.compare(tail.val(), e) >= 0) {
             logger.trace("addTail as e={} and tail={}", e, tail.val());
             addTail(e);
@@ -255,14 +254,14 @@ public class LinkedListImpl<E> implements LinkedList<E> {
             return;
          }
 
-         // this shouldn't happen as the tail was compared before iterating
-         // the only possibilities for this to happen are:
+         // This shouldn't happen as the tail was compared before iterating the only possibilities for this to happen
+         // are:
          // - there is a bug on the comparator
          // - This method is buggy
          // - The list wasn't properly synchronized as this list does't support concurrent access
          //
          // Also I'm not bothering about creating a Logger ID for this, because the only reason for this code to exist
-         //      is because my OCD level is not letting this out.
+         // is because my OCD level is not letting this out.
          throw new IllegalStateException("Cannot find a suitable place for your element, There's a mismatch in the comparator or there was concurrent adccess on the queue");
       }
    }
@@ -335,8 +334,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    @Override
    public void clear() {
       // Clearing all of the links between nodes is "unnecessary", but:
-      // - helps a generational GC if the discarded nodes inhabit
-      //   more than one generation
+      // - helps a generational GC if the discarded nodes inhabit more than one generation
       // - is sure to free memory even if there is a reachable Iterator
       while (poll() != null) {
 
@@ -404,8 +402,8 @@ public class LinkedListImpl<E> implements LinkedList<E> {
          LinkedListImpl.this.nudgeIterators(toRemove);
       }
 
-      //Help GC - otherwise GC potentially has to traverse a very long list to see if elements are reachable, this can result in OOM
-      //https://jira.jboss.org/browse/HORNETQ-469
+      // Help GC - otherwise GC potentially has to traverse a very long list to see if elements are reachable, this can
+      // result in OOM
       toRemove.next = toRemove.prev = null;
    }
 

@@ -87,11 +87,6 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
       server.getAddressSettingsRepository().addMatch("#", setting);
    }
 
-   /**
-    * Test replicating issue JBPAPP-9603
-    *
-    * @throws Exception
-    */
    @Test
    public void testTopicsWithNonDurableSubscription() throws Exception {
       connection = null;

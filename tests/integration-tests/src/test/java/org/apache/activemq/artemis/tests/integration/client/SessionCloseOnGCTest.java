@@ -43,8 +43,8 @@ public class SessionCloseOnGCTest extends ActiveMQTestBase {
    }
 
    /**
-    * Make sure Sessions are not leaking after closed..
-    * Also... we want to make sure the SessionFactory will close itself when there are not references into it
+    * Make sure Sessions are not leaking after closed. Also... we want to make sure the SessionFactory will close itself
+    * when there are not references into it
     */
    @Test
    public void testValidateFactoryGC1() throws Exception {

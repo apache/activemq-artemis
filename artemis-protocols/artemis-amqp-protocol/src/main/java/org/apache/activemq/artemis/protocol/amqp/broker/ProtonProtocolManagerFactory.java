@@ -81,8 +81,8 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
    }
 
    /**
-    * AMQP integration with the broker on this case needs to be soft as the
-    * broker may choose to not load the AMQP Protocol module.
+    * AMQP integration with the broker on this case needs to be soft as the broker may choose to not load the AMQP
+    * Protocol module.
     */
    @Override
    public void loadProtocolServices(ActiveMQServer server, List<ActiveMQComponent> services) {
@@ -101,10 +101,9 @@ public class ProtonProtocolManagerFactory extends AbstractProtocolManagerFactory
       }
    }
 
-   /*
-    * Check if broker configuration of AMQP broker connections or other broker
-    * configuration related to protocol services has been updated and update the
-    * protocol services accordingly.
+   /**
+    * Check if broker configuration of AMQP broker connections or other broker configuration related to protocol
+    * services has been updated and update the protocol services accordingly.
     */
    @Override
    public void updateProtocolServices(ActiveMQServer server, List<ActiveMQComponent> services) throws Exception {

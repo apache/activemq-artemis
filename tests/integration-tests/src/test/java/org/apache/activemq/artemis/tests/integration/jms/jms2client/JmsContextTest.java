@@ -328,23 +328,22 @@ public class JmsContextTest extends JMSTestBase {
          Message msg = consumer.receive(100);
          assertNotNull(msg, "must have a msg");
          assertEquals(intProperty, msg.getIntProperty("random"));
-         /* In the second pass we close the connection before ack'ing */
+         // In the second pass we close the connection before ack'ing
          if (idx == pass) {
             localContext.close();
          }
-         /**
-          * From {@code JMSContext.close()}'s javadoc:<br/>
-          * Invoking the {@code acknowledge} method of a received message from a closed connection's
-          * session must throw an {@code IllegalStateRuntimeException}. Closing a closed connection
-          * must NOT throw an exception.
+         /*
+          * From JMSContext.close() javadoc:
+          *
+          * Invoking the acknowledge method of a received message from a closed connection's session must throw an
+          * IllegalStateRuntimeException. Closing a closed connection must NOT throw an exception.
           */
          try {
             msg.acknowledge();
             assertEquals(0, idx, "connection should be open on pass 0. It is " + pass);
          } catch (javax.jms.IllegalStateException expected) {
-            // HORNETQ-1209 "JMS 2.0" XXX JMSContext javadoc says we must expect a
-            // IllegalStateRuntimeException here. But Message.ack...() says it must throws the
-            // non-runtime variant.
+            // JMSContext javadoc says we must expect an IllegalStateRuntimeException here. But Message.ack...() says it
+            // must throws the non-runtime variant.
             assertEquals(pass, idx, "we only close the connection on pass " + pass);
          }
       }

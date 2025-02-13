@@ -1097,9 +1097,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
-   /**
-    * @return the persistDeliveryCountBeforeDelivery
-    */
    @Override
    public boolean isPersistDeliveryCountBeforeDelivery() {
       return persistDeliveryCountBeforeDelivery;
@@ -1439,9 +1436,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
-   /**
-    * Note: modifying the returned {@code List} will not impact the underlying {@code List}.
-    */
    public List<QueueConfiguration> getQueueConfigs() {
       List<QueueConfiguration> result = new ArrayList<>();
       for (CoreQueueConfiguration coreQueueConfiguration : coreQueueConfigurations) {

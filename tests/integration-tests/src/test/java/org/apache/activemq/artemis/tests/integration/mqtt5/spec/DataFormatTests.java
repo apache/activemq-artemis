@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.junit.jupiter.api.Disabled;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not explicitly tested here):
  *
  * [MQTT-1.5.4-1] The character data in a UTF-8 Encoded String MUST be well-formed UTF-8 as defined by the Unicode specification [Unicode] and restated in RFC 3629 [RFC3629]. In particular, the character data MUST NOT include encodings of code points between U+D800 and U+DFFF.

@@ -81,7 +81,7 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
    }
 
    public static ByteBuffer allocateDirectByteBuffer(final int size) {
-      // Using direct buffer, as described on https://jira.jboss.org/browse/HORNETQ-467
+      // Using direct buffer
       ByteBuffer buffer2 = null;
       try {
          buffer2 = ByteBuffer.allocateDirect(size);

@@ -21,9 +21,6 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
-/**
- * the vote itself
- */
 public abstract class Vote<T> {
 
    public Map<String, Object> getVoteMap() {
@@ -35,14 +32,11 @@ public abstract class Vote<T> {
 
    public abstract void decode(ActiveMQBuffer buff);
 
-   //whether or note we should ask the target server for an answer or decide ourselves, for instance if we couldn't
-   //connect to the node in the first place.
+   /**
+    * Whether we should ask the target server for an answer or decide ourselves, for instance if we couldn't connect to
+    * the node in the first place
+    */
    public abstract boolean isRequestServerVote();
 
-   /**
-    * return the vote
-    *
-    * @return the vote
-    */
    public abstract T getVote();
 }

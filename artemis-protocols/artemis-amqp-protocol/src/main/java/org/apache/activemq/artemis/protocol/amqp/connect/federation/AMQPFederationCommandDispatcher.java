@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation.FEDERATION_INSTANCE_RECORD;
-
 import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -35,10 +33,11 @@ import org.apache.activemq.artemis.protocol.amqp.proton.SenderController;
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Sender;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation.FEDERATION_INSTANCE_RECORD;
+
 /**
- * A {@link SenderController} implementation used by the AMQP federation control link
- * to encode and send federation policies or other commands to the remote side of the
- * AMQP federation instance.
+ * A {@link SenderController} implementation used by the AMQP federation control link to encode and send federation
+ * policies or other commands to the remote side of the AMQP federation instance.
  */
 public class AMQPFederationCommandDispatcher implements SenderController {
 
@@ -55,13 +54,10 @@ public class AMQPFederationCommandDispatcher implements SenderController {
    }
 
    /**
-    * Sends the given {@link FederationReceiveFromQueuePolicy} instance using the control
-    * link which should instruct the remote to begin federation operations back to this
-    * peer for matching remote queues with demand.
+    * Sends the given {@link FederationReceiveFromQueuePolicy} instance using the control link which should instruct the
+    * remote to begin federation operations back to this peer for matching remote queues with demand.
     *
-    * @param policy
-    *    The policy to encode and send over the federation control link.
-    *
+    * @param policy The policy to encode and send over the federation control link.
     * @throws Exception if an error occurs during the control and send operation.
     */
    public void sendPolicy(FederationReceiveFromQueuePolicy policy) throws Exception {
@@ -74,13 +70,10 @@ public class AMQPFederationCommandDispatcher implements SenderController {
    }
 
    /**
-    * Sends the given {@link FederationReceiveFromAddressPolicy} instance using the control
-    * link which should instruct the remote to begin federation operations back to this
-    * peer for matching remote address.
+    * Sends the given {@link FederationReceiveFromAddressPolicy} instance using the control link which should instruct
+    * the remote to begin federation operations back to this peer for matching remote address.
     *
-    * @param policy
-    *    The policy to encode and send over the federation control link.
-    *
+    * @param policy The policy to encode and send over the federation control link.
     * @throws Exception if an error occurs during the control and send operation.
     */
    public void sendPolicy(FederationReceiveFromAddressPolicy policy) throws Exception {
@@ -93,12 +86,10 @@ public class AMQPFederationCommandDispatcher implements SenderController {
    }
 
    /**
-    * Raw send command that accepts and {@link AMQPMessage} instance and routes it using the
-    * server post office instance.
+    * Raw send command that accepts and {@link AMQPMessage} instance and routes it using the server post office
+    * instance.
     *
-    * @param command
-    *    The command message to send to the previously created control address.
-    *
+    * @param command The command message to send to the previously created control address.
     * @throws Exception if an error occurs during the message send.
     */
    public void sendCommand(AMQPMessage command) throws Exception {

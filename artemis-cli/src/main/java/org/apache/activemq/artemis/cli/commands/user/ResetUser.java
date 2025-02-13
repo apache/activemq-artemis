@@ -23,7 +23,9 @@ import picocli.CommandLine.Option;
 
 /**
  * Reset a user's password or roles, example:
+ * <pre>{@code
  * ./artemis user reset --user guest --role admin --password ***
+ * }</pre>
  */
 @Command(name = "reset", description = "Reset user's password or roles.")
 public class ResetUser extends PasswordAction {

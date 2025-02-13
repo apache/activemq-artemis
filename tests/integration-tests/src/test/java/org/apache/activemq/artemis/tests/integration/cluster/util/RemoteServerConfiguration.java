@@ -20,10 +20,9 @@ import org.apache.activemq.artemis.core.config.Configuration;
 
 /**
  * A RemoteServerConfiguration.
- * <br>
- * These classes are initialized through their class name through {@link Class#newInstance()}.
- * Therefore they must have a no argument constructor, and if they are inner classes they must be
- * static.
+ * <p>
+ * These classes are initialized through their class name through {@link Class#newInstance()}. Therefore they must have
+ * a no argument constructor, and if they are inner classes they must be static.
  */
 public abstract class RemoteServerConfiguration {
 

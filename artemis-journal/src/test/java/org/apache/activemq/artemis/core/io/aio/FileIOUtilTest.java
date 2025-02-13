@@ -38,10 +38,10 @@ public class FileIOUtilTest {
    @TempDir(factory = TargetTempDirFactory.class)
    public File temporaryFolder;
 
-   /** Since the introduction of asynchronous close on AsyncIO journal
-    there was a situation that if you open a file while it was pending to close
-    you could have many issues with file not open, NPEs
-    this is to capture and fix that race
+   /**
+    * Since the introduction of asynchronous close on AsyncIO journal there was a situation that if you open a file
+    * while it was pending to close you could have many issues with file not open, NPEs this is to capture and fix that
+    * race
     */
    @Test
    public void testOpenClose() throws Exception {

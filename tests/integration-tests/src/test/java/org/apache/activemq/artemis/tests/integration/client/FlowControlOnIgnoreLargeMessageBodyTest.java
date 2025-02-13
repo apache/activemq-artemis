@@ -69,9 +69,6 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase {
       return false;
    }
 
-   /**
-    * LoadProducer
-    */
    class LoadProducer extends Thread {
 
       private final ConnectionFactory cf;

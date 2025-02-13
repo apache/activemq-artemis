@@ -61,10 +61,8 @@ public class Run extends LockAbstract {
    private Timer shutdownTimer;
 
    /**
-    * This will disable the System.exit at the end of the server.stop, as that means there are other things
-    * happening on the same VM.
-    *
-    * @param embedded
+    * This will disable the System.exit at the end of the server.stop, as that means there are other things happening on
+    * the same VM.
     */
    public static void setEmbedded(boolean embedded) {
       Run.embedded = true;
@@ -164,8 +162,6 @@ public class Run extends LockAbstract {
 
    /**
     * Add a simple shutdown hook to stop the server.
-    *
-    * @param configurationDir
     */
    private void addShutdownHook(File configurationDir) {
 

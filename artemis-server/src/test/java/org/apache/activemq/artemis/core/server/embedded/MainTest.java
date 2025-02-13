@@ -30,8 +30,10 @@ public class MainTest {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /* Tests what happens when no workdir arg is given and the default can't
-    * be accessed as not in container env, expect to throw IOE. */
+   /*
+    * Tests what happens when no workdir arg is given and the default can't be accessed as not in container env, expect
+    * to throw IOE.
+    */
    @Test
    @Timeout(5)
    public void testNull() throws Exception {

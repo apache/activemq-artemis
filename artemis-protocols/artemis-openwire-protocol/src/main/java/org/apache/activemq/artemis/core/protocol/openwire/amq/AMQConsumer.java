@@ -241,9 +241,7 @@ public class AMQConsumer {
             session.getCoreSession().createQueue(QueueConfiguration.of(queueName).setAddress(address).setFilterString(selector).setInternal(internalAddress));
          }
       } else {
-         /*
-          * The consumer may be using FQQN in which case the queue might already exist.
-          */
+         // The consumer may be using FQQN in which case the queue might already exist.
          if (CompositeAddress.isFullyQualified(physicalName)) {
             queueName = CompositeAddress.extractQueueName(SimpleString.of(physicalName));
             if (session.getCoreServer().locateQueue(queueName) != null) {
@@ -301,7 +299,7 @@ public class AMQConsumer {
          if (session.getConnection().isNoLocal() || (session.isInternal() && AdvisorySupport.isAdvisoryTopic(openwireDestination))) {
             message.removeProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME);
          }
-         //handleDeliver is performed by an executor (see JBPAPP-6030): any AMQConsumer can share the session.wireFormat()
+         //handleDeliver is performed by an executor; any AMQConsumer can share the session.wireFormat()
          dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, session.wireFormat(), this, session.getCoreServer().getNodeManager().getUUID(), deliveredSequenceId.getAndIncrement());
          int size = dispatch.getMessage().getSize();
          reference.setProtocolData(MessageId.class, dispatch.getMessage().getMessageId());
@@ -322,10 +320,9 @@ public class AMQConsumer {
    }
 
    /**
-    * The acknowledgement in openwire is done based on intervals.
-    * We will iterate through the list of delivering messages at {@link ServerConsumer#scanDeliveringReferences(boolean, Function, Function)}
-    * and add those to the Transaction.
-    * Notice that we will start a new transaction on the cases where there is no transaction.
+    * The acknowledgement in openwire is done based on intervals. We will iterate through the list of delivering
+    * messages at {@link ServerConsumer#scanDeliveringReferences(boolean, Function, Function)} and add those to the
+    * Transaction. Notice that we will start a new transaction on the cases where there is no transaction.
     */
    public void acknowledge(MessageAck ack) throws Exception {
 

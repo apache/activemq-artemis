@@ -57,8 +57,6 @@ public class JmsDurableTopicSendReceiveTest extends JmsTopicSendReceiveTest {
 
    /**
     * Test if all the messages sent are being received.
-    *
-    * @throws Exception
     */
    @Test
    public void testSendWhileClosed() throws Exception {

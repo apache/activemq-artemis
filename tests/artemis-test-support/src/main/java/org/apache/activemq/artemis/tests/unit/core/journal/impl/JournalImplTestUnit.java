@@ -472,9 +472,6 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       return (fileSize - headerSize) / recordSize;
    }
 
-   /**
-    * Use: calculateNumberOfFiles (fileSize, numberOfRecords, recordSize,  numberOfRecords2, recordSize2, , ...., numberOfRecordsN, recordSizeN);
-    */
    private int calculateNumberOfFiles(TestableJournal journal,
                                       final int fileSize,
                                       final int alignment,
@@ -3080,9 +3077,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          update(i);
       }
 
-      /**
-       * Enable System.outs again if test fails and needs to be debugged
-       */
+      // Enable System.outs again if test fails and needs to be debugged
 
       //      logger.debug("Before stop ****************************");
       //      logger.debug(journal.debug());

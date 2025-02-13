@@ -51,8 +51,8 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * On this test we will run ScaleDown directly as an unit-test in several cases,
- * simulating what would happen during a real scale down.
+ * On this test we will run ScaleDown directly as an unit-test in several cases, simulating what would happen during a
+ * real scale down.
  */
 @ExtendWith(ParameterizedTestExtension.class)
 public class ScaleDownDirectTest extends ClusterTestBase {

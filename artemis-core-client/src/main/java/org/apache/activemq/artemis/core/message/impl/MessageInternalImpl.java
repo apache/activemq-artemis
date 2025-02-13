@@ -121,10 +121,6 @@ public class MessageInternalImpl implements MessageInternal {
       throw new UnsupportedOperationException();
    }
 
-   /**
-    * Used to calculate what is the delivery time.
-    * Return null if not scheduled.
-    */
    @Override
    public Long getScheduledDeliveryTime() {
       return message.getScheduledDeliveryTime();
@@ -142,9 +138,7 @@ public class MessageInternalImpl implements MessageInternal {
    }
 
    /**
-    * The buffer will belong to this message, until release is called.
-    *
-    * @param buffer
+    * The buffer will belong to this message until release is called.
     */
    public Message setBuffer(ByteBuf buffer) {
       throw new UnsupportedOperationException();
@@ -154,19 +148,11 @@ public class MessageInternalImpl implements MessageInternal {
       return message.getBuffer();
    }
 
-   /**
-    * It will generate a new instance of the message encode, being a deep copy, new properties, new everything
-    */
    @Override
    public Message copy() {
       return message.copy();
    }
 
-   /**
-    * It will generate a new instance of the message encode, being a deep copy, new properties, new everything
-    *
-    * @param newID
-    */
    @Override
    public Message copy(long newID) {
       return message.copy(newID);
@@ -177,11 +163,6 @@ public class MessageInternalImpl implements MessageInternal {
       return message.copy(newID, isDLQorExpiry);
    }
 
-   /**
-    * Returns the messageID.
-    * <br>
-    * The messageID is set when the message is handled by the server.
-    */
    @Override
    public long getMessageID() {
       return message.getMessageID();
@@ -193,33 +174,17 @@ public class MessageInternalImpl implements MessageInternal {
       return this;
    }
 
-   /**
-    * Returns the expiration time of this message.
-    */
    @Override
    public long getExpiration() {
       return message.getExpiration();
    }
 
-   /**
-    * Sets the expiration of this message.
-    *
-    * @param expiration expiration time
-    */
    @Override
    public Message setExpiration(long expiration) {
       message.setExpiration(expiration);
       return this;
    }
 
-   /**
-    * This represents historically the JMSMessageID.
-    * We had in the past used this for the MessageID that was sent on core messages...
-    *
-    * later on when we added AMQP this name clashed with AMQPMessage.getUserID();
-    *
-    * @return the user id
-    */
    @Override
    public Object getUserID() {
       return message.getUserID();
@@ -231,19 +196,11 @@ public class MessageInternalImpl implements MessageInternal {
       return this;
    }
 
-   /**
-    * Returns whether this message is durable or not.
-    */
    @Override
    public boolean isDurable() {
       return message.isDurable();
    }
 
-   /**
-    * Sets whether this message is durable or not.
-    *
-    * @param durable {@code true} to flag this message as durable, {@code false} else
-    */
    @Override
    public Message setDurable(boolean durable) {
       message.setDurable(durable);
@@ -288,45 +245,22 @@ public class MessageInternalImpl implements MessageInternal {
       return this;
    }
 
-   /**
-    * Returns the message priority.
-    * <p>
-    * Values range from 0 (less priority) to 9 (more priority) inclusive.
-    */
    @Override
    public byte getPriority() {
       return message.getPriority();
    }
 
-   /**
-    * Sets the message priority.
-    * <p>
-    * Value must be between 0 and 9 inclusive.
-    *
-    * @param priority the new message priority
-    */
    @Override
    public Message setPriority(byte priority) {
       message.setPriority(priority);
       return this;
    }
 
-   /**
-    * Used to receive this message from an encoded medium buffer
-    *
-    * @param buffer
-    */
    @Override
    public void receiveBuffer(ByteBuf buffer) {
       throw new UnsupportedOperationException();
    }
 
-   /**
-    * Used to send this message to an encoded medium buffer.
-    *
-    * @param buffer        the buffer used.
-    * @param deliveryCount Some protocols (AMQP) will have this as part of the message.
-    */
    @Override
    public void sendBuffer(ByteBuf buffer, int deliveryCount) {
       throw new UnsupportedOperationException();
@@ -624,17 +558,11 @@ public class MessageInternalImpl implements MessageInternal {
       return message.putStringProperty(key, value);
    }
 
-   /**
-    * Returns the size of the <em>encoded</em> message.
-    */
    @Override
    public int getEncodeSize() {
       return message.getEncodeSize();
    }
 
-   /**
-    * Returns all the names of the properties for this message.
-    */
    @Override
    public Set<SimpleString> getPropertyNames() {
       return message.getPropertyNames();
@@ -685,19 +613,11 @@ public class MessageInternalImpl implements MessageInternal {
       throw new UnsupportedOperationException();
    }
 
-   /**
-    * This should make you convert your message into Core format.
-    */
    @Override
    public ICoreMessage toCore() {
       return message.toCore();
    }
 
-   /**
-    * This should make you convert your message into Core format.
-    *
-    * @param coreMessageObjectPools
-    */
    @Override
    public ICoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools) {
       return message.toCore();

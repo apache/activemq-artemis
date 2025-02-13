@@ -33,13 +33,12 @@ import org.junit.Before;
 
 /**
  * Creates convenient Unified JMS 1.1 objects which can be needed for tests.
- * <br />
- * This class defines the setUp and tearDown methods so
- * that JMS administrated objects and  other "ready to use" JMS objects (that is to say destinations,
- * sessions, producers and consumers) are available conveniently for the test cases.
- * <br />
- * Classes which want that convenience should extend <code>UnifiedTestCase</code> instead of
- * <code>JMSTestCase</code>.
+ * <p>
+ * This class defines the setUp and tearDown methods so that JMS administrated objects and  other "ready to use" JMS
+ * objects (that is to say destinations, sessions, producers and consumers) are available conveniently for the test
+ * cases.
+ * <p>
+ * Classes which want that convenience should extend {@code UnifiedTestCase} instead of {@code JMSTestCase}.
  *
  * @since JMS 1.1
  */
@@ -63,24 +62,12 @@ public abstract class UnifiedTestCase extends JMSTestCase {
    // Unified Domain //
    // //////////////////
 
-   /**
-    * Destination used by a producer
-    */
    protected Destination producerDestination;
 
-   /**
-    * Producer
-    */
    protected MessageProducer producer;
 
-   /**
-    * ConnectionFactory of the producer
-    */
    protected ConnectionFactory producerCF;
 
-   /**
-    * Connection of the producer
-    */
    protected Connection producerConnection;
 
    /**
@@ -88,24 +75,12 @@ public abstract class UnifiedTestCase extends JMSTestCase {
     */
    protected Session producerSession;
 
-   /**
-    * Destination used by a consumer
-    */
    protected Destination consumerDestination;
 
-   /**
-    * Consumer on destination
-    */
    protected MessageConsumer consumer;
 
-   /**
-    * ConnectionFactory of the consumer
-    */
    protected ConnectionFactory consumerCF;
 
-   /**
-    * Connection of the consumer
-    */
    protected Connection consumerConnection;
 
    /**
@@ -117,33 +92,21 @@ public abstract class UnifiedTestCase extends JMSTestCase {
    // PTP Domain //
    // //////////////
 
-   /**
-    * QueueConnectionFactory
-    */
    protected QueueConnectionFactory queueConnectionFactory;
 
-   /**
-    * Queue
-    */
    protected Queue queue;
 
    // //////////////////
    // Pub/Sub Domain //
    // //////////////////
 
-   /**
-    * TopicConnectionFactory
-    */
    protected TopicConnectionFactory topicConnectionFactory;
 
-   /**
-    * Topic
-    */
    protected Topic topic;
 
    /**
     * Create all administrated objects connections and sessions ready to use for tests.
-    * <br />
+    * <p>
     * Start connections.
     */
    @Override

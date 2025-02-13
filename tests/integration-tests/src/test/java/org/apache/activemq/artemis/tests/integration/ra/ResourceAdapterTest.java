@@ -372,7 +372,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       assertEquals(qResourceAdapter.getUserName(), testuser);
    }
 
-   // https://issues.jboss.org/browse/JBPAPP-5790
    @Test
    public void testResourceAdapterSetup() throws Exception {
       ActiveMQResourceAdapter adapter = new ActiveMQResourceAdapter();
@@ -425,7 +424,6 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
 
    }
 
-   // https://issues.jboss.org/browse/JBPAPP-5836
    @Test
    public void testResourceAdapterSetupOverrideCFParams() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = new ActiveMQResourceAdapter();

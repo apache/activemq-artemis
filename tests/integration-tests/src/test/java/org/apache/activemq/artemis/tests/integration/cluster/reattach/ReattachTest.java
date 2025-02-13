@@ -67,7 +67,7 @@ public class ReattachTest extends ActiveMQTestBase {
    private ActiveMQServer server;
    private ServerLocator locator;
 
-   /*
+   /**
     * Test failure on connection, but server is still up so should immediately reconnect
     */
    @Test
@@ -195,7 +195,7 @@ public class ReattachTest extends ActiveMQTestBase {
       sf.close();
    }
 
-   /*
+   /**
     * Test failure on connection, but server is still up so should immediately reconnect
     */
    @Test

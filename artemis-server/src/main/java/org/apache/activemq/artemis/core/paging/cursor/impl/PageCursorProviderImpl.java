@@ -122,9 +122,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       }
 
       if (!cursorList.isEmpty()) {
-         // https://issues.jboss.org/browse/JBPAPP-10338 if you ack out of order,
-         // the min page could be beyond the first page.
-         // we have to reload any previously acked message
+         // If you ack out of order, the min page could be beyond the first page. We have to reload any previously acked
+         // message
          long cursorsMinPage = checkMinPage(cursorList);
 
          // checkMinPage will return MaxValue if there aren't any pages or any cursors
@@ -201,10 +200,10 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    /**
-    * Delete everything associated with any queue on this address.
-    * This is to be called when the address is about to be released from paging.
-    * Hence the PagingStore will be holding a write lock, meaning no messages are going to be paged at this time.
-    * So, we shouldn't lock anything after this method, to avoid dead locks between the writeLock and any synchronization with the CursorProvider.
+    * Delete everything associated with any queue on this address. This is to be called when the address is about to be
+    * released from paging. Hence the PagingStore will be holding a write lock, meaning no messages are going to be
+    * paged at this time. So, we shouldn't lock anything after this method, to avoid dead locks between the writeLock
+    * and any synchronization with the CursorProvider.
     */
    @Override
    public void onPageModeCleared() {
@@ -342,15 +341,8 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    /**
-    * This cleanup process will calculate the min page for every cursor
-    * and then we remove the pages based on that.
-    * if we knew ahead all the queues belonging to every page we could remove this process.
-    * @param depagedPages
-    * @param depagedPagesSet
-    * @param cursorList
-    * @param minPage
-    * @param firstPage
-    * @throws Exception
+    * This cleanup process will calculate the min page for every cursor and then we remove the pages based on that. if
+    * we knew ahead all the queues belonging to every page we could remove this process.
     */
    private void cleanupRegularStream(List<Page> depagedPages,
                           LongHashSet depagedPagesSet,
@@ -387,12 +379,14 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       }
    }
 
-   /** The regular depaging will take care of removing messages in a regular streaming.
-    *
-    * if we had a list of all the cursors that belong to each page, this cleanup would be enough on every situation (with some adjustment to currentPages)
-    * So, this routing is to optimize removing pages when all the acks are made on every cursor.
-    * We still need regular depaging on a streamed manner as it will check the min page for all the existent cursors.
-    * */
+   /**
+    * The regular depaging will take care of removing messages in a regular streaming.
+    * <p>
+    * if we had a list of all the cursors that belong to each page, this cleanup would be enough on every situation
+    * (with some adjustment to currentPages) So, this routing is to optimize removing pages when all the acks are made
+    * on every cursor. We still need regular depaging on a streamed manner as it will check the min page for all the
+    * existent cursors.
+    */
    private void cleanupMiddleStream(List<Page> depagedPages,
                           LongHashSet depagedPagesSet,
                           List<PageSubscription> cursorList,
@@ -510,9 +504,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       return complete;
    }
 
-   /**
-    * @return
-    */
    private synchronized List<PageSubscription> cloneSubscriptions() {
       List<PageSubscription> cursorList = new ArrayList<>(activeCursors.values());
       return cursorList;
@@ -525,11 +516,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       }
    }
 
-   /**
-    * @param cursorList
-    * @param currentPage
-    * @throws Exception
-    */
    protected void storeBookmark(List<PageSubscription> cursorList, Page currentPage) throws Exception {
       try {
          // First step: Move every cursor to the next bookmarked page (that was just created)
@@ -585,10 +571,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       for (PageSubscription cursor : cursorList) {
          long firstPage = cursor.getFirstPage();
          if (firstPage == minPage) {
-            /**
-             * if first page is current writing page and it's not complete, or
-             * first page is before the current writing page, we need to trigger
-             * deliverAsync to delete messages in the pages.
+            /*
+             * if first page is current writing page and it's not complete, or first page is before the current writing
+             * page, we need to trigger deliverAsync to delete messages in the pages.
              */
             if (cursor.getQueue().getMessageCount() == 0 && (!currentWriting || !cursor.isComplete(firstPage))) {
                cursor.getQueue().deliverAsync();

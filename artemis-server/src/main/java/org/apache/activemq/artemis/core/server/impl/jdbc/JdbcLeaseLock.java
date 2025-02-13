@@ -55,8 +55,8 @@ class JdbcLeaseLock implements LeaseLock {
    private long allowedTimeDiff;
 
    /**
-    * The lock will be responsible (ie {@link #close()}) of all the {@link PreparedStatement}s used by it, but not of the {@link Connection},
-    * whose life cycle will be managed externally.
+    * The lock will be responsible (ie {@link #close()}) of all the {@link PreparedStatement}s used by it, but not of
+    * the {@link Connection}, whose life cycle will be managed externally.
     */
    JdbcLeaseLock(String holderId,
                  JDBCConnectionProvider connectionProvider,
@@ -103,8 +103,8 @@ class JdbcLeaseLock implements LeaseLock {
 
    /**
     * Given that many DBMS won't support standard SQL queries to collect CURRENT_TIMESTAMP at milliseconds granularity,
-    * this value is stripped of the milliseconds part, making it less optimistic then the reality, if >= 0.<p>
-    * It's commonly used as an hard deadline for JDBC operations, hence is fine to not have a high precision.
+    * this value is stripped of the milliseconds part, making it less optimistic then the reality, if >= 0.<p> It's
+    * commonly used as an hard deadline for JDBC operations, hence is fine to not have a high precision.
     */
    @Override
    public long localExpirationTime() {

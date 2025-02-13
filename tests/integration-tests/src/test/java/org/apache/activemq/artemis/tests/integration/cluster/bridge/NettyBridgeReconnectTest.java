@@ -115,9 +115,6 @@ public class NettyBridgeReconnectTest extends BridgeTestBase {
       return true;
    }
 
-   /**
-    * @return
-    */
    private String getConnector() {
       return NETTY_CONNECTOR_FACTORY;
    }

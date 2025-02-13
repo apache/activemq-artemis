@@ -28,13 +28,14 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * A hash set implementation of {@literal Set<Long>} that uses open addressing values.
- * To minimize the memory footprint, this class uses open addressing rather than chaining.
- * Collisions are resolved using linear probing. Deletions implement compaction, so cost of
- * remove can approach O(N) for full maps, which makes a small loadFactor recommended.
- *
- * The implementation is based on <a href=https://github.com/real-logic/agrona/blob/master/agrona/src/main/java/org/agrona/collections/IntHashSet.java>Agrona IntHashSet</a>
- * but uses long primitive keys and a different {@link #MISSING_VALUE} to account for {@link Long#hashCode} being 0 for -1.
+ * A hash set implementation of {@literal Set<Long>} that uses open addressing values. To minimize the memory footprint,
+ * this class uses open addressing rather than chaining. Collisions are resolved using linear probing. Deletions
+ * implement compaction, so cost of remove can approach O(N) for full maps, which makes a small loadFactor recommended.
+ * <p>
+ * The implementation is based on <a
+ * href=https://github.com/real-logic/agrona/blob/master/agrona/src/main/java/org/agrona/collections/IntHashSet.java>Agrona
+ * IntHashSet</a> but uses long primitive keys and a different {@link #MISSING_VALUE} to account for
+ * {@link Long#hashCode} being 0 for -1.
  */
 public class LongHashSet extends AbstractSet<Long> implements Serializable {
 
@@ -100,7 +101,7 @@ public class LongHashSet extends AbstractSet<Long> implements Serializable {
    /**
     * Get the load factor beyond which the set will increase size.
     *
-    * @return load factor for when the set should increase size.
+    * @return load factor for when the set should increase size
     */
    public float loadFactor() {
       return loadFactor;
@@ -109,17 +110,17 @@ public class LongHashSet extends AbstractSet<Long> implements Serializable {
    /**
     * Get the total capacity for the set to which the load factor with be a fraction of.
     *
-    * @return the total capacity for the set.
+    * @return the total capacity for the set
     */
    public int capacity() {
       return values.length;
    }
 
    /**
-    * Get the actual threshold which when reached the map will resize.
-    * This is a function of the current capacity and load factor.
+    * Get the actual threshold which when reached the map will resize. This is a function of the current capacity and
+    * load factor.
     *
-    * @return the threshold when the map will resize.
+    * @return the threshold when the map will resize
     */
    public int resizeThreshold() {
       return resizeThreshold;
@@ -266,8 +267,8 @@ public class LongHashSet extends AbstractSet<Long> implements Serializable {
    }
 
    /**
-    * Compact the backing arrays by rehashing with a capacity just larger than current size
-    * and giving consideration to the load factor.
+    * Compact the backing arrays by rehashing with a capacity just larger than current size and giving consideration to
+    * the load factor.
     */
    public void compact() {
       final int idealCapacity = (int) Math.round(size() * (1.0 / loadFactor));
@@ -286,7 +287,7 @@ public class LongHashSet extends AbstractSet<Long> implements Serializable {
     * Contains method that does not box values.
     *
     * @param value to be check for if the set contains it.
-    * @return true if the value is contained in the set otherwise false.
+    * @return true if the value is contained in the set otherwise false
     * @see Collection#contains(Object)
     */
    public boolean contains(final long value) {
@@ -447,7 +448,7 @@ public class LongHashSet extends AbstractSet<Long> implements Serializable {
     * LongHashSet specialised variant of {this#containsAll(Collection)}.
     *
     * @param other int hash set to compare against.
-    * @return true if every element in other is in this.
+    * @return true if every element in other is in this
     */
    public boolean containsAll(final LongHashSet other) {
       for (final long value : other.values) {
@@ -558,7 +559,7 @@ public class LongHashSet extends AbstractSet<Long> implements Serializable {
       /**
        * Strongly typed alternative of {@link Iterator#next()} to avoid boxing.
        *
-       * @return the next int value.
+       * @return the next int value
        */
       public long nextValue() {
          if (remaining == 1 && containsMissingValue) {

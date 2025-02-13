@@ -351,8 +351,6 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
    /**
     * Tests if the system would still couple with old data where the LargeMessage was linked to its previous copy
-    *
-    * @throws Exception
     */
    @Test
    public void testCompatilityWithLinks() throws Exception {

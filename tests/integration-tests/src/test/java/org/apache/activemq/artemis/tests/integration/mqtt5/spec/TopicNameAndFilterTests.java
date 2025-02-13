@@ -34,7 +34,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * Fulfilled by client or Netty codec (i.e. not tested here):
  *
  * [MQTT-4.7.0-1] The wildcard characters can be used in Topic Filters, but MUST NOT be used within a Topic Name.

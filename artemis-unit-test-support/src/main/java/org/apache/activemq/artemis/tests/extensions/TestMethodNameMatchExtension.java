@@ -27,10 +27,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Extension to check for specific method name(s) about run.
- *
- * Useful in subclasses where a determination must be made before the method, for use by utility
- * code executed 'early' due to BeforeEach activity triggered by a superclass, before any local
- * BeforeEach implementation can run and check the method name.
+ * <p>
+ * Useful in subclasses where a determination must be made before the method, for use by utility code executed 'early'
+ * due to BeforeEach activity triggered by a superclass, before any local BeforeEach implementation can run and check
+ * the method name.
  */
 public class TestMethodNameMatchExtension implements BeforeEachCallback, Extension {
 

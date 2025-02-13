@@ -112,8 +112,6 @@ public class JMSXUserIDPluginTest extends ActiveMQTestBase {
 
       /**
        * used to pass configured properties to Plugin
-       *
-       * @param properties
        */
       @Override
       public void init(Map<String, String> properties) {

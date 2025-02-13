@@ -486,16 +486,6 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
       }
    }
 
-   /**
-    * @param numberOfMessages
-    * @param numberOfBytes
-    * @param delayDelivery
-    * @param session
-    * @param producer
-    * @throws Exception
-    * @throws IOException
-    * @throws ActiveMQException
-    */
    private void sendMessages(final int numberOfMessages,
                              final long numberOfBytes,
                              final long delayDelivery,
@@ -566,13 +556,6 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
       return clientMessage;
    }
 
-   /**
-    * @param session
-    * @param queueToRead
-    * @param numberOfBytes
-    * @throws ActiveMQException
-    * @throws IOException
-    */
    protected void readMessage(final ClientSession session,
                               final SimpleString queueToRead,
                               final int numberOfBytes) throws ActiveMQException, IOException {

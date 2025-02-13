@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.core.server;
 import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
 
 /**
- * A broker connection defines a server connection created to provide services
- * between this server and another instance.
+ * A broker connection defines a server connection created to provide services between this server and another
+ * instance.
  */
 public interface BrokerConnection extends ActiveMQComponent {
 
@@ -33,22 +33,22 @@ public interface BrokerConnection extends ActiveMQComponent {
    }
 
    /**
-    * @return the unique name of the broker connection
+    * {@return the unique name of the broker connection}
     */
    String getName();
 
    /**
-    * @return the protocol that underlies the broker connection implementation.
+    * {@return the protocol that underlies the broker connection implementation}
     */
    String getProtocol();
 
    /**
-    * @return <code>true</code> if the broker connection is currently connected to the remote.
+    * {@return {@code true} if the broker connection is currently connected to the remote}
     */
    boolean isConnected();
 
    /**
-    * @return the configuration that was used to create this broker connection.
+    * {@return the configuration that was used to create this broker connection}
     */
    BrokerConnectConfiguration getConfiguration();
 

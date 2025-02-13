@@ -83,9 +83,9 @@ public class WildcardAddressManager extends SimpleAddressManager {
    }
 
    /**
-    * If the address to add the binding to contains a wildcard then a copy of the binding (with the same underlying queue)
-    * will be added to matching addresses. If the address is non wildcard, then we need to add any existing matching wildcard
-    * bindings to this address the first time we see it.
+    * If the address to add the binding to contains a wildcard then a copy of the binding (with the same underlying
+    * queue) will be added to matching addresses. If the address is non wildcard, then we need to add any existing
+    * matching wildcard bindings to this address the first time we see it.
     *
     * @param binding the binding to add
     * @return true if the address was a new mapping

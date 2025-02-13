@@ -144,9 +144,6 @@ public class BridgeReconnectTest extends BridgeTestBase {
       return false;
    }
 
-   /**
-    * @return
-    */
    private String getConnector() {
       if (isNetty()) {
          return NETTY_CONNECTOR_FACTORY;
@@ -156,8 +153,6 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
    /**
     * Backups must successfully deploy its bridges on fail-over.
-    *
-    * @see https://bugzilla.redhat.com/show_bug.cgi?id=900764
     */
    @TestTemplate
    public void testFailoverDeploysBridge() throws Exception {
@@ -660,9 +655,6 @@ public class BridgeReconnectTest extends BridgeTestBase {
       assertNoMoreConnections();
    }
 
-   /**
-    * @throws Exception
-    */
    private void closeServers() throws Exception {
       if (session0 != null)
          session0.close();

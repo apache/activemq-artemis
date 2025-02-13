@@ -24,16 +24,14 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 
 public interface SessionCallback {
 
-   /** A requirement to do direct delivery is:
-    *  no extra locking required at the protocol layer.
-    *  which cannot be guaranteed at AMQP as proton will need the locking.
-    *  So, disable this on AMQP or any other protocol requiring extra lock.
-    * @return
+   /**
+    * A requirement to do direct delivery is: no extra locking required at the protocol layer. which cannot be
+    * guaranteed at AMQP as proton will need the locking. So, disable this on AMQP or any other protocol requiring extra
+    * lock.
     */
    default boolean supportsDirectDelivery() {
       return true;
    }
-
 
    /**
     * This one gives a chance for Proton to have its own flow control.
@@ -49,18 +47,13 @@ public interface SessionCallback {
    }
 
    /**
-    * This can be used to complete certain operations outside of the lock,
-    * like acks or other operations.
+    * This can be used to complete certain operations outside of the lock, like acks or other operations.
     */
    void afterDelivery() throws Exception;
 
    /**
-    * Use this to updates specifics on the message after a redelivery happened.
-    * Return true if there was specific logic applied on the protocol, so the ServerConsumer won't make any adjustments.
-    *
-    * @param consumer
-    * @param ref
-    * @param failed
+    * Use this to updates specifics on the message after a redelivery happened. Return true if there was specific logic
+    * applied on the protocol, so the ServerConsumer won't make any adjustments.
     */
    boolean updateDeliveryCountAfterCancel(ServerConsumer consumer, MessageReference ref, boolean failed);
 

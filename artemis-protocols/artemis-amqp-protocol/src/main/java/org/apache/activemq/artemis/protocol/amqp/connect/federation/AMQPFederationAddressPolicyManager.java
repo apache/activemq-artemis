@@ -65,7 +65,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
    }
 
    /**
-    * @return the receive from address policy that backs the address policy manager.
+    * @return the receive from address policy that backs the address policy manager
     */
    @Override
    public FederationReceiveFromAddressPolicy getPolicy() {
@@ -202,13 +202,11 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
    }
 
    /**
-    * Called under lock this method should check if the given {@link Binding} matches the
-    * configured address federation policy and federate the address if so.  The incoming
-    * {@link Binding} can be either a {@link QueueBinding} or a {@link DivertBinding} so
-    * the code should check both.
+    * Called under lock this method should check if the given {@link Binding} matches the configured address federation
+    * policy and federate the address if so.  The incoming {@link Binding} can be either a {@link QueueBinding} or a
+    * {@link DivertBinding} so the code should check both.
     *
-    * @param binding
-    *       The binding that should be checked against the federated address policy,
+    * @param binding The binding that should be checked against the federated address policy,
     */
    private void checkBindingForMatch(Binding binding) {
       if (binding instanceof QueueBinding queueBinding) {
@@ -345,13 +343,10 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
    }
 
    /**
-    * Checks if the remote address added falls within the set of addresses that match the
-    * configured address policy and if so scans for local demand on that address to see
-    * if a new attempt to federate the address is needed.
+    * Checks if the remote address added falls within the set of addresses that match the configured address policy and
+    * if so scans for local demand on that address to see if a new attempt to federate the address is needed.
     *
-    * @param addressName
-    *    The address that was added on the remote.
-    *
+    * @param addressName The address that was added on the remote.
     * @throws Exception if an error occurs while processing the address added event.
     */
    synchronized void afterRemoteAddressAdded(String addressName) throws Exception {
@@ -371,14 +366,12 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
    }
 
    /**
-    * Performs the test against the configured address policy to check if the target
-    * address is a match or not. A subclass can override this method and provide its
-    * own match tests in combination with the configured matching policy.
+    * Performs the test against the configured address policy to check if the target address is a match or not. A
+    * subclass can override this method and provide its own match tests in combination with the configured matching
+    * policy.
     *
-    * @param addressInfo
-    *    The address that is being tested for a policy match.
-    *
-    * @return <code>true</code> if the address given is a match against the policy.
+    * @param addressInfo The address that is being tested for a policy match.
+    * @return {@code true} if the address given is a match against the policy
     */
    private boolean testIfAddressMatchesPolicy(AddressInfo addressInfo) {
       if (!policy.test(addressInfo)) {
@@ -396,30 +389,25 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
    }
 
    /**
-    * Performs the test against the configured address policy to check if the target
-    * address is a match or not. A subclass can override this method and provide its
-    * own match tests in combination with the configured matching policy.
+    * Performs the test against the configured address policy to check if the target address is a match or not. A
+    * subclass can override this method and provide its own match tests in combination with the configured matching
+    * policy.
     *
-    * @param address
-    *    The address that is being tested for a policy match.
-    * @param type
-    *    The routing type of the address to test against the policy.
-    *
-    * @return <code>true</code> if the address given is a match against the policy.
+    * @param address The address that is being tested for a policy match.
+    * @param type    The routing type of the address to test against the policy.
+    * @return {@code true} if the address given is a match against the policy
     */
    private boolean testIfAddressMatchesPolicy(String address, RoutingType type) {
       return policy.test(address, type);
    }
 
    /**
-    * Create a new {@link FederationConsumerInfo} based on the given {@link AddressInfo}
-    * and the configured {@link FederationReceiveFromAddressPolicy}. A subclass must override this
-    * method to return a consumer information object with the data used be that implementation.
+    * Create a new {@link FederationConsumerInfo} based on the given {@link AddressInfo} and the configured
+    * {@link FederationReceiveFromAddressPolicy}. A subclass must override this method to return a consumer information
+    * object with the data used be that implementation.
     *
-    * @param address
-    *    The {@link AddressInfo} to use as a basis for the consumer information object.
-    *
-    * @return a new {@link FederationConsumerInfo} instance based on the given address.
+    * @param address The {@link AddressInfo} to use as a basis for the consumer information object.
+    * @return a new {@link FederationConsumerInfo} instance based on the given address
     */
    private AMQPFederationGenericConsumerInfo createConsumerInfo(AddressInfo address) {
       final String addressName = address.getName().toString();
@@ -476,14 +464,14 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       }
 
       /**
-       * @return the address information that this entry is acting to federate.
+       * {@return the address information that this entry is acting to federate}
        */
       public AddressInfo getAddressInfo() {
          return addressInfo;
       }
 
       /**
-       * @return the address that this entry is acting to federate.
+       * {@return the address that this entry is acting to federate}
        */
       public String getAddress() {
          return getAddressInfo().getName().toString();

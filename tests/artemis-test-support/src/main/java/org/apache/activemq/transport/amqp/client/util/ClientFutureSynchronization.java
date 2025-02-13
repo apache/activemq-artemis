@@ -17,9 +17,8 @@
 package org.apache.activemq.transport.amqp.client.util;
 
 /**
- * Synchronization callback interface used to execute state updates
- * or similar tasks in the thread context where the associated
- * ProviderFuture is managed.
+ * Synchronization callback interface used to execute state updates or similar tasks in the thread context where the
+ * associated ProviderFuture is managed.
  */
 public interface ClientFutureSynchronization {
 

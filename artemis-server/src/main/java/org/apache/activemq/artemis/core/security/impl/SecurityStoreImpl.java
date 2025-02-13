@@ -94,7 +94,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
 
    /**
-    * @param notificationService can be <code>null</code>
+    * @param notificationService can be {@code null}
     */
    public SecurityStoreImpl(final HierarchicalRepository<Set<Role>> securityRepository,
                             final ActiveMQSecurityManager securityManager,
@@ -285,9 +285,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
          Set<Role> roles = securityRepository.getMatch(bareAddress.toString());
 
-         /*
-          * If a valid queue is passed in and there's an exact match for the FQQN then use the FQQN instead of the address
-          */
+         // If a valid queue is passed in and there's an exact match for the FQQN then use the FQQN instead of the address
          SimpleString fqqn = null;
          if (bareQueue != null) {
             fqqn = CompositeAddress.toFullyQualified(bareAddress, bareQueue);
@@ -305,10 +303,10 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          if (securityManager instanceof ActiveMQSecurityManager5 manager5) {
             Subject subject = getSubjectForAuthorization(session, manager5);
 
-            /**
+            /*
              * A user may authenticate successfully at first, but then later when their Subject is evicted from the
-             * local cache re-authentication may fail. This could happen, for example, if the user was removed
-             * from LDAP or the user's token expired.
+             * local cache re-authentication may fail. This could happen, for example, if the user was removed from LDAP
+             * or the user's token expired.
              *
              * If the subject is null then authorization will *always* fail.
              */
@@ -393,12 +391,11 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    }
 
    /**
-    * Get the cached Subject. If the Subject is not in the cache then authenticate again to retrieve
-    * it.
+    * Get the cached Subject. If the Subject is not in the cache then authenticate again to retrieve it.
     *
     * @param session contains the authentication data
-    * @return the authenticated Subject with all associated role principals or null if not
-    * authenticated or JAAS is not supported by the SecurityManager.
+    * @return the authenticated Subject with all associated role principals or null if not authenticated or JAAS is not
+    * supported by the SecurityManager.
     */
    @Override
    public Subject getSessionSubject(SecurityAuth session) {
@@ -437,7 +434,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    /**
     * Get the cached Subject. If the Subject is not in the cache then authenticate again to retrieve it.
     *
-    * @param auth contains the authentication data
+    * @param auth            contains the authentication data
     * @param securityManager used to authenticate the user if the Subject is not in the cache
     * @return the authenticated Subject with all associated role principals
     */

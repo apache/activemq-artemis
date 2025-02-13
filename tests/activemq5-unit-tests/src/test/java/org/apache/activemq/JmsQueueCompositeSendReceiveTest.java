@@ -32,9 +32,6 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.test.JmsTopicSendReceiveTest;
 import org.junit.Ignore;
 
-/**
- *
- */
 @Ignore
 public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
 
@@ -42,8 +39,6 @@ public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
 
    /**
     * Sets a test to have a queue destination and non-persistent delivery mode.
-    *
-    * @see junit.framework.TestCase#setUp()
     */
    @Override
    protected void setUp() throws Exception {
@@ -56,33 +51,16 @@ public class JmsQueueCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
       ArtemisBrokerHelper.makeSureDestinationExists(dest2);
    }
 
-   /**
-    * Returns the consumer subject.
-    *
-    * @return String - consumer subject
-    * @see org.apache.activemq.test.TestSupport#getConsumerSubject()
-    */
    @Override
    protected String getConsumerSubject() {
       return "FOO.BAR.HUMBUG";
    }
 
-   /**
-    * Returns the producer subject.
-    *
-    * @return String - producer subject
-    * @see org.apache.activemq.test.TestSupport#getProducerSubject()
-    */
    @Override
    protected String getProducerSubject() {
       return "FOO.BAR.HUMBUG,FOO.BAR.HUMBUG2";
    }
 
-   /**
-    * Test if all the messages sent are being received.
-    *
-    * @throws Exception
-    */
    @Override
    public void testSendReceive() throws Exception {
       super.testSendReceive();

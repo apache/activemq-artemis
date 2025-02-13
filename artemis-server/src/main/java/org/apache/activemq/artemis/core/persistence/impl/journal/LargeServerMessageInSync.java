@@ -41,9 +41,6 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
    private boolean syncDone;
    private boolean deleted;
 
-   /**
-    * @param storageManager
-    */
    public LargeServerMessageInSync(StorageManager storageManager) {
       mainLM = storageManager.createCoreLargeMessage();
       this.storageManager = storageManager;
@@ -125,9 +122,6 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
       }
    }
 
-   /**
-    * @throws Exception
-    */
    private void deleteAppendFile() throws Exception {
       if (appendFile != null) {
          if (appendFile.isOpen())

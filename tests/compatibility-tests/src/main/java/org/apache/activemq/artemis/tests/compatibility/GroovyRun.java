@@ -85,20 +85,18 @@ public class GroovyRun {
    }
 
    /**
-    * This can be called from the scripts as well.
-    *  The scripts will use this method instead of its own groovy method.
-    *  As a classloader operation needs to be done here.
+    * This can be called from the scripts as well. The scripts will use this method instead of its own groovy method. As
+    * a classloader operation needs to be done here.
     */
    public static Object evaluate(String script,
                                  String[] arg) throws URISyntaxException, IOException {
       return evaluate(script, "arg", arg);
    }
 
-      /**
-       * This can be called from the scripts as well.
-       *  The scripts will use this method instead of its own groovy method.
-       *  As a classloader operation needs to be done here.
-       */
+   /**
+    * This can be called from the scripts as well. The scripts will use this method instead of its own groovy method. As
+    * a classloader operation needs to be done here.
+    */
    public static Object evaluate(String script,
                                String argVariableName,
                                String[] arg) throws URISyntaxException, IOException {

@@ -52,11 +52,6 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
       start();
    }
 
-   /**
-    * @param serverID
-    * @return
-    * @throws Exception
-    */
    @Override
    protected ConfigurationImpl createBasicConfig(final int serverID) {
       ConfigurationImpl configuration = super.createBasicConfig(serverID);
@@ -112,9 +107,7 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
             onMessageReceived.countDown();
          });
 
-        /*
-         * sending a message to broker1
-         */
+        // sending a message to broker1
          {
 
             final CountDownLatch onMessageSent = new CountDownLatch(1);

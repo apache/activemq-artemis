@@ -67,7 +67,7 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
       amqpConnection.scheduledFlush();
    }
 
-   /*
+   /**
     * This can be called concurrently by more than one thread so needs to be locked
     */
    @Override
@@ -195,9 +195,7 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
    }
 
    /**
-    * Returns the name of the protocol for this Remoting Connection
-    *
-    * @return
+    * {@return the name of the protocol for this Remoting Connection}
     */
    @Override
    public String getProtocolName() {

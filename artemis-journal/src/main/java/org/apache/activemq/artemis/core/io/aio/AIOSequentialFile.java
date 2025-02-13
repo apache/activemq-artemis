@@ -35,7 +35,9 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 
-/** This class is implementing Runnable to reuse a callback to close it. */
+/**
+ * This class is implementing Runnable to reuse a callback to close it.
+ */
 public class AIOSequentialFile extends AbstractSequentialFile  {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -53,14 +55,13 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
 
    /**
     * AIO can't guarantee ordering over callbacks.
-    * <br>
+    * <p>
     * We use this {@link PriorityQueue} to hold values until they are in order
     */
    final PriorityQueue<AIOSequentialFileFactory.AIOSequentialCallback> pendingCallbackList = new PriorityQueue<>();
 
    /**
-    * Used to determine the next writing sequence.
-    * This is accessed from a single thread (the Poller Thread)
+    * Used to determine the next writing sequence. This is accessed from a single thread (the Poller Thread)
     */
    private long nextReadSequence = 0;
 

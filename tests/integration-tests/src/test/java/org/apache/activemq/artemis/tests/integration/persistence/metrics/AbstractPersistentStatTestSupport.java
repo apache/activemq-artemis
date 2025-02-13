@@ -43,10 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-/**
- *
- *
- */
 public abstract class AbstractPersistentStatTestSupport extends JMSTestBase {
 
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -189,11 +185,6 @@ public abstract class AbstractPersistentStatTestSupport extends JMSTestBase {
 
    /**
     * Generate random messages between 100 bytes and maxMessageSize
-    *
-    * @param session
-    * @return
-    * @throws JMSException
-    * @throws ActiveMQException
     */
    protected BytesMessage createMessage(int count, Session session, int maxMessageSize, AtomicLong publishedMessageSize)
          throws JMSException, ActiveMQException {

@@ -51,20 +51,20 @@ public class ScramServerFunctionalityImpl implements ScramServerFunctionality {
 
    /**
     * Creates new ScramServerFunctionalityImpl
+    *
     * @param digestName Digest to be used
-    * @param hmacName HMAC to be used
-    * @throws NoSuchAlgorithmException
+    * @param hmacName   HMAC to be used
     */
    public ScramServerFunctionalityImpl(String digestName, String hmacName) throws NoSuchAlgorithmException {
       this(digestName, hmacName, UUID.randomUUID().toString());
    }
 
    /**
-    * /** Creates new ScramServerFunctionalityImpl
-    * @param digestName Digest to be used
-    * @param hmacName HMAC to be used
+    * Creates new ScramServerFunctionalityImpl
+    *
+    * @param digestName      Digest to be used
+    * @param hmacName        HMAC to be used
     * @param serverPartNonce Server's part of the nonce
-    * @throws NoSuchAlgorithmException
     */
    public ScramServerFunctionalityImpl(String digestName, String hmacName,
                                        String serverPartNonce) throws NoSuchAlgorithmException {
@@ -84,9 +84,9 @@ public class ScramServerFunctionalityImpl implements ScramServerFunctionality {
 
    /**
     * Handles client's first message
+    *
     * @param message Client's first message
     * @return username extracted from the client message
-    * @throws ScramException
     */
    @Override
    public String handleClientFirstMessage(String message) throws ScramException {

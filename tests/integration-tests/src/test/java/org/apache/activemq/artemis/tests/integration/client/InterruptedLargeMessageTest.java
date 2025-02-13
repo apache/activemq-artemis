@@ -562,13 +562,9 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
             return new NoPostACKQueue(config, filter, pageSubscription != null ? pageSubscription.getPagingStore() : null, pageSubscription, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, execFactory.getExecutor(), server, this);
          }
 
-         /* (non-Javadoc)
-          * @see org.apache.activemq.artemis.core.server.QueueFactory#setPostOffice(org.apache.activemq.artemis.core.postoffice.PostOffice)
-          */
          @Override
          public void setPostOffice(PostOffice postOffice) {
          }
-
       }
 
       ClientSession session = null;

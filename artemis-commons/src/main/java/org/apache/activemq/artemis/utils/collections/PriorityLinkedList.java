@@ -19,8 +19,9 @@ package org.apache.activemq.artemis.utils.collections;
 import java.util.function.Supplier;
 
 /**
- * A type of linked list which maintains items according to a priority
- * and allows adding and removing of elements at both ends, and peeking.<br>
+ * A type of linked list which maintains items according to a priority and allows adding and removing of elements at
+ * both ends, and peeking.
+ * <p>
  * Only {@link #size()} and {@link #isEmpty()} are safe to be called concurrently.
  */
 public interface PriorityLinkedList<E> {
@@ -33,30 +34,29 @@ public interface PriorityLinkedList<E> {
 
    E poll();
 
-   /** just look at the first element on the list */
+   /**
+    * just look at the first element on the list
+    */
    E peek();
 
    void clear();
 
    /**
     * @see LinkedList#setNodeStore(NodeStore)
-    * @param supplier
     */
    void setNodeStore(Supplier<NodeStore<E>> supplier);
 
    E removeWithID(String listID, long id);
 
    /**
-    * Returns the size of this list.<br>
-    * It is safe to be called concurrently.
+    * {@return the size of this list; safe to be called concurrently}
     */
    int size();
 
    LinkedListIterator<E> iterator();
 
    /**
-    * Returns {@code true} if empty, {@code false} otherwise.<br>
-    * It is safe to be called concurrently.
+    * {@return {@code true} if empty, {@code false} otherwise; safe to be called concurrently}
     */
    boolean isEmpty();
 }

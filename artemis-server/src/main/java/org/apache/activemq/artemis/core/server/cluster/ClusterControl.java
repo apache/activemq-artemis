@@ -67,8 +67,8 @@ public class ClusterControl implements AutoCloseable {
    }
 
    /**
-    * authorise this cluster control so it can communicate with the cluster, it will set the cluster channel on a successful
-    * authentication.
+    * authorise this cluster control so it can communicate with the cluster, it will set the cluster channel on a
+    * successful authentication.
     *
     * @throws ActiveMQException if authorisation wasn't successful.
     */
@@ -85,12 +85,10 @@ public class ClusterControl implements AutoCloseable {
    }
 
    /**
-    * XXX HORNETQ-720
+    * Announce replicating backup to primary server.
     *
-    * @param attemptingFailBack if {@code true} then this server wants to trigger a fail-back when
-    *                           up-to-date, that is it wants to take over the role of 'live' from the current 'live'
-    *                           server.
-    * @throws ActiveMQException
+    * @param attemptingFailBack if {@code true} then this server wants to trigger a fail-back when up-to-date, that is
+    *                           it wants to take over the role of 'live' from the current 'live' server.
     */
    public void announceReplicatingBackupToPrimary(final boolean attemptingFailBack,
                                                   String replicationClusterName) throws ActiveMQException {
@@ -112,7 +110,7 @@ public class ClusterControl implements AutoCloseable {
    }
 
    /**
-    * announce this node to the cluster.
+    * Announce this node to the cluster.
     *
     * @param currentEventID     used if multiple announcements about this node are made.
     * @param nodeID             the node id if the announcing node
@@ -132,28 +130,15 @@ public class ClusterControl implements AutoCloseable {
       clusterChannel.send(new NodeAnnounceMessage(currentEventID, nodeID, backupGroupName, scaleDownGroupName, isBackup, config, backupConfig));
    }
 
-   /**
-    * create a replication channel
-    *
-    * @return the replication channel
-    */
    public Channel createReplicationChannel() {
       CoreRemotingConnection connection = (CoreRemotingConnection) sessionFactory.getConnection();
       return connection.getChannel(ChannelImpl.CHANNEL_ID.REPLICATION.id, -1);
    }
 
-   /**
-    * get the session factory used to connect to the cluster
-    *
-    * @return the session factory
-    */
    public ClientSessionFactoryInternal getSessionFactory() {
       return sessionFactory;
    }
 
-   /**
-    * close this cluster control and its resources
-    */
    @Override
    public void close() {
       sessionFactory.close();

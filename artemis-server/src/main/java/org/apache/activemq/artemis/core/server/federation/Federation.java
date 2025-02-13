@@ -43,11 +43,11 @@ public class Federation {
       STOPPED,
       STOPPING,
       /**
-       * Deployed means {@link FederationManager#deploy()} was called but
-       * {@link FederationManager#start()} was not called.
+       * Deployed means {@link FederationManager#deploy()} was called but {@link FederationManager#start()} was not
+       * called.
        * <p>
-       * We need the distinction if {@link FederationManager#stop()} is called before 'start'. As
-       * otherwise we would leak locators.
+       * We need the distinction if {@link FederationManager#stop()} is called before 'start'. As otherwise we would
+       * leak locators.
        */
       DEPLOYED, STARTED,
    }

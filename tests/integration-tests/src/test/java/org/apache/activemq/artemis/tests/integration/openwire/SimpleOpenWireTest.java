@@ -1065,8 +1065,6 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    /**
     * This is the example shipped with the distribution
-    *
-    * @throws Exception
     */
    @Test
    public void testOpenWireExample() throws Exception {
@@ -1106,8 +1104,6 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
 
    /**
     * This is the example shipped with the distribution
-    *
-    * @throws Exception
     */
    @Test
    public void testMultipleConsumers() throws Exception {

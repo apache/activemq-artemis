@@ -36,10 +36,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * The delete queue was resetting some fields on the Queue what would eventually turn a NPE.
- * this test would eventually fail without the fix but it was a rare event as in most of the time
- * the NPE happened during depaging what let the server to recover itself on the next depage.
- * To verify a fix on this test against the previous version of QueueImpl look for NPEs on System.err
+ * The delete queue was resetting some fields on the Queue what would eventually turn a NPE. this test would eventually
+ * fail without the fix but it was a rare event as in most of the time the NPE happened during depaging what let the
+ * server to recover itself on the next depage. To verify a fix on this test against the previous version of QueueImpl
+ * look for NPEs on System.err
  */
 public class ConcurrentCreateDeleteProduceTest extends ActiveMQTestBase {
 

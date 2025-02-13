@@ -69,11 +69,6 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       // because stale UDP messages can mess up tests once nodes start going down
       private final List<String> seenUp = new ArrayList<>();
 
-      /**
-       * @param upLatch
-       * @param nodes
-       * @param downLatch
-       */
       private LatchListener(CountDownLatch upLatch, List<String> nodes, CountDownLatch downLatch) {
          this.upLatch = upLatch;
          this.nodes = nodes;

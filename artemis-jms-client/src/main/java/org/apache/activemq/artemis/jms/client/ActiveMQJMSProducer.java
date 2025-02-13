@@ -41,10 +41,9 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 
 /**
- * NOTE: this class forwards {@link #setDisableMessageID(boolean)} and
- * {@link #setDisableMessageTimestamp(boolean)} calls their equivalent at the
- * {@link MessageProducer}. IF the user is using the producer in async mode, this may lead to races.
- * We allow/tolerate this because these are just optional optimizations.
+ * NOTE: this class forwards {@link #setDisableMessageID(boolean)} and {@link #setDisableMessageTimestamp(boolean)}
+ * calls their equivalent at the {@link MessageProducer}. IF the user is using the producer in async mode, this may lead
+ * to races. We allow/tolerate this because these are just optional optimizations.
  */
 public final class ActiveMQJMSProducer implements JMSProducer {
 
@@ -87,8 +86,7 @@ public final class ActiveMQJMSProducer implements JMSProducer {
          if (jmsHeaderType != null) {
             message.setJMSType(jmsHeaderType);
          }
-         // XXX HORNETQ-1209 "JMS 2.0" can this be a foreign msg?
-         // if so, then "SimpleString" properties will trigger an error.
+         // Can this be a foreign msg? If so, then "SimpleString" properties will trigger an error.
          setProperties(message);
          if (completionListener != null) {
             CompletionListener wrapped = new CompletionListenerWrapper(completionListener);
@@ -104,9 +102,6 @@ public final class ActiveMQJMSProducer implements JMSProducer {
 
    /**
     * Sets all properties we carry onto the message.
-    *
-    * @param message
-    * @throws JMSException
     */
    private void setProperties(Message message) throws JMSException {
       properties.forEach((k, v) -> {

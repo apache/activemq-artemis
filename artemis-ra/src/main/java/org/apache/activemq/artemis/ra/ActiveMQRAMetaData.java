@@ -24,22 +24,14 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Managed connection meta data
+ * {@inheritDoc}
  */
 public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The managed connection
-    */
    private final ActiveMQRAManagedConnection mc;
 
-   /**
-    * Constructor
-    *
-    * @param mc The managed connection
-    */
    public ActiveMQRAMetaData(final ActiveMQRAManagedConnection mc) {
       logger.trace("constructor({})", mc);
 
@@ -47,10 +39,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
    }
 
    /**
-    * Get the EIS product name
-    *
-    * @return The name
-    * @throws ResourceException Thrown if operation fails
+    * {@inheritDoc}
     */
    @Override
    public String getEISProductName() throws ResourceException {
@@ -59,11 +48,9 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
       return "ActiveMQ Artemis";
    }
 
+
    /**
-    * Get the EIS product version
-    *
-    * @return The version
-    * @throws ResourceException Thrown if operation fails
+    * {@inheritDoc}
     */
    @Override
    public String getEISProductVersion() throws ResourceException {
@@ -72,11 +59,9 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
       return "2.0";
    }
 
+
    /**
-    * Get the user name
-    *
-    * @return The user name
-    * @throws ResourceException Thrown if operation fails
+    * {@inheritDoc}
     */
    @Override
    public String getUserName() throws ResourceException {
@@ -85,11 +70,9 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
       return mc.getUserName();
    }
 
+
    /**
-    * Get the maximum number of connections -- RETURNS 0
-    *
-    * @return The number
-    * @throws ResourceException Thrown if operation fails
+    * {@inheritDoc}
     */
    @Override
    public int getMaxConnections() throws ResourceException {

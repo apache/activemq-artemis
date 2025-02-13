@@ -26,32 +26,26 @@ import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 
 /**
- * Helper class for identifying and converting message-id and correlation-id
- * values between the AMQP types and the Strings values used by JMS.
- *
+ * Helper class for identifying and converting message-id and correlation-id values between the AMQP types and the
+ * Strings values used by JMS.
  * <p>
- * AMQP messages allow for 4 types of message-id/correlation-id:
- * message-id-string, message-id-binary, message-id-uuid, or message-id-ulong.
- * In order to accept or return a string representation of these for
- * interoperability with other AMQP clients, the following encoding can be used
- * after removing or before adding the "ID:" prefix used for a JMSMessageID
- * value:<br>
- *
- * {@literal "AMQP_BINARY:<hex representation of binary content>"}<br>
- * {@literal "AMQP_UUID:<string representation of uuid>"}<br>
- * {@literal "AMQP_ULONG:<string representation of ulong>"}<br>
- * {@literal "AMQP_STRING:<string>"}<br>
- *
- * <p>
+ * AMQP messages allow for 4 types of message-id/correlation-id: message-id-string, message-id-binary, message-id-uuid,
+ * or message-id-ulong. In order to accept or return a string representation of these for interoperability with other
+ * AMQP clients, the following encoding can be used after removing or before adding the "ID:" prefix used for a
+ * JMSMessageID value:
+ * <ul>
+ * <li>{@literal "AMQP_BINARY:<hex representation of binary content>"}
+ * <li>{@literal "AMQP_UUID:<string representation of uuid>"}
+ * <li>{@literal "AMQP_ULONG:<string representation of ulong>"}
+ * <li>{@literal "AMQP_STRING:<string>"}
+ * </ul>
  * The AMQP_STRING encoding exists only for escaping message-id-string values
  * that happen to begin with one of the encoding prefixes (including AMQP_STRING
  * itself). It MUST NOT be used otherwise.
- *
  * <p>
  * When provided a string for conversion which attempts to identify itself as an
  * encoded binary, uuid, or ulong but can't be converted into the indicated
  * format, an exception will be thrown.
- *
  */
 public class AMQPMessageIdHelper {
 
@@ -74,12 +68,10 @@ public class AMQPMessageIdHelper {
    private static final char[] HEX_CHARS = "0123456789ABCDEF".toCharArray();
 
    /**
-    * Checks whether the given string begins with "ID:" prefix used to denote a
-    * JMSMessageID
+    * Checks whether the given string begins with "ID:" prefix used to denote a JMSMessageID
     *
-    * @param string
-    *        the string to check
-    * @return true if and only id the string begins with "ID:"
+    * @param string the string to check
+    * @return {@code true} if and only id the string begins with "ID:"
     */
    public boolean hasMessageIdPrefix(String string) {
       if (string == null) {
@@ -140,15 +132,12 @@ public class AMQPMessageIdHelper {
    }
 
    /**
-    * Takes the provided non-String AMQP message-id/correlation-id object, and
-    * convert it it to a String usable as either a JMSMessageID or
-    * JMSCorrelationID value, encoding the type information as a prefix to
-    * convey for later use in reversing the process if used to set
-    * JMSCorrelationID on a message.
+    * Takes the provided non-String AMQP message-id/correlation-id object, and convert it it to a String usable as
+    * either a JMSMessageID or JMSCorrelationID value, encoding the type information as a prefix to convey for later use
+    * in reversing the process if used to set JMSCorrelationID on a message.
     *
-    * @param idObject
-    *        the object to process
-    * @return string to be used for the actual JMS ID.
+    * @param idObject the object to process
+    * @return string to be used for the actual JMS ID
     */
    private String convertToIdString(Object idObject) {
       if (idObject == null) {
@@ -203,17 +192,13 @@ public class AMQPMessageIdHelper {
    }
 
    /**
-    * Takes the provided id string and return the appropriate amqp messageId
-    * style object. Converts the type based on any relevant encoding information
-    * found as a prefix.
+    * Takes the provided id string and return the appropriate amqp messageId style object. Converts the type based on
+    * any relevant encoding information found as a prefix.
     *
-    * @param origId
-    *        the object to be converted
+    * @param origId the object to be converted
     * @return the AMQP messageId style object
-    *
-    * @throws ActiveMQAMQPIllegalStateException
-    *         if the provided baseId String indicates an encoded type but can't
-    *         be converted to that type.
+    * @throws ActiveMQAMQPIllegalStateException if the provided baseId String indicates an encoded type but can't be
+    *                                           converted to that type.
     */
    public Object toIdObject(final String origId) throws ActiveMQAMQPIllegalStateException {
       if (origId == null) {
@@ -254,17 +239,14 @@ public class AMQPMessageIdHelper {
    }
 
    /**
-    * Convert the provided hex-string into a binary representation where each
-    * byte represents two characters of the hex string.
-    *
+    * Convert the provided hex-string into a binary representation where each byte represents two characters of the hex
+    * string.
+    * <p>
     * The hex characters may be upper or lower case.
     *
-    * @param hexString
-    *        string to convert
+    * @param hexString string to convert
     * @return a byte array containing the binary representation
-    * @throws IllegalArgumentException
-    *         if the provided String is a non-even length or contains non-hex
-    *         characters
+    * @throws IllegalArgumentException if the provided String is a non-even length or contains non-hex characters
     */
    public byte[] convertHexStringToBinary(String hexString) throws IllegalArgumentException {
       int length = hexString.length();
@@ -308,14 +290,12 @@ public class AMQPMessageIdHelper {
    }
 
    /**
-    * Convert the provided binary into a hex-string representation where each
-    * character represents 4 bits of the provided binary, i.e each byte requires
-    * two characters.
-    *
+    * Convert the provided binary into a hex-string representation where each character represents 4 bits of the
+    * provided binary, i.e each byte requires two characters.
+    * <p>
     * The returned hex characters are upper-case.
     *
-    * @param bytes
-    *        binary to convert
+    * @param bytes binary to convert
     * @return a String containing a hex representation of the bytes
     */
    public String convertBinaryToHexString(byte[] bytes) {

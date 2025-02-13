@@ -89,7 +89,6 @@ public class AmqpManagementTest extends AmqpClientTestSupport {
 
    /**
     * Some clients use Unsigned types from org.apache.qpid.proton.amqp
-    * @throws Exception
     */
    @Test
    @Timeout(60)

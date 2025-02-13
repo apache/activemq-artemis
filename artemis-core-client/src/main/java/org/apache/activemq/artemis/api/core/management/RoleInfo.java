@@ -22,8 +22,7 @@ import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 
 /**
- * Helper class to create Java Objects from the
- * JSON serialization returned by {@link AddressControl#getRolesAsJSON()}.
+ * Helper class to create Java Objects from the JSON serialization returned by {@link AddressControl#getRolesAsJSON()}.
  */
 public final class RoleInfo {
 
@@ -50,8 +49,8 @@ public final class RoleInfo {
    private final boolean deleteAddress;
 
    /**
-    * Returns an array of RoleInfo corresponding to the JSON serialization returned
-    * by {@link AddressControl#getRolesAsJSON()}.
+    * {@return an array of RoleInfo corresponding to the JSON serialization returned by {@link
+    * AddressControl#getRolesAsJSON()}}
     */
    public static RoleInfo[] from(final String jsonString) throws Exception {
       JsonArray array = JsonUtil.readJsonArray(jsonString);
@@ -99,78 +98,75 @@ public final class RoleInfo {
       this.deleteAddress = deleteAddress;
    }
 
-   /**
-    * Returns the name of the role.
-    */
    public String getName() {
       return name;
    }
 
    /**
-    * Returns whether this role can send messages to the address.
+    * {@return whether this role can send messages to the address}
     */
    public boolean isSend() {
       return send;
    }
 
    /**
-    * Returns whether this role can consume messages from queues bound to the address.
+    * {@return whether this role can consume messages from queues bound to the address}
     */
    public boolean isConsume() {
       return consume;
    }
 
    /**
-    * Returns whether this role can create durable queues bound to the address.
+    * {@return whether this role can create durable queues bound to the address}
     */
    public boolean isCreateDurableQueue() {
       return createDurableQueue;
    }
 
    /**
-    * Returns whether this role can delete durable queues bound to the address.
+    * {@return whether this role can delete durable queues bound to the address}
     */
    public boolean isDeleteDurableQueue() {
       return deleteDurableQueue;
    }
 
    /**
-    * Returns whether this role can create non-durable queues bound to the address.
+    * {@return whether this role can create non-durable queues bound to the address}
     */
    public boolean isCreateNonDurableQueue() {
       return createNonDurableQueue;
    }
 
    /**
-    * Returns whether this role can delete non-durable queues bound to the address.
+    * {@return whether this role can delete non-durable queues bound to the address}
     */
    public boolean isDeleteNonDurableQueue() {
       return deleteNonDurableQueue;
    }
 
    /**
-    * Returns whether this role can send management messages to the address.
+    * {@return whether this role can send management messages to the address}
     */
    public boolean isManage() {
       return manage;
    }
 
    /**
-    * Returns whether this role can browse queues bound to the address.
+    * {@return whether this role can browse queues bound to the address}
     */
    public boolean isBrowse() {
       return browse;
    }
 
    /**
-    * Returns whether this role can create addresses.
+    * {@return whether this role can create addresses}
     */
    public boolean isCreateAddress() {
       return createAddress;
    }
 
    /**
-    * Returns whether this role can delete addresses.
+    * {@return whether this role can delete addresses}
     */
    public boolean isDeleteAddress() {
       return deleteAddress;

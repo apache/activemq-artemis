@@ -36,10 +36,9 @@ import org.junit.jupiter.api.Test;
 
 public class NoLocalSubscriberTest extends JMSTestBase {
 
-
    /**
-    * Test that a message created from the same connection than a nolocal consumer
-    * can be sent by *another* connection and will be received by the nolocal consumer
+    * Test that a message created from the same connection than a nolocal consumer can be sent by *another* connection
+    * and will be received by the nolocal consumer
     */
    @Test
    public void testNoLocal() throws Exception {

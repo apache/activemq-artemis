@@ -30,9 +30,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.BeforeEach;
 
-/**
- * Federation Test Base
- */
 public class FederatedTestBase extends ActiveMQTestBase {
 
    protected List<MBeanServer> mBeanServers = new ArrayList<>();

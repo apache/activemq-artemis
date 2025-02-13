@@ -34,13 +34,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Receives a metadata about a class with methods to read, write and certain gates.
- * And provides a generic logic to convert to and from JSON.
+ * Receives a metadata about a class with methods to read, write and certain gates. And provides a generic logic to
+ * convert to and from JSON.
  * <p>
- * As a historical context the first try to make a few objects more dynamic (e.g. AddressSettings) was
- * around BeanUtils however there was some implicit logic on when certain settings were Null or default values.
- * for that reason I decided for a meta-data approach where extra semantic could be applied for each individual attributes
- * rather than a generic BeanUtils parser.
+ * As a historical context the first try to make a few objects more dynamic (e.g. AddressSettings) was around BeanUtils
+ * however there was some implicit logic on when certain settings were Null or default values. for that reason I decided
+ * for a meta-data approach where extra semantic could be applied for each individual attributes rather than a generic
+ * BeanUtils parser.
  */
 public class MetaBean<T> {
 
@@ -50,13 +50,15 @@ public class MetaBean<T> {
 
    /**
     * Accepted types:
-    * String.class
-    * SimpleString.class
-    * Integer.class
-    * Long.class
-    * Double.class
-    * Float.class
-    * Enumerations
+    * <ul>
+    * <li>String.class
+    * <li>SimpleString.class
+    * <li>Integer.class
+    * <li>Long.class
+    * <li>Double.class
+    * <li>Float.class
+    * <li>Enumerations
+    * </ul>
     */
    public MetaBean add(Class type,
                        String name,
@@ -133,7 +135,9 @@ public class MetaBean<T> {
       });
    }
 
-   /** Generates a random Object using the setters for testing purposes. */
+   /**
+    * Generates a random Object using the setters for testing purposes.
+    */
    public void setRandom(T randomObject) {
       forEach((type, name, setter, getter, gate) -> {
          if (Enum.class.isAssignableFrom(type)) {

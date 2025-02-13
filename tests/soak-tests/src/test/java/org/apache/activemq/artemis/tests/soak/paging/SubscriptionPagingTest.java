@@ -57,9 +57,12 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Refer to ./scripts/parameters.sh for suggested parameters
- * #You may choose to use zip files to save some time on producing if you want to run this test over and over when debugging
- * export TEST_FLOW_ZIP_LOCATION=a folder */
+ * Refer to ./scripts/parameters.sh for suggested parameters. You may choose to use zip files to save some time on
+ * producing if you want to run this test over and over when debugging:
+ * <pre>
+ * export TEST_FLOW_ZIP_LOCATION=a folder
+ * </pre>
+ */
 @ExtendWith(ParameterizedTestExtension.class)
 public class SubscriptionPagingTest extends SoakTestBase {
 

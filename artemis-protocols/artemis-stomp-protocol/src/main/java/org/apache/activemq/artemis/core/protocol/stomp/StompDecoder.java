@@ -71,9 +71,6 @@ public class StompDecoder {
 
    public static final int COMMAND_UNSUBSCRIBE_LENGTH = COMMAND_UNSUBSCRIBE.length();
 
-   /**
-    * * added by meddy, 27 april 2011, handle header parser for reply to websocket protocol ***
-    */
    public static final String COMMAND_CONNECTED = Stomp.Responses.CONNECTED;
 
    public static final int COMMAND_CONNECTED_LENGTH = COMMAND_CONNECTED.length();
@@ -89,9 +86,6 @@ public class StompDecoder {
    public static final String COMMAND_RECEIPT = Stomp.Responses.RECEIPT;
 
    public static final int COMMAND_RECEIPT_LENGTH = COMMAND_RECEIPT.length();
-   /**
-    * * end  ***
-    */
 
    public static final byte A = (byte) 'A';
 
@@ -464,7 +458,6 @@ public class StompDecoder {
 
             break;
          }
-         /**** added by meddy, 27 april 2011, handle header parser for reply to websocket protocol ****/
          case E: {
             if (!tryIncrement(offset + COMMAND_ERROR_LENGTH + 1)) {
                return false;
@@ -485,7 +478,6 @@ public class StompDecoder {
 
             break;
          }
-         /**** end ****/
          case S: {
             if (workingBuffer[offset + 1] == E) {
                if (!tryIncrement(offset + COMMAND_SEND_LENGTH + 1)) {

@@ -29,7 +29,7 @@ import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test the {@link BroadcastGroupImpl}.<br>
+ * Test the {@link BroadcastGroupImpl}.
  */
 public class BroadcastGroupImplTest extends ServerTestBase {
 
@@ -88,14 +88,14 @@ public class BroadcastGroupImplTest extends ServerTestBase {
    }
 
    /**
-    * Test the broadcasted packages length.<br>
-    * Broadcast and MultiCast techniques are commonly limited in size by
-    * underlying hardware. Broadcast and MultiCast protocols are typically not
-    * guaranteed (UDP) and as such large packages may be silently discarded by
-    * underlying hardware.<br>
-    * This test validates that Artemis Server does not broadcast packages above
-    * a size of 1500 bytes. The limit is not derived from any normative
-    * documents, but is rather derived from common MTU for network equipment.
+    * Test the broadcasted packages length.
+    * <p>
+    * Broadcast and MultiCast techniques are commonly limited in size by underlying hardware. Broadcast and MultiCast
+    * protocols are typically not guaranteed (UDP) and as such large packages may be silently discarded by underlying
+    * hardware.
+    * <p>
+    * This test validates that Artemis Server does not broadcast packages above a size of 1500 bytes. The limit is not
+    * derived from any normative documents, but is rather derived from common MTU for network equipment.
     */
    @Test
    public void testBroadcastDatagramLength() throws Throwable {

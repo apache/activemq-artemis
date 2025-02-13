@@ -17,17 +17,6 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LARGE_MESSAGE_THRESHOLD;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LINK_ATTACH_TIMEOUT;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.PULL_RECEIVER_BATCH_SIZE;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_RECEIVER_IDLE_TIMEOUT;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_RECEIVER_IDLE_TIMEOUT;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_FILTERS;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,19 +24,28 @@ import java.util.Objects;
 
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
-import org.apache.qpid.proton.engine.Receiver;
+
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_RECEIVER_IDLE_TIMEOUT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_FILTERS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LARGE_MESSAGE_THRESHOLD;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LINK_ATTACH_TIMEOUT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.PULL_RECEIVER_BATCH_SIZE;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_RECEIVER_IDLE_TIMEOUT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
 
 /**
- * A configuration class that contains API for getting federation specific
- * configuration either from a {@link Map} of configuration elements or from
- * the connection associated with the federation instance, or possibly from a
- * set default value.
+ * A configuration class that contains API for getting federation specific configuration either from a {@link Map} of
+ * configuration elements or from the connection associated with the federation instance, or possibly from a set default
+ * value.
  */
 public final class AMQPFederationConfiguration {
 
    /**
-    * Default timeout value (in seconds) used to control when a link attach is considered to have
-    * failed due to not responding to an attach request.
+    * Default timeout value (in seconds) used to control when a link attach is considered to have failed due to not
+    * responding to an attach request.
     */
    public static final int DEFAULT_LINK_ATTACH_TIMEOUT = 30;
 
@@ -57,46 +55,46 @@ public final class AMQPFederationConfiguration {
    public static final int DEFAULT_PULL_CREDIT_BATCH_SIZE = 100;
 
    /**
-    * Default value for the core message tunneling feature that indicates if core protocol messages
-    * should be streamed as binary blobs as the payload of an custom AMQP message which avoids any
-    * conversions of the messages to / from AMQP.
+    * Default value for the core message tunneling feature that indicates if core protocol messages should be streamed
+    * as binary blobs as the payload of an custom AMQP message which avoids any conversions of the messages to / from
+    * AMQP.
     */
    public static final boolean DEFAULT_CORE_MESSAGE_TUNNELING_ENABLED = true;
 
    /**
-    * Default value for the filtering applied to federation queue consumers that controls if
-    * the filter specified by a consumer subscription is used or if the higher level queue
-    * filter only is applied when creating a federation queue consumer.
+    * Default value for the filtering applied to federation queue consumers that controls if the filter specified by a
+    * consumer subscription is used or if the higher level queue filter only is applied when creating a federation queue
+    * consumer.
     */
    public static final boolean DEFAULT_IGNNORE_QUEUE_CONSUMER_FILTERS = false;
 
    /**
-    * Default value for the priority applied to federation queue consumers that controls if
-    * the priority specified by a consumer subscription is used or if the policy priority
-    * offset value is simply applied to the default consumer priority value.
+    * Default value for the priority applied to federation queue consumers that controls if the priority specified by a
+    * consumer subscription is used or if the policy priority offset value is simply applied to the default consumer
+    * priority value.
     */
    public static final boolean DEFAULT_IGNNORE_QUEUE_CONSUMER_PRIORITIES = false;
 
    /**
-    * Default timeout (milliseconds) applied to federation receivers that are being stopped due to removal
-    * of local demand and need to drain link credit and process any in-flight deliveries before closure.
-    * If the timeout elapses before the link has quiesced the link is forcibly closed.
+    * Default timeout (milliseconds) applied to federation receivers that are being stopped due to removal of local
+    * demand and need to drain link credit and process any in-flight deliveries before closure. If the timeout elapses
+    * before the link has quiesced the link is forcibly closed.
     */
    public static final int DEFAULT_RECEIVER_QUIESCE_TIMEOUT = 60_000;
 
    /**
-    * Default timeout (milliseconds) applied to federation address receivers that have been stopped due to
-    * lack of local demand. The close delay prevent a link from detaching in cases where demand drops and
-    * returns in quick succession allowing for faster recovery. The idle timeout kicks in once the link has
-    * completed its drain of outstanding credit.
+    * Default timeout (milliseconds) applied to federation address receivers that have been stopped due to lack of local
+    * demand. The close delay prevent a link from detaching in cases where demand drops and returns in quick succession
+    * allowing for faster recovery. The idle timeout kicks in once the link has completed its drain of outstanding
+    * credit.
     */
    public static final int DEFAULT_ADDRESS_RECEIVER_IDLE_TIMEOUT = 5_000;
 
    /**
-    * Default timeout (milliseconds) applied to federation queue receivers that have been stopped due to
-    * lack of local demand. The close delay prevent a link from detaching in cases where demand drops and
-    * returns in quick succession allowing for faster recovery. The idle timeout kicks in once the link has
-    * completed its drain of outstanding credit.
+    * Default timeout (milliseconds) applied to federation queue receivers that have been stopped due to lack of local
+    * demand. The close delay prevent a link from detaching in cases where demand drops and returns in quick succession
+    * allowing for faster recovery. The idle timeout kicks in once the link has completed its drain of outstanding
+    * credit.
     */
    public static final int DEFAULT_QUEUE_RECEIVER_IDLE_TIMEOUT = 60_000;
 
@@ -116,7 +114,7 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
-    * @return the credit batch size offered to a {@link Receiver} link.
+    * {@return the credit batch size offered to a {@link org.apache.qpid.proton.engine.Receiver} link}
     */
    public int getReceiverCredits() {
       final Object property = properties.get(RECEIVER_CREDITS);
@@ -130,7 +128,8 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
-    * @return the number of remaining credits on a {@link Receiver} before the batch is replenished.
+    * {@return the number of remaining credits on a {@link org.apache.qpid.proton.engine.Receiver} before the batch is
+    * replenished}
     */
    public int getReceiverCreditsLow() {
       final Object property = properties.get(RECEIVER_CREDITS_LOW);
@@ -144,7 +143,8 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
-    * @return the credit batch size offered to a {@link Receiver} link that is in pull mode.
+    * {@return the credit batch size offered to a {@link org.apache.qpid.proton.engine.Receiver} link that is in pull
+    * mode}
     */
    public int getPullReceiverBatchSize() {
       final Object property = properties.get(PULL_RECEIVER_BATCH_SIZE);
@@ -158,7 +158,8 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
-    * @return the size in bytes of an incoming message after which the {@link Receiver} treats it as large.
+    * {@return the size in bytes of an incoming message after which the {@link org.apache.qpid.proton.engine.Receiver}
+    * treats it as large}
     */
    public int getLargeMessageThreshold() {
       final Object property = properties.get(LARGE_MESSAGE_THRESHOLD);
@@ -172,7 +173,7 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
-    * @return the timeout value to use when waiting for a corresponding link attach from the remote.
+    * {@return the timeout value to use when waiting for a corresponding link attach from the remote}
     */
    public int getLinkAttachTimeout() {
       final Object property = properties.get(LINK_ATTACH_TIMEOUT);
@@ -186,7 +187,7 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
-    * @return true if the federation is configured to tunnel core messages as AMQP custom messages.
+    * {@return {@code true} if the federation is configured to tunnel core messages as AMQP custom messages}
     */
    public boolean isCoreMessageTunnelingEnabled() {
       final Object property = properties.get(AmqpSupport.TUNNEL_CORE_MESSAGES);
@@ -200,7 +201,7 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
-    * @return <code>true</code> if federation is configured to ignore filters on individual queue consumers
+    * {@return {@code true} if federation is configured to ignore filters on individual queue consumers}
     */
    public boolean isIgnoreSubscriptionFilters() {
       final Object property = properties.get(IGNORE_QUEUE_CONSUMER_FILTERS);
@@ -214,7 +215,7 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
-    * @return <code>true</code> if federation is configured to ignore priorities on individual queue consumers
+    * {@return {@code true} if federation is configured to ignore priorities on individual queue consumers}
     */
    public boolean isIgnoreSubscriptionPriorities() {
       final Object property = properties.get(IGNORE_QUEUE_CONSUMER_PRIORITIES);
@@ -228,7 +229,8 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
-    * @return the receive quiesce timeout when shutting down a {@link Receiver} when local demand is removed.
+    * {@return the receive quiesce timeout when shutting down a {@link org.apache.qpid.proton.engine.Receiver} when
+    * local demand is removed}
     */
    public int getReceiverQuiesceTimeout() {
       final Object property = properties.get(RECEIVER_QUIESCE_TIMEOUT);
@@ -242,7 +244,8 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
-    * @return the receive idle timeout when shutting down a address {@link Receiver} when local demand is removed.
+    * {@return the receive idle timeout when shutting down a address {@link org.apache.qpid.proton.engine.Receiver} when
+    * local demand is removed}
     */
    public int getAddressReceiverIdleTimeout() {
       final Object property = properties.get(ADDRESS_RECEIVER_IDLE_TIMEOUT);
@@ -256,7 +259,8 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
-    * @return the receive idle timeout when shutting down a queue {@link Receiver} when local demand is removed.
+    * {@return the receive idle timeout when shutting down a queue {@link org.apache.qpid.proton.engine.Receiver} when
+    * local demand is removed}
     */
    public int getQueueReceiverIdleTimeout() {
       final Object property = properties.get(QUEUE_RECEIVER_IDLE_TIMEOUT);
@@ -270,10 +274,10 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
-    * Enumerate the configuration options in this configuration object and return a {@link Map} that
-    * contains the values which can be sent to a remote peer
+    * Enumerate the configuration options in this configuration object and return a {@link Map} that contains the values
+    * which can be sent to a remote peer
     *
-    * @return a Map that contains the values of each configuration option.
+    * @return a Map that contains the values of each configuration option
     */
    public Map<String, Object> toConfigurationMap() {
       final Map<String, Object> configMap = new HashMap<>();

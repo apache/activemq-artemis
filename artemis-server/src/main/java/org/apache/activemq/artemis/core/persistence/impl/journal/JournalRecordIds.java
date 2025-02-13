@@ -19,9 +19,8 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 /**
  * These record IDs definitions are meant to be public.
  * <p>
- * If any other component or any test needs to validate user-record-types from the Journal directly
- * This is where the definitions will exist and this is what these tests should be using to verify
- * the IDs.
+ * If any other component or any test needs to validate user-record-types from the Journal directly This is where the
+ * definitions will exist and this is what these tests should be using to verify the IDs.
  */
 public final class JournalRecordIds {
 

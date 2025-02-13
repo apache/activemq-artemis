@@ -22,7 +22,7 @@ package org.apache.activemq.artemis.api.core.management;
 public interface ActiveMQComponentControl {
 
    /**
-    * Returns {@code true} if this component is started, {@code false} else.
+    * {@return {@code true} if this component is started, {@code false} else.}
     */
    @Attribute(desc = "whether this component is started")
    boolean isStarted();

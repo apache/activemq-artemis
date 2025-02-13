@@ -73,8 +73,9 @@ public class RepositoryTest extends ServerTestBase {
       assertEquals("abd#", repo.getMatch("a.b.d"));
    }
 
-   /*
-    * A "literal" match is one which uses wild-cards but should not be applied to other matches "below" it in the hierarchy.
+   /**
+    * A "literal" match is one which uses wild-cards but should not be applied to other matches "below" it in the
+    * hierarchy.
     */
    @Test
    public void testLiteral() {

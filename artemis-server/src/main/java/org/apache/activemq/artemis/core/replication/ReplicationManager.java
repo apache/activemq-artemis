@@ -183,9 +183,6 @@ public final class ReplicationManager implements ActiveMQComponent {
    private boolean isFlushing;
    private boolean awaitingResume;
 
-   /**
-    * @param remotingConnection
-    */
    public ReplicationManager(ActiveMQServer server,
                              CoreRemotingConnection remotingConnection,
                              final long timeout,
@@ -282,10 +279,6 @@ public final class ReplicationManager implements ActiveMQComponent {
       }
    }
 
-   /**
-    * @param storeName
-    * @param pageNumber
-    */
    public void pageClosed(final SimpleString storeName, final long pageNumber) {
       if (started) {
          sendReplicatePacket(new ReplicationPageEventMessage(storeName, pageNumber, false, remotingConnection.isVersionUsingLongOnPageReplication()));
@@ -412,7 +405,8 @@ public final class ReplicationManager implements ActiveMQComponent {
    /**
     * Completes any pending operations.
     * <p>
-    * This can be necessary in case the primary loses the connection to the backup (network failure, or backup crashing).
+    * This can be necessary in case the primary loses the connection to the backup (network failure, or backup
+    * crashing).
     */
    public void clearReplicationTokens() {
       logger.trace("clearReplicationTokens initiating");
@@ -596,9 +590,9 @@ public final class ReplicationManager implements ActiveMQComponent {
    }
 
    /**
-    * @throws IllegalStateException By default, all replicated packets generate a replicated
-    *                               response. If your packets are triggering this exception, it may be because the
-    *                               packets were not sent with {@link #sendReplicatePacket(Packet)}.
+    * @throws IllegalStateException By default, all replicated packets generate a replicated response. If your packets
+    *                               are triggering this exception, it may be because the packets were not sent with
+    *                               {@link #sendReplicatePacket(Packet)}.
     */
    private void replicated() {
       assert checkEventLoop();
@@ -677,9 +671,6 @@ public final class ReplicationManager implements ActiveMQComponent {
 
    /**
     * Sends the whole content of the file to be duplicated.
-    *
-    * @throws ActiveMQException
-    * @throws Exception
     */
    public void syncJournalFile(JournalFile jf, AbstractJournalStorageManager.JournalContent content) throws Exception {
       if (!started) {
@@ -712,9 +703,7 @@ public final class ReplicationManager implements ActiveMQComponent {
     * @param content        journal type or {@code null} for large-messages and pages
     * @param pageStore      page store name for pages, or {@code null} otherwise
     * @param id             journal file id or (large) message id
-    * @param file
     * @param maxBytesToSend maximum number of bytes to read and send from the file
-    * @throws Exception
     */
    private void sendLargeFile(AbstractJournalStorageManager.JournalContent content,
                               SimpleString pageStore,
@@ -790,10 +779,6 @@ public final class ReplicationManager implements ActiveMQComponent {
 
    /**
     * Reserve the following fileIDs in the backup server.
-    *
-    * @param datafiles
-    * @param contentType
-    * @throws ActiveMQException
     */
    public void sendStartSyncMessage(JournalFile[] datafiles,
                                     AbstractJournalStorageManager.JournalContent contentType,
@@ -806,10 +791,8 @@ public final class ReplicationManager implements ActiveMQComponent {
    /**
     * Informs backup that data synchronization is done.
     * <p>
-    * So if 'live' fails, the (up-to-date) backup now may take over its duties. To do so, it must
-    * know which is the live's {@code nodeID}.
-    *
-    * @param nodeID
+    * So if 'live' fails, the (up-to-date) backup now may take over its duties. To do so, it must know which is the
+    * live's {@code nodeID}.
     */
    public void sendSynchronizationDone(String nodeID, long initialReplicationSyncTimeout, IOCriticalErrorListener criticalErrorListener) throws ActiveMQReplicationTimeooutException {
       if (started) {
@@ -854,10 +837,7 @@ public final class ReplicationManager implements ActiveMQComponent {
    /**
     * Reserves several LargeMessage IDs in the backup.
     * <p>
-    * Doing this before hand removes the need of synchronizing large-message deletes with the
-    * largeMessageSyncList.
-    *
-    * @param largeMessages
+    * Doing this before hand removes the need of synchronizing large-message deletes with the largeMessageSyncList.
     */
    public void sendLargeMessageIdListMessage(Map<Long, Pair<String, Long>> largeMessages) {
       List<Long> idsToSend;
@@ -870,10 +850,8 @@ public final class ReplicationManager implements ActiveMQComponent {
    /**
     * Notifies the backup that the primary server is stopping.
     * <p>
-    * This notification allows the backup to skip quorum voting (or any other measure to avoid
-    * 'split-brain') and do a faster fail-over.
-    *
-    * @return
+    * This notification allows the backup to skip quorum voting (or any other measure to avoid 'split-brain') and do a
+    * faster fail-over.
     */
    public OperationContext sendPrimaryIsStopping(final PrimaryStopping finalMessage) {
       logger.debug("PRIMARY IS STOPPING?!? message={} enabled={}", finalMessage, started);
@@ -893,9 +871,6 @@ public final class ReplicationManager implements ActiveMQComponent {
       return remotingConnection;
    }
 
-   /**
-    * @return
-    */
    public boolean isSynchronizing() {
       return inSync;
    }

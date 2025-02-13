@@ -149,8 +149,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected volatile Transaction tx;
 
-   /** This will store the Transaction between xaEnd and xaPrepare or xaCommit.
-    *  in a failure scenario (client is gone), this will be held between xaEnd and xaCommit. */
+   /**
+    * This will store the Transaction between xaEnd and xaPrepare or xaCommit. In a failure scenario (client is gone),
+    * this will be held between xaEnd and xaCommit.
+    */
    protected volatile Transaction pendingTX;
 
    protected boolean xa;
@@ -337,9 +339,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return closed;
    }
 
-   /**
-    * @return the sessionContext
-    */
    @Override
    public OperationContext getSessionContext() {
       return context;
@@ -437,7 +436,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       //putting closing of consumers outside the sync block
-      //https://issues.jboss.org/browse/HORNETQ-1141
       Set<ServerConsumer> consumersClone = new HashSet<>(consumers.values());
 
       for (ServerConsumer consumer : consumersClone) {
@@ -608,7 +606,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          props.putIntProperty(ManagementHelper.HDR_CONSUMER_COUNT, theQueue.getConsumerCount());
 
-         // HORNETQ-946
          props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.of(username));
 
          props.putSimpleStringProperty(ManagementHelper.HDR_VALIDATED_USER, SimpleString.of(validatedUser));
@@ -649,9 +646,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    /**
-    * Some protocols may chose to hold their transactions outside of the ServerSession.
-    * This can be used to replace the transaction.
-    * Notice that we set autoCommitACK and autoCommitSends to true if tx == null
+    * Some protocols may chose to hold their transactions outside of the ServerSession. This can be used to replace the
+    * transaction. Notice that we set autoCommitACK and autoCommitSends to true if tx == null
     */
    @Override
    public synchronized void resetTX(Transaction transaction) {
@@ -1260,9 +1256,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       List<Long> ackedRefs = null;
 
       if (tx != null && tx.getState() == State.ROLLEDBACK) {
-         // JBPAPP-8845 - if we let stuff to be acked on a rolled back TX, we will just
-         // have these messages to be stuck on the limbo until the server is restarted
-         // The tx has already timed out, so we need to ack and rollback immediately
+         // If we let stuff to be acked on a rolled back TX, we will just have these messages to be stuck on the limbo
+         // until the server is restarted. The tx has already timed out, so we need to ack and rollback immediately.
          Transaction newTX = newTransaction();
          try {
             ackedRefs = consumer.acknowledge(newTX, messageID);
@@ -1305,9 +1300,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       ServerConsumer consumer = findConsumer(consumerID);
 
       if (tx != null && tx.getState() == State.ROLLEDBACK) {
-         // JBPAPP-8845 - if we let stuff to be acked on a rolled back TX, we will just
-         // have these messages to be stuck on the limbo until the server is restarted
-         // The tx has already timed out, so we need to ack and rollback immediately
+         // If we let stuff to be acked on a rolled back TX, we will just have these messages to be stuck on the limbo
+         // until the server is restarted. The tx has already timed out, so we need to ack and rollback immediately.
          Transaction newTX = newTransaction();
          consumer.individualAcknowledge(tx, messageID);
          newTX.rollback();
@@ -1360,9 +1354,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    /**
-    * @param clientFailed                   If the client has failed, we can't decrease the delivery-counts, and the close may issue a rollback
-    * @param considerLastMessageAsDelivered
-    * @throws Exception
+    * @param clientFailed If the client has failed, we can't decrease the delivery-counts, and the close may issue a
+    *                     rollback
     */
    private synchronized void rollback(final boolean clientFailed,
                                       final boolean considerLastMessageAsDelivered) throws Exception {
@@ -1381,18 +1374,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
    }
 
-   /**
-    * @return
-    */
    @Override
    public Transaction newTransaction() {
       return new TransactionImpl(null, storageManager, timeoutSeconds);
    }
 
-   /**
-    * @param xid
-    * @return
-    */
    private Transaction newTransaction(final Xid xid) {
       return new TransactionImpl(xid, storageManager, timeoutSeconds);
    }
@@ -1566,9 +1552,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                logger.trace("xarollback into {}, xid={} forcing a rollback regular", theTx, xid);
 
                try {
-                  // jbpapp-8845
-                  // This could have happened because the TX timed out,
-                  // at this point we would be better on rolling back this session as a way to prevent consumers from holding their messages
+                  // This could have happened because the TX timed out, at this point we would be better on rolling back
+                  // this session as a way to prevent consumers from holding their messages
                   this.rollback(false);
                } catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.unableToRollbackOnTxTimedOut(e);

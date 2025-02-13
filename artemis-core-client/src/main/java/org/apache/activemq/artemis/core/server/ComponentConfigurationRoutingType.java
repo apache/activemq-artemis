@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.server;
 
 /**
  * This class essentially mirrors {@code RoutingType} except it has some additional members to support special
- * configuration semantics for diverts and bridges.  These additional members weren't put in {@code RoutingType}
- * so as to not confuse users.
+ * configuration semantics for diverts and bridges.  These additional members weren't put in {@code RoutingType} so as
+ * to not confuse users.
  */
 public enum ComponentConfigurationRoutingType {
 

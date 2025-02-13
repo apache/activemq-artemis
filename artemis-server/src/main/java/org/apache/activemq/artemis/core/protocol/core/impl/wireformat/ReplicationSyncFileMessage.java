@@ -28,8 +28,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 /**
- * Message is used to sync {@link org.apache.activemq.artemis.core.io.SequentialFile}s to a backup server. The {@link FileType} controls
- * which extra information is sent.
+ * Message is used to sync {@link org.apache.activemq.artemis.core.io.SequentialFile}s to a backup server. The
+ * {@link FileType} controls which extra information is sent.
  */
 public final class ReplicationSyncFileMessage extends PacketImpl {
 
@@ -38,8 +38,8 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
     */
    private AbstractJournalStorageManager.JournalContent journalType;
    /**
-    * This value refers to {@link org.apache.activemq.artemis.core.journal.impl.JournalFile#getFileID()}, or the
-    * message id if we are sync'ing a large-message.
+    * This value refers to {@link org.apache.activemq.artemis.core.journal.impl.JournalFile#getFileID()}, or the message
+    * id if we are sync'ing a large-message.
     */
    private long fileId;
    private int dataSize;
@@ -59,8 +59,7 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
       }
 
       /**
-       * @param readByte
-       * @return {@link FileType} corresponding to the byte code.
+       * @return {@link FileType} corresponding to the byte code
        */
       public static FileType getFileType(byte readByte) {
          for (FileType type : ALL_OF) {

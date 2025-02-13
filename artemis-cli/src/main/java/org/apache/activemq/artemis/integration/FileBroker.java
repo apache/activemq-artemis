@@ -125,10 +125,10 @@ public class FileBroker implements Broker {
       components = fileDeploymentManager.buildService(securityManager, ManagementFactory.getPlatformMBeanServer(), activateCallback);
    }
 
-   /*
-   * this makes sure the components are started in the correct order. Its simple at the mo as e only have core and jms but
-   * will need impproving if we get more.
-   * */
+   /**
+    * This makes sure the components are started in the correct order. Its simple at the mo as e only have core and jms
+    * but will need impproving if we get more.
+    */
    private List<ActiveMQComponent> getComponentsByStartOrder(Map<String, ActiveMQComponent> components) {
       List<ActiveMQComponent> activeMQComponents = new ArrayList<>();
       ActiveMQComponent jmsComponent = components.get("jms");

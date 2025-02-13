@@ -24,14 +24,15 @@ import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 
 /**
- * Every active server will have an HAPolicy that configures the type of server that it should be either primary, backup or
- * colocated (both). It also configures how, if colocated, it should react to sending and receiving requests for backups.
+ * Every active server will have an HAPolicy that configures the type of server that it should be either primary, backup
+ * or colocated (both). It also configures how, if colocated, it should react to sending and receiving requests for
+ * backups.
  */
 public interface HAPolicy<T extends Activation> {
 
-   /*
-   * created the Activation associated with this policy.
-   * */
+   /**
+    * created the Activation associated with this policy.
+    */
    T createActivation(ActiveMQServerImpl server,
                       boolean wasPrimary,
                       Map<String, Object> activationParams,
@@ -47,9 +48,7 @@ public interface HAPolicy<T extends Activation> {
 
    boolean canScaleDown();
 
-   /*
-   * todo These 3 methods could probably be moved as they are specific to the activation however they are needed for certain packets.
-   * */
+   // todo These 3 methods could probably be moved as they are specific to the activation however they are needed for certain packets.
 
    String getBackupGroupName();
 

@@ -35,7 +35,6 @@ public interface JsonValue {
     */
    JsonArray EMPTY_JSON_ARRAY = new JsonArrayImpl(javax.json.JsonValue.EMPTY_JSON_ARRAY);
 
-
    /**
     * A constant JsonValue for null values
     */

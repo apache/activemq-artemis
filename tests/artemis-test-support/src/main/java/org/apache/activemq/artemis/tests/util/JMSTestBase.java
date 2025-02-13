@@ -92,9 +92,6 @@ public class JMSTestBase extends ActiveMQTestBase {
       return addContext(cf.createContext(null, null, sessionMode));
    }
 
-   /**
-    * @throws Exception
-    */
    protected Queue createQueue(final String queueName) throws Exception {
       return createQueue(false, queueName);
    }
@@ -108,9 +105,6 @@ public class JMSTestBase extends ActiveMQTestBase {
       return control.getMessageCount();
    }
 
-   /**
-    * @throws Exception
-    */
    protected Queue createQueue(final boolean storeConfig, final String queueName) throws Exception {
       jmsServer.createQueue(storeConfig, queueName, null, true, "/jms/" + queueName);
 
@@ -226,12 +220,12 @@ public class JMSTestBase extends ActiveMQTestBase {
       createCF(name, connectorConfigs, jndiBindings);
    }
 
-
    /**
-    * @param cfName the unique ConnectionFactory's name
+    * Create a {@link ConnectionFactory}.
+    *
+    * @param cfName           the unique ConnectionFactory's name
     * @param connectorConfigs initial static connectors' config
-    * @param jndiBindings JNDI binding names for the CF
-    * @throws Exception
+    * @param jndiBindings     JNDI binding names for the CF
     */
    protected void createCF(final String cfName,
                            final List<TransportConfiguration> connectorConfigs,
@@ -245,8 +239,6 @@ public class JMSTestBase extends ActiveMQTestBase {
 
    /**
     * Allows test-cases to set their own options to the {@link ConnectionFactoryConfiguration}
-    *
-    * @param configuration
     */
    protected void testCaseCfExtraConfig(ConnectionFactoryConfiguration configuration) {
       // no-op

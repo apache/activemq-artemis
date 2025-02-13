@@ -174,10 +174,6 @@ public abstract class StompTestBase extends ActiveMQTestBase {
       AbstractStompClientConnection.tearDownConnections();
    }
 
-   /**
-    * @return
-    * @throws Exception
-    */
    protected ActiveMQServer createServer() throws Exception {
       String stompAcceptorURI = "tcp://" + TransportConstants.DEFAULT_HOST + ":" + TransportConstants.DEFAULT_STOMP_PORT + "?" + TransportConstants.STOMP_CONSUMER_WINDOW_SIZE + "=-1";
       if (isEnableStompMessageId()) {

@@ -142,9 +142,8 @@ public class ThresholdActorTest {
    }
 
    /**
-    * This test will actually not respect the semaphore and keep going.
-    * The blockers and unblocks should still perform ok.
-    * @throws Exception
+    * This test will actually not respect the semaphore and keep going. The blockers and unblocks should still perform
+    * ok.
     */
    @Test
    public void testFlow2() throws Exception {

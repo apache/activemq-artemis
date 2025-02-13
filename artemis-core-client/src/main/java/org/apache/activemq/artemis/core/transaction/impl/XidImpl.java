@@ -65,10 +65,6 @@ public class XidImpl implements Xid, Serializable {
 
    /**
     * Standard constructor
-    *
-    * @param branchQualifier
-    * @param formatId
-    * @param globalTransactionId
     */
    public XidImpl(final byte[] branchQualifier, final int formatId, final byte[] globalTransactionId) {
       this.branchQualifier = branchQualifier;
@@ -78,8 +74,6 @@ public class XidImpl implements Xid, Serializable {
 
    /**
     * Copy constructor
-    *
-    * @param other
     */
    public XidImpl(final Xid other) {
       branchQualifier = copyBytes(other.getBranchQualifier());

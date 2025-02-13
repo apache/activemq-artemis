@@ -34,9 +34,6 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 
-/**
- * A QueueFactoryImpl
- */
 public class QueueFactoryImpl implements QueueFactory {
 
    protected final HierarchicalRepository<AddressSettings> addressSettingsRepository;

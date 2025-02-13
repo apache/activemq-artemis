@@ -28,9 +28,6 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- *
- */
 public class MessageProducerTest extends JMSTestBase {
 
    @Override

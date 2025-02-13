@@ -72,9 +72,9 @@ import java.lang.invoke.MethodHandles;
 /**
  * A ClusterManager manages {@link ClusterConnection}s, {@link BroadcastGroup}s and {@link Bridge}s.
  * <p>
- * Note that {@link org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge}s extend Bridges but are controlled over through
- * {@link ClusterConnectionImpl}. As a node is discovered a new {@link org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge} is
- * deployed.
+ * Note that {@link org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge}s extend Bridges but
+ * are controlled over through {@link ClusterConnectionImpl}. As a node is discovered a new
+ * {@link org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionBridge} is deployed.
  */
 public class ClusterManager implements ActiveMQComponent {
 
@@ -131,11 +131,10 @@ public class ClusterManager implements ActiveMQComponent {
        */
       STOPPING,
       /**
-       * Deployed means {@link ClusterManager#deploy()} was called but
-       * {@link ClusterManager#start()} was not called.
+       * Deployed means {@link ClusterManager#deploy()} was called but {@link ClusterManager#start()} was not called.
        * <p>
-       * We need the distinction if {@link ClusterManager#stop()} is called before 'start'. As
-       * otherwise we would leak locators.
+       * We need the distinction if {@link ClusterManager#stop()} is called before 'start'. As otherwise we would leak
+       * locators.
        */
       DEPLOYED, STARTED,
    }
@@ -249,9 +248,7 @@ public class ClusterManager implements ActiveMQComponent {
          deployClusterConnection(config);
       }
 
-      /*
-      * only start if we are actually in a cluster
-      * */
+      // only start if we are actually in a cluster
       clusterController.start();
    }
 
@@ -498,10 +495,6 @@ public class ClusterManager implements ActiveMQComponent {
       private final ClusterManager manager;
       private final Executor executor;
 
-      /**
-       * @param manager
-       * @param executor
-       */
       public IncomingInterceptorLookingForExceptionMessage(ClusterManager manager, Executor executor) {
          this.manager = manager;
          this.executor = executor;

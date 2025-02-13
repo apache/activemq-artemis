@@ -29,13 +29,13 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 
 /**
  * Test the JMSX defined properties.
- * <br />
+ * <p>
  * See JMS Specification, sec. 3.5.9 JMS Defined Properties
  */
 public class JMSXPropertyTest extends PTPTestCase {
 
    /**
-    * Test that the JMSX property <code>JMSXGroupID</code> is supported.
+    * Test that the JMSX property {@code JMSXGroupID} is supported.
     */
    @Test
    public void testSupportsJMSXGroupID() {
@@ -56,7 +56,7 @@ public class JMSXPropertyTest extends PTPTestCase {
    }
 
    /**
-    * Test that the JMSX property <code>JMSXGroupID</code> works
+    * Test that the JMSX property {@code JMSXGroupID} works
     */
    @Test
    public void testJMSXGroupID_1() {
@@ -78,7 +78,7 @@ public class JMSXPropertyTest extends PTPTestCase {
    }
 
    /**
-    * Test that the JMSX property <code>JMSXDeliveryCount</code> works.
+    * Test that the JMSX property {@code JMSXDeliveryCount} works.
     */
    @Test
    public void testJMSXDeliveryCount() throws Exception {
@@ -150,7 +150,7 @@ public class JMSXPropertyTest extends PTPTestCase {
    }
 
    /**
-    * checks if the JMSX property <code>JMSXDeliveryCount</code> is supported.
+    * checks if the JMSX property {@code JMSXDeliveryCount} is supported.
     */
    private boolean supportsJMSXDeliveryCount() throws Exception {
       ConnectionMetaData metaData = senderConnection.getMetaData();

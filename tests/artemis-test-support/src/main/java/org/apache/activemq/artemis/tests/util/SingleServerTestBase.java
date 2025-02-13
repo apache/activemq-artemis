@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.junit.jupiter.api.BeforeEach;
 
 /**
- * Any test based on a single server can extend this class.
- * This is useful for quick writing tests with starting a server, locator, factory... etc
+ * Any test based on a single server can extend this class. This is useful for quick writing tests with starting a
+ * server, locator, factory... etc
  */
 public abstract class SingleServerTestBase extends ActiveMQTestBase {
 

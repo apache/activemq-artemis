@@ -23,42 +23,36 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
- * Used to validate whether a user is authorized to connect to the
- * server and perform certain functions on certain addresses
- *
- * This is an evolution of {@link ActiveMQSecurityManager3}
- * that adds the ability to specify the JAAS domain per call.
+ * This is an evolution of {@link ActiveMQSecurityManager3} that adds the ability to specify the JAAS domain per call.
  */
 public interface ActiveMQSecurityManager4 extends ActiveMQSecurityManager {
 
    /**
     * is this a valid user.
+    * <p>
+    * This method is called instead of {@link ActiveMQSecurityManager#validateUser(String, String)}.
     *
-    * This method is called instead of
-    * {@link ActiveMQSecurityManager#validateUser(String, String)}.
-    *
-    * @param user     the user
-    * @param password the users password
-    * @param remotingConnection
+    * @param user           the user
+    * @param password       the users password
     * @param securityDomain the name of the JAAS security domain to use (can be null)
     * @return the name of the validated user or null if the user isn't validated
     */
    String validateUser(String user, String password, RemotingConnection remotingConnection, String securityDomain);
 
    /**
-    * Determine whether the given user is valid and whether they have
-    * the correct role for the given destination address.
-    *
+    * Determine whether the given user is valid and whether they have the correct role for the given destination
+    * address.
+    * <p>
     * This method is called instead of
     * {@link ActiveMQSecurityManager#validateUserAndRole(String, String, Set, CheckType)}.
     *
-    * @param user       the user
-    * @param password   the user's password
-    * @param roles      the user's roles
-    * @param checkType  which permission to validate
-    * @param address    the address for which to perform authorization
+    * @param user               the user
+    * @param password           the user's password
+    * @param roles              the user's roles
+    * @param checkType          which permission to validate
+    * @param address            the address for which to perform authorization
     * @param remotingConnection the user's connection
-    * @param securityDomain the name of the JAAS security domain to use (can be null)
+    * @param securityDomain     the name of the JAAS security domain to use (can be null)
     * @return the name of the validated user or null if the user isn't validated
     */
    String validateUserAndRole(String user,

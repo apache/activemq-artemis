@@ -36,10 +36,9 @@ import org.apache.logging.log4j.core.config.Property;
 
 /**
  * This class contains a tool where programs could intercept for LogMessage
- *
+ * <p>
  * Be careful with this use as this is intended for testing only (such as testcases)
  */
-
 public class AssertionLoggerHandler extends AbstractAppender implements Closeable {
 
    private final Deque<LogEntry> messages = new ConcurrentLinkedDeque<>();
@@ -81,9 +80,6 @@ public class AssertionLoggerHandler extends AbstractAppender implements Closeabl
 
    /**
     * is there any record matching Level?
-    *
-    * @param level
-    * @return
     */
    public boolean hasLevel(LogLevel level) {
       Level implLevel = level.toImplLevel();
@@ -111,9 +107,6 @@ public class AssertionLoggerHandler extends AbstractAppender implements Closeabl
 
    /**
     * Find a line that contains the parameters passed as an argument
-    *
-    * @param text
-    * @return
     */
    public boolean findText(final String... text) {
       for (LogEntry logEntry : messages) {
@@ -136,9 +129,6 @@ public class AssertionLoggerHandler extends AbstractAppender implements Closeabl
 
    /**
     * Find a stacktrace that contains the parameters passed as an argument
-    *
-    * @param trace
-    * @return
     */
    public boolean findTrace(final String trace) {
       for (LogEntry logEntry : messages) {
@@ -235,8 +225,8 @@ public class AssertionLoggerHandler extends AbstractAppender implements Closeabl
 
       /**
        * Only useful if {@link AssertionLoggerHandler} was created with
-       * {@link AssertionLoggerHandler#AssertionLoggerHandler(boolean captureStackTrace)}
-       * to enable StackTrace collection.
+       * {@link AssertionLoggerHandler#AssertionLoggerHandler(boolean captureStackTrace)} to enable StackTrace
+       * collection.
        */
       public String getStackTrace() {
          return stackTrace;

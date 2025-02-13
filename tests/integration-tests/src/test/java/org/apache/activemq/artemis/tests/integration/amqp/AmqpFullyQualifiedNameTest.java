@@ -370,7 +370,6 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
 
    /**
     * Broker should return exception if no address is passed in FQQN.
-    * @throws Exception
     */
    @Test
    public void testQueueSpecial() throws Exception {

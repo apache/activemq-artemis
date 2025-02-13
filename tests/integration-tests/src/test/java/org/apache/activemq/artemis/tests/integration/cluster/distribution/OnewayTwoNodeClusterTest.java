@@ -57,9 +57,7 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase {
       return false;
    }
 
-   /*
-    * make sure source can shutdown if target is never started
-    */
+   // make sure source can shutdown if target is never started
    @Test
    public void testNeverStartTargetStartSourceThenStopSource() throws Exception {
       startServers(0);

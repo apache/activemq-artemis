@@ -1360,10 +1360,6 @@ public class LargeMessageTest extends LargeMessageTestBase {
       }
    }
 
-   /**
-    * @param messageSize
-    * @param msg
-    */
    private void compareString(final long messageSize, ClientMessage msg) {
       assertNotNull(msg);
       for (long i = 0; i < messageSize; i++) {
@@ -2067,7 +2063,6 @@ public class LargeMessageTest extends LargeMessageTestBase {
       }
    }
 
-   // JBPAPP-6237
    @TestTemplate
    public void testPageOnLargeMessageMultipleQueues() throws Exception {
 
@@ -2204,7 +2199,6 @@ public class LargeMessageTest extends LargeMessageTestBase {
       assertFalse(loggerHandler.findText("AMQ214034"));
    }
 
-   // JBPAPP-6237
    @TestTemplate
    public void testPageOnLargeMessageMultipleQueues2() throws Exception {
       Configuration config = createDefaultConfig(isNetty());

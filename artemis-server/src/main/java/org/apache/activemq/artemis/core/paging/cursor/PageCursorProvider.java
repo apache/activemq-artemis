@@ -31,7 +31,6 @@ public interface PageCursorProvider {
 
    /**
     * @param queueId The cursorID should be the same as the queueId associated for persistence
-    * @return
     */
    PageSubscription getSubscription(long queueId);
 
@@ -58,9 +57,6 @@ public interface PageCursorProvider {
     */
    void onPageModeCleared();
 
-   /**
-    * @param pageCursorImpl
-    */
    void close(PageSubscription pageCursorImpl);
 
    void checkClearPageLimit();

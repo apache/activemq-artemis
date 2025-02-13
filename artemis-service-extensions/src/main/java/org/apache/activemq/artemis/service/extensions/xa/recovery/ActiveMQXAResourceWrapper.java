@@ -35,20 +35,17 @@ import java.lang.invoke.MethodHandles;
 
 /**
  * XAResourceWrapper.
- *
+ * <p>
  * Mainly from org.jboss.server.XAResourceWrapper from the JBoss AS server module
- *
- * The reason why we don't use that class directly is that it assumes on failure of connection
- * the RM_FAIL or RM_ERR is thrown, but in ActiveMQ Artemis we throw XA_RETRY since we want the recovery manager to be able
- * to retry on failure without having to manually retry
+ * <p>
+ * The reason why we don't use that class directly is that it assumes on failure of connection the RM_FAIL or RM_ERR is
+ * thrown, but in ActiveMQ Artemis we throw XA_RETRY since we want the recovery manager to be able to retry on failure
+ * without having to manually retry
  */
 public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The state lock
-    */
    private static final Object lock = new Object();
 
    private ServerLocator serverLocator;
@@ -323,9 +320,6 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       throw new ActiveMQNotConnectedException();
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return "ActiveMQXAResourceWrapper [serverLocator=" + serverLocator +
@@ -382,8 +376,8 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
    }
 
    /**
-    * Check whether an XAException is fatal. If it is an RM problem
-    * we close the connection so the next call will reconnect.
+    * Check whether an XAException is fatal. If it is an RM problem we close the connection so the next call will
+    * reconnect.
     *
     * @param e the xa exception
     * @return never

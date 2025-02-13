@@ -37,66 +37,34 @@ public class ActiveMQRACredential implements Serializable {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * Serial version UID
-    */
    static final long serialVersionUID = 210476602237497193L;
 
-   /**
-    * The user name
-    */
    private String userName;
 
-   /**
-    * The password
-    */
    private String password;
 
-   /**
-    * Private constructor
-    */
    private ActiveMQRACredential() {
       logger.trace("constructor()");
    }
 
-   /**
-    * Get the user name
-    *
-    * @return The value
-    */
    public String getUserName() {
       logger.trace("getUserName()");
 
       return userName;
    }
 
-   /**
-    * Set the user name
-    *
-    * @param userName The value
-    */
    private void setUserName(final String userName) {
       logger.trace("setUserName({})", userName);
 
       this.userName = userName;
    }
 
-   /**
-    * Get the password
-    *
-    * @return The value
-    */
    public String getPassword() {
       logger.trace("getPassword()");
 
       return password;
    }
 
-   /**
-    * Set the password
-    *
-    * @param password The value
-    */
    private void setPassword(final String password) {
       logger.trace("setPassword(****)");
 
@@ -139,11 +107,6 @@ public class ActiveMQRACredential implements Serializable {
       return jc;
    }
 
-   /**
-    * String representation
-    *
-    * @return The representation
-    */
    @Override
    public String toString() {
       logger.trace("toString()");
@@ -156,22 +119,10 @@ public class ActiveMQRACredential implements Serializable {
     */
    private static class GetCredentialAction implements PrivilegedAction<PasswordCredential> {
 
-      /**
-       * The subject
-       */
       private final Subject subject;
 
-      /**
-       * The managed connection factory
-       */
       private final ManagedConnectionFactory mcf;
 
-      /**
-       * Constructor
-       *
-       * @param subject The subject
-       * @param mcf     The managed connection factory
-       */
       GetCredentialAction(final Subject subject, final ManagedConnectionFactory mcf) {
          logger.trace("constructor({}, {})", subject, mcf);
 
@@ -180,9 +131,7 @@ public class ActiveMQRACredential implements Serializable {
       }
 
       /**
-       * Run
-       *
-       * @return The credential
+       * {@return the credential}
        */
       @Override
       public PasswordCredential run() {
@@ -201,11 +150,7 @@ public class ActiveMQRACredential implements Serializable {
       }
 
       /**
-       * Get credentials
-       *
-       * @param subject The subject
-       * @param mcf     The managed connection factory
-       * @return The credential
+       * {@return the credential}
        */
       static PasswordCredential getCredential(final Subject subject, final ManagedConnectionFactory mcf) {
          logger.trace("getCredential({}, {})", subject, mcf);

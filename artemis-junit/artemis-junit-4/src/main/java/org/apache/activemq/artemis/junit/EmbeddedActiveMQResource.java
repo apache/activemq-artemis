@@ -30,23 +30,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A JUnit Rule that embeds an ActiveMQ Artemis server into a test. This JUnit Rule is designed to
- * simplify using embedded servers in unit tests. Adding the rule to a test will startup an embedded
- * server, which can then be used by client applications.
+ * A JUnit Rule that embeds an ActiveMQ Artemis server into a test. This JUnit Rule is designed to simplify using
+ * embedded servers in unit tests. Adding the rule to a test will startup an embedded server, which can then be used by
+ * client applications.
  *
- * <pre>
- * <code>
+ * <pre>{@code
  * public class SimpleTest {
- *     &#64;Rule
+ *     @Rule
  *     public EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
  *
- *     &#64;Test
+ *     @Test
  *     public void testSomething() throws Exception {
  *         // Use the embedded server here
  *     }
  * }
- * </code>
- * </pre>
+ * }</pre>
  */
 public class EmbeddedActiveMQResource extends ExternalResource implements EmbeddedActiveMQOperations {
 
@@ -63,6 +61,7 @@ public class EmbeddedActiveMQResource extends ExternalResource implements Embedd
 
    /**
     * Create a default EmbeddedActiveMQResource with the specified serverId
+    *
     * @param serverId server id
     */
    public EmbeddedActiveMQResource(int serverId) {
@@ -71,6 +70,7 @@ public class EmbeddedActiveMQResource extends ExternalResource implements Embedd
 
    /**
     * Creates an EmbeddedActiveMQResource using the specified configuration
+    *
     * @param configuration ActiveMQServer configuration
     */
    public EmbeddedActiveMQResource(Configuration configuration) {
@@ -79,6 +79,7 @@ public class EmbeddedActiveMQResource extends ExternalResource implements Embedd
 
    /**
     * Creates an EmbeddedActiveMQResource using the specified configuration file
+    *
     * @param filename ActiveMQServer configuration file name
     */
    public EmbeddedActiveMQResource(String filename) {
@@ -86,6 +87,8 @@ public class EmbeddedActiveMQResource extends ExternalResource implements Embedd
    }
 
    /**
+    * Add the specified properties to the specified message.
+    *
     * @see EmbeddedActiveMQDelegate#addMessageProperties(ClientMessage, Map)
     */
    public static void addMessageProperties(ClientMessage message, Map<String, Object> properties) {

@@ -218,11 +218,6 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       assertNodeIdWasSaved();
    }
 
-   /**
-    * @throws java.io.FileNotFoundException
-    * @throws java.io.IOException
-    * @throws InterruptedException
-    */
    private void assertNodeIdWasSaved() throws Exception {
       assertTrue(backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS), "backup initialized");
 
@@ -261,8 +256,6 @@ public class BackupSyncJournalTest extends FailoverTestBase {
 
    /**
     * Basic fail-back test.
-    *
-    * @throws Exception
     */
    @Test
    public void testFailBack() throws Exception {

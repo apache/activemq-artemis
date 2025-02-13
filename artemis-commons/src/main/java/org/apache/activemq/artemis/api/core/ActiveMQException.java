@@ -44,9 +44,9 @@ public class ActiveMQException extends Exception {
       this.type = type;
    }
 
-   /*
-   * This constructor is needed only for the native layer
-   */
+   /**
+    * This constructor is needed only for the native layer
+    */
    public ActiveMQException(int code, String msg) {
       super(msg);
 

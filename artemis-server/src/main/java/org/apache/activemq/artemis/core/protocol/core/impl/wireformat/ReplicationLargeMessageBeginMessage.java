@@ -51,9 +51,6 @@ public class ReplicationLargeMessageBeginMessage extends PacketImpl {
       messageId = buffer.readLong();
    }
 
-   /**
-    * @return the messageId
-    */
    public long getMessageId() {
       return messageId;
    }

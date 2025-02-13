@@ -21,16 +21,13 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 
 /**
+ * A transaction record (Commit or Prepare), will hold the number of elements the transaction has in the current file.
  * <p>
- * A transaction record (Commit or Prepare), will hold the number of elements the transaction has in
- * the current file.
+ * While loading the {@link org.apache.activemq.artemis.core.journal.impl.JournalFile}, the number of operations found
+ * is matched against this number. If for any reason there are missing operations, the transaction will be ignored.
  * <p>
- * While loading the {@link org.apache.activemq.artemis.core.journal.impl.JournalFile}, the number of operations found is matched against this
- * number. If for any reason there are missing operations, the transaction will be ignored.
- * <p>
- * We can't just use a global counter as reclaiming could delete files after the transaction was
- * successfully committed. That also means not having a whole file on journal-reload doesn't mean we
- * have to invalidate the transaction
+ * We can't just use a global counter as reclaiming could delete files after the transaction was successfully committed.
+ * That also means not having a whole file on journal-reload doesn't mean we have to invalidate the transaction
  * <p>
  * The commit operation itself is not included in this total.
  */

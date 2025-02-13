@@ -38,9 +38,6 @@ import javax.jms.TransactionInProgressRuntimeException;
 import javax.jms.TransactionRolledBackException;
 import javax.jms.TransactionRolledBackRuntimeException;
 
-/**
- *
- */
 public final class JmsExceptionUtils {
 
    private JmsExceptionUtils() {
@@ -50,9 +47,6 @@ public final class JmsExceptionUtils {
    /**
     * Converts instances of sub-classes of {@link JMSException} into the corresponding sub-class of
     * {@link JMSRuntimeException}.
-    *
-    * @param e
-    * @return
     */
    public static JMSRuntimeException convertToRuntimeException(JMSException e) {
       if (e instanceof javax.jms.IllegalStateException) {

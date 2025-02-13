@@ -25,17 +25,17 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 public interface Federation {
 
    /**
-    * @return the unique name that was assigned to this server federation connector.
+    * {@return the unique name that was assigned to this server federation connector}
     */
    String getName();
 
    /**
-    * @return the {@link ActiveMQServer} instance assigned to this {@link Federation}
+    * {@return the {@link ActiveMQServer} instance assigned to this {@link Federation}}
     */
    ActiveMQServer getServer();
 
    /**
-    * @return is this federation instance started (may not be connected yet).
+    * {@return is this federation instance started (may not be connected yet)}
     */
    boolean isStarted();
 

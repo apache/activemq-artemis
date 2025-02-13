@@ -41,9 +41,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 /**
- * This test is used to generate the commented out configs in the src/config/ra.xml. If you add a setter to the ActiveMQResourceAdapter
- * this test should fail, if it does paste the new commented out configs into the ra.xml file and in here. don't forget to
- * add a description for each new property added and try and put it in the config some where appropriate.
+ * This test is used to generate the commented out configs in the src/config/ra.xml. If you add a setter to the
+ * ActiveMQResourceAdapter this test should fail, if it does paste the new commented out configs into the ra.xml file
+ * and in here. don't forget to add a description for each new property added and try and put it in the config some
+ * where appropriate.
  */
 public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -505,10 +506,6 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
       }
    }
 
-   /**
-    * @param setter
-    * @return
-    */
    private Class<?> lookupType(Method setter) {
       Class<?> clzz = setter.getParameterTypes()[0];
 

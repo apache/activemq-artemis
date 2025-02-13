@@ -67,9 +67,8 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
    private final Condition awaitCondition = lock.newCondition();
 
    /**
-    * This contains a list of expected bindings to be loaded
-    * when the group is waiting for them.
-    * During a small window between the server is started and the wait wasn't called yet, this will contain bindings that were already added
+    * This contains a list of expected bindings to be loaded when the group is waiting for them. During a small window
+    * between the server is started and the wait wasn't called yet, this will contain bindings that were already added
     */
    private List<SimpleString> expectedBindings = new LinkedList<>();
 

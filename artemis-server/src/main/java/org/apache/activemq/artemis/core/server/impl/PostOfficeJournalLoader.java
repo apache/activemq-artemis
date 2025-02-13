@@ -330,9 +330,6 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
    /**
     * This method will recover the counters after failures making sure the page counter doesn't get out of sync
-    *
-    * @param pendingNonTXPageCounter
-    * @throws Exception
     */
    @Override
    public void recoverPendingPageCounters(List<PageCountPending> pendingNonTXPageCounter) throws Exception {
@@ -437,12 +434,6 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
    /**
     * This generates a map for use on the recalculation and recovery of pending maps after reloading it
-    *
-    * @param queues
-    * @param pendingNonTXPageCounter
-    * @param txRecoverCounter
-    * @return
-    * @throws Exception
     */
    private Map<SimpleString, Map<Long, Map<Long, List<PageCountPending>>>> generateMapsOnPendingCount(Map<Long, Queue> queues,
                                                                                                       List<PageCountPending> pendingNonTXPageCounter,

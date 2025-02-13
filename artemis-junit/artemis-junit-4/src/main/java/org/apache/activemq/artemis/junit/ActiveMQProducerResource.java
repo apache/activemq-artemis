@@ -31,20 +31,18 @@ import org.junit.rules.ExternalResource;
  * rule to a test will startup a ClientProducer, which can then be used to feed messages to the
  * bound address on an ActiveMQ Artemis server.
  *
- * <pre>
- * <code>
+ * <pre>{@code
  * public class SimpleTest {
- *     &#64;Rule
+ *     @Rule
  *     public ActiveMQProducerResource producer = new ActiveMQProducerResource( "vm://0", "test.queue");
  *
- *     &#64;Test
+ *     @Test
  *     public void testSomething() throws Exception {
  *         // Use the embedded ClientProducer here
  *         producer.sendMessage( "String Body" );
  *     }
  * }
- * </code>
- * </pre>
+ * }</pre>
  */
 public class ActiveMQProducerResource extends ExternalResource implements ActiveMQProducerOperations {
 

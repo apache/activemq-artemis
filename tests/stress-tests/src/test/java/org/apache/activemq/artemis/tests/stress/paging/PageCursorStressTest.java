@@ -566,9 +566,6 @@ public class PageCursorStressTest extends ActiveMQTestBase {
       return ctx;
    }
 
-   /**
-    * @throws Exception
-    */
    private void waitCleanup() throws Exception {
       // The cleanup is done asynchronously, so we need to wait some time
       long timeout = System.currentTimeMillis() + 10000;
@@ -734,10 +731,6 @@ public class PageCursorStressTest extends ActiveMQTestBase {
       return pageStore.getNumberOfPages();
    }
 
-   /**
-    * @return
-    * @throws Exception
-    */
    private PagingStoreImpl lookupPageStore(SimpleString address) throws Exception {
       return (PagingStoreImpl) server.getPagingManager().getPageStore(address);
    }
@@ -755,9 +748,6 @@ public class PageCursorStressTest extends ActiveMQTestBase {
       lock = new ReentrantReadWriteLock().readLock();
    }
 
-   /**
-    * @throws Exception
-    */
    private void createServer() throws Exception {
       OperationContextImpl.clearContext();
 
@@ -776,10 +766,6 @@ public class PageCursorStressTest extends ActiveMQTestBase {
       }
    }
 
-   /**
-    * @return
-    * @throws Exception
-    */
    private PageSubscription createNonPersistentCursor(Filter filter) throws Exception {
       long id = server.getStorageManager().generateID();
       FakeQueue queue = new FakeQueue(SimpleString.of(filter.toString()), id);
@@ -792,23 +778,10 @@ public class PageCursorStressTest extends ActiveMQTestBase {
       return subs;
    }
 
-   /**
-    * @return
-    * @throws Exception
-    */
    private PageCursorProvider lookupCursorProvider() throws Exception {
       return lookupPageStore(ADDRESS).getCursorProvider();
    }
 
-   /**
-    * @param storage
-    * @param pageStore
-    * @param pgParameter
-    * @param start
-    * @param NUM_MESSAGES
-    * @param messageSize
-    * @throws Exception
-    */
    private Transaction pgMessages(StorageManager storage,
                                   PagingStoreImpl pageStore,
                                   long pgParameter,

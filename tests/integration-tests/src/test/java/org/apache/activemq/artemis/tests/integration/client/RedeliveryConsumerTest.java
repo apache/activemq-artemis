@@ -401,10 +401,6 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
 
 
 
-   /**
-    * @param persistDeliveryCountBeforeDelivery
-    * @throws Exception
-    */
    private void setUp(final boolean persistDeliveryCountBeforeDelivery) throws Exception {
       Configuration config = createDefaultInVMConfig().setPersistDeliveryCountBeforeDelivery(persistDeliveryCountBeforeDelivery);
 

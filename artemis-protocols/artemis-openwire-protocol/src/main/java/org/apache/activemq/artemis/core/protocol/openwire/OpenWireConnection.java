@@ -174,18 +174,16 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    private volatile boolean noLocal;
 
    /**
-    * Openwire doesn't sen transactions associated with any sessions.
-    * It will however send beingTX / endTX as it would be doing it with XA Transactions.
-    * But always without any association with Sessions.
-    * This collection will hold nonXA transactions. Hopefully while they are in transit only.
+    * Openwire doesn't sen transactions associated with any sessions. It will however send beingTX / endTX as it would
+    * be doing it with XA Transactions. But always without any association with Sessions. This collection will hold
+    * nonXA transactions. Hopefully while they are in transit only.
     */
    private final Map<TransactionId, Transaction> txMap = new ConcurrentHashMap<>();
 
    private final ActiveMQServer server;
 
    /**
-    * This is to be used with connection operations that don't have a session.
-    * Such as TM operations.
+    * This is to be used with connection operations that don't have a session. Such as TM operations.
     */
    private ServerSession internalSession;
 
@@ -403,7 +401,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
    }
 
-   /** It will send the response through the operation context, as soon as everything is confirmed on disk */
+   /**
+    * It will send the response through the operation context, as soon as everything is confirmed on disk
+    */
    private void sendAsyncResponse(final int commandId, final Response response) throws Exception {
       if (response != null) {
          operationContext.executeOnCompletion(new IOCallback() {
@@ -1402,8 +1402,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
 
       /**
-       * Openwire will redeliver rolled back references.
-       * We need to return those here.
+       * Openwire will redeliver rolled back references. We need to return those here.
        */
       private void returnReferences(Transaction tx, AMQSession session) throws Exception {
          if (session == null || session.isClosed()) {

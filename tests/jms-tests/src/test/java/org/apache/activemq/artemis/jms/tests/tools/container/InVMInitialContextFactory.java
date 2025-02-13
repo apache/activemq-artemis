@@ -36,7 +36,7 @@ public class InVMInitialContextFactory implements InitialContextFactory {
    }
 
    /**
-    * @return the JNDI environment to use to get this InitialContextFactory.
+    * @return the JNDI environment to use to get this InitialContextFactory
     */
    public static Hashtable<String, String> getJNDIEnvironment(final int serverIndex) {
       Hashtable<String, String> env = new Hashtable<>();

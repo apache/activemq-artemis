@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.junit.jupiter.api.Disabled;
 
-/**
+/*
  * Fulfilled by client (i.e. not tested here):
  *
  * [MQTT-6.0.0-1] MQTT Control Packets MUST be sent in WebSocket binary data frames. If any other type of data frame is received the recipient MUST close the Network Connection.
@@ -34,7 +34,6 @@ import org.junit.jupiter.api.Disabled;
  * This is tested implicitly as almost all tests are run using both TCP and WebSocket connections. The subprotocol is defined in org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManager#websocketRegistryNames:
  *
  * [MQTT-6.0.0-4] The WebSocket Subprotocol name selected and returned by the Server MUST be “mqtt”.
- *
  */
 
 @Disabled

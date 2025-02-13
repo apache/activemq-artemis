@@ -136,7 +136,9 @@ public class StringPrep {
       }
    }
 
-   /** A.1 Unassigned code points in Unicode 3.2 */
+   /**
+    * A.1 Unassigned code points in Unicode 3.2
+    */
    static final CharClass A1 = CharClass.fromRanges(new int[] {0x0221,
                                                                0x0221,
                                                                0x0234,
@@ -930,7 +932,9 @@ public class StringPrep {
                                                                0xE0080,
                                                                0xEFFFD});
 
-   /** B.1 Commonly mapped to nothing */
+   /**
+    * B.1 Commonly mapped to nothing
+    */
    static final CharClass B1 = CharClass.fromList(new int[] {0x00AD,
                                                              0x034F,
                                                              0x1806,
@@ -959,10 +963,14 @@ public class StringPrep {
                                                              0xFE0F,
                                                              0xFEFF});
 
-   /** C.1.1 ASCII space characters */
+   /**
+    * C.1.1 ASCII space characters
+    */
    static final CharClass C11 = CharClass.fromList(new int[] {0x0020});
 
-   /** C.1.2 Non-ASCII space characters */
+   /**
+    * C.1.2 Non-ASCII space characters
+    */
    static final CharClass C12 = CharClass.fromList(new int[] {0x00A0,
                                                               0x1680,
                                                               0x2000,
@@ -981,7 +989,9 @@ public class StringPrep {
                                                               0x205F,
                                                               0x3000});
 
-   /** C.2.1 ASCII control characters */
+   /**
+    * C.2.1 ASCII control characters
+    */
    static final CharClass C21 = CharClass.fromList(new int[] {0x0000,
                                                               0x0001,
                                                               0x0002,
@@ -1016,7 +1026,9 @@ public class StringPrep {
                                                               0x001F,
                                                               0x007F});
 
-   /** C.2.2 Non-ASCII control characters */
+   /**
+    * C.2.2 Non-ASCII control characters
+    */
    static final CharClass C22 = CharClass.fromList(new int[] {0x0080,
                                                               0x0081,
                                                               0x0082,
@@ -1080,10 +1092,14 @@ public class StringPrep {
                                                               0x1D179,
                                                               0x1D17A});
 
-   /** C.3 Private use */
+   /**
+    * C.3 Private use
+    */
    static final CharClass C3 = CharClass.fromRanges(new int[] {0xE000, 0xF8FF, 0xF0000, 0xFFFFD, 0x100000, 0x10FFFD});
 
-   /** C.4 Non-character code points */
+   /**
+    * C.4 Non-character code points
+    */
    static final CharClass C4 = CharClass.fromRanges(new int[] {0xFDD0,
                                                                0xFDEF,
                                                                0xFFFE,
@@ -1121,13 +1137,19 @@ public class StringPrep {
                                                                0x10FFFE,
                                                                0x10FFFF});
 
-   /** C.5 Surrogate codes */
+   /**
+    * C.5 Surrogate codes
+    */
    static final CharClass C5 = CharClass.fromRanges(new int[] {0xD800, 0xDFFF});
 
-   /** C.6 Inappropriate for plain text */
+   /**
+    * C.6 Inappropriate for plain text
+    */
    static final CharClass C6 = CharClass.fromList(new int[] {0xFFF9, 0xFFFA, 0xFFFB, 0xFFFC, 0xFFFD});
 
-   /** C.7 Inappropriate for canonical representation */
+   /**
+    * C.7 Inappropriate for canonical representation
+    */
    static final CharClass C7 = CharClass.fromList(new int[] {0x2FF0,
                                                              0x2FF1,
                                                              0x2FF2,
@@ -1141,7 +1163,9 @@ public class StringPrep {
                                                              0x2FFA,
                                                              0x2FFB});
 
-   /** C.8 Change display properties or are deprecated */
+   /**
+    * C.8 Change display properties or are deprecated
+    */
    static final CharClass C8 = CharClass.fromList(new int[] {0x0340,
                                                              0x0341,
                                                              0x200E,
@@ -1158,10 +1182,14 @@ public class StringPrep {
                                                              0x206E,
                                                              0x206F});
 
-   /** C.9 Tagging characters (tuples) */
+   /**
+    * C.9 Tagging characters (tuples)
+    */
    static final CharClass C9 = CharClass.fromRanges(new int[] {0xE0001, 0xE0001, 0xE0020, 0xE007F});
 
-   /** D.1 Characters with bidirectional property "R" or "AL" */
+   /**
+    * D.1 Characters with bidirectional property "R" or "AL"
+    */
    static final CharClass D1 = CharClass.fromRanges(new int[] {0x05BE,
                                                                0x05BE,
                                                                0x05C0,
@@ -1231,7 +1259,9 @@ public class StringPrep {
                                                                0xFE76,
                                                                0xFEFC});
 
-   /** D.2 Characters with bidirectional property "L" */
+   /**
+    * D.2 Characters with bidirectional property "L"
+    */
    static final CharClass D2 = CharClass.fromRanges(new int[] {0x0041,
                                                                0x005A,
                                                                0x0061,
@@ -1953,14 +1983,15 @@ public class StringPrep {
                                                                0x100000,
                                                                0x10FFFD});
 
-   /** rfc4013 2.3. Prohibited Output */
+   /**
+    * rfc4013 2.3. Prohibited Output
+    */
    static final CharClass saslProhibited = CharClass.fromClasses(C12, C21, C22, C3, C4, C5, C6, C7, C8, C9);
 
-   /** A prohibited string has been passed to StringPrep. */
+   /**
+    * A prohibited string has been passed to StringPrep.
+    */
    public abstract static class StringPrepError extends Exception {
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
 
       protected StringPrepError(String message) {
@@ -1968,12 +1999,11 @@ public class StringPrep {
       }
    }
 
-   /** A prohibited character was detected. */
+   /**
+    * A prohibited character was detected.
+    */
    @SuppressWarnings({"WeakerAccess", "JavaDoc"})
    public static class StringPrepProhibitedCharacter extends StringPrepError {
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
 
       StringPrepProhibitedCharacter() {
@@ -1985,12 +2015,11 @@ public class StringPrep {
       }
    }
 
-   /** A prohibited unassigned codepoint was detected. */
+   /**
+    * A prohibited unassigned codepoint was detected.
+    */
    @SuppressWarnings("JavaDoc")
    public static class StringPrepUnassignedCodepoint extends StringPrepProhibitedCharacter {
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
 
       StringPrepUnassignedCodepoint() {
@@ -1998,12 +2027,11 @@ public class StringPrep {
       }
    }
 
-   /** RTL verification has failed, according to rfc3454 section 6. */
+   /**
+    * RTL verification has failed, according to rfc3454 section 6.
+    */
    @SuppressWarnings({"unused", "JavaDoc"})
    public static class StringPrepRTLError extends StringPrepError {
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
 
       StringPrepRTLError() {
@@ -2013,25 +2041,16 @@ public class StringPrep {
 
    public static class StringPrepRTLErrorBothRALandL extends StringPrepRTLError {
 
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
    }
 
    public static class StringPrepRTLErrorRALWithoutPrefix extends StringPrepRTLError {
 
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
    }
 
    public static class StringPrepRTLErrorRALWithoutSuffix extends StringPrepRTLError {
 
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
    }
 
@@ -2092,7 +2111,9 @@ public class StringPrep {
       }
    }
 
-   /** Apply SASLPrep and return the result. {@code} is treated as a stored string. */
+   /**
+    * Apply SASLPrep and return the result. {@code} is treated as a stored string.
+    */
    public static String prepAsStoredString(String s) throws StringPrepError {
       s = prepAsQueryString(s);
 
@@ -2107,7 +2128,9 @@ public class StringPrep {
       return s;
    }
 
-   /** Apply SASLPrep and return the result. {@code} is treated as a query string. */
+   /**
+    * Apply SASLPrep and return the result. {@code} is treated as a query string.
+    */
    public static String prepAsQueryString(String s) throws StringPrepError {
       // 1) Map
       // rfc4013: 2.1. Mapping

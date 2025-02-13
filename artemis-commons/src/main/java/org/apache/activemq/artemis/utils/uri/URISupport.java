@@ -31,17 +31,17 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * Utility class that provides methods for parsing URI's
- *
- * This class can be used to split composite URI's into their component parts and is used to extract any
- * URI options from each URI in order to set specific properties on Beans.
- *
- * (copied from activemq 5)
+ * <p>
+ * This class can be used to split composite URI's into their component parts and is used to extract any URI options
+ * from each URI in order to set specific properties on Beans.
+ * <p>
+ * (copied from ActiveMQ Classic)
  */
 public class URISupport {
 
    /**
-    * A composite URI can be split into one or more CompositeData object which each represent the
-    * individual URIs that comprise the composite one.
+    * A composite URI can be split into one or more CompositeData object which each represent the individual URIs that
+    * comprise the composite one.
     */
    public static class CompositeData {
 
@@ -121,7 +121,7 @@ public class URISupport {
     * Give a URI break off any URI options and store them in a Key / Value Mapping.
     *
     * @param uri The URI whose query should be extracted and processed.
-    * @return A Mapping of the URI options.
+    * @return A Mapping of the URI options
     */
    public static Map<String, String> parseQuery(String uri) {
       uri = uri.substring(uri.lastIndexOf("?") + 1); // get only the relevant part of the query
@@ -155,13 +155,12 @@ public class URISupport {
 
    /**
     * Given a URI parse and extract any URI query options and return them as a Key / Value mapping.
-    *
-    * This method differs from the {@link URISupport#parseQuery(String)} method in that it handles composite URI types and
-    * will extract the URI options from the outermost composite URI.
+    * <p>
+    * This method differs from the {@link URISupport#parseQuery(String)} method in that it handles composite URI types
+    * and will extract the URI options from the outermost composite URI.
     *
     * @param uri The URI whose query should be extracted and processed.
-    * @return A Mapping of the URI options.
-    * @throws java.net.URISyntaxException
+    * @return A Mapping of the URI options
     */
    public static Map<String, String> parseParameters(URI uri) throws URISyntaxException {
       if (!isCompositeURI(uri)) {
@@ -190,8 +189,7 @@ public class URISupport {
     *
     * @param uri             The source URI that will have the Map entries appended as a URI query value.
     * @param queryParameters The Key / Value mapping that will be transformed into a URI query string.
-    * @return A new URI value that combines the given URI and the constructed query string.
-    * @throws java.net.URISyntaxException
+    * @return A new URI value that combines the given URI and the constructed query string
     */
    public static URI applyParameters(URI uri, Map<String, String> queryParameters) throws URISyntaxException {
       return applyParameters(uri, queryParameters, "");
@@ -205,8 +203,7 @@ public class URISupport {
     * @param uri             The source URI that will have the Map entries appended as a URI query value.
     * @param queryParameters The Key / Value mapping that will be transformed into a URI query string.
     * @param optionPrefix    A string value that when not null or empty is used to prefix each query option key.
-    * @return A new URI value that combines the given URI and the constructed query string.
-    * @throws java.net.URISyntaxException
+    * @return A new URI value that combines the given URI and the constructed query string
     */
    public static URI applyParameters(URI uri,
                                      Map<String, String> queryParameters,
@@ -235,8 +232,7 @@ public class URISupport {
     * Removes any URI query from the given uri and return a new URI that does not contain the query portion.
     *
     * @param uri The URI whose query value is to be removed.
-    * @return a new URI that does not contain a query value.
-    * @throws java.net.URISyntaxException
+    * @return a new URI that does not contain a query value
     */
    public static URI removeQuery(URI uri) throws URISyntaxException {
       return createURIWithQuery(uri, null);
@@ -247,8 +243,7 @@ public class URISupport {
     *
     * @param uri   The source URI whose existing query is replaced with the newly supplied one.
     * @param query The new URI query string that should be appended to the given URI.
-    * @return a new URI that is a combination of the original URI and the given query string.
-    * @throws java.net.URISyntaxException
+    * @return a new URI that is a combination of the original URI and the given query string
     */
    public static URI createURIWithQuery(URI uri, String query) throws URISyntaxException {
       String schemeSpecificPart = uri.getRawSchemeSpecificPart();
@@ -268,12 +263,11 @@ public class URISupport {
    }
 
    /**
-    * Given a composite URI, parse the individual URI elements contained within that URI and return
-    * a CompositeData instance that contains the parsed URI values.
+    * Given a composite URI, parse the individual URI elements contained within that URI and return a CompositeData
+    * instance that contains the parsed URI values.
     *
     * @param uri The target URI that should be parsed.
-    * @return a new CompositeData instance representing the parsed composite URI.
-    * @throws java.net.URISyntaxException
+    * @return a new CompositeData instance representing the parsed composite URI
     */
    public static CompositeData parseComposite(URI uri) throws URISyntaxException {
 
@@ -291,7 +285,7 @@ public class URISupport {
     * Examine a URI and determine if it is a Composite type or not.
     *
     * @param uri The URI that is to be examined.
-    * @return true if the given URI is a Composite type.
+    * @return true if the given URI is a Composite type
     */
    public static boolean isCompositeURI(URI uri) {
       String ssp = stripPrefix(uri.getRawSchemeSpecificPart().trim(), "//").trim();
@@ -307,7 +301,7 @@ public class URISupport {
     *
     * @param str   The string to be searched for a matching parend.
     * @param first The index in the string of the opening parend whose close value is to be searched.
-    * @return the index in the string where the closing parend is located.
+    * @return the index in the string where the closing parend is located
     * @throws java.net.URISyntaxException fi the string does not contain a matching parend.
     */
    public static int indexOfParenthesisMatch(String str, int first) throws URISyntaxException {
@@ -343,13 +337,12 @@ public class URISupport {
 
    /**
     * Given a composite URI and a CompositeData instance and the scheme specific part extracted from the source URI,
-    * parse the composite URI and populate the CompositeData object with the results.  The source URI is used only
-    * for logging as the ssp should have already been extracted from it and passed here.
+    * parse the composite URI and populate the CompositeData object with the results. The source URI is used only for
+    * logging as the ssp should have already been extracted from it and passed here.
     *
     * @param uri The original source URI whose ssp is parsed into the composite data.
     * @param rc  The CompositeData instance that will be populated from the given ssp.
     * @param ssp The scheme specific part from the original string that is a composite or one or more URIs.
-    * @throws java.net.URISyntaxException
     */
    private static void parseComposite(URI uri, CompositeData rc, String ssp) throws URISyntaxException {
       String componentString;
@@ -401,11 +394,11 @@ public class URISupport {
    }
 
    /**
-    * Given the inner portion of a composite URI, split and return each inner URI as a string
-    * element in a new String array.
+    * Given the inner portion of a composite URI, split and return each inner URI as a string element in a new String
+    * array.
     *
     * @param str The inner URI elements of a composite URI string.
-    * @return an array containing each inner URI from the composite one.
+    * @return an array containing each inner URI from the composite one
     */
    private static String[] splitComponents(String str) {
       List<String> l = new ArrayList<>();
@@ -447,7 +440,7 @@ public class URISupport {
     *
     * @param value  The string that should be trimmed of the given prefix if present.
     * @param prefix The prefix to remove from the target string.
-    * @return either the original string or a new string minus the supplied prefix if present.
+    * @return either the original string or a new string minus the supplied prefix if present
     */
    public static String stripPrefix(String value, String prefix) {
       if (value.startsWith(prefix)) {
@@ -460,19 +453,18 @@ public class URISupport {
     * Strip a URI of its scheme element.
     *
     * @param uri The URI whose scheme value should be stripped.
-    * @return The stripped URI value.
-    * @throws java.net.URISyntaxException
+    * @return The stripped URI value
     */
    public static URI stripScheme(URI uri) throws URISyntaxException {
       return new URI(stripPrefix(uri.getSchemeSpecificPart().trim(), "//"));
    }
 
    /**
-    * Given a key / value mapping, create and return a URI formatted query string that is valid and
-    * can be appended to a URI. Query parameters in the string are sorted by key.
+    * Given a key / value mapping, create and return a URI formatted query string that is valid and can be appended to a
+    * URI. Query parameters in the string are sorted by key.
     *
     * @param options The Mapping that will create the new Query string.
-    * @return a URI formatted query string.
+    * @return a URI formatted query string
     */
    public static String createQueryString(Map<String, ? extends Object> options) {
       if (!options.isEmpty()) {
@@ -500,16 +492,14 @@ public class URISupport {
 
    /**
     * Creates a URI from the original URI and the remaining parameters.
-    *
-    * When the query options of a URI are applied to certain objects the used portion of the query options needs
-    * to be removed and replaced with those that remain so that other parts of the code can attempt to apply the
-    * remainder or give an error is unknown values were given.  This method is used to update a URI with those
-    * remainder values.
+    * <p>
+    * When the query options of a URI are applied to certain objects the used portion of the query options needs to be
+    * removed and replaced with those that remain so that other parts of the code can attempt to apply the remainder or
+    * give an error is unknown values were given.  This method is used to update a URI with those remainder values.
     *
     * @param originalURI The URI whose current parameters are remove and replaced with the given remainder value.
     * @param params      The URI params that should be used to replace the current ones in the target.
-    * @return a new URI that matches the original one but has its query options replaced with the given ones.
-    * @throws java.net.URISyntaxException
+    * @return a new URI that matches the original one but has its query options replaced with the given ones
     */
    public static URI createRemainingURI(URI originalURI, Map<String, String> params) throws URISyntaxException {
       String s = createQueryString(params);
@@ -520,13 +510,12 @@ public class URISupport {
    }
 
    /**
-    * Given a URI value create and return a new URI that matches the target one but with the scheme value
-    * supplied to this method.
+    * Given a URI value create and return a new URI that matches the target one but with the scheme value supplied to
+    * this method.
     *
     * @param bindAddr The URI whose scheme value should be altered.
     * @param scheme   The new scheme value to use for the returned URI.
-    * @return a new URI that is a copy of the original except that its scheme matches the supplied one.
-    * @throws java.net.URISyntaxException
+    * @return a new URI that is a copy of the original except that its scheme matches the supplied one
     */
    public static URI changeScheme(URI bindAddr, String scheme) throws URISyntaxException {
       return new URI(scheme, bindAddr.getUserInfo(), bindAddr.getHost(), bindAddr.getPort(), bindAddr.getPath(), bindAddr.getQuery(), bindAddr.getFragment());
@@ -536,7 +525,7 @@ public class URISupport {
     * Examine the supplied string and ensure that all parens appear as matching pairs.
     *
     * @param str The target string to examine.
-    * @return true if the target string has valid paren pairings.
+    * @return true if the target string has valid paren pairings
     */
    public static boolean checkParenthesis(String str) {
       boolean result = true;

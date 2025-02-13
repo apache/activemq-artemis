@@ -34,9 +34,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * A LoginModule that allows for authentication based on SSL certificates.
- * Allows for subclasses to define methods used to verify user certificates and
- * find user roles. Uses CertificateCallbacks to retrieve certificates.
+ * A LoginModule that allows for authentication based on SSL certificates. Allows for subclasses to define methods used
+ * to verify user certificates and find user roles. Uses CertificateCallbacks to retrieve certificates.
  */
 public abstract class CertificateLoginModule extends PropertiesLoader implements AuditLoginModule {
 
@@ -149,22 +148,21 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
    }
 
    /**
-    * Should return a unique name corresponding to the certificates given. The
-    * name returned will be used to look up access levels as well as role
-    * associations.
+    * Should return a unique name corresponding to the certificates given. The name returned will be used to look up
+    * access levels as well as role associations.
     *
     * @param certs The distinguished name.
-    * @return The unique name if the certificate is recognized, null otherwise.
+    * @return The unique name if the certificate is recognized, null otherwise
     */
    protected abstract String getUserNameForCertificates(X509Certificate[] certs) throws LoginException;
 
    /**
-    * Should return a set of the roles this user belongs to. The roles
-    * returned will be added to the user's credentials.
+    * Should return a set of the roles this user belongs to. The roles returned will be added to the user's
+    * credentials.
     *
-    * @param username The username of the client. This is the same name that
-    *                 getUserNameForDn returned for the user's DN.
-    * @return A Set of the names of the roles this user belongs to.
+    * @param username The username of the client. This is the same name that getUserNameForDn returned for the user's
+    *                 DN.
+    * @return A Set of the names of the roles this user belongs to
     */
    protected abstract Set<String> getUserRoles(String username) throws LoginException;
 

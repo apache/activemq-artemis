@@ -55,10 +55,6 @@ public class WireformatNegociationTest extends CombinationTestSupport {
       super.setUp();
    }
 
-   /**
-    * @throws Exception
-    * @throws URISyntaxException
-    */
    private void startClient(String uri) throws Exception, URISyntaxException {
       clientTransport = TransportFactory.connect(new URI(uri));
       clientTransport.setTransportListener(new TransportListener() {
@@ -90,11 +86,6 @@ public class WireformatNegociationTest extends CombinationTestSupport {
       clientTransport.start();
    }
 
-   /**
-    * @throws IOException
-    * @throws URISyntaxException
-    * @throws Exception
-    */
    private void startServer(String uri) throws IOException, URISyntaxException, Exception {
       server = TransportFactory.bind(new URI(uri));
       server.setAcceptListener(new TransportAcceptListener() {
@@ -162,9 +153,6 @@ public class WireformatNegociationTest extends CombinationTestSupport {
       super.tearDown();
    }
 
-   /**
-    * @throws Exception
-    */
    public void testWireFormatInfoSeverVersion1() throws Exception {
 
       startServer("tcp://localhost:61616?wireFormat.version=1");
@@ -180,9 +168,6 @@ public class WireformatNegociationTest extends CombinationTestSupport {
       assertEquals(1, serverWF.get().getVersion());
    }
 
-   /**
-    * @throws Exception
-    */
    public void testWireFormatInfoClientVersion1() throws Exception {
 
       startServer("tcp://localhost:61616");
@@ -198,9 +183,6 @@ public class WireformatNegociationTest extends CombinationTestSupport {
       assertEquals(1, serverWF.get().getVersion());
    }
 
-   /**
-    * @throws Exception
-    */
    public void testWireFormatInfoCurrentVersion() throws Exception {
 
       startServer("tcp://localhost:61616");

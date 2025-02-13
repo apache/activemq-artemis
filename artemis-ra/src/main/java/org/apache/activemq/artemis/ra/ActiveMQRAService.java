@@ -22,8 +22,8 @@ import javax.management.ObjectName;
 import java.util.Set;
 
 /**
- * An ActiveMQRAService ensures that ActiveMQ Artemis Resource Adapter will be stopped *before* the ActiveMQ Artemis server.
- * https://jira.jboss.org/browse/HORNETQ-339
+ * An ActiveMQRAService ensures that ActiveMQ Artemis Resource Adapter will be stopped *before* the ActiveMQ Artemis
+ * server.
  */
 public class ActiveMQRAService {
 
@@ -31,13 +31,10 @@ public class ActiveMQRAService {
 
    private final String resourceAdapterObjectName;
 
-
-
    public ActiveMQRAService(final MBeanServer mBeanServer, final String resourceAdapterObjectName) {
       this.mBeanServer = mBeanServer;
       this.resourceAdapterObjectName = resourceAdapterObjectName;
    }
-
 
    public void stop() {
       try {
@@ -55,5 +52,4 @@ public class ActiveMQRAService {
          ActiveMQRALogger.LOGGER.errorStoppingRA(e);
       }
    }
-
 }

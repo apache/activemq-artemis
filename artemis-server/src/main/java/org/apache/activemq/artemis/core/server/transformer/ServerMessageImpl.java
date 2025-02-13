@@ -60,10 +60,8 @@ public class ServerMessageImpl extends MessageInternalImpl implements ServerMess
    }
 
    /**
-    * This will force encoding of the address, and will re-check the buffer
-    * This is to avoid setMessageTransient which set the address without changing the buffer
-    *
-    * @param address
+    * This will force encoding of the address, and will re-check the buffer. This is to avoid setMessageTransient which
+    * set the address without changing the buffer
     */
    @Override
    public void forceAddress(SimpleString address) {

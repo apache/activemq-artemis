@@ -23,16 +23,10 @@ import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueConfig;
 
-/**
- *
- */
 public interface ActiveMQServerQueuePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a queue is created
-    *
-    * @param queueConfig
-    * @throws ActiveMQException
     */
    default void beforeCreateQueue(QueueConfig queueConfig) throws ActiveMQException {
 
@@ -40,9 +34,6 @@ public interface ActiveMQServerQueuePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a queue is created
-    *
-    * @param queueConfig
-    * @throws ActiveMQException
     */
    default void beforeCreateQueue(QueueConfiguration queueConfig) throws ActiveMQException {
       //by default call the old method for backwards compatibility
@@ -53,7 +44,6 @@ public interface ActiveMQServerQueuePlugin extends ActiveMQServerBasePlugin {
     * After a queue has been created
     *
     * @param queue The newly created queue
-    * @throws ActiveMQException
     */
    default void afterCreateQueue(Queue queue) throws ActiveMQException {
 
@@ -62,12 +52,6 @@ public interface ActiveMQServerQueuePlugin extends ActiveMQServerBasePlugin {
    /**
     * Before a queue is destroyed
     *
-    * @param queueName
-    * @param session
-    * @param checkConsumerCount
-    * @param removeConsumers
-    * @param autoDeleteAddress
-    * @throws ActiveMQException
     *
     * @deprecated use {@link #beforeDestroyQueue(Queue, SecurityAuth, boolean, boolean, boolean)}
     */
@@ -79,13 +63,6 @@ public interface ActiveMQServerQueuePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a queue is destroyed
-    *
-    * @param queue
-    * @param session
-    * @param checkConsumerCount
-    * @param removeConsumers
-    * @param autoDeleteAddress
-    * @throws ActiveMQException
     */
    default void beforeDestroyQueue(Queue queue, final SecurityAuth session, boolean checkConsumerCount,
                                    boolean removeConsumers, boolean autoDeleteAddress) throws ActiveMQException {
@@ -95,14 +72,6 @@ public interface ActiveMQServerQueuePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * After a queue has been destroyed
-    *
-    * @param queue
-    * @param address
-    * @param session
-    * @param checkConsumerCount
-    * @param removeConsumers
-    * @param autoDeleteAddress
-    * @throws ActiveMQException
     */
    default void afterDestroyQueue(Queue queue, SimpleString address, final SecurityAuth session, boolean checkConsumerCount,
                                   boolean removeConsumers, boolean autoDeleteAddress) throws ActiveMQException {
@@ -111,14 +80,12 @@ public interface ActiveMQServerQueuePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * To be called before starting expiry scan on the queue
-    * @param queue
     */
    default void beforeExpiryScan(Queue queue) {
    }
 
    /**
     * To be called before starting expiry scan on the queue
-    * @param queue
     */
    default void afterExpiryScan(Queue queue) {
    }

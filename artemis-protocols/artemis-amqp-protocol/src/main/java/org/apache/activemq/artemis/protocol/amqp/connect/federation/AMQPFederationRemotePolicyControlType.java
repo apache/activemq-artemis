@@ -26,10 +26,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AuditLogger;
 
 /**
- * Management service control instance for an AMQPFederation policy manager instance that
- * federates messages from this broker to the opposing side of the broker connection. These
- * can be created either for a local broker connection that has bi-directional federation
- * configured, or as a view of a remote broker connection pulling messages from the target.
+ * Management service control instance for an AMQPFederation policy manager instance that federates messages from this
+ * broker to the opposing side of the broker connection. These can be created either for a local broker connection that
+ * has bi-directional federation configured, or as a view of a remote broker connection pulling messages from the
+ * target.
  */
 public class AMQPFederationRemotePolicyControlType extends AbstractControl implements AMQPFederationRemotePolicyControl {
 

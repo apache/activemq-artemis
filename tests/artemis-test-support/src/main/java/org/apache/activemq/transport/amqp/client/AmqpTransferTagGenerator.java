@@ -22,8 +22,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Utility class that can generate and if enabled pool the binary tag values
- * used to identify transfers over an AMQP link.
+ * Utility class that can generate and if enabled pool the binary tag values used to identify transfers over an AMQP
+ * link.
  */
 public final class AmqpTransferTagGenerator {
 
@@ -49,7 +49,7 @@ public final class AmqpTransferTagGenerator {
    /**
     * Retrieves the next available tag.
     *
-    * @return a new or unused tag depending on the pool option.
+    * @return a new or unused tag depending on the pool option
     */
    public byte[] getNextTag() {
       byte[] rc;
@@ -64,8 +64,7 @@ public final class AmqpTransferTagGenerator {
    }
 
    /**
-    * When used as a pooled cache of tags the unused tags should always be returned once
-    * the transfer has been settled.
+    * When used as a pooled cache of tags the unused tags should always be returned once the transfer has been settled.
     *
     * @param data a previously borrowed tag that is no longer in use.
     */
@@ -78,15 +77,15 @@ public final class AmqpTransferTagGenerator {
    /**
     * Gets the current max pool size value.
     *
-    * @return the current max tag pool size.
+    * @return the current max tag pool size
     */
    public int getMaxPoolSize() {
       return maxPoolSize;
    }
 
    /**
-    * Sets the max tag pool size.  If the size is smaller than the current number
-    * of pooled tags the pool will drain over time until it matches the max.
+    * Sets the max tag pool size.  If the size is smaller than the current number of pooled tags the pool will drain
+    * over time until it matches the max.
     *
     * @param maxPoolSize the maximum number of tags to hold in the pool.
     */

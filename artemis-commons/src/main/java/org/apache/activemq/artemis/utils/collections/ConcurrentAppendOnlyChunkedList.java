@@ -22,7 +22,8 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.IntFunction;
 
 /**
- * This collection is a concurrent append-only list that grows in chunks.<br>
+ * This collection is a concurrent append-only list that grows in chunks.
+ * <p>
  * It's safe to be used by many threads concurrently and has a max capacity of {@link Integer#MAX_VALUE}.
  */
 public final class ConcurrentAppendOnlyChunkedList<E> {
@@ -93,7 +94,7 @@ public final class ConcurrentAppendOnlyChunkedList<E> {
    }
 
    /**
-    * Returns the element at the specified position in this collection or {@code null} if not found.
+    * {@return the element at the specified position in this collection or {@code null} if not found.}
     */
    public E get(int index) {
       if (index < 0) {
@@ -118,8 +119,8 @@ public final class ConcurrentAppendOnlyChunkedList<E> {
    }
 
    /**
-    * Implements a lock-free version of the optimization used on {@link java.util.LinkedList#get(int)} to speed up queries
-    * ie backward search of a node if needed.
+    * Implements a lock-free version of the optimization used on {@link java.util.LinkedList#get(int)} to speed up
+    * queries i.e. backward search of a node if needed.
     */
    private AtomicChunk<E> getChunkOf(final int index, final long lastIndex) {
       final int chunkSizeLog2 = this.chunkSizeLog2;
@@ -160,7 +161,7 @@ public final class ConcurrentAppendOnlyChunkedList<E> {
     * Appends the specified element to the end of this collection.
     *
     * @throws NullPointerException if {@code e} is {@code null}
-    **/
+    */
    public void add(E e) {
       Objects.requireNonNull(e);
       while (true) {
@@ -227,9 +228,9 @@ public final class ConcurrentAppendOnlyChunkedList<E> {
    }
 
    /**
-    * Returns an array containing all of the elements in this collection in proper
-    * sequence (from first to last element).<br>
-    * {@code arrayAllocator} will be used to instantiate the array of the correct size with the right runtime type.
+    * {@return an array containing all of the elements in this collection in proper sequence (from first to last
+    * element); {@code arrayAllocator} will be used to instantiate the array of the correct size with the right runtime
+    * type}
     */
    public E[] toArray(IntFunction<E[]> arrayAllocator, int startIndex) {
       if (startIndex < 0) {

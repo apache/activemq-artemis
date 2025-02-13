@@ -40,8 +40,7 @@ public class PostgresLargeObjectManager {
    public static final int READ = 0x00040000;
 
    /**
-    * This mode is the default. It indicates we want read and write access to
-    * a large object
+    * This mode is the default. It indicates we want read and write access to a large object
     */
    public static final int READWRITE = READ | WRITE;
 

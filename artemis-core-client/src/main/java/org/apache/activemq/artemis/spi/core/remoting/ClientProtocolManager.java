@@ -46,8 +46,8 @@ public interface ClientProtocolManager {
    boolean waitOnLatch(long milliseconds) throws InterruptedException;
 
    /**
-    * This is to be called when a connection failed and we want to interrupt any communication.
-    * This used to be called exitLoop at some point o the code.. with a method named causeExit from ClientSessionFactoryImpl
+    * This is to be called when a connection failed and we want to interrupt any communication. This used to be called
+    * exitLoop at some point o the code.. with a method named causeExit from ClientSessionFactoryImpl
     */
    void stop();
 

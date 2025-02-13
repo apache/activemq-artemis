@@ -54,7 +54,6 @@ public class XmlConfigPluginTest extends ActiveMQTestBase {
 
    /**
     * Ensure the configuration is bring picked up correctly by LoggingActiveMQServerPlugin
-    * @throws Exception
     */
    @Test
    public void testLoggingActiveMQServerPlugin() throws Exception {
@@ -80,7 +79,6 @@ public class XmlConfigPluginTest extends ActiveMQTestBase {
 
    /**
     *  ensure the LoggingActiveMQServerPlugin uses default values when configured with incorrect values
-    * @throws Exception
     */
    @Test
    public void testLoggingActiveMQServerPluginWrongValue() throws Exception {

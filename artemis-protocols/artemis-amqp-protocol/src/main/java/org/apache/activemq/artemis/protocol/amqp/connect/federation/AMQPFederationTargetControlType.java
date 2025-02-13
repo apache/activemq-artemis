@@ -26,9 +26,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AuditLogger;
 
 /**
- * Management service control instance for an AMQPFederationTarget instance that is the target of an
- * AMQP broker connection with federation configured. The target can behave much the same as a federation
- * source but its scoped to the connection and all operations cease as soon as the connection is closed.
+ * Management service control instance for an AMQPFederationTarget instance that is the target of an AMQP broker
+ * connection with federation configured. The target can behave much the same as a federation source but its scoped to
+ * the connection and all operations cease as soon as the connection is closed.
  */
 public final class AMQPFederationTargetControlType extends AbstractControl implements AMQPFederationControl {
 

@@ -17,8 +17,8 @@
 package org.apache.activemq.artemis.api.core;
 
 /**
- * Constants representing pre-defined message attributes that can be referenced in ActiveMQ Artemis core
- * filter expressions.
+ * Constants representing pre-defined message attributes that can be referenced in ActiveMQ Artemis core filter
+ * expressions.
  */
 public final class FilterConstants {
 

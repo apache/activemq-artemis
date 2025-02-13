@@ -28,9 +28,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Used to move files away.
- * Each time a backup starts its formeter data will be moved to a backup folder called bkp.1, bkp.2, ... etc
- * We may control the maximum number of folders so we remove old ones.
+ * Used to move files away. Each time a backup starts its formeter data will be moved to a backup folder called bkp.1,
+ * bkp.2, ... etc We may control the maximum number of folders so we remove old ones.
  */
 public class FileMoveManager {
 

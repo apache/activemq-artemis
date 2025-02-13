@@ -461,7 +461,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   final int clientVersion = remotingConnection.getChannelVersion();
                   BindingQueryResult result = session.executeBindingQuery(request.getAddress());
 
-                  /* if the session is JMS and it's from an older client then we need to add the old prefix to the queue
+                  /*
+                   * if the session is JMS and it's from an older client then we need to add the old prefix to the queue
                    * names otherwise the older client won't realize the queue exists and will try to create it and receive
                    * an error
                    */

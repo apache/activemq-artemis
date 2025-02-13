@@ -247,9 +247,7 @@ public class JmsMultipleClientsTestSupport {
       }
    }
 
-   /*
-    * Some helpful assertions for multiple consumers.
-    */
+   // Some helpful assertions for multiple consumers.
    protected void assertConsumerReceivedAtLeastXMessages(MessageConsumer consumer, int msgCount) {
       MessageIdList messageIdList = consumers.get(consumer);
       messageIdList.assertAtLeastMessagesReceived(msgCount);

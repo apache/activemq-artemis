@@ -120,7 +120,9 @@ public class ByteUtil {
       return new String(hexChars);
    }
 
-   /** Simplify reading of a byte array in a programmers understable way */
+   /**
+    * Simplify reading of a byte array in a programmers understable way
+    */
    public static String debugByteArray(byte[] byteArray) {
       StringWriter builder = new StringWriter();
       PrintWriter writer = new PrintWriter(builder);
@@ -390,7 +392,8 @@ public class ByteUtil {
    }
 
    /**
-    * This ensure a more exact resizing then {@link ByteBuf#ensureWritable(int)}, if needed.<br>
+    * This ensure a more exact resizing then {@link ByteBuf#ensureWritable(int)}, if needed.
+    * <p>
     * It won't try to trim a large enough buffer.
     */
    public static void ensureExactWritable(ByteBuf buffer, int minWritableBytes) {
@@ -399,13 +402,12 @@ public class ByteUtil {
       }
    }
 
-
    /**
-    * Returns {@code true} if  the {@link SimpleString} encoded content into {@code bytes} is equals to {@code s},
+    * {@return {@code true} if  the {@link SimpleString} encoded content into {@code bytes} is equals to {@code s}
     * {@code false} otherwise.
     * <p>
-    * It assumes that the {@code bytes} content is read using {@link SimpleString#readSimpleString(ByteBuf, int)} ie starting right after the
-    * length field.
+    * It assumes that the {@code bytes} content is read using {@link SimpleString#readSimpleString(ByteBuf, int)} ie
+    * starting right after the length field.}
     */
    public static boolean equals(final byte[] bytes, final ByteBuf byteBuf, final int offset, final int length) {
       if (bytes.length != length)
@@ -479,7 +481,8 @@ public class ByteUtil {
    /**
     * It zeroes {@code bytes} of the given {@code buffer}, starting (inclusive) from {@code offset}.
     *
-    * @throws IndexOutOfBoundsException if {@code offset + bytes > }{@link ByteBuffer#capacity()} or {@code offset >= }{@link ByteBuffer#capacity()}
+    * @throws IndexOutOfBoundsException if {@code offset + bytes > }{@link ByteBuffer#capacity()} or
+    *                                   {@code offset >= }{@link ByteBuffer#capacity()}
     * @throws IllegalArgumentException  if {@code offset} or {@code capacity} are less then 0
     * @throws ReadOnlyBufferException   if {@code buffer} is read-only
     */

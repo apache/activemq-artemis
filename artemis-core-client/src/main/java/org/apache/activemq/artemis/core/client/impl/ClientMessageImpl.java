@@ -32,9 +32,6 @@ import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.UUID;
 
-/**
- * A ClientMessageImpl
- */
 public class ClientMessageImpl extends CoreMessage implements ClientMessageInternal {
 
    // added this constant here so that the client package have no dependency on JMS
@@ -53,9 +50,6 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
     */
    private InputStream bodyInputStream;
 
-   /*
-    * Constructor for when reading from remoting
-    */
    public ClientMessageImpl() {
    }
 
@@ -92,9 +86,7 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
    }
 
 
-   /*
-    * Construct messages before sending
-    */
+   // Construct messages before sending
    public ClientMessageImpl(final byte type,
                             final boolean durable,
                             final long expiration,
@@ -168,9 +160,6 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
       this.flowControlSize = flowControlSize;
    }
 
-   /**
-    * @return the largeMessage
-    */
    @Override
    public boolean isLargeMessage() {
       return false;
@@ -219,17 +208,11 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
    public void discardBody() {
    }
 
-   /**
-    * @return the bodyInputStream
-    */
    @Override
    public InputStream getBodyInputStream() {
       return bodyInputStream;
    }
 
-   /**
-    * @param bodyInputStream the bodyInputStream to set
-    */
    @Override
    public ClientMessageImpl setBodyInputStream(final InputStream bodyInputStream) {
       this.bodyInputStream = bodyInputStream;

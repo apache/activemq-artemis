@@ -374,7 +374,9 @@ public class AckManager implements ActiveMQComponent {
       }
    }
 
-   /** returns true if there are retries ready to be scanned on paging */
+   /**
+    * {@return {@code true} if there are retries ready to be scanned on paging}
+    */
    private boolean checkRetriesAndPaging(LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> queuesToRetry) {
       boolean needScanOnPaging = false;
       Iterator<Map.Entry<Long, JournalHashMap<AckRetry, AckRetry, Queue>>> iter = queuesToRetry.entrySet().iterator();
@@ -469,8 +471,10 @@ public class AckManager implements ActiveMQComponent {
          targetQueue.deliverAsync();
       }
    }
-   /** The ACKManager will perform the retry on each address's pageStore executor.
-    *  it will perform each address individually, one by one. */
+   /*
+    * The ACKManager will perform the retry on each address's pageStore executor.
+    * It will perform each address individually, one by one.
+    */
    class MultiStepProgress {
       Map<SimpleString, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>>> retryList;
 

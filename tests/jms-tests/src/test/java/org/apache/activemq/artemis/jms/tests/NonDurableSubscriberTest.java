@@ -29,8 +29,6 @@ import org.junit.jupiter.api.Test;
  */
 public class NonDurableSubscriberTest extends JMSTestCase {
 
-
-
    /**
     * Test introduced as a result of a TCK failure.
     */

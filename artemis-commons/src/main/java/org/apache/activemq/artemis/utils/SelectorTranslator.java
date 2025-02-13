@@ -21,15 +21,15 @@ import java.util.List;
 
 /**
  * This class converts a JMS selector expression into an ActiveMQ Artemis core filter expression.
- *
+ * <p>
  * JMS selector and ActiveMQ Artemis filters use the same syntax but have different identifiers.
- *
- * We basically just need to replace the JMS header and property Identifier names
- * with the corresponding ActiveMQ Artemis field and header Identifier names.
- *
- * We must be careful not to substitute any literals, or identifiers whose name contains the name
- * of one we want to substitute.
- *
+ * <p>
+ * We basically just need to replace the JMS header and property Identifier names with the corresponding ActiveMQ
+ * Artemis field and header Identifier names.
+ * <p>
+ * We must be careful not to substitute any literals, or identifiers whose name contains the name of one we want to
+ * substitute.
+ * <p>
  * This makes it less trivial than a simple search and replace.
  */
 public class SelectorTranslator {

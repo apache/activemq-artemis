@@ -36,10 +36,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.Test;
 
 /**
- * I have added this test to help validate if the connectors from Recovery will be
- * properly updated
- *
- * Created to verify HORNETQ-913 / AS7-4548
+ * I have added this test to help validate if the connectors from Recovery will be properly updated
  */
 public class NonHATopologyTest extends ActiveMQTestBase {
 

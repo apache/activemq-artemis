@@ -20,8 +20,6 @@ import java.math.BigDecimal;
 
 /**
  * Represents a constant expression
- *
- * @version $Revision: 1.2 $
  */
 public class ConstantExpression implements Expression {
 
@@ -102,9 +100,6 @@ public class ConstantExpression implements Expression {
       return value;
    }
 
-   /**
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       if (value == null) {
@@ -119,17 +114,11 @@ public class ConstantExpression implements Expression {
       return value.toString();
    }
 
-   /**
-    * @see java.lang.Object#hashCode()
-    */
    @Override
    public int hashCode() {
       return value != null ? value.hashCode() : 0;
    }
 
-   /**
-    * @see java.lang.Object#equals(Object)
-    */
    @Override
    public boolean equals(final Object o) {
       if (this == o) {
@@ -146,11 +135,7 @@ public class ConstantExpression implements Expression {
    }
 
    /**
-    * Encodes the value of string so that it looks like it would look like when
-    * it was provided in a selector.
-    *
-    * @param s
-    * @return
+    * Encodes the value of string so that it looks like it would look like when it was provided in a selector.
     */
    public static String encodeString(String s) {
       StringBuilder b = new StringBuilder();

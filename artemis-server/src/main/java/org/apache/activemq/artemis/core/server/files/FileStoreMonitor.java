@@ -33,11 +33,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This will keep a list of fileStores. It will make a comparison on all file stores registered. if any is over the limit,
- * all Callbacks will be called with over.
- *
- * For instance: if Large Messages folder is registered on a different folder and it's over capacity,
- * the whole system will be waiting it to be released.
+ * This will keep a list of fileStores. It will make a comparison on all file stores registered. if any is over the
+ * limit, all Callbacks will be called with over.
+ * <p>
+ * For instance: if Large Messages folder is registered on a different folder and it's over capacity, the whole system
+ * will be waiting it to be released.
  */
 public class FileStoreMonitor extends ActiveMQScheduledComponent {
 

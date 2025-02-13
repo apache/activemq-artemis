@@ -60,9 +60,9 @@ import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
 
 /**
  * Refer to ./scripts/parameters.sh for suggested parameters
- *
- * Even though this test is not testing Paging, it will use Page just to generate enough load to the server to compete for resources in Native Buffers.
- *
+ * <p>
+ * Even though this test is not testing Paging, it will use Page just to generate enough load to the server to compete
+ * for resources in Native Buffers.
  */
 @ExtendWith(ParameterizedTestExtension.class)
 public class OWLeakTest extends SoakTestBase {

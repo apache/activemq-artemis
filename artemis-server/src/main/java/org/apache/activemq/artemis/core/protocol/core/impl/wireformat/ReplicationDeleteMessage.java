@@ -59,16 +59,10 @@ public final class ReplicationDeleteMessage extends PacketImpl {
       id = buffer.readLong();
    }
 
-   /**
-    * @return the id
-    */
    public long getId() {
       return id;
    }
 
-   /**
-    * @return the journalID
-    */
    public byte getJournalID() {
       return journalID;
    }

@@ -197,7 +197,6 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
    /**
     * @return ClientSession
-    * @throws Exception
     */
    private ClientSession basicSetUp() throws Exception {
       server = createServer(true);

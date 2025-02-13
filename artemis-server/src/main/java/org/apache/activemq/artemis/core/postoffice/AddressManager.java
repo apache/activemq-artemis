@@ -38,11 +38,6 @@ public interface AddressManager {
 
    /**
     * This will use a Transaction as we need to confirm the queue was removed
-    *
-    * @param uniqueName
-    * @param tx
-    * @return
-    * @throws Exception
     */
    Binding removeBinding(SimpleString uniqueName, Transaction tx) throws Exception;
 
@@ -69,15 +64,18 @@ public interface AddressManager {
    Set<SimpleString> getAddresses();
 
    /**
-    * @param addressInfo
-    * @return true if the address was added, false if it wasn't added
+    * {@return {@code true} if the address was added, false if it wasn't added}
     */
    boolean addAddressInfo(AddressInfo addressInfo) throws Exception;
 
    boolean reloadAddressInfo(AddressInfo addressInfo) throws Exception;
 
-   /** it will return null if there are no updates.
-    *  it will throw an exception if the address doesn't exist */
+   /**
+    * Update the specified {@code AddressInfo}
+    *
+    * @return the updated {@code AddressInfo} or {@code null} if there are no updates
+    * @throws Exception if the address doesn't exist
+    */
    AddressInfo updateAddressInfo(SimpleString addressName, EnumSet<RoutingType> routingTypes) throws Exception;
 
    AddressInfo removeAddressInfo(SimpleString address) throws Exception;

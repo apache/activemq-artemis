@@ -67,9 +67,7 @@ public class PingStressTest extends ActiveMQTestBase {
 
    }
 
-   /*
-    * Test the client triggering failure due to no pong received in time
-    */
+   // Test the client triggering failure due to no pong received in time
    private void internalTest() throws Exception {
       Interceptor noPongInterceptor = (packet, conn) -> {
          PingStressTest.logger.info("In interceptor, packet is {}", packet.getType());

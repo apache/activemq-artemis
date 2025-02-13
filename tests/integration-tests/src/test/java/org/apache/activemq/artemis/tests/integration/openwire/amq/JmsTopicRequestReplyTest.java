@@ -76,9 +76,6 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
       // assertEquals("clientID from the temporary destination must be the
       // same", clientSideClientID, value);
 
-      /* build queues */
-
-      /* build requestmessage */
       TextMessage requestMessage = session.createTextMessage("Olivier");
       requestMessage.setJMSReplyTo(replyDestination);
 
@@ -169,7 +166,7 @@ public class JmsTopicRequestReplyTest extends BasicOpenWireTest implements Messa
 
       requestDestination = createDestination(serverSession);
 
-      /* build queues */
+      // build queues
       final MessageConsumer requestConsumer = serverSession.createConsumer(requestDestination);
       if (useAsyncConsume) {
          requestConsumer.setMessageListener(this);

@@ -31,7 +31,7 @@ import org.eclipse.paho.mqttv5.common.packet.MqttUnsubAck;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * The broker doesn't send any "Reason String" or "User Property" in the UNSUBACK packet for any reason. Therefore, these are not tested here:
  *
  * [MQTT-3.11.2-1] The Server MUST NOT send this Property if it would increase the size of the UNSUBACK packet beyond the Maximum Packet Size specified by the Client.

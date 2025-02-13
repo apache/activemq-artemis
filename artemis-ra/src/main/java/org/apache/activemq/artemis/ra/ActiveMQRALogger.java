@@ -31,8 +31,8 @@ import javax.jms.IllegalStateException;
 public interface ActiveMQRALogger {
 
    /**
-    * Note this uses ActiveMQRALogger.class.getName() instead of ActiveMQRALogger.class.getPackage().getName()
-    * like the other loggers, this is because some Application Servers use introspection to identify properties which can
+    * Note this uses ActiveMQRALogger.class.getName() instead of ActiveMQRALogger.class.getPackage().getName() like the
+    * other loggers, this is because some Application Servers use introspection to identify properties which can
     * sometimes use a classloader when the rar is uploaded and its possible getpackage() can return null
     */
    ActiveMQRALogger LOGGER = BundleFactory.newBundle(ActiveMQRALogger.class, ActiveMQRALogger.class.getName());

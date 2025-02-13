@@ -26,18 +26,12 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * A wrapper for a message
+ * A wrapper for a {@link MapMessage}.
  */
 public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessage {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * Create a new wrapper
-    *
-    * @param message the message
-    * @param session the session
-    */
    public ActiveMQRAMapMessage(final MapMessage message, final ActiveMQRASession session) {
       super(message, session);
 
@@ -45,11 +39,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Get
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public boolean getBoolean(final String name) throws JMSException {
@@ -59,11 +49,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Get
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public byte getByte(final String name) throws JMSException {
@@ -73,11 +59,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Get
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public byte[] getBytes(final String name) throws JMSException {
@@ -87,11 +69,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Get
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public char getChar(final String name) throws JMSException {
@@ -101,11 +79,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Get
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public double getDouble(final String name) throws JMSException {
@@ -115,11 +89,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Get
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public float getFloat(final String name) throws JMSException {
@@ -129,11 +99,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Get
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public int getInt(final String name) throws JMSException {
@@ -143,11 +109,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Get
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public long getLong(final String name) throws JMSException {
@@ -157,10 +119,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Get the map names
-    *
-    * @return The values
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Enumeration getMapNames() throws JMSException {
@@ -170,11 +129,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Get
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public Object getObject(final String name) throws JMSException {
@@ -184,11 +139,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Get
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public short getShort(final String name) throws JMSException {
@@ -198,11 +149,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Get
-    *
-    * @param name The name
-    * @return The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public String getString(final String name) throws JMSException {
@@ -212,11 +159,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Does the item exist
-    *
-    * @param name The name
-    * @return True / false
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public boolean itemExists(final String name) throws JMSException {
@@ -226,11 +169,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Set
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setBoolean(final String name, final boolean value) throws JMSException {
@@ -242,11 +181,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Set
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setByte(final String name, final byte value) throws JMSException {
@@ -258,13 +193,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Set
-    *
-    * @param name   The name
-    * @param value  The value
-    * @param offset The offset
-    * @param length The length
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setBytes(final String name, final byte[] value, final int offset, final int length) throws JMSException {
@@ -276,11 +205,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Set
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setBytes(final String name, final byte[] value) throws JMSException {
@@ -292,11 +217,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Set
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setChar(final String name, final char value) throws JMSException {
@@ -308,11 +229,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Set
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setDouble(final String name, final double value) throws JMSException {
@@ -324,11 +241,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Set
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setFloat(final String name, final float value) throws JMSException {
@@ -340,11 +253,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Set
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setInt(final String name, final int value) throws JMSException {
@@ -356,11 +265,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Set
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setLong(final String name, final long value) throws JMSException {
@@ -372,11 +277,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Set
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setObject(final String name, final Object value) throws JMSException {
@@ -388,11 +289,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Set
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setShort(final String name, final short value) throws JMSException {
@@ -404,11 +301,7 @@ public class ActiveMQRAMapMessage extends ActiveMQRAMessage implements MapMessag
    }
 
    /**
-    * Set
-    *
-    * @param name  The name
-    * @param value The value
-    * @throws JMSException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void setString(final String name, final String value) throws JMSException {

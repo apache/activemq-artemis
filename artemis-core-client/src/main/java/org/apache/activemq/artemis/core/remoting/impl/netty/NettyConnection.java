@@ -61,8 +61,8 @@ public class NettyConnection implements Connection {
    private final boolean directDeliver;
    private final Map<String, Object> configuration;
    /**
-    * if {@link #isWritable(ReadyListener)} returns false, we add a callback
-    * here for when the connection (or Netty Channel) becomes available again.
+    * if {@link #isWritable(ReadyListener)} returns false, we add a callback here for when the connection (or Netty
+    * Channel) becomes available again.
     */
    private final List<ReadyListener> readyListeners = new ArrayList<>();
    private static final FastThreadLocal<ArrayList<ReadyListener>> localListenersPool = new FastThreadLocal<>();
@@ -109,7 +109,7 @@ public class NettyConnection implements Connection {
    }
 
    /**
-    * Returns an estimation of the current size of the write buffer in the channel.
+    * {@return an estimation of the current size of the write buffer in the channel}
     */
    private static long batchBufferSize(Channel channel) {
       final ChannelOutboundBuffer outboundBuffer = channel.unsafe().outboundBuffer();
@@ -207,8 +207,6 @@ public class NettyConnection implements Connection {
 
    /**
     * This is exposed so users would have the option to look at any data through interceptors
-    *
-    * @return
     */
    public final Channel getChannel() {
       return channel;

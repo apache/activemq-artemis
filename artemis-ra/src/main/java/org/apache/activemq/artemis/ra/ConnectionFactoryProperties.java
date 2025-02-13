@@ -132,9 +132,6 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
 
    private Boolean enableSharedClientID;
 
-   /**
-    * @return the transportType
-    */
    public List<String> getParsedConnectorClassNames() {
       return connectorClassName;
    }
@@ -728,9 +725,7 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       return hasBeenUpdated;
    }
 
-   /*
-    * This is here just for backward compatibility and not used
-  * */
+   // This is here just for backward compatibility and not used
    public void setEnableSharedClientID(boolean enable) {
       this.enableSharedClientID = enable;
    }

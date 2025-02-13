@@ -152,8 +152,8 @@ public class AMQPStandardMessage extends AMQPMessage {
    /**
     * Internal constructor used for persistence reload of the message.
     * <p>
-    * The message will not be usable until the persistence mechanism populates the message
-    * data and triggers a parse of the message contents to fill in the message state.
+    * The message will not be usable until the persistence mechanism populates the message data and triggers a parse of
+    * the message contents to fill in the message state.
     *
     * @param messageFormat The Message format tag given the in Transfer that carried this message
     */

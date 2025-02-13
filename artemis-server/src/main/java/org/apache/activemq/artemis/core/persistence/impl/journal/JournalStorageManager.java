@@ -186,9 +186,10 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    /**
     * We need to correct the file size if its not a multiple of the alignement
-    * @param fileSize : the configured file size.
+    *
+    * @param fileSize  : the configured file size.
     * @param alignment : the alignment.
-    * @return the fixed file size.
+    * @return the fixed file size
     */
    protected int fixJournalFileSize(int fileSize, int alignment) {
       int size = fileSize;
@@ -346,11 +347,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    }
 
    @Override
-   /**
-    * @param buff
-    * @return
-    * @throws Exception
-    */
    protected LargeServerMessage parseLargeMessage(final ActiveMQBuffer buff) throws Exception {
       LargeServerMessage largeMessage = createCoreLargeMessage();
 
@@ -712,11 +708,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       }
    }
 
-   /**
-    * @param pagingManager
-    * @return
-    * @throws Exception
-    */
    private Map<SimpleString, Collection<Integer>> getPageInformationForSync(PagingManager pagingManager) throws Exception {
       Map<SimpleString, Collection<Integer>> info = new HashMap<>();
       for (SimpleString storeName : pagingManager.getStoreNames()) {
@@ -747,10 +738,8 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
     * <p>
     * Collects a list of existing large messages and their current size, passing re.
     * <p>
-    * So we know how much of a given message to sync with the backup. Further data appends to the
-    * messages will be replicated normally.
-    *
-    * @throws Exception
+    * So we know how much of a given message to sync with the backup. Further data appends to the messages will be
+    * replicated normally.
     */
    private Map<Long, Pair<String, Long>> recoverPendingLargeMessages() throws Exception {
 
@@ -778,10 +767,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       });
    }
 
-   /**
-    * @param pageFilesToSync
-    * @throws Exception
-    */
    private void sendPagesToBackup(Map<SimpleString, Collection<Integer>> pageFilesToSync,
                                   PagingManager manager) throws Exception {
       for (Map.Entry<SimpleString, Collection<Integer>> entry : pageFilesToSync.entrySet()) {

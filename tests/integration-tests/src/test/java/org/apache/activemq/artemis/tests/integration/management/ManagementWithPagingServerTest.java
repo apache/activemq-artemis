@@ -54,9 +54,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * This class contains tests for core management
- * functionalities that are affected by a server
- * in paging mode.
+ * This class contains tests for core management functionalities that are affected by a server in paging mode.
  */
 public class ManagementWithPagingServerTest extends ManagementTestBase {
 

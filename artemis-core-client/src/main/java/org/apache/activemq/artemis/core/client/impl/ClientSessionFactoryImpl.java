@@ -227,7 +227,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       this.callFailoverTimeout = locatorConfig.callFailoverTimeout;
 
-      // HORNETQ-1314 - if this in an in-vm connection then disable connection monitoring
+      // If this in an in-vm connection then disable connection monitoring
       if (connectorFactory.isReliable() &&
          locatorConfig.clientFailureCheckPeriod == ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD &&
          locatorConfig.connectionTTL == ActiveMQClient.DEFAULT_CONNECTION_TTL) {
@@ -488,9 +488,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
    }
 
-   /**
-    * @param close
-    */
    private void closeCleanSessions(boolean close) {
       Set<ClientSessionInternal> sessionsToClose;
       synchronized (sessions) {
@@ -581,9 +578,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    /**
     * TODO: Maybe this belongs to ActiveMQClientProtocolManager
-    *
-    * @param connectionID
-    * @param me
     */
    private void failoverOrReconnect(final Object connectionID,
                                     final ActiveMQException me,
@@ -896,9 +890,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
    }
 
-   /*
-    * Re-attach sessions all pre-existing sessions to the new remoting connection
-    */
+   // Re-attach sessions all pre-existing sessions to the new remoting connection
    private boolean reconnectSessions(final Set<ClientSessionInternal> sessionsToFailover,
                                      final RemotingConnection oldConnection,
                                      final ActiveMQException cause) {
@@ -1226,10 +1218,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    /**
-    * It will connect to either primary or backup accordingly to the current configurations
-    * it will also switch to backup case it can't connect to primary and there's a backup configured
-    *
-    * @return
+    * It will connect to either primary or backup accordingly to the current configurations it will also switch to
+    * backup case it can't connect to primary and there's a backup configured
     */
    protected Connection createTransportConnection() {
       Connection transportConnection = null;
@@ -1443,11 +1433,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          send();
       }
 
-      /**
-       *
-       */
       public void send() {
-
          clientProtocolManager.ping(connectionTTL);
       }
 

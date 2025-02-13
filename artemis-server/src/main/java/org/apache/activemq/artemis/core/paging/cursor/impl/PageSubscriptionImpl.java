@@ -72,7 +72,9 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    private boolean empty = true;
 
-   /** for tests */
+   /**
+    * for tests
+    */
    public AtomicInteger getScheduledCleanupCount() {
       return scheduledCleanupCount;
    }
@@ -211,9 +213,8 @@ public final class PageSubscriptionImpl implements PageSubscription {
    /**
     * A page marked as complete will be ignored until it's cleared.
     * <p>
-    * Usually paging is a stream of messages but in certain scenarios (such as a pending prepared
-    * TX) we may have big holes on the page streaming, and we will need to ignore such pages on the
-    * cursor/subscription.
+    * Usually paging is a stream of messages but in certain scenarios (such as a pending prepared TX) we may have big
+    * holes on the page streaming, and we will need to ignore such pages on the cursor/subscription.
     */
    @Override
    public boolean reloadPageCompletion(PagePosition position) throws Exception {
@@ -315,14 +316,12 @@ public final class PageSubscriptionImpl implements PageSubscription {
          }
 
          for (PageCursorInfo infoPG : completedPages) {
-            // HORNETQ-1017: There are a few cases where a pending transaction might set a big hole on the page system
-            //               where we need to ignore these pages in case of a restart.
-            //               for that reason when we delete complete ACKs we store a single record per page file that will
-            //               be removed once the page file is deleted
-            //               notice also that this record is added as part of the same transaction where the information is deleted.
-            //               In case of a TX Failure (a crash on the server) this will be recovered on the next cleanup once the
-            //               server is restarted.
-            // first will mark the page as complete
+            // There are a few cases where a pending transaction might set a big hole on the page system where we need
+            // to ignore these pages in case of a restart. For that reason when we delete complete ACKs we store a
+            // single record per page file that will be removed once the page file is deleted notice also that this
+            // record is added as part of the same transaction where the information is deleted. In case of a TX Failure
+            // (a crash on the server) this will be recovered on the next cleanup once the server is restarted. First
+            // will mark the page as complete
             if (isPersistent()) {
                PagePosition completePage = new PagePositionImpl(infoPG.getPageId(), infoPG.getNumberOfMessages());
                infoPG.setCompleteInfo(completePage);
@@ -863,8 +862,6 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    /**
     * A callback from the PageCursorInfo. It will be called when all the messages on a page have been acked
-    *
-    * @param info
     */
    private void onPageDone(final PageCursorInfo info) {
       if (autoCleanup) {
@@ -875,12 +872,11 @@ public final class PageSubscriptionImpl implements PageSubscription {
       }
    }
 
-
    /**
     * This will hold information about the pending ACKs towards a page.
     * <p>
-    * This instance will be released as soon as the entire page is consumed, releasing the memory at
-    * that point The ref counts are increased also when a message is ignored for any reason.
+    * This instance will be released as soon as the entire page is consumed, releasing the memory at that point The ref
+    * counts are increased also when a message is ignored for any reason.
     */
    public final class PageCursorInfo implements ConsumedPage {
 
@@ -904,7 +900,8 @@ public final class PageSubscriptionImpl implements PageSubscription {
       private boolean pendingDelete;
 
       /**
-       * This is to be set when all the messages are complete on a given page, and we cleanup the records that are marked on it
+       * This is to be set when all the messages are complete on a given page, and we cleanup the records that are
+       * marked on it
        */
       private PagePosition completePage;
 
@@ -980,9 +977,6 @@ public final class PageSubscriptionImpl implements PageSubscription {
          this.acks = null;
       }
 
-      /**
-       * @param completePage
-       */
       public void setCompleteInfo(final PagePosition completePage) {
          if (logger.isTraceEnabled()) {
             logger.trace("Setting up complete page {} on cursor {} on subscription {}", completePage, this, PageSubscriptionImpl.this);
@@ -1015,9 +1009,6 @@ public final class PageSubscriptionImpl implements PageSubscription {
          pendingDelete = true;
       }
 
-      /**
-       * @return the pageId
-       */
       @Override
       public long getPageId() {
          return pageId;
@@ -1087,9 +1078,6 @@ public final class PageSubscriptionImpl implements PageSubscription {
          }
       }
 
-      /**
-       *
-       */
       protected void checkDone() {
          if (isDone()) {
             onPageDone(this);
@@ -1214,8 +1202,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       private final java.util.Queue<PagedReference> redeliveries = new LinkedList<>();
 
       /**
-       * next element taken on hasNext test.
-       * it has to be delivered on next next operation
+       * next element taken on hasNext test. it has to be delivered on next next operation
        */
       private volatile PagedReference cachedNext;
 
@@ -1439,8 +1426,8 @@ public final class PageSubscriptionImpl implements PageSubscription {
       }
 
       /**
-       * QueueImpl::deliver could be calling hasNext while QueueImpl.depage could be using next and hasNext as well.
-       * It would be a rare race condition but I would prefer avoiding that scenario
+       * QueueImpl::deliver could be calling hasNext while QueueImpl.depage could be using next and hasNext as well. It
+       * would be a rare race condition but I would prefer avoiding that scenario
        */
       @Override
       public synchronized boolean hasNext() {

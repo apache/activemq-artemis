@@ -79,7 +79,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
    }
 
    /**
-    * @return the number of configured broker connection configurations.
+    * {@return the number of configured broker connection configurations}
     */
    public int getConfiguredConnectionsCount() {
       return amqpConnectionsConfig.size();
@@ -97,13 +97,10 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
    }
 
    /**
-    * Updates the configuration of any / all broker connections in the broker connection manager
-    * based on updated broker configuration.
+    * Updates the configuration of any / all broker connections in the broker connection manager based on updated broker
+    * configuration.
     *
-    * @param configurations
-    *    A list of broker connection configurations after a broker configuration update.
-    *
-    * @throws Exception
+    * @param configurations A list of broker connection configurations after a broker configuration update.
     */
    @SuppressWarnings("unchecked")
    public void updateConfiguration(List<AMQPBrokerConnectConfiguration> configurations) throws Exception {
@@ -254,9 +251,10 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
       }
    }
 
-   /** The Client Protocol Manager is used for Core Clients.
-    *  As we are reusing the NettyConnector the API requires a ClientProtocolManager.
-    *  This is to give us the reference for the AMQPConnection used. */
+   /**
+    * The Client Protocol Manager is used for Core Clients. As we are reusing the NettyConnector the API requires a
+    * ClientProtocolManager. This is to give us the reference for the AMQPConnection used.
+    */
    public static class ClientProtocolManagerWithAMQP implements ClientProtocolManager {
       public final ProtonProtocolManager protonPM;
 

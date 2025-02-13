@@ -32,7 +32,7 @@ import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-/**
+/*
  * The broker doesn't send any "Reason String" or "User Property" in the PUBCOMP packet for any reason. Therefore, these are not tested here:
  *
  * [MQTT-3.7.2-2] The sender MUST NOT use this Property if it would increase the size of the PUBCOMP packet beyond the Maximum Packet Size specified by the receiver.
@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Timeout;
 
 public class PubCompTests extends MQTT5TestSupport {
 
-   /*
+   /**
     * [MQTT-3.7.2-1] The Client or Server sending the PUBCOMP packets MUST use one of the PUBCOMP Reason Codes.
     */
    @Test

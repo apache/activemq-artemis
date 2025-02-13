@@ -60,10 +60,6 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase {
       }
    }
 
-   /**
-    * @param messageLoadBalancingType
-    * @throws Exception
-    */
    protected void setServer(final MessageLoadBalancingType messageLoadBalancingType, int server) throws Exception {
       setupPrimaryServerWithDiscovery(server, groupAddress, groupPort, isFileStorage(), isNetty(), false);
 

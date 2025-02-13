@@ -72,9 +72,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Consumer implementation for Federated Addresses that receives from a remote
- * AMQP peer and forwards those messages onto the internal broker Address for
- * consumption by an attached consumers.
+ * Consumer implementation for Federated Addresses that receives from a remote AMQP peer and forwards those messages
+ * onto the internal broker Address for consumption by an attached consumers.
  */
 public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer {
 
@@ -261,8 +260,8 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
    }
 
    /**
-    * Wrapper around the standard receiver context that provides federation specific entry
-    * points and customizes inbound delivery handling for this Address receiver.
+    * Wrapper around the standard receiver context that provides federation specific entry points and customizes inbound
+    * delivery handling for this Address receiver.
     */
    private class AMQPFederatedAddressDeliveryReceiver extends ProtonServerReceiverContext {
 
@@ -275,10 +274,8 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
       /**
        * Creates the federation receiver instance.
        *
-       * @param session
-       *    The server session context bound to the receiver instance.
-       * @param receiver
-       *    The proton receiver that will be wrapped in this server context instance.
+       * @param session  The server session context bound to the receiver instance.
+       * @param receiver The proton receiver that will be wrapped in this server context instance.
        */
       AMQPFederatedAddressDeliveryReceiver(AMQPSessionContext session, FederationConsumerInfo consumerInfo, Receiver receiver) {
          super(session.getSessionSPI(), session.getAMQPConnectionContext(), session, receiver);

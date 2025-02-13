@@ -179,8 +179,6 @@ public class ConnectorServerFactory {
 
    /**
     * Authenticator type to use. Acceptable values are "none", "password", and "certificate"
-    *
-    * @param value
     */
    public void setAuthenticatorType(String value) {
       this.authenticatorType = AuthenticatorType.valueOf(value.toUpperCase());

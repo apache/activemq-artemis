@@ -54,7 +54,9 @@ public class AMQPMessagePersisterV3 extends AMQPMessagePersisterV2 {
    }
 
 
-   /** Sub classes must add the first short as the protocol-id */
+   /**
+    * Sub classes must add the first short as the protocol-id
+    */
    @Override
    public void encode(ActiveMQBuffer buffer, Message record) {
       super.encode(buffer, record);

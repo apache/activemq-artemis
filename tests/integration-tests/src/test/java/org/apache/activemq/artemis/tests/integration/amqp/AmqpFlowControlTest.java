@@ -301,9 +301,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
       assertTrue(expectedException.getMessage().contains("Address is full: " + getQueueName()));
    }
 
-   /*
-    * Fills an address.  Careful when using this method.  Only use when rejected messages are switched on.
-    */
+   // Fills an address.  Careful when using this method.  Only use when rejected messages are switched on.
    private void fillAddress(String address) throws Exception {
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

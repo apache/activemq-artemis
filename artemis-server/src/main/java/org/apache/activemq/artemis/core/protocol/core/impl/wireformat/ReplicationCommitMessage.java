@@ -72,9 +72,6 @@ public final class ReplicationCommitMessage extends PacketImpl {
       return txId;
    }
 
-   /**
-    * @return the journalID
-    */
    public byte getJournalID() {
       return journalID;
    }

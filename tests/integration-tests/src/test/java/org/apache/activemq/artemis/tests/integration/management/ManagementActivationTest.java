@@ -39,9 +39,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Validates if a JMS management operations will wait until the server is activated.  If the server is not active
- * then JMS management operations (e.g. create connection factory, create queue, etc.) should be stored in a cache
- * and then executed once the server becomes active.  The normal use-case for this involves a live/backup pair.
+ * Validates if a JMS management operations will wait until the server is activated.  If the server is not active then
+ * JMS management operations (e.g. create connection factory, create queue, etc.) should be stored in a cache and then
+ * executed once the server becomes active.  The normal use-case for this involves a live/backup pair.
  */
 public class ManagementActivationTest extends FailoverTestBase {
 
@@ -178,10 +178,8 @@ public class ManagementActivationTest extends FailoverTestBase {
    }
 
    /**
-    * Since the back-up server is *not* active the "destroyConnectionFactory" operation should be cached and not run.
-    * If it was run we would receive an exception.  This is for HORNETQ-911.
-    *
-    * @throws Exception
+    * Since the back-up server is *not* active the "destroyConnectionFactory" operation should be cached and not run. If
+    * it was run we would receive an exception.
     */
    @Test
    public void testDestroyConnectionFactory() throws Exception {
@@ -203,10 +201,8 @@ public class ManagementActivationTest extends FailoverTestBase {
    }
 
    /**
-    * Since the back-up server is *not* active the "removeQueueFromJNDI" operation should be cached and not run.
-    * If it was run we would receive an exception.  This is for HORNETQ-911.
-    *
-    * @throws Exception
+    * Since the back-up server is *not* active the "removeQueueFromJNDI" operation should be cached and not run. If it
+    * was run we would receive an exception.
     */
    @Test
    public void testRemoveQueue() throws Exception {
@@ -221,10 +217,8 @@ public class ManagementActivationTest extends FailoverTestBase {
    }
 
    /**
-    * Since the back-up server is *not* active the "removeTopicFromJNDI" operation should be cached and not run.
-    * If it was run we would receive an exception.  This is for HORNETQ-911.
-    *
-    * @throws Exception
+    * Since the back-up server is *not* active the "removeTopicFromJNDI" operation should be cached and not run. If it
+    * was run we would receive an exception.
     */
    @Test
    public void testRemoveTopic() throws Exception {

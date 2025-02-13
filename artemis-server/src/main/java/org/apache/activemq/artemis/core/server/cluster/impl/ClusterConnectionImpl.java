@@ -85,9 +85,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    private static final String SN_PREFIX = "sf.";
    /**
-    * When getting member on node-up and down we have to remove the name from the transport config
-    * as the setting we build here doesn't need to consider the name, so use the same name on all
-    * the instances.
+    * When getting member on node-up and down we have to remove the name from the transport config as the setting we
+    * build here doesn't need to consider the name, so use the same name on all the instances.
     */
    private static final String TRANSPORT_CONFIG_NAME = "topology-member";
 
@@ -132,8 +131,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    private final int producerWindowSize;
 
    /**
-    * Guard for the field {@link #records}. Note that the field is {@link ConcurrentHashMap},
-    * however we need the guard to synchronize multiple step operations during topology updates.
+    * Guard for the field {@link #records}. Note that the field is {@link ConcurrentHashMap}, however we need the guard
+    * to synchronize multiple step operations during topology updates.
     */
    private final Object recordsGuard = new Object();
 
@@ -184,8 +183,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    private final String clientId;
 
-
-   /** For tests only */
+   /**
+    * For tests only
+    */
    public ServerLocatorInternal getServerLocator() {
       return serverLocator;
    }
@@ -481,9 +481,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       started = false;
    }
 
-   /**
-    * @param locator
-    */
    private void closeLocator(final ServerLocatorInternal locator) {
       if (locator != null)
          locator.close();
@@ -530,12 +527,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
    }
 
-   /** This is the implementation of TopologyManager. It is used to reject eventual updates from a split brain server.
-    *
-    * @param uniqueEventID
-    * @param nodeId
-    * @param memberInput
-    * @return
+   /**
+    * This is the implementation of TopologyManager. It is used to reject eventual updates from a split brain server.
     */
    @Override
    public boolean updateMember(long uniqueEventID, String nodeId, TopologyMemberImpl memberInput) {
@@ -554,9 +547,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    /**
     * From topologyManager
-    * @param uniqueEventID
-    * @param nodeId
-    * @return
     */
    @Override
    public boolean removeMember(final long uniqueEventID, final String nodeId, final boolean disconnect) {
@@ -741,9 +731,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    @Override
    public void nodeDown(final long eventUID, final String nodeID) {
       /*
-      * we dont do anything when a node down is received. The bridges will take care themselves when they should disconnect
-      * and/or clear their bindings. This is to avoid closing a record when we don't want to.
-      * */
+       * we dont do anything when a node down is received. The bridges will take care themselves when they should disconnect
+       * and/or clear their bindings. This is to avoid closing a record when we don't want to.
+       */
    }
 
    @Override
@@ -970,9 +960,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          this.eventUID = eventUID;
       }
 
-      /* (non-Javadoc)
-       * @see java.lang.Object#toString()
-       */
       @Override
       public String toString() {
          return "MessageFlowRecordImpl [nodeID=" + targetNodeID +
@@ -999,37 +986,22 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          return address != null ? address.toString() : "";
       }
 
-      /**
-       * @return the eventUID
-       */
       public long getEventUID() {
          return eventUID;
       }
 
-      /**
-       * @return the nodeID
-       */
       public String getTargetNodeID() {
          return targetNodeID;
       }
 
-      /**
-       * @return the connector
-       */
       public TransportConfiguration getConnector() {
          return connector;
       }
 
-      /**
-       * @return the queueName
-       */
       public SimpleString getQueueName() {
          return queueName;
       }
 
-      /**
-       * @return the queue
-       */
       public Queue getQueue() {
          return queue;
       }
@@ -1040,9 +1012,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
 
       /*
-      * we should only ever close a record when the node itself has gone down or in the case of scale down where we know
+      * We should only ever close a record when the node itself has gone down or in the case of scale down where we know
       * the node is being completely destroyed and in this case we will migrate to another server/Bridge.
-      * */
+      */
       @Override
       public void close() throws Exception {
          logger.trace("Stopping bridge {}", bridge);
@@ -1170,9 +1142,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
       }
 
-      /*
-      * Inform the grouping handler of a proposal
-      * */
+      /**
+       * Inform the grouping handler of a proposal
+       */
       private synchronized void doProposalReceived(final ClientMessage message) throws Exception {
          if (!message.containsProperty(ManagementHelper.HDR_PROPOSAL_GROUP_ID)) {
             throw new IllegalStateException("proposal type is null");
@@ -1195,9 +1167,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
       }
 
-      /*
-      * Inform the grouping handler of a proposal(groupid) being removed
-      * */
+      /**
+       * Inform the grouping handler of a proposal(groupid) being removed
+       */
       private synchronized void doUnProposalReceived(final ClientMessage message) throws Exception {
          if (!message.containsProperty(ManagementHelper.HDR_PROPOSAL_GROUP_ID)) {
             throw new IllegalStateException("proposal type is null");
@@ -1217,10 +1189,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       }
 
-      /*
-      * Inform the grouping handler of a response from a proposal
-      *
-      * */
+      /**
+       * Inform the grouping handler of a response from a proposal
+       */
       private synchronized void doProposalResponseReceived(final ClientMessage message) throws Exception {
          if (!message.containsProperty(ManagementHelper.HDR_PROPOSAL_GROUP_ID)) {
             throw new IllegalStateException("proposal type is null");

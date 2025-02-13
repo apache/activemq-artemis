@@ -24,9 +24,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-/**
- *
- */
 public class ConsumerReceiveWithTimeoutTest extends TestSupport {
 
    private Connection connection;
@@ -37,9 +34,6 @@ public class ConsumerReceiveWithTimeoutTest extends TestSupport {
       connection = createConnection();
    }
 
-   /**
-    * @see junit.framework.TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       if (connection != null) {
@@ -50,10 +44,7 @@ public class ConsumerReceiveWithTimeoutTest extends TestSupport {
    }
 
    /**
-    * Test to check if consumer thread wakes up inside a receive(timeout) after
-    * a message is dispatched to the consumer
-    *
-    * @throws javax.jms.JMSException
+    * Test to check if consumer thread wakes up inside a receive(timeout) after a message is dispatched to the consumer
     */
    public void testConsumerReceiveBeforeMessageDispatched() throws JMSException {
 
@@ -81,7 +72,5 @@ public class ConsumerReceiveWithTimeoutTest extends TestSupport {
       Message msg = consumer.receive(60000);
       assertNotNull(msg);
       session.close();
-
    }
-
 }

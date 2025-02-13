@@ -84,7 +84,7 @@ public class CreateTest extends CliTestBase {
     * If it parses, the xml is assumed to be valid. If any exceptions occur, the xml is not valid.
     *
     * @param xml The xml file to check for validity.
-    * @return whether the xml file represents a valid xml document.
+    * @return whether the xml file represents a valid xml document
     */
    private boolean isXmlValid(File xml) {
       try {

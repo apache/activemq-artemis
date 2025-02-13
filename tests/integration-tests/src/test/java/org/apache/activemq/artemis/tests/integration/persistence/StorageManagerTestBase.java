@@ -84,9 +84,6 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
          throw exception;
    }
 
-   /**
-    * @throws Exception
-    */
    protected void createStorage() throws Exception {
 
       if (storeType == StoreConfiguration.StoreType.DATABASE) {
@@ -104,26 +101,18 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
 
    /**
     * This forces a reload of the journal from disk
-    *
-    * @throws Exception
     */
    protected void rebootStorage() throws Exception {
       journal.stop();
       createStorage();
    }
 
-   /**
-    * @param configuration
-    */
    protected JournalStorageManager createJournalStorageManager(Configuration configuration) {
       JournalStorageManager jsm = new JournalStorageManager(configuration, EmptyCriticalAnalyzer.getInstance(), execFactory, execFactory);
       addActiveMQComponent(jsm);
       return jsm;
    }
 
-   /**
-    * @param configuration
-    */
    protected JDBCJournalStorageManager createJDBCJournalStorageManager(Configuration configuration) {
       JDBCJournalStorageManager jsm = new JDBCJournalStorageManager(configuration, EmptyCriticalAnalyzer.getInstance(), execFactory, execFactory, scheduledExecutorService);
       addActiveMQComponent(jsm);

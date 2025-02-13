@@ -120,10 +120,6 @@ public class FailBackAutoTest extends FailoverTestBase {
       wrapUpSessionFactory();
    }
 
-   /**
-    * @throws Exception
-    * @throws Exception
-    */
    private void verifyMessageOnServer(final int server, final int numberOfMessages) throws Exception {
       ServerLocator backupLocator = createInVMLocator(server);
       ClientSessionFactory factorybkp = addSessionFactory(createSessionFactory(backupLocator));
@@ -199,8 +195,6 @@ public class FailBackAutoTest extends FailoverTestBase {
 
    /**
     * Basic fail-back test.
-    *
-    * @throws Exception
     */
    @Test
    public void testFailBack() throws Exception {

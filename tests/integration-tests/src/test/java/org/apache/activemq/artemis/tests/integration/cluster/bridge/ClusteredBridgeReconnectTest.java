@@ -57,11 +57,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * This will simulate a failure of a failure.
- * The bridge could eventually during a race or multiple failures not be able to reconnect because it failed again.
- * this should make the bridge to always reconnect itself.
+ * This will simulate a failure of a failure. The bridge could eventually during a race or multiple failures not be able
+ * to reconnect because it failed again. this should make the bridge to always reconnect itself.
  */
-
 public class ClusteredBridgeReconnectTest extends ClusterTestBase {
 
    @Test

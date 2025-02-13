@@ -37,11 +37,11 @@ import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 
 /**
- * ConnectorsService will pool some resource for updates, e.g. Twitter, then the changes are picked
- * and converted into a ServerMessage for a given destination (queue).
+ * ConnectorsService will pool some resource for updates, e.g. Twitter, then the changes are picked and converted into a
+ * ServerMessage for a given destination (queue).
  * <p>
- * It may also listen to a queue, and forward them (e.g. messages arriving at the queue are picked
- * and tweeted to some Twitter account).
+ * It may also listen to a queue, and forward them (e.g. messages arriving at the queue are picked and tweeted to some
+ * Twitter account).
  */
 public final class ConnectorsService implements ActiveMQComponent {
 

@@ -126,7 +126,8 @@ public class MessageReferenceImpl extends AbstractProtocolReference implements M
    }
 
    /**
-    * It will call {@link Consumer#accept(Object)} on {@code this} of the {@link Consumer} registered in {@link #onDelivery(Consumer)}, if any.
+    * It will call {@link Consumer#accept(Object)} on {@code this} of the {@link Consumer} registered in
+    * {@link #onDelivery(Consumer)}, if any.
     */
    @Override
    public void run() {
@@ -140,19 +141,11 @@ public class MessageReferenceImpl extends AbstractProtocolReference implements M
       }
    }
 
-
-
-   /**
-    * @return the persistedCount
-    */
    @Override
    public int getPersistedCount() {
       return persistedCount;
    }
 
-   /**
-    * @param persistedCount the persistedCount to set
-    */
    @Override
    public void setPersistedCount(int persistedCount) {
       this.persistedCount = persistedCount;

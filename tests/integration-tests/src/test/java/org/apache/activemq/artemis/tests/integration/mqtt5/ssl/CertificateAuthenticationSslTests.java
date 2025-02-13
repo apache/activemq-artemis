@@ -92,9 +92,7 @@ public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
       server.getConfiguration().putSecurityRoles("#", roles);
    }
 
-   /*
-    * Basic mutual SSL test with certificate-based authentication
-    */
+   // Basic mutual SSL test with certificate-based authentication
    @TestTemplate
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSimpleSendReceive() throws Exception {

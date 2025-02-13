@@ -53,9 +53,6 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * GroupingTest
- */
 public class GroupingTest extends JMSTestBase {
 
    private Queue queue;
@@ -527,11 +524,11 @@ public class GroupingTest extends JMSTestBase {
    }
 
    /**
-    * This tests ensures that when we have group rebalance and pause dispatch,
-    * the broker pauses dispatch of new messages to consumers whilst rebalance and awaits existing inflight messages to be handled before restarting dispatch with new reblanced group allocations,
-    * this allows us to provide a guarantee of message ordering even with rebalance, at the expense that during rebalance dispatch will pause till all consumers with inflight messages are handled.
-    *
-    * @throws Exception
+    * This tests ensures that when we have group rebalance and pause dispatch, the broker pauses dispatch of new
+    * messages to consumers whilst rebalance and awaits existing inflight messages to be handled before restarting
+    * dispatch with new reblanced group allocations, this allows us to provide a guarantee of message ordering even with
+    * rebalance, at the expense that during rebalance dispatch will pause till all consumers with inflight messages are
+    * handled.
     */
    @Test
    public void testGroupRebalancePauseDispatch() throws Exception {

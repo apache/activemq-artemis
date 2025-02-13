@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Collection of static methods to use to start/stop and interact with the in-memory JMS server. It
- * is also use to start/stop a remote server.
+ * Collection of static methods to use to start/stop and interact with the in-memory JMS server. It is also use to
+ * start/stop a remote server.
  */
 public class ServerManagement {
 
@@ -57,8 +57,8 @@ public class ServerManagement {
    private static List<Server> servers = new ArrayList<>();
 
    /**
-    * Makes sure that a "hollow" TestServer (either local or remote, depending on the nature of the
-    * test), exists and it's ready to be started.
+    * Makes sure that a "hollow" TestServer (either local or remote, depending on the nature of the test), exists and
+    * it's ready to be started.
     */
    public static synchronized Server create() throws Exception {
       return new LocalTestServer();
@@ -69,8 +69,8 @@ public class ServerManagement {
    }
 
    /**
-    * When this method correctly completes, the server (local or remote) is started and fully
-    * operational (the server container and the server peer are created and started).
+    * When this method correctly completes, the server (local or remote) is started and fully operational (the server
+    * container and the server peer are created and started).
     */
    public static void start(final int i,
                             final String config,

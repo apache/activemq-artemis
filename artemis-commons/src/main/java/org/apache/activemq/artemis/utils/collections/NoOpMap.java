@@ -23,9 +23,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class implements a Map, but actually doesnt store anything, it is similar in idea to an EmptyMap,
- * but where mutation methods simply do a no op rather than UnsupportedOperationException as with EmptyMap.
- *
+ * This class implements a Map, but actually doesnt store anything, it is similar in idea to an EmptyMap, but where
+ * mutation methods simply do a no op rather than UnsupportedOperationException as with EmptyMap.
+ * <p>
  * This is used in QueueImpl when message groups is disabled.
  *
  * @param <K> the key type.

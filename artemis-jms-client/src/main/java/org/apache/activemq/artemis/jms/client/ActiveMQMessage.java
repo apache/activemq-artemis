@@ -60,9 +60,8 @@ import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 /**
  * ActiveMQ Artemis implementation of a JMS Message.
- * <br>
- * JMS Messages only live on the client side - the server only deals with MessageImpl
- * instances
+ * <p>
+ * JMS Messages only live on the client side - the server only deals with MessageImpl instances
  */
 public class ActiveMQMessage implements javax.jms.Message {
 
@@ -206,7 +205,7 @@ public class ActiveMQMessage implements javax.jms.Message {
 
 
 
-   /*
+   /**
     * Create a new message prior to sending
     */
    protected ActiveMQMessage(final byte type, final ClientSession session) {
@@ -232,7 +231,7 @@ public class ActiveMQMessage implements javax.jms.Message {
       this.session = session;
    }
 
-   /*
+   /**
     * A constructor that takes a foreign message
     */
    public ActiveMQMessage(final Message foreign, final ClientSession session) throws JMSException {
@@ -263,12 +262,9 @@ public class ActiveMQMessage implements javax.jms.Message {
             }
          }
       } else {
-         // Some providers, like WSMQ do automatic conversions between native byte[] correlation id
-         // and String correlation id. This makes it impossible for ActiveMQ Artemis to guarantee to return the correct
-         // type as set by the user
-         // So we allow the behaviour to be overridden by a system property
-         // https://jira.jboss.org/jira/browse/HORNETQ-356
-         // https://jira.jboss.org/jira/browse/HORNETQ-332
+         // Some providers like WSMQ do automatic conversions between native byte[] correlation id and String
+         // correlation id. This makes it impossible for ActiveMQ Artemis to guarantee to return the correct type as set
+         // by the user. Therefore, we allow the behaviour to be overridden by a system property.
          String corrIDString = foreign.getJMSCorrelationID();
          if (corrIDString != null) {
             setJMSCorrelationID(corrIDString);
@@ -736,7 +732,6 @@ public class ActiveMQMessage implements javax.jms.Message {
       } else if (hasNoBody()) {
          return null;
       }
-      // XXX HORNETQ-1209 Do we need translations here?
       throw new MessageFormatException("Body not assignable to " + c);
    }
 
@@ -751,21 +746,21 @@ public class ActiveMQMessage implements javax.jms.Message {
       }
    }
 
+   /**
+    * From the specs:
+    * <p>
+    * If the message is a {@code Message} (but not one of its subtypes) then this method will return {@code true}
+    * irrespective of the value of this parameter.
+    */
    @Override
    public boolean isBodyAssignableTo(Class c) {
-      /**
-       * From the specs:
-       * <p>
-       * If the message is a {@code Message} (but not one of its subtypes) then this method will
-       * return true irrespective of the value of this parameter.
-       */
       return true;
    }
 
    /**
     * Helper method for {@link #isBodyAssignableTo(Class)}.
     *
-    * @return true if the message has no body.
+    * @return {@code true} if the message has no body
     */
    protected boolean hasNoBody() {
       return message.getBodySize() == 0;

@@ -388,10 +388,12 @@ public class AMQSession implements SessionCallback {
 
       assert clientId.toString().equals(this.connection.getState().getInfo().getClientId()) : "Session cached clientId must be the same of the connection";
       originalCoreMsg.putStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME, clientId);
-      /* ActiveMQ failover transport will attempt to reconnect after connection failure.  Any sent messages that did
-      * not receive acks will be resent.  (ActiveMQ broker handles this by returning a last sequence id received to
-      * the client).  To handle this in Artemis we use a duplicate ID cache.  To do this we check to see if the
-      * message comes from failover connection.  If so we add a DUPLICATE_ID to handle duplicates after a resend. */
+      /*
+       * ActiveMQ failover transport will attempt to reconnect after connection failure.  Any sent messages that did
+       * not receive acks will be resent.  (ActiveMQ broker handles this by returning a last sequence id received to
+       * the client). To handle this in Artemis we use a duplicate ID cache.  To do this we check to see if the
+       * message comes from failover connection.  If so we add a DUPLICATE_ID to handle duplicates after a resend.
+       */
 
       if (connection.getContext().isFaultTolerant() && protocolManager.isOpenwireUseDuplicateDetectionOnFailover() && !messageSend.getProperties().containsKey(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID.toString()) && !isTemporary(producerInfo)) {
          originalCoreMsg.putStringProperty(org.apache.activemq.artemis.api.core.Message.HDR_DUPLICATE_DETECTION_ID, SimpleString.of(messageSend.getMessageId().toString()));

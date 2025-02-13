@@ -24,29 +24,16 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * A wrapper for a message listener
+ * A wrapper for a {@link MessageListener}.
  */
 public class ActiveMQRAMessageListener implements MessageListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-
-   /**
-    * The message listener
-    */
    private final MessageListener listener;
 
-   /**
-    * The consumer
-    */
    private final ActiveMQRAMessageConsumer consumer;
 
-   /**
-    * Create a new wrapper
-    *
-    * @param listener the listener
-    * @param consumer the consumer
-    */
    public ActiveMQRAMessageListener(final MessageListener listener, final ActiveMQRAMessageConsumer consumer) {
       logger.trace("constructor({}, {})", listener, consumer);
 
@@ -54,10 +41,9 @@ public class ActiveMQRAMessageListener implements MessageListener {
       this.consumer = consumer;
    }
 
+
    /**
-    * On message
-    *
-    * @param message The message
+    * {@inheritDoc}
     */
    @Override
    public void onMessage(Message message) {

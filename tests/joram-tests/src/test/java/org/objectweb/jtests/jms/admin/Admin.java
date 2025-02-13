@@ -21,100 +21,90 @@ import javax.naming.NamingException;
 
 /**
  * Simple Administration interface.
- * <br />
- * JMS Provider has to implement this
- * simple interface to be able to use the test suite.
+ * <p>
+ * JMS Provider has to implement this simple interface to be able to use the test suite.
  */
 public interface Admin {
 
    /**
-    * Returns the name of the JMS Provider.
-    *
-    * @return name of the JMS Provider
+    * {@return name of the JMS Provider}
     */
    String getName();
 
    /**
-    * Returns an <code>Context</code> for the JMS Provider.
-    *
-    * @return an <code>Context</code> for the JMS Provider.
+    * {@return an {@code Context} for the JMS Provider}
     */
    Context createContext() throws NamingException;
 
    /**
-    * Creates a <code>ConnectionFactory</code> and makes it available
-    * from JNDI with name <code>name</code>.
+    * Creates a {@code ConnectionFactory} and makes it available from JNDI with name {@code name}.
     *
-    * @param name JNDI name of the <code>ConnectionFactory</code>
+    * @param name JNDI name of the {@code ConnectionFactory}
     * @since JMS 1.1
     */
    void createConnectionFactory(String name);
 
    /**
-    * Creates a <code>QueueConnectionFactory</code> and makes it available
-    * from JNDI with name <code>name</code>.
+    * Creates a {@code QueueConnectionFactory} and makes it available from JNDI with name {@code name}.
     *
-    * @param name JNDI name of the <code>QueueConnectionFactory</code>
+    * @param name JNDI name of the {@code QueueConnectionFactory}
     */
    void createQueueConnectionFactory(String name);
 
    /**
-    * Creates a <code>TopicConnectionFactory</code> and makes it available
-    * from JNDI with name <code>name</code>.
+    * Creates a {@code TopicConnectionFactory} and makes it available from JNDI with name {@code name}.
     *
-    * @param name JNDI name of the <code>TopicConnectionFactory</code>
+    * @param name JNDI name of the {@code TopicConnectionFactory}
     */
    void createTopicConnectionFactory(String name);
 
    /**
-    * Creates a <code>Queue</code> and makes it available
-    * from JNDI with name <code>name</code>.
+    * Creates a {@code Queue} and makes it available from JNDI with name {@code name}.
     *
-    * @param name JNDI name of the <code>Queue</code>
+    * @param name JNDI name of the {@code Queue}
     */
    void createQueue(String name);
 
    /**
-    * Creates a <code>Topic</code> and makes it available
-    * from JNDI with name <code>name</code>.
+    * Creates a {@code Topic} and makes it available from JNDI with name {@code name}.
     *
-    * @param name JNDI name of the <code>Topic</code>
+    * @param name JNDI name of the {@code Topic}
     */
    void createTopic(String name);
 
    /**
-    * Removes the <code>Queue</code> of name <code>name</code> from JNDI and deletes it
+    * Removes the {@code Queue} of name {@code name} from JNDI and deletes it
     *
-    * @param name JNDI name of the <code>Queue</code>
+    * @param name JNDI name of the {@code Queue}
     */
    void deleteQueue(String name);
 
    /**
-    * Removes the <code>Topic</code> of name <code>name</code> from JNDI and deletes it
+    * Removes the {@code Topic} of name {@code name} from JNDI and deletes it
     *
-    * @param name JNDI name of the <code>Topic</code>
+    * @param name JNDI name of the {@code Topic}
     */
    void deleteTopic(String name);
 
    /**
-    * Removes the <code>ConnectionFactory</code> of name <code>name</code> from JNDI and deletes it
+    * Removes the {@code ConnectionFactory} of name {@code name} from JNDI and deletes it
     *
-    * @param name JNDI name of the <code>ConnectionFactory</code>
+    * @param name JNDI name of the {@code ConnectionFactory}
     * @since JMS 1.1
     */
    void deleteConnectionFactory(String name);
 
    /**
-    * Removes the <code>QueueConnectionFactory</code> of name <code>name</code> from JNDI and deletes it
+    * Removes the {@code QueueConnectionFactory} of name {@code name} from JNDI and deletes it
     *
-    * @param name JNDI name of the <code>QueueConnectionFactory</code>
+    * @param name JNDI name of the {@code QueueConnectionFactory}
     */
    void deleteQueueConnectionFactory(String name);
 
    /**
-    * Removes the <code>TopicConnectionFactory</code> of name <code>name</code> from JNDI and deletes it
+    * Removes the {@code TopicConnectionFactory} of name {@code name} from JNDI and deletes it
     *
-    * @param name JNDI name of the <code>TopicConnectionFactory</code>
+    * @param name JNDI name of the {@code TopicConnectionFactory}
     */
    void deleteTopicConnectionFactory(String name);
 
@@ -129,8 +119,8 @@ public interface Admin {
    void stopServer() throws Exception;
 
    /**
-    * Optional method for processing to be made after the Admin is instantiated and before
-    * it is used to create the administrated objects
+    * Optional method for processing to be made after the Admin is instantiated and before it is used to create the
+    * administrated objects
     */
    void start() throws Exception;
 

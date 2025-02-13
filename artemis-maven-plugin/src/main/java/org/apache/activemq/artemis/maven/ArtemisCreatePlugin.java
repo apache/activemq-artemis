@@ -137,7 +137,9 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    @Parameter
    private String[] webListWithDeps;
 
-   /** Folders with libs to be copied into target */
+   /**
+    * Folders with libs to be copied into target
+    */
    @Parameter()
    private String[] libFolders;
 

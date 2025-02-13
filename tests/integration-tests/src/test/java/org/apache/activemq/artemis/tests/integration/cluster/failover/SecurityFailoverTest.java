@@ -71,9 +71,6 @@ public class SecurityFailoverTest extends FailoverTest {
       return createSession(sf, xa, autoCommitSends, autoCommitAcks, sf.getServerLocator().getAckBatchSize());
    }
 
-   /**
-    * @throws Exception
-    */
    @Override
    protected void createConfigs() throws Exception {
       nodeManager = new InVMNodeManager(false);
@@ -97,9 +94,6 @@ public class SecurityFailoverTest extends FailoverTest {
       installSecurity(primaryServer1);
    }
 
-   /**
-    * @return
-    */
    protected ActiveMQJAASSecurityManager installSecurity(TestableServer server) {
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getServer().getSecurityManager();
       securityManager.getConfiguration().addUser("a", "b");

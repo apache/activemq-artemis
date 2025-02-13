@@ -24,10 +24,9 @@ public class PagePositionImpl implements PagePosition {
 
    /**
     * The index of the message on the page file.
-    *
-    * This can be used as -1 in cases where the message is irrelevant,
-    * for instance when a cursor is storing the next message to be received
-    * or when a page is marked as fully complete (as the ACKs are removed)
+    * <p>
+    * This can be used as -1 in cases where the message is irrelevant, for instance when a cursor is storing the next
+    * message to be received or when a page is marked as fully complete (as the ACKs are removed)
     */
    private final int messageNr;
 
@@ -37,8 +36,7 @@ public class PagePositionImpl implements PagePosition {
    private long recordID = -1;
 
    /**
-    * Optional size value that can be set to specify the peristent size of the message
-    * for metrics tracking purposes
+    * Optional size value that can be set to specify the peristent size of the message for metrics tracking purposes
     */
    private long persistentSize;
 
@@ -47,50 +45,31 @@ public class PagePositionImpl implements PagePosition {
       this.messageNr = messageNr;
    }
 
-
-   /**
-    * @return the recordID
-    */
    @Override
    public long getRecordID() {
       return recordID;
    }
 
-   /**
-    * @param recordID the recordID to set
-    */
    @Override
    public void setRecordID(long recordID) {
       this.recordID = recordID;
    }
 
-   /**
-    * @return the pageNr
-    */
    @Override
    public long getPageNr() {
       return pageNr;
    }
 
-   /**
-    * @return the messageNr
-    */
    @Override
    public int getMessageNr() {
       return messageNr;
    }
 
-   /**
-    * @return the persistentSize
-    */
    @Override
    public long getPersistentSize() {
       return persistentSize;
    }
 
-   /**
-    * @param persistentSize the persistentSize to set
-    */
    @Override
    public void setPersistentSize(long persistentSize) {
       this.persistentSize = persistentSize;
@@ -134,5 +113,4 @@ public class PagePositionImpl implements PagePosition {
    public String toString() {
       return "PagePositionImpl [pageNr=" + pageNr + ", messageNr=" + messageNr + ", recordID=" + recordID + "]";
    }
-
 }

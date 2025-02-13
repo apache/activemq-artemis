@@ -223,9 +223,6 @@ public class BridgeWithDiscoveryGroupStartTest extends ActiveMQTestBase {
 
    }
 
-   /**
-    * @return
-    */
    private String getConnector() {
       if (isNetty()) {
          return NettyConnectorFactory.class.getName();

@@ -120,8 +120,6 @@ public abstract class NodeManager implements ActiveMQComponent {
     * Sets the nodeID.
     * <p>
     * Only used by replicating backups.
-    *
-    * @param nodeID
     */
    public void setNodeID(String nodeID) {
       synchronized (nodeIDGuard) {
@@ -130,9 +128,6 @@ public abstract class NodeManager implements ActiveMQComponent {
       }
    }
 
-   /**
-    * @param generateUUID
-    */
    protected void setUUID(UUID generateUUID) {
       synchronized (nodeIDGuard) {
          uuid = generateUUID;

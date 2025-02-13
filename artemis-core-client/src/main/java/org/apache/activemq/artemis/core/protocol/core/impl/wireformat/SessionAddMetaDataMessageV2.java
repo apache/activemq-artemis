@@ -21,7 +21,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 /**
  * A SessionAddMetaDataMessage
- *
+ * <p>
  * This packet replaces {@link SessionAddMetaDataMessage}
  */
 public class SessionAddMetaDataMessageV2 extends PacketImpl {

@@ -508,10 +508,6 @@ public class JournalPagingTest extends ActiveMQTestBase {
       session.commit();
    }
 
-   /**
-    * @param queue
-    * @throws InterruptedException
-    */
    private void forcePage(Queue queue) throws InterruptedException {
       for (long timeout = System.currentTimeMillis() + 5000; timeout > System.currentTimeMillis() && !queue.getPageSubscription().getPagingStore().isPaging(); ) {
          Thread.sleep(10);
@@ -578,7 +574,8 @@ public class JournalPagingTest extends ActiveMQTestBase {
    }
 
    /**
-    * This test will remove all the page directories during a restart, simulating a crash scenario. The server should still start after this
+    * This test will remove all the page directories during a restart, simulating a crash scenario. The server should
+    * still start after this
     */
    @Test
    public void testDeletePhysicalPages() throws Exception {

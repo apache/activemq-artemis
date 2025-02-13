@@ -45,7 +45,6 @@ public class ConcurrentSessionCloseTest extends JMSTestBase {
       cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
    }
 
-   // https://jira.jboss.org/browse/HORNETQ-525
    @Test
    public void testConcurrentClose() throws Exception {
       final Connection con = cf.createConnection();

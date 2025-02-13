@@ -21,29 +21,28 @@ import java.util.concurrent.locks.Lock;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 
 /**
- * A channel is a way of interleaving data meant for different endpoints over the same {@link org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection}.
+ * A channel is a way of interleaving data meant for different endpoints over the same
+ * {@link org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection}.
  * <p>
- * Any packet sent will have its channel id set to the specific channel sending so it can be routed to its correct channel
- * when received by the {@link org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection}. see {@link org.apache.activemq.artemis.core.protocol.core.Packet#setChannelID(long)}.
+ * Any packet sent will have its channel id set to the specific channel sending so it can be routed to its correct
+ * channel when received by the {@link org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection}. see
+ * {@link org.apache.activemq.artemis.core.protocol.core.Packet#setChannelID(long)}.
  * <p>
- * Each Channel should will forward any packets received to its {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler}.
+ * Each Channel should will forward any packets received to its
+ * {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler}.
  * <p>
  * A Channel *does not* support concurrent access by more than one thread!
  */
 public interface Channel {
 
    /**
-    * Returns the id of this channel.
-    *
-    * @return the id
+    * {@return the id of this channel}
     */
    long getID();
 
    /**
-    * This number increases every time the channel reconnects successfully.
-    * This is used to guarantee the integrity of the channel on sequential commands such as large messages.
-    *
-    * @return
+    * This number increases every time the channel reconnects successfully. This is used to guarantee the integrity of
+    * the channel on sequential commands such as large messages.
     */
    int getReconnectID();
 
@@ -69,8 +68,7 @@ public interface Channel {
     * Sends a packet on this channel.
     *
     * @param packet the packet to send
-    * @return false if the packet was rejected by an outgoing interceptor; true if the send was
-    * successful
+    * @return false if the packet was rejected by an outgoing interceptor; {@code true} if the send was successful
     */
    boolean send(Packet packet);
 
@@ -78,8 +76,7 @@ public interface Channel {
     * Sends a packet on this channel.
     *
     * @param packet the packet to send
-    * @return false if the packet was rejected by an outgoing interceptor; true if the send was
-    * successful
+    * @return false if the packet was rejected by an outgoing interceptor; {@code true} if the send was successful
     */
    boolean send(Packet packet, int reconnectID);
 
@@ -87,14 +84,14 @@ public interface Channel {
     * Sends a packet on this channel using batching algorithm if appropriate
     *
     * @param packet the packet to send
-    * @return false if the packet was rejected by an outgoing interceptor; true if the send was
-    * successful
+    * @return false if the packet was rejected by an outgoing interceptor; {@code true} if the send was successful
     */
    boolean sendBatched(Packet packet);
 
    /**
-    * Similarly to {@code flushConnection} on {@link #send(Packet, boolean)}, it requests
-    * any un-flushed previous sent packets to be flushed to the underlying connection.<br>
+    * Similarly to {@code flushConnection} on {@link #send(Packet, boolean)}, it requests any un-flushed previous sent
+    * packets to be flushed to the underlying connection.
+    * <p>
     * It can be a no-op in case of InVM transports, because they would likely to flush already on each send.
     */
    void flushConnection();
@@ -103,11 +100,10 @@ public interface Channel {
     * Sends a packet on this channel, but request it to be flushed (along with the un-flushed previous ones) only iff
     * {@code flushConnection} is {@code true}.
     *
-    * @param packet       the packet to send
-    * @param flushConnection if {@code true} requests this {@code packet} and any un-flushed previous sent one to be flushed
-    *                     to the underlying connection
-    * @return false if the packet was rejected by an outgoing interceptor; true if the send was
-    * successful
+    * @param packet          the packet to send
+    * @param flushConnection if {@code true} requests this {@code packet} and any un-flushed previous sent one to be
+    *                        flushed to the underlying connection
+    * @return false if the packet was rejected by an outgoing interceptor; {@code true} if the send was successful
     */
    boolean send(Packet packet, boolean flushConnection);
 
@@ -115,14 +111,12 @@ public interface Channel {
     * Sends a packet on this channel and then blocks until it has been written to the connection.
     *
     * @param packet the packet to send
-    * @return false if the packet was rejected by an outgoing interceptor; true if the send was
-    * successful
+    * @return false if the packet was rejected by an outgoing interceptor; {@code true} if the send was successful
     */
    boolean sendAndFlush(Packet packet);
 
    /**
-    * Sends a packet on this channel and then blocks until a response is received or a timeout
-    * occurs.
+    * Sends a packet on this channel and then blocks until a response is received or a timeout occurs.
     *
     * @param packet         the packet to send
     * @param expectedPacket the packet being expected.
@@ -132,8 +126,7 @@ public interface Channel {
    Packet sendBlocking(Packet packet, byte expectedPacket) throws ActiveMQException;
 
    /**
-    * Sends a packet on this channel and then blocks until a response is received or a timeout
-    * occurs.
+    * Sends a packet on this channel and then blocks until a response is received or a timeout occurs.
     *
     * @param packet         the packet to send
     * @param expectedPacket the packet being expected.
@@ -145,16 +138,16 @@ public interface Channel {
    Packet sendBlocking(Packet packet, int reconnectID, byte expectedPacket, long timeout, boolean failOnTimeout) throws ActiveMQException;
 
    /**
-    * Sets the {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler} that this channel should
-    * forward received packets to.
+    * Sets the {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler} that this channel should forward
+    * received packets to.
     *
     * @param handler the handler
     */
    void setHandler(ChannelHandler handler);
 
    /**
-    * Gets the {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler} that this channel should
-    * forward received packets to.
+    * Gets the {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler} that this channel should forward
+    * received packets to.
     *
     * @return the current channel handler
     */
@@ -188,16 +181,15 @@ public interface Channel {
    void replayCommands(int lastConfirmedCommandID);
 
    /**
-    * returns the last confirmed packet command id
-    *
-    * @return the id
+    * {@return the last confirmed packet command id}
     */
    int getLastConfirmedCommandID();
 
    /**
-    * queries if this channel is locked. This method is designed for use in monitoring of the system state, not for synchronization control.
+    * queries if this channel is locked. This method is designed for use in monitoring of the system state, not for
+    * synchronization control.
     *
-    * @return true it the channel is locked and false otherwise
+    * @return {@code true} it the channel is locked and false otherwise
     */
    boolean isLocked();
 
@@ -214,24 +206,24 @@ public interface Channel {
    void unlock();
 
    /**
-    * forces any {@link org.apache.activemq.artemis.core.protocol.core.Channel#sendBlocking(Packet, byte)} request to return with an exception.
+    * forces any {@link org.apache.activemq.artemis.core.protocol.core.Channel#sendBlocking(Packet, byte)} request to
+    * return with an exception.
     */
    void returnBlocking();
 
    /**
-    * forces any {@link org.apache.activemq.artemis.core.protocol.core.Channel#sendBlocking(Packet, byte)} request to return with an exception.
+    * forces any {@link org.apache.activemq.artemis.core.protocol.core.Channel#sendBlocking(Packet, byte)} request to
+    * return with an exception.
     */
    void returnBlocking(Throwable cause);
 
    /**
-    * returns the channel lock
-    *
-    * @return the lock
+    * {@return the channel lock}
     */
    Lock getLock();
 
    /**
-    * returns the {@link CoreRemotingConnection} being used by the channel
+    * {@return the {@link CoreRemotingConnection} being used by the channel}
     */
    CoreRemotingConnection getConnection();
 
@@ -258,10 +250,11 @@ public interface Channel {
    void flushConfirmations();
 
    /**
-    * Called by {@link org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection} when a packet is received.
+    * Called by {@link org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection} when a packet is
+    * received.
     * <p>
-    * This method should then call its {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler} after appropriate processing of
-    * the packet
+    * This method should then call its {@link org.apache.activemq.artemis.core.protocol.core.ChannelHandler} after
+    * appropriate processing of the packet
     *
     * @param packet the packet to process.
     */
@@ -273,14 +266,12 @@ public interface Channel {
    void clearCommands();
 
    /**
-    * returns the confirmation window size this channel is using.
-    *
-    * @return the window size
+    * {@return the confirmation window size this channel is using}
     */
    int getConfirmationWindowSize();
 
    /**
-    * notifies the channel if it is transferring its connection. When true it is illegal to send messages.
+    * notifies the channel if it is transferring its connection. When {@code true} it is illegal to send messages.
     *
     * @param transferring whether the channel is transferring
     */

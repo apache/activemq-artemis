@@ -38,7 +38,8 @@ public class LockManagerReplicatedLargeMessageWithDelayFailoverTest extends Lock
       super.setUp();
       syncDelay = new BackupSyncDelay(backupServer, primaryServer);
 
-      /* Using getName() here is a bit of a hack, but if the backup is started for this test then the test will fail
+      /*
+       * Using getName() here is a bit of a hack, but if the backup is started for this test then the test will fail
        * intermittently due to an InterruptedException.
        */
       if (!getName().equals("testBackupServerNotRemoved")) {

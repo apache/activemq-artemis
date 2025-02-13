@@ -82,8 +82,10 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public static final Symbol INTERNAL_ID = Symbol.getSymbol("x-opt-amq-mr-id");
    public static final Symbol INTERNAL_DESTINATION = Symbol.getSymbol("x-opt-amq-mr-dst");
 
-   /* In a Multi-cast address (or JMS Topics) we may in certain cases (clustered-routing for instance)
-      select which particular queues will receive the routing output */
+   /*
+    * In a Multi-cast address (or JMS Topics) we may in certain cases (clustered-routing for instance) select which
+    * particular queues will receive the routing output
+    */
    public static final Symbol TARGET_QUEUES = Symbol.getSymbol("x-opt-amq-mr-trg-q");
 
    // Capabilities
@@ -467,7 +469,9 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       }
    }
 
-   /** This method will return the brokerID used by the message */
+   /**
+    * This method will return the brokerID used by the message
+    */
    private static String setProtocolData(ReferenceIDSupplier referenceIDSupplier, MessageReference ref) {
       String brokerID = referenceIDSupplier.getServerID(ref);
       long id = referenceIDSupplier.getID(ref);
@@ -651,9 +655,9 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       }
 
       /**
-       *
-       * @param message the message with the instruction to ack on the target node. Notice this is not the message owned by the reference.
-       * @param ref the reference being acked
+       * @param message the message with the instruction to ack on the target node. Notice this is not the message owned
+       *                by the reference.
+       * @param ref     the reference being acked
        */
       public void addMessage(Message message, MessageReference ref) {
          acks.put(message, ref);

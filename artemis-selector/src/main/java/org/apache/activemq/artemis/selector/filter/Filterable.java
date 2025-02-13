@@ -19,36 +19,24 @@ package org.apache.activemq.artemis.selector.filter;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
- * A Filterable is the object being evaluated by the filters.  It provides
- * access to filtered properties.
- *
- * @version $Revision: 1.4 $
+ * A Filterable is the object being evaluated by the filters.  It provides access to filtered properties.
  */
 public interface Filterable {
 
    /**
-    * This method is used by message filters which do content based routing (Like the XPath
-    * based selectors).
-    *
-    * @param <T>
-    * @param type
-    * @return
-    * @throws FilterException
+    * This method is used by message filters which do content based routing (Like the XPath based selectors).
     */
    <T> T getBodyAs(Class<T> type) throws FilterException;
 
    /**
     * Extracts the named message property
-    *
-    * @param name
-    * @return
     */
    Object getProperty(SimpleString name);
 
    /**
     * Used by the NoLocal filter.
     *
-    * @return a unique id for the connection that produced the message.
+    * @return a unique id for the connection that produced the message
     */
    Object getLocalConnectionId();
 

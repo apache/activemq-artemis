@@ -170,7 +170,6 @@ public class JMSStorageManagerTest extends ActiveMQTestBase {
    }
 
 
-   //https://issues.jboss.org/browse/HORNETQ-812
    @Test
    public void testJNDIPersistence() throws Exception {
       createJMSStorage();
@@ -216,9 +215,6 @@ public class JMSStorageManagerTest extends ActiveMQTestBase {
    }
 
 
-   /**
-    * @throws Exception
-    */
    protected void createJMSStorage() throws Exception {
       jmsJournal = new JMSJournalStorageManagerImpl(null, new TimeAndCounterIDGenerator(), createDefaultInVMConfig(), null);
       runAfter(jmsJournal::stop);

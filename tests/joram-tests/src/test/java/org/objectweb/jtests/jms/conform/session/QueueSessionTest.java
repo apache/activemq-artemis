@@ -30,14 +30,13 @@ import org.objectweb.jtests.jms.framework.TestConfig;
 
 /**
  * Test queue sessions
- * <br />
+ * <p>
  * See JMS specifications, sec. 4.4 Session
  */
 public class QueueSessionTest extends PTPTestCase {
 
    /**
-    * Test that if we rollback a transaction which has consumed a message,
-    * the message is effectively redelivered.
+    * Test that if we rollback a transaction which has consumed a message, the message is effectively redelivered.
     */
    @Test
    public void testRollbackRececeivedMessage() {
@@ -100,8 +99,8 @@ public class QueueSessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that a call to the <code>createBrowser()</code> method with an invalid
-    * messaeg session throws a <code>javax.jms.InvalidSelectorException</code>.
+    * Test that a call to the {@code createBrowser()} method with an invalid messaeg session throws a
+    * {@code javax.jms.InvalidSelectorException}.
     */
    @Test
    public void testCreateBrowser_2() {
@@ -115,8 +114,8 @@ public class QueueSessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that a call to the <code>createBrowser()</code> method with an invalid
-    * <code>Queue</code> throws a <code>javax.jms.InvalidDestinationException</code>.
+    * Test that a call to the {@code createBrowser()} method with an invalid {@code Queue} throws a
+    * {@code javax.jms.InvalidDestinationException}.
     */
    @Test
    public void testCreateBrowser_1() {
@@ -130,8 +129,8 @@ public class QueueSessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that a call to the <code>createReceiver()</code> method with an invalid
-    * message selector throws a <code>javax.jms.InvalidSelectorException</code>.
+    * Test that a call to the {@code createReceiver()} method with an invalid message selector throws a
+    * {@code javax.jms.InvalidSelectorException}.
     */
    @Test
    public void testCreateReceiver_2() {
@@ -145,8 +144,8 @@ public class QueueSessionTest extends PTPTestCase {
    }
 
    /**
-    * Test that a call to the <code>createReceiver()</code> method with an invalid
-    * <code>Queue</code> throws a <code>javax.jms.InvalidDestinationException</code>>
+    * Test that a call to the {@code createReceiver()} method with an invalid {@code Queue} throws a
+    * {@code javax.jms.InvalidDestinationException}>
     */
    @Test
    public void testCreateReceiver_1() {

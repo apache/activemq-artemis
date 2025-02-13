@@ -21,20 +21,11 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 
-/**
- *
- */
 public interface ActiveMQServerConsumerPlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a consumer is created
     *
-    * @param consumerID
-    * @param queueName
-    * @param filterString
-    * @param browseOnly
-    * @param supportLargeMessage
-    * @throws ActiveMQException
     *
     * @deprecated use {@link #beforeCreateConsumer(long, QueueBinding, SimpleString, boolean, boolean)}
     */
@@ -46,15 +37,7 @@ public interface ActiveMQServerConsumerPlugin extends ActiveMQServerBasePlugin {
 
 
    /**
-    *
     * Before a consumer is created
-    *
-    * @param consumerID
-    * @param queueBinding
-    * @param filterString
-    * @param browseOnly
-    * @param supportLargeMessage
-    * @throws ActiveMQException
     */
    default void beforeCreateConsumer(long consumerID, QueueBinding queueBinding, SimpleString filterString,
                                      boolean browseOnly, boolean supportLargeMessage) throws ActiveMQException {
@@ -66,7 +49,6 @@ public interface ActiveMQServerConsumerPlugin extends ActiveMQServerBasePlugin {
     * After a consumer has been created
     *
     * @param consumer the created consumer
-    * @throws ActiveMQException
     */
    default void afterCreateConsumer(ServerConsumer consumer) throws ActiveMQException {
 
@@ -74,10 +56,6 @@ public interface ActiveMQServerConsumerPlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a consumer is closed
-    *
-    * @param consumer
-    * @param failed
-    * @throws ActiveMQException
     */
    default void beforeCloseConsumer(ServerConsumer consumer, boolean failed) throws ActiveMQException {
 
@@ -85,10 +63,6 @@ public interface ActiveMQServerConsumerPlugin extends ActiveMQServerBasePlugin {
 
    /**
     * After a consumer is closed
-    *
-    * @param consumer
-    * @param failed
-    * @throws ActiveMQException
     */
    default void afterCloseConsumer(ServerConsumer consumer, boolean failed) throws ActiveMQException {
 

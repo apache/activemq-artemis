@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A SymmetricClusterTest
- *
+ * <p>
  * Most of the cases are covered in OneWayTwoNodeClusterTest - we don't duplicate them all here
  */
 public class SymmetricClusterTest extends ClusterTestBase {
@@ -1787,12 +1787,13 @@ public class SymmetricClusterTest extends ClusterTestBase {
       waitForBindings(4, "queues.testaddress", 0, 0, false);
    }
 
-   @Test
    /**
     * This test verifies that addresses matching a simple string filter such as 'jms' result in bindings being created
     * on appropriate nodes in the cluster.  It also verifies that addresses not matching the simple string filter do not
     * result in bindings being created.
-    */ public void testClusterAddressCreatesBindingsForSimpleStringAddressFilters() throws Exception {
+    */
+   @Test
+   public void testClusterAddressCreatesBindingsForSimpleStringAddressFilters() throws Exception {
       setupCluster("test", "test", "test", "test", "test");
       startServers();
 
@@ -1827,11 +1828,12 @@ public class SymmetricClusterTest extends ClusterTestBase {
       waitForBindings(4, "foo.queues.test.1", 0, 0, false);
    }
 
-   @Test
    /**
     * This test verifies that a string exclude filter '!jms.eu.uk' results in bindings not being created for this
     * address for nodes in a cluster.  But ensures that other addresses are matched and bindings created.
-    */ public void testClusterAddressDoesNotCreatesBindingsForStringExcludesAddressFilters() throws Exception {
+    */
+   @Test
+   public void testClusterAddressDoesNotCreatesBindingsForStringExcludesAddressFilters() throws Exception {
       setupCluster("jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk", "jms.eu.de,!jms.eu.uk");
       startServers();
 
@@ -1869,8 +1871,6 @@ public class SymmetricClusterTest extends ClusterTestBase {
    /**
     * This test verifies that remote bindings are only created for queues that match jms.eu or jms.us excluding
     * jms.eu.uk and jms.us.bos.  Represented by the address filter 'jms.eu,!jms.eu.uk,jms.us,!jms.us.bos'
-    *
-    * @throws Exception
     */
    @Test
    public void testClusterAddressFiltersExcludesAndIncludesAddressesInList() throws Exception {

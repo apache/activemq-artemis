@@ -155,7 +155,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
             throw ActiveMQMessageBundle.BUNDLE.serverNotStarted();
          }
 
-         // XXX HORNETQ-720 Taylor commented out this test. Should be verified.
+         // Taylor commented out this test. Should be verified.
          /*if (!server.checkActivate())
          {
             throw new ActiveMQException(ActiveMQException.SESSION_CREATION_REJECTED,
@@ -242,7 +242,6 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
          ServerSessionPacketHandler sessionHandler = protocolManager.getSessionHandler(request.getName());
 
-         // HORNETQ-720 XXX ataylor?
          if (/*!server.checkActivate() || */ sessionHandler == null) {
             response = new ReattachSessionResponseMessage(-1, false);
          } else {

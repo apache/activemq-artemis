@@ -27,18 +27,19 @@ import java.util.concurrent.ConcurrentMap;
 public class FactoryFinder {
 
    /**
-    * The strategy that the FactoryFinder uses to find load and instantiate Objects
-    * can be changed out by calling the setObjectFactory method with a custom implementation of ObjectFactory.
-    *
-    * The default ObjectFactory is typically changed out when running in a specialized container
-    * environment where service discovery needs to be done via the container system.  For example,
-    * in an OSGi scenario.
+    * The strategy that the FactoryFinder uses to find load and instantiate Objects can be changed out by calling the
+    * setObjectFactory method with a custom implementation of ObjectFactory.
+    * <p>
+    * The default ObjectFactory is typically changed out when running in a specialized container environment where
+    * service discovery needs to be done via the container system.  For example, in an OSGi scenario.
     */
    public interface ObjectFactory {
 
       /**
+       * Creates an {@code Object} based on the input
+       *
        * @param path the full service path
-       * @return Object
+       * @return {@code Object}
        * @throws IllegalAccessException illegal access
        * @throws InstantiationException on instantiation error
        * @throws IOException            On IO Error
@@ -139,8 +140,7 @@ public class FactoryFinder {
    /**
     * Creates a new instance of the given key
     *
-    * @param key is the key to add to the path to find a text file containing
-    *            the factory name
+    * @param key is the key to add to the path to find a text file containing the factory name
     * @return a newly created instance
     * @throws IllegalAccessException On illegal access
     * @throws InstantiationException On can not instantiate exception

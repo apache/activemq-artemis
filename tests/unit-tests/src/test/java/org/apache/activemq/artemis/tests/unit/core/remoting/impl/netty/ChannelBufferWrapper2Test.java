@@ -25,8 +25,6 @@ import org.apache.activemq.artemis.tests.unit.core.remoting.ActiveMQBufferTestBa
  */
 public class ChannelBufferWrapper2Test extends ActiveMQBufferTestBase {
 
-
-
    // BufferWrapperBase overrides -----------------------------------
 
    @Override

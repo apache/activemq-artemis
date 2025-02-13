@@ -52,7 +52,9 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Test various scenarios with broker communication in large message */
+/**
+ * Test various scenarios with broker communication in large message
+ */
 public class LargeMessageFrozenTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

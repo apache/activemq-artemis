@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-
 import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -28,12 +27,13 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
  * A reference to a message.
- *
+ * <p>
  * Channels store message references rather than the messages themselves.
  */
 public interface MessageReference {
 
    final class Factory {
+
       public static MessageReference createReference(Message encode, final Queue queue) {
          return new MessageReferenceImpl(encode, queue);
       }
@@ -54,39 +54,36 @@ public interface MessageReference {
    SimpleString getLastValueProperty();
 
    /**
-    * This is to be used in cases where a message delivery happens on an executor.
-    * Most MessageReference implementations will allow execution, and if it does,
-    * and the protocol requires an execution per message, this callback may be used.
-    *
+    * This is to be used in cases where a message delivery happens on an executor. Most MessageReference implementations
+    * will allow execution, and if it does, and the protocol requires an execution per message, this callback may be
+    * used.
+    * <p>
     * At the time of this implementation only AMQP was used.
     */
    void onDelivery(Consumer<? super MessageReference> callback);
 
    /**
-    * We define this method aggregation here because on paging we need to hold the original estimate,
-    * so we need to perform some extra steps on paging.
-    *
-    * @return
+    * We define this method aggregation here because on paging we need to hold the original estimate, so we need to
+    * perform some extra steps on paging.
     */
    int getMessageMemoryEstimate();
 
    /**
-    * To be used on holding protocol specific data during the delivery.
-    * This will be only valid while the message is on the delivering queue at the consumer
+    * To be used on holding protocol specific data during the delivery. This will be only valid while the message is on
+    * the delivering queue at the consumer
     */
    <T> T getProtocolData(Class<T> typeClass);
 
    /**
-    * To be used on holding protocol specific data during the delivery.
-    * This will be only valid while the message is on the delivering queue at the consumer
+    * To be used on holding protocol specific data during the delivery. This will be only valid while the message is on
+    * the delivering queue at the consumer
     */
    <T> void setProtocolData(Class<T> typeClass, T data);
 
    MessageReference copy(Queue queue);
 
    /**
-    * @return The time in the future that delivery will be delayed until, or zero if
-    * no scheduled delivery will occur
+    * {@return The time in the future that delivery will be delayed until, or zero if no scheduled delivery will occur}
     */
    long getScheduledDeliveryTime();
 
@@ -135,12 +132,9 @@ public interface MessageReference {
    boolean isAlreadyAcked();
 
    /**
-    * This is the size of the message when persisted on disk which is used for metrics tracking
-    * Note that even if the message itself is not persisted on disk (ie non-durable) this value is
-    * still used for metrics tracking for the amount of data on a queue
-    *
-    * @return
-    * @throws ActiveMQException
+    * This is the size of the message when persisted on disk which is used for metrics tracking Note that even if the
+    * message itself is not persisted on disk (ie non-durable) this value is still used for metrics tracking for the
+    * amount of data on a queue
     */
    long getPersistentSize() throws ActiveMQException;
 

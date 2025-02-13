@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeLis
 public interface PagingManager extends ActiveMQComponent, HierarchicalRepositoryChangeListener {
 
    /**
-    * Returns the PageStore associated with the address. A new page store is created if necessary.
+    * {@return the PageStore associated with the address; a new page store is created if necessary}
     */
    PagingStore getPageStore(SimpleString address) throws Exception;
 
@@ -58,17 +58,12 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
     */
    PageTransactionInfo getTransaction(long transactionID);
 
-   /**
-    * @param transactionID
-    */
    void removeTransaction(long transactionID);
 
    Map<Long, PageTransactionInfo> getTransactions();
 
    /**
     * Reload previously created PagingStores into memory
-    *
-    * @throws Exception
     */
    void reloadStores() throws Exception;
 
@@ -86,7 +81,9 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
 
    void injectMonitor(FileStoreMonitor monitor) throws Exception;
 
-   /** Execute a runnable inside the PagingManager's executor */
+   /**
+    * Execute a runnable inside the PagingManager's executor
+    */
    default void execute(Runnable runnable) {
       throw new UnsupportedOperationException("not implemented");
    }
@@ -104,22 +101,20 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
    void unlock();
 
    /**
-    * Add size at the global count level.
-    * if sizeOnly = true, only the size portion is updated. If false both the counter for bytes and number of messages is updated.
+    * Add size at the global count level. If sizeOnly = true, only the size portion is updated. If false both the
+    * counter for bytes and number of messages is updated.
     */
    PagingManager addSize(int size, boolean sizeOnly);
 
    /**
-    * An utility method to call addSize(size, false);
-    * this is a good fit for an IntConsumer.
+    * An utility method to call addSize(size, false); this is a good fit for an IntConsumer.
     */
    default PagingManager addSize(int size) {
       return addSize(size, false);
    }
 
    /**
-    * An utility method to call addSize(size, true);
-    * this is a good fit for an IntConsumer.
+    * An utility method to call addSize(size, true); this is a good fit for an IntConsumer.
     */
    default PagingManager addSizeOnly(int size) {
       return addSize(size, true);
@@ -145,7 +140,6 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
 
    /**
     * Use this when you have no refernce of an address. (anonymous AMQP Producers for example)
-    * @param runWhenAvailable
     */
    void checkMemory(Runnable runWhenAvailable);
 
@@ -153,7 +147,6 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
 
    /**
     * Use this when you have no refernce of an address. (anonymous AMQP Producers for example)
-    * @param runWhenAvailable
     */
    default void checkStorage(Runnable runWhenAvailable) {
       checkMemory(runWhenAvailable);

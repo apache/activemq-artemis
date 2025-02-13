@@ -82,8 +82,9 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
 
-   /** minLargeMessageSize determines when a message should be considered as large.
-    *  minLargeMessageSize = -1 basically disables large message control over AMQP.
+   /**
+    * minLargeMessageSize determines when a message should be considered as large. minLargeMessageSize = -1 basically
+    * disables large message control over AMQP.
     */
    private int amqpMinLargeMessageSize = 100 * 1024;
 
@@ -114,9 +115,9 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    private final AMQPRoutingHandler routingHandler;
 
    /*
-   * used when you want to treat senders as a subscription on an address rather than consuming from the actual queue for
-   * the address. This can be changed on the acceptor.
-   * */
+    * Used when you want to treat senders as a subscription on an address rather than consuming from the actual queue
+    * for the address. This can be changed on the acceptor.
+    */
    private String pubSubPrefix = DestinationUtil.TOPIC_QUALIFIED_PREFIX;
 
    private int maxFrameSize = AmqpSupport.MAX_FRAME_SIZE_DEFAULT;
@@ -146,8 +147,10 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    }
 
-   /** Before the ackManager retries acks, it must flush the OperationContext on the MirrorTargets.
-    *  This is the timeout is in milliseconds*/
+   /**
+    * Before the ackManager retries acks, it must flush the OperationContext on the MirrorTargets. This is the timeout
+    * is in milliseconds
+    */
    public long getAckManagerFlushTimeout() {
       return ackManagerFlushTimeout;
    }
@@ -213,7 +216,9 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       return this;
    }
 
-   /** for outgoing */
+   /**
+    * for outgoing
+    */
    public ProtonClientProtocolManager createClientManager() {
       ProtonClientProtocolManager clientOutgoing = new ProtonClientProtocolManager(factory, server);
       return clientOutgoing;
@@ -224,8 +229,10 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       return internalConnectionEntry(remotingConnection, false, null, null);
    }
 
-   /** This method is not part of the ProtocolManager interface because it only makes sense on AMQP.
-    *  More specifically on AMQP Bridges */
+   /**
+    * This method is not part of the ProtocolManager interface because it only makes sense on AMQP. More specifically on
+    * AMQP Bridges
+    */
    public ConnectionEntry createOutgoingConnectionEntry(Connection remotingConnection) {
       return internalConnectionEntry(remotingConnection, true, null, null);
    }
@@ -409,16 +416,15 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    }
 
    /**
-    * Returns true if transient delivery errors should be handled with a Modified disposition
-    * (if permitted by link)
+    * {@return true if transient delivery errors should be handled with a Modified disposition
+    * (if permitted by link)}
     */
    public boolean isUseModifiedForTransientDeliveryErrors() {
       return this.amqpUseModifiedForTransientDeliveryErrors;
    }
 
    /**
-    * Sets if transient delivery errors should be handled with a Modified disposition
-    * (if permitted by link)
+    * Sets if transient delivery errors should be handled with a Modified disposition (if permitted by link)
     */
    public ProtonProtocolManager setAmqpUseModifiedForTransientDeliveryErrors(boolean amqpUseModifiedForTransientDeliveryErrors) {
       this.amqpUseModifiedForTransientDeliveryErrors = amqpUseModifiedForTransientDeliveryErrors;

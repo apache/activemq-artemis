@@ -87,12 +87,9 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    /**
     * Create a new sender instance.
     *
-    * @param session
-    *        The parent session that created the session.
-    * @param address
-    *        The address that this sender produces to.
-    * @param senderId
-    *        The unique ID assigned to this sender.
+    * @param session  The parent session that created the session.
+    * @param address  The address that this sender produces to.
+    * @param senderId The unique ID assigned to this sender.
     */
    public AmqpSender(AmqpSession session, String address, String senderId) {
       this(session, address, senderId, null, null, DEFAULT_OUTCOMES);
@@ -101,18 +98,12 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    /**
     * Create a new sender instance.
     *
-    * @param session
-    *        The parent session that created the session.
-    * @param address
-    *        The address that this sender produces to.
-    * @param senderId
-    *        The unique ID assigned to this sender.
-    * @param senderMode
-    *        The {@link SenderSettleMode} to use on open.
-    * @param receiverMode
-    *        The {@link ReceiverSettleMode} to use on open.
-    * @param outcomes
-    *        The outcomes to use on open
+    * @param session      The parent session that created the session.
+    * @param address      The address that this sender produces to.
+    * @param senderId     The unique ID assigned to this sender.
+    * @param senderMode   The {@link SenderSettleMode} to use on open.
+    * @param receiverMode The {@link ReceiverSettleMode} to use on open.
+    * @param outcomes     The outcomes to use on open
     */
    public AmqpSender(AmqpSession session,
                      String address,
@@ -137,12 +128,9 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    /**
     * Create a new sender instance using the given Target when creating the link.
     *
-    * @param session
-    *        The parent session that created the session.
-    * @param target
-    *        The target that this sender produces to.
-    * @param senderId
-    *        The unique ID assigned to this sender.
+    * @param session  The parent session that created the session.
+    * @param target   The target that this sender produces to.
+    * @param senderId The unique ID assigned to this sender.
     */
    public AmqpSender(AmqpSession session, Target target, String senderId) {
 
@@ -162,10 +150,8 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    /**
     * Sends the given message to this senders assigned address.
     *
-    * @param message
-    *        the message to send.
-    * @throws IOException
-    *         if an error occurs during the send.
+    * @param message the message to send.
+    * @throws IOException if an error occurs during the send.
     */
    public void send(final AmqpMessage message) throws IOException {
       checkClosed();
@@ -173,15 +159,11 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    }
 
    /**
-    * Sends the given message to this senders assigned address using the supplied transaction
-    * ID.
+    * Sends the given message to this senders assigned address using the supplied transaction ID.
     *
-    * @param message
-    *        the message to send.
-    * @param txId
-    *        the transaction ID to assign the outgoing send.
-    * @throws IOException
-    *         if an error occurs during the send.
+    * @param message the message to send.
+    * @param txId    the transaction ID to assign the outgoing send.
+    * @throws IOException if an error occurs during the send.
     */
    public void send(final AmqpMessage message, final AmqpTransactionId txId) throws IOException {
       checkClosed();
@@ -205,11 +187,9 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    }
 
    /**
-    * Close the sender, a closed sender will throw exceptions if any further send calls are
-    * made.
+    * Close the sender, a closed sender will throw exceptions if any further send calls are made.
     *
-    * @throws IOException
-    *         if an error occurs while closing the sender.
+    * @throws IOException if an error occurs while closing the sender.
     */
    public void close() throws IOException {
       if (closed.compareAndSet(false, true)) {
@@ -225,21 +205,21 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    }
 
    /**
-    * @return this session's parent AmqpSession.
+    * {@return this session's parent AmqpSession}
     */
    public AmqpSession getSession() {
       return session;
    }
 
    /**
-    * @return an unmodifiable view of the underlying Sender instance.
+    * {@return an unmodifiable view of the underlying Sender instance}
     */
    public Sender getSender() {
       return UnmodifiableProxy.senderProxy(getEndpoint());
    }
 
    /**
-    * @return the assigned address of this sender.
+    * {@return the assigned address of this sender}
     */
    public String getAddress() {
       return address;
@@ -248,7 +228,7 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    // ----- Sender configuration ---------------------------------------------//
 
    /**
-    * @return will messages be settle on send.
+    * {@return will messages be settle on send}
     */
    public boolean isPresettle() {
       return presettle;
@@ -257,15 +237,14 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    /**
     * Configure is sent messages are marked as settled on send, defaults to false.
     *
-    * @param presettle
-    *        configure if this sender will presettle all sent messages.
+    * @param presettle configure if this sender will presettle all sent messages.
     */
    public void setPresettle(boolean presettle) {
       this.presettle = presettle;
    }
 
    /**
-    * @return the currently configured send timeout.
+    * {@return the currently configured send timeout}
     */
    public long getSendTimeout() {
       return sendTimeout;
@@ -274,8 +253,7 @@ public class AmqpSender extends AmqpAbstractResource<Sender> {
    /**
     * Sets the amount of time the sender will block on a send before failing.
     *
-    * @param sendTimeout
-    *        time in milliseconds to wait.
+    * @param sendTimeout time in milliseconds to wait.
     */
    public void setSendTimeout(long sendTimeout) {
       this.sendTimeout = sendTimeout;

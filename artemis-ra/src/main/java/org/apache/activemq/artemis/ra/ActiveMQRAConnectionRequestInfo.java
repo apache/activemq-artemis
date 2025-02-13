@@ -24,48 +24,24 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Connection request information
+ * {@inheritDoc}
  */
 public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The user name
-    */
    private String userName;
 
-   /**
-    * The password
-    */
    private String password;
 
-   /**
-    * The client id
-    */
    private String clientID;
 
-   /**
-    * The type
-    */
    private final int type;
 
-   /**
-    * Use transactions
-    */
    private final boolean transacted;
 
-   /**
-    * The acknowledge mode
-    */
    private final int acknowledgeMode;
 
-   /**
-    * Constructor
-    *
-    * @param prop The resource adapter properties
-    * @param type The connection type
-    */
    public ActiveMQRAConnectionRequestInfo(final ActiveMQRAProperties prop, final int type) {
       logger.trace("constructor({})", prop);
 
@@ -77,13 +53,6 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
       acknowledgeMode = Session.AUTO_ACKNOWLEDGE;
    }
 
-   /**
-    * Constructor
-    *
-    * @param transacted      Use transactions
-    * @param acknowledgeMode The acknowledge mode
-    * @param type            The connection type
-    */
    public ActiveMQRAConnectionRequestInfo(final boolean transacted, final int acknowledgeMode, final int type) {
       if (logger.isTraceEnabled()) {
          logger.trace("constructor({}, {}, {})", transacted, acknowledgeMode, type);
@@ -113,88 +82,48 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
       }
    }
 
-   /**
-    * Get the user name
-    *
-    * @return The value
-    */
    public String getUserName() {
       logger.trace("getUserName()");
 
       return userName;
    }
 
-   /**
-    * Set the user name
-    *
-    * @param userName The value
-    */
    public void setUserName(final String userName) {
       logger.trace("setUserName({})", userName);
 
       this.userName = userName;
    }
 
-   /**
-    * Get the password
-    *
-    * @return The value
-    */
    public String getPassword() {
       logger.trace("getPassword()");
 
       return password;
    }
 
-   /**
-    * Set the password
-    *
-    * @param password The value
-    */
    public void setPassword(final String password) {
       logger.trace("setPassword(****)");
 
       this.password = password;
    }
 
-   /**
-    * Get the client id
-    *
-    * @return The value
-    */
    public String getClientID() {
       logger.trace("getClientID()");
 
       return clientID;
    }
 
-   /**
-    * Set the client id
-    *
-    * @param clientID The value
-    */
    public void setClientID(final String clientID) {
       logger.trace("setClientID({})", clientID);
 
       this.clientID = clientID;
    }
 
-   /**
-    * Get the connection type
-    *
-    * @return The type
-    */
    public int getType() {
       logger.trace("getType()");
 
       return type;
    }
 
-   /**
-    * Use transactions
-    *
-    * @return True if transacted; otherwise false
-    */
    public boolean isTransacted() {
       if (logger.isTraceEnabled()) {
          logger.trace("isTransacted() {}", transacted);
@@ -203,23 +132,12 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
       return transacted;
    }
 
-   /**
-    * Get the acknowledge mode
-    *
-    * @return The mode
-    */
    public int getAcknowledgeMode() {
       logger.trace("getAcknowledgeMode()");
 
       return acknowledgeMode;
    }
 
-   /**
-    * Indicates whether some other object is "equal to" this one.
-    *
-    * @param obj Object with which to compare
-    * @return True if this object is the same as the obj argument; false otherwise.
-    */
    @Override
    public boolean equals(final Object obj) {
       logger.trace("equals({})", obj);
@@ -239,11 +157,6 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
       }
    }
 
-   /**
-    * Return the hash code for the object
-    *
-    * @return The hash code
-    */
    @Override
    public int hashCode() {
       logger.trace("hashCode()");

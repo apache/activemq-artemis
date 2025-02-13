@@ -102,50 +102,42 @@ public class AmqpSupport {
    public static final Symbol SOLE_CONNECTION_CAPABILITY = Symbol.valueOf("sole-connection-for-container");
 
    /**
-    * A capability added to the sender or receiver links that indicate that the link either wants
-    * support for or offers support for tunneling Core messages as custom formatted AMQP messages.
+    * A capability added to the sender or receiver links that indicate that the link either wants support for or offers
+    * support for tunneling Core messages as custom formatted AMQP messages.
     */
    public static final Symbol CORE_MESSAGE_TUNNELING_SUPPORT = Symbol.getSymbol("AMQ_CORE_MESSAGE_TUNNELING");
 
    /**
-    * Property value that can be applied to federation configuration that controls if the federation
-    * receivers will request that the sender peer tunnel core messages inside an AMQP message as a binary
-    * blob to be unwrapped on the other side. The sending peer would still need to support this feature
-    * for message tunneling to occur.
+    * Property value that can be applied to federation configuration that controls if the federation receivers will
+    * request that the sender peer tunnel core messages inside an AMQP message as a binary blob to be unwrapped on the
+    * other side. The sending peer would still need to support this feature for message tunneling to occur.
     */
    public static final String TUNNEL_CORE_MESSAGES = "tunnel-core-messages";
 
    /**
-    * A priority value added to a remote receiver link attach that indicates the desired priority
-    * for the receiver created for the link.
+    * A priority value added to a remote receiver link attach that indicates the desired priority for the receiver
+    * created for the link.
     */
    public static final Symbol RECEIVER_PRIORITY = Symbol.getSymbol("priority");
 
    /**
-    * Check the set of remote properties sent on link attach for any values that
-    * are treated as indicating priority and return the match if any. If no priority
-    * is indicated in the link properties this method returns null.
+    * Check the set of remote properties sent on link attach for any values that are treated as indicating priority and
+    * return the match if any. If no priority is indicated in the link properties this method returns null.
     *
-    * @param remoteProperties
-    *       The {@link Map} of remote properties sent on the remote attach.
-    *
-    * @return a {@link Number} indicating the desired link priority or null if none.
+    * @param remoteProperties The {@link Map} of remote properties sent on the remote attach.
+    * @return a {@link Number} indicating the desired link priority or null if none
     */
    public static Number getReceiverPriority(Map<Symbol, Object> remoteProperties) {
       return getReceiverPriority(remoteProperties, null);
    }
 
    /**
-    * Check the set of remote properties sent on link attach for any values that
-    * are treated as indicating priority and return the match if any. If no priority
-    * is indicated in the link properties this method returns null.
+    * Check the set of remote properties sent on link attach for any values that are treated as indicating priority and
+    * return the match if any. If no priority is indicated in the link properties this method returns null.
     *
-    * @param remoteProperties
-    *       The {@link Map} of remote properties sent on the remote attach.
-    * @param defaultPriority
-    *       The default value that should be returned if no remote priority indicated.
-    *
-    * @return a {@link Number} indicating the desired link priority or null if none.
+    * @param remoteProperties The {@link Map} of remote properties sent on the remote attach.
+    * @param defaultPriority  The default value that should be returned if no remote priority indicated.
+    * @return a {@link Number} indicating the desired link priority or null if none
     */
    public static Number getReceiverPriority(Map<Symbol, Object> remoteProperties, Number defaultPriority) {
       final Number remotePriority = remoteProperties != null ? (Number) remoteProperties.get(RECEIVER_PRIORITY) : null;
@@ -157,7 +149,7 @@ public class AmqpSupport {
     *
     * @param symbols the set of Symbols to search.
     * @param key     the value to try and find in the Symbol array.
-    * @return true if the key is found in the given Symbol array.
+    * @return {@code true} if the key is found in the given Symbol array
     */
    public static boolean contains(Symbol[] symbols, Symbol key) {
       if (symbols == null || symbols.length == 0) {
@@ -174,12 +166,11 @@ public class AmqpSupport {
    }
 
    /**
-    * Search for a particular filter using a set of known identification values
-    * in the Map of filters.
+    * Search for a particular filter using a set of known identification values in the Map of filters.
     *
     * @param filters   The filters map that should be searched.
     * @param filterIds The aliases for the target filter to be located.
-    * @return the filter if found in the mapping or null if not found.
+    * @return the filter if found in the mapping or null if not found
     */
    public static Map.Entry<Symbol, DescribedType> findFilter(Map<Symbol, Object> filters, Object[] filterIds) {
 
@@ -215,39 +206,32 @@ public class AmqpSupport {
    private static final Symbol[] EMPTY_CAPABILITIES = new Symbol[0];
 
    /**
-    * Verifies that the desired capabilities that were sent to the remote were indeed
-    * offered in return. If the remote has not offered a capability that was desired then
-    * the initiating resource should determine if the offered set is still acceptable or
-    * it should close the link and report the reason.
+    * Verifies that the desired capabilities that were sent to the remote were indeed offered in return. If the remote
+    * has not offered a capability that was desired then the initiating resource should determine if the offered set is
+    * still acceptable or it should close the link and report the reason.
     * <p>
-    * The remote could have offered more capabilities than the requested desired capabilities,
-    * this method does not validate that or consider that a failure.
+    * The remote could have offered more capabilities than the requested desired capabilities, this method does not
+    * validate that or consider that a failure.
     *
-    * @param link
-    *    The link in question (Sender or Receiver).
-    *
-    * @return true if the remote offered all of the capabilities that were desired.
+    * @param link The link in question (Sender or Receiver).
+    * @return {@code true} if the remote offered all of the capabilities that were desired
     */
    public static boolean verifyOfferedCapabilities(final Link link) {
       return verifyCapabilities(link.getRemoteOfferedCapabilities(), link.getDesiredCapabilities());
    }
 
    /**
-    * Verifies that the given set of desired capabilities (which should be the full set of
-    * desired capabilities configured on the link or a subset of those values) are indeed
-    * offered in return. If the remote has not offered a capability that was desired then
-    * the initiating resource should determine if the offered set is still acceptable or
-    * it should close the link and report the reason.
+    * Verifies that the given set of desired capabilities (which should be the full set of desired capabilities
+    * configured on the link or a subset of those values) are indeed offered in return. If the remote has not offered a
+    * capability that was desired then the initiating resource should determine if the offered set is still acceptable
+    * or it should close the link and report the reason.
     * <p>
-    * The remote could have offered more capabilities than the requested desired capabilities,
-    * this method does not validate that or consider that a failure.
+    * The remote could have offered more capabilities than the requested desired capabilities, this method does not
+    * validate that or consider that a failure.
     *
-    * @param link
-    *    The link in question (Sender or Receiver).
-    * @param capabilities
-    *    The capabilities that are required being checked for.
-    *
-    * @return true if the remote offered all of the capabilities that were desired.
+    * @param link         The link in question (Sender or Receiver).
+    * @param capabilities The capabilities that are required being checked for.
+    * @return {@code true} if the remote offered all of the capabilities that were desired
     */
    public static boolean verifyOfferedCapabilities(final Link link, final Symbol... capabilities) {
       return verifyCapabilities(link.getRemoteOfferedCapabilities(), capabilities);
@@ -256,15 +240,12 @@ public class AmqpSupport {
    /**
     * Verifies that the given desired capability is present in the remote link details.
     * <p>
-    * The remote could have desired more capabilities than the one given, this method does
-    * not validate that or consider that a failure.
+    * The remote could have desired more capabilities than the one given, this method does not validate that or consider
+    * that a failure.
     *
-    * @param link
-    *    The link in question (Sender or Receiver).
-    * @param desiredCapability
-    *    The non-null capability that is being checked as being desired.
-    *
-    * @return true if the remote desired all of the capabilities that were given.
+    * @param link              The link in question (Sender or Receiver).
+    * @param desiredCapability The non-null capability that is being checked as being desired.
+    * @return {@code true} if the remote desired all of the capabilities that were given
     */
    public static boolean verifyDesiredCapability(final Link link, final Symbol desiredCapability) {
       return verifyCapabilities(link.getRemoteDesiredCapabilities(), desiredCapability);
@@ -273,12 +254,9 @@ public class AmqpSupport {
    /**
     * Verifies that the desired capability is present in the Source capabilities.
     *
-    * @param source
-    *    The Source instance whose capabilities are being searched.
-    * @param capability
-    *    The non-null capability that is being checked as being desired.
-    *
-    * @return true if the remote desired all of the capabilities that were given.
+    * @param source     The Source instance whose capabilities are being searched.
+    * @param capability The non-null capability that is being checked as being desired.
+    * @return {@code true} if the remote desired all of the capabilities that were given
     */
    public static boolean verifySourceCapability(final Source source, final Symbol capability) {
       return verifyCapabilities(source.getCapabilities(), capability);
@@ -287,12 +265,9 @@ public class AmqpSupport {
    /**
     * Verifies that the desired capability is present in the Source capabilities.
     *
-    * @param target
-    *    The Target instance whose capabilities are being searched.
-    * @param capability
-    *    The non-null capability that is being checked as being desired.
-    *
-    * @return true if the remote desired all of the capabilities that were given.
+    * @param target     The Target instance whose capabilities are being searched.
+    * @param capability The non-null capability that is being checked as being desired.
+    * @return {@code true} if the remote desired all of the capabilities that were given
     */
    public static boolean verifyTargetCapability(final Target target, final Symbol capability) {
       return verifyCapabilities(target.getCapabilities(), capability);
@@ -301,15 +276,12 @@ public class AmqpSupport {
    /**
     * Verifies that the given set of capabilities contains each of the desired capabilities.
     * <p>
-    * The remote could have offered more capabilities than the requested desired capabilities,
-    * this method does not validate that or consider that a failure.
+    * The remote could have offered more capabilities than the requested desired capabilities, this method does not
+    * validate that or consider that a failure.
     *
-    * @param offered
-    *    The capabilities that were offered from the remote or were set by the local side
-    * @param desired
-    *    The desired capabilities to search for in the offered set.
-    *
-    * @return <code>true</code> if the desired capabilities were found in the offered set.
+    * @param offered The capabilities that were offered from the remote or were set by the local side
+    * @param desired The desired capabilities to search for in the offered set.
+    * @return {@code true} if the desired capabilities were found in the offered set
     */
    public static boolean verifyCapabilities(final Symbol[] offered, final Symbol... desired) {
       final Symbol[] desiredCapabilites = desired == null ? EMPTY_CAPABILITIES : desired;
@@ -336,20 +308,13 @@ public class AmqpSupport {
    /**
     * Given the input values construct a Queue name for use in messaging handlers.
     *
-    * @param useCoreSubscriptionNaming
-    *    Should the name match core client subscription naming.
-    * @param clientId
-    *    The client ID of the remote peer.
-    * @param senderId
-    *    The ID assigned to the sender asking for a generated Queue name.
-    * @param shared
-    *    Is this Queue used for shared subscriptions
-    * @param global
-    *    Should the shared subscription Queue indicate globally shared.
-    * @param isVolatile
-    *    Is the Queue meant to be volatile or not.
-    *
-    * @return a queue name based on the provided inputs.
+    * @param useCoreSubscriptionNaming Should the name match core client subscription naming.
+    * @param clientId                  The client ID of the remote peer.
+    * @param senderId                  The ID assigned to the sender asking for a generated Queue name.
+    * @param shared                    Is this Queue used for shared subscriptions
+    * @param global                    Should the shared subscription Queue indicate globally shared.
+    * @param isVolatile                Is the Queue meant to be volatile or not.
+    * @return a queue name based on the provided inputs
     */
    public static SimpleString createQueueName(boolean useCoreSubscriptionNaming,
                                               String clientId,

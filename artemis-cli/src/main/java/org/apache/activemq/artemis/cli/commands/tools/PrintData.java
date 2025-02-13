@@ -430,16 +430,10 @@ public class PrintData extends DBOption {
       private PageCursorsInfo() {
       }
 
-      /**
-       * @return the pgTXs
-       */
       Set<Long> getPgTXs() {
          return pgTXs;
       }
 
-      /**
-       * @return the cursorRecords
-       */
       Map<Long, Set<PagePosition>> getCursorRecords() {
          return cursorRecords;
       }

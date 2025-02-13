@@ -43,9 +43,8 @@ import org.apache.qpid.proton.amqp.Symbol;
 import org.junit.jupiter.api.Test;
 
 /**
- * This is testing a double transfer (copy).
- * First messages will expire, then DLQ.
- * This will validate the data added to the queues.
+ * This is testing a double transfer (copy). First messages will expire, then DLQ. This will validate the data added to
+ * the queues.
  */
 public class DLQAfterExpiredMessageTest extends AmqpClientTestSupport {
 

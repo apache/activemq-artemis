@@ -21,10 +21,6 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 
 public class LargeMessageFailoverTest extends FailoverTest {
 
-   /**
-    * @param i
-    * @param message
-    */
    @Override
    protected void assertMessageBody(final int i, final ClientMessage message) {
       assertLargeMessageBody(i, message);
@@ -35,10 +31,6 @@ public class LargeMessageFailoverTest extends FailoverTest {
       return (ServerLocatorInternal) super.getServerLocator().setMinLargeMessageSize(MIN_LARGE_MESSAGE);
    }
 
-   /**
-    * @param i
-    * @param message
-    */
    @Override
    protected void setBody(final int i, final ClientMessage message) {
       setLargeMessageBody(i, message);

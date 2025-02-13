@@ -26,10 +26,9 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
- * This MessageReference should only be created the first time a group is assigned to a consumer,
- * it allows us to make a copy of the message to add the property safely as a delivery semantic,
- * without affecting the underlying message.
- *
+ * This MessageReference should only be created the first time a group is assigned to a consumer, it allows us to make a
+ * copy of the message to add the property safely as a delivery semantic, without affecting the underlying message.
+ * <p>
  * The overhead is low, as noted above only should be created on first message in a group to a consumer.
  */
 public class GroupFirstMessageReference implements MessageReference {

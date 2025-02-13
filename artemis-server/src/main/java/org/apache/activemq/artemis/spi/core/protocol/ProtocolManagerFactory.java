@@ -31,16 +31,10 @@ public interface ProtocolManagerFactory<P extends BaseInterceptor> {
       return new Persister[]{};
    }
 
-
    /**
-    * When you create the ProtocolManager, you should filter out any interceptors that won't belong
-    * to this Protocol.
-    * For example don't send any core Interceptors {@link org.apache.activemq.artemis.api.core.Interceptor} to Stomp * * *
-    *
-    * @param server
-    * @param incomingInterceptors
-    * @param outgoingInterceptors
-    * @return
+    * When you create the ProtocolManager, you should filter out any interceptors that won't belong to this Protocol.
+    * For example don't send any core Interceptors {@link org.apache.activemq.artemis.api.core.Interceptor} to Stomp * *
+    * *
     */
    ProtocolManager createProtocolManager(ActiveMQServer server,
                                          Map<String, Object> parameters,
@@ -48,10 +42,7 @@ public interface ProtocolManagerFactory<P extends BaseInterceptor> {
                                          List<BaseInterceptor> outgoingInterceptors) throws Exception;
 
    /**
-    * This should get the entire list and only return the ones this factory can deal with *
-    *
-    * @param interceptors
-    * @return
+    * This should get the entire list and only return the ones this factory can deal with
     */
    List<P> filterInterceptors(List<BaseInterceptor> interceptors);
 
@@ -62,16 +53,13 @@ public interface ProtocolManagerFactory<P extends BaseInterceptor> {
    void loadProtocolServices(ActiveMQServer server, List<ActiveMQComponent> services);
 
    /**
-    * Provides an entry point for the server to trigger the protocol manager factory to
-    * update its protocol services based on updates to server configuration.
+    * Provides an entry point for the server to trigger the protocol manager factory to update its protocol services
+    * based on updates to server configuration.
     *
-    * @param server
-    *    The service instance that has triggered this update
-    * @param services
-    *    The protocol services that were previously registered (mutable).
-    *
-    * @throws Exception can throw an exception if an error occurs while updating or adding
-    *                   protocol services from configuration updates.
+    * @param server   The service instance that has triggered this update
+    * @param services The protocol services that were previously registered (mutable).
+    * @throws Exception can throw an exception if an error occurs while updating or adding protocol services from
+    *                   configuration updates.
     */
    void updateProtocolServices(ActiveMQServer server, List<ActiveMQComponent> services) throws Exception;
 

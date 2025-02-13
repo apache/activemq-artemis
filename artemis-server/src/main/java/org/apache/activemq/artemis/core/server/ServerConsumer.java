@@ -21,9 +21,6 @@ import java.util.function.Function;
 
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-/**
- * A ServerConsumer
- */
 public interface ServerConsumer extends Consumer, ConsumerInfo {
 
    void setlowConsumerDetection(SlowConsumerDetectionListener listener);
@@ -32,8 +29,9 @@ public interface ServerConsumer extends Consumer, ConsumerInfo {
 
    void fireSlowConsumer();
 
-   /** the current queue settings will allow use of the Reference Execution and callback.
-    *  This is because  */
+   /**
+    * The current queue settings will allow use of the Reference Execution and callback.
+    */
    boolean allowReferenceCallback();
 
    /**
@@ -46,15 +44,10 @@ public interface ServerConsumer extends Consumer, ConsumerInfo {
     */
    void setProtocolData(Object protocolData);
 
-   /**
-    * @param protocolContext
-    * @see #getProtocolContext()
-    */
    void setProtocolContext(Object protocolContext);
 
    /**
-    * An object set by the Protocol implementation.
-    * it could be anything pre-determined by the implementation
+    * An object set by the Protocol implementation. it could be anything pre-determined by the implementation
     */
    Object getProtocolContext();
 
@@ -65,11 +58,8 @@ public interface ServerConsumer extends Consumer, ConsumerInfo {
    void close(boolean failed) throws Exception;
 
    /**
-    * This method is just to remove itself from Queues.
-    * If for any reason during a close an exception occurred, the exception treatment
-    * will call removeItself what should take the consumer out of any queues.
-    *
-    * @throws Exception
+    * This method is just to remove itself from Queues. If for any reason during a close an exception occurred, the
+    * exception treatment will call removeItself what should take the consumer out of any queues.
     */
    void removeItself() throws Exception;
 
@@ -84,8 +74,8 @@ public interface ServerConsumer extends Consumer, ConsumerInfo {
    MessageReference removeReferenceByID(long messageID) throws Exception;
 
    /**
-    * Some protocols may choose to send the message back to delivering instead of redeliver.
-    * For example openwire will redeliver through the client, so messages will go back to delivering list after rollback.
+    * Some protocols may choose to send the message back to delivering instead of redeliver. For example openwire will
+    * redeliver through the client, so messages will go back to delivering list after rollback.
     */
    void backToDelivering(MessageReference reference);
 
@@ -113,7 +103,8 @@ public interface ServerConsumer extends Consumer, ConsumerInfo {
 
    /**
     * This is needed when some protocols (OW) handle the acks themselves and need to update the metrics
-    * @param ref the message reference
+    *
+    * @param ref         the message reference
     * @param transaction the tx
     */
    void metricsAcknowledge(MessageReference ref, Transaction transaction);

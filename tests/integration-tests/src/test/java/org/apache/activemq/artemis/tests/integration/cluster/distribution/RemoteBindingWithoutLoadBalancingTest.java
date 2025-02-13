@@ -46,9 +46,8 @@ public class RemoteBindingWithoutLoadBalancingTest extends ClusterTestBase {
    }
 
    /**
-    * It's possible that when a cluster has disabled message load balancing then a message
-    * sent to a node that only has a corresponding remote queue binding will trigger a
-    * stack overflow.
+    * It's possible that when a cluster has disabled message load balancing then a message sent to a node that only has
+    * a corresponding remote queue binding will trigger a stack overflow.
     */
    @Test
    public void testStackOverflow() throws Exception {

@@ -26,9 +26,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AuditLogger;
 
 /**
- * Management service control instance for an AMQPFederationSource instance that federates messages
- * from the remote broker on the opposing side of this broker connection. The federation source has
- * a lifetime that matches that of its parent broker connection.
+ * Management service control instance for an AMQPFederationSource instance that federates messages from the remote
+ * broker on the opposing side of this broker connection. The federation source has a lifetime that matches that of its
+ * parent broker connection.
  */
 public final class AMQPFederationSourceControlType extends AbstractControl implements AMQPFederationControl {
 

@@ -20,9 +20,9 @@ import java.util.Map;
 
 /**
  * A SensitiveDataCodec
- *
+ * <p>
  * This interface is used for implementing a value decoder.
- *
+ * <p>
  * It takes in a mask value and decode it.
  */
 public interface SensitiveDataCodec<T> {

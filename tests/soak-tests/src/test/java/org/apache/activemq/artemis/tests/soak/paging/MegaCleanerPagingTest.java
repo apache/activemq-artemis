@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * PageCleanup should still be able to perform it well.
- * */
+ */
 // supressing because the helper methods need to be public as they are called from a spawned java
 @SuppressWarnings("JUnit4TestNotRun")
 public class MegaCleanerPagingTest extends ActiveMQTestBase {

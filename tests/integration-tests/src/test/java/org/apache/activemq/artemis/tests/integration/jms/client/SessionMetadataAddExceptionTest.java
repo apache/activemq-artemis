@@ -37,8 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 /**
- * Test that the client receives an exception if there is an error when metadata
- * is added
+ * Test that the client receives an exception if there is an error when metadata is added
  */
 public class SessionMetadataAddExceptionTest extends JMSTestBase {
    private AtomicInteger duplicateCount = new AtomicInteger();

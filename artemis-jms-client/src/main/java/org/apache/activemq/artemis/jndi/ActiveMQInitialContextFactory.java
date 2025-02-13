@@ -34,11 +34,9 @@ import org.apache.activemq.artemis.uri.JMSConnectionOptions;
 import org.apache.activemq.artemis.utils.uri.URISchema;
 
 /**
- * A factory of the ActiveMQ Artemis InitialContext which contains
- * {@link javax.jms.ConnectionFactory} instances as well as a child context called
- * <i>destinations</i> which contain all of the current active destinations, in
- * child context depending on the QoS such as transient or durable and queue or
- * topic.
+ * A factory of the ActiveMQ Artemis InitialContext which contains {@link javax.jms.ConnectionFactory} instances as well
+ * as a child context called <i>destinations</i> which contain all of the current active destinations, in child context
+ * depending on the QoS such as transient or durable and queue or topic.
  */
 public class ActiveMQInitialContextFactory implements InitialContextFactory {
 

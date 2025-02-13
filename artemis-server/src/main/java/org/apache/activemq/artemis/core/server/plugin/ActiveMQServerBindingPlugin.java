@@ -21,16 +21,10 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-/**
- *
- */
 public interface ActiveMQServerBindingPlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a binding is added
-    *
-    * @param binding
-    * @throws ActiveMQException
     */
    default void beforeAddBinding(Binding binding) throws ActiveMQException {
 
@@ -40,7 +34,6 @@ public interface ActiveMQServerBindingPlugin extends ActiveMQServerBasePlugin {
     * After a binding has been added
     *
     * @param binding The newly added binding
-    * @throws ActiveMQException
     */
    default void afterAddBinding(Binding binding) throws ActiveMQException {
 
@@ -48,11 +41,6 @@ public interface ActiveMQServerBindingPlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a binding is removed
-    *
-    * @param uniqueName
-    * @param tx
-    * @param deleteData
-    * @throws ActiveMQException
     */
    default void beforeRemoveBinding(SimpleString uniqueName, Transaction tx, boolean deleteData) throws ActiveMQException {
 
@@ -60,11 +48,6 @@ public interface ActiveMQServerBindingPlugin extends ActiveMQServerBasePlugin {
 
    /**
     * After a binding is removed
-    *
-    * @param binding
-    * @param tx
-    * @param deleteData
-    * @throws ActiveMQException
     */
    default void afterRemoveBinding(Binding binding, Transaction tx, boolean deleteData) throws ActiveMQException {
 

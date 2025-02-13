@@ -38,9 +38,6 @@ public class SubscribeClusterTopologyUpdatesMessageV2 extends SubscribeClusterTo
       buffer.writeInt(clientVersion);
    }
 
-   /**
-    * @return the clientVersion
-    */
    public int getClientVersion() {
       return clientVersion;
    }

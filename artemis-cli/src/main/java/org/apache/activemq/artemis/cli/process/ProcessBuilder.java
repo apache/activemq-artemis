@@ -46,14 +46,10 @@ public class ProcessBuilder {
    }
 
    /**
-    * *
-    *
     * @param logname  the prefix for log output
     * @param location The location where this command is being executed from
     * @param hook     it will finish the process upon shutdown of the VM
     * @param args     The arguments being passwed to the the CLI tool
-    * @return
-    * @throws Exception
     */
    public static Process build(String logname, File location, boolean hook, String... args) throws Exception {
       boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");

@@ -53,7 +53,10 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/* at the time this test was written JournalFileImpl was leaking through JournalFileImpl::negative creating a linked list (or leaked-list, pun intended) */
+/*
+ * At the time this test was written JournalFileImpl was leaking through JournalFileImpl::negative creating a linked
+ * list (or leaked-list, pun intended)
+ */
 public class JournalLeakTest extends AbstractLeakTest {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());

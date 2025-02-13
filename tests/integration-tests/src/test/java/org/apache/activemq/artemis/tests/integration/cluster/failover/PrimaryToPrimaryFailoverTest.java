@@ -195,8 +195,6 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTestBase {
     * TODO: https://issues.apache.org/jira/browse/ARTEMIS-2709
     *       this test has been intermittently failing since its day one.
     *       Ignoring the test for now until we can fix it.
-    *
-    * @throws Exception
     */
    @Test
    public void scaleDownDelay() throws Exception {
@@ -233,7 +231,6 @@ public class PrimaryToPrimaryFailoverTest extends FailoverTestBase {
       assertEquals(0, sf.numConnections());
    }
 
-   // https://jira.jboss.org/jira/browse/HORNETQ-285
    @Test
    public void testFailoverOnInitialConnection() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setRetryInterval(100);

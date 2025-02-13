@@ -146,8 +146,6 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
    /**
     * The max size record that can be stored in the journal
-    *
-    * @return
     */
    @Override
    public long getMaxRecordSize() {
@@ -279,7 +277,9 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       }
    }
 
-   /** public for tests only, not through API */
+   /**
+    * public for tests only, not through API
+    */
    public void handleException(List<JDBCJournalRecord> recordRef, Throwable e) {
       logger.warn(e.getMessage(), e);
       failed.set(true);
@@ -292,8 +292,10 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       }
    }
 
-   /* We store Transaction reference in memory (once all records associated with a Tranascation are Deleted,
-      we remove the Tx Records (i.e. PREPARE, COMMIT). */
+   /*
+    * We store Transaction reference in memory (once all records associated with a Transaction are Deleted, we remove
+    * the Tx Records (i.e. PREPARE, COMMIT).
+    */
    private synchronized boolean cleanupTxRecords(List<Long> deletedRecords, List<Long> committedTx,
                                                  PreparedStatement deleteJournalTxRecords) throws SQLException {
       List<RecordInfo> iterableCopy;

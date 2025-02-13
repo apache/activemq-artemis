@@ -59,11 +59,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link SenderController} used when an AMQP federation Address receiver is created
- * and this side of the connection needs to create a matching sender. The address sender
- * controller must check on initialization if the address exists and if not it should
- * create it using the configuration values supplied in the link source properties that
- * control the lifetime of the address once the link is closed.
+ * {@link SenderController} used when an AMQP federation Address receiver is created and this side of the connection
+ * needs to create a matching sender. The address sender controller must check on initialization if the address exists
+ * and if not it should create it using the configuration values supplied in the link source properties that control the
+ * lifetime of the address once the link is closed.
  */
 public final class AMQPFederationAddressSenderController extends AMQPFederationSenderController {
 

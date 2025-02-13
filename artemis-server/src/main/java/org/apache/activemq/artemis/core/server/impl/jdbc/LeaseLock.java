@@ -75,17 +75,17 @@ interface LeaseLock extends AutoCloseable {
    }
 
    /**
-    * Not reentrant lock acquisition operation.
-    * The lock can be acquired if is not held by anyone (including the caller) or has an expired ownership.
+    * Not reentrant lock acquisition operation. The lock can be acquired if is not held by anyone (including the caller)
+    * or has an expired ownership.
     *
     * @return {@code true} if has been acquired, {@code false} otherwise
     */
    boolean tryAcquire();
 
    /**
-    * Not reentrant lock acquisition operation (ie {@link #tryAcquire()}).
-    * It tries to acquire the lock until will succeed (ie {@link AcquireResult#Done})or got interrupted (ie {@link AcquireResult#Exit}).
-    * After each failed attempt is performed a {@link Pauser#idle} call.
+    * Not reentrant lock acquisition operation (ie {@link #tryAcquire()}). It tries to acquire the lock until will
+    * succeed (ie {@link AcquireResult#Done})or got interrupted (ie {@link AcquireResult#Exit}). After each failed
+    * attempt is performed a {@link Pauser#idle} call.
     */
    default AcquireResult tryAcquire(ExitCondition exitCondition, Pauser pauser) {
       while (exitCondition.keepRunning()) {
@@ -99,11 +99,10 @@ interface LeaseLock extends AutoCloseable {
    }
 
    /**
-    * Not reentrant lock acquisition operation (ie {@link #tryAcquire()}).
-    * It tries to acquire the lock until will succeed (ie {@link AcquireResult#Done}), got interrupted (ie {@link AcquireResult#Exit})
-    * or exceed {@code tryAcquireTimeoutMillis}.
-    * After each failed attempt is performed a {@link Pauser#idle} call.
-    * If the specified timeout is <=0 then it behaves as {@link #tryAcquire(ExitCondition, Pauser)}.
+    * Not reentrant lock acquisition operation (ie {@link #tryAcquire()}). It tries to acquire the lock until will
+    * succeed (ie {@link AcquireResult#Done}), got interrupted (ie {@link AcquireResult#Exit}) or exceed
+    * {@code tryAcquireTimeoutMillis}. After each failed attempt is performed a {@link Pauser#idle} call. If the
+    * specified timeout is <=0 then it behaves as {@link #tryAcquire(ExitCondition, Pauser)}.
     */
    default AcquireResult tryAcquire(long tryAcquireTimeoutMillis, Pauser pauser, ExitCondition exitCondition) {
       if (tryAcquireTimeoutMillis < 0) {

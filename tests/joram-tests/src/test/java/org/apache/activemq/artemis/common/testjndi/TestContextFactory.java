@@ -31,11 +31,10 @@ import org.apache.activemq.artemis.jndi.LazyCreateContext;
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 
 /**
- * A factory of the ActiveMQ Artemis InitialContext which contains
- * {@link ConnectionFactory} instances as well as a child context called
+ * A factory of the ActiveMQ Artemis InitialContext which contains {@link ConnectionFactory} instances as well as a
+ * child context called
  * <i>destinations</i> which contain all of the current active destinations, in
- * child context depending on the QoS such as transient or durable and queue or
- * topic.
+ * child context depending on the QoS such as transient or durable and queue or topic.
  */
 public class TestContextFactory implements InitialContextFactory {
 

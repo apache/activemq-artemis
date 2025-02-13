@@ -99,9 +99,6 @@ public final class TopologyMemberImpl implements TopologyMember {
       return scaleDownGroupName;
    }
 
-   /**
-    * @param uniqueEventID the uniqueEventID to set
-    */
    public void setUniqueEventID(final long uniqueEventID) {
       this.uniqueEventID = uniqueEventID;
    }
@@ -111,11 +108,10 @@ public final class TopologyMemberImpl implements TopologyMember {
    }
 
    /**
-    * We only need to check if the connection point to the same node,
-    * don't need to compare the whole params map.
+    * We only need to check if the connection point to the same node, don't need to compare the whole params map.
+    *
     * @param connection The connection to the target node
-    * @return true if the connection point to the same node
-    * as this member represents.
+    * @return true if the connection point to the same node as this member represents.
     */
    @Override
    public boolean isMember(RemotingConnection connection) {

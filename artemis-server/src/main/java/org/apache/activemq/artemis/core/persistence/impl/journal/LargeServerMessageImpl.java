@@ -57,7 +57,9 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
 
    private final LargeBody largeBody;
 
-   /** This will check if a regular message needs to be converted as large message */
+   /**
+    * This will check if a regular message needs to be converted as large message
+    */
    public static Message checkLargeMessage(Message message, StorageManager storageManager) throws Exception {
       if (message.isLargeMessage()) {
          return message; // nothing to be done on this case
@@ -133,10 +135,6 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
 
    /**
     * Copy constructor
-    *
-    * @param properties
-    * @param copy
-    * @param fileCopy
     */
    public LargeServerMessageImpl(final LargeServerMessageImpl copy,
                                   TypedProperties properties,

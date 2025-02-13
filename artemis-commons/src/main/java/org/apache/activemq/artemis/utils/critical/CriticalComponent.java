@@ -17,12 +17,11 @@
 package org.apache.activemq.artemis.utils.critical;
 
 /**
- * A Critical component enters and leaves a critical state.
- * You update a long every time you enter a critical path
- * you update a different long with a System.nanoTime every time you leave that path.
- *
- * If the enterCritical &gt; leaveCritical at any point, then you need to measure the timeout.
- * if the system stops responding, then you have something irresponsive at the system.
+ * A Critical component enters and leaves a critical state. You update a long every time you enter a critical path you
+ * update a different long with a System.nanoTime every time you leave that path.
+ * <p>
+ * If the enterCritical &gt; leaveCritical at any point, then you need to measure the timeout. if the system stops
+ * responding, then you have something irresponsive at the system.
  */
 public interface CriticalComponent {
 
@@ -32,8 +31,9 @@ public interface CriticalComponent {
 
    /**
     * Check if the component is expired at a given timeout.. on any of its paths.
+    *
     * @param timeout - the timeout to check if the component is expired
-    * @param reset - true to reset the component timer if it is expired
+    * @param reset   - true to reset the component timer if it is expired
     * @return -1 if it's ok, or the number of the path it failed
     */
    boolean checkExpiration(long timeout, boolean reset);

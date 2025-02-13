@@ -20,8 +20,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
 /**
- * Utility that detects various properties specific to the current runtime
- * environment, such as JVM bitness and OS type.
+ * Utility that detects various properties specific to the current runtime environment, such as JVM bitness and OS
+ * type.
  */
 public final class Env {
 
@@ -51,10 +51,9 @@ public final class Env {
    }
 
    /**
-    * The system will change a few logs and semantics to be suitable to
-    * run a long testsuite.
-    * Like a few log entries that are only valid during a production system.
-    * or a few cases we need to know as warn on the testsuite and as log in production.
+    * The system will change a few logs and semantics to be suitable to run a long testsuite. Like a few log entries
+    * that are only valid during a production system. or a few cases we need to know as warn on the testsuite and as log
+    * in production.
     */
    private static boolean testEnv = false;
 
@@ -68,8 +67,7 @@ public final class Env {
    }
 
    /**
-    * Return the size in bytes of a OS memory page.
-    * This value will always be a power of two.
+    * Return the size in bytes of a OS memory page. This value will always be a power of two.
     */
    public static int osPageSize() {
       return OS_PAGE_SIZE;

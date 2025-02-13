@@ -60,15 +60,11 @@ public abstract class AbstractSequentialFile implements SequentialFile {
    protected TimedBuffer timedBuffer;
 
    /**
-    * Instead of having AIOSequentialFile implementing the Observer, I have done it on an inner class.
-    * This is the class returned to the factory when the file is being activated.
+    * Instead of having AIOSequentialFile implementing the Observer, I have done it on an inner class. This is the class
+    * returned to the factory when the file is being activated.
     */
    protected final TimedBufferObserver timedBufferObserver = createTimedBufferObserver();
 
-   /**
-    * @param file
-    * @param directory
-    */
    public AbstractSequentialFile(final File directory,
                                  final String file,
                                  final SequentialFileFactory factory,
@@ -170,8 +166,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
    }
 
    /**
-    * @throws IOException       we declare throwing IOException because sub-classes need to do it
-    * @throws ActiveMQException
+    * @throws IOException we declare throwing IOException because sub-classes need to do it
     */
    @Override
    public synchronized void close() throws IOException, InterruptedException, ActiveMQException {

@@ -27,18 +27,12 @@ import org.junit.Test;
 import org.objectweb.jtests.jms.framework.PubSubTestCase;
 import org.objectweb.jtests.jms.framework.TestConfig;
 
-/**
- * Test the <code>javax.jms.TemporaryTopic</code> features.
- */
 public class TemporaryTopicTest extends PubSubTestCase {
 
    private TemporaryTopic tempTopic;
 
    private TopicSubscriber tempSubscriber;
 
-   /**
-    * Test a TemporaryTopic
-    */
    @Test
    public void testTemporaryTopic() {
       try {

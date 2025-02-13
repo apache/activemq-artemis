@@ -24,64 +24,63 @@ import java.util.Map;
 public interface DivertControl {
 
    /**
-    * Returns the filter used by this divert.
+    * {@return the filter used by this divert}
     */
    @Attribute(desc = "filter used by this divert")
    String getFilter();
 
    /**
-    * Returns whether this divert is exclusive.
-    * <br>
-    * if {@code true} messages will be exclusively diverted and will not be routed to the origin address,
-    * else messages will be routed both to the origin address and the forwarding address.
+    * {@return {@code true} if messages will be exclusively diverted and will not be routed to the origin address;
+    * otherwise {@code false} if messages will be routed both to the origin address and the forwarding address}
     */
    @Attribute(desc = "whether this divert is exclusive")
    boolean isExclusive();
 
    /**
-    * Returns the cluster-wide unique name of this divert.
+    * {@return the cluster-wide unique name of this divert}
     */
    @Attribute(desc = "cluster-wide unique name of this divert")
    String getUniqueName();
 
    /**
-    * Returns the routing name of this divert.
+    * {@return the routing name of this divert}
     */
    @Attribute(desc = "routing name of this divert")
    String getRoutingName();
 
    /**
-    * Returns the origin address used by this divert.
+    * {@return the origin address used by this divert}
     */
    @Attribute(desc = "origin address used by this divert")
    String getAddress();
 
    /**
-    * Returns the forwarding address used by this divert.
+    * {@return the forwarding address used by this divert}
     */
    @Attribute(desc = "forwarding address used by this divert")
    String getForwardingAddress();
 
    /**
-    * Return the name of the org.apache.activemq.artemis.core.server.cluster.Transformer implementation associated with this divert.
+    * {@return the name of the {@code org.apache.activemq.artemis.core.server.transformer.Transformer} implementation
+    * associated with this divert}
     */
-   @Attribute(desc = "name of the org.apache.activemq.artemis.core.server.cluster.Transformer implementation associated with this divert")
+   @Attribute(desc = "name of the org.apache.activemq.artemis.core.server.transformer.Transformer implementation associated with this divert")
    String getTransformerClassName();
 
    /**
-    * Returns a map of the properties configured for the transformer.
+    * {@return a map of key/value pairs used to configure the transformer in JSON form}
     */
-   @Attribute(desc = "map of key, value pairs used to configure the transformer in JSON form")
+   @Attribute(desc = "map of key/value pairs used to configure the transformer in JSON form")
    String getTransformerPropertiesAsJSON();
 
    /**
-    * Returns a map of the properties configured for the transformer.
+    * {@return a map of the key/value pairs used to configure the transformer}
     */
-   @Attribute(desc = "map of key, value pairs used to configure the transformer")
+   @Attribute(desc = "map of key/value pairs used to configure the transformer")
    Map<String, String> getTransformerProperties() throws Exception;
 
    /**
-    * Returns the routing type used by this divert.
+    * {@return the routing type used by this divert}
     */
    @Attribute(desc = "routing type used by this divert")
    String getRoutingType();

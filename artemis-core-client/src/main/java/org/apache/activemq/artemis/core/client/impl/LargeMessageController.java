@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 public interface LargeMessageController extends ActiveMQBuffer {
 
    /**
-    * Returns the size of this buffer.
+    * {@return the size of this buffer.}
     */
    long getSize();
 

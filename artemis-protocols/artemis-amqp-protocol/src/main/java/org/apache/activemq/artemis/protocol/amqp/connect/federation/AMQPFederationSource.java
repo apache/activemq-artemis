@@ -63,13 +63,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is the initiating side of a broker federation that occurs over an AMQP
- * broker connection.
+ * This is the initiating side of a broker federation that occurs over an AMQP broker connection.
  * <p>
- * This endpoint will create a control link to the remote peer that is a sender
- * of federation commands which can be used to instruct the remote to initiate
- * federation operations back to this peer over the same connection and without
- * the need for local configuration.
+ * This endpoint will create a control link to the remote peer that is a sender of federation commands which can be used
+ * to instruct the remote to initiate federation operations back to this peer over the same connection and without the
+ * need for local configuration.
  */
 public class AMQPFederationSource extends AMQPFederation {
 
@@ -93,15 +91,12 @@ public class AMQPFederationSource extends AMQPFederation {
    private volatile AMQPFederationConfiguration configuration;
 
    /**
-    * Creates a new AMQP Federation instance that will manage the state of a single AMQP
-    * broker federation instance using an AMQP broker connection as the IO channel.
+    * Creates a new AMQP Federation instance that will manage the state of a single AMQP broker federation instance
+    * using an AMQP broker connection as the IO channel.
     *
-    * @param name
-    *    The name of this federation instance.
-    * @param properties
-    *    A set of optional properties that provide additional configuration.
-    * @param connection
-    *    The broker connection over which this federation will occur.
+    * @param name       The name of this federation instance.
+    * @param properties A set of optional properties that provide additional configuration.
+    * @param connection The broker connection over which this federation will occur.
     */
    public AMQPFederationSource(String name, Map<String, Object> properties, AMQPBrokerConnection connection) {
       super(name, connection.getServer());
@@ -117,7 +112,7 @@ public class AMQPFederationSource extends AMQPFederation {
    }
 
    /**
-    * @return the {@link AMQPBrokerConnection} that this federation is attached to.
+    * {@return the {@link AMQPBrokerConnection} that this federation is attached to}
     */
    public AMQPBrokerConnection getBrokerConnection() {
       return brokerConnection;
@@ -151,14 +146,11 @@ public class AMQPFederationSource extends AMQPFederation {
    }
 
    /**
-    * Adds a new {@link FederationReceiveFromQueuePolicy} entry to the set of policies that the
-    * remote end of this federation will use to create demand on the this server when local
-    * demand is present.
+    * Adds a new {@link FederationReceiveFromQueuePolicy} entry to the set of policies that the remote end of this
+    * federation will use to create demand on the this server when local demand is present.
     *
-    * @param queuePolicy
-    *    The policy to add to the set of configured {@link FederationReceiveFromQueuePolicy} instance.
-    *
-    * @return this {@link AMQPFederationSource} instance.
+    * @param queuePolicy The policy to add to the set of configured {@link FederationReceiveFromQueuePolicy} instance.
+    * @return this {@link AMQPFederationSource} instance
     */
    public synchronized AMQPFederationSource addRemoteQueueMatchPolicy(FederationReceiveFromQueuePolicy queuePolicy) {
       remoteQueueMatchPolicies.putIfAbsent(queuePolicy.getPolicyName(), queuePolicy);
@@ -167,14 +159,12 @@ public class AMQPFederationSource extends AMQPFederation {
    }
 
    /**
-    * Adds a new {@link FederationReceiveFromAddressPolicy} entry to the set of policies that the
-    * remote end of this federation will use to create demand on the this server when local
-    * demand is present.
+    * Adds a new {@link FederationReceiveFromAddressPolicy} entry to the set of policies that the remote end of this
+    * federation will use to create demand on the this server when local demand is present.
     *
-    * @param addressPolicy
-    *    The policy to add to the set of configured {@link FederationReceiveFromAddressPolicy} instance.
-    *
-    * @return this {@link AMQPFederationSource} instance.
+    * @param addressPolicy The policy to add to the set of configured {@link FederationReceiveFromAddressPolicy}
+    *                      instance.
+    * @return this {@link AMQPFederationSource} instance
     */
    public synchronized AMQPFederationSource addRemoteAddressMatchPolicy(FederationReceiveFromAddressPolicy addressPolicy) {
       remoteAddressMatchPolicies.putIfAbsent(addressPolicy.getPolicyName(), addressPolicy);
@@ -183,8 +173,8 @@ public class AMQPFederationSource extends AMQPFederation {
    }
 
    /**
-    * Called by the parent broker connection when the connection has failed and this federation
-    * should tear down any active resources and await a reconnect if one is allowed.
+    * Called by the parent broker connection when the connection has failed and this federation should tear down any
+    * active resources and await a reconnect if one is allowed.
     *
     * @throws ActiveMQException if an error occurs processing the connection interrupted event
     */
@@ -255,14 +245,11 @@ public class AMQPFederationSource extends AMQPFederation {
    }
 
    /**
-    * Called by the parent broker connection when the connection has been established and this
-    * federation should build up its active state based on the configuration.
+    * Called by the parent broker connection when the connection has been established and this federation should build
+    * up its active state based on the configuration.
     *
-    * @param connection
-    *    The new {@link Connection} that represents the currently active connection.
-    * @param session
-    *    The new {@link Session} that was created for use by broker connection resources.
-    *
+    * @param connection The new {@link Connection} that represents the currently active connection.
+    * @param session    The new {@link Session} that was created for use by broker connection resources.
     * @throws ActiveMQException if an error occurs processing the connection restored event
     */
    public final synchronized void connectionRestored(AMQPConnectionContext connection, AMQPSessionContext session) throws ActiveMQException {

@@ -99,7 +99,6 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       return encodeSize;
    }
 
-   // https://jira.jboss.org/jira/browse/HORNETQ-385
    @Test
    public void testReceiveImmediateWithZeroWindow() throws Exception {
       ActiveMQServer server = createServer(false, isNetty());
@@ -152,7 +151,6 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
    }
 
-   // https://jira.jboss.org/jira/browse/HORNETQ-385
    @Test
    public void testReceiveImmediateWithZeroWindow2() throws Exception {
       ActiveMQServer server = createServer(true);
@@ -198,7 +196,6 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       }
    }
 
-   // https://jira.jboss.org/jira/browse/HORNETQ-385
    @Test
    public void testReceiveImmediateWithZeroWindow3() throws Exception {
       ActiveMQServer server = createServer(false, isNetty());
@@ -433,11 +430,11 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       assertEquals(NUMBER_OF_MESSAGES, received.get());
    }
 
-   /*
-   * tests send window size. we do this by having 2 receivers on the q. since we roundrobin the consumer for delivery we
-   * know if consumer 1 has received n messages then consumer 2 must have also have received n messages or at least up
-   * to its window size
-   * */
+   /**
+    * tests send window size. we do this by having 2 receivers on the q. since we roundrobin the consumer for delivery
+    * we know if consumer 1 has received n messages then consumer 2 must have also have received n messages or at least
+    * up to its window size
+    */
    @Test
    public void testSendWindowSize() throws Exception {
       ActiveMQServer messagingService = createServer(false, isNetty());
@@ -884,9 +881,6 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
    class FakeOutputStream extends OutputStream {
 
-      /* (non-Javadoc)
-       * @see java.io.OutputStream#write(int)
-       */
       @Override
       public void write(int b) throws IOException {
       }
@@ -1039,9 +1033,6 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
             int count = 0;
 
-            /* (non-Javadoc)
-             * @see MessageHandler#onMessage(ClientMessage)
-             */
             @Override
             public synchronized void onMessage(final ClientMessage message) {
                try {
@@ -1179,9 +1170,6 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
             int count = 0;
 
-            /* (non-Javadoc)
-             * @see MessageHandler#onMessage(ClientMessage)
-             */
             @Override
             public synchronized void onMessage(final ClientMessage message) {
                try {

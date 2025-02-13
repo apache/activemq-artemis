@@ -39,9 +39,9 @@ import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCerts
 
 /**
  * This implementation delegates to the JAAS security interfaces.
- *
- * The {@link Subject} returned by the login context is expecting to have a set of {@link RolePrincipal} for each
- * role of the user.
+ * <p>
+ * The {@link Subject} returned by the login context is expecting to have a set of {@link RolePrincipal} for each role
+ * of the user.
  */
 public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
 

@@ -29,16 +29,10 @@ import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 
 public class SecurityConfiguration extends Configuration {
 
-   /**
-    * the current valid users
-    */
    protected final Map<String, User> users = new HashMap<>();
 
    protected String defaultUser = null;
 
-   /**
-    * the roles for the users
-    */
    protected final Map<String, List<String>> roles = new HashMap<>();
 
    public SecurityConfiguration() {
@@ -84,9 +78,9 @@ public class SecurityConfiguration extends Configuration {
       roles.get(user).remove(role);
    }
 
-   /*
-   * set the default user for null users
-   */
+   /**
+    * Set the default user for null users.
+    */
    public void setDefaultUser(final String username) {
       defaultUser = username;
    }

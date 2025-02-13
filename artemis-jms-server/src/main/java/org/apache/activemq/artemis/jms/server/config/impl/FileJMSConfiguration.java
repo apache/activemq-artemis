@@ -126,9 +126,7 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
    /**
     * Parse the topic node as a TopicConfiguration object
     *
-    * @param node
     * @return topic configuration
-    * @throws Exception
     */
    public static TopicConfiguration parseTopicConfiguration(final Node node) throws Exception {
       String topicName = node.getAttributes().getNamedItem(NAME_ATTR).getNodeValue();
@@ -139,9 +137,7 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
    /**
     * Parse the Queue Configuration node as a QueueConfiguration object
     *
-    * @param node
     * @return jms queue configuration
-    * @throws Exception
     */
    public static JMSQueueConfiguration parseQueueConfiguration(final Node node) throws Exception {
       Element e = (Element) node;
@@ -163,20 +159,10 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
       return newQueue(queueName, selectorString, durable);
    }
 
-   /**
-    * @param topicName
-    * @return
-    */
    protected static TopicConfiguration newTopic(final String topicName) {
       return new TopicConfigurationImpl().setName(topicName);
    }
 
-   /**
-    * @param queueName
-    * @param selectorString
-    * @param durable
-    * @return
-    */
    protected static JMSQueueConfiguration newQueue(final String queueName,
                                                    final String selectorString,
                                                    final boolean durable) {
@@ -186,11 +172,6 @@ public class FileJMSConfiguration extends JMSConfigurationImpl implements Deploy
          setDurable(durable);
    }
 
-   /**
-    * @param queues
-    * @param topics
-    * @param domain
-    */
    protected void newConfig(final List<JMSQueueConfiguration> queues,
                             final List<TopicConfiguration> topics,
                             String domain) {

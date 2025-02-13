@@ -20,10 +20,6 @@ import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-/**
- *
- *
- */
 public class StubTransportListener implements TransportListener {
 
    private final Queue<Object> commands = new ConcurrentLinkedQueue<>();

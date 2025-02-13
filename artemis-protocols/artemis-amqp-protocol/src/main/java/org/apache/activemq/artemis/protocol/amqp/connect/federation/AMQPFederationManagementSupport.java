@@ -42,16 +42,16 @@ public abstract class AMQPFederationManagementSupport {
    public static final String FEDERATION_SOURCE_POLICY_RESOURCE_TEMPLATE = FEDERATION_SOURCE_RESOURCE_TEMPLATE + ".policy.%s";
 
    /**
-    * Template used to denote federation consumers on the source in the server management registry. Since policy
-    * names are unique on the local broker AMQP federation configuration these names should not collide as each
-    * policy will create only one consumer for a given address or queue.
+    * Template used to denote federation consumers on the source in the server management registry. Since policy names
+    * are unique on the local broker AMQP federation configuration these names should not collide as each policy will
+    * create only one consumer for a given address or queue.
     */
    public static final String FEDERATION_SOURCE_CONSUMER_RESOURCE_TEMPLATE = FEDERATION_SOURCE_POLICY_RESOURCE_TEMPLATE + ".consumer.%s";
 
    /**
-    * Template used to denote federation producers on the source in the server management registry. Since policy
-    * names are unique on the local broker AMQP federation configuration these names should not collide as each
-    * policy will create only one producer for a given address or queue.
+    * Template used to denote federation producers on the source in the server management registry. Since policy names
+    * are unique on the local broker AMQP federation configuration these names should not collide as each policy will
+    * create only one producer for a given address or queue.
     */
    public static final String FEDERATION_SOURCE_PRODUCER_RESOURCE_TEMPLATE = FEDERATION_SOURCE_POLICY_RESOURCE_TEMPLATE + ".producer.%s";
 
@@ -68,16 +68,16 @@ public abstract class AMQPFederationManagementSupport {
    public static final String FEDERATION_TARGET_POLICY_RESOURCE_TEMPLATE = FEDERATION_TARGET_RESOURCE_TEMPLATE + ".policy.%s";
 
    /**
-    * Template used to denote federation consumers on the source in the server management registry. Since policy
-    * names are unique on the local broker AMQP federation configuration these names should not collide as each
-    * policy will create only one consumer for a given address or queue.
+    * Template used to denote federation consumers on the source in the server management registry. Since policy names
+    * are unique on the local broker AMQP federation configuration these names should not collide as each policy will
+    * create only one consumer for a given address or queue.
     */
    public static final String FEDERATION_TARGET_CONSUMER_RESOURCE_TEMPLATE = FEDERATION_TARGET_POLICY_RESOURCE_TEMPLATE + ".consumer.%s";
 
    /**
-    * Template used to denote federation producers on the source in the server management registry. Since policy
-    * names are unique on the local broker AMQP federation configuration these names should not collide as each
-    * policy will create only one producer for a given address or queue.
+    * Template used to denote federation producers on the source in the server management registry. Since policy names
+    * are unique on the local broker AMQP federation configuration these names should not collide as each policy will
+    * create only one producer for a given address or queue.
     */
    public static final String FEDERATION_TARGET_PRODUCER_RESOURCE_TEMPLATE = FEDERATION_TARGET_POLICY_RESOURCE_TEMPLATE + ".producer.%s";
 
@@ -85,38 +85,38 @@ public abstract class AMQPFederationManagementSupport {
    // either source or target end of the broker connection.
 
    /**
-    * The template used to create the object name suffix that is appending to the broker connection
-    * object name when adding and removing AMQP federation policy control elements.
+    * The template used to create the object name suffix that is appending to the broker connection object name when
+    * adding and removing AMQP federation policy control elements.
     */
    public static final String FEDERATION_NAME_TEMPLATE = "serviceCatagory=federations,federationName=%s";
 
    /**
-    * The template used to create the object name suffix that is appending to the broker connection
-    * object name when adding and removing AMQP federation policy control elements.
+    * The template used to create the object name suffix that is appending to the broker connection object name when
+    * adding and removing AMQP federation policy control elements.
     */
    public static final String FEDERATION_POLICY_NAME_TEMPLATE = FEDERATION_NAME_TEMPLATE + ",policyType=%s,policyName=%s";
 
    /**
-    * The template used to create the object name suffix that is appending to the broker connection
-    * object name when adding and removing AMQP federation queue consumer control elements.
+    * The template used to create the object name suffix that is appending to the broker connection object name when
+    * adding and removing AMQP federation queue consumer control elements.
     */
    public static final String FEDERATION_QUEUE_CONSUMER_NAME_TEMPLATE = FEDERATION_POLICY_NAME_TEMPLATE + ",linkType=consumers,fqqn=%s";
 
    /**
-    * The template used to create the object name suffix that is appending to the broker connection
-    * object name when adding and removing AMQP federation address consumer control elements.
+    * The template used to create the object name suffix that is appending to the broker connection object name when
+    * adding and removing AMQP federation address consumer control elements.
     */
    public static final String FEDERATION_ADDRESS_CONSUMER_NAME_TEMPLATE = FEDERATION_POLICY_NAME_TEMPLATE + ",linkType=consumers,address=%s";
 
    /**
-    * The template used to create the object name suffix that is appending to the broker connection
-    * object name when adding and removing AMQP federation queue producer control elements.
+    * The template used to create the object name suffix that is appending to the broker connection object name when
+    * adding and removing AMQP federation queue producer control elements.
     */
    public static final String FEDERATION_QUEUE_PRODUCER_NAME_TEMPLATE = FEDERATION_POLICY_NAME_TEMPLATE + ",linkType=producers,fqqn=%s";
 
    /**
-    * The template used to create the object name suffix that is appending to the broker connection
-    * object name when adding and removing AMQP federation address producer control elements.
+    * The template used to create the object name suffix that is appending to the broker connection object name when
+    * adding and removing AMQP federation address producer control elements.
     */
    public static final String FEDERATION_ADDRESS_PRODUCER_NAME_TEMPLATE = FEDERATION_POLICY_NAME_TEMPLATE + ",linkType=producers,address=%s";
 
@@ -125,9 +125,7 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Register the given {@link AMQPFederationSource} instance with the broker management services.
     *
-    * @param federation
-    *    The federation source instance being registered with management.
-    *
+    * @param federation The federation source instance being registered with management.
     * @throws Exception if an error occurs while registering the federation with the management services.
     */
    public static void registerFederationSource(AMQPFederationSource federation) throws Exception {
@@ -144,9 +142,7 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Unregister the given {@link AMQPFederationSource} instance with the broker management services.
     *
-    * @param federation
-    *    The federation source instance being unregistered from management.
-    *
+    * @param federation The federation source instance being unregistered from management.
     * @throws Exception if an error occurs while unregistering the federation with the management services.
     */
    public static void unregisterFederationSource(AMQPFederationSource federation) throws Exception {
@@ -173,9 +169,7 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Register the given {@link AMQPFederationTarget} instance with the broker management services.
     *
-    * @param federation
-    *    The federation target instance being registered with management.
-    *
+    * @param federation The federation target instance being registered with management.
     * @throws Exception if an error occurs while registering the federation with the management services.
     */
    public static void registerFederationTarget(String remoteNodeId, String brokerConnectionName, AMQPFederationTarget federation) throws Exception {
@@ -191,9 +185,7 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Unregister the given {@link AMQPFederationTarget} instance with the broker management services.
     *
-    * @param federation
-    *    The federation target instance being unregistered from management.
-    *
+    * @param federation The federation target instance being unregistered from management.
     * @throws Exception if an error occurs while unregistering the federation with the management services.
     */
    public static void unregisterFederationTarget(String remoteNodeId, String brokerConnectionName, AMQPFederationTarget federation) throws Exception {
@@ -221,11 +213,8 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Register a local federation policy manager with the server management services for a federation source.
     *
-    * @param brokerConnectionName
-    *    The name of the broker connection that owns the manager being registered.
-    * @param manager
-    *    The AMQP federation policy manager instance that is being managed.
-    *
+    * @param brokerConnectionName The name of the broker connection that owns the manager being registered.
+    * @param manager              The AMQP federation policy manager instance that is being managed.
     * @throws Exception if an error occurs while registering the manager with the management services.
     */
    public static void registerLocalPolicyOnSource(String brokerConnectionName, AMQPFederationLocalPolicyManager manager) throws Exception {
@@ -243,11 +232,8 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Unregister a local federation policy manager with the server management services for a federation source.
     *
-    * @param brokerConnectionName
-    *    The name of the broker connection that owns the manager being unregistered.
-    * @param manager
-    *    The AMQP federation policy manager instance that is being managed.
-    *
+    * @param brokerConnectionName The name of the broker connection that owns the manager being unregistered.
+    * @param manager              The AMQP federation policy manager instance that is being managed.
     * @throws Exception if an error occurs while unregistering the manager with the management services.
     */
    public static void unregisterLocalPolicyOnSource(String brokerConnectionName, AMQPFederationLocalPolicyManager manager) throws Exception {
@@ -264,11 +250,8 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Register a remote federation policy manager with the server management services for a federation source.
     *
-    * @param brokerConnectionName
-    *    The name of the broker connection that owns the manager being registered.
-    * @param manager
-    *    The AMQP federation policy manager instance that is being managed.
-    *
+    * @param brokerConnectionName The name of the broker connection that owns the manager being registered.
+    * @param manager              The AMQP federation policy manager instance that is being managed.
     * @throws Exception if an error occurs while registering the manager with the management services.
     */
    public static void registerRemotePolicyOnSource(String brokerConnectionName, AMQPFederationRemotePolicyManager manager) throws Exception {
@@ -286,11 +269,8 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Unregister a remote federation policy manager with the server management services for a federation source.
     *
-    * @param brokerConnectionName
-    *    The name of the broker connection that owns the manager being unregistered.
-    * @param manager
-    *    The AMQP federation policy manager instance that is being managed.
-    *
+    * @param brokerConnectionName The name of the broker connection that owns the manager being unregistered.
+    * @param manager              The AMQP federation policy manager instance that is being managed.
     * @throws Exception if an error occurs while unregistering the manager with the management services.
     */
    public static void unregisterRemotePolicyOnSource(String brokerConnectionName, AMQPFederationRemotePolicyManager manager) throws Exception {
@@ -320,13 +300,9 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Register a local federation policy manager with the server management services for a federation target.
     *
-    * @param remoteNodeId
-    *    The remote broker node ID that is the source of the federation operations.
-    * @param brokerConnectionName
-    *    The name of the remote broker connection that owns the manager being registered.
-    * @param manager
-    *    The AMQP federation policy manager instance that is being managed.
-    *
+    * @param remoteNodeId         The remote broker node ID that is the source of the federation operations.
+    * @param brokerConnectionName The name of the remote broker connection that owns the manager being registered.
+    * @param manager              The AMQP federation policy manager instance that is being managed.
     * @throws Exception if an error occurs while registering the manager with the management services.
     */
    public static void registerLocalPolicyOnTarget(String remoteNodeId, String brokerConnectionName, AMQPFederationLocalPolicyManager manager) throws Exception {
@@ -344,13 +320,9 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Unregister a local federation policy manager with the server management services for a federation target.
     *
-    * @param remoteNodeId
-    *    The remote broker node ID that is the source of the federation operations.
-    * @param brokerConnectionName
-    *    The name of the remote broker connection that owns the manager being unregistered.
-    * @param manager
-    *    The AMQP federation policy manager instance that is being managed.
-    *
+    * @param remoteNodeId         The remote broker node ID that is the source of the federation operations.
+    * @param brokerConnectionName The name of the remote broker connection that owns the manager being unregistered.
+    * @param manager              The AMQP federation policy manager instance that is being managed.
     * @throws Exception if an error occurs while unregistering the manager with the management services.
     */
    public static void unregisterLocalPolicyOnTarget(String remoteNodeId, String brokerConnectionName, AMQPFederationLocalPolicyManager manager) throws Exception {
@@ -367,13 +339,9 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Register a remote federation policy manager with the server management services for a federation target.
     *
-    * @param remoteNodeId
-    *    The remote broker node ID that is the source of the federation operations.
-    * @param brokerConnectionName
-    *    The name of the remote broker connection that owns the manager being registered.
-    * @param manager
-    *    The AMQP federation policy manager instance that is being managed.
-    *
+    * @param remoteNodeId         The remote broker node ID that is the source of the federation operations.
+    * @param brokerConnectionName The name of the remote broker connection that owns the manager being registered.
+    * @param manager              The AMQP federation policy manager instance that is being managed.
     * @throws Exception if an error occurs while registering the manager with the management services.
     */
    public static void registerRemotePolicyOnTarget(String remoteNodeId, String brokerConnectionName, AMQPFederationRemotePolicyManager manager) throws Exception {
@@ -391,13 +359,9 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Unregister a remote federation policy manager with the server management services for a federation target.
     *
-    * @param remoteNodeId
-    *    The remote broker node ID that is the source of the federation operations.
-    * @param brokerConnectionName
-    *    The name of the remote broker connection that owns the manager being unregistered.
-    * @param manager
-    *    The AMQP federation policy manager instance that is being managed.
-    *
+    * @param remoteNodeId         The remote broker node ID that is the source of the federation operations.
+    * @param brokerConnectionName The name of the remote broker connection that owns the manager being unregistered.
+    * @param manager              The AMQP federation policy manager instance that is being managed.
     * @throws Exception if an error occurs while unregistering the manager with the management services.
     */
    public static void unregisterRemotePolicyOnTarget(String remoteNodeId, String brokerConnectionName, AMQPFederationRemotePolicyManager manager) throws Exception {
@@ -429,11 +393,8 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Registers the federation consumer with the server management services on the source.
     *
-    * @param brokerConnectionName
-    *    The name of the broker connection that owns the consumer being registered.
-    * @param consumer
-    *    The AMQP federation consumer instance that is being managed.
-    *
+    * @param brokerConnectionName The name of the broker connection that owns the consumer being registered.
+    * @param consumer             The AMQP federation consumer instance that is being managed.
     * @throws Exception if an error occurs while registering the consumer with the management services.
     */
    public static void registerFederationSourceConsumer(String brokerConnectionName, AMQPFederationConsumer consumer) throws Exception {
@@ -457,11 +418,8 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Unregisters the federation consumer with the server management services on the source.
     *
-    * @param brokerConnectionName
-    *    The name of the broker connection that owns the consumer being registered.
-    * @param consumer
-    *    The AMQP federation consumer instance that is being managed.
-    *
+    * @param brokerConnectionName The name of the broker connection that owns the consumer being registered.
+    * @param consumer             The AMQP federation consumer instance that is being managed.
     * @throws Exception if an error occurs while registering the consumer with the management services.
     */
    public static void unregisterFederationSourceConsumer(String brokerConnectionName, AMQPFederationConsumer consumer) throws Exception {
@@ -484,11 +442,8 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Registers the federation producer with the server management services on the source.
     *
-    * @param brokerConnectionName
-    *    The name of the broker connection that owns the producer being registered.
-    * @param sender
-    *    The AMQP federation sender controller that manages the federation producer.
-    *
+    * @param brokerConnectionName The name of the broker connection that owns the producer being registered.
+    * @param sender               The AMQP federation sender controller that manages the federation producer.
     * @throws Exception if an error occurs while registering the producer with the management services.
     */
    public static void registerFederationSourceProducer(String brokerConnectionName, AMQPFederationSenderController sender) throws Exception {
@@ -516,11 +471,8 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Unregisters the federation producer with the server management services on the source.
     *
-    * @param brokerConnectionName
-    *    The name of the broker connection that owns the producer being registered.
-    * @param sender
-    *    The AMQP federation sender controller that manages the federation producer.
-    *
+    * @param brokerConnectionName The name of the broker connection that owns the producer being registered.
+    * @param sender               The AMQP federation sender controller that manages the federation producer.
     * @throws Exception if an error occurs while registering the producer with the management services.
     */
    public static void unregisterFederationSourceProducer(String brokerConnectionName, AMQPFederationSenderController sender) throws Exception {
@@ -603,11 +555,8 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Registers the federation consumer with the server management services on the target.
     *
-    * @param brokerConnectionName
-    *    The name of the remote broker connection that owns the consumer being registered.
-    * @param consumer
-    *    The AMQP federation consumer instance that is being managed.
-    *
+    * @param brokerConnectionName The name of the remote broker connection that owns the consumer being registered.
+    * @param consumer             The AMQP federation consumer instance that is being managed.
     * @throws Exception if an error occurs while registering the consumer with the management services.
     */
    public static void registerFederationTargetConsumer(String remoteNodeId, String brokerConnectionName, AMQPFederationConsumer consumer) throws Exception {
@@ -631,11 +580,8 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Unregisters the federation consumer with the server management services on the target.
     *
-    * @param brokerConnectionName
-    *    The name of the remote broker connection that owns the consumer being registered.
-    * @param consumer
-    *    The AMQP federation consumer instance that is being managed.
-    *
+    * @param brokerConnectionName The name of the remote broker connection that owns the consumer being registered.
+    * @param consumer             The AMQP federation consumer instance that is being managed.
     * @throws Exception if an error occurs while registering the consumer with the management services.
     */
    public static void unregisterFederationTargetConsumer(String remoteNodeId, String brokerConnectionName, AMQPFederationConsumer consumer) throws Exception {
@@ -658,11 +604,8 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Registers the federation producer with the server management services on the target.
     *
-    * @param brokerConnectionName
-    *    The name of the remote broker connection that owns the producer being registered.
-    * @param sender
-    *    The AMQP federation sender controller that manages the federation producer.
-    *
+    * @param brokerConnectionName The name of the remote broker connection that owns the producer being registered.
+    * @param sender               The AMQP federation sender controller that manages the federation producer.
     * @throws Exception if an error occurs while registering the producer with the management services.
     */
    public static void registerFederationTargetProducer(String remoteNodeId, String brokerConnectionName, AMQPFederationSenderController sender) throws Exception {
@@ -690,11 +633,8 @@ public abstract class AMQPFederationManagementSupport {
    /**
     * Unregisters the federation producer with the server management services on the target.
     *
-    * @param brokerConnectionName
-    *    The name of the remote broker connection that owns the producer being registered.
-    * @param sender
-    *    The AMQP federation sender controller that manages the federation producer.
-    *
+    * @param brokerConnectionName The name of the remote broker connection that owns the producer being registered.
+    * @param sender               The AMQP federation sender controller that manages the federation producer.
     * @throws Exception if an error occurs while registering the producer with the management services.
     */
    public static void unregisterFederationTargetProducer(String remoteNodeId, String brokerConnectionName, AMQPFederationSenderController sender) throws Exception {

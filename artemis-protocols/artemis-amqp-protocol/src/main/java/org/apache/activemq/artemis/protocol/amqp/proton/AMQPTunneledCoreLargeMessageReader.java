@@ -49,10 +49,9 @@ import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.Unpooled;
 
 /**
- * Reader of tunneled large Core message that have been written as the body of an
- * AMQP delivery with a custom message format that indicates this payload. The reader
- * will extract bytes from the delivery and write them into a Core large message file
- * which is then routed into the broker as if received from a Core connection.
+ * Reader of tunneled large Core message that have been written as the body of an AMQP delivery with a custom message
+ * format that indicates this payload. The reader will extract bytes from the delivery and write them into a Core large
+ * message file which is then routed into the broker as if received from a Core connection.
  */
 public class AMQPTunneledCoreLargeMessageReader implements MessageReader {
 
@@ -60,20 +59,18 @@ public class AMQPTunneledCoreLargeMessageReader implements MessageReader {
 
    private enum State {
       /**
-       * Awaiting initial decode of first section in delivery which could be delivery
-       * annotations or could be the first data section which will be the core message
-       * headers and properties.
+       * Awaiting initial decode of first section in delivery which could be delivery annotations or could be the first
+       * data section which will be the core message headers and properties.
        */
       INITIALIZING,
       /**
-       * Accumulating the bytes from the remote that comprise the message headers and
-       * properties that must be decoded before creating the large message instance.
+       * Accumulating the bytes from the remote that comprise the message headers and properties that must be decoded
+       * before creating the large message instance.
        */
       CORE_HEADER_BUFFERING,
       /**
-       * Awaiting a Data section that contains some or all of the bytes of the
-       * Core large message body, there can be multiple Data sections if the size
-       * is greater than 2GB or the peer encodes them in smaller chunks
+       * Awaiting a Data section that contains some or all of the bytes of the Core large message body, there can be
+       * multiple Data sections if the size is greater than 2GB or the peer encodes them in smaller chunks
        */
       BODY_SECTION_PENDING,
       /**

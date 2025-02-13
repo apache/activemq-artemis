@@ -226,9 +226,6 @@ public class LargeJournalStressTest extends ActiveMQTestBase {
       locator = createInVMNonHALocator().setBlockOnAcknowledge(false).setBlockOnNonDurableSend(false).setBlockOnDurableSend(false);
    }
 
-   /**
-    * @throws Exception
-    */
    private void setupServer(final JournalType journalType) throws Exception {
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setJournalFileSize(ActiveMQDefaultConfiguration.getDefaultJournalFileSize()).setJournalType(journalType).setJournalCompactMinFiles(0).setJournalCompactPercentage(50);
 

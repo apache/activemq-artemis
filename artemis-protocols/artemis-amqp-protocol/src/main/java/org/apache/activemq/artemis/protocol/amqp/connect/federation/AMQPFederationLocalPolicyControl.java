@@ -24,19 +24,19 @@ import org.apache.activemq.artemis.api.core.management.Attribute;
 public interface AMQPFederationLocalPolicyControl {
 
    /**
-    * Returns the type of the AMQP federation policy manager being controlled
+    * {@return the type of the AMQP federation policy manager being controlled}
     */
    @Attribute(desc = "AMQP federation policy manager type that backs this control instance.")
    String getType();
 
    /**
-    * Returns the configured name the AMQP federation policy manager being controlled
+    * {@return the configured name the AMQP federation policy manager being controlled}
     */
    @Attribute(desc = "The configured AMQP federation policy name that backs this control instance.")
    String getName();
 
    /**
-    * Returns the number of messages this federation policy has received from the remote.
+    * {@return the number of messages this federation policy has received from the remote}
     */
    @Attribute(desc = "returns the number of messages this federation policy has received from the remote")
    long getMessagesReceived();

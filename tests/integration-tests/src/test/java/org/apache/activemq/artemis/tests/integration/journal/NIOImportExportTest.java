@@ -25,15 +25,10 @@ import org.junit.jupiter.api.Test;
 
 public class NIOImportExportTest extends JournalImplTestBase {
 
-   /* (non-Javadoc)
-    * @see JournalImplTestBase#getFileFactory()
-    */
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception {
       return new NIOSequentialFileFactory(getTestDirfile(), true, 1);
    }
-
-
 
    @Test
    public void testExportImport() throws Exception {

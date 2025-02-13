@@ -687,9 +687,8 @@ public class LargeMessageCompressTest extends LargeMessageTestBase {
    /**
     * Generate compressible data.
     * <p>
-    * Based on "SDGen: Mimicking Datasets for Content Generation in Storage
-    * Benchmarks" by Raúl Gracia-Tinedo et al. (https://www.usenix.org/node/188461)
-    * and https://github.com/jibsen/lzdatagen
+    * Based on "SDGen: Mimicking Datasets for Content Generation in Storage Benchmarks" by Raúl Gracia-Tinedo et al.
+    * (https://www.usenix.org/node/188461) and https://github.com/jibsen/lzdatagen
     */
    public static class DeflateGenerator {
 

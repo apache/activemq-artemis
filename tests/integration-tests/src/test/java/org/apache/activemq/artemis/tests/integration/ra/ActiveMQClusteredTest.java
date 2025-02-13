@@ -49,9 +49,9 @@ import org.junit.jupiter.api.Test;
 
 public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
 
-   /*
-   * the second server has no queue so this tests for partial initialisation
-   * */
+   /**
+    * The second server has no queue so this tests for partial initialisation
+    */
    @Test
    public void testShutdownOnPartialConnect() throws Exception {
       secondaryServer.getAddressSettingsRepository().getMatch(MDBQUEUE).setAutoCreateQueues(false).setAutoCreateAddresses(false);
@@ -82,8 +82,6 @@ public class ActiveMQClusteredTest extends ActiveMQRAClusteredTestBase {
    /**
     * https://bugzilla.redhat.com/show_bug.cgi?id=1029076
     * Look at the logs for this test, if you see exceptions it's an issue.
-    *
-    * @throws Exception
     */
    @Test
    public void testNonDurableInCluster() throws Exception {

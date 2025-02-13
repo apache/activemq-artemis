@@ -42,8 +42,7 @@ public class RecordInfo {
    }
 
    /**
-    * How many times this record was compacted (up to 7 times)
-    * After the record has reached 7 times, it will always be 7
+    * How many times this record was compacted (up to 7 times) After the record has reached 7 times, it will always be 7
     * As we only store up to 0x7 binary, as part of the recordID (binary 111)
     */
    public final short compactCount;

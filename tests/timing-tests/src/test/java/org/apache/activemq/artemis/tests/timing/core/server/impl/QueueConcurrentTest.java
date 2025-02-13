@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A concurrent QueueTest
- *
+ * <p>
  * All the concurrent queue tests go in here
  */
 public class QueueConcurrentTest extends ActiveMQTestBase {
@@ -60,7 +60,7 @@ public class QueueConcurrentTest extends ActiveMQTestBase {
       super.tearDown();
    }
 
-   /*
+   /**
     * Concurrent set consumer not busy, busy then, call deliver while messages are being added and consumed
     */
    @Test

@@ -91,8 +91,6 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
 
    /**
     * Recreates the connection.
-    *
-    * @throws JMSException
     */
    protected void reconnectSession() throws JMSException {
       if (session != null) {
@@ -123,8 +121,6 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
 
    /**
     * Sends a batch of messages and validates that the messages are received.
-    *
-    * @throws Exception
     */
    @Test
    public void testSendReceiveTransactedBatches() throws Exception {
@@ -153,10 +149,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    }
 
    /**
-    * Sends a batch of messages and validates that the rollbacked message was
-    * not consumed.
-    *
-    * @throws Exception
+    * Sends a batch of messages and validates that the rollbacked message was not consumed.
     */
    @Test
    public void testSendRollback() throws Exception {
@@ -196,8 +189,6 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
 
    /**
     * spec section 3.6 acking a message with automation acks has no effect.
-    *
-    * @throws Exception
     */
    @Test
    public void testAckMessageInTx() throws Exception {
@@ -224,12 +215,9 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    }
 
    /**
-    * Sends a batch of messages and validates that the message sent before
-    * session close is not consumed.
-    *
+    * Sends a batch of messages and validates that the message sent before session close is not consumed.
+    * <p>
     * This test only works with local transactions, not xa.
-    *
-    * @throws Exception
     */
    @Test
    public void testSendSessionClose() throws Exception {
@@ -269,10 +257,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    }
 
    /**
-    * Sends a batch of messages and validates that the message sent before
-    * session close is not consumed.
-    *
-    * @throws Exception
+    * Sends a batch of messages and validates that the message sent before session close is not consumed.
     */
    @Test
    public void testSendSessionAndConnectionClose() throws Exception {
@@ -314,10 +299,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    }
 
    /**
-    * Sends a batch of messages and validates that the rollbacked message was
-    * redelivered.
-    *
-    * @throws Exception
+    * Sends a batch of messages and validates that the rollbacked message was redelivered.
     */
    @Test
    public void testReceiveRollback() throws Exception {
@@ -364,10 +346,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    }
 
    /**
-    * Sends a batch of messages and validates that the rollbacked message was
-    * redelivered.
-    *
-    * @throws Exception
+    * Sends a batch of messages and validates that the rollbacked message was redelivered.
     */
    @Test
    public void testReceiveTwoThenRollback() throws Exception {
@@ -415,10 +394,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    }
 
    /**
-    * Sends a batch of messages and validates that the rollbacked message was
-    * not consumed.
-    *
-    * @throws Exception
+    * Sends a batch of messages and validates that the rollbacked message was not consumed.
     */
    @Test
    public void testSendReceiveWithPrefetchOne() throws Exception {
@@ -444,10 +420,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    }
 
    /**
-    * Perform the test that validates if the rollbacked message was redelivered
-    * multiple times.
-    *
-    * @throws Exception
+    * Perform the test that validates if the rollbacked message was redelivered multiple times.
     */
    @Test
    public void testReceiveTwoThenRollbackManyTimes() throws Exception {
@@ -455,10 +428,8 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    }
 
    /**
-    * Sends a batch of messages and validates that the rollbacked message was
-    * not consumed. This test differs by setting the message prefetch to one.
-    *
-    * @throws Exception
+    * Sends a batch of messages and validates that the rollbacked message was not consumed. This test differs by setting
+    * the message prefetch to one.
     */
    @Test
    public void testSendRollbackWithPrefetchOfOne() throws Exception {
@@ -467,10 +438,8 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    }
 
    /**
-    * Sends a batch of messages and and validates that the rollbacked message
-    * was redelivered. This test differs by setting the message prefetch to one.
-    *
-    * @throws Exception
+    * Sends a batch of messages and and validates that the rollbacked message was redelivered. This test differs by
+    * setting the message prefetch to one.
     */
    @Test
    public void testReceiveRollbackWithPrefetchOfOne() throws Exception {
@@ -479,8 +448,7 @@ public abstract class JmsTransactionTestSupport extends BasicOpenWireTest implem
    }
 
    /**
-    * Tests if the messages can still be received if the consumer is closed
-    * (session is not closed).
+    * Tests if the messages can still be received if the consumer is closed (session is not closed).
     *
     * @throws Exception see http://jira.codehaus.org/browse/AMQ-143
     */

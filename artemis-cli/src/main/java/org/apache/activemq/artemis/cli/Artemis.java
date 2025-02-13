@@ -62,14 +62,13 @@ import picocli.CommandLine.Command;
 
 /**
  * Artemis is the main CLI entry point for managing/running a broker.
- *
- * Want to start or debug a broker from an IDE?  This is probably the best class to
- * run.  Make sure set the -Dartemis.instance=path/to/instance system property.
- * You should also use the 'apache-artemis' module for the class path since that
- * includes all artemis modules.
- *
- * Notice that this class should not use any logging as it's part of the bootstrap and using logging here could
- *        disrupt the order of bootstrapping on certain components (e.g. JMX being started from log4j)
+ * <p>
+ * Want to start or debug a broker from an IDE?  This is probably the best class to run.  Make sure set the
+ * -Dartemis.instance=path/to/instance system property. You should also use the 'apache-artemis' module for the class
+ * path since that includes all artemis modules.
+ * <p>
+ * Notice that this class should not use any logging as it's part of the bootstrap and using logging here could disrupt
+ * the order of bootstrapping on certain components (e.g. JMX being started from log4j)
  */
 @Command(name = "artemis", description = "ActiveMQ Artemis Command Line")
 public class Artemis implements Runnable {
@@ -194,8 +193,7 @@ public class Artemis implements Runnable {
    }
 
    /**
-    * This method is used to validate exception returns.
-    * Useful on test cases
+    * This method is used to validate exception returns. Useful on test cases.
     */
    private static Object internalExecute(boolean shellEnabled, File artemisHome, File artemisInstance, File etcFolder, String[] args) throws Exception {
       return internalExecute(shellEnabled, artemisHome, artemisInstance, etcFolder, args, new ActionContext());

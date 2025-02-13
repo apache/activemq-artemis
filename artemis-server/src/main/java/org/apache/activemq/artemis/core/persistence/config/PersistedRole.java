@@ -91,9 +91,6 @@ public class PersistedRole implements EncodingSupport {
       }
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       StringBuilder result = new StringBuilder();

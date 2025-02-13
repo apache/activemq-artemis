@@ -25,9 +25,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.spy;
 
-/**
- * HttpAcceptorHandlerTest
- */
 @ExtendWith(MockitoExtension.class)
 public class HttpAcceptorHandlerTest {
 

@@ -78,8 +78,7 @@ public class ConnectionFactoryPropertiesTest extends ActiveMQTestBase {
       UNSUPPORTED_RA_PROPERTIES.add("jgroupsChannelRefName");
       UNSUPPORTED_RA_PROPERTIES.add("entries");
 
-      // TODO: shouldn't this be also set on the ActiveMQConnectionFactory:
-      // https://community.jboss.org/thread/211815?tstart=0
+      // TODO: shouldn't this be also set on the ActiveMQConnectionFactory?
       UNSUPPORTED_RA_PROPERTIES.add("connectionPoolName");
    }
 

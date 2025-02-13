@@ -320,10 +320,8 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
    }
 
    /**
-    * This will add routing information to the message.
-    * This will be later processed during the delivery between the nodes. Because of that this has to be persisted as a property on the message.
-    *
-    * @param message
+    * This will add routing information to the message. This will be later processed during the delivery between the
+    * nodes. Because of that this has to be persisted as a property on the message.
     */
    private void addRouteContextToMessage(final Message message) {
       byte[] ids = message.getExtraBytesProperty(idsHeaderName);

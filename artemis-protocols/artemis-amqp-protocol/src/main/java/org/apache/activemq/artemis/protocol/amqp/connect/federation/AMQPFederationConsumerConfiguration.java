@@ -17,6 +17,13 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
+
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_RECEIVER_IDLE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_FILTERS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
@@ -28,18 +35,9 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
-import org.apache.qpid.proton.engine.Receiver;
-
 /**
- * Configuration options applied to a consumer created from federation policies
- * for address or queue federation. The options first check the policy properties
- * for matching configuration settings before looking at the federation's own
+ * Configuration options applied to a consumer created from federation policies for address or queue federation. The
+ * options first check the policy properties for matching configuration settings before looking at the federation's own
  * configuration for the options managed here.
  */
 public final class AMQPFederationConsumerConfiguration {
@@ -61,7 +59,7 @@ public final class AMQPFederationConsumerConfiguration {
    }
 
    /**
-    * @return the credit batch size offered to a {@link Receiver} link.
+    * {@return the credit batch size offered to a {@link org.apache.qpid.proton.engine.Receiver} link}
     */
    public int getReceiverCredits() {
       final Object property = properties.get(RECEIVER_CREDITS);
@@ -75,7 +73,8 @@ public final class AMQPFederationConsumerConfiguration {
    }
 
    /**
-    * @return the number of remaining credits on a {@link Receiver} before the batch is replenished.
+    * {@return the number of remaining credits on a {@link org.apache.qpid.proton.engine.Receiver} before the batch is
+    * replenished}
     */
    public int getReceiverCreditsLow() {
       final Object property = properties.get(RECEIVER_CREDITS_LOW);
@@ -89,7 +88,7 @@ public final class AMQPFederationConsumerConfiguration {
    }
 
    /**
-    * @return the receiver drain timeout for a stopping federation consumer before it is closed.
+    * {@return the receiver drain timeout for a stopping federation consumer before it is closed}
     */
    public int getReceiverQuiesceTimeout() {
       final Object property = properties.get(RECEIVER_QUIESCE_TIMEOUT);
@@ -103,7 +102,7 @@ public final class AMQPFederationConsumerConfiguration {
    }
 
    /**
-    * @return the idle timeout for a drained federation address consumer before it is closed.
+    * {@return the idle timeout for a drained federation address consumer before it is closed}
     */
    public int getAddressReceiverIdleTimeout() {
       final Object property = properties.get(ADDRESS_RECEIVER_IDLE_TIMEOUT);
@@ -117,7 +116,7 @@ public final class AMQPFederationConsumerConfiguration {
    }
 
    /**
-    * @return the idle timeout for a drained federation queue consumer before it is closed.
+    * {@return the idle timeout for a drained federation queue consumer before it is closed}
     */
    public int getQueueReceiverIdleTimeout() {
       final Object property = properties.get(QUEUE_RECEIVER_IDLE_TIMEOUT);
@@ -131,7 +130,8 @@ public final class AMQPFederationConsumerConfiguration {
    }
 
    /**
-    * @return the credit batch size offered to a {@link Receiver} link that is in pull mode.
+    * {@return the credit batch size offered to a {@link org.apache.qpid.proton.engine.Receiver} link that is in pull
+    * mode}
     */
    public int getPullReceiverBatchSize() {
       final Object property = properties.get(PULL_RECEIVER_BATCH_SIZE);
@@ -145,7 +145,8 @@ public final class AMQPFederationConsumerConfiguration {
    }
 
    /**
-    * @return the size in bytes of an incoming message after which the {@link Receiver} treats it as large.
+    * {@return the size in bytes of an incoming message after which the {@link org.apache.qpid.proton.engine.Receiver}
+    * treats it as large}
     */
    public int getLargeMessageThreshold() {
       final Object property = properties.get(LARGE_MESSAGE_THRESHOLD);
@@ -159,7 +160,7 @@ public final class AMQPFederationConsumerConfiguration {
    }
 
    /**
-    * @return the timeout value to use when waiting for a corresponding link attach from the remote.
+    * {@return the timeout value to use when waiting for a corresponding link attach from the remote}
     */
    public int getLinkAttachTimeout() {
       final Object property = properties.get(LINK_ATTACH_TIMEOUT);
@@ -173,7 +174,7 @@ public final class AMQPFederationConsumerConfiguration {
    }
 
    /**
-    * @return true if the federation is configured to tunnel core messages as AMQP custom messages.
+    * {@return {@code true} if the federation is configured to tunnel core messages as AMQP custom messages}
     */
    public boolean isCoreMessageTunnelingEnabled() {
       final Object property = properties.get(AmqpSupport.TUNNEL_CORE_MESSAGES);
@@ -187,7 +188,7 @@ public final class AMQPFederationConsumerConfiguration {
    }
 
    /**
-    * @return <code>true</code> if federation is configured to ignore filters on individual queue consumers
+    * {@return {@code true} if federation is configured to ignore filters on individual queue consumers}
     */
    public boolean isIgnoreSubscriptionFilters() {
       final Object property = properties.get(IGNORE_QUEUE_CONSUMER_FILTERS);
@@ -201,7 +202,7 @@ public final class AMQPFederationConsumerConfiguration {
    }
 
    /**
-    * @return <code>true</code> if federation is configured to ignore priorities on individual queue consumers
+    * {@return {@code true} if federation is configured to ignore priorities on individual queue consumers}
     */
    public boolean isIgnoreSubscriptionPriorities() {
       final Object property = properties.get(IGNORE_QUEUE_CONSUMER_PRIORITIES);

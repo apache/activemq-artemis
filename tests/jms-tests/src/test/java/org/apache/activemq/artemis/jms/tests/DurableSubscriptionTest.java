@@ -35,8 +35,7 @@ import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests focused on durable subscription behavior. More durable subscription tests can be found in
- * MessageConsumerTest.
+ * Tests focused on durable subscription behavior. More durable subscription tests can be found in MessageConsumerTest.
  */
 public class DurableSubscriptionTest extends JMSTestCase {
 
@@ -156,10 +155,10 @@ public class DurableSubscriptionTest extends JMSTestCase {
    }
 
    /**
-    * JMS 1.1 6.11.1: A client can change an existing durable subscription by creating a durable
-    * TopicSubscriber with the same name and a new topic and/or message selector, or NoLocal
-    * attribute. Changing a durable subscription is equivalent to deleting and recreating it.
-    * <br>
+    * JMS 1.1 6.11.1: A client can change an existing durable subscription by creating a durable TopicSubscriber with
+    * the same name and a new topic and/or message selector, or NoLocal attribute. Changing a durable subscription is
+    * equivalent to deleting and recreating it.
+    * <p>
     * Test with a different topic (a redeployed topic is a different topic).
     */
    @Test
@@ -204,10 +203,10 @@ public class DurableSubscriptionTest extends JMSTestCase {
    }
 
    /**
-    * JMS 1.1 6.11.1: A client can change an existing durable subscription by creating a durable
-    * TopicSubscriber with the same name and a new topic and/or message selector, or NoLocal
-    * attribute. Changing a durable subscription is equivalent to deleting and recreating it.
-    * <br>
+    * JMS 1.1 6.11.1: A client can change an existing durable subscription by creating a durable TopicSubscriber with
+    * the same name and a new topic and/or message selector, or NoLocal attribute. Changing a durable subscription is
+    * equivalent to deleting and recreating it.
+    * <p>
     * Test with a different selector.
     */
    @Test
@@ -244,7 +243,6 @@ public class DurableSubscriptionTest extends JMSTestCase {
          // TODO: when subscriptions/durable subscription will be registered as MBean, use the JMX
          // interface to make sure the 'another red square message' is maintained by the
          // durable subascription
-         // http://jira.jboss.org/jira/browse/JBMESSAGING-217
 
          conn.close();
 

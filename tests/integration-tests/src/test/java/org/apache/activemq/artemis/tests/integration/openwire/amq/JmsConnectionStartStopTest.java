@@ -66,10 +66,7 @@ public class JmsConnectionStartStopTest extends BasicOpenWireTest {
    }
 
    /**
-    * Tests if the consumer receives the messages that were sent before the
-    * connection was started.
-    *
-    * @throws JMSException
+    * Tests if the consumer receives the messages that were sent before the connection was started.
     */
    @Test
    public void testStoppedConsumerHoldsMessagesTillStarted() throws JMSException {
@@ -102,10 +99,7 @@ public class JmsConnectionStartStopTest extends BasicOpenWireTest {
    }
 
    /**
-    * Tests if the consumer is able to receive messages eveb when the
-    * connecction restarts multiple times.
-    *
-    * @throws Exception
+    * Tests if the consumer is able to receive messages eveb when the connecction restarts multiple times.
     */
    @Test
    public void testMultipleConnectionStops() throws Exception {

@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The activation spec
  * These properties are set on the MDB ActivationProperties
  */
 public class ActiveMQActivationSpec extends ConnectionFactoryProperties implements ActivationSpec, Serializable {
@@ -52,44 +51,20 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    protected Boolean allowLocalTransactions;
 
 
-   /**
-    * The resource adapter
-    */
    private ActiveMQResourceAdapter ra;
 
-   /**
-    * The connection factory lookup
-    */
    private String connectionFactoryLookup;
 
-   /**
-    * The destination
-    */
    private String destination;
 
-   /**
-    * The destination type
-    */
    private String destinationType;
 
-   /**
-    * The message selector
-    */
    private String messageSelector;
 
-   /**
-    * The acknowledgement mode
-    */
    private Integer acknowledgeMode;
 
-   /**
-    * The subscription durability
-    */
    private Boolean subscriptionDurability;
 
-   /**
-    * The subscription name
-    */
    private String subscriptionName;
 
    /**
@@ -97,29 +72,14 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
     */
    private Boolean shareSubscriptions = false;
 
-   /**
-    * The user
-    */
    private String user;
 
-   /**
-    * The password
-    */
    private String password;
 
-   /**
-    * The maximum number of sessions
-    */
    private Integer maxSession;
 
-   /*
-   * Should we use a single connection for inbound
-   * */
    private Boolean singleConnection = false;
 
-   /**
-    * Transaction timeout
-    */
    @Deprecated(forRemoval = true)
    private Integer transactionTimeout;
 
@@ -129,25 +89,30 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
    private Hashtable<String, String> parsedJndiParams;
 
-   /* use local tx instead of XA*/
+   /**
+    *  use local tx instead of XA
+    */
    private Boolean localTx;
 
-   // undefined by default, default is specified at the RA level in ActiveMQRAProperties
+   /**
+    * undefined by default, default is specified at the RA level in ActiveMQRAProperties
+    */
    private Integer setupAttempts;
 
-   // undefined by default, default is specified at the RA level in ActiveMQRAProperties
+   /**
+    * undefined by default, default is specified at the RA level in ActiveMQRAProperties
+    */
    private Long setupInterval;
 
    private Boolean rebalanceConnections = false;
 
-   // Enables backwards compatibility of the pre 2.x addressing model
+   /**
+    * Enables backwards compatibility of the pre 2.x addressing model
+    */
    private String topicPrefix;
 
    private String queuePrefix;
 
-   /**
-    * Constructor
-    */
    public ActiveMQActivationSpec() {
       logger.trace("constructor()");
 
@@ -165,11 +130,6 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       transactionTimeout = 0;
    }
 
-   /**
-    * Get the resource adapter
-    *
-    * @return The resource adapter
-    */
    @Override
    public ResourceAdapter getResourceAdapter() {
       logger.trace("getResourceAdapter()");
@@ -177,9 +137,6 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       return ra;
    }
 
-   /**
-    * @return the useJNDI
-    */
    public Boolean isUseJNDI() {
       if (useJNDI == null) {
          return ra.isUseJNDI();
@@ -187,16 +144,10 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       return useJNDI;
    }
 
-   /**
-    * @param value the useJNDI to set
-    */
    public void setUseJNDI(final Boolean value) {
       useJNDI = value;
    }
 
-   /**
-    * @return return the jndi params to use
-    */
    public String getJndiParams() {
       if (jndiParams == null) {
          return ra.getJndiParams();
@@ -216,12 +167,6 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       return parsedJndiParams;
    }
 
-   /**
-    * Set the resource adapter
-    *
-    * @param ra The resource adapter
-    * @throws ResourceException Thrown if incorrect resource adapter
-    */
    @Override
    public void setResourceAdapter(final ResourceAdapter ra) throws ResourceException {
       logger.trace("setResourceAdapter({})", ra);
@@ -233,118 +178,63 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       this.ra = (ActiveMQResourceAdapter) ra;
    }
 
-   /**
-    * Get the connection factory lookup
-    *
-    * @return The value
-    */
    public String getConnectionFactoryLookup() {
       logger.trace("getConnectionFactoryLookup() ->{}", connectionFactoryLookup);
 
       return connectionFactoryLookup;
    }
 
-   /**
-    * Set the connection factory lookup
-    *
-    * @param value The value
-    */
    public void setConnectionFactoryLookup(final String value) {
       logger.trace("setConnectionFactoryLookup({})", value);
 
       connectionFactoryLookup = value;
    }
 
-   /**
-    * Get the destination
-    *
-    * @return The value
-    */
    public String getDestination() {
       logger.trace("getDestination()");
 
       return destination;
    }
 
-   /**
-    * Set the destination
-    *
-    * @param value The value
-    */
    public void setDestination(final String value) {
       logger.trace("setDestination({})", value);
 
       destination = value;
    }
 
-   /**
-    * Get the destination lookup
-    *
-    * @return The value
-    */
    public String getDestinationLookup() {
       return getDestination();
    }
 
-   /**
-    * Set the destination
-    *
-    * @param value The value
-    */
    public void setDestinationLookup(final String value) {
       setDestination(value);
       setUseJNDI(true);
    }
 
-   /**
-    * Get the destination type
-    *
-    * @return The value
-    */
    public String getDestinationType() {
       logger.trace("getDestinationType()");
 
       return destinationType;
    }
 
-   /**
-    * Set the destination type
-    *
-    * @param value The value
-    */
    public void setDestinationType(final String value) {
       logger.trace("setDestinationType({})", value);
 
       destinationType = value;
    }
 
-   /**
-    * Get the message selector
-    *
-    * @return The value
-    */
    public String getMessageSelector() {
       logger.trace("getMessageSelector()");
 
       return messageSelector;
    }
 
-   /**
-    * Set the message selector
-    *
-    * @param value The value
-    */
    public void setMessageSelector(final String value) {
       logger.trace("setMessageSelector({})", value);
 
       messageSelector = value;
    }
 
-   /**
-    * Get the acknowledge mode
-    *
-    * @return The value
-    */
    public String getAcknowledgeMode() {
       logger.trace("getAcknowledgeMode()");
 
@@ -354,7 +244,6 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
          return "Auto-acknowledge";
       }
    }
-
 
    public void setQueuePrefix(String prefix) {
       this.queuePrefix = prefix;
@@ -372,11 +261,6 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       return topicPrefix;
    }
 
-   /**
-    * Set the acknowledge mode
-    *
-    * @param value The value
-    */
    public void setAcknowledgeMode(final String value) {
       logger.trace("setAcknowledgeMode({})", value);
 
@@ -388,20 +272,12 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       }
    }
 
-   /**
-    * @return the acknowledgement mode
-    */
    public Integer getAcknowledgeModeInt() {
       logger.trace("getAcknowledgeMode()");
 
       return acknowledgeMode;
    }
 
-   /**
-    * Get the subscription durability
-    *
-    * @return The value
-    */
    public String getSubscriptionDurability() {
       logger.trace("getSubscriptionDurability()");
 
@@ -412,73 +288,42 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       }
    }
 
-   /**
-    * Set the subscription durability
-    *
-    * @param value The value
-    */
    public void setSubscriptionDurability(final String value) {
       logger.trace("setSubscriptionDurability({})", value);
 
       subscriptionDurability = "Durable".equals(value);
    }
 
-   /**
-    * Get the status of subscription durability
-    *
-    * @return The value
-    */
    public Boolean isSubscriptionDurable() {
       logger.trace("isSubscriptionDurable()");
 
       return subscriptionDurability;
    }
 
-   /**
-    * Get the subscription name
-    *
-    * @return The value
-    */
    public String getSubscriptionName() {
       logger.trace("getSubscriptionName()");
 
       return subscriptionName;
    }
 
-   /**
-    * Set the subscription name
-    *
-    * @param value The value
-    */
    public void setSubscriptionName(final String value) {
       logger.trace("setSubscriptionName({})", value);
 
       subscriptionName = value;
    }
 
-   /**
-    * @return the shareDurableSubscriptions
-    */
    public Boolean isShareSubscriptions() {
       logger.trace("isShareSubscriptions() = {}", shareSubscriptions);
 
       return shareSubscriptions;
    }
 
-   /**
-    * @param shareSubscriptions the shareDurableSubscriptions to set
-    */
    public void setShareSubscriptions(final Boolean shareSubscriptions) {
       logger.trace("setShareSubscriptions({})", shareSubscriptions);
 
       this.shareSubscriptions = shareSubscriptions;
    }
 
-   /**
-    * Get the user
-    *
-    * @return The value
-    */
    public String getUser() {
       logger.trace("getUser()");
 
@@ -489,22 +334,12 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       }
    }
 
-   /**
-    * Set the user
-    *
-    * @param value The value
-    */
    public void setUser(final String value) {
       logger.trace("setUser()", value);
 
       user = value;
    }
 
-   /**
-    * Get the userName
-    *
-    * @return The value
-    */
    public String getUserName() {
       if (logger.isTraceEnabled()) {
          logger.trace("getUserName()");
@@ -517,11 +352,6 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       }
    }
 
-   /**
-    * Set the user
-    *
-    * @param value The value
-    */
    public void setUserName(final String value) {
       if (logger.isTraceEnabled()) {
          logger.trace("setUserName(" + value + ")");
@@ -530,11 +360,6 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       user = value;
    }
 
-   /**
-    * Get the password
-    *
-    * @return The value
-    */
    public String getPassword() {
       logger.trace("getPassword()");
 
@@ -549,22 +374,12 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       return password;
    }
 
-   /**
-    * Set the password
-    *
-    * @param value The value
-    */
    public void setPassword(final String value) throws Exception {
       logger.trace("setPassword(****)");
 
       password = value;
    }
 
-   /**
-    * Get the number of max session
-    *
-    * @return The value
-    */
    public Integer getMaxSession() {
       logger.trace("getMaxSession()");
 
@@ -575,11 +390,6 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       return maxSession;
    }
 
-   /**
-    * Set the number of max session
-    *
-    * @param value The value
-    */
    public void setMaxSession(final Integer value) {
       logger.trace("setMaxSession({})", value);
 
@@ -590,11 +400,6 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
          maxSession = value;
    }
 
-   /**
-    * Get the number of max session
-    *
-    * @return The value
-    */
    public Boolean isSingleConnection() {
       logger.trace("getSingleConnection()");
 
@@ -605,22 +410,12 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       return singleConnection;
    }
 
-   /**
-    * Set the number of max session
-    *
-    * @param value The value
-    */
    public void setSingleConnection(final Boolean value) {
       logger.trace("setSingleConnection({})", value);
 
       singleConnection = value;
    }
 
-   /**
-    * Get the transaction timeout
-    *
-    * @return The value
-    */
    @Deprecated(forRemoval = true)
    public Integer getTransactionTimeout() {
       logger.trace("getTransactionTimeout()");
@@ -628,11 +423,6 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       return transactionTimeout;
    }
 
-   /**
-    * Set the transaction timeout
-    *
-    * @param value The value
-    */
    @Deprecated(forRemoval = true)
    public void setTransactionTimeout(final Integer value) {
       logger.trace("setTransactionTimeout({})", value);
@@ -725,9 +515,6 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       setParsedConnectorClassNames(ActiveMQRaUtils.parseConnectorConnectorConfig(connectorClassName));
    }
 
-   /**
-    * @return the connectionParameters
-    */
    public String getConnectionParameters() {
       return strConnectionParameters;
    }
@@ -737,11 +524,6 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
       setParsedConnectionParameters(ActiveMQRaUtils.parseConfig(configuration));
    }
 
-   /**
-    * Get a string representation
-    *
-    * @return The value
-    */
    @Override
    public String toString() {
       StringBuilder sb = new StringBuilder();
@@ -786,15 +568,9 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    public void setProviderAdapterJNDI(final String jndi) {
    }
 
-   /**
-    * @param keepAlive the keepAlive to set
-    */
    public void setKeepAlive(Boolean keepAlive) {
    }
 
-   /**
-    * @param keepAliveMillis the keepAliveMillis to set
-    */
    public void setKeepAliveMillis(Long keepAliveMillis) {
    }
 

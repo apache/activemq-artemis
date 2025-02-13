@@ -86,8 +86,8 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 
 /**
- * This interface defines the internal interface of the ActiveMQ Artemis Server exposed to other components
- * of the server.
+ * This interface defines the internal interface of the ActiveMQ Artemis Server exposed to other components of the
+ * server.
  * <p>
  * This is not part of our public API.
  */
@@ -95,21 +95,22 @@ public interface ActiveMQServer extends ServiceComponent {
 
    enum SERVER_STATE {
       /**
-       * start() has been called but components are not initialized. The whole point of this state,
-       * is to be in a state which is different from {@link SERVER_STATE#STARTED} and
-       * {@link SERVER_STATE#STOPPED}, so that methods testing for these two values such as
-       * {@link #stop(boolean)} worked as intended.
+       * {@link #start()} has been called but components are not initialized. This is an intermediate state between
+       * {@link SERVER_STATE#STARTED} and {@link SERVER_STATE#STOPPED} so that methods testing for these two values such
+       * as {@link #stop(boolean)} work as intended.
        */
-      STARTING, /**
-       * server is started. {@code server.isStarted()} returns {@code true}, and all assumptions
-       * about it hold.
+      STARTING,
+      /**
+       * server is started. {@link #isStarted()} returns {@code true} and all assumptions about it hold.
        */
-      STARTED, /**
-       * stop() was called but has not finished yet. Meant to avoids starting components while
-       * stop() is executing.
+      STARTED,
+      /**
+       * {@link #stop()} was called but has not finished yet. Meant to avoids starting components while {@link #stop()}
+       * is executing.
        */
-      STOPPING, /**
-       * Stopped: either stop() has been called and has finished running, or start() has never been
+      STOPPING,
+      /**
+       * Stopped: either {@link #stop()} has been called and has finished running, or {@link #start()} has never been
        * called.
        */
       STOPPED
@@ -124,11 +125,10 @@ public interface ActiveMQServer extends ServiceComponent {
    /**
     * Sets the server identity.
     * <p>
-    * The identity will be exposed on logs. It may help to debug issues on the log traces and
-    * debugs.
+    * The identity will be exposed on logs. It may help to debug issues on the log traces and debugs.
     * <p>
-    * This method was created mainly for testing but it may be used in scenarios where you need to
-    * have more than one Server inside the same VM.
+    * This method was created mainly for testing but it may be used in scenarios where you need to have more than one
+    * Server inside the same VM.
     */
    void setIdentity(String identity);
 
@@ -142,8 +142,10 @@ public interface ActiveMQServer extends ServiceComponent {
 
    void installMirrorController(MirrorController mirrorController);
 
-   /** This method will scan all queues and addresses.
-    * it is supposed to be called before the mirrorController is started */
+   /**
+    * This method will scan all queues and addresses. it is supposed to be called before the mirrorController is
+    * started
+    */
    void scanAddresses(MirrorController mirrorController) throws Exception;
 
    MirrorController getMirrorController();
@@ -184,12 +186,14 @@ public interface ActiveMQServer extends ServiceComponent {
     */
    void lockActivation();
 
-   /** The server has a default listener that will propagate errors to registered listeners.
-    *  This will return the main listener*/
+   /**
+    * The server has a default listener that will propagate errors to registered listeners. This will return the main
+    * listener
+    */
    IOCriticalErrorListener getIoCriticalErrorListener();
 
    /**
-    * Returns the resource to manage this ActiveMQ Artemis server.
+    * {@return the resource to manage this ActiveMQ Artemis server}
     *
     * @throws IllegalStateException if the server is not properly started.
     */
@@ -202,14 +206,14 @@ public interface ActiveMQServer extends ServiceComponent {
    /**
     * Register a listener to detect problems during activation
     *
-    * @param listener @see org.apache.activemq.artemis.core.server.ActivationFailureListener
+    * @see org.apache.activemq.artemis.core.server.ActivationFailureListener
     */
    void registerActivationFailureListener(ActivationFailureListener listener);
 
    /**
     * Register a listener to detect I/O Critical errors
     *
-    * @param listener @see org.apache.activemq.artemis.core.io.IOCriticalErrorListener
+    * @see org.apache.activemq.artemis.core.io.IOCriticalErrorListener
     */
    void registerIOCriticalErrorListener(IOCriticalErrorListener listener);
 
@@ -217,8 +221,6 @@ public interface ActiveMQServer extends ServiceComponent {
 
    /**
     * Remove a previously registered failure listener
-    *
-    * @param listener
     */
    void unregisterActivationFailureListener(ActivationFailureListener listener);
 
@@ -230,33 +232,39 @@ public interface ActiveMQServer extends ServiceComponent {
    void callActivationFailureListeners(Exception e);
 
    /**
-    * @param callback {@link org.apache.activemq.artemis.core.server.PostQueueCreationCallback}
+    * Register a {@link org.apache.activemq.artemis.core.server.PostQueueDeletionCallback} to be called after a queue is
+    * created.
+    *
+    * @param callback the {@link org.apache.activemq.artemis.core.server.PostQueueCreationCallback} to call after a
+    *                 queue is created
     */
    void registerPostQueueCreationCallback(PostQueueCreationCallback callback);
 
    /**
-    * @param callback {@link org.apache.activemq.artemis.core.server.PostQueueCreationCallback}
+    * Unregister a {@link org.apache.activemq.artemis.core.server.PostQueueCreationCallback}.
+    *
+    * @param callback the {@link org.apache.activemq.artemis.core.server.PostQueueCreationCallback} to unregister
     */
    void unregisterPostQueueCreationCallback(PostQueueCreationCallback callback);
 
-   /**
-    * @param queueName
-    */
    void callPostQueueCreationCallbacks(SimpleString queueName) throws Exception;
 
    /**
-    * @param callback {@link org.apache.activemq.artemis.core.server.PostQueueDeletionCallback}
+    * Register a {@link org.apache.activemq.artemis.core.server.PostQueueDeletionCallback} to be called after a queue is
+    * deleted.
+    *
+    * @param callback the {@link org.apache.activemq.artemis.core.server.PostQueueDeletionCallback} to call after a
+    *                 queue is deleted
     */
    void registerPostQueueDeletionCallback(PostQueueDeletionCallback callback);
 
    /**
-    * @param callback {@link org.apache.activemq.artemis.core.server.PostQueueDeletionCallback}
+    * Unregister a {@link org.apache.activemq.artemis.core.server.PostQueueDeletionCallback}.
+    *
+    * @param callback the {@link org.apache.activemq.artemis.core.server.PostQueueDeletionCallback} to unregister
     */
    void unregisterPostQueueDeletionCallback(PostQueueDeletionCallback callback);
 
-   /**
-    * @param queueName
-    */
    void callPostQueueDeletionCallbacks(SimpleString address, SimpleString queueName) throws Exception;
 
    void registerBrokerPlugin(ActiveMQServerBasePlugin plugin);
@@ -366,7 +374,9 @@ public interface ActiveMQServer extends ServiceComponent {
                                String validatedUser,
                                boolean isLegacyProducer) throws Exception;
 
-   /** This is to be used in places where security is bypassed, like internal sessions, broker connections, etc... */
+   /**
+    * This is to be used in places where security is bypassed, like internal sessions, broker connections, etc...
+    */
    ServerSession createInternalSession(String name,
                                int minLargeMessageSize,
                                RemotingConnection remotingConnection,
@@ -382,12 +392,16 @@ public interface ActiveMQServer extends ServiceComponent {
                                String securityDomain,
                                boolean isLegacyProducer) throws Exception;
 
-   /** should the server rebuild page counters upon startup.
-    *  this will be useful on testing or an embedded broker scenario */
+   /**
+    * should the server rebuild page counters upon startup. this will be useful on testing or an embedded broker
+    * scenario
+    */
    boolean isRebuildCounters();
 
-   /** should the server rebuild page counters upon startup.
-    *  this will be useful on testing or an embedded broker scenario */
+   /**
+    * should the server rebuild page counters upon startup. this will be useful on testing or an embedded broker
+    * scenario
+    */
    void setRebuildCounters(boolean rebuildCounters);
 
    SecurityStore getSecurityStore();
@@ -427,7 +441,7 @@ public interface ActiveMQServer extends ServiceComponent {
    List<ServerSession> getSessions(String connectionID);
 
    /**
-    * @return a session containing the meta-key and meata-value
+    * {@return a session containing the meta-key and meata-value}
     */
    ServerSession lookupSession(String metakey, String metavalue);
 
@@ -442,35 +456,32 @@ public interface ActiveMQServer extends ServiceComponent {
    long getUptimeMillis();
 
    /**
-    * Returns whether the initial replication synchronization process with the backup server is complete; applicable for
-    * either the primary or backup server.
+    * {@return whether the initial replication synchronization process with the backup server is complete; applicable
+    * for either the primary or backup server}
     */
    boolean isReplicaSync();
 
    /**
     * Wait for server initialization.
     *
-    * @param timeout
-    * @param unit
-    * @return {@code true} if the server was already initialized or if it was initialized within the
-    * timeout period, {@code false} otherwise.
-    * @throws InterruptedException
+    * @return {@code true} if the server was already initialized or if it was initialized within the timeout period,
+    * {@code false} otherwise.
     * @see java.util.concurrent.CountDownLatch#await(long, java.util.concurrent.TimeUnit)
     */
    boolean waitForActivation(long timeout, TimeUnit unit) throws InterruptedException;
 
    /**
-    * Creates a transient queue. A queue that will exist as long as there are consumers.
-    * The queue will be deleted as soon as all the consumers are removed.
+    * Creates a transient queue. A queue that will exist as long as there are consumers. The queue will be deleted as
+    * soon as all the consumers are removed.
     * <p>
     * Notice: the queue won't be deleted until the first consumer arrives.
     *
-    * @param address
-    * @param name
-    * @param filterString
-    * @param durable
-    * @throws org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseException if the shared queue already exists with a different {@code address} or {@code filterString}
-    * @throws NullPointerException                                                           if {@code address} is {@code null}
+    * @throws org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseException if the shared queue already
+    *                                                                                        exists with a different
+    *                                                                                        {@code address} or
+    *                                                                                        {@code filterString}
+    * @throws NullPointerException                                                           if {@code address} is
+    *                                                                                        {@code null}
     */
    @Deprecated
    void createSharedQueue(SimpleString address, RoutingType routingType, SimpleString name, SimpleString filterString,
@@ -603,7 +614,7 @@ public interface ActiveMQServer extends ServiceComponent {
     * details on configuration specifics.
     * <p>
     * Some dynamic defaults will be enforced via address-settings for the corresponding unset properties:
-    * <p><ul>
+    * <ul>
     * <li>{@code maxConsumers}
     * <li>{@code exclusive}
     * <li>{@code groupRebalance}
@@ -621,36 +632,34 @@ public interface ActiveMQServer extends ServiceComponent {
     * <li>{@code autoDelete} (only set if queue was auto-created)
     * <li>{@code autoDeleteDelay}
     * <li>{@code autoDeleteMessageCount}
-    * </ul><p>
+    * </ul>
     *
     * @param queueConfiguration the configuration to use when creating the queue
-    * @param ignoreIfExists whether or not to simply return without an exception if the queue exists
+    * @param ignoreIfExists whether to simply return without an exception if the queue exists
     * @return the {@code Queue} instance that was created
-    * @throws Exception
     */
    Queue createQueue(QueueConfiguration queueConfiguration, boolean ignoreIfExists) throws Exception;
 
    /**
-    * This method is essentially the same as {@link #createQueue(QueueConfiguration, boolean)} with a few key exceptions.
+    * This method is essentially the same as {@link #createQueue(QueueConfiguration, boolean)} with a few key
+    * exceptions.
     * <p>
     * If {@code durable} is {@code true} then:
-    * <p><ul>
+    * <ul>
     * <li>{@code transient} will be forced to {@code false}
     * <li>{@code temporary} will be forced to {@code false}
-    * </ul><p>
+    * </ul>
     * If {@code durable} is {@code false} then:
-    * <p><ul>
+    * <ul>
     * <li>{@code transient} will be forced to {@code true}
     * <li>{@code temporary} will be forced to {@code true}
-    * </ul><p>
+    * </ul>>
     * In all instances {@code autoCreated} will be forced to {@code false} and {@code autoCreatedAddress} will be forced
     * to {@code true}.
-    *
+    * <p>
     * The {@code boolean} passed to {@link #createQueue(QueueConfiguration, boolean)} will always be true;
     *
     * @see #createQueue(QueueConfiguration, boolean)
-    *
-    * @throws org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseException if the shared queue already exists with a different {@code address} or {@code filterString}
     */
    void createSharedQueue(QueueConfiguration queueConfiguration) throws Exception;
 
@@ -761,12 +770,10 @@ public interface ActiveMQServer extends ServiceComponent {
    void registerBrokerConnection(BrokerConnection brokerConnection);
 
    /**
-    * Removes the given broker connection from the tracked set of active broker
-    * connection entries. Unregistering the connection results in it being forgotten
-    * and the caller is responsible for stopping the connection.
+    * Removes the given broker connection from the tracked set of active broker connection entries. Unregistering the
+    * connection results in it being forgotten and the caller is responsible for stopping the connection.
     *
-    * @param brokerConnection
-    *       The broker connection that should be forgotten.
+    * @param brokerConnection The broker connection that should be forgotten.
     */
    void unregisterBrokerConnection(BrokerConnection brokerConnection);
 
@@ -777,10 +784,7 @@ public interface ActiveMQServer extends ServiceComponent {
    Collection<BrokerConnection> getBrokerConnections();
 
    /**
-    * return true if there is a binding for this address (i.e. if there is a created queue)
-    *
-    * @param address
-    * @return
+    * {@return {@code true} if there is a binding for this address (i.e. if there is a created queue)}
     */
    boolean isAddressBound(String address) throws Exception;
 
@@ -858,7 +862,7 @@ public interface ActiveMQServer extends ServiceComponent {
     * Update the queue named in the {@code QueueConfiguration} with the corresponding properties. Set only the
     * properties that you wish to change from their existing values. Only the following properties can actually be
     * updated:
-    * <p><ul>
+    * <ul>
     * <li>{@code routingType}
     * <li>{@code filter}
     * <li>{@code maxConsumers}
@@ -878,28 +882,26 @@ public interface ActiveMQServer extends ServiceComponent {
     *
     * @param queueConfiguration the {@code QueueConfiguration} to use
     * @return the updated {@code Queue} instance
-    * @throws Exception
     */
    Queue updateQueue(QueueConfiguration queueConfiguration) throws Exception;
 
    /**
+    * Update a queue's configuration.
+    *
     * @param queueConfiguration the {@code QueueConfiguration} to use
-    * @param forceUpdate If <code>true</code>, no <code>null</code> check is performed and unset queueConfiguration values are reset to <code>null</code>
+    * @param forceUpdate        If {@code true}, no {@code null} check is performed and unset queueConfiguration values
+    *                           are reset to {@code null}
     * @return the updated {@code Queue} instance
-    * @throws Exception
     * @see #updateQueue(QueueConfiguration)
     */
    Queue updateQueue(QueueConfiguration queueConfiguration, boolean forceUpdate) throws Exception;
 
-   /*
-            * add a ProtocolManagerFactory to be used. Note if @see Configuration#isResolveProtocols is tur then this factory will
-            * replace any factories with the same protocol
-            * */
+   /**
+    * add a ProtocolManagerFactory to be used. Note if {@link Configuration#isResolveProtocols} is true then this
+    * factory will replace any factories with the same protocol
+    */
    void addProtocolManagerFactory(ProtocolManagerFactory factory);
 
-   /*
-   * add a ProtocolManagerFactory to be used.
-   * */
    void removeProtocolManagerFactory(ProtocolManagerFactory factory);
 
    ReloadManager getReloadManager();
@@ -923,9 +925,11 @@ public interface ActiveMQServer extends ServiceComponent {
    void setSecurityManager(ActiveMQSecurityManager securityManager);
 
    /**
-    * Adding external components is allowed only if the state
-    * isn't {@link SERVER_STATE#STOPPED} or {@link SERVER_STATE#STOPPING}.<br>
-    * It atomically starts the {@code externalComponent} while being added if {@code start == true}.<br>
+    * Adding external components is allowed only if the stateisn't {@link SERVER_STATE#STOPPED} or
+    * {@link SERVER_STATE#STOPPING}.
+    * <p>
+    * It atomically starts the {@code externalComponent} while being added if {@code start == true}.
+    * <p>
     * This atomicity is necessary to prevent {@link #stop()} to stop the component right after adding it, but before
     * starting it.
     *
@@ -946,10 +950,9 @@ public interface ActiveMQServer extends ServiceComponent {
    /**
     * Updates an {@code AddressInfo} on the broker with the specified routing types.
     *
-    * @param address the name of the {@code AddressInfo} to update
+    * @param address      the name of the {@code AddressInfo} to update
     * @param routingTypes the routing types to update the {@code AddressInfo} with
     * @return {@code true} if the {@code AddressInfo} was updated, {@code false} otherwise
-    * @throws Exception
     */
    boolean updateAddressInfo(SimpleString address, EnumSet<RoutingType> routingTypes) throws Exception;
 
@@ -961,7 +964,6 @@ public interface ActiveMQServer extends ServiceComponent {
     *
     * @param addressInfo the {@code AddressInfo} to add
     * @return {@code true} if the {@code AddressInfo} was added, {@code false} otherwise
-    * @throws Exception
     */
    boolean addAddressInfo(AddressInfo addressInfo) throws Exception;
 
@@ -971,7 +973,6 @@ public interface ActiveMQServer extends ServiceComponent {
     *
     * @param addressInfo the {@code AddressInfo} to add or the info used to update the existing {@code AddressInfo}
     * @return the resulting {@code AddressInfo}
-    * @throws Exception
     */
    AddressInfo addOrUpdateAddressInfo(AddressInfo addressInfo) throws Exception;
 
@@ -979,8 +980,7 @@ public interface ActiveMQServer extends ServiceComponent {
     * Remove an {@code AddressInfo} from the broker.
     *
     * @param address the {@code AddressInfo} to remove
-    * @param auth authorization information; {@code null} is valid
-    * @throws Exception
+    * @param auth    authorization information; {@code null} is valid
     */
    void removeAddressInfo(SimpleString address, SecurityAuth auth) throws Exception;
 
@@ -988,8 +988,7 @@ public interface ActiveMQServer extends ServiceComponent {
     * Remove an {@code AddressInfo} from the broker.
     *
     * @param address the {@code AddressInfo} to remove
-    * @param auth authorization information; {@code null} is valid
-    * @throws Exception
+    * @param auth    authorization information; {@code null} is valid
     */
    void autoRemoveAddressInfo(SimpleString address, SecurityAuth auth) throws Exception;
 
@@ -999,9 +998,8 @@ public interface ActiveMQServer extends ServiceComponent {
     * Remove an {@code AddressInfo} from the broker.
     *
     * @param address the {@code AddressInfo} to remove
-    * @param auth authorization information; {@code null} is valid
-    * @param force It will disconnect everything from the address including queues and consumers
-    * @throws Exception
+    * @param auth    authorization information; {@code null} is valid
+    * @param force   It will disconnect everything from the address including queues and consumers
     */
    void removeAddressInfo(SimpleString address, SecurityAuth auth, boolean force) throws Exception;
 

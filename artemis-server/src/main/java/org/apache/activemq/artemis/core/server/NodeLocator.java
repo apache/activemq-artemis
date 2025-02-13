@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 /**
  * A class that will locate a particular server running in a cluster. How this server is chosen is a job for the
  * implementation.
- *
+ * <p>
  * This is used for replication (which needs a QuorumManager) and scaling-down (which does not need a QuorumManager).
  */
 public abstract class NodeLocator implements ClusterTopologyListener {
@@ -60,12 +60,12 @@ public abstract class NodeLocator implements ClusterTopologyListener {
    public abstract void locateNode() throws ActiveMQException;
 
    /**
-    * Returns the current connector
+    * {@return the current connector}
     */
    public abstract Pair<TransportConfiguration, TransportConfiguration> getPrimaryConfiguration();
 
    /**
-    * Returns the node id for the current connector
+    * {@return the node id for the current connector}
     */
    public abstract String getNodeID();
 

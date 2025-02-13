@@ -64,7 +64,7 @@ public class AmqpSupport {
     *
     * @param symbols the set of Symbols to search.
     * @param key     the value to try and find in the Symbol array.
-    * @return true if the key is found in the given Symbol array.
+    * @return {@code true} if the key is found in the given Symbol array
     */
    public static boolean contains(Symbol[] symbols, Symbol key) {
       if (symbols == null || symbols.length == 0) {
@@ -86,7 +86,7 @@ public class AmqpSupport {
     *
     * @param filters   The filters map that should be searched.
     * @param filterIds The aliases for the target filter to be located.
-    * @return the filter if found in the mapping or null if not found.
+    * @return the filter if found in the mapping or null if not found
     */
    public static Map.Entry<Symbol, DescribedType> findFilter(Map<Symbol, Object> filters, Object[] filterIds) {
 

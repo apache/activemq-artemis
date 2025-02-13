@@ -21,9 +21,6 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-/**
- * A SessionSendContinuationMessage<br>
- */
 public class SessionSendContinuationMessage extends SessionContinuationMessage {
 
    protected boolean requiresResponse;
@@ -31,12 +28,14 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
    // Used on confirmation handling
    protected Message message;
    /**
-    * In case, we are using a different handler than the one set on the {@link org.apache.activemq.artemis.api.core.client.ClientSession}
-    * <br>
+    * In case, we are using a different handler than the one set on the
+    * {@link org.apache.activemq.artemis.api.core.client.ClientSession}
+    * <p>
     * This field is only used at the client side.
     *
     * @see org.apache.activemq.artemis.api.core.client.ClientSession#setSendAcknowledgementHandler(SendAcknowledgementHandler)
-    * @see org.apache.activemq.artemis.api.core.client.ClientProducer#send(org.apache.activemq.artemis.api.core.SimpleString, org.apache.activemq.artemis.api.core.Message, SendAcknowledgementHandler)
+    * @see org.apache.activemq.artemis.api.core.client.ClientProducer#send(org.apache.activemq.artemis.api.core.SimpleString,
+    * org.apache.activemq.artemis.api.core.Message, SendAcknowledgementHandler)
     */
    private final transient SendAcknowledgementHandler handler;
 
@@ -57,11 +56,6 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
       handler = null;
    }
 
-   /**
-    * @param body
-    * @param continues
-    * @param requiresResponse
-    */
    public SessionSendContinuationMessage(final Message message,
                                          final byte[] body,
                                          final boolean continues,
@@ -75,11 +69,6 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
       this.messageBodySize = messageBodySize;
    }
 
-   /**
-    * @param body
-    * @param continues
-    * @param requiresResponse
-    */
    protected SessionSendContinuationMessage(final byte type,
                                          final Message message,
                                          final byte[] body,
@@ -94,9 +83,6 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
       this.messageBodySize = messageBodySize;
    }
 
-   /**
-    * @return the requiresResponse
-    */
    @Override
    public boolean isRequiresResponse() {
       return requiresResponse;
@@ -106,9 +92,6 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
       return messageBodySize;
    }
 
-   /**
-    * @return the message
-    */
    public Message getMessage() {
       return message;
    }

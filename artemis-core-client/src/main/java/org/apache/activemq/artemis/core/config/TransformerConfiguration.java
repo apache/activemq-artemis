@@ -57,8 +57,8 @@ public final class TransformerConfiguration implements Serializable {
    }
 
    /**
-    * This method returns a {@code TransformerConfiguration} created from the JSON-formatted input {@code String}.
-    * The input should contain these entries:
+    * This method returns a {@code TransformerConfiguration} created from the JSON-formatted input {@code String}. The
+    * input should contain these entries:
     *
     * <ul>
     * <li>class-name - a string value,
@@ -104,6 +104,8 @@ public final class TransformerConfiguration implements Serializable {
    }
 
    /**
+    * add properties to this {@code TransportConfiguration}
+    *
     * @param properties the properties to set
     */
    public TransformerConfiguration setProperties(final Map<String, String> properties) {

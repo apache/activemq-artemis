@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
  * ActiveMQ Artemis implementation of a JMS Queue.
- * <br>
+ * <p>
  * This class can be instantiated directly.
  */
 public class ActiveMQQueue extends ActiveMQDestination implements Queue {
@@ -51,11 +51,6 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
       super(address, temporary ? TYPE.TEMP_QUEUE : TYPE.QUEUE, null);
    }
 
-   /**
-    * @param address
-    * @param temporary
-    * @param session
-    */
    public ActiveMQQueue(String address, boolean temporary, ActiveMQSession session) {
       super(address, temporary ? TYPE.TEMP_QUEUE : TYPE.QUEUE, session);
    }

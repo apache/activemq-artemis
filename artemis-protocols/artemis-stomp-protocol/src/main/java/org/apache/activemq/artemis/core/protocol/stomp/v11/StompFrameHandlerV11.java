@@ -300,7 +300,8 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
                String ttlMinStr = (String) connection.getAcceptorUsed().getConfiguration().get(TransportConstants.CONNECTION_TTL_MIN);
                long ttlMin = ttlMinStr == null ? 1000 : Long.parseLong(ttlMinStr);
 
-               /* The connection's TTL should be one of the following:
+               /*
+                * The connection's TTL should be one of the following:
                 *   1) clientPing * heartBeatToTtlModifier
                 *   2) ttlMin
                 *   3) ttlMax
@@ -502,7 +503,6 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
                break;
             }
-            /**** added by meddy, 27 april 2011, handle header parser for reply to websocket protocol ****/
             case E: {
                if (!tryIncrement(offset + COMMAND_ERROR_LENGTH + eolLen)) {
                   return false;
@@ -523,7 +523,6 @@ public class StompFrameHandlerV11 extends VersionedStompFrameHandler implements 
 
                break;
             }
-            /**** end ****/
             case S: {
                if (workingBuffer[offset + 1] == E) {
                   if (!tryIncrement(offset + COMMAND_SEND_LENGTH + eolLen)) {

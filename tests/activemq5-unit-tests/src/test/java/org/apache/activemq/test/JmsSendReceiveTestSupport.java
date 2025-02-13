@@ -37,9 +37,6 @@ import junit.framework.AssertionFailedError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public abstract class JmsSendReceiveTestSupport extends org.apache.activemq.TestSupport implements MessageListener {
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsSendReceiveTestSupport.class);
@@ -62,9 +59,6 @@ public abstract class JmsSendReceiveTestSupport extends org.apache.activemq.Test
    protected boolean largeMessages;
    protected int largeMessageLoopSize = 4 * 1024;
 
-   /*
-    * @see junit.framework.TestCase#setUp()
-    */
    @Override
    protected void setUp() throws Exception {
       super.setUp();
@@ -102,8 +96,6 @@ public abstract class JmsSendReceiveTestSupport extends org.apache.activemq.Test
 
    /**
     * Test if all the messages sent are being received.
-    *
-    * @throws Exception
     */
    public void testSendReceive() throws Exception {
 
@@ -139,8 +131,6 @@ public abstract class JmsSendReceiveTestSupport extends org.apache.activemq.Test
 
    /**
     * A hook to allow the message to be configured such as adding extra headers
-    *
-    * @throws JMSException
     */
    protected void configureMessage(Message message) throws JMSException {
    }
@@ -148,8 +138,6 @@ public abstract class JmsSendReceiveTestSupport extends org.apache.activemq.Test
    /**
     * Waits to receive the messages and performs the test if all messages have
     * been received and are in sequential order.
-    *
-    * @throws JMSException
     */
    protected void assertMessagesAreReceived() throws JMSException {
       waitForMessagesToBeDelivered();
@@ -158,9 +146,6 @@ public abstract class JmsSendReceiveTestSupport extends org.apache.activemq.Test
 
    /**
     * Tests if the messages have all been received and are in sequential order.
-    *
-    * @param receivedMessages
-    * @throws JMSException
     */
    protected void assertMessagesReceivedAreValid(List<Message> receivedMessages) throws JMSException {
       List<Object> copyOfMessages = Arrays.asList(receivedMessages.toArray());
@@ -253,7 +238,7 @@ public abstract class JmsSendReceiveTestSupport extends org.apache.activemq.Test
    /**
     * Creates a synchronized list.
     *
-    * @return a synchronized view of the specified list.
+    * @return a synchronized view of the specified list
     */
    protected List<Message> createConcurrentList() {
       return Collections.synchronizedList(new ArrayList<>());

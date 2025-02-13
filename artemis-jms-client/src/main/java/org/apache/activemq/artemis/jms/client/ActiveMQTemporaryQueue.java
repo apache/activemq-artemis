@@ -20,7 +20,7 @@ import javax.jms.TemporaryQueue;
 
 /**
  * ActiveMQ Artemis implementation of a JMS TemporaryQueue.
- * <br>
+ * <p>
  * This class can be instantiated directly.
  */
 public class ActiveMQTemporaryQueue extends ActiveMQQueue implements TemporaryQueue {
@@ -35,10 +35,6 @@ public class ActiveMQTemporaryQueue extends ActiveMQQueue implements TemporaryQu
       this(null, null);
    }
 
-   /**
-    * @param address
-    * @param session
-    */
    public ActiveMQTemporaryQueue(String address, ActiveMQSession session) {
       super(address, true, session);
    }

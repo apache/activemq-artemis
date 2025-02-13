@@ -27,9 +27,6 @@ public class AIOMultiThreadCompactorStressTest extends NIOMultiThreadCompactorSt
       org.junit.jupiter.api.Assumptions.assumeTrue(AIOSequentialFileFactory.isSupported(), "Test case needs AIO to run");
    }
 
-   /**
-    * @return
-    */
    @Override
    protected JournalType getJournalType() {
       return JournalType.ASYNCIO;

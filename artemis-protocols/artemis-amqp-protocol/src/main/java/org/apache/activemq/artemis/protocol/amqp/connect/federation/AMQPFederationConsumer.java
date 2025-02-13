@@ -112,35 +112,35 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
    }
 
    /**
-    * @return the type of federation consumer being represented.
+    * {@return the type of federation consumer being represented}
     */
    public final Role getRole() {
       return consumerInfo.getRole();
    }
 
    /**
-    * @return the number of messages this consumer has received from the remote during its lifetime.
+    * {@return the number of messages this consumer has received from the remote during its lifetime}
     */
    public final long getMessagesReceived() {
       return metrics.getMessagesReceived();
    }
 
    /**
-    * @return the federation policy manager that created this consumer instance.
+    * {@return the federation policy manager that created this consumer instance}
     */
    public AMQPFederationLocalPolicyManager getPolicyManager() {
       return manager;
    }
 
    /**
-    * @return the consumer configuration that was assigned to this federation consumer.
+    * {@return the consumer configuration that was assigned to this federation consumer}
     */
    public AMQPFederationConsumerConfiguration getConfiguration() {
       return configuration;
    }
 
    /**
-    * @return the idle timeout value that is used applied to quiesced receivers.
+    * {@return the idle timeout value that is used applied to quiesced receivers}
     */
    public abstract int getReceiverIdleTimeout();
 
@@ -155,17 +155,16 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
    }
 
    /**
-    * @return <code>true</code> if the consumer has previously been initialized.
+    * {@return {@code true} if the consumer has previously been initialized}
     */
    public final boolean isInitialized() {
       return initialized;
    }
 
    /**
-    * Called to initialize the AMQP federation consumer which will trigger an asynchronous
-    * task to attach the link and handle all setup receiver and eventually start the flow
-    * of credit to the remote. This method should be called once after the basic configuration
-    * of the consumer is complete and should not be called again after that.
+    * Called to initialize the AMQP federation consumer which will trigger an asynchronous task to attach the link and
+    * handle all setup receiver and eventually start the flow of credit to the remote. This method should be called once
+    * after the basic configuration of the consumer is complete and should not be called again after that.
     */
    public void initialize() {
       if (initialized) {
@@ -177,34 +176,32 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
    }
 
    /**
-    * Called during the initialization of the consumer to trigger an asynchronous link
-    * attach of the underlying AMQP receiver that backs this federation consumer. The new
-    * receiver should be initialized in a started state. This method executes on the
-    * connection thread and should not block. This method will be called from the thread
-    * of the connection this consumer operates on.
+    * Called during the initialization of the consumer to trigger an asynchronous link attach of the underlying AMQP
+    * receiver that backs this federation consumer. The new receiver should be initialized in a started state. This
+    * method executes on the connection thread and should not block. This method will be called from the thread of the
+    * connection this consumer operates on.
     */
    protected abstract void doCreateReceiver();
 
    /**
-    * Asynchronously starts a previously stopped federation consumer which should trigger a grant
-    * of credit to the remote thereby allowing new incoming messages to be federated. In general
-    * the start should only happen when the receiver is know to be stopped but given the asynchronous
-    * nature of the receiver handling this won't always be the case, below the outcomes of various
-    * cases that could result from calls to this method. The completion methods are always called
-    * from a different thread than this method is called in which means the caller should ensure
-    * that the handling accounts for thread safety of those methods.
+    * Asynchronously starts a previously stopped federation consumer which should trigger a grant of credit to the
+    * remote thereby allowing new incoming messages to be federated. In general the start should only happen when the
+    * receiver is know to be stopped but given the asynchronous nature of the receiver handling this won't always be the
+    * case, below the outcomes of various cases that could result from calls to this method. The completion methods are
+    * always called from a different thread than this method is called in which means the caller should ensure that the
+    * handling accounts for thread safety of those methods.
     * <p>
     * Calling start on an already closed consumer should immediately throw an {@link IllegalStateException} immediately.
-    * Calling start on an non-initialized consumer should immediately throw an {@link IllegalStateException} immediately.
+    * Calling start on an non-initialized consumer should immediately throw an {@link IllegalStateException}
+    * immediately.
     * <p>
-    * Calling start on a stopped consumer should start the consumer and signal success to the completion.
-    * Calling start on an already started consumer should simply signal success to the completion.
-    * Calling start on a stopping consumer should fail the completion with an {@link IllegalStateException}.
-    * Calling start on a consumer that closes while the start is in-flight should fail the completion
-    * with an {@link IllegalStateException}
+    * Calling start on a stopped consumer should start the consumer and signal success to the completion. Calling start
+    * on an already started consumer should simply signal success to the completion. Calling start on a stopping
+    * consumer should fail the completion with an {@link IllegalStateException}. Calling start on a consumer that closes
+    * while the start is in-flight should fail the completion with an {@link IllegalStateException}
     *
-    * @param completion
-    *       A {@link AMQPFederationAsyncCompletion} that will be notified when the stop request succeeds or fails.
+    * @param completion A {@link AMQPFederationAsyncCompletion} that will be notified when the stop request succeeds or
+    *                   fails.
     */
    public final void startAsync(AMQPFederationAsyncCompletion<AMQPFederationConsumer> completion) {
       Objects.requireNonNull(completion, "The asynchronous completion object cannot be null");
@@ -234,25 +231,22 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
    }
 
    /**
-    * Stops message consumption on this consumer instance but leaves the consumer in
-    * a state where it could be restarted by a call to {@link #startAsync(AMQPFederationAsyncCompletion)}
-    * once the consumer enters the stopped state.
+    * Stops message consumption on this consumer instance but leaves the consumer in a state where it could be restarted
+    * by a call to {@link #startAsync(AMQPFederationAsyncCompletion)} once the consumer enters the stopped state.
     * <p>
-    * Since the request to stop can take time to complete and this method cannot block
-    * a completion must be provided by the caller that will respond when the consumer
-    * has fully come to rest and all pending work is complete. Before the stopped
-    * completion is signaled the state of the underlying consumer will be stopping and
-    * attempt to restart it should fail until the stopped state has been reached.
+    * Since the request to stop can take time to complete and this method cannot block a completion must be provided by
+    * the caller that will respond when the consumer has fully come to rest and all pending work is complete. Before the
+    * stopped completion is signaled the state of the underlying consumer will be stopping and attempt to restart it
+    * should fail until the stopped state has been reached.
     * <p>
-    * The supplied {@link AMQPFederationAsyncCompletion} will be completed successfully
-    * once the underling AMQP receiver has drained and pending work is completed. If the
-    * stop does not complete by the supplied timeout the completion will be signaled that
-    * a failure has occurred with a {@link TimeoutException}. The completion methods are
-    * always called from a different thread than this method is called in which means the
-    * caller should ensure that the handling accounts for thread safety of those methods.
+    * The supplied {@link AMQPFederationAsyncCompletion} will be completed successfully once the underling AMQP receiver
+    * has drained and pending work is completed. If the stop does not complete by the supplied timeout the completion
+    * will be signaled that a failure has occurred with a {@link TimeoutException}. The completion methods are always
+    * called from a different thread than this method is called in which means the caller should ensure that the
+    * handling accounts for thread safety of those methods.
     *
-    * @param completion
-    *       A {@link AMQPFederationAsyncCompletion} that will be notified when the stop request succeeds or fails.
+    * @param completion A {@link AMQPFederationAsyncCompletion} that will be notified when the stop request succeeds or
+    *                   fails.
     */
    public final void stopAsync(AMQPFederationAsyncCompletion<AMQPFederationConsumer> completion) {
       Objects.requireNonNull(completion, "The asynchronous completion object cannot be null");
@@ -287,10 +281,9 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
    }
 
    /**
-    * Close the federation consumer instance and cleans up its resources. This method
-    * should not block and the actual resource shutdown work should occur asynchronously
-    * however the closed state should be indicated immediately and any further attempts
-    * start the consumer should result in an exception being thrown.
+    * Close the federation consumer instance and cleans up its resources. This method should not block and the actual
+    * resource shutdown work should occur asynchronously however the closed state should be indicated immediately and
+    * any further attempts start the consumer should result in an exception being thrown.
     */
    public final void close() {
       if (closed.compareAndSet(false, true)) {
@@ -323,21 +316,18 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
    }
 
    /**
-    * @return <code>true</code> if the receiver has already been closed.
+    * {@return {@code true} if the receiver has already been closed}
     */
    public boolean isClosed() {
       return closed.get();
    }
 
    /**
-    * Provides and event point for notification of the receiver having been opened successfully
-    * by the remote. This handler will not be called if the remote rejects the link attach and
-    * a {@link Detach} is expected to follow.
+    * Provides and event point for notification of the receiver having been opened successfully by the remote. This
+    * handler will not be called if the remote rejects the link attach and a {@link Detach} is expected to follow.
     *
-    * @param handler
-    *    The handler that will be invoked when the remote opens this receiver.
-    *
-    * @return this receiver instance.
+    * @param handler The handler that will be invoked when the remote opens this receiver.
+    * @return this receiver instance
     */
    public final AMQPFederationConsumer setRemoteOpenHandler(Consumer<AMQPFederationConsumer> handler) {
       if (protonReceiver != null) {
@@ -349,13 +339,10 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
    }
 
    /**
-    * Provides and event point for notification of the consumer having been closed by
-    * the remote.
+    * Provides and event point for notification of the consumer having been closed by the remote.
     *
-    * @param handler
-    *    The handler that will be invoked when the remote closes this consumer.
-    *
-    * @return this consumer instance.
+    * @param handler The handler that will be invoked when the remote closes this consumer.
+    * @return this consumer instance
     */
    public final AMQPFederationConsumer setRemoteClosedHandler(Consumer<AMQPFederationConsumer> handler) {
       if (protonReceiver != null) {
@@ -392,8 +379,7 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
    /**
     * Called from a subclass upon handling an incoming federated message from the remote.
     *
-    * @param message
-    *    The original message that arrived from the remote.
+    * @param message The original message that arrived from the remote.
     */
    protected final void recordFederatedMessageReceived(Message message) {
       metrics.incrementMessagesReceived();
@@ -402,9 +388,7 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
    /**
     * Called before the message is dispatched to the broker for processing.
     *
-    * @param message
-    *    The message after any processing which is about to be dispatched.
-    *
+    * @param message The message after any processing which is about to be dispatched.
     * @throws ActiveMQException if any broker plugin throws an exception during its processing.
     */
    protected final void signalPluginBeforeFederationConsumerMessageHandled(Message message) throws ActiveMQException {
@@ -422,9 +406,7 @@ public abstract class AMQPFederationConsumer implements FederationConsumer {
    /**
     * Called after the message is dispatched to the broker for processing.
     *
-    * @param message
-    *    The message after any processing which has been dispatched to the broker.
-    *
+    * @param message The message after any processing which has been dispatched to the broker.
     * @throws ActiveMQException if any broker plugin throws an exception during its processing.
     */
    protected final void signalPluginAfterFederationConsumerMessageHandled(Message message) throws ActiveMQException {

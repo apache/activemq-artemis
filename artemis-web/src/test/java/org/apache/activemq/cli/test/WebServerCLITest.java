@@ -84,9 +84,7 @@ public class WebServerCLITest extends ArtemisTestCase {
       ActiveMQServer activeMQServer = ((Pair<ManagementContext, ActiveMQServer>) result).getB();
       List<ActiveMQComponent> externalComponents = activeMQServer.getExternalComponents();
 
-      /**
-       * simulate critical IO error as this is what is eventually called by org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl.ShutdownOnCriticalErrorListener
-       */
+      // simulate critical IO error as this is what is eventually called by org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl.ShutdownOnCriticalErrorListener
       ((ActiveMQServerImpl) activeMQServer).stop(false, true, false);
 
       for (ActiveMQComponent externalComponent : externalComponents) {

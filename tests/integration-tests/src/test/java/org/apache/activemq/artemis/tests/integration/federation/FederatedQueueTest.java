@@ -48,9 +48,6 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * Federated Queue Test
- */
 public class FederatedQueueTest extends FederatedTestBase {
 
    @Override

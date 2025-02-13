@@ -193,9 +193,6 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       return HAType.SharedNothingReplication;
    }
 
-   /**
-    * Whether the servers share the storage or not.
-    */
    protected final boolean isSharedStore() {
       return HAType.SharedStore.equals(haType());
    }
@@ -1250,9 +1247,6 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       }
    }
 
-   /**
-    * @param message
-    */
    protected void checkMessageBody(ClientMessage message) {
       if (isLargeMessage()) {
          for (int posMsg = 0; posMsg < getLargeMessageSize(); posMsg++) {
@@ -1520,19 +1514,12 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    /**
-    * Server lacks a {@link ClusterConnectionConfiguration} necessary for the remote (replicating)
-    * backup case.
-    * <br>
+    * Server lacks a {@link ClusterConnectionConfiguration} necessary for the remote (replicating) backup case.
+    * <p>
     * Use
-    * {@link #setupClusterConnectionWithBackups(String, String, org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType, int, boolean, int, int[])}
-    * to add it.
-    *
-    * @param node
-    * @param primaryNode
-    * @param fileStorage
-    * @param haType
-    * @param netty
-    * @throws Exception
+    * {@link #setupClusterConnectionWithBackups(String, String,
+    * org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType, int, boolean, int, int[])} to add
+    * it.
     */
    protected void setupBackupServer(final int node,
                                     final int primaryNode,

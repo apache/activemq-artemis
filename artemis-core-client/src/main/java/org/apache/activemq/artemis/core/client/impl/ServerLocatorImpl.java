@@ -78,8 +78,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is the implementation of {@link org.apache.activemq.artemis.api.core.client.ServerLocator} and all
- * the proper javadoc is located on that interface.
+ * This is the implementation of {@link org.apache.activemq.artemis.api.core.client.ServerLocator} and all the proper
+ * javadoc is located on that interface.
  */
 public final class ServerLocatorImpl implements ServerLocatorInternal, DiscoveryListener {
 
@@ -125,10 +125,9 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private volatile boolean receivedTopology;
 
-
-   /** This specifies serverLocator.connect was used,
-    *  which means it's a cluster connection.
-    *  We should not use retries */
+   /**
+    * This specifies serverLocator.connect was used, which means it's a cluster connection. We should not use retries
+    */
    private volatile boolean disableDiscoveryRetries = false;
 
    // if the system should shutdown the pool when shutting down
@@ -168,12 +167,16 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private TransportConfiguration clusterTransportConfiguration;
 
-   /** For tests only */
+   /**
+    * For tests only
+    */
    public DiscoveryGroup getDiscoveryGroup() {
       return discoveryGroup;
    }
 
-   /** For tests only */
+   /**
+    * For tests only
+    */
    public Set<ClientSessionFactoryInternal> getFactories() {
       return factories;
    }
@@ -376,8 +379,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    /**
     * Create a ServerLocatorImpl using a static list of servers
-    *
-    * @param transportConfigs
     */
    public ServerLocatorImpl(final boolean useHA, final TransportConfiguration... transportConfigs) {
       this(new Topology(null), useHA, null, transportConfigs);
@@ -399,8 +400,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    /**
     * Create a ServerLocatorImpl using a static list of servers
-    *
-    * @param transportConfigs
     */
    public ServerLocatorImpl(final Topology topology,
                             final boolean useHA,
@@ -415,9 +414,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       topology.clear();
    }
 
-   /*
-    * I'm not using isAllInVM here otherwsie BeanProperties would translate this as a property for the URL
-    */
+   // I'm not using isAllInVM here otherwsie BeanProperties would translate this as a property for the URL
    @Override
    public boolean allInVM() {
       for (TransportConfiguration config : getStaticTransportConfigurations()) {
@@ -874,10 +871,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return ha;
    }
 
-   /**
-    * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor needs a default Constructor to be used with this method.
-    * @return this
-    */
    @Override
    public ServerLocator setIncomingInterceptorList(String interceptorList) {
       feedInterceptors(incomingInterceptors, interceptorList);
@@ -889,10 +882,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return fromInterceptors(incomingInterceptors);
    }
 
-   /**
-    * @param interceptorList a comma separated string of incoming interceptor class names to be used. Each interceptor needs a default Constructor to be used with this method.
-    * @return this
-    */
    @Override
    public ServerLocator setOutgoingInterceptorList(String interceptorList) {
       feedInterceptors(outgoingInterceptors, interceptorList);
@@ -1514,9 +1503,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    /**
-    * This is directly called when the connection to the node is gone,
-    * or when the node sends a disconnection.
-    * Look for callers of this method!
+    * This is directly called when the connection to the node is gone, or when the node sends a disconnection. Look for
+    * callers of this method!
     */
    @Override
    public void notifyNodeDown(final long eventTime, final String nodeID, boolean disconnect) {
@@ -1722,8 +1710,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    /**
     * for tests only and not part of the public interface. Do not use it.
-    *
-    * @return
     */
    public TransportConfiguration[] getInitialConnectors() {
       return initialConnectors;

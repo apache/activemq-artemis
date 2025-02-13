@@ -120,91 +120,55 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return this;
    }
 
-   /**
-    * @return the clientFailureCheckPeriod
-    */
    public long getClientFailureCheckPeriod() {
       return clientFailureCheckPeriod;
    }
 
-   /**
-    * @param clientFailureCheckPeriod the clientFailureCheckPeriod to set
-    */
    public ClusterConnectionConfiguration setClientFailureCheckPeriod(long clientFailureCheckPeriod) {
       this.clientFailureCheckPeriod = clientFailureCheckPeriod;
       return this;
    }
 
-   /**
-    * @return the connectionTTL
-    */
    public long getConnectionTTL() {
       return connectionTTL;
    }
 
-   /**
-    * @param connectionTTL the connectionTTL to set
-    */
    public ClusterConnectionConfiguration setConnectionTTL(long connectionTTL) {
       this.connectionTTL = connectionTTL;
       return this;
    }
 
-   /**
-    * @return the retryIntervalMultiplier
-    */
    public double getRetryIntervalMultiplier() {
       return retryIntervalMultiplier;
    }
 
-   /**
-    * @param retryIntervalMultiplier the retryIntervalMultiplier to set
-    */
    public ClusterConnectionConfiguration setRetryIntervalMultiplier(double retryIntervalMultiplier) {
       this.retryIntervalMultiplier = retryIntervalMultiplier;
       return this;
    }
 
-   /**
-    * @return the maxRetryInterval
-    */
    public long getMaxRetryInterval() {
       return maxRetryInterval;
    }
 
-   /**
-    * @param maxRetryInterval the maxRetryInterval to set
-    */
    public ClusterConnectionConfiguration setMaxRetryInterval(long maxRetryInterval) {
       this.maxRetryInterval = maxRetryInterval;
       return this;
    }
 
-   /**
-    * @return the initialConnectAttempts
-    */
    public int getInitialConnectAttempts() {
       return initialConnectAttempts;
    }
 
-   /**
-    * @param initialConnectAttempts the reconnectAttempts to set
-    */
    public ClusterConnectionConfiguration setInitialConnectAttempts(int initialConnectAttempts) {
       this.initialConnectAttempts = initialConnectAttempts;
       return this;
    }
 
-   /**
-    * @return the reconnectAttempts
-    */
    public int getReconnectAttempts() {
       return reconnectAttempts;
    }
 
-   /**
-    * @param reconnectAttempts the reconnectAttempts to set
-    */
    public ClusterConnectionConfiguration setReconnectAttempts(int reconnectAttempts) {
       this.reconnectAttempts = reconnectAttempts;
       return this;
@@ -214,9 +178,6 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return callTimeout;
    }
 
-   /**
-    * @param callTimeout the callTimeout to set
-    */
    public ClusterConnectionConfiguration setCallTimeout(long callTimeout) {
       this.callTimeout = callTimeout;
       return this;
@@ -226,9 +187,6 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return callFailoverTimeout;
    }
 
-   /**
-    * @param callFailoverTimeout the callTimeout to set
-    */
    public ClusterConnectionConfiguration setCallFailoverTimeout(long callFailoverTimeout) {
       this.callFailoverTimeout = callFailoverTimeout;
       return this;
@@ -247,9 +205,6 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return duplicateDetection;
    }
 
-   /**
-    * @param duplicateDetection the duplicateDetection to set
-    */
    public ClusterConnectionConfiguration setDuplicateDetection(boolean duplicateDetection) {
       this.duplicateDetection = duplicateDetection;
       return this;
@@ -259,10 +214,6 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return messageLoadBalancingType;
    }
 
-   /**
-    * @param messageLoadBalancingType
-    * @return
-    */
    public ClusterConnectionConfiguration setMessageLoadBalancingType(MessageLoadBalancingType messageLoadBalancingType) {
       this.messageLoadBalancingType = messageLoadBalancingType;
       return this;
@@ -317,9 +268,6 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return retryInterval;
    }
 
-   /**
-    * @param retryInterval the retryInterval to set
-    */
    public ClusterConnectionConfiguration setRetryInterval(long retryInterval) {
       this.retryInterval = retryInterval;
       return this;
@@ -334,24 +282,15 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return this;
    }
 
-   /**
-    * @return the minLargeMessageSize
-    */
    public int getMinLargeMessageSize() {
       return minLargeMessageSize;
    }
 
-   /**
-    * @param minLargeMessageSize the minLargeMessageSize to set
-    */
    public ClusterConnectionConfiguration setMinLargeMessageSize(final int minLargeMessageSize) {
       this.minLargeMessageSize = minLargeMessageSize;
       return this;
    }
 
-   /*
-   * returns the cluster update interval
-   * */
    public long getClusterNotificationInterval() {
       return clusterNotificationInterval;
    }

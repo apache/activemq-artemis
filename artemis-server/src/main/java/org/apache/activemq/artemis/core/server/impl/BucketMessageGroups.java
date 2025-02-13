@@ -24,19 +24,22 @@ import java.util.function.Predicate;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
- * BucketMessageGroups, stores values against a bucket, where the bucket used is based on the provided key objects hash.
- *
+ * BucketMessageGroups, stores values against a bucket, where the bucket used is based on the provided key objects
+ * hash.
+ * <p>
  * As such where keys compute to the same bucket they will act on that stored value, not the unique specific key.
- *
+ * <p>
  * The number of buckets is provided at construction.
  */
 public class BucketMessageGroups<C> implements MessageGroups<C> {
 
-   //This _AMQ_GROUP_BUCKET_INT_KEY uses the post-fixed value after this key, as an int, it is used for a few cases:
-   //1) For the admin screen we need to show a group key so we have to map back from int to something, as it expects SimpleString.
-   //2) Admin users still need to interact with a specific bucket/group e.g. they may need to reset a bucket.
-   //3) Choice of key is we want to avoid risk of clashing with users groups keys.
-   //4) Actually makes testing a little easier as we know how the parsed int will hash.
+   /*
+    * This _AMQ_GROUP_BUCKET_INT_KEY uses the post-fixed value after this key, as an int, it is used for a few cases:
+    * 1) For the admin screen we need to show a group key so we have to map back from int to something, as it expects SimpleString.
+    * 2) Admin users still need to interact with a specific bucket/group e.g. they may need to reset a bucket.
+    * 3) Choice of key is we want to avoid risk of clashing with users groups keys.
+    * 4) Actually makes testing a little easier as we know how the parsed int will hash.
+    */
    private static SimpleString _AMQ_GROUP_BUCKET_INT_KEY = SimpleString.of("_AMQ_GROUP_BUCKET_INT_KEY_");
 
    private final int bucketCount;

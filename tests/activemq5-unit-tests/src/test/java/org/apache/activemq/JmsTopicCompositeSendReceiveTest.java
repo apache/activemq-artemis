@@ -23,9 +23,6 @@ import javax.jms.Topic;
 
 import org.apache.activemq.test.JmsTopicSendReceiveTest;
 
-/**
- *
- */
 public class JmsTopicCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
 
    private static final org.apache.commons.logging.Log LOG = org.apache.commons.logging.LogFactory.getLog(JmsTopicCompositeSendReceiveTest.class);
@@ -53,33 +50,16 @@ public class JmsTopicCompositeSendReceiveTest extends JmsTopicSendReceiveTest {
 
    }
 
-   /**
-    * Returns the consumer subject.
-    *
-    * @return String - consumer subject
-    * @see org.apache.activemq.test.TestSupport#getConsumerSubject()
-    */
    @Override
    protected String getConsumerSubject() {
       return "FOO.BAR.HUMBUG";
    }
 
-   /**
-    * Returns the producer subject.
-    *
-    * @return String - producer subject
-    * @see org.apache.activemq.test.TestSupport#getProducerSubject()
-    */
    @Override
    protected String getProducerSubject() {
       return "FOO.BAR.HUMBUG,FOO.BAR.HUMBUG2";
    }
 
-   /**
-    * Test if all the messages sent are being received.
-    *
-    * @throws Exception
-    */
    @Override
    public void testSendReceive() throws Exception {
       super.testSendReceive();

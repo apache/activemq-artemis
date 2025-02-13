@@ -76,8 +76,6 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
 
    /**
     * This was causing a text message to ber eventually converted into large message when sent over the bridge
-    *
-    * @throws Exception
     */
    @TestTemplate
    public void testSendHalfLargeTextMessage() throws Exception {
@@ -112,8 +110,6 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
 
    /**
     * This was causing a text message to ber eventually converted into large message when sent over the bridge
-    *
-    * @throws Exception
     */
    @TestTemplate
    public void testSendMapMessageOverCluster() throws Exception {
@@ -154,8 +150,6 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
 
    /**
     * the hack to create the failing condition in certain tests
-    *
-    * @param config
     */
    private void installHack(Configuration config) {
       if (this.getName().equals("testSendBytesAsLargeOnBridgeOnly")) {
@@ -176,8 +170,6 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
 
    /**
     * This was causing a text message to ber eventually converted into large message when sent over the bridge
-    *
-    * @throws Exception
     */
    @TestTemplate
    public void testSendBytesAsLargeOnBridgeOnly() throws Exception {
@@ -223,8 +215,6 @@ public class LargeMessageOverBridgeTest extends JMSClusteredTestBase {
 
    /**
     * The message won't be large to the client while it will be considered large through the bridge
-    *
-    * @throws Exception
     */
    @TestTemplate
    public void testSendLargeForBridge() throws Exception {

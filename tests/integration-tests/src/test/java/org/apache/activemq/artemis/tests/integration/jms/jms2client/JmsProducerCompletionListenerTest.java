@@ -142,10 +142,6 @@ public class JmsProducerCompletionListenerTest extends JMSTestBase {
       private Exception error;
       private final int call;
 
-      /**
-       * @param context
-       * @param call
-       */
       public InvalidCompletionListener(JMSContext context, int call) {
          this.call = call;
          this.context = context;

@@ -16,9 +16,6 @@
  */
 package org.apache.activemq;
 
-/**
- *
- */
 public class JmsDurableTopicSelectorTest extends JmsTopicSelectorTest {
 
    @Override

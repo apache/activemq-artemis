@@ -45,10 +45,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Benchmarks the broker by starting many consumer and producers against the
- * same destination. Make sure you run with jvm option -server (makes a big
- * difference). The tests simulate storing 1000 1k jms messages to see the rate
- * of processing msg/sec.
+ * Benchmarks the broker by starting many consumer and producers against the same destination. Make sure you run with
+ * jvm option -server (makes a big difference). The tests simulate storing 1000 1k jms messages to see the rate of
+ * processing msg/sec.
  */
 public class JmsBenchmark extends JmsTestSupport {
 
@@ -84,9 +83,6 @@ public class JmsBenchmark extends JmsTestSupport {
       return new ActiveMQConnectionFactory(broker.getTransportConnectors().get(0).getServer().getConnectURI());
    }
 
-   /**
-    * @throws Throwable
-    */
    public void testConcurrentSendReceive() throws Throwable {
 
       final Semaphore connectionsEstablished = new Semaphore(1 - (CONSUMER_COUNT + PRODUCER_COUNT));

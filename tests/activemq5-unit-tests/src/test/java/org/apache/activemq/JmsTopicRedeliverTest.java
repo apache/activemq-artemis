@@ -29,9 +29,6 @@ import javax.jms.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class JmsTopicRedeliverTest extends TestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(JmsTopicRedeliverTest.class);
@@ -96,33 +93,16 @@ public class JmsTopicRedeliverTest extends TestSupport {
       super.tearDown();
    }
 
-   /**
-    * Returns the consumer subject.
-    *
-    * @return String - consumer subject
-    * @see org.apache.activemq.test.TestSupport#getConsumerSubject()
-    */
    @Override
    protected String getConsumerSubject() {
       return "TEST";
    }
 
-   /**
-    * Returns the producer subject.
-    *
-    * @return String - producer subject
-    * @see org.apache.activemq.test.TestSupport#getProducerSubject()
-    */
    @Override
    protected String getProducerSubject() {
       return "TEST";
    }
 
-   /**
-    * Sends and consumes the messages.
-    *
-    * @throws Exception
-    */
    public void testRecover() throws Exception {
       String text = "TEST";
       Message sendMessage = session.createTextMessage(text);
@@ -161,5 +141,4 @@ public class JmsTopicRedeliverTest extends TestSupport {
       }
       return consumeSession.createConsumer(consumerDestination);
    }
-
 }

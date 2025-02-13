@@ -148,8 +148,7 @@ public final class XMLUtil {
    }
 
    /**
-    * Note: if the content is another element or set of elements, it returns a string representation
-    * of the hierarchy.
+    * Note: if the content is another element or set of elements, it returns a string representation of the hierarchy.
     */
    public static String getTextContent(final Node n) {
       if (n.hasChildNodes()) {

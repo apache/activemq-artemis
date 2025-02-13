@@ -19,7 +19,8 @@ package org.apache.activemq.artemis.api.core.client.loadbalance;
 import org.apache.activemq.artemis.utils.RandomUtil;
 
 /**
- * {@link RandomConnectionLoadBalancingPolicy#select(int)} chooses a the initial node randomly then subsequent requests return the same node
+ * {@link RandomConnectionLoadBalancingPolicy#select(int)} chooses a the initial node randomly then subsequent requests
+ * return the same node
  */
 public final class RandomStickyConnectionLoadBalancingPolicy implements ConnectionLoadBalancingPolicy {
 

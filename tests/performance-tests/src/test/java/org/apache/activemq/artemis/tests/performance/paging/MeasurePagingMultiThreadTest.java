@@ -149,13 +149,6 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
 
 
 
-   /**
-    * @param adr
-    * @param nMessages
-    * @param messageSize
-    * @param factory
-    * @throws ActiveMQException
-    */
    private void sendInitialBatch(final SimpleString adr,
                                  final int nMessages,
                                  final int messageSize,
@@ -169,12 +162,6 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
       sendMessages(nMessages, producer, msg);
    }
 
-   /**
-    * @param nMessages
-    * @param producer
-    * @param msg
-    * @throws ActiveMQException
-    */
    private void sendMessages(final int nMessages,
                              final ClientProducer producer,
                              final ClientMessage msg) throws ActiveMQException {
@@ -183,11 +170,6 @@ public class MeasurePagingMultiThreadTest extends ActiveMQTestBase {
       }
    }
 
-   /**
-    * @param factory
-    * @param adr
-    * @throws ActiveMQException
-    */
    private void createDestination(final ClientSessionFactory factory, final SimpleString adr) throws ActiveMQException {
       {
          ClientSession session = factory.createSession(false, false, false);

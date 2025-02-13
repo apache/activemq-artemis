@@ -24,20 +24,20 @@ import org.apache.qpid.proton.amqp.Symbol;
 public abstract class AMQPBrokerConnectionConstants {
 
    /**
-    * Property name used to embed a nested map of properties meant to be conveyed to the remote
-    * peer describing attributes assigned to the AMQP broker connection
+    * Property name used to embed a nested map of properties meant to be conveyed to the remote peer describing
+    * attributes assigned to the AMQP broker connection
     */
    public static final Symbol BROKER_CONNECTION_INFO = Symbol.getSymbol("broker-connection-info");
 
    /**
-    * Map entry key used to carry the AMQP broker connection name to the remote peer in the
-    * information map sent in the AMQP connection properties.
+    * Map entry key used to carry the AMQP broker connection name to the remote peer in the information map sent in the
+    * AMQP connection properties.
     */
    public static final String CONNECTION_NAME = "connectionName";
 
    /**
-    * Map entry key used to carry the Node ID of the server where the AMQP broker connection
-    * originates from to the remote peer in the information map sent in the AMQP connection properties.
+    * Map entry key used to carry the Node ID of the server where the AMQP broker connection originates from to the
+    * remote peer in the information map sent in the AMQP connection properties.
     */
    public static final String NODE_ID = "nodeId";
 

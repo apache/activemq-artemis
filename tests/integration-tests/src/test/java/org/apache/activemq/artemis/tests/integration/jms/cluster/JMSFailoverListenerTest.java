@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A JMSFailoverTest
- * <br>
+ * <p>
  * A simple test to test setFailoverListener when using the JMS API.
  */
 public class JMSFailoverListenerTest extends ActiveMQTestBase {
@@ -257,9 +257,6 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
       startServers();
    }
 
-   /**
-    * @throws Exception
-    */
    protected void startServers() throws Exception {
       NodeManager nodeManager = new InVMNodeManager(false);
       backuptc = new TransportConfiguration(INVM_CONNECTOR_FACTORY, backupParams);

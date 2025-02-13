@@ -228,9 +228,6 @@ public class DivertImpl implements Divert {
       this.routingType = routingType;
    }
 
-   /* (non-Javadoc)
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return "DivertImpl [routingName=" + routingName +

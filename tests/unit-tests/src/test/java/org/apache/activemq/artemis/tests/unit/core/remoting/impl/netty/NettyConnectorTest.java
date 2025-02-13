@@ -142,7 +142,6 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       }
    }
 
-
    /**
     * that java system properties are read
     */

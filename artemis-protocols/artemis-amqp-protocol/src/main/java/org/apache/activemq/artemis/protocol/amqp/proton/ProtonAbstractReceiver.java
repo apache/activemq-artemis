@@ -91,9 +91,8 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    }
 
    /**
-    * Starts the receiver if not already started which triggers a flow of credit
-    * to the remote to begin the processing of incoming messages.  This must be
-    * called on the connection thread and will throw and exception if not.
+    * Starts the receiver if not already started which triggers a flow of credit to the remote to begin the processing
+    * of incoming messages.  This must be called on the connection thread and will throw and exception if not.
     *
     * @throws IllegalStateException if not called from the connection thread or is closed or stopping.
     */
@@ -115,19 +114,15 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    }
 
    /**
-    * Stop the receiver from granting additional credit and drains any granted credit
-    * from the link already. If any pending settles or queued message remain in the work
-    * queue then the stop occurs asynchronously and the stop callback is signaled later
-    * otherwise it will be triggered on the current thread to avoid state changes from
-    * making an asynchronous call invalid. The stop call allows a timeout to be specified
-    * which will signal the stopped consumer if the timeout elapses and leaves the receiver
-    * in the stopping state which does not allow for a restart.
+    * Stop the receiver from granting additional credit and drains any granted credit from the link already. If any
+    * pending settles or queued message remain in the work queue then the stop occurs asynchronously and the stop
+    * callback is signaled later otherwise it will be triggered on the current thread to avoid state changes from making
+    * an asynchronous call invalid. The stop call allows a timeout to be specified which will signal the stopped
+    * consumer if the timeout elapses and leaves the receiver in the stopping state which does not allow for a restart.
     *
-    * @param stopTimeout
-    *    A time in milliseconds to wait for the stop to complete before considering it as having failed.
-    * @param onStopped
-    *    A consumer that is signaled once the receiver has stopped or the timeout elapsed.
-    *
+    * @param stopTimeout A time in milliseconds to wait for the stop to complete before considering it as having
+    *                    failed.
+    * @param onStopped   A consumer that is signaled once the receiver has stopped or the timeout elapsed.
     * @throws IllegalStateException if the receiver is currently in the stopping state.
     */
    public void stop(int stopTimeout, BiConsumer<ProtonAbstractReceiver, Boolean> onStopped) {
@@ -192,7 +187,8 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       return state == ReceiverState.CLOSED;
    }
 
-   /** Set the proper operation context in the Thread Local.
+   /**
+    * Set the proper operation context in the Thread Local.
     *  Return the old context*/
    protected OperationContext recoverContext() {
       return sessionSPI.recoverContext();
@@ -208,26 +204,22 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    }
 
    /**
-    * Subclass can override this to provide a custom credit runnable that performs
-    * other checks or applies credit in a manner more fitting that implementation.
+    * Subclass can override this to provide a custom credit runnable that performs other checks or applies credit in a
+    * manner more fitting that implementation.
     *
-    * @param connection
-    *       The {@link AMQPConnectionContext} that this resource falls under.
-    *
-    * @return a {@link Runnable} that will perform the actual credit granting operation.
+    * @param connection The {@link AMQPConnectionContext} that this resource falls under.
+    * @return a {@link Runnable} that will perform the actual credit granting operation
     */
    protected Runnable createCreditRunnable(AMQPConnectionContext connection) {
       return createCreditRunnable(connection.getAmqpCredits(), connection.getAmqpLowCredits(), receiver, connection, this);
    }
 
    /**
-    * Subclass can override this to provide the minimum large message size that should
-    * be used when creating receiver instances.
+    * Subclass can override this to provide the minimum large message size that should be used when creating receiver
+    * instances.
     *
-    * @param connection
-    *       The {@link AMQPConnectionContext} that this resource falls under.
-    *
-    * @return the minimum large message size configuration value for this receiver.
+    * @param connection The {@link AMQPConnectionContext} that this resource falls under.
+    * @return the minimum large message size configuration value for this receiver
     */
    protected int getConfiguredMinLargeMessageSize(AMQPConnectionContext connection) {
       return connection.getProtocolManager().getAmqpMinLargeMessageSize();
@@ -236,18 +228,12 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    /**
     * This Credit Runnable can be used to manage the credit replenishment of a target AMQP receiver.
     *
-    * @param refill
-    *       The number of credit to top off the receiver to
-    * @param threshold
-    *       The low water mark for credit before refill is done
-    * @param receiver
-    *       The proton receiver that will have its credit refilled
-    * @param connection
-    *       The connection that own the receiver
-    * @param context
-    *       The context that will be associated with the receiver
-    *
-    * @return A new Runnable that can be used to keep receiver credit replenished.
+    * @param refill     The number of credit to top off the receiver to
+    * @param threshold  The low water mark for credit before refill is done
+    * @param receiver   The proton receiver that will have its credit refilled
+    * @param connection The connection that own the receiver
+    * @param context    The context that will be associated with the receiver
+    * @return A new Runnable that can be used to keep receiver credit replenished
     */
    public static Runnable createCreditRunnable(int refill,
                                                int threshold,
@@ -258,20 +244,15 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    }
 
    /**
-    * This servers as the default credit runnable which grants credit in batches based on a
-    * low water mark and a configured credit size to top the credit up to once the low water
-    * mark has been reached.
+    * This servers as the default credit runnable which grants credit in batches based on a low water mark and a
+    * configured credit size to top the credit up to once the low water mark has been reached.
     */
    protected static class FlowControlRunner implements Runnable {
 
-      /*
-       * The number of credits sent to the remote when the runnable decides that a top off is needed.
-       */
+      // The number of credits sent to the remote when the runnable decides that a top off is needed.
       final int refill;
 
-      /*
-       * The low water mark before the runnable considers performing a credit top off.
-       */
+      // The low water mark before the runnable considers performing a credit top off.
       final int threshold;
 
       final Receiver receiver;
@@ -406,7 +387,7 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       }
    }
 
-   /*
+   /**
     * called when Proton receives a message to be delivered via a Delivery.
     *
     * This may be called more than once per deliver so we have to cache the buffer until we have received it all.
@@ -479,29 +460,21 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    }
 
    /**
-    * Returns either the fixed address assigned to this sender, or the last address used by
-    * an anonymous relay sender. If this is an anonymous relay and no send has occurred then
-    * this method returns null.
-    *
-    * @return the assigned address or the last used address if any for anonymous relay senders.
+    * {@return either the fixed address assigned to this sender, or the last address used by an anonymous relay sender;
+    * if this is an anonymous relay and no send has occurred then this method returns {@code null}}
     */
    protected abstract SimpleString getAddressInUse();
 
    /**
-    * Perform the actual message processing for an inbound message. The subclass either consumes and settles
-    * the message in place or hands it off to another intermediary who is responsible for eventually settling
-    * the newly read message.
+    * Perform the actual message processing for an inbound message. The subclass either consumes and settles the message
+    * in place or hands it off to another intermediary who is responsible for eventually settling the newly read
+    * message.
     *
-    * @param message
-    *    The message as provided from the remote or after local transformation by subclass.
-    * @param delivery
-    *    The proton delivery where the message bytes where read from
-    * @param deliveryAnnotations
-    *    The delivery annotations if present that accompanied the incoming message.
-    * @param receiver
-    *    The proton receiver that represents the link over which the message was sent.
-    * @param tx
-    *    The transaction under which the incoming message was sent.
+    * @param message             The message as provided from the remote or after local transformation by subclass.
+    * @param delivery            The proton delivery where the message bytes where read from
+    * @param deliveryAnnotations The delivery annotations if present that accompanied the incoming message.
+    * @param receiver            The proton receiver that represents the link over which the message was sent.
+    * @param tx                  The transaction under which the incoming message was sent.
     */
    protected abstract void actualDelivery(Message message, Delivery delivery, DeliveryAnnotations deliveryAnnotations, Receiver receiver, Transaction tx);
 
@@ -536,9 +509,9 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
 
    /**
     * Performs the actual credit top up logic for the receiver.
-    *
-    * This can be overridden in the subclass to run its own logic for credit top
-    * up instead of using the default logic used in this abstract base.
+    * <p>
+    * This can be overridden in the subclass to run its own logic for credit top up instead of using the default logic
+    * used in this abstract base.
     */
    protected void doCreditTopUpRun() {
       connection.requireInHandler();

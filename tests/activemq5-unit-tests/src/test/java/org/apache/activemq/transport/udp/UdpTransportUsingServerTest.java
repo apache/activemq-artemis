@@ -26,10 +26,6 @@ import org.apache.activemq.transport.TransportServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- *
- */
 public class UdpTransportUsingServerTest extends UdpTestSupport {
 
    private static final Logger LOG = LoggerFactory.getLogger(UdpTransportUsingServerTest.class);

@@ -508,11 +508,8 @@ public class XaTimeoutTest extends ActiveMQTestBase {
    }
 
    /**
-    * In case a timeout happens the server's object may still have the previous XID.
-    * for that reason a new start call is supposed to clean it up with a log.warn
-    * but it should still succeed
-    *
-    * @throws Exception
+    * In case a timeout happens the server's object may still have the previous XID. for that reason a new start call is
+    * supposed to clean it up with a log.warn but it should still succeed
     */
    @TestTemplate
    public void testChangeXID() throws Exception {
@@ -631,15 +628,12 @@ public class XaTimeoutTest extends ActiveMQTestBase {
       assertNull(m);
    }
 
-   // HORNETQ-1117 - Test that will timeout on a XA transaction and then will perform another XA operation
+   // Test that will timeout on a XA transaction and then will perform another XA operation
    @TestTemplate
    public void testTimeoutOnXACall() throws Exception {
       final CountDownLatch latch = new CountDownLatch(1);
       class SomeInterceptor implements Interceptor {
 
-         /* (non-Javadoc)
-          * @see Interceptor#intercept(org.apache.activemq.artemis.core.protocol.core.Packet, RemotingConnection)
-          */
          @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
             if (packet instanceof SessionXAStartMessage) {

@@ -48,9 +48,6 @@ public interface ClientConsumerInternal extends ClientConsumer {
 
    /**
     * To be called by things like MDBs during shutdown of the server
-    *
-    * @param future
-    * @throws ActiveMQException
     */
    Thread prepareForClose(FutureLatch future) throws ActiveMQException;
 

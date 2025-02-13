@@ -41,10 +41,7 @@ public class TemporaryQueueClusterTest extends ClusterTestBase {
    }
 
    /**
-    * https://jira.jboss.org/jira/browse/HORNETQ-286
-    *
-    * the test checks that the temp queue is properly propagated to the cluster
-    * (assuming we wait for the bindings)
+    * the test checks that the temp queue is properly propagated to the cluster (assuming we wait for the bindings)
     */
    @Test
    public void testSendToTempQueueFromAnotherClusterNode() throws Exception {

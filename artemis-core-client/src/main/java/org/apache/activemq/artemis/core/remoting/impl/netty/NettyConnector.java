@@ -858,8 +858,9 @@ public class NettyConnector extends AbstractConnector {
    /**
     * Create and return a connection from this connector.
     * <p>
-    * This method must NOT throw an exception if it fails to create the connection
-    * (e.g. network is not available), in this case it MUST return null.<br>
+    * This method must NOT throw an exception if it fails to create the connection (e.g. network is not available), in
+    * this case it MUST return null.
+    * <p>
     * This version can be used for testing purposes.
     *
     * @param onConnect a callback that would be called right after {@link Bootstrap#connect()}

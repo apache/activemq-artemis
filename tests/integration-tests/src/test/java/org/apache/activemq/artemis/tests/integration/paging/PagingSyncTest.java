@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * A PagingOrderTest.
- * <br>
+ * <p>
  * PagingTest has a lot of tests already. I decided to create a newer one more specialized on Ordering and counters
  */
 public class PagingSyncTest extends ActiveMQTestBase {

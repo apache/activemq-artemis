@@ -289,7 +289,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       InetAddress addr;
       try {
          addr = InetAddress.getLocalHost();
-      } catch (ArrayIndexOutOfBoundsException e) {  //this is workaround for mac osx bug see AS7-3223 and JGRP-1404
+      } catch (ArrayIndexOutOfBoundsException e) {
          addr = InetAddress.getByName(null);
       }
       return addr;

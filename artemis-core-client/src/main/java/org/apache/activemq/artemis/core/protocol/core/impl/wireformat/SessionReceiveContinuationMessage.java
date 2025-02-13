@@ -32,12 +32,6 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
       super(SESS_RECEIVE_CONTINUATION);
    }
 
-   /**
-    * @param consumerID
-    * @param body
-    * @param continues
-    * @param requiresResponse
-    */
    public SessionReceiveContinuationMessage(final long consumerID,
                                             final byte[] body,
                                             final boolean continues,
@@ -55,9 +49,6 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
       this.size = packetSize;
    }
 
-   /**
-    * @return the consumerID
-    */
    public long getConsumerID() {
       return consumerID;
    }

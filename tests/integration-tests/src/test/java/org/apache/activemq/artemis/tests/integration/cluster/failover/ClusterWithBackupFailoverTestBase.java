@@ -71,9 +71,8 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase 
    }
 
    /**
-    * @param node             The node which we should fail
+    * @param node                The node which we should fail
     * @param originalPrimaryNode The number of the original node, to locate session to fail
-    * @throws Exception
     */
    protected void failNode(final int node, final int originalPrimaryNode) throws Exception {
       logger.debug("*** failing node {}", node);

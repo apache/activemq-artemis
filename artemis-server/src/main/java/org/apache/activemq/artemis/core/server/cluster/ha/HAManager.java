@@ -21,9 +21,9 @@ import java.util.Map;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
-/*
-* An HAManager takes care of any colocated backups in a VM.
-* */
+/**
+ * An HAManager takes care of any colocated backups in a VM.
+ */
 public interface HAManager extends ActiveMQComponent {
 
    /**

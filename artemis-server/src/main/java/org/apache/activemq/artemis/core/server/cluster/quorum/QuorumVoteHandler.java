@@ -24,17 +24,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
  */
 public interface QuorumVoteHandler {
 
-   /**
-    * @param vote
-    * @return
-    */
    Vote vote(Vote vote);
 
-   /**
-    * the name of the quorum vote
-    *
-    * @return the name
-    */
    SimpleString getQuorumName();
 
    Vote decode(ActiveMQBuffer voteBuffer);

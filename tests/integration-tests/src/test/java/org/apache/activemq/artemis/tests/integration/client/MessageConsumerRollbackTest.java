@@ -135,11 +135,6 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
 
    }
 
-   /**
-    * @param numberOfMessages
-    * @param session
-    * @throws Exception
-    */
    private void sendMessages(int numberOfMessages, ClientSession session) throws Exception {
       ClientProducer producer = session.createProducer(inQueue);
 

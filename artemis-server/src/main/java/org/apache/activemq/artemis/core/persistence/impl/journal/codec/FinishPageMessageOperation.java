@@ -25,8 +25,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 /**
  * This is only used when loading a transaction.
  * <p>
- * it might be possible to merge the functionality of this class with
- * {@link FinishPageMessageOperation}
+ * it might be possible to merge the functionality of this class with {@link FinishPageMessageOperation}
  */
 // TODO: merge this class with the one on the PagingStoreImpl
 public class FinishPageMessageOperation extends TransactionOperationAbstract implements TransactionOperation {

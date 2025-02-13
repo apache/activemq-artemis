@@ -25,13 +25,6 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 
-/**
- * Created with IntelliJ IDEA.
- * User: andy
- * Date: 13/08/13
- * Time: 15:13
- * To change this template use File | Settings | File Templates.
- */
 class DummyTransaction implements Transaction {
    public boolean rollbackOnly = false;
 

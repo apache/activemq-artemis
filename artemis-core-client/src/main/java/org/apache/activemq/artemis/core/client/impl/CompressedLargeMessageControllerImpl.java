@@ -43,9 +43,6 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       this.bufferDelegate = bufferDelegate;
    }
 
-   /**
-    *
-    */
    @Override
    public void discardUnusedPackets() {
       bufferDelegate.discardUnusedPackets();

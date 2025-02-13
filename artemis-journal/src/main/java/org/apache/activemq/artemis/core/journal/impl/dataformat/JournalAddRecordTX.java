@@ -34,11 +34,6 @@ public class JournalAddRecordTX extends JournalInternalRecord {
 
    private final boolean add;
 
-   /**
-    * @param id
-    * @param recordType
-    * @param record
-    */
    public JournalAddRecordTX(final boolean add,
                              final long txID,
                              final long id,

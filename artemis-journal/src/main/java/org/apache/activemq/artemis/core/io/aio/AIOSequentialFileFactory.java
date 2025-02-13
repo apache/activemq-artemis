@@ -268,15 +268,13 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    }
 
    /**
-    * It can be used to align {@code size} if alignment is not a power of 2: otherwise better to use {@link PowerOf2Util#align(int, int)} instead.
+    * It can be used to align {@code size} if alignment is not a power of 2: otherwise better to use
+    * {@link PowerOf2Util#align(int, int)} instead.
     */
    private static int align(int size, int alignment) {
       return (size / alignment + (size % alignment != 0 ? 1 : 0)) * alignment;
    }
 
-   /* (non-Javadoc)
-    * @see org.apache.activemq.artemis.core.io.SequentialFileFactory#releaseBuffer(java.nio.ByteBuffer)
-    */
    @Override
    public synchronized void releaseBuffer(final ByteBuffer buffer) {
       LibaioContext.freeBuffer(buffer);
@@ -322,8 +320,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    }
 
    /**
-    * The same callback is used for Runnable executor.
-    * This way we can save some memory over the pool.
+    * The same callback is used for Runnable executor. This way we can save some memory over the pool.
     */
    public class AIOSequentialCallback implements SubmitInfo, Runnable, Comparable<AIOSequentialCallback> {
 

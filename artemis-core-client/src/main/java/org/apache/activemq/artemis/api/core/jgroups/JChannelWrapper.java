@@ -27,9 +27,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * This class wraps a JChannel with a reference counter. The reference counter
- * controls the life of the JChannel. When reference count is zero, the channel
- * will be disconnected.
+ * This class wraps a JChannel with a reference counter. The reference counter controls the life of the JChannel. When
+ * reference count is zero, the channel will be disconnected.
  */
 public class JChannelWrapper {
 

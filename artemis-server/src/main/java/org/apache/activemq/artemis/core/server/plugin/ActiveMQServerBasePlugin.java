@@ -19,9 +19,6 @@ package org.apache.activemq.artemis.core.server.plugin;
 import java.util.Map;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
-/**
- *
- */
 public interface ActiveMQServerBasePlugin {
 
    default void setInit(Map<String, String> props) {
@@ -30,8 +27,6 @@ public interface ActiveMQServerBasePlugin {
 
    /**
     * used to pass configured properties to Plugin
-    *
-    * @param properties
     */
    default void init(Map<String, String> properties) {
    }

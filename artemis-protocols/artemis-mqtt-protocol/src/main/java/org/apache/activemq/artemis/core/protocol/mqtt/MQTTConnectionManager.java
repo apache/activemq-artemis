@@ -79,9 +79,11 @@ public class MQTTConnectionManager {
       session.setServerSession(serverSession, internalServerSession);
 
       if (cleanStart) {
-         /* [MQTT-3.1.2-6] If CleanSession is set to 1, the Client and Server MUST discard any previous Session and
+         /*
+          * [MQTT-3.1.2-6] If CleanSession is set to 1, the Client and Server MUST discard any previous Session and
           * start a new one. This Session lasts as long as the Network Connection. State data associated with this Session
-          * MUST NOT be reused in any subsequent Session */
+          * MUST NOT be reused in any subsequent Session
+          */
          session.clean(true);
          session.setClean(true);
       }
@@ -187,7 +189,7 @@ public class MQTTConnectionManager {
       } finally {
          if (session.getState() != null) {
             String clientId = session.getState().getClientId();
-            /**
+            /*
              *  ensure that the connection for the client ID matches *this* connection otherwise we could remove the
              *  entry for the client who "stole" this client ID via [MQTT-3.1.4-2]
              */

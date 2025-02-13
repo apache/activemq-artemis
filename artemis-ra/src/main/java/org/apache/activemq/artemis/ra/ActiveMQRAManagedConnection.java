@@ -57,56 +57,26 @@ import org.apache.activemq.artemis.utils.VersionLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The managed connection
- */
 public final class ActiveMQRAManagedConnection implements ManagedConnection, ExceptionListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The managed connection factory
-    */
    private final ActiveMQRAManagedConnectionFactory mcf;
 
-   /**
-    * The connection request information
-    */
    private final ActiveMQRAConnectionRequestInfo cri;
 
-   /**
-    * The resource adapter
-    */
    private final ActiveMQResourceAdapter ra;
 
-   /**
-    * The user name
-    */
    private final String userName;
 
-   /**
-    * The password
-    */
    private final String password;
 
-   /**
-    * Has the connection been destroyed
-    */
    private final AtomicBoolean isDestroyed = new AtomicBoolean(false);
 
-   /**
-    * Event listeners
-    */
    private final List<ConnectionEventListener> eventListeners;
 
-   /**
-    * Handles
-    */
    private final Set<ActiveMQRASession> handles;
 
-   /**
-    * Lock
-    */
    private ReentrantLock lock = new ReentrantLock();
 
    // Physical connection stuff
@@ -126,14 +96,6 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
 
    private boolean inManagedTx;
 
-   /**
-    * Constructor
-    *
-    * @param mcf      The managed connection factory
-    * @param cri      The connection request information
-    * @param userName The user name
-    * @param password The password
-    */
    public ActiveMQRAManagedConnection(final ActiveMQRAManagedConnectionFactory mcf,
                                       final ActiveMQRAConnectionRequestInfo cri,
                                       final ActiveMQResourceAdapter ra,
@@ -176,12 +138,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    }
 
    /**
-    * Get a connection
-    *
-    * @param subject       The security subject
-    * @param cxRequestInfo The request info
-    * @return The connection
-    * @throws ResourceException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public synchronized Object getConnection(final Subject subject,
@@ -209,11 +166,6 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       return session;
    }
 
-   /**
-    * Destroy all handles.
-    *
-    * @throws ResourceException Failed to close one or more handles.
-    */
    private void destroyHandles() throws ResourceException {
       logger.trace("destroyHandles()");
 
@@ -225,9 +177,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    }
 
    /**
-    * Destroy the physical connection.
-    *
-    * @throws ResourceException Could not property close the session and connection.
+    * {@inheritDoc}
     */
    @Override
    public void destroy() throws ResourceException {
@@ -262,12 +212,10 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
          // The following calls should not be necessary, as the connection should close the
          // ClientSessionFactory, which will close the sessions.
          try {
-            /**
+            /*
              * (xa|nonXA)Session.close() may NOT be called BEFORE connection.close()
-             * <p>
              * If the ClientSessionFactory is trying to fail-over or reconnect with -1 attempts, and
              * one calls session.close() it may effectively dead-lock.
-             * <p>
              * connection close will close the ClientSessionFactory which will close all sessions.
              */
             connection.close();
@@ -289,9 +237,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    }
 
    /**
-    * Cleanup
-    *
-    * @throws ResourceException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void cleanup() throws ResourceException {
@@ -315,11 +261,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    }
 
    /**
-    * Move a handler from one mc to this one.
-    *
-    * @param obj An object of type ActiveMQSession.
-    * @throws ResourceException     Failed to associate connection.
-    * @throws IllegalStateException ManagedConnection in an illegal state.
+    * {@inheritDoc}
     */
    @Override
    public void associateConnection(final Object obj) throws ResourceException {
@@ -395,9 +337,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    }
 
    /**
-    * Add a connection event listener.
-    *
-    * @param l The connection event listener to be added.
+    * {@inheritDoc}
     */
    @Override
    public void addConnectionEventListener(final ConnectionEventListener l) {
@@ -407,9 +347,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    }
 
    /**
-    * Remove a connection event listener.
-    *
-    * @param l The connection event listener to be removed.
+    * {@inheritDoc}
     */
    @Override
    public void removeConnectionEventListener(final ConnectionEventListener l) {
@@ -419,10 +357,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    }
 
    /**
-    * Get the XAResource for the connection.
-    *
-    * @return The XAResource for the connection.
-    * @throws ResourceException XA transaction not supported
+    * {@inheritDoc}
     */
    @Override
    public XAResource getXAResource() throws ResourceException {
@@ -449,10 +384,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    }
 
    /**
-    * Get the location transaction for the connection.
-    *
-    * @return The local transaction for the connection.
-    * @throws ResourceException Thrown if operation fails.
+    * {@inheritDoc}
     */
    @Override
    public LocalTransaction getLocalTransaction() throws ResourceException {
@@ -466,11 +398,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    }
 
    /**
-    * Get the meta data for the connection.
-    *
-    * @return The meta data for the connection.
-    * @throws ResourceException     Thrown if the operation fails.
-    * @throws IllegalStateException Thrown if the managed connection already is destroyed.
+    * {@inheritDoc}
     */
    @Override
    public ManagedConnectionMetaData getMetaData() throws ResourceException {
@@ -484,10 +412,9 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    }
 
    /**
-    * Set the log writer -- NOT SUPPORTED
-    *
-    * @param out The log writer
-    * @throws ResourceException If operation fails
+    * <b>NOT SUPPORTED</b>
+    * <p>
+    * {@inheritDoc}
     */
    @Override
    public void setLogWriter(final PrintWriter out) throws ResourceException {
@@ -495,10 +422,9 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    }
 
    /**
-    * Get the log writer -- NOT SUPPORTED
-    *
-    * @return Always null
-    * @throws ResourceException If operation fails
+    * <b>NOT SUPPORTED</b>
+    * <p>
+    * {@inheritDoc}
     */
    @Override
    public PrintWriter getLogWriter() throws ResourceException {
@@ -508,9 +434,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    }
 
    /**
-    * Notifies user of a JMS exception.
-    *
-    * @param exception The JMS exception
+    * {@inheritDoc}
     */
    @Override
    public void onException(final JMSException exception) {
@@ -540,12 +464,6 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       sendEvent(event);
    }
 
-   /**
-    * Get the session for this connection.
-    *
-    * @return The session
-    * @throws JMSException
-    */
    protected Session getSession() throws JMSException {
       if (xaResource != null && inManagedTx) {
          logger.trace("getSession() -> XA session {}", xaSession.getSession());
@@ -558,11 +476,6 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       }
    }
 
-   /**
-    * Send an event.
-    *
-    * @param event The event to send.
-    */
    protected void sendEvent(final ConnectionEvent event) {
       logger.trace("sendEvent({})", event);
 
@@ -599,11 +512,6 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       }
    }
 
-   /**
-    * Remove a handle from the handle map.
-    *
-    * @param handle The handle to remove.
-    */
    protected void removeHandle(final ActiveMQRASession handle) {
       logger.trace("removeHandle({})", handle);
 
@@ -613,7 +521,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    /**
     * Get the request info for this connection.
     *
-    * @return The connection request info for this connection.
+    * @return The connection request info for this connection
     */
    protected ActiveMQRAConnectionRequestInfo getCRI() {
       logger.trace("getCRI()");
@@ -621,22 +529,12 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       return cri;
    }
 
-   /**
-    * Get the connection factory for this connection.
-    *
-    * @return The connection factory for this connection.
-    */
    protected ActiveMQRAManagedConnectionFactory getManagedConnectionFactory() {
       logger.trace("getManagedConnectionFactory()");
 
       return mcf;
    }
 
-   /**
-    * Start the connection
-    *
-    * @throws JMSException Thrown if the connection can't be started
-    */
    void start() throws JMSException {
       logger.trace("start()");
 
@@ -645,11 +543,6 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       }
    }
 
-   /**
-    * Stop the connection
-    *
-    * @throws JMSException Thrown if the connection can't be stopped
-    */
    void stop() throws JMSException {
       logger.trace("stop()");
 
@@ -658,22 +551,12 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       }
    }
 
-   /**
-    * Get the user name
-    *
-    * @return The user name
-    */
    protected String getUserName() {
       logger.trace("getUserName()");
 
       return userName;
    }
 
-   /**
-    * Setup the connection.
-    *
-    * @throws ResourceException Thrown if a connection couldn't be created
-    */
    private void setup() throws ResourceException {
       logger.trace("setup()");
 

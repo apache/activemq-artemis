@@ -67,6 +67,7 @@ public class SaslScramTest extends ActiveMQTestBase {
 
    /**
     * Checks if a user with plain text password can login using all mechanisms
+    *
     * @throws JMSException should not happen
     */
    @Test
@@ -76,6 +77,7 @@ public class SaslScramTest extends ActiveMQTestBase {
 
    /**
     * Checks that a user that has encrypted passwords for all mechanism can login with any of them
+    *
     * @throws JMSException should not happen
     */
    @Test
@@ -85,6 +87,7 @@ public class SaslScramTest extends ActiveMQTestBase {
 
    /**
     * Checks that a user that is only stored with one explicit mechanism can't use another mechanism
+    *
     * @throws JMSException is expected
     */
    @Test
@@ -95,8 +98,8 @@ public class SaslScramTest extends ActiveMQTestBase {
    }
 
    /**
-    * Checks that a user that is only stored with one explicit mechanism can login with this
-    * mechanism
+    * Checks that a user that is only stored with one explicit mechanism can login with this mechanism
+    *
     * @throws JMSException should not happen
     */
    @Test

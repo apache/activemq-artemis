@@ -65,8 +65,8 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.Test;
 
 /**
- * A PagingOrderTest. PagingTest has a lot of tests already. I decided to create a newer one more
- * specialized on Ordering and counters
+ * A PagingOrderTest. PagingTest has a lot of tests already. I decided to create a newer one more specialized on
+ * Ordering and counters
  */
 public class PagingOrderTest extends ActiveMQTestBase {
 

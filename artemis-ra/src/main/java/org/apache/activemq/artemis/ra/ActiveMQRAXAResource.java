@@ -34,22 +34,10 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   /**
-    * The managed connection
-    */
    private final ActiveMQRAManagedConnection managedConnection;
 
-   /**
-    * The resource
-    */
    private final XAResource xaResource;
 
-   /**
-    * Create a new ActiveMQXAResource.
-    *
-    * @param managedConnection the managed connection
-    * @param xaResource        the xa resource
-    */
    public ActiveMQRAXAResource(final ActiveMQRAManagedConnection managedConnection, final XAResource xaResource) {
       logger.trace("constructor({} ,{})", managedConnection, xaResource);
 
@@ -132,7 +120,8 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     * Commit
     *
     * @param xid      A global transaction identifier
-    * @param onePhase If true, the resource manager should use a one-phase commit protocol to commit the work done on behalf of xid.
+    * @param onePhase If {@code true}, the resource manager should use a one-phase commit protocol to commit the work
+    *                 done on behalf of xid.
     * @throws XAException An error has occurred
     */
    @Override
@@ -180,8 +169,9 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
    /**
     * IsSameRM
     *
-    * @param xaRes An XAResource object whose resource manager instance is to be compared with the resource manager instance of the target object.
-    * @return True if its the same RM instance; otherwise false.
+    * @param xaRes An XAResource object whose resource manager instance is to be compared with the resource manager
+    *              instance of the target object.
+    * @return {@code true} if its the same RM instance; otherwise false
     * @throws XAException An error has occurred
     */
    @Override
@@ -224,7 +214,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     * Set the transaction timeout
     *
     * @param seconds The number of seconds
-    * @return True if the transaction timeout value is set successfully; otherwise false.
+    * @return {@code true} if the transaction timeout value is set successfully; otherwise false
     * @throws XAException An error has occurred
     */
    @Override

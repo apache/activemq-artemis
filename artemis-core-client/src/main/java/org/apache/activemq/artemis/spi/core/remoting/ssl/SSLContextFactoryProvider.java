@@ -24,8 +24,8 @@ import java.util.ServiceLoader;
 import javax.net.ssl.SSLContext;
 
 /**
- * Provider that loads the SSLContextFactory services and return the one with the highest priority.
- * This is only used to provide SSLContext, so it doesn't support OpenSSL.
+ * Provider that loads the SSLContextFactory services and return the one with the highest priority. This is only used to
+ * provide SSLContext, so it doesn't support OpenSSL.
  */
 public class SSLContextFactoryProvider {
    private static final SSLContextFactory factory;
@@ -54,7 +54,7 @@ public class SSLContextFactoryProvider {
       }
    }
    /**
-    * @return the SSLContextFactory with the higher priority.
+    * @return the SSLContextFactory with the higher priority
     */
    public static SSLContextFactory getSSLContextFactory() {
       return factory;

@@ -43,25 +43,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Poor mans way of getting JUnit to run a test case through a few different
- * combinations of options. Usage: If you have a test case called testFoo what
- * you want to run through a few combinations, of of values for the attributes
- * age and color, you would something like: <code>
+ * Poor mans way of getting JUnit to run a test case through a few different combinations of options. Usage: If you have
+ * a test case called testFoo what you want to run through a few combinations, of of values for the attributes age and
+ * color, you would something like:
+ * <pre>{@code
  * public void initCombosForTestFoo() {
- * addCombinationValues( "age", new Object[]{ new Integer(21), new Integer(30) } );
- * addCombinationValues( "color", new Object[]{"blue", "green"} );
+ *    addCombinationValues( "age", new Object[]{ new Integer(21), new Integer(30) } );
+ *    addCombinationValues( "color", new Object[]{"blue", "green"} );
  * }
- * </code>
- * The testFoo test case would be run for each possible combination of age and
- * color that you setup in the initCombosForTestFoo method. Before each
- * combination is run, the age and color fields of the test class are set to one
- * of the values defined. This is done before the normal setUp method is called.
- * If you want the test combinations to show up as separate test runs in the
- * JUnit reports, add a suite method to your test case similar to: <code>
+ * }</pre>
+ * The testFoo test case would be run for each possible combination of age and color that you setup in the
+ * initCombosForTestFoo method. Before each combination is run, the age and color fields of the test class are set to
+ * one of the values defined. This is done before the normal setUp method is called. If you want the test combinations
+ * to show up as separate test runs in the JUnit reports, add a suite method to your test case similar to:
+ * <pre>{@code
  * public static Test suite() {
- * return suite(FooTest.class);
+ *    return suite(FooTest.class);
  * }
- * </code>
+ * }</pre>
  */
 public abstract class CombinationTestSupport extends AutoFailTestSupport {
 

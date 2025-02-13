@@ -45,10 +45,10 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
- * This extension is used to implement parameterized tests classes for JUnit 5 via
- * the TestTemplate mechanism, replace parameterized test runner from JUnit4 while
- * avoiding the per-method parameterization currently available from Junit 5.
- *
+ * This extension is used to implement parameterized tests classes for JUnit 5 via the TestTemplate mechanism, replace
+ * parameterized test runner from JUnit4 while avoiding the per-method parameterization currently available from Junit
+ * 5.
+ * <p>
  * When using this extension, all tests must be annotated by {@link TestTemplate}.
  */
 public class ParameterizedTestExtension implements TestTemplateInvocationContextProvider {

@@ -18,15 +18,10 @@ package org.apache.activemq;
 
 import org.apache.activemq.test.JmsTopicSendReceiveTest;
 
-/**
- *
- */
 public class JmsQueueSendReceiveTest extends JmsTopicSendReceiveTest {
 
    /**
     * Set up the test with a queue.
-    *
-    * @see junit.framework.TestCase#setUp()
     */
    @Override
    protected void setUp() throws Exception {

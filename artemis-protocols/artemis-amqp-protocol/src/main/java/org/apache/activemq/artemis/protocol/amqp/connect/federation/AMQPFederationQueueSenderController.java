@@ -44,11 +44,9 @@ import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.engine.Sender;
 
 /**
- * {@link SenderController} used when an AMQP federation Queue receiver is created
- * and this side of the connection needs to create a matching sender. The attach of
- * the sender should only succeed if there is a local matching queue, otherwise the
- * link should be closed with an error indicating that the matching resource is not
- * present on this peer.
+ * {@link SenderController} used when an AMQP federation Queue receiver is created and this side of the connection needs
+ * to create a matching sender. The attach of the sender should only succeed if there is a local matching queue,
+ * otherwise the link should be closed with an error indicating that the matching resource is not present on this peer.
  */
 public final class AMQPFederationQueueSenderController extends AMQPFederationSenderController {
 

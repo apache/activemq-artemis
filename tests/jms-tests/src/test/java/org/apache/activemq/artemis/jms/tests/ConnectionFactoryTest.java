@@ -68,8 +68,7 @@ public class ConnectionFactoryTest extends JMSTestCase {
    }
 
    /**
-    * Test that ConnectionFactory can be cast to QueueConnectionFactory and QueueConnection can be
-    * created.
+    * Test that ConnectionFactory can be cast to QueueConnectionFactory and QueueConnection can be created.
     */
    @Test
    public void testQueueConnectionFactory() throws Exception {
@@ -81,8 +80,7 @@ public class ConnectionFactoryTest extends JMSTestCase {
    }
 
    /**
-    * Test that ConnectionFactory can be cast to TopicConnectionFactory and TopicConnection can be
-    * created.
+    * Test that ConnectionFactory can be cast to TopicConnectionFactory and TopicConnection can be created.
     */
    @Test
    public void testTopicConnectionFactory() throws Exception {
@@ -147,7 +145,6 @@ public class ConnectionFactoryTest extends JMSTestCase {
       undeployConnectionFactory("CF_XA_FALSE");
    }
 
-   // Added for http://jira.jboss.org/jira/browse/JBMESSAGING-939
    @Test
    public void testDurableSubscriptionOnPreConfiguredConnectionFactory() throws Exception {
       ActiveMQServerTestCase.deployConnectionFactory("TestConnectionFactory1", "cfTest", "/TestDurableCF");

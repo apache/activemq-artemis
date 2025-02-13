@@ -25,54 +25,60 @@ public interface ActiveMQDynamicProducerOperations {
 
    /**
     * Send a ClientMessage to the default address on the server
+    *
     * @param message the message to send
     */
    void sendMessage(ClientMessage message);
 
    /**
     * Send a ClientMessage to the specified address on the server
+    *
     * @param targetAddress the target address
-    * @param message the message to send
+    * @param message       the message to send
     */
    void sendMessage(SimpleString targetAddress, ClientMessage message);
 
    /**
-    * Create a new ClientMessage with the specified body and send to the specified address on the
-    * server
+    * Create a new ClientMessage with the specified body and send to the specified address on the server
+    *
     * @param targetAddress the target address
-    * @param body the body for the new message
+    * @param body          the body for the new message
     * @return the message that was sent
     */
    ClientMessage sendMessage(SimpleString targetAddress, byte[] body);
 
    /**
     * Create a new ClientMessage with the specified body and send to the server
+    *
     * @param targetAddress the target address
-    * @param body the body for the new message
+    * @param body          the body for the new message
     * @return the message that was sent
     */
    ClientMessage sendMessage(SimpleString targetAddress, String body);
 
    /**
     * Create a new ClientMessage with the specified properties and send to the server
+    *
     * @param targetAddress the target address
-    * @param properties the properties for the new message
+    * @param properties    the properties for the new message
     * @return the message that was sent
     */
    ClientMessage sendMessage(SimpleString targetAddress, Map<String, Object> properties);
 
    /**
     * Create a new ClientMessage with the specified body and and properties and send to the server
+    *
     * @param targetAddress the target address
-    * @param properties the properties for the new message
+    * @param properties    the properties for the new message
     * @return the message that was sent
     */
    ClientMessage sendMessage(SimpleString targetAddress, byte[] body, Map<String, Object> properties);
 
    /**
     * Create a new ClientMessage with the specified body and and properties and send to the server
+    *
     * @param targetAddress the target address
-    * @param properties the properties for the new message
+    * @param properties    the properties for the new message
     * @return the message that was sent
     */
    ClientMessage sendMessage(SimpleString targetAddress, String body, Map<String, Object> properties);

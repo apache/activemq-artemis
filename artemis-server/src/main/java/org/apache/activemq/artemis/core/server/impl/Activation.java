@@ -41,57 +41,57 @@ public abstract class Activation implements Runnable {
 
    public abstract void close(boolean permanently, boolean restarting) throws Exception;
 
-   /*
-   * freeze the connection but allow the Activation to over ride this and decide if any connections should be left open.
-   * */
+   /**
+    * freeze the connection but allow the Activation to over ride this and decide if any connections should be left open.
+    */
    public void freezeConnections(RemotingService remotingService) {
       if (remotingService != null) {
          remotingService.freeze(null, null);
       }
    }
 
-   /*
-   * allow the activation to override this if it needs to tidy up after freezing the connection. it's a different method as
-   * it's called outside of the lock that the previous method is.
-   * */
+   /**
+    * allow the activation to override this if it needs to tidy up after freezing the connection. it's a different
+    * method as it's called outside of the lock that the previous method is.
+    */
    public void postConnectionFreeze() {
    }
 
-   /*
-   * called before the server is closing the journals so the activation can tidy up stuff
-   * */
+   /**
+    * called before the server is closing the journals so the activation can tidy up stuff
+    */
    public void preStorageClose() throws Exception {
    }
 
-   /*
-   * called by the server to notify the Activation that the server is stopping
-   * */
+   /**
+    * called by the server to notify the Activation that the server is stopping
+    */
    public void sendPrimaryIsStopping() {
    }
 
-   /*
-   * called by the ha manager to notify the Activation that HA is now active
-   * */
+   /**
+    * called by the ha manager to notify the Activation that HA is now active
+    */
    public void haStarted() {
    }
 
-   /*
-   * allows the Activation to register a channel handler so it can handle any packets that are unique to the Activation
-   * */
+   /**
+    * allows the Activation to register a channel handler so it can handle any packets that are unique to the Activation
+    */
    public ChannelHandler getActivationChannelHandler(Channel channel, Acceptor acceptorUsed) {
       return null;
    }
 
-   /*
-   * returns the HA manager used for this Activation
-   * */
+   /**
+    * {@return the HA manager used for this Activation}
+    */
    public HAManager getHAManager() {
       return new StandaloneHAManager();
    }
 
-   /*
-   * create the Journal loader needed for this Activation.
-   * */
+   /**
+    * create the Journal loader needed for this Activation.
+    */
    public JournalLoader createJournalLoader(PostOffice postOffice,
                                             PagingManager pagingManager,
                                             StorageManager storageManager,
@@ -104,9 +104,7 @@ public abstract class Activation implements Runnable {
       return new PostOfficeJournalLoader(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration);
    }
 
-   /*
-   * todo, remove this, its only needed for JMSServerManagerImpl, it should be sought elsewhere
-   * */
+   // todo, remove this, its only needed for JMSServerManagerImpl, it should be sought elsewhere
    public ReplicationManager getReplicationManager() {
       return null;
    }

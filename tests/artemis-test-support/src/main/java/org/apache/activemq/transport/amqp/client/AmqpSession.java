@@ -59,8 +59,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    }
 
    /**
-    * Close the receiver, a closed receiver will throw exceptions if any further send
-    * calls are made.
+    * Close the receiver, a closed receiver will throw exceptions if any further send calls are made.
     *
     * @throws IOException if an error occurs while closing the receiver.
     */
@@ -80,8 +79,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    /**
     * Create an anonymous sender.
     *
-    * @return a newly created sender that is ready for use.
-    *
+    * @return a newly created sender that is ready for use
     * @throws Exception if an error occurs while creating the sender.
     */
    public AmqpSender createSender() throws Exception {
@@ -91,7 +89,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    /**
     * Create an anonymous sender instance using the anonymous relay support of the broker.
     *
-    * @return a newly created sender that is ready for use.
+    * @return a newly created sender that is ready for use
     * @throws Exception if an error occurs while creating the sender.
     */
    public AmqpSender createAnonymousSender() throws Exception {
@@ -102,7 +100,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     * Create a sender instance using the given address
     *
     * @param address the address to which the sender will produce its messages.
-    * @return a newly created sender that is ready for use.
+    * @return a newly created sender that is ready for use
     * @throws Exception if an error occurs while creating the sender.
     */
    public AmqpSender createSender(final String address) throws Exception {
@@ -112,22 +110,21 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    /**
     * Create a sender instance using the given address
     *
-    * @param address the address to which the sender will produce its messages.
+    * @param address             the address to which the sender will produce its messages.
     * @param desiredCapabilities the capabilities that the caller wants the remote to support.
-    * @return a newly created sender that is ready for use.
+    * @return a newly created sender that is ready for use
     * @throws Exception if an error occurs while creating the sender.
     */
    public AmqpSender createSender(final String address, Symbol[] desiredCapabilities) throws Exception {
       return createSender(address, false, desiredCapabilities, null, null);
    }
 
-
    /**
     * Create a sender instance using the given address
     *
     * @param address   the address to which the sender will produce its messages.
     * @param presettle controls if the created sender produces message that have already been marked settled.
-    * @return a newly created sender that is ready for use.
+    * @return a newly created sender that is ready for use
     * @throws Exception if an error occurs while creating the sender.
     */
    public AmqpSender createSender(final String address, boolean presettle) throws Exception {
@@ -137,12 +134,12 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    /**
     * Create a sender instance using the given address
     *
-    * @param address   the address to which the sender will produce its messages.
-    * @param presettle controls if the created sender produces message that have already been marked settled.
+    * @param address             the address to which the sender will produce its messages.
+    * @param presettle           controls if the created sender produces message that have already been marked settled.
     * @param desiredCapabilities the capabilities that the caller wants the remote to support.
     * @param offeredCapabilities the capabilities that the caller wants the advertise support for.
-    * @param properties the properties to send as part of the sender open.
-    * @return a newly created sender that is ready for use.
+    * @param properties          the properties to send as part of the sender open.
+    * @return a newly created sender that is ready for use
     * @throws Exception if an error occurs while creating the sender.
     */
    public AmqpSender createSender(final String address, boolean presettle, Symbol[] desiredCapabilities, Symbol[] offeredCapabilities, Map<Symbol, Object> properties) throws Exception {
@@ -170,15 +167,10 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    /**
     * Create a sender instance using the given address
     *
-    * @param address
-    *        the address to which the sender will produce its messages.
-    * @param senderMode
-    *        controls the settlement mode used by the created Sender
-    * @param receiverMode
-    *        controls the desired settlement mode used by the remote Receiver
-    *
-    * @return a newly created sender that is ready for use.
-    *
+    * @param address      the address to which the sender will produce its messages.
+    * @param senderMode   controls the settlement mode used by the created Sender
+    * @param receiverMode controls the desired settlement mode used by the remote Receiver
+    * @return a newly created sender that is ready for use
     * @throws Exception if an error occurs while creating the sender.
     */
    public AmqpSender createSender(final String address,
@@ -190,17 +182,11 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    /**
     * Create a sender instance using the given address
     *
-    * @param address
-    *        the address to which the sender will produce its messages.
-    * @param senderMode
-    *        controls the settlement mode used by the created Sender
-    * @param receiverMode
-    *        controls the desired settlement mode used by the remote Receiver
-    * @param outcomes
-    *        specifies the outcomes supported by the sender
-    *
-    * @return a newly created sender that is ready for use.
-    *
+    * @param address      the address to which the sender will produce its messages.
+    * @param senderMode   controls the settlement mode used by the created Sender
+    * @param receiverMode controls the desired settlement mode used by the remote Receiver
+    * @param outcomes     specifies the outcomes supported by the sender
+    * @return a newly created sender that is ready for use
     * @throws Exception if an error occurs while creating the sender.
     */
    public AmqpSender createSender(final String address,
@@ -227,7 +213,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     * Create a sender instance using the given Target
     *
     * @param target the caller created and configured Target used to create the sender link.
-    * @return a newly created sender that is ready for use.
+    * @return a newly created sender that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpSender createSender(Target target) throws Exception {
@@ -237,9 +223,9 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    /**
     * Create a sender instance using the given Target
     *
-    * @param target the caller created and configured Target used to create the sender link.
+    * @param target   the caller created and configured Target used to create the sender link.
     * @param senderId the sender ID to assign to the newly created Sender.
-    * @return a newly created sender that is ready for use.
+    * @return a newly created sender that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpSender createSender(Target target, String senderId) throws Exception {
@@ -249,12 +235,12 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    /**
     * Create a sender instance using the given Target
     *
-    * @param target the caller created and configured Target used to create the sender link.
-    * @param senderId the sender ID to assign to the newly created Sender.
+    * @param target              the caller created and configured Target used to create the sender link.
+    * @param senderId            the sender ID to assign to the newly created Sender.
     * @param desiredCapabilities the capabilities that the caller wants the remote to support.
     * @param offeredCapabilities the capabilities that the caller wants the advertise support for.
-    * @param properties the properties to send as part of the sender open.
-    * @return a newly created sender that is ready for use.
+    * @param properties          the properties to send as part of the sender open.
+    * @return a newly created sender that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpSender createSender(Target target, String senderId, Symbol[] desiredCapabilities, Symbol[] offeredCapabilities, Map<Symbol, Object> properties) throws Exception {
@@ -282,7 +268,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     * Create a receiver instance using the given address
     *
     * @param address the address to which the receiver will subscribe for its messages.
-    * @return a newly created receiver that is ready for use.
+    * @return a newly created receiver that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createReceiver(String address) throws Exception {
@@ -294,7 +280,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     *
     * @param address  the address to which the receiver will subscribe for its messages.
     * @param selector the JMS selector to use for the subscription
-    * @return a newly created receiver that is ready for use.
+    * @return a newly created receiver that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createReceiver(String address, String selector) throws Exception {
@@ -307,7 +293,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     * @param address  the address to which the receiver will subscribe for its messages.
     * @param selector the JMS selector to use for the subscription
     * @param noLocal  should the subscription have messages from its connection filtered.
-    * @return a newly created receiver that is ready for use.
+    * @return a newly created receiver that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createReceiver(String address, String selector, boolean noLocal) throws Exception {
@@ -320,15 +306,16 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
                                       boolean presettle) throws Exception {
       return createReceiver(address, selector, noLocal, presettle, null);
    }
+
    /**
     * Create a receiver instance using the given address
     *
-    * @param address   the address to which the receiver will subscribe for its messages.
-    * @param selector  the JMS selector to use for the subscription
-    * @param noLocal   should the subscription have messages from its connection filtered.
-    * @param presettle should the receiver be created with a settled sender mode.
+    * @param address    the address to which the receiver will subscribe for its messages.
+    * @param selector   the JMS selector to use for the subscription
+    * @param noLocal    should the subscription have messages from its connection filtered.
+    * @param presettle  should the receiver be created with a settled sender mode.
     * @param properties to set on the receiver
-    * @return a newly created receiver that is ready for use.
+    * @return a newly created receiver that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createReceiver(String address,
@@ -365,15 +352,10 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    /**
     * Create a receiver instance using the given address
     *
-    * @param address
-    *        the address to which the receiver will subscribe for its messages.
-    * @param senderMode
-    *        controls the desired settlement mode used by the remote Sender
-    * @param receiverMode
-    *        controls the settlement mode used by the created Receiver
-    *
-    * @return a newly created receiver that is ready for use.
-    *
+    * @param address      the address to which the receiver will subscribe for its messages.
+    * @param senderMode   controls the desired settlement mode used by the remote Sender
+    * @param receiverMode controls the settlement mode used by the created Receiver
+    * @return a newly created receiver that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createReceiver(String address, SenderSettleMode senderMode, ReceiverSettleMode receiverMode) throws Exception {
@@ -398,7 +380,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     * Create a receiver instance using the given Source
     *
     * @param source the caller created and configured Source used to create the receiver link.
-    * @return a newly created receiver that is ready for use.
+    * @return a newly created receiver that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createReceiver(Source source) throws Exception {
@@ -408,9 +390,9 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    /**
     * Create a receiver instance using the given Source
     *
-    * @param source the caller created and configured Source used to create the receiver link.
+    * @param source     the caller created and configured Source used to create the receiver link.
     * @param receiverId the receiver id to use.
-    * @return a newly created receiver that is ready for use.
+    * @return a newly created receiver that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createReceiver(Source source, String receiverId) throws Exception {
@@ -431,12 +413,11 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
       return receiver;
    }
 
-
    /**
     * Create a receiver instance using the given Source
     *
     * @param source the caller created and configured Source used to create the receiver link.
-    * @return a newly created receiver that is ready for use.
+    * @return a newly created receiver that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createMulticastReceiver(Source source, String receiverId, String receiveName) throws Exception {
@@ -461,7 +442,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    /**
     * Create a receiver instance using the given receiverId
     *
-    * @return a newly created receiver that is ready for use.
+    * @return a newly created receiver that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createMulticastReceiver(String receiverId, String address, String receiveName) throws Exception {
@@ -488,7 +469,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     *
     * @param address          the address to which the receiver will subscribe for its messages.
     * @param subscriptionName the name of the subscription that is being created.
-    * @return a newly created receiver that is ready for use.
+    * @return a newly created receiver that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createDurableReceiver(String address, String subscriptionName) throws Exception {
@@ -501,7 +482,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     * @param address          the address to which the receiver will subscribe for its messages.
     * @param subscriptionName the name of the subscription that is being created.
     * @param selector         the JMS selector to use for the subscription
-    * @return a newly created receiver that is ready for use.
+    * @return a newly created receiver that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createDurableReceiver(String address,
@@ -517,7 +498,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     * @param subscriptionName the name of the subscription that is being created.
     * @param selector         the JMS selector to use for the subscription
     * @param noLocal          should the subscription have messages from its connection filtered.
-    * @return a newly created receiver that is ready for use.
+    * @return a newly created receiver that is ready for use
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver createDurableReceiver(String address,
@@ -554,7 +535,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
     * Create a receiver instance using the given address that creates a durable subscription.
     *
     * @param subscriptionName the name of the subscription that should be queried for on the remote..
-    * @return a newly created receiver that is ready for use if the subscription exists.
+    * @return a newly created receiver that is ready for use if the subscription exists
     * @throws Exception if an error occurs while creating the receiver.
     */
    public AmqpReceiver lookupSubscription(String subscriptionName) throws Exception {
@@ -581,7 +562,7 @@ public class AmqpSession extends AmqpAbstractResource<Session> {
    }
 
    /**
-    * @return this session's parent AmqpConnection.
+    * {@return this session's parent AmqpConnection}
     */
    public AmqpConnection getConnection() {
       return connection;

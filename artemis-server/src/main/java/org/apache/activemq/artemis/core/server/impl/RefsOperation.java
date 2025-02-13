@@ -49,8 +49,7 @@ public class RefsOperation extends TransactionOperationAbstract {
    List<MessageReference> pagedMessagesToPostACK = null;
 
    /**
-    * It will ignore redelivery check, which is used during consumer.close
-    * to not perform reschedule redelivery check
+    * It will ignore redelivery check, which is used during consumer.close to not perform reschedule redelivery check
     */
    protected boolean ignoreRedeliveryCheck = false;
 

@@ -35,9 +35,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 
 /**
- * Handles proton protocol management for clients, mapping the {@link ProtonProtocolManager} to the {@link org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager} API.
- * This is currently very basic and only supports Connecting to a broker,
- * which will be useful in scenarios where the broker needs to connect to another broker through AMQP into another broker (like Interconnect) that will perform extra functionality.
+ * Handles proton protocol management for clients, mapping the {@link ProtonProtocolManager} to the
+ * {@link org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager} API. This is currently very basic and
+ * only supports Connecting to a broker, which will be useful in scenarios where the broker needs to connect to another
+ * broker through AMQP into another broker (like Interconnect) that will perform extra functionality.
  */
 public class ProtonClientProtocolManager extends ProtonProtocolManager implements ClientProtocolManager {
 

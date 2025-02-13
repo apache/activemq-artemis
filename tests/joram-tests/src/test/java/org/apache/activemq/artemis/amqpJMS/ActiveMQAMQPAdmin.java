@@ -35,9 +35,6 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.JmsQueue;
 import org.apache.qpid.jms.JmsTopic;
 
-/**
- *
- */
 public class ActiveMQAMQPAdmin extends AbstractAdmin {
 
    Context context;

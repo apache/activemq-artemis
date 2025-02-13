@@ -26,7 +26,7 @@ public interface SessionFailureListener extends FailureListener {
 
    /**
     * Notifies that a connection has failed due to the specified exception.
-    * <br>
+    * <p>
     * This method is called <em>before the session attempts to reconnect/failover</em>.
     *
     * @param exception exception which has caused the connection to fail

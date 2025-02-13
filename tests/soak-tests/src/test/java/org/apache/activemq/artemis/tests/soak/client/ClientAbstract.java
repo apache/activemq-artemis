@@ -28,9 +28,9 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * WARNING: This is not a sample on how you should handle XA. You are supposed to use a
- * TransactionManager. This class is doing the job of a TransactionManager that fits for the purpose
- * of this test only, however there are many more pitfalls to deal with Transactions.
+ * <b>WARNING</b>: This is not a sample on how you should handle XA. You are supposed to use a TransactionManager. This
+ * class is doing the job of a TransactionManager that fits for the purpose of this test only, however there are many
+ * more pitfalls to deal with Transactions.
  * <p>
  * This is just to stress and soak test Transactions with ActiveMQ Artemis.
  * <p>
@@ -51,8 +51,7 @@ public abstract class ClientAbstract extends Thread {
    protected int errors = 0;
 
    /**
-    * A commit was called
-    * case we don't find the Xid, means it was accepted
+    * A commit was called case we don't find the Xid, means it was accepted
     */
    protected volatile boolean pendingCommit = false;
 
@@ -149,9 +148,6 @@ public abstract class ClientAbstract extends Thread {
       this.running = running;
    }
 
-   /**
-    * @return
-    */
    private XidImpl newXID() {
       return new XidImpl("tst".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
    }

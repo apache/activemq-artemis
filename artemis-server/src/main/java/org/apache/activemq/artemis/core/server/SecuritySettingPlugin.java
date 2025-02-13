@@ -30,10 +30,12 @@ public interface SecuritySettingPlugin extends Serializable {
    }
 
    /**
-    * Initialize the plugin with the given configuration options. This method is called by the broker when the file-based
-    * configuration is read (see {@code org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser#parseSecurity(org.w3c.dom.Element, org.apache.activemq.artemis.core.config.Configuration)}.
-    * If you're creating/configuring the plugin programmatically then the recommended approach is to simply use the plugin's
-    * getters/setters rather than this method.
+    * Initialize the plugin with the given configuration options. This method is called by the broker when the
+    * file-based configuration is read (see
+    * {@code org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser#parseSecurity(org.w3c.dom.Element,
+    * org.apache.activemq.artemis.core.config.Configuration)}. If you're creating/configuring the plugin
+    * programmatically then the recommended approach is to simply use the plugin's getters/setters rather than this
+    * method.
     *
     * @param options name/value pairs used to configure the SecuritySettingPlugin instance
     * @return {@code this} instance
@@ -50,8 +52,8 @@ public interface SecuritySettingPlugin extends Serializable {
    /**
     * Fetch the security role information from the external environment (e.g. file, LDAP, etc.) and return it.
     *
-    * @return the Map's key corresponds to the "match" for the security setting and the corresponding value is the set of
-    * {@code org.apache.activemq.artemis.core.security.Role} objects defining the appropriate authorization
+    * @return the Map's key corresponds to the "match" for the security setting and the corresponding value is the set
+    * of {@code org.apache.activemq.artemis.core.security.Role} objects defining the appropriate authorization
     */
    Map<String, Set<Role>> getSecurityRoles();
 
@@ -59,8 +61,6 @@ public interface SecuritySettingPlugin extends Serializable {
     * This method is called by the broker during the start-up process. It's for plugins that might need to modify the
     * security settings during runtime (e.g. LDAP plugin that uses a listener to receive updates, etc.). Any changes
     * made to this {@code HierarchicalRepository} will be reflected in the broker.
-    *
-    * @param securityRepository
     */
    void setSecurityRepository(HierarchicalRepository<Set<Role>> securityRepository);
 }

@@ -31,8 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Reader of {@link AMQPLargeMessage} content which reads all bytes and completes once a
- * non-partial delivery is read.
+ * Reader of {@link AMQPLargeMessage} content which reads all bytes and completes once a non-partial delivery is read.
  */
 public class AMQPLargeMessageReader implements MessageReader {
 

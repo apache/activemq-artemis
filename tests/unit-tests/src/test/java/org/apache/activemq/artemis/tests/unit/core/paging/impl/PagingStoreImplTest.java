@@ -1095,9 +1095,6 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       }
    }
 
-   /**
-    * @return
-    */
    protected PagingManager createMockManager() {
       return new FakePagingManager();
    }
@@ -1279,10 +1276,10 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       }
    }
 
-   /** depage is done within the page's executor.
-    * This unit test needs to call the depage within that executor */
+   /**
+    * depage is done within the page's executor. This unit test needs to call the depage within that executor
+    */
    private Page depageOnExecutor(final PagingStore store) throws Exception {
       return callOnExecutor(store.getExecutor(), () -> store.depage(), 10, TimeUnit.SECONDS);
    }
-
 }

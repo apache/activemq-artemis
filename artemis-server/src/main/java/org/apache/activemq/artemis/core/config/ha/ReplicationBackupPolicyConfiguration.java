@@ -27,9 +27,7 @@ public class ReplicationBackupPolicyConfiguration implements HAPolicyConfigurati
 
    private String groupName = null;
 
-   /*
-    * used in the replicated policy after failover
-    * */
+   // used in the replicated policy after failover
    private boolean allowFailBack = false;
 
    private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();

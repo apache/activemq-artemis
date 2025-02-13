@@ -34,11 +34,9 @@ import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Link;
 
 /**
- * This is the receiving side of an AMQP broker federation that occurs over an
- * inbound connection from a remote peer. The federation target only comes into
- * existence once a remote peer connects and successfully authenticates against
- * a control link validation address. Only one federation target is allowed per
- * connection.
+ * This is the receiving side of an AMQP broker federation that occurs over an inbound connection from a remote peer.
+ * The federation target only comes into existence once a remote peer connects and successfully authenticates against a
+ * control link validation address. Only one federation target is allowed per connection.
  */
 public class AMQPFederationTarget extends AMQPFederation {
 

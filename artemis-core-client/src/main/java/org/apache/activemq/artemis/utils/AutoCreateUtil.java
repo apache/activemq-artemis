@@ -41,7 +41,8 @@ public class AutoCreateUtil {
 
    public static  void autoCreateQueue(ClientSession session, SimpleString destAddress, SimpleString selectorString) throws ActiveMQException {
       AddressQuery response = session.addressQuery(destAddress);
-      /* The address query will send back exists=true even if the node only has a REMOTE binding for the destination.
+      /*
+       * The address query will send back exists=true even if the node only has a REMOTE binding for the destination.
        * Therefore, we must check if the queue names list contains the exact name of the address to know whether or
        * not a LOCAL binding for the address exists. If no LOCAL binding exists then it should be created here.
        */
@@ -72,13 +73,15 @@ public class AutoCreateUtil {
    }
 
    /**
-    * Set the non nullable (CreateQueueMessage_V2) queue attributes (all others have static defaults or get defaulted if null by address settings server side).
+    * Set the non nullable (CreateQueueMessage_V2) queue attributes (all others have static defaults or get defaulted if
+    * null by address settings server side).
     *
     * @param queueConfiguration the provided queue configuration the client wants to set
-    * @param addressQuery the address settings query information (this could be removed if max consumers and purge on no consumers were null-able in CreateQueueMessage_V2)
-    * @param routingType of the queue (multicast or anycast)
-    * @param filter to apply on the queue
-    * @param durable if queue is durable
+    * @param addressQuery       the address settings query information (this could be removed if max consumers and purge
+    *                           on no consumers were null-able in CreateQueueMessage_V2)
+    * @param routingType        of the queue (multicast or anycast)
+    * @param filter             to apply on the queue
+    * @param durable            if queue is durable
     */
    public static void setRequiredQueueConfigurationIfNotSet(QueueConfiguration queueConfiguration, AddressQuery addressQuery, RoutingType routingType, SimpleString filter, boolean durable) {
       if (queueConfiguration.getRoutingType() == null) {

@@ -246,11 +246,6 @@ public abstract class ServerTestBase extends ArtemisTestCase {
       return configuration;
    }
 
-   /**
-    * @param serverID
-    * @return
-    * @throws Exception
-    */
    protected ConfigurationImpl createBasicConfig(final int serverID) {
       ConfigurationImpl configuration = new ConfigurationImpl().setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(100 * 1024).setJournalType(getDefaultJournalType()).setJournalDirectory(getJournalDir(serverID, false)).setBindingsDirectory(getBindingsDir(serverID, false)).setPagingDirectory(getPageDir(serverID, false)).setLargeMessagesDirectory(getLargeMessagesDir(serverID, false)).setJournalCompactMinFiles(0).setJournalCompactPercentage(0).setClusterPassword(CLUSTER_PASSWORD).setJournalDatasync(false);
 
@@ -274,8 +269,10 @@ public abstract class ServerTestBase extends ArtemisTestCase {
       DatabaseStorageConfiguration dbStorageConfiguration = new DatabaseStorageConfiguration();
       String connectionURI = getTestJDBCConnectionUrl();
 
-      /** The connectionURI could be passed into the testsuite as a system property (say you are testing against Oracle).
-       *  So, we only schedule the drop on Derby if we are using a derby memory database */
+      /*
+       * The connectionURI could be passed into the testsuite as a system property (say you are testing against Oracle).
+       *  So, we only schedule the drop on Derby if we are using a derby memory database
+       */
       if (connectionURI.contains("derby") && connectionURI.contains("memory") && !derbyDropped) {
          // some tests will reinitialize the server and call this method more than one time
          // and we should only schedule one task
@@ -386,9 +383,6 @@ public abstract class ServerTestBase extends ArtemisTestCase {
       recreateDirectory(getTemporaryDir(testDir1));
    }
 
-   /**
-    * @return the journalDir
-    */
    public String getJournalDir() {
       return getJournalDir(0, false);
    }
@@ -405,23 +399,14 @@ public abstract class ServerTestBase extends ArtemisTestCase {
       return getJournalDir(testDir) + directoryNameSuffix(index, backup);
    }
 
-   /**
-    * @return the bindingsDir
-    */
    protected String getBindingsDir() {
       return getBindingsDir(0, false);
    }
 
-   /**
-    * @return the bindingsDir
-    */
    protected static String getBindingsDir(final String testDir1) {
       return testDir1 + "/bindings";
    }
 
-   /**
-    * @return the bindingsDir
-    */
    protected String getBindingsDir(final int index, final boolean backup) {
       return getBindingsDir(getTestDir(), index, backup);
    }
@@ -430,9 +415,6 @@ public abstract class ServerTestBase extends ArtemisTestCase {
       return getBindingsDir(testDir) + directoryNameSuffix(index, backup);
    }
 
-   /**
-    * @return the pageDir
-    */
    protected String getPageDir() {
       return getPageDir(0, false);
    }
@@ -442,9 +424,6 @@ public abstract class ServerTestBase extends ArtemisTestCase {
 
    }
 
-   /**
-    * @return the pageDir
-    */
    protected static String getPageDir(final String testDir1) {
       return testDir1 + "/page";
    }
@@ -457,16 +436,10 @@ public abstract class ServerTestBase extends ArtemisTestCase {
       return getPageDir(testDir) + directoryNameSuffix(index, backup);
    }
 
-   /**
-    * @return the largeMessagesDir
-    */
    protected String getLargeMessagesDir() {
       return getLargeMessagesDir(0, false);
    }
 
-   /**
-    * @return the largeMessagesDir
-    */
    protected static String getLargeMessagesDir(final String testDir1) {
       return testDir1 + "/large-msg";
    }
@@ -485,23 +458,14 @@ public abstract class ServerTestBase extends ArtemisTestCase {
       return index + "-" + (backup ? "B" : "L");
    }
 
-   /**
-    * @return the clientLargeMessagesDir
-    */
    protected String getClientLargeMessagesDir(final String testDir1) {
       return testDir1 + "/client-large-msg";
    }
 
-   /**
-    * @return the temporaryDir
-    */
    protected final String getTemporaryDir() {
       return getTemporaryDir(getTestDir());
    }
 
-   /**
-    * @return the temporaryDir
-    */
    protected String getTemporaryDir(final String testDir1) {
       return testDir1 + "/temp";
    }

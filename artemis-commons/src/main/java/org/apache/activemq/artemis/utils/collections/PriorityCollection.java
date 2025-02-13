@@ -31,11 +31,11 @@ import java.util.stream.Collectors;
 
 /**
  * This class's purpose is to hold the the different collections used for each priority level.
- *
- * A supplier is required to provide the underlying collection needed when a new priority level is seen,
- * and the end behaviour is that of the underlying collection, e.g. if set add will follow set's add semantics,
- * if list, then list semantics.
- *
+ * <p>
+ * A supplier is required to provide the underlying collection needed when a new priority level is seen, and the end
+ * behaviour is that of the underlying collection, e.g. if set add will follow set's add semantics, if list, then list
+ * semantics.
+ * <p>
  * Methods getArray, setArray MUST never be exposed, and all array modifications must go through these.
  *
  * @param <E> The type this class may hold, this is generic as can be anything that extends PriorityAware.

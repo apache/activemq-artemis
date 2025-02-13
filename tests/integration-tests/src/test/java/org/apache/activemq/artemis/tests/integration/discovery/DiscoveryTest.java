@@ -56,22 +56,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This will test Discovery test on JGroups and UDP.
- * <br>
- * In some configurations IPV6 may be a challenge. To make sure this test works, you may add this
- * property to your JVM settings: {@literal -Djgroups.bind_addr=::1}
- * <br>
+ * <p>
+ * In some configurations IPV6 may be a challenge. To make sure this test works, you may add this property to your JVM
+ * settings: {@literal -Djgroups.bind_addr=::1}
+ * <p>
  * Or ultimately you may also turn off IPV6: {@literal -Djava.net.preferIPv4Stack=true}
- * <br>
- * Note when you are not sure about your IP settings of your test machine, you should make sure
- * that the jgroups.bind_addr and java.net.preferXXStack by defining them explicitly, for example
- * if you would like to use IPV6, set BOTH properties to your JVM like the following:
- * -Djgroups.bind_addr=::1 -Djava.net.preferIPv6Addresses=true
- * <br>
- * or if you prefer IPV4:
- * -Djgroups.bind_addr=localhost -Djava.net.preferIPv4Stack=true
- * <br>
- * Also: Make sure you add integration-tests/src/tests/resources to your project path on the
- * tests/integration-tests
+ * <p>
+ * Note when you are not sure about your IP settings of your test machine, you should make sure that the
+ * jgroups.bind_addr and java.net.preferXXStack by defining them explicitly, for example if you would like to use IPV6,
+ * set BOTH properties to your JVM like the following: -Djgroups.bind_addr=::1 -Djava.net.preferIPv6Addresses=true
+ * <p>
+ * or if you prefer IPV4: -Djgroups.bind_addr=localhost -Djava.net.preferIPv4Stack=true
+ * <p>
+ * Also: Make sure you add integration-tests/src/tests/resources to your project path on the tests/integration-tests
  */
 public class DiscoveryTest extends DiscoveryBaseTest {
 
@@ -91,7 +88,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
    @AfterEach
    public void tearDown() throws Exception {
       JChannelManager.getInstance().clear().setLoopbackMessages(false);
-      /** This file path is defined at {@link #TEST_JGROUPS_CONF_FILE} */
+      // This file path is defined by TEST_JGROUPS_CONF_FILE
       deleteDirectory(new File("./target/tmp/amqtest.ping.dir"));
       for (ActiveMQComponent component : new ActiveMQComponent[]{bg, bg1, bg2, bg3, dg, dg1, dg2, dg3}) {
          stopComponent(component);
@@ -156,10 +153,8 @@ public class DiscoveryTest extends DiscoveryBaseTest {
    }
 
    /**
-    * Create one broadcaster and 100 receivers. Make sure broadcasting works.
-    * Then stop 99 of the receivers, the last one could still be working.
-    *
-    * @throws Exception
+    * Create one broadcaster and 100 receivers. Make sure broadcasting works. Then stop 99 of the receivers, the last
+    * one could still be working.
     */
    @Test
    public void testJGropusChannelReferenceCounting() throws Exception {
@@ -215,11 +210,8 @@ public class DiscoveryTest extends DiscoveryBaseTest {
    }
 
    /**
-    * Create one broadcaster and 50 receivers. Make sure broadcasting works.
-    * Then stop all of the receivers, and create 50 new ones. Make sure the
-    * 50 new ones are receiving data from the broadcasting.
-    *
-    * @throws Exception
+    * Create one broadcaster and 50 receivers. Make sure broadcasting works. Then stop all of the receivers, and create
+    * 50 new ones. Make sure the 50 new ones are receiving data from the broadcasting.
     */
    @Test
    public void testJGropusChannelReferenceCounting1() throws Exception {
@@ -281,10 +273,8 @@ public class DiscoveryTest extends DiscoveryBaseTest {
    }
 
    /**
-    * Create one broadcaster and 50 receivers. Then stop half of the receivers.
-    * Then add the half back, plus some more. Make sure all receivers receive data.
-    *
-    * @throws Exception
+    * Create one broadcaster and 50 receivers. Then stop half of the receivers. Then add the half back, plus some more.
+    * Make sure all receivers receive data.
     */
    @Test
    public void testJGropusChannelReferenceCounting2() throws Exception {

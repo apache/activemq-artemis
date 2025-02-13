@@ -22,43 +22,43 @@ package org.apache.activemq.artemis.api.core.management;
 public interface BrokerConnectionControl extends ActiveMQComponentControl {
 
    /**
-    * Returns if this broker connection is currently connected to the remote.
+    * {@return if this broker connection is currently connected to the remote}
     */
    @Attribute(desc = "whether this broker connection is currently connected to the remote")
    boolean isConnected();
 
    /**
-    * Returns the name of this broker connection
+    * {@return the name of this broker connection}
     */
    @Attribute(desc = "name of this broker connection")
    String getName();
 
    /**
-    * Returns the connection URI for this broker connection.
+    * {@return the connection URI for this broker connection}
     */
    @Attribute(desc = "connection URI for this broker connection")
    String getUri();
 
    /**
-    * Returns the user this broker connection is using.
+    * {@return the user this broker connection is using}
     */
    @Attribute(desc = "the user this broker connection is using")
    String getUser();
 
    /**
-    * Returns the wire protocol this broker connection is using.
+    * {@return the wire protocol this broker connection is using}
     */
    @Attribute(desc = "the wire protocol this broker connection is using")
    String getProtocol();
 
    /**
-    * Returns the retry interval configured for this broker connection.
+    * {@return the retry interval configured for this broker connection}
     */
    @Attribute(desc = "Configured retry interval of this broker connection")
    long getRetryInterval();
 
    /**
-    * Returns the number of reconnection attempts configured for this broker connection.
+    * {@return the number of reconnection attempts configured for this broker connection}
     */
    @Attribute(desc = "Configured number of reconnection attempts of this broker connection")
    int getReconnectAttempts();

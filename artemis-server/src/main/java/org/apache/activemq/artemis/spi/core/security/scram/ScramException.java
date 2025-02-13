@@ -22,8 +22,10 @@ import java.security.GeneralSecurityException;
  * Indicates error while processing SCRAM sequence
  */
 public class ScramException extends Exception {
+
    /**
     * Creates new ScramException
+    *
     * @param message Exception message
     */
    public ScramException(String message) {
@@ -36,6 +38,7 @@ public class ScramException extends Exception {
 
    /**
     * Creates new ScramException
+    *
     * @param cause Throwable
     */
    public ScramException(Throwable cause) {

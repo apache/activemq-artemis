@@ -26,9 +26,6 @@ import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.TransportConnector;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-/**
- *
- */
 public class SslContextBrokerServiceTest extends TestCase {
 
    private ClassPathXmlApplicationContext context;

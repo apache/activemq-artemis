@@ -49,7 +49,8 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
    private ScheduledExecutorService scheduledExecutorService;
 
-   /* We are using a List rather than HashMap here as ActiveMQ Artemis allows multiple instances of the same class to be added
+   /*
+    * We are using a List rather than HashMap here as ActiveMQ Artemis allows multiple instances of the same class to be added
    * to the interceptor list
    */
    private List<BaseInterceptor> incomingInterceptors;

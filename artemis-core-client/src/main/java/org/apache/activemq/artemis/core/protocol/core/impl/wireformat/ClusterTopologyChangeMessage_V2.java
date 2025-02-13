@@ -20,9 +20,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 
-/**
- * Clebert Suconic
- */
 public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessage {
 
    protected long uniqueEventID;
@@ -66,9 +63,6 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
       super(clusterTopologyV3);
    }
 
-   /**
-    * @return the uniqueEventID
-    */
    public long getUniqueEventID() {
       return uniqueEventID;
    }

@@ -22,12 +22,12 @@ package org.apache.activemq.artemis.protocol.amqp.federation;
 public interface FederationConsumer {
 
    /**
-    * @return the {@link Federation} that this consumer operates under.
+    * {@return the {@link Federation} that this consumer operates under}
     */
    Federation getFederation();
 
    /**
-    * @return an information object that defines the characteristics of the {@link FederationConsumer}
+    * {@return an information object that defines the characteristics of the {@link FederationConsumer}}
     */
    FederationConsumerInfo getConsumerInfo();
 

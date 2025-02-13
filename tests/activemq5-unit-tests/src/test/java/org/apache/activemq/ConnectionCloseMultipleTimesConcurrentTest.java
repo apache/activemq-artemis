@@ -25,9 +25,6 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
-/**
- *
- */
 public class ConnectionCloseMultipleTimesConcurrentTest extends TestCase {
 
    private ActiveMQConnection connection;
@@ -43,9 +40,6 @@ public class ConnectionCloseMultipleTimesConcurrentTest extends TestCase {
       connection.start();
    }
 
-   /**
-    * @see junit.framework.TestCase#tearDown()
-    */
    @Override
    protected void tearDown() throws Exception {
       if (connection.isStarted()) {
@@ -56,9 +50,6 @@ public class ConnectionCloseMultipleTimesConcurrentTest extends TestCase {
       }
    }
 
-   /**
-    * @throws javax.jms.JMSException
-    */
    public void testCloseMultipleTimes() throws Exception {
       connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 

@@ -72,19 +72,10 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
    private static final long serialVersionUID = 4756893709825838770L;
 
-   /**
-    * The Name of the product that this resource adapter represents.
-    */
    public static final String PRODUCT_NAME = "ActiveMQ Artemis";
 
-   /**
-    * The bootstrap context
-    */
    private BootstrapContext ctx;
 
-   /**
-    * The resource adapter properties
-    */
    private final ActiveMQRAProperties raProperties;
 
    /**
@@ -97,14 +88,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     */
    private String unparsedConnectors;
 
-   /**
-    * Have the factory been configured
-    */
    private final AtomicBoolean configured;
 
-   /**
-    * The activations by activation spec
-    */
    private final Map<ActivationSpec, ActiveMQActivation> activations;
 
    private ActiveMQConnectionFactory defaultActiveMQConnectionFactory;
@@ -134,9 +119,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     */
    private final Map<ConnectionFactoryProperties, Pair<ActiveMQConnectionFactory, AtomicInteger>> knownConnectionFactories = new HashMap<>();
 
-   /**
-    * Constructor
-    */
    public ActiveMQResourceAdapter() {
       logger.trace("constructor()");
 
@@ -151,11 +133,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    /**
-    * Endpoint activation
-    *
-    * @param endpointFactory The endpoint factory
-    * @param spec            The activation spec
-    * @throws ResourceException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void endpointActivation(final MessageEndpointFactory endpointFactory,
@@ -179,10 +157,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    /**
-    * Endpoint deactivation
-    *
-    * @param endpointFactory The endpoint factory
-    * @param spec            The activation spec
+    * {@inheritDoc}
     */
    @Override
    public void endpointDeactivation(final MessageEndpointFactory endpointFactory, final ActivationSpec spec) {
@@ -195,11 +170,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    /**
-    * Get XA resources
-    *
-    * @param specs The activation specs
-    * @return The XA resources
-    * @throws ResourceException Thrown if an error occurs or unsupported
+    * {@inheritDoc}
     */
    @Override
    public XAResource[] getXAResources(final ActivationSpec[] specs) throws ResourceException {
@@ -223,10 +194,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    /**
-    * Start
-    *
-    * @param ctx The bootstrap context
-    * @throws ResourceAdapterInternalException Thrown if an error occurs
+    * {@inheritDoc}
     */
    @Override
    public void start(final BootstrapContext ctx) throws ResourceAdapterInternalException {
@@ -250,7 +218,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    /**
-    * Stop
+    * {@inheritDoc}
     */
    @Override
    public void stop() {
@@ -363,11 +331,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       this.entries = entries;
    }
 
-   /**
-    * Get the discovery group name
-    *
-    * @return The value
-    */
    public String getDiscoveryAddress() {
       logger.trace("getDiscoveryGroupAddress()");
 
@@ -390,261 +353,141 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setJgroupsChannelName(jgroupsChannelName);
    }
 
-   /**
-    * Set the discovery group name
-    *
-    * @param dgn The value
-    */
    public void setDiscoveryAddress(final String dgn) {
       logger.trace("setDiscoveryGroupAddress({})", dgn);
 
       raProperties.setDiscoveryAddress(dgn);
    }
 
-   /**
-    * Get the discovery group port
-    *
-    * @return The value
-    */
    public Integer getDiscoveryPort() {
       logger.trace("getDiscoveryGroupPort()");
 
       return raProperties.getDiscoveryPort();
    }
 
-   /**
-    * set the discovery local bind address
-    *
-    * @param discoveryLocalBindAddress the address value
-    */
    public void setDiscoveryLocalBindAddress(final String discoveryLocalBindAddress) {
       logger.trace("setDiscoveryLocalBindAddress({})", discoveryLocalBindAddress);
 
       raProperties.setDiscoveryLocalBindAddress(discoveryLocalBindAddress);
    }
 
-   /**
-    * get the discovery local bind address
-    *
-    * @return the address value
-    */
    public String getDiscoveryLocalBindAddress() {
       logger.trace("getDiscoveryLocalBindAddress()");
 
       return raProperties.getDiscoveryLocalBindAddress();
    }
 
-   /**
-    * Set the discovery group port
-    *
-    * @param dgp The value
-    */
    public void setDiscoveryPort(final Integer dgp) {
       logger.trace("setDiscoveryGroupPort({})", dgp);
 
       raProperties.setDiscoveryPort(dgp);
    }
 
-   /**
-    * Get discovery refresh timeout
-    *
-    * @return The value
-    */
    public Long getDiscoveryRefreshTimeout() {
       logger.trace("getDiscoveryRefreshTimeout()");
 
       return raProperties.getDiscoveryRefreshTimeout();
    }
 
-   /**
-    * Set discovery refresh timeout
-    *
-    * @param discoveryRefreshTimeout The value
-    */
    public void setDiscoveryRefreshTimeout(final Long discoveryRefreshTimeout) {
       logger.trace("setDiscoveryRefreshTimeout({})", discoveryRefreshTimeout);
 
       raProperties.setDiscoveryRefreshTimeout(discoveryRefreshTimeout);
    }
 
-   /**
-    * Get discovery initial wait timeout
-    *
-    * @return The value
-    */
    public Long getDiscoveryInitialWaitTimeout() {
       logger.trace("getDiscoveryInitialWaitTimeout()");
 
       return raProperties.getDiscoveryInitialWaitTimeout();
    }
 
-   /**
-    * Set discovery initial wait timeout
-    *
-    * @param discoveryInitialWaitTimeout The value
-    */
    public void setDiscoveryInitialWaitTimeout(final Long discoveryInitialWaitTimeout) {
       logger.trace("setDiscoveryInitialWaitTimeout({})", discoveryInitialWaitTimeout);
 
       raProperties.setDiscoveryInitialWaitTimeout(discoveryInitialWaitTimeout);
    }
 
-   /**
-    * Get client failure check period
-    *
-    * @return The value
-    */
    public Long getClientFailureCheckPeriod() {
       logger.trace("getClientFailureCheckPeriod()");
 
       return raProperties.getClientFailureCheckPeriod();
    }
 
-   /**
-    * Set client failure check period
-    *
-    * @param clientFailureCheckPeriod The value
-    */
    public void setClientFailureCheckPeriod(final Long clientFailureCheckPeriod) {
       logger.trace("setClientFailureCheckPeriod({})", clientFailureCheckPeriod);
 
       raProperties.setClientFailureCheckPeriod(clientFailureCheckPeriod);
    }
 
-   /**
-    * Get connection TTL
-    *
-    * @return The value
-    */
    public Long getConnectionTTL() {
       logger.trace("getConnectionTTL()");
 
       return raProperties.getConnectionTTL();
    }
 
-   /**
-    * Set connection TTL
-    *
-    * @param connectionTTL The value
-    */
    public void setConnectionTTL(final Long connectionTTL) {
       logger.trace("setConnectionTTL({})", connectionTTL);
 
       raProperties.setConnectionTTL(connectionTTL);
    }
 
-   /**
-    * Get cacheLargeMessagesClient
-    *
-    * @return The value
-    */
    public Boolean isCacheLargeMessagesClient() {
       logger.trace("isCacheLargeMessagesClient()");
 
       return raProperties.isCacheLargeMessagesClient();
    }
 
-   /**
-    * Set cacheLargeMessagesClient
-    *
-    * @param cacheLargeMessagesClient The value
-    */
    public void setCacheLargeMessagesClient(final Boolean cacheLargeMessagesClient) {
       logger.trace("setCacheLargeMessagesClient({})", cacheLargeMessagesClient);
 
       raProperties.setCacheLargeMessagesClient(cacheLargeMessagesClient);
    }
 
-   /**
-    * Get compressLargeMessage
-    *
-    * @return The value
-    */
    public Boolean isCompressLargeMessage() {
       logger.trace("isCompressLargeMessage()");
 
       return raProperties.isCompressLargeMessage();
    }
 
-   /**
-    * Set failoverOnInitialConnection
-    *
-    * @param failoverOnInitialConnection The value
-    */
    @Deprecated
    public void setFailoverOnInitialConnection(final Boolean failoverOnInitialConnection) {
    }
 
-   /**
-    * Get isFailoverOnInitialConnection
-    *
-    * @return The value
-    */
    @Deprecated
    public Boolean isFailoverOnInitialConnection() {
       return false;
    }
 
-   /**
-    * Set cacheDestinations
-    *
-    * @param cacheDestinations The value
-    */
    public void setCacheDestinations(final Boolean cacheDestinations) {
       logger.trace("setCacheDestinations({})", cacheDestinations);
 
       raProperties.setCacheDestinations(cacheDestinations);
    }
 
-   /**
-    * Get isCacheDestinations
-    *
-    * @return The value
-    */
    public Boolean isCacheDestinations() {
       logger.trace("isCacheDestinations()");
 
       return raProperties.isCacheDestinations();
    }
 
-   /**
-    * Set enable1xPrefixes
-    *
-    * @param enable1xPrefixes The value
-    */
    public void setEnable1xPrefixes(final Boolean enable1xPrefixes) {
       logger.trace("setEnable1xPrefixes({})", enable1xPrefixes);
 
       raProperties.setEnable1xPrefixes(enable1xPrefixes);
    }
 
-   /**
-    * Get isCacheDestinations
-    *
-    * @return The value
-    */
    public Boolean isEnable1xPrefixes() {
       logger.trace("isEnable1xPrefixes()");
 
       return raProperties.isEnable1xPrefixes();
    }
 
-   /**
-    * Set compressLargeMessage
-    *
-    * @param compressLargeMessage The value
-    */
    public void setCompressLargeMessage(final Boolean compressLargeMessage) {
       logger.trace("setCompressLargeMessage({})", compressLargeMessage);
 
       raProperties.setCompressLargeMessage(compressLargeMessage);
    }
 
-   /**
-    * Get compressionLevel
-    *
-    * @return The value
-    */
    public Integer getCompressionLevel() {
       logger.trace("getCompressionLevel()");
 
@@ -653,9 +496,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
    /**
     * Sets what compressionLevel to use when compressing messages
-    * Value must be -1 (default) or 0-9
     *
-    * @param compressionLevel The value
+    * @param compressionLevel must be -1 (default) or 0-9
     */
    public void setCompressionLevel(final Integer compressionLevel) {
       logger.trace("setCompressionLevel({})", compressionLevel);
@@ -663,176 +505,96 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setCompressionLevel(compressionLevel);
    }
 
-   /**
-    * Get call timeout
-    *
-    * @return The value
-    */
    public Long getCallTimeout() {
       logger.trace("getCallTimeout()");
 
       return raProperties.getCallTimeout();
    }
 
-   /**
-    * Set call timeout
-    *
-    * @param callTimeout The value
-    */
    public void setCallTimeout(final Long callTimeout) {
       logger.trace("setCallTimeout({})", callTimeout);
 
       raProperties.setCallTimeout(callTimeout);
    }
 
-   /**
-    * Get call failover timeout
-    *
-    * @return The value
-    */
    public Long getCallFailoverTimeout() {
       logger.trace("getCallFailoverTimeout()");
 
       return raProperties.getCallFailoverTimeout();
    }
 
-   /**
-    * Set call failover timeout
-    *
-    * @param callFailoverTimeout The value
-    */
    public void setCallFailoverTimeout(final Long callFailoverTimeout) {
       logger.trace("setCallFailoverTimeout({})", callFailoverTimeout);
 
       raProperties.setCallFailoverTimeout(callFailoverTimeout);
    }
 
-   /**
-    * Get dups ok batch size
-    *
-    * @return The value
-    */
    public Integer getDupsOKBatchSize() {
       logger.trace("getDupsOKBatchSize()");
 
       return raProperties.getDupsOKBatchSize();
    }
 
-   /**
-    * Set dups ok batch size
-    *
-    * @param dupsOKBatchSize The value
-    */
    public void setDupsOKBatchSize(final Integer dupsOKBatchSize) {
       logger.trace("setDupsOKBatchSize({})", dupsOKBatchSize);
 
       raProperties.setDupsOKBatchSize(dupsOKBatchSize);
    }
 
-   /**
-    * Get transaction batch size
-    *
-    * @return The value
-    */
    public Integer getTransactionBatchSize() {
       logger.trace("getTransactionBatchSize()");
 
       return raProperties.getTransactionBatchSize();
    }
 
-   /**
-    * Set transaction batch size
-    *
-    * @param transactionBatchSize The value
-    */
    public void setTransactionBatchSize(final Integer transactionBatchSize) {
       logger.trace("setTransactionBatchSize({})", transactionBatchSize);
 
       raProperties.setTransactionBatchSize(transactionBatchSize);
    }
 
-   /**
-    * Get consumer window size
-    *
-    * @return The value
-    */
    public Integer getConsumerWindowSize() {
       logger.trace("getConsumerWindowSize()");
 
       return raProperties.getConsumerWindowSize();
    }
 
-   /**
-    * Set consumer window size
-    *
-    * @param consumerWindowSize The value
-    */
    public void setConsumerWindowSize(final Integer consumerWindowSize) {
       logger.trace("setConsumerWindowSize({})", consumerWindowSize);
 
       raProperties.setConsumerWindowSize(consumerWindowSize);
    }
 
-   /**
-    * Get consumer max rate
-    *
-    * @return The value
-    */
    public Integer getConsumerMaxRate() {
       logger.trace("getConsumerMaxRate()");
 
       return raProperties.getConsumerMaxRate();
    }
 
-   /**
-    * Set consumer max rate
-    *
-    * @param consumerMaxRate The value
-    */
    public void setConsumerMaxRate(final Integer consumerMaxRate) {
       logger.trace("setConsumerMaxRate({})", consumerMaxRate);
 
       raProperties.setConsumerMaxRate(consumerMaxRate);
    }
 
-   /**
-    * Get confirmation window size
-    *
-    * @return The value
-    */
    public Integer getConfirmationWindowSize() {
       logger.trace("getConfirmationWindowSize()");
 
       return raProperties.getConfirmationWindowSize();
    }
 
-   /**
-    * Set confirmation window size
-    *
-    * @param confirmationWindowSize The value
-    */
    public void setConfirmationWindowSize(final Integer confirmationWindowSize) {
       logger.trace("setConfirmationWindowSize({})", confirmationWindowSize);
 
       raProperties.setConfirmationWindowSize(confirmationWindowSize);
    }
 
-   /**
-    * Get producer max rate
-    *
-    * @return The value
-    */
    public Integer getProducerMaxRate() {
       logger.trace("getProducerMaxRate()");
 
       return raProperties.getProducerMaxRate();
    }
 
-   /**
-    * Set producer max rate
-    *
-    * @param producerMaxRate The value
-    */
    public void setProducerMaxRate(final Integer producerMaxRate) {
       logger.trace("setProducerMaxRate({})", producerMaxRate);
 
@@ -851,22 +613,12 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       return raProperties.isUseTopologyForLoadBalancing();
    }
 
-   /**
-    * Get producer window size
-    *
-    * @return The value
-    */
    public Integer getProducerWindowSize() {
       logger.trace("getProducerWindowSize()");
 
       return raProperties.getProducerWindowSize();
    }
 
-   /**
-    * Set producer window size
-    *
-    * @param producerWindowSize The value
-    */
    public void setProducerWindowSize(final Integer producerWindowSize) {
       logger.trace("setProducerWindowSize({})", producerWindowSize);
 
@@ -937,264 +689,144 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setDeserializationAllowList(deserializationAllowList);
    }
 
-   /**
-    * Get min large message size
-    *
-    * @return The value
-    */
    public Integer getMinLargeMessageSize() {
       logger.trace("getMinLargeMessageSize()");
 
       return raProperties.getMinLargeMessageSize();
    }
 
-   /**
-    * Set min large message size
-    *
-    * @param minLargeMessageSize The value
-    */
    public void setMinLargeMessageSize(final Integer minLargeMessageSize) {
       logger.trace("setMinLargeMessageSize({})", minLargeMessageSize);
 
       raProperties.setMinLargeMessageSize(minLargeMessageSize);
    }
 
-   /**
-    * Get block on acknowledge
-    *
-    * @return The value
-    */
    public Boolean getBlockOnAcknowledge() {
       logger.trace("getBlockOnAcknowledge()");
 
       return raProperties.isBlockOnAcknowledge();
    }
 
-   /**
-    * Set block on acknowledge
-    *
-    * @param blockOnAcknowledge The value
-    */
    public void setBlockOnAcknowledge(final Boolean blockOnAcknowledge) {
       logger.trace("setBlockOnAcknowledge({})", blockOnAcknowledge);
 
       raProperties.setBlockOnAcknowledge(blockOnAcknowledge);
    }
 
-   /**
-    * Get block on non durable send
-    *
-    * @return The value
-    */
    public Boolean getBlockOnNonDurableSend() {
       logger.trace("getBlockOnNonDurableSend()");
 
       return raProperties.isBlockOnNonDurableSend();
    }
 
-   /**
-    * Set block on non durable send
-    *
-    * @param blockOnNonDurableSend The value
-    */
    public void setBlockOnNonDurableSend(final Boolean blockOnNonDurableSend) {
       logger.trace("setBlockOnNonDurableSend({})", blockOnNonDurableSend);
 
       raProperties.setBlockOnNonDurableSend(blockOnNonDurableSend);
    }
 
-   /**
-    * Get block on durable send
-    *
-    * @return The value
-    */
    public Boolean getBlockOnDurableSend() {
       logger.trace("getBlockOnDurableSend()");
 
       return raProperties.isBlockOnDurableSend();
    }
 
-   /**
-    * Set block on durable send
-    *
-    * @param blockOnDurableSend The value
-    */
    public void setBlockOnDurableSend(final Boolean blockOnDurableSend) {
       logger.trace("setBlockOnDurableSend({})", blockOnDurableSend);
 
       raProperties.setBlockOnDurableSend(blockOnDurableSend);
    }
 
-   /**
-    * Get auto group
-    *
-    * @return The value
-    */
    public Boolean getAutoGroup() {
       logger.trace("getAutoGroup()");
 
       return raProperties.isAutoGroup();
    }
 
-   /**
-    * Set auto group
-    *
-    * @param autoGroup The value
-    */
    public void setAutoGroup(final Boolean autoGroup) {
       logger.trace("setAutoGroup({})", autoGroup);
 
       raProperties.setAutoGroup(autoGroup);
    }
 
-   /**
-    * Get pre acknowledge
-    *
-    * @return The value
-    */
    public Boolean getPreAcknowledge() {
       logger.trace("getPreAcknowledge()");
 
       return raProperties.isPreAcknowledge();
    }
 
-   /**
-    * Set pre acknowledge
-    *
-    * @param preAcknowledge The value
-    */
    public void setPreAcknowledge(final Boolean preAcknowledge) {
       logger.trace("setPreAcknowledge({})", preAcknowledge);
 
       raProperties.setPreAcknowledge(preAcknowledge);
    }
 
-   /**
-    * Get number of initial connect attempts
-    *
-    * @return The value
-    */
    public Integer getInitialConnectAttempts() {
       logger.trace("getInitialConnectAttempts()");
 
       return raProperties.getInitialConnectAttempts();
    }
 
-   /**
-    * Set number of initial connect attempts
-    *
-    * @param initialConnectAttempts The value
-    */
    public void setInitialConnectAttempts(final Integer initialConnectAttempts) {
       logger.trace("setInitialConnectionAttempts({})", initialConnectAttempts);
 
       raProperties.setInitialConnectAttempts(initialConnectAttempts);
    }
 
-   /**
-    * Get initial message packet size
-    *
-    * @return The value
-    */
    public Integer getInitialMessagePacketSize() {
       logger.trace("getInitialMessagePacketSize()");
 
       return raProperties.getInitialMessagePacketSize();
    }
 
-   /**
-    * Set initial message packet size
-    *
-    * @param initialMessagePacketSize The value
-    */
    public void setInitialMessagePacketSize(final Integer initialMessagePacketSize) {
       logger.trace("setInitialMessagePacketSize({})", initialMessagePacketSize);
 
       raProperties.setInitialMessagePacketSize(initialMessagePacketSize);
    }
 
-   /**
-    * Get retry interval
-    *
-    * @return The value
-    */
    public Long getRetryInterval() {
       logger.trace("getRetryInterval()");
 
       return raProperties.getRetryInterval();
    }
 
-   /**
-    * Set retry interval
-    *
-    * @param retryInterval The value
-    */
    public void setRetryInterval(final Long retryInterval) {
       logger.trace("setRetryInterval({})", retryInterval);
 
       raProperties.setRetryInterval(retryInterval);
    }
 
-   /**
-    * Get retry interval multiplier
-    *
-    * @return The value
-    */
    public Double getRetryIntervalMultiplier() {
       logger.trace("getRetryIntervalMultiplier()");
 
       return raProperties.getRetryIntervalMultiplier();
    }
 
-   /**
-    * Set retry interval multiplier
-    *
-    * @param retryIntervalMultiplier The value
-    */
    public void setRetryIntervalMultiplier(final Double retryIntervalMultiplier) {
       logger.trace("setRetryIntervalMultiplier({})", retryIntervalMultiplier);
 
       raProperties.setRetryIntervalMultiplier(retryIntervalMultiplier);
    }
 
-   /**
-    * Get maximum time for retry interval
-    *
-    * @return The value
-    */
    public Long getMaxRetryInterval() {
       logger.trace("getMaxRetryInterval()");
 
       return raProperties.getMaxRetryInterval();
    }
 
-   /**
-    * Set maximum time for retry interval
-    *
-    * @param maxRetryInterval The value
-    */
    public void setMaxRetryInterval(final Long maxRetryInterval) {
       logger.trace("setMaxRetryInterval({})", maxRetryInterval);
 
       raProperties.setMaxRetryInterval(maxRetryInterval);
    }
 
-   /**
-    * Get number of reconnect attempts
-    *
-    * @return The value
-    */
    public Integer getReconnectAttempts() {
       logger.trace("getReconnectAttempts()");
 
       return raProperties.getReconnectAttempts();
    }
 
-   /**
-    * Set number of reconnect attempts
-    *
-    * @param reconnectAttempts The value
-    */
    public void setReconnectAttempts(final Integer reconnectAttempts) {
       logger.trace("setReconnectAttempts({})", reconnectAttempts);
 
@@ -1241,44 +873,24 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setUseGlobalPools(useGlobalPools);
    }
 
-   /**
-    * Get the user name
-    *
-    * @return The value
-    */
    public String getUserName() {
       logger.trace("getUserName()");
 
       return raProperties.getUserName();
    }
 
-   /**
-    * Set the user name
-    *
-    * @param userName The value
-    */
    public void setUserName(final String userName) {
       logger.trace("setUserName({})", userName);
 
       raProperties.setUserName(userName);
    }
 
-   /**
-    * Get the password
-    *
-    * @return The value
-    */
    public String getPassword() {
       logger.trace("getPassword()");
 
       return raProperties.getPassword();
    }
 
-   /**
-    * Set the password
-    *
-    * @param password The value
-    */
    public void setPassword(final String password) {
       if (logger.isTraceEnabled()) {
          logger.trace("setPassword(****)");
@@ -1287,23 +899,14 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setPassword(password);
    }
 
-   /**
-    * @return the useJNDI
-    */
    public boolean isUseJNDI() {
       return raProperties.isUseJNDI();
    }
 
-   /**
-    * @param value the useJNDI to set
-    */
    public void setUseJNDI(final Boolean value) {
       raProperties.setUseJNDI(value);
    }
 
-   /**
-    * @return return the jndi params to use
-    */
    public String getJndiParams() {
       return unparsedJndiParams;
    }
@@ -1317,66 +920,36 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       return raProperties.getParsedJndiParams();
    }
 
-   /**
-    * Get the client ID
-    *
-    * @return The value
-    */
    public String getClientID() {
       logger.trace("getClientID()");
 
       return raProperties.getClientID();
    }
 
-   /**
-    * Set the client ID
-    *
-    * @param clientID The client id
-    */
    public void setClientID(final String clientID) {
       logger.trace("setClientID({})", clientID);
 
       raProperties.setClientID(clientID);
    }
 
-   /**
-    * Get the group ID
-    *
-    * @return The value
-    */
    public String getGroupID() {
       logger.trace("getGroupID()");
 
       return raProperties.getGroupID();
    }
 
-   /**
-    * Set the group ID
-    *
-    * @param groupID The group id
-    */
    public void setGroupID(final String groupID) {
       logger.trace("setGroupID({})", groupID);
 
       raProperties.setGroupID(groupID);
    }
 
-   /**
-    * Get the use XA flag
-    *
-    * @return The value
-    */
    public Boolean getUseLocalTx() {
       logger.trace("getUseLocalTx()");
 
       return raProperties.getUseLocalTx();
    }
 
-   /**
-    * Set the use XA flag
-    *
-    * @param localTx The value
-    */
    public void setUseLocalTx(final Boolean localTx) {
       logger.trace("setUseXA({})", localTx);
 
@@ -1407,12 +980,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setSetupInterval(interval);
    }
 
-   /**
-    * Indicates whether some other object is "equal to" this one.
-    *
-    * @param obj Object with which to compare
-    * @return True if this object is the same as the obj argument; false otherwise.
-    */
    @Override
    public boolean equals(final Object obj) {
       logger.trace("equals({})", obj);
@@ -1427,11 +994,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       return false;
    }
 
-   /**
-    * Return the hash code for the object
-    *
-    * @return The hash code
-    */
    @Override
    public int hashCode() {
       logger.trace("hashCode()");
@@ -1439,11 +1001,6 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       return raProperties.hashCode();
    }
 
-   /**
-    * Get the work manager
-    *
-    * @return The manager
-    */
    public WorkManager getWorkManager() {
       logger.trace("getWorkManager()");
 
@@ -1469,9 +1026,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
       // if we are CMP or BMP using local tx we ignore the ack mode as we are transactional
       if (deliveryTransacted || useLocalTx) {
-         // JBPAPP-8845
-         // If transacted we need to send the ack flush as soon as possible
-         // as if any transaction times out, we need the ack on the server already
+         // If transacted we need to send the ack flush as soon as possible as if any transaction times out, we need
+         // the ack on the server already
          if (useLocalTx) {
             result = parameterFactory.createSession(user, pass, false, false, false, false, 0);
          } else {
@@ -1503,20 +1059,12 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       return recoveryManager;
    }
 
-   /**
-    * Get the resource adapter properties
-    *
-    * @return The properties
-    */
    public ActiveMQRAProperties getProperties() {
       logger.trace("getProperties()");
 
       return raProperties;
    }
 
-   /**
-    * Setup the factory
-    */
    protected void setup() throws ActiveMQException {
       raProperties.init();
       defaultActiveMQConnectionFactory = newConnectionFactory(raProperties);
@@ -1542,31 +1090,18 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       return defaultActiveMQConnectionFactory;
    }
 
-   /**
-    * @see ActiveMQRAProperties#getJgroupsChannelLocatorClass()
-    */
    public String getJgroupsChannelLocatorClass() {
       return raProperties.getJgroupsChannelLocatorClass();
    }
 
-   /**
-    * @see ActiveMQRAProperties#setJgroupsChannelLocatorClass(String)
-    */
    public void setJgroupsChannelLocatorClass(String jgroupsChannelLocatorClass) {
       raProperties.setJgroupsChannelLocatorClass(jgroupsChannelLocatorClass);
    }
 
-   /**
-    * @return
-    * @see ActiveMQRAProperties#getJgroupsChannelRefName()
-    */
    public String getJgroupsChannelRefName() {
       return raProperties.getJgroupsChannelRefName();
    }
 
-   /**
-    * @see ActiveMQRAProperties#setJgroupsChannelRefName(java.lang.String)
-    */
    public void setJgroupsChannelRefName(String jgroupsChannelRefName) {
       raProperties.setJgroupsChannelRefName(jgroupsChannelRefName);
    }

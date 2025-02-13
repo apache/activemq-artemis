@@ -28,7 +28,9 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * This class implements javax.jms.ConnectionMetaData
+ * This class implements {@link javax.jms.ConnectionMetaData}
+ *
+ * {@inheritDoc}
  */
 public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
 
@@ -52,17 +54,12 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
       JMS_MINOR_VERSION = Integer.parseInt(versionProps.getProperty("activemq.version.implementation.minorVersion", "0"));
    }
 
-   /**
-    * Constructor
-    */
    public ActiveMQRAConnectionMetaData() {
       logger.trace("constructor()");
    }
 
    /**
-    * Get the JMS version
-    *
-    * @return The version
+    * {@inheritDoc}
     */
    @Override
    public String getJMSVersion() {
@@ -71,9 +68,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
    }
 
    /**
-    * Get the JMS major version
-    *
-    * @return The major version
+    * {@inheritDoc}
     */
    @Override
    public int getJMSMajorVersion() {
@@ -82,9 +77,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
    }
 
    /**
-    * Get the JMS minor version
-    *
-    * @return The minor version
+    * {@inheritDoc}
     */
    @Override
    public int getJMSMinorVersion() {
@@ -93,9 +86,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
    }
 
    /**
-    * Get the JMS provider name
-    *
-    * @return The name
+    * {@inheritDoc}
     */
    @Override
    public String getJMSProviderName() {
@@ -105,9 +96,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
    }
 
    /**
-    * Get the provider version
-    *
-    * @return The version
+    * {@inheritDoc}
     */
    @Override
    public String getProviderVersion() {
@@ -117,9 +106,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
    }
 
    /**
-    * Get the provider major version
-    *
-    * @return The version
+    * {@inheritDoc}
     */
    @Override
    public int getProviderMajorVersion() {
@@ -129,9 +116,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
    }
 
    /**
-    * Get the provider minor version
-    *
-    * @return The version
+    * {@inheritDoc}
     */
    @Override
    public int getProviderMinorVersion() {
@@ -141,9 +126,7 @@ public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
    }
 
    /**
-    * Get the JMS XPropertyNames
-    *
-    * @return The names
+    * {@inheritDoc}
     */
    @Override
    public Enumeration<Object> getJMSXPropertyNames() {

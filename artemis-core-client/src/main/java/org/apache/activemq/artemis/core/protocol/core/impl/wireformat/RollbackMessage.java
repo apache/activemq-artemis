@@ -33,16 +33,10 @@ public class RollbackMessage extends PacketImpl {
 
    private boolean considerLastMessageAsDelivered;
 
-   /**
-    * @return the considerLastMessageAsDelivered
-    */
    public boolean isConsiderLastMessageAsDelivered() {
       return considerLastMessageAsDelivered;
    }
 
-   /**
-    * @param isLastMessageAsDelivered the considerLastMessageAsDelivered to set
-    */
    public void setConsiderLastMessageAsDelivered(final boolean isLastMessageAsDelivered) {
       considerLastMessageAsDelivered = isLastMessageAsDelivered;
    }

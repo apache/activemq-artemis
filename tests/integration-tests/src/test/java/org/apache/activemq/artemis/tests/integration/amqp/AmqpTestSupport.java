@@ -31,8 +31,7 @@ import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.junit.jupiter.api.AfterEach;
 
 /**
- * Base test support class providing client support methods to aid in
- * creating and configuration the AMQP test client.
+ * Base test support class providing client support methods to aid in creating and configuration the AMQP test client.
  */
 public class AmqpTestSupport extends ActiveMQTestBase {
 

@@ -82,7 +82,7 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
     * example, if you pass the value "TRUE" for the key "exclusive" the {@code String} "TRUE" will be converted to
     * the {@code Boolean} {@code true}.
     *
-    * @param key the key to set to the value
+    * @param key   the key to set to the value
     * @param value the value to set for the key
     * @return this {@code DivertConfiguration}
     */
@@ -145,15 +145,14 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
       return routingType;
    }
 
-   /**
-    * @param name the name to set
-    */
    public DivertConfiguration setName(final String name) {
       this.name = name;
       return this;
    }
 
    /**
+    * Sets the {@code routingName}. If the input is {@code null} then a random {@code routingName} will be generated.
+    *
     * @param routingName the routingName to set
     */
    public DivertConfiguration setRoutingName(final String routingName) {
@@ -164,50 +163,31 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
       }
       return this;
    }
-
-   /**
-    * @param address the address to set
-    */
    public DivertConfiguration setAddress(final String address) {
       this.address = address;
       return this;
    }
 
-   /**
-    * @param forwardingAddress the forwardingAddress to set
-    */
    public DivertConfiguration setForwardingAddress(final String forwardingAddress) {
       this.forwardingAddress = forwardingAddress;
       return this;
    }
 
-   /**
-    * @param exclusive the exclusive to set
-    */
    public DivertConfiguration setExclusive(final boolean exclusive) {
       this.exclusive = exclusive;
       return this;
    }
 
-   /**
-    * @param filterString the filterString to set
-    */
    public DivertConfiguration setFilterString(final String filterString) {
       this.filterString = filterString;
       return this;
    }
 
-   /**
-    * @param transformerConfiguration the transformerConfiguration to set
-    */
    public DivertConfiguration setTransformerConfiguration(final TransformerConfiguration transformerConfiguration) {
       this.transformerConfiguration = transformerConfiguration;
       return this;
    }
 
-   /**
-    * @param routingType the routingType to set
-    */
    public DivertConfiguration setRoutingType(final ComponentConfigurationRoutingType routingType) {
       this.routingType = routingType;
       return this;

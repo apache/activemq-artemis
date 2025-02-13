@@ -69,9 +69,8 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.junit.jupiter.api.Test;
 
 /**
- * this is testing the case for resending notifications from RemotingGroupHandler
- * There is a small window where you could receive notifications wrongly
- * this test will make sure the component would play well with that notification
+ * this is testing the case for resending notifications from RemotingGroupHandler There is a small window where you
+ * could receive notifications wrongly this test will make sure the component would play well with that notification
  */
 public class ClusteredResetMockTest extends ServerTestBase {
 

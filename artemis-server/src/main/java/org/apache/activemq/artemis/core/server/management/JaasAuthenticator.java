@@ -45,9 +45,7 @@ public class JaasAuthenticator implements JMXAuthenticator {
       try {
 
          LoginContext loginContext = new LoginContext(realm, subject, callbacks -> {
-            /*
-            * pull out the jmx credentials if they exist if not, guest login module will handle it
-            * */
+            // pull out the jmx credentials if they exist if not, guest login module will handle it
             String[] params = null;
             if (credentials instanceof String[] strings && strings.length == 2) {
                params = strings;

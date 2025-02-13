@@ -41,11 +41,11 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * <p>This class will use the {@link BroadcastEndpoint} to send periodical updates on the list for connections
- * used by this server. </p>
- *
- * <p>This is totally generic to the mechanism used on the transmission. It originally only had UDP but this got refactored
- * into sub classes of {@link BroadcastEndpoint}</p>
+ * This class will use the {@link BroadcastEndpoint} to send periodical updates on the list for connections used by this
+ * server.
+ * <p>
+ * This is totally generic to the mechanism used on the transmission. It originally only had UDP but this got refactored
+ * into sub classes of {@link BroadcastEndpoint}
  */
 public class BroadcastGroupImpl implements BroadcastGroup, Runnable {
 
@@ -211,7 +211,7 @@ public class BroadcastGroupImpl implements BroadcastGroup, Runnable {
          broadcastConnectors();
          loggedBroadcastException = false;
       } catch (Exception e) {
-         // only log the exception at ERROR level once, even if it fails multiple times in a row - HORNETQ-919
+         // only log the exception at ERROR level once, even if it fails multiple times in a row
          if (!loggedBroadcastException) {
             ActiveMQServerLogger.LOGGER.errorBroadcastingConnectorConfigs(e);
             loggedBroadcastException = true;

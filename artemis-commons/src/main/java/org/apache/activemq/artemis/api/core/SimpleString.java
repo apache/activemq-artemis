@@ -28,8 +28,8 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 
 /**
- * A simple String class that can store all characters, and stores as simple {@code byte[]}, this
- * minimises expensive copying between String objects.
+ * A simple String class that can store all characters, and stores as simple {@code byte[]}, this minimises expensive
+ * copying between String objects.
  * <p>
  * This object is used heavily throughout ActiveMQ Artemis for performance reasons.
  */
@@ -46,7 +46,6 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    private transient String str;
 
    private transient String[] paths;
-
 
    /**
     * Returns a SimpleString constructed from the {@code string} parameter.
@@ -102,11 +101,9 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
     * <p>
     * If {@code string} is {@code null}, the return value will be {@code null} too.
     *
-    * @deprecated
-    * Use {@link #of(String)} instead.
-    *
     * @param string String used to instantiate a SimpleString.
     * @return A new SimpleString
+    * @deprecated Use {@link #of(String)} instead.
     */
    @Deprecated(forRemoval = true)
    public static SimpleString toSimpleString(final String string) {
@@ -118,12 +115,10 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
     * <p>
     * If {@code string} is {@code null}, the return value will be {@code null} too.
     *
-    * @deprecated
-    * Use {@link #of(String, StringSimpleStringPool)} instead.
-    *
     * @param string String used to instantiate a SimpleString.
     * @param pool   The pool from which to create the SimpleString
     * @return A new SimpleString
+    * @deprecated Use {@link #of(String, StringSimpleStringPool)} instead.
     */
    @Deprecated(forRemoval = true)
    public static SimpleString toSimpleString(final String string, StringSimpleStringPool pool) {
@@ -133,10 +128,8 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    /**
     * creates a SimpleString from a conventional String
     *
-    * @deprecated
-    * Use {@link #of(String)} instead.
-    *
     * @param string the string to transform
+    * @deprecated Use {@link #of(String)} instead.
     */
    @Deprecated(forRemoval = true)
    public SimpleString(final String string) {
@@ -164,10 +157,8 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    /**
     * creates a SimpleString from a byte array
     *
-    * @deprecated
-    * Use {@link #of(byte[])} instead.
-    *
     * @param data the byte array to use
+    * @deprecated Use {@link #of(byte[])} instead.
     */
    @Deprecated(forRemoval = true)
    public SimpleString(final byte[] data) {
@@ -177,10 +168,8 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    /**
     * creates a SimpleString from a character
     *
-    * @deprecated
-    * Use {@link #of(char)} instead.
-    *
     * @param c the char to use
+    * @deprecated Use {@link #of(char)} instead.
     */
    @Deprecated(forRemoval = true)
    public SimpleString(final char c) {
@@ -309,19 +298,17 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    }
 
    /**
-    * returns the underlying byte array of this SimpleString
-    *
-    * @return the byte array
+    * {@return the underlying byte array of this {@code SimpleString}}
     */
    public byte[] getData() {
       return data;
    }
 
    /**
-    * returns true if the SimpleString parameter starts with the same data as this one. false if not.
+    * {@return {@code true} if the {@code SimpleString} parameter starts with the same data as this one, otherwise
+    * {@code false}}
     *
     * @param other the SimpleString to look for
-    * @return true if this SimpleString starts with the same data
     */
    public boolean startsWith(final SimpleString other) {
       byte[] otherdata = other.data;
@@ -373,9 +360,8 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    }
 
    /**
-    * note the result of the first use is cached, the separator is configured on
-    * the postoffice so will be static for the duration of a server instance.
-    * calling with different separator values could give invalid results
+    * note the result of the first use is cached, the separator is configured on the postoffice so will be static for
+    * the duration of a server instance. calling with different separator values could give invalid results
     *
     * @param separator value from wildcardConfiguration
     * @return String[] reference to the split paths or the cached value if previously called
@@ -417,8 +403,8 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
     * Returns {@code true} if  the {@link SimpleString} encoded content into {@code bytes} is equals to {@code s},
     * {@code false} otherwise.
     * <p>
-    * It assumes that the {@code bytes} content is read using {@link SimpleString#readSimpleString(ByteBuf, int)} ie starting right after the
-    * length field.
+    * It assumes that the {@code bytes} content is read using {@link SimpleString#readSimpleString(ByteBuf, int)} ie
+    * starting right after the length field.
     */
    public boolean equals(final ByteBuf byteBuf, final int offset, final int length) {
       return ByteUtil.equals(data, byteBuf, offset, length);
@@ -438,8 +424,8 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    }
 
    /**
-    * Splits this SimpleString into an array of SimpleString using the char param as the delimiter.
-    * i.e. "a.b" would return "a" and "b" if . was the delimiter
+    * Splits this SimpleString into an array of SimpleString using the char param as the delimiter. i.e. "a.b" would
+    * return "a" and "b" if . was the delimiter
     *
     * @param delim The delimiter to split this SimpleString on.
     * @return An array of SimpleStrings
@@ -547,7 +533,7 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
     * checks to see if this SimpleString contains the char parameter passed in
     *
     * @param c the char to check for
-    * @return true if the char is found, false otherwise.
+    * @return true if the char is found, false otherwise
     */
    public boolean contains(final char c) {
       if (this.str != null) {
@@ -630,29 +616,25 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    }
 
    /**
-    * returns the size of this SimpleString
-    *
-    * @return the size
+    * {@return the size of this SimpleString}
     */
    public int sizeof() {
       return DataConstants.SIZE_INT + data.length;
    }
 
    /**
-    * returns the size of a SimpleString
+    * {@return the size of a SimpleString}
     *
     * @param str the SimpleString to check
-    * @return the size
     */
    public static int sizeofString(final SimpleString str) {
       return str.sizeof();
    }
 
    /**
-    * returns the size of a SimpleString which could be null
+    * {@return the size of a SimpleString which could be {@code null}}
     *
     * @param str the SimpleString to check
-    * @return the size
     */
    public static int sizeofNullableString(final SimpleString str) {
       if (str == null) {
@@ -663,8 +645,8 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    }
 
    /**
-    * This method performs a similar function to {@link String#getChars(int, int, char[], int)}.
-    * This is mainly used by the Parsers on Filters
+    * This method performs a similar function to {@link String#getChars(int, int, char[], int)}. This is mainly used by
+    * the Parsers on Filters
     *
     * @param srcBegin The srcBegin
     * @param srcEnd   The srcEnd

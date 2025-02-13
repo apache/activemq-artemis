@@ -245,11 +245,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public static final String INTERNAL_NAMING_PREFIX = "$.artemis.internal";
 
    /**
-    * JMS Topics (which are outside of the scope of the core API) will require a dumb subscription
-    * with a dummy-filter at this current version as a way to keep its existence valid and TCK
-    * tests. That subscription needs an invalid filter, however paging needs to ignore any
-    * subscription with this filter. For that reason, this filter needs to be rejected on paging or
-    * any other component on the system, and just be ignored for any purpose It's declared here as
+    * JMS Topics (which are outside of the scope of the core API) will require a dumb subscription with a dummy-filter
+    * at this current version as a way to keep its existence valid and TCK tests. That subscription needs an invalid
+    * filter, however paging needs to ignore any subscription with this filter. For that reason, this filter needs to be
+    * rejected on paging or any other component on the system, and just be ignored for any purpose It's declared here as
     * this filter is considered a global ignore
     *
     * @deprecated Replaced by {@link org.apache.activemq.artemis.core.filter.Filter#GENERIC_IGNORED_FILTER}
@@ -294,19 +293,19 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private ReplayManager replayManager;
 
-   /** Certain management operations shouldn't use more than one thread.
-    *  this semaphore is used to guarantee a single thread used. */
+   /**
+    * Certain management operations shouldn't use more than one thread. this semaphore is used to guarantee a single
+    * thread used.
+    */
    private final ReentrantLock managementLock = new ReentrantLock();
 
    /**
-    * This is a thread pool for io tasks only.
-    * We can't use the same global executor to avoid starvations.
+    * This is a thread pool for io tasks only. We can't use the same global executor to avoid starvations.
     */
    protected volatile ExecutorFactory ioExecutorFactory;
 
    /**
-    * This is a thread pool for page only tasks only.
-    * This is because we have to limit parallel reads on paging.
+    * This is a thread pool for page only tasks only. This is because we have to limit parallel reads on paging.
     */
    protected volatile ExecutorFactory pageExecutorFactory;
 
@@ -558,7 +557,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    /**
     * A Callback for tests
-    * @return
     */
    public Runnable getAfterActivationCreated() {
       return afterActivationCreated;
@@ -566,8 +564,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    /**
     * A Callback for tests
-    * @param afterActivationCreated
-    * @return
     */
    public ActiveMQServerImpl setAfterActivationCreated(Runnable afterActivationCreated) {
       this.afterActivationCreated = afterActivationCreated;
@@ -593,9 +589,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
    }
 
-   /*
-    * Can be overridden for tests
-    */
+   // Can be overridden for tests
    protected NodeManager createNodeManager(final File directory, boolean replicatingBackup) {
       NodeManager manager;
       if (!configuration.isPersistenceEnabled()) {
@@ -804,7 +798,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          this.analyzer = analyzer;
       }
 
-      /* Calling this for cases where the server was stopped and now is being restarted... failback, etc...*/
+      /*
+       * Calling this for cases where the server was stopped and now is being restarted... failback, etc...*/
       analyzer.clear();
 
       analyzer.setCheckTime(configuration.getCriticalAnalyzerCheckPeriod(), TimeUnit.MILLISECONDS).setTimeout(configuration.getCriticalAnalyzerTimeout(), TimeUnit.MILLISECONDS);
@@ -3053,8 +3048,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    /**
     * For tests only, don't use this method as it's not part of the API
-    *
-    * @param factory
     */
    public void replaceQueueFactory(QueueFactory factory) {
       this.queueFactory = factory;
@@ -3138,7 +3131,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     * Sets up ActiveMQ Artemis Executor Services.
     */
    private void initializeExecutorServices() {
-      /* We check to see if a Thread Pool is supplied in the InjectedObjectRegistry.  If so we created a new Ordered
+      /*
+       * We check to see if a Thread Pool is supplied in the InjectedObjectRegistry.  If so we created a new Ordered
        * Executor based on the provided Thread pool.  Otherwise we create a new ThreadPool.
        */
       if (serviceRegistry.getExecutorService() == null) {
@@ -3190,7 +3184,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          this.pageExecutorFactory = new OrderedExecutorFactory(pageExecutorPool);
       }
 
-       /* We check to see if a Scheduled Executor Service is provided in the InjectedObjectRegistry.  If so we use this
+       /*
+        * We check to see if a Scheduled Executor Service is provided in the InjectedObjectRegistry.  If so we use this
        * Scheduled ExecutorService otherwise we create a new one.
        */
       if (serviceRegistry.getScheduledExecutorService() == null) {
@@ -3218,10 +3213,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    /**
     * Starts everything apart from RemotingService and loading the data.
     * <p>
-    * After optional intermediary steps, Part 1 is meant to be followed by part 2
-    * {@link #initialisePart2(boolean)}.
-    *
-    * @param scalingDown
+    * After optional intermediary steps, this is meant to be followed by {@link #initialisePart2(boolean)}.
     */
    synchronized boolean initialisePart1(boolean scalingDown) throws Exception {
       if (state == SERVER_STATE.STOPPED)
@@ -3265,7 +3257,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       resourceManager = new ResourceManagerImpl(this, (int) (configuration.getTransactionTimeout() / 1000), configuration.getTransactionTimeoutScanPeriod(), scheduledPool);
 
-      /**
+      /*
        * If there is no plugin configured we don't want to instantiate a MetricsManager. This keeps the dependency
        * on Micrometer as "optional" in the Maven pom.xml. This is particularly beneficial because optional dependencies
        * are not required to be included in the OSGi bundle and the Micrometer jars apparently don't support OSGi.
@@ -3458,7 +3450,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       postOffice.setMirrorControlSource(null);
    }
 
-   /*
+   /**
     * Load the data, and start remoting service so clients can connect
     */
    synchronized void initialisePart2(boolean scalingDown) throws Exception {
@@ -3614,7 +3606,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    /**
-    * This method exists for a possibility of test cases replacing the FileStoreMonitor for an extension that would for instance pretend a disk full on certain tests.
+    * This method exists for a possibility of test cases replacing the FileStoreMonitor for an extension that would for
+    * instance pretend a disk full on certain tests.
     */
    public void injectMonitor(FileStoreMonitor storeMonitor) throws Exception {
       try {
@@ -3880,9 +3873,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return journalInfo;
    }
 
-   /**
-    * @throws Exception
-    */
    private void recoverStoredConfigs() throws Exception {
       recoverStoredAddressSettings();
       recoverStoredSecuritySettings();
@@ -3951,7 +3941,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       removeAddressInfo(address, auth);
    }
 
-   /** Register a queue on the management registry */
+   /**
+    * Register a queue on the management registry
+    */
    @Override
    public void registerQueueOnManagement(Queue queue) throws Exception {
       managementService.registerQueue(queue, queue.getAddress(), storageManager);

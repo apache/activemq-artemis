@@ -28,10 +28,6 @@ import org.apache.activemq.transport.udp.UdpTransportTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- *
- */
 public class UnreliableUdpTransportTest extends UdpTransportTest {
 
    private static final Logger LOG = LoggerFactory.getLogger(UnreliableUdpTransportTest.class);

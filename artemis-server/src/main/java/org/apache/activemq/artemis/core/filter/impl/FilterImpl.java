@@ -39,21 +39,20 @@ import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAG
 
 /**
  * This class implements an ActiveMQ Artemis filter
- *
+ * <p>
  * ActiveMQ Artemis filters have the same syntax as JMS 1.1 selectors, but the identifiers are different.
- *
+ * <p>
  * Valid identifiers that can be used are:
- *
- * AMQPriority - the priority of the message
- * AMQTimestamp - the timestamp of the message
- * AMQDurable - "DURABLE" or "NON_DURABLE"
- * AMQExpiration - the expiration of the message
- * AMQSize - the encoded size of the full message in bytes
- * AMQUserID - the user specified ID string (if any)
- * Any other identifiers that appear in a filter expression represent header values for the message
- *
- * String values must be set as <code>SimpleString</code>, not <code>java.lang.String</code> (see JBMESSAGING-1307).
- * Derived from JBoss MQ version by
+ * <ul>
+ * <li>{@code AMQPriority} - the priority of the message
+ * <li>{@code AMQTimestamp} - the timestamp of the message
+ * <li>{@code AMQDurable} - "DURABLE" or "NON_DURABLE"
+ * <li>{@code AMQExpiration} - the expiration of the message
+ * <li>{@code AMQSize} - the encoded size of the full message in bytes
+ * <li>{@code AMQUserID} - the user specified ID string (if any)
+ * <li>Any other identifiers that appear in a filter expression represent header values for the message
+ * </ul>
+ * String values must be set as {@code SimpleString}, not {@code java.lang.String}
  */
 public class FilterImpl implements Filter {
 
@@ -63,9 +62,8 @@ public class FilterImpl implements Filter {
 
    private final BooleanExpression booleanExpression;
 
-
    /**
-    * @return null if <code>filterStr</code> is null or an empty String and a valid filter else
+    * {@return null if {@code filterStr} is null or an empty String and a valid filter else}
     * @throws ActiveMQException if the string does not correspond to a valid filter
     */
    public static Filter createFilter(final String filterStr) throws ActiveMQException {
@@ -73,7 +71,7 @@ public class FilterImpl implements Filter {
    }
 
    /**
-    * @return null if <code>filterStr</code> is null or an empty String and a valid filter else
+    * {@return null if {@code filterStr} is null or an empty String and a valid filter else}
     * @throws ActiveMQException if the string does not correspond to a valid filter
     */
    public static Filter createFilter(final SimpleString filterStr) throws ActiveMQException {

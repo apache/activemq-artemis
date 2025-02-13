@@ -22,17 +22,16 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPExceptio
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationType;
 
 /**
- * Policy manager that manages state data for remote AMQP Federation Address policies and their
- * associated senders. These managers are a result either of a local federation configuration
- * that sender federation policies to the remote side of the connection or at the remote target
- * they appear when the remote is consuming messages from the target based on local federation
- * configurations.
+ * Policy manager that manages state data for remote AMQP Federation Address policies and their associated senders.
+ * These managers are a result either of a local federation configuration that sender federation policies to the remote
+ * side of the connection or at the remote target they appear when the remote is consuming messages from the target
+ * based on local federation configurations.
  */
 public final class AMQPFederationRemoteAddressPolicyManager extends AMQPFederationRemotePolicyManager {
 
    /**
-    * Name used when the remote address policy name is not present due to having connected to an
-    * older broker instance that does not fill in the link property that carries the policy name.
+    * Name used when the remote address policy name is not present due to having connected to an older broker instance
+    * that does not fill in the link property that carries the policy name.
     */
    public static final String DEFAULT_REMOTE_ADDRESS_POLICY_NAME = "<unknown-remote-address-policy>";
 

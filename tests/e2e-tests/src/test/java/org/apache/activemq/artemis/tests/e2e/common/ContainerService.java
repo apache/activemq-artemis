@@ -38,8 +38,8 @@ import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 /**
- * I am intentionally not depending directly into TestContainer
- * I intend in a near future to support kubernetes and podman and I would like to keep an interface between our tests and the Container provider.
+ * I am intentionally not depending directly into TestContainer. I intend in a near future to support kubernetes and
+ * podman and I would like to keep an interface between our tests and the Container provider.
  */
 public abstract class ContainerService {
 
@@ -100,7 +100,9 @@ public abstract class ContainerService {
 
    public abstract void exposeHosts(Object container, String... hosts);
 
-   /** prepare the instance folder to run inside the docker image */
+   /**
+    * prepare the instance folder to run inside the docker image
+    */
    public abstract void prepareInstance(String home) throws Exception;
 
    public abstract String getHost(Object container);

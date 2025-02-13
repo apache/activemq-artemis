@@ -25,9 +25,11 @@ public final class PowerOf2Util {
    }
 
    /**
-    * Fast alignment operation with power of 2 {@code alignment} and {@code value >=0} and {@code value <}{@link Integer#MAX_VALUE}.<br>
-    * In order to be fast is up to the caller to check arguments correctness.
-    * Original algorithm is on https://en.wikipedia.org/wiki/Data_structure_alignment.
+    * Fast alignment operation with power of 2 {@code alignment} and {@code value >=0} and
+    * {@code value <}{@link Integer#MAX_VALUE}.
+    * <p>
+    * In order to be fast is up to the caller to check arguments correctness. Original algorithm is on
+    * https://en.wikipedia.org/wiki/Data_structure_alignment.
     */
    public static int align(final int value, final int pow2alignment) {
       return (value + (pow2alignment - 1)) & ~(pow2alignment - 1);
@@ -37,7 +39,7 @@ public final class PowerOf2Util {
     * Is a value a positive power of two.
     *
     * @param value to be checked.
-    * @return true if the number is a positive power of two otherwise false.
+    * @return true if the number is a positive power of two otherwise false
     */
    public static boolean isPowOf2(final int value) {
       return Integer.bitCount(value) == 1;
@@ -48,7 +50,7 @@ public final class PowerOf2Util {
     *
     * @param value         to be tested.
     * @param pow2alignment boundary the address is tested against.
-    * @return true if the address is on the aligned boundary otherwise false.
+    * @return true if the address is on the aligned boundary otherwise false
     * @throws IllegalArgumentException if the alignment is not a power of 2
     */
    public static boolean isAligned(final long value, final int pow2alignment) {

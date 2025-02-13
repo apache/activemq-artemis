@@ -28,12 +28,10 @@ import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 
 /**
- * {@link SSLContextFactory} providing a cache of {@link SSLContext}.
- * Since {@link SSLContext} should be reused instead of recreated and are thread safe.
- * To activate it you need to allow this Service to be discovered by having a
- * <code>META-INF/services/org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory</code>
- * file with <code>org.apache.activemq.artemis.core.remoting.impl.ssl.CachingSSLContextFactory</code>
- * as value.
+ * {@link SSLContextFactory} providing a cache of {@link SSLContext}. Since {@link SSLContext} should be reused instead
+ * of recreated and are thread safe. To activate it you need to allow this Service to be discovered by having a
+ * {@code META-INF/services/org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory} file with
+ * {@code org.apache.activemq.artemis.core.remoting.impl.ssl.CachingSSLContextFactory} as value.
  */
 public class CachingSSLContextFactory extends DefaultSSLContextFactory {
 
@@ -59,11 +57,11 @@ public class CachingSSLContextFactory extends DefaultSSLContextFactory {
    /**
     * Obtains/calculates a cache key for the corresponding {@link SslContext}.
     * <ol>
-    * <li>If <code>config</code> contains an entry with key "sslContext", the associated value is returned
+    * <li>If {@code config} contains an entry with key "sslContext", the associated value is returned
     * <li>Otherwise, the provided {@link SSLContextConfig} is used as cache key.
     * </ol>
     *
-    * @return the SSL context name to cache/retrieve the {@link SslContext}.
+    * @return the SSL context name to cache/retrieve the {@link SslContext}
     */
    protected Object getCacheKey(final SSLContextConfig config, final Map<String, Object> additionalOpts) {
       final Object cacheKey = ConfigurationHelper.getStringProperty(TransportConstants.SSL_CONTEXT_PROP_NAME, null, additionalOpts);

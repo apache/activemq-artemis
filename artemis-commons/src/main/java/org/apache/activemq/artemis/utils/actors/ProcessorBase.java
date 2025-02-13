@@ -38,8 +38,8 @@ public abstract class ProcessorBase<T> extends HandlerBase {
 
    private final Executor delegate;
    /**
-    * Using a method reference instead of an inner classes allows the caller to reduce the pointer chasing
-    * when accessing ProcessorBase.this fields/methods.
+    * Using a method reference instead of an inner classes allows the caller to reduce the pointer chasing when
+    * accessing ProcessorBase.this fields/methods.
     */
    private final Runnable task = this::executePendingTasks;
 
@@ -110,7 +110,9 @@ public abstract class ProcessorBase<T> extends HandlerBase {
       this.yielded = true;
    }
 
-   /** It will shutdown the executor however it will not wait for finishing tasks*/
+   /**
+    * It will shutdown the executor however it will not wait for finishing tasks
+    */
    public int shutdownNow(Consumer<? super T> onPendingItem, int timeout, TimeUnit unit) {
       //alert anyone that has been requested (at least) an immediate shutdown
       requestedForcedShutdown = true;
@@ -146,10 +148,9 @@ public abstract class ProcessorBase<T> extends HandlerBase {
    }
 
    /**
-    * WARNING: This will only flush when all the activity is suspended.
-    * don't expect success on this call if another thread keeps feeding the queue
-    * this is only valid on situations where you are not feeding the queue,
-    * like in shutdown and failover situations.
+    * WARNING: This will only flush when all the activity is suspended. don't expect success on this call if another
+    * thread keeps feeding the queue this is only valid on situations where you are not feeding the queue, like in
+    * shutdown and failover situations.
     */
    public final boolean flush(long timeout, TimeUnit unit) {
       if (this.state == STATE_NOT_RUNNING) {
@@ -189,9 +190,9 @@ public abstract class ProcessorBase<T> extends HandlerBase {
    }
 
    /**
-    * This has to be called on the assumption that state!=STATE_RUNNING.
-    * It is packed separately from {@link #task(Object)} just for performance reasons: it
-    * handles the uncommon execution cases for bursty scenarios i.e. the slowest execution path.
+    * This has to be called on the assumption that state!=STATE_RUNNING. It is packed separately from
+    * {@link #task(Object)} just for performance reasons: it handles the uncommon execution cases for bursty scenarios
+    * i.e. the slowest execution path.
     */
    private void onAddedTaskIfNotRunning(int state) {
       if (state == STATE_NOT_RUNNING) {
@@ -207,10 +208,10 @@ public abstract class ProcessorBase<T> extends HandlerBase {
    }
 
    /**
-    * Returns the remaining items to be processed.
-    * <p>
-    * This method is safe to be called by different threads and its accuracy is subject to concurrent modifications.<br>
-    * It is meant to be used only for test purposes, because of its {@code O(n)} cost.
+    * This method is safe to be called by different threads and its accuracy is subject to concurrent modifications. It
+    * is meant to be used only for test purposes, because of its {@code O(n)} cost.
+    *
+    * @return the remaining items to be processed
     */
    public final int remaining() {
       return tasks.size();

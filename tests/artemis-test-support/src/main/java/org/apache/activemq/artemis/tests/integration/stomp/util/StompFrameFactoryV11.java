@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.integration.stomp.util;
 
 /**
  * 1.1 frames
- * <br>
+ * <p>
  * 1. CONNECT/STOMP(new)
  * 2. CONNECTED
  * 3. SEND

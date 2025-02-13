@@ -125,9 +125,6 @@ public class ActiveMQJMSContext implements JMSContext {
       return innerProducer;
    }
 
-   /**
-    *
-    */
    private void checkSession() {
       if (session == null) {
          synchronized (this) {
@@ -562,10 +559,8 @@ public class ActiveMQJMSContext implements JMSContext {
    }
 
    /**
-    * This is to be used on tests only. It's not part of the interface and it's not guaranteed to be kept
-    * on the API contract.
-    *
-    * @return
+    * This is to be used on tests only. It's not part of the interface and it's not guaranteed to be kept on the API
+    * contract.
     */
    public Session getUsedSession() {
       return this.session;

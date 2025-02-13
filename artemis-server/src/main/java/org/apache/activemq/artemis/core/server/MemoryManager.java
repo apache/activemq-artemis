@@ -24,8 +24,7 @@ import java.lang.invoke.MethodHandles;
 /**
  * A memory usage watcher.
  * <p>
- * This class will run a thread monitoring memory usage and log warnings in case we are low on
- * memory.
+ * This class will run a thread monitoring memory usage and log warnings in case we are low on memory.
  */
 public class MemoryManager implements ActiveMQComponent {
 

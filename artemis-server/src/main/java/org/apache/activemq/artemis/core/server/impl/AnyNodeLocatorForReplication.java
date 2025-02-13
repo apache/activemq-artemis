@@ -32,8 +32,8 @@ import org.apache.activemq.artemis.core.server.NodeLocator;
 import org.apache.activemq.artemis.utils.ConcurrentUtil;
 
 /**
- * This implementation looks for any available node, once tried with no success it is marked as
- * tried and the next available is used.
+ * This implementation looks for any available node, once tried with no success it is marked as tried and the next
+ * available is used.
  */
 public class AnyNodeLocatorForReplication extends NodeLocator {
 
@@ -99,8 +99,7 @@ public class AnyNodeLocatorForReplication extends NodeLocator {
    }
 
    /**
-    * if a node goes down we try all the connectors again as one may now be available for
-    * replication
+    * if a node goes down we try all the connectors again as one may now be available for replication
     * <p>
     * TODO: there will be a better way to do this by finding which nodes backup has gone down.
     */

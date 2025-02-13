@@ -38,8 +38,7 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.ReferenceCountUtil;
 
 /**
- * Ensures that every request has a response and also that any uninitiated responses always wait for
- * a response.
+ * Ensures that every request has a response and also that any uninitiated responses always wait for a response.
  */
 public class HttpAcceptorHandler extends ChannelDuplexHandler {
 

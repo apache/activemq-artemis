@@ -89,8 +89,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Handles all the synchronization necessary for replication on the backup side (that is the
- * backup's side of the "remote backup" use case).
+ * Handles all the synchronization necessary for replication on the backup side (that is the backup's side of the
+ * "remote backup" use case).
  */
 public final class ReplicationEndpoint implements ChannelHandler, ActiveMQComponent {
 
@@ -121,8 +121,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    private final Map<JournalContent, Map<Long, JournalSyncFile>> filesReservedForSync = new HashMap<>();
 
    /**
-    * Used to hold the real Journals before the backup is synchronized. This field should be
-    * {@code null} on an up-to-date server.
+    * Used to hold the real Journals before the backup is synchronized. This field should be {@code null} on an
+    * up-to-date server.
     */
    private Map<JournalContent, Journal> journalsHolder = new HashMap<>();
 
@@ -274,18 +274,11 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
    }
 
-   /**
-    * @param packet
-    */
    private void handleFatalError(BackupReplicationStartFailedMessage packet) {
       ActiveMQServerLogger.LOGGER.errorStartingReplication(packet.getRegistrationProblem());
       server.stopTheServer(false);
    }
 
-   /**
-    * @param packet
-    * @throws ActiveMQException
-    */
    private void handlePrimaryStopping(ReplicationPrimaryIsStoppingMessage packet) throws ActiveMQException {
       eventListener.onPrimaryStopping(packet.isFinalMessage());
    }
@@ -491,9 +484,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    /**
     * Receives 'raw' journal/page/large-message data from primary server for synchronization of logs.
-    *
-    * @param msg
-    * @throws Exception
     */
    private void handleReplicationSynchronization(ReplicationSyncFileMessage msg) throws Exception {
       long id = msg.getId();
@@ -543,13 +533,11 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    }
 
    /**
-    * Reserves files (with the given fileID) in the specified journal, and places a
-    * {@link FileWrapperJournal} in place to store messages while synchronization is going on.
+    * Reserves files (with the given fileID) in the specified journal, and places a {@link FileWrapperJournal} in place
+    * to store messages while synchronization is going on.
     *
-    * @param packet
     * @return if the incoming packet indicates the synchronization is finished then return an acknowledgement otherwise
     * return an empty response
-    * @throws Exception
     */
    private ReplicationResponseMessageV2 handleStartReplicationSynchronization(final ReplicationStartSyncMessage packet) throws Exception {
       logger.trace("handleStartReplicationSynchronization:: nodeID = {}", packet);
@@ -595,7 +583,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             FileWrapperJournal syncJournal = new FileWrapperJournal(journal);
             registerJournal(journalContent.typeByte, syncJournal);
 
-            /* We send a response now to avoid a situation where we handle votes during the deactivation of the primary
+            /*
+             * We send a response now to avoid a situation where we handle votes during the deactivation of the primary
              * during a failback.
              */
             if (supportResponseBatching) {
@@ -606,7 +595,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
             // This needs to be done after the response is sent to avoid voting shutting it down for any reason.
             if (packet.getNodeID() != null) {
-               /* At the start of replication we still do not know which is the nodeID that the primary uses.
+               /*
+                * At the start of replication we still do not know which is the nodeID that the primary uses.
                 * This is the point where the backup gets this information.
                 */
                eventListener.onPrimaryNodeId(packet.getNodeID());
@@ -646,9 +636,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
    }
 
-   /**
-    * @param packet
-    */
    private void handleLargeMessageWrite(final ReplicationLargeMessageWriteMessage packet) throws Exception {
       ReplicatedLargeMessage message = lookupLargeMessage(packet.getMessageId(), false, true);
       if (message != null) {
@@ -687,9 +674,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    }
 
-   /**
-    * @param packet
-    */
    private void handleLargeMessageBegin(final ReplicationLargeMessageBeginMessage packet) {
       final long id = packet.getMessageId();
       createLargeMessage(id, false);
@@ -716,9 +700,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       return msg;
    }
 
-   /**
-    * @param packet
-    */
    private void handleCommitRollback(final ReplicationCommitMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
       if (packet.isRollback()) {
@@ -728,34 +709,22 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
    }
 
-   /**
-    * @param packet
-    */
    private void handlePrepare(final ReplicationPrepareMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
       journalToUse.appendPrepareRecord(packet.getTxId(), packet.getRecordData(), noSync);
    }
 
-   /**
-    * @param packet
-    */
    private void handleAppendDeleteTX(final ReplicationDeleteTXMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
 
       journalToUse.appendDeleteRecordTransactional(packet.getTxId(), packet.getId(), packet.getRecordData());
    }
 
-   /**
-    * @param packet
-    */
    private void handleAppendDelete(final ReplicationDeleteMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
       journalToUse.tryAppendDeleteRecord(packet.getId(), null, noSync);
    }
 
-   /**
-    * @param packet
-    */
    private void handleAppendAddTXRecord(final ReplicationAddTXMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
 
@@ -766,10 +735,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
    }
 
-   /**
-    * @param packet
-    * @throws Exception
-    */
    private void handleAppendAddRecord(final ReplicationAddMessage packet) throws Exception {
       Journal journalToUse = getJournal(packet.getJournalID());
       switch (packet.getRecord()) {
@@ -794,9 +759,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
    }
 
-   /**
-    * @param packet
-    */
    private void handlePageEvent(final ReplicationPageEventMessage packet) throws Exception {
       ConcurrentMap<Long, Page> pages = getPageMap(packet.getStoreName());
 
@@ -823,9 +785,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    }
 
-   /**
-    * @param packet
-    */
    private void handlePageWrite(final ReplicationPageWriteMessage packet) throws Exception {
       PagedMessage pgdMessage = packet.getPagedMessage();
       pgdMessage.initMessage(storageManager);
@@ -859,11 +818,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       return page;
    }
 
-   /**
-    * @param pageId
-    * @param map
-    * @return
-    */
    private synchronized Page newPage(final long pageId,
                                      final SimpleString storeName,
                                      final ConcurrentMap<Long, Page> map) throws Exception {
@@ -878,10 +832,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       return page;
    }
 
-   /**
-    * @param journalID
-    * @return
-    */
    private Journal getJournal(final byte journalID) {
       return journals[journalID];
    }
@@ -919,9 +869,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
    }
 
-   /**
-    * @param executor2
-    */
    public void setExecutor(Executor executor2) {
       this.executor = executor2;
    }

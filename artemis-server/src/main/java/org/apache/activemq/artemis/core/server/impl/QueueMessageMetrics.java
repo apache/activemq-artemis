@@ -137,15 +137,10 @@ public class QueueMessageMetrics {
       return messageCount;
    }
 
-   /**
-    * @return the messageCount
-    */
    public int getMessageCount() {
       return messageCount + messageCountPaged;
    }
-   /**
-    * @return the persistentSize
-    */
+
    public long getPersistentSize() {
       return persistentSize + persistentSizePaged;
    }
@@ -158,9 +153,6 @@ public class QueueMessageMetrics {
       return durablePersistentSize;
    }
 
-   /**
-    * @return the durableMessageCount
-    */
    public int getDurableMessageCount() {
       return durableMessageCount + durableMessageCountPaged;
    }
@@ -169,9 +161,6 @@ public class QueueMessageMetrics {
       return durableMessageCount;
    }
 
-   /**
-    * @return the durablePersistentSize
-    */
    public long getDurablePersistentSize() {
       return durablePersistentSize + durablePersistentSizePaged;
    }
@@ -187,5 +176,4 @@ public class QueueMessageMetrics {
 
       return size;
    }
-
 }

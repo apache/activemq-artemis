@@ -56,8 +56,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A base class abstract {@link SenderController} implementation for use by federation address and
- * queue senders that provides some common functionality used between both.
+ * A base class abstract {@link SenderController} implementation for use by federation address and queue senders that
+ * provides some common functionality used between both.
  */
 public abstract class AMQPFederationSenderController implements SenderController {
 
@@ -104,7 +104,7 @@ public abstract class AMQPFederationSenderController implements SenderController
    }
 
    /**
-    * @return an enumeration describing the role of the sender controller implementation.
+    * {@return an enumeration describing the role of the sender controller implementation}
     */
    public abstract Role getRole();
 
@@ -168,14 +168,11 @@ public abstract class AMQPFederationSenderController implements SenderController
    }
 
    /**
-    * The subclass must implement this and create an appropriately configured server consumer
-    * based on the properties of the AMQP link and the role of the implemented sender type.
+    * The subclass must implement this and create an appropriately configured server consumer based on the properties of
+    * the AMQP link and the role of the implemented sender type.
     *
-    * @param senderContext
-    *    The server sender context that this controller was created for.
-    *
-    * @return a new {@link ServerConsumer} instance that will send messages to the remote peer.
-    *
+    * @param senderContext The server sender context that this controller was created for.
+    * @return a new {@link ServerConsumer} instance that will send messages to the remote peer
     * @throws Exception if an error occurs while creating the server consumer.
     */
    protected abstract ServerConsumer createServerConsumer(ProtonServerSenderContext senderContext) throws Exception;
@@ -232,8 +229,7 @@ public abstract class AMQPFederationSenderController implements SenderController
    /**
     * Subclasses should react to link local close by cleaning up resources.
     *
-    * @param error
-    *       The error that triggered the local close or null if no error.
+    * @param error The error that triggered the local close or null if no error.
     */
    protected void handleLinkLocallyClosed(ErrorCondition error) {
       // default implementation does nothing

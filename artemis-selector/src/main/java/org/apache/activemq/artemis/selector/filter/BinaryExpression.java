@@ -18,8 +18,6 @@ package org.apache.activemq.artemis.selector.filter;
 
 /**
  * An expression which performs an operation on two expression values.
- *
- * @version $Revision: 1.2 $
  */
 public abstract class BinaryExpression implements Expression {
 
@@ -39,17 +37,11 @@ public abstract class BinaryExpression implements Expression {
       return right;
    }
 
-   /**
-    * @see java.lang.Object#toString()
-    */
    @Override
    public String toString() {
       return "(" + left.toString() + " " + getExpressionSymbol() + " " + right.toString() + ")";
    }
 
-   /**
-    * @see java.lang.Object#hashCode()
-    */
    @Override
    public int hashCode() {
       int result = left.hashCode();
@@ -58,9 +50,6 @@ public abstract class BinaryExpression implements Expression {
       return result;
    }
 
-   /**
-    * @see java.lang.Object#equals(java.lang.Object)
-    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -89,23 +78,14 @@ public abstract class BinaryExpression implements Expression {
    }
 
    /**
-    * Returns the symbol that represents this binary expression.  For example, addition is
-    * represented by "+"
-    *
-    * @return
+    * {@return the symbol that represents this binary expression.  For example, addition is represented by {@code +}}
     */
    public abstract String getExpressionSymbol();
 
-   /**
-    * @param expression
-    */
    public void setRight(Expression expression) {
       right = expression;
    }
 
-   /**
-    * @param expression
-    */
    public void setLeft(Expression expression) {
       left = expression;
    }

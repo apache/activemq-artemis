@@ -27,7 +27,8 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 /**
  * A class that represents a XAConnectionFactory.
  * <p>
- * We consider the XAConnectionFactory to be the most complete possible option. It can be casted to any other connection factory since it is fully functional
+ * We consider the XAConnectionFactory to be the most complete possible option. It can be casted to any other connection
+ * factory since it is fully functional
  */
 public class ActiveMQXAConnectionFactory extends ActiveMQConnectionFactory implements XATopicConnectionFactory, XAQueueConnectionFactory {
 

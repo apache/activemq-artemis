@@ -17,8 +17,7 @@
 package org.apache.activemq.artemis.api.core;
 
 /**
- * A client operation failed because the calling resource (ClientSession, ClientProducer, etc.) is
- * closed.
+ * A client operation failed because the calling resource (ClientSession, ClientProducer, etc.) is closed.
  */
 public final class ActiveMQObjectClosedException extends ActiveMQException {
 

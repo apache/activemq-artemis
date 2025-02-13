@@ -187,7 +187,7 @@ public final class InVMAcceptor extends AbstractAcceptor {
       return started;
    }
 
-   /*
+   /**
     * Stop accepting new connections
     */
    @Override

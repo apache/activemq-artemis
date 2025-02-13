@@ -80,7 +80,8 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
    }
 
    /**
-    * It creates a primary policy that never allow auto fail-back.<br>
+    * It creates a primary policy that never allow auto fail-back.
+    * <p>
     * It's meant to be used for natural-born primary brokers: its backup policy is set to always try to fail-back.
     */
    public static ReplicationPrimaryPolicy with(ReplicationPrimaryPolicyConfiguration configuration) {

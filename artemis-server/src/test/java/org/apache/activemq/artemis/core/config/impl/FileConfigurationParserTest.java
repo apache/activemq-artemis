@@ -117,14 +117,12 @@ public class FileConfigurationParserTest extends ServerTestBase {
       </bridges>""";
 
    /**
-    * These "InvalidConfigurationTest*.xml" files are modified copies of {@value
-    * ConfigurationTest-full-config.xml}, so just diff it for changes, e.g.
+    * These "InvalidConfigurationTest*.xml" files are modified copies of {@literal ConfigurationTest-full-config.xml},
+    * so just diff it for changes, e.g.
     * <p>
     * <pre>
     * diff ConfigurationTest-full-config.xml InvalidConfigurationTest4.xml
     * </pre>
-    *
-    * @throws Exception
     */
    @Test
    public void testSchemaValidation() throws Exception {

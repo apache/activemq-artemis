@@ -239,9 +239,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          return;
       }
 
-      /*
-       * Perform authentication *before* attempting redirection because redirection may be based on the user's role.
-       */
+      // Perform authentication *before* attempting redirection because redirection may be based on the user's role.
       String password = connect.payload().passwordInBytes() == null ? null : new String(connect.payload().passwordInBytes(), CharsetUtil.UTF_8);
       String username = connect.payload().userName();
       Pair<Boolean, String> validationData = null;
@@ -457,7 +455,8 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       return true;
    }
 
-   /* The MQTT specification states:
+   /*
+    * The MQTT specification states:
     *
     *     [MQTT-3.1.4-2] If the client ID represents a client already connected to the server then the server MUST
     *     disconnect the existing client

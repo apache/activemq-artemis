@@ -52,7 +52,8 @@ public class JMSManagementHelper {
    }
 
    /**
-    * Stores an operation invocation in a JMS message to invoke the corresponding operation the value from the server resource.
+    * Stores an operation invocation in a JMS message to invoke the corresponding operation the value from the server
+    * resource.
     *
     * @param message       JMS message
     * @param resourceName  the name of the resource
@@ -79,7 +80,8 @@ public class JMSManagementHelper {
    }
 
    /**
-    * Stores an operation invocation in a JMS message to invoke the corresponding operation the value from the server resource.
+    * Stores an operation invocation in a JMS message to invoke the corresponding operation the value from the server
+    * resource.
     *
     * @param message       JMS message
     * @param resourceName  the name of the server resource
@@ -100,51 +102,48 @@ public class JMSManagementHelper {
    }
 
    /**
-    * Returns whether the JMS message corresponds to the result of a management operation invocation.
+    * {@return whether the JMS message corresponds to the result of a management operation invocation.}
     */
    public static boolean isOperationResult(final Message message) throws JMSException {
       return ManagementHelper.isOperationResult(JMSManagementHelper.getCoreMessage(message));
    }
 
    /**
-    * Returns whether the JMS message corresponds to the result of a management attribute value.
+    * {@return whether the JMS message corresponds to the result of a management attribute value.}
     */
    public static boolean isAttributesResult(final Message message) throws JMSException {
       return ManagementHelper.isAttributesResult(JMSManagementHelper.getCoreMessage(message));
    }
 
    /**
-    * Returns whether the invocation of the management operation on the server resource succeeded.
+    * {@return whether the invocation of the management operation on the server resource succeeded.}
     */
    public static boolean hasOperationSucceeded(final Message message) throws JMSException {
       return ManagementHelper.hasOperationSucceeded(JMSManagementHelper.getCoreMessage(message));
    }
 
    /**
-    * Returns the result of an operation invocation or an attribute value.
-    * <br>
-    * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
-    * and the result will be a String corresponding to the server exception.
+    * {@return the result of an operation invocation or an attribute value; if an error occurred on the server {@link
+    * #hasOperationSucceeded(Message)} will return {@code false} and the result will be a {@code String} corresponding
+    * to the server exception}
     */
    public static Object[] getResults(final Message message) throws Exception {
       return ManagementHelper.getResults(JMSManagementHelper.getCoreMessage(message));
    }
 
    /**
-    * Returns the result of an operation invocation or an attribute value.
-    * <br>
-    * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
-    * and the result will be a String corresponding to the server exception.
+    * {@return the result of an operation invocation or an attribute value; if an error occurred on the server {@link
+    * #hasOperationSucceeded(Message)} will return {@code false} and the result will be a {@code String} corresponding
+    * to the server exception}
     */
    public static Object getResult(final Message message) throws Exception {
       return getResult(message, null);
    }
 
    /**
-    * Returns the result of an operation invocation or an attribute value.
-    * <br>
-    * If an error occurred on the server, {@link #hasOperationSucceeded(Message)} will return {@code false}.
-    * and the result will be a String corresponding to the server exception.
+    * {@return the result of an operation invocation or an attribute value; if an error occurred on the server {@link
+    * #hasOperationSucceeded(Message)} will return {@code false} and the result will be a {@code String} corresponding
+    * to the server exception}
     */
    public static Object getResult(final Message message, Class desiredType) throws Exception {
       return ManagementHelper.getResult(JMSManagementHelper.getCoreMessage(message), desiredType);

@@ -26,9 +26,8 @@ public interface BaseInterceptor<P> {
     *
     * @param packet     the packet being received
     * @param connection the connection the packet was received on
-    * @return {@code true} to process the next interceptor and handle the packet,
-    * {@code false} to abort processing of the packet
-    * @throws ActiveMQException
+    * @return {@code true} to process the next interceptor and handle the packet, {@code false} to abort processing of
+    * the packet
     */
    boolean intercept(P packet, RemotingConnection connection) throws ActiveMQException;
 

@@ -49,7 +49,7 @@ public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyLis
 
    /**
     * This is needed on replication, however we don't need it on shared storage.
-    * */
+    */
    void setSplitBrainDetection(boolean splitBrainDetection);
 
    boolean isSplitBrainDetection();
@@ -77,9 +77,7 @@ public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyLis
    /**
     * Verifies whether user and password match the ones configured for this ClusterConnection.
     *
-    * @param clusterUser
-    * @param clusterPassword
-    * @return {@code true} if username and password match, {@code false} otherwise.
+    * @return {@code true} if username and password match, {@code false} otherwise
     */
    boolean verify(String clusterUser, String clusterPassword);
 
@@ -95,16 +93,11 @@ public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyLis
 
    /**
     * The metric for this cluster connection
-    *
-    * @return
     */
    ClusterConnectionMetrics getMetrics();
 
    /**
-    * Returns the BridgeMetrics for the bridge to the given node if exists
-    *
-    * @param nodeId
-    * @return
+    * {@return the BridgeMetrics for the bridge to the given node if exists}
     */
    BridgeMetrics getBridgeMetrics(String nodeId);
 }

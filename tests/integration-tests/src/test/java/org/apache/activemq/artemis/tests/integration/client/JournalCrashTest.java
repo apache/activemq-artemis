@@ -135,10 +135,6 @@ public class JournalCrashTest extends SpawnedTestBase {
       }
    }
 
-   /**
-    * @throws Exception
-    * @throws InterruptedException
-    */
    private void runExternalProcess(final String tempDir, final int start, final int end) throws Exception {
       Process process = SpawnedVMSupport.spawnVM(this.getClass().getCanonicalName(), "-Xms128m", "-Xmx128m", new String[]{}, true, true, tempDir, Integer.toString(start), Integer.toString(end));
 

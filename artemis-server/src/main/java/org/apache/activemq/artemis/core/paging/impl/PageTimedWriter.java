@@ -99,10 +99,11 @@ public class PageTimedWriter extends ActiveMQScheduledComponent {
       processMessages();
    }
 
-   /** We increment task while holding the readLock.
-    * This is because we verify if the system is paging, and we get out of paging when no pending tasks and no pending messages.
-    * We allocate a task while holding the read Lock.
-    * We cannot call addTask within the lock as if the semaphore gets out of credits we would deadlock in certain cases. */
+   /**
+    * We increment task while holding the readLock. This is because we verify if the system is paging, and we get out of
+    * paging when no pending tasks and no pending messages. We allocate a task while holding the read Lock. We cannot
+    * call addTask within the lock as if the semaphore gets out of credits we would deadlock in certain cases.
+    */
    public void incrementTask() {
       pendingTasksUpdater.incrementAndGet(this);
    }

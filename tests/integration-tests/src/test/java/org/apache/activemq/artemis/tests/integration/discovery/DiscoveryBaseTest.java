@@ -52,20 +52,12 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
 
    protected final String address3 = getUDPDiscoveryAddress(2);
 
-   /**
-    * @param discoveryGroup
-    * @throws Exception
-    */
    protected static void verifyBroadcast(BroadcastGroup broadcastGroup,
                                          DiscoveryGroup discoveryGroup) throws Exception {
       broadcastGroup.broadcastConnectors();
       assertTrue(discoveryGroup.waitForBroadcast(2000), "broadcast not received");
    }
 
-   /**
-    * @param discoveryGroup
-    * @throws Exception
-    */
    protected static void verifyNonBroadcast(BroadcastGroup broadcastGroup,
                                             DiscoveryGroup discoveryGroup) throws Exception {
       broadcastGroup.broadcastConnectors();

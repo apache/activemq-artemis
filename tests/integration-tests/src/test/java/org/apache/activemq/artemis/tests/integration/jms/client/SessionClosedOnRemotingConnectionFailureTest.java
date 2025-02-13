@@ -39,12 +39,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.jupiter.api.Test;
 
-/**
- * A SessionClosedOnRemotingConnectionFailureTest
- */
 public class SessionClosedOnRemotingConnectionFailureTest extends JMSTestBase {
-
-
 
    @Test
    public void testSessionClosedOnRemotingConnectionFailure() throws Exception {
@@ -106,6 +101,4 @@ public class SessionClosedOnRemotingConnectionFailureTest extends JMSTestBase {
          }
       }
    }
-
-
 }

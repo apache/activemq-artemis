@@ -36,14 +36,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Deprecated in favor of EmbeddedActiveMQResource. Since Artemis 2.0 all JMS specific broker
- * management classes, interfaces, and methods have been deprecated in favor of their more general
- * counter-parts. A JUnit Rule that embeds an ActiveMQ Artemis JMS server into a test. This JUnit
- * Rule is designed to simplify using embedded servers in unit tests. Adding the rule to a test will
- * startup an embedded JMS server, which can then be used by client applications.
+ * Deprecated in favor of EmbeddedActiveMQResource. Since Artemis 2.0 all JMS specific broker management classes,
+ * interfaces, and methods have been deprecated in favor of their more general counter-parts. A JUnit Rule that embeds
+ * an ActiveMQ Artemis JMS server into a test. This JUnit Rule is designed to simplify using embedded servers in unit
+ * tests. Adding the rule to a test will startup an embedded JMS server, which can then be used by client applications.
  *
- * <pre>
- * <code>
+ * <pre>{@code
  * public class SimpleTest {
  *     &#64;Rule
  *     public EmbeddedJMSResource server = new EmbeddedJMSResource();
@@ -53,8 +51,7 @@ import org.slf4j.LoggerFactory;
  *         // Use the embedded server here
  *     }
  * }
- * </code>
- * </pre>
+ * }</pre>
  */
 @Deprecated
 public class EmbeddedJMSResource extends ExternalResource implements EmbeddedJMSOperations<EmbeddedJMSResource> {
@@ -86,7 +83,8 @@ public class EmbeddedJMSResource extends ExternalResource implements EmbeddedJMS
 
    /**
     * Create an EmbeddedJMSResource with the specified configurations
-    * @param configuration ActiveMQServer configuration
+    *
+    * @param configuration    ActiveMQServer configuration
     * @param jmsConfiguration JMSServerManager configuration
     */
    public EmbeddedJMSResource(Configuration configuration, JMSConfiguration jmsConfiguration) {
@@ -95,6 +93,7 @@ public class EmbeddedJMSResource extends ExternalResource implements EmbeddedJMS
 
    /**
     * Create an EmbeddedJMSResource with the specified configuration file
+    *
     * @param filename configuration file name
     */
    public EmbeddedJMSResource(String filename) {
@@ -103,8 +102,9 @@ public class EmbeddedJMSResource extends ExternalResource implements EmbeddedJMS
 
    /**
     * Create an EmbeddedJMSResource with the specified configuration file
+    *
     * @param serverConfigurationFileName ActiveMQServer configuration file name
-    * @param jmsConfigurationFileName JMSServerManager configuration file name
+    * @param jmsConfigurationFileName    JMSServerManager configuration file name
     */
    public EmbeddedJMSResource(String serverConfigurationFileName, String jmsConfigurationFileName) {
       this.embeddedJMSDelegate = new EmbeddedJMSDelegate(serverConfigurationFileName, jmsConfigurationFileName);

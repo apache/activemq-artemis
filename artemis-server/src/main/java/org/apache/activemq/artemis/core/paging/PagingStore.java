@@ -39,12 +39,10 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 
 /**
- * <p>
  * The implementation will take care of details such as PageSize.
  * <p>
- * The producers will write directly to PagingStore, and the store will decide what Page file should
- * be used based on configured size.
- * </p>
+ * The producers will write directly to PagingStore, and the store will decide what Page file should be used based on
+ * configured size.
  *
  * @see PagingManager
  */
@@ -55,7 +53,7 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
    long getNumberOfPages();
 
    /**
-    * Returns the page id of the current page in which the system is writing files.
+    * {@return the page id of the current page in which the system is writing files}
     */
    long getCurrentWritingPage();
 
@@ -79,7 +77,9 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    Long getPageLimitBytes();
 
-   /** Callback to be used by a counter when the Page is full for that counter */
+   /**
+    * Callback to be used by a counter when the Page is full for that counter
+    */
    void pageFull(PageSubscription subscription);
 
    boolean isPageFull();
@@ -106,11 +106,13 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    void applySetting(AddressSettings addressSettings);
 
-   /** This method will look if the current state of paging is not paging,
-    * without using a lock.
-    * For cases where you need absolutely atomic results, check it directly on the internal variables while requiring a readLock.
-    *
-    * It's ok to look for this with an estimate on starting a task or not, but you will need to recheck on actual paging operations. */
+   /**
+    * This method will look if the current state of paging is not paging, without using a lock. For cases where you need
+    * absolutely atomic results, check it directly on the internal variables while requiring a readLock.
+    * <p>
+    * It's ok to look for this with an estimate on starting a task or not, but you will need to recheck on actual paging
+    * operations.
+    */
    boolean isPaging();
 
    /**
@@ -121,8 +123,8 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
    /**
     * Write message to page if we are paging.
     *
-    * @return {@code true} if we are paging and have handled the data, {@code false} if the data
-    * needs to be sent to the journal
+    * @return {@code true} if we are paging and have handled the data, {@code false} if the data needs to be sent to the
+    * journal
     * @throws NullPointerException if {@code readLock} is null
     */
    boolean page(Message message, Transaction tx, RouteContextList listCtx) throws Exception;
@@ -131,7 +133,10 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    Page usePage(long page);
 
-   /** Use this method when you want to use the cache of used pages. If you are just using offline (e.g. print-data), use the newPageObject method.*/
+   /**
+    * Use this method when you want to use the cache of used pages. If you are just using offline (e.g. print-data), use
+    * the newPageObject method.
+    */
    Page usePage(long page, boolean create);
    Page usePage(long page, boolean createEntry, boolean createFile);
 
@@ -146,11 +151,11 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
    void processReload() throws Exception;
 
    /**
-    * Remove the first page from the Writing Queue.
-    * The file will still exist until Page.delete is called,
-    * So, case the system is reloaded the same Page will be loaded back if delete is not called.
+    * Remove the first page from the Writing Queue. The file will still exist until Page.delete is called, So, case the
+    * system is reloaded the same Page will be loaded back if delete is not called.
     *
-    * @throws Exception Note: This should still be part of the interface, even though ActiveMQ Artemis only uses through the
+    * @throws Exception Note: This should still be part of the interface, even though ActiveMQ Artemis only uses through
+    *                   the
     */
    Page depage() throws Exception;
 
@@ -164,20 +169,22 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    Page getCurrentPage();
 
-   /** it will save snapshots on the counters */
+   /**
+    * Save snapshots on the counters
+    */
    void counterSnapshot();
 
    /**
-    * @return true if paging was started, or false if paging was already started before this call
+    * {@return true if paging was started, or false if paging was already started before this call}
     */
    boolean startPaging() throws Exception;
 
    void stopPaging() throws Exception;
 
-   /** *
+   /**
+    * Add size to this {@code PageStore}.
     *
-    * @param size
-    * @param sizeOnly if false we won't increment the number of messages. (add references for example)
+    * @param sizeOnly if {@code false} we won't increment the number of messages. (add references for example)
     */
    void addSize(int size, boolean sizeOnly, boolean affectGlobal);
 
@@ -207,8 +214,7 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
    /**
     * Write lock the PagingStore.
     *
-    * @param timeout milliseconds to wait for the lock. If value is {@literal -1} then wait
-    *                indefinitely.
+    * @param timeout milliseconds to wait for the lock. If value is {@literal -1} then wait indefinitely.
     * @return {@code true} if the lock was obtained, {@code false} otherwise
     */
    boolean writeLock(long timeout);
@@ -225,8 +231,7 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
    void readUnlock();
 
    /**
-    * This is used mostly by tests.
-    * We will wait any pending runnable to finish its execution
+    * This is used mostly by tests. We will wait any pending runnable to finish its execution
     */
    void flushExecutors();
 
@@ -238,7 +243,6 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
     * Files to synchronize with a remote backup.
     *
     * @return a collection of page IDs which must be synchronized with a replicating backup
-    * @throws Exception
     */
    Collection<Integer> getCurrentIds() throws Exception;
 
@@ -246,10 +250,6 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
     * Sends the pages with given IDs to the {@link ReplicationManager}.
     * <p>
     * Sending is done here to avoid exposing the internal {@link org.apache.activemq.artemis.core.io.SequentialFile}s.
-    *
-    * @param replicator
-    * @param pageIds
-    * @throws Exception
     */
    void sendPages(ReplicationManager replicator, Collection<Integer> pageIds) throws Exception;
 

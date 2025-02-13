@@ -40,8 +40,10 @@ public class TransportConfigurationUtil {
 
    public static Map<String, Object> getDefaults(String className) {
       if (className == null) {
-         /* Returns a new map.  This allows any parent objects to update the map key/values
-            without polluting the EMPTY_HELPER map. */
+         /*
+          * Returns a new map. This allows any parent objects to update the map key/values without polluting the
+          * EMPTY_HELPER map.
+          */
          return new HashMap<>();
       }
 
@@ -55,8 +57,10 @@ public class TransportConfigurationUtil {
          }
       }
 
-      /* We need to return a copy of the default Map.  This means the defaults parent is able to update the map without
-      modifying the original */
+      /*
+       * We need to return a copy of the default Map.  This means the defaults parent is able to update the map without
+       * modifying the original
+       */
       return cloneDefaults(DEFAULTS.get(className));
    }
 

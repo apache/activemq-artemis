@@ -22,7 +22,8 @@ package org.apache.activemq.artemis.api.core.client;
 public interface FailoverEventListener {
 
    /**
-    * Notifies that a connection state has changed according the specified event type. <br>
+    * Notifies that a connection state has changed according the specified event type.
+    * <p>
     * This method is called when failover is detected, if it fails and when it's completed
     *
     * @param eventType The type of event

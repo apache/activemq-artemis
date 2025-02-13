@@ -21,9 +21,6 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-/**
- * A SessionSendContinuationMessage<br>
- */
 public class SessionSendContinuationMessage_V2 extends SessionSendContinuationMessage {
 
    private long correlationID;
@@ -34,11 +31,6 @@ public class SessionSendContinuationMessage_V2 extends SessionSendContinuationMe
       super();
    }
 
-   /**
-    * @param body
-    * @param continues
-    * @param requiresResponse
-    */
    public SessionSendContinuationMessage_V2(final Message message,
                                             final byte[] body,
                                             final boolean continues,

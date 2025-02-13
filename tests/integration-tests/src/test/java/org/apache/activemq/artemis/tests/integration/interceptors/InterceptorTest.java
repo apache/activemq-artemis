@@ -284,9 +284,6 @@ public class InterceptorTest extends ActiveMQTestBase {
 
    }
 
-   /**
-    * @param packet
-    */
    private boolean isForceDeliveryResponse(final Packet packet) {
       if (packet.getType() == PacketImpl.SESS_RECEIVE_MSG) {
          SessionReceiveMessage msg = (SessionReceiveMessage) packet;

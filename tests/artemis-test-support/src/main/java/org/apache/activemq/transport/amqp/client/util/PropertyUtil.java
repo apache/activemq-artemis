@@ -45,8 +45,7 @@ public class PropertyUtil {
     *
     * @param originalURI The URI whose current parameters are removed and replaced with the given remainder value.
     * @param params      The URI params that should be used to replace the current ones in the target.
-    * @return a new URI that matches the original one but has its query options replaced with
-    * the given ones.
+    * @return a new URI that matches the original one but has its query options replaced with the given ones.
     * @throws URISyntaxException if the given URI is invalid.
     */
    public static URI replaceQuery(URI originalURI, Map<String, String> params) throws URISyntaxException {
@@ -62,7 +61,7 @@ public class PropertyUtil {
     *
     * @param uri   The source URI whose existing query is replaced with the newly supplied one.
     * @param query The new URI query string that should be appended to the given URI.
-    * @return a new URI that is a combination of the original URI and the given query string.
+    * @return a new URI that is a combination of the original URI and the given query string
     * @throws URISyntaxException if the given URI is invalid.
     */
    public static URI replaceQuery(URI uri, String query) throws URISyntaxException {
@@ -86,7 +85,7 @@ public class PropertyUtil {
     * Creates a URI with the given query, removing an previous query value from the given URI.
     *
     * @param uri The source URI whose existing query is replaced with the newly supplied one.
-    * @return a new URI that is a combination of the original URI and the given query string.
+    * @return a new URI that is a combination of the original URI and the given query string
     * @throws URISyntaxException if the given URI is invalid.
     */
    public static URI eraseQuery(URI uri) throws URISyntaxException {
@@ -94,11 +93,11 @@ public class PropertyUtil {
    }
 
    /**
-    * Given a key / value mapping, create and return a URI formatted query string that is valid
-    * and can be appended to a URI.
+    * Given a key / value mapping, create and return a URI formatted query string that is valid and can be appended to a
+    * URI.
     *
     * @param options The Mapping that will create the new Query string.
-    * @return a URI formatted query string.
+    * @return a URI formatted query string
     */
    public static String createQueryString(Map<String, ?> options) {
       if (!options.isEmpty()) {
@@ -122,11 +121,11 @@ public class PropertyUtil {
 
    /**
     * Get properties from a URI and return them in a new {@code Map<String, String>} instance.
-    *
+    * <p>
     * If the URI is null or the query string of the URI is null an empty Map is returned.
     *
     * @param uri the URI whose parameters are to be parsed.
-    * @return <Code>Map</Code> of properties
+    * @return {@code Map} of properties
     * @throws Exception if an error occurs while parsing the query options.
     */
    public static Map<String, String> parseParameters(URI uri) throws Exception {
@@ -138,11 +137,10 @@ public class PropertyUtil {
    }
 
    /**
-    * Parse properties from a named resource -eg. a URI or a simple name e.g.
-    * {@literal foo?name="fred"&size=2}
+    * Parse properties from a named resource -eg. a URI or a simple name e.g. {@literal foo?name="fred"&size=2}
     *
     * @param uri the URI whose parameters are to be parsed.
-    * @return <Code>Map</Code> of properties
+    * @return {@code Map} of properties
     * @throws Exception if an error occurs while parsing the query options.
     */
    public static Map<String, String> parseParameters(String uri) throws Exception {
@@ -157,7 +155,7 @@ public class PropertyUtil {
     * Get properties from a URI query string.
     *
     * @param queryString the string value returned from a call to the URI class getQuery method.
-    * @return <Code>Map</Code> of properties from the parsed string.
+    * @return {@code Map} of properties from the parsed string
     */
    public static Map<String, String> parseQuery(String queryString) {
       if (queryString != null && !queryString.isEmpty()) {
@@ -179,12 +177,12 @@ public class PropertyUtil {
    }
 
    /**
-    * Given a map of properties, filter out only those prefixed with the given value, the
-    * values filtered are returned in a new Map instance.
+    * Given a map of properties, filter out only those prefixed with the given value, the values filtered are returned
+    * in a new Map instance.
     *
     * @param properties   The map of properties to filter.
     * @param optionPrefix The prefix value to use when filtering.
-    * @return a filter map with only values that match the given prefix.
+    * @return a filter map with only values that match the given prefix
     */
    public static Map<String, String> filterProperties(Map<String, String> properties, String optionPrefix) {
       if (properties == null) {
@@ -206,12 +204,12 @@ public class PropertyUtil {
    }
 
    /**
-    * Enumerate the properties of the target object and add them as additional entries
-    * to the query string of the given string URI.
+    * Enumerate the properties of the target object and add them as additional entries to the query string of the given
+    * string URI.
     *
     * @param uri  The string URI value to append the object properties to.
     * @param bean The Object whose properties will be added to the target URI.
-    * @return a new String value that is the original URI with the added bean properties.
+    * @return a new String value that is the original URI with the added bean properties
     * @throws Exception if an error occurs while enumerating the bean properties.
     */
    public static String addPropertiesToURIFromBean(String uri, Object bean) throws Exception {
@@ -220,12 +218,12 @@ public class PropertyUtil {
    }
 
    /**
-    * Enumerate the properties of the target object and add them as additional entries
-    * to the query string of the given URI.
+    * Enumerate the properties of the target object and add them as additional entries to the query string of the given
+    * URI.
     *
     * @param uri        The URI value to append the object properties to.
     * @param properties The Object whose properties will be added to the target URI.
-    * @return a new String value that is the original URI with the added bean properties.
+    * @return a new String value that is the original URI with the added bean properties
     * @throws Exception if an error occurs while enumerating the bean properties.
     */
    public static String addPropertiesToURI(URI uri, Map<String, String> properties) throws Exception {
@@ -237,7 +235,7 @@ public class PropertyUtil {
     *
     * @param uri        The string URI value to append the object properties to.
     * @param properties The properties that will be added to the target URI.
-    * @return a new String value that is the original URI with the added properties.
+    * @return a new String value that is the original URI with the added properties
     * @throws Exception if an error occurs while building the new URI string.
     */
    public static String addPropertiesToURI(String uri, Map<String, String> properties) throws Exception {
@@ -267,12 +265,12 @@ public class PropertyUtil {
    }
 
    /**
-    * Set properties on an object using the provided map. The return value
-    * indicates if all properties from the given map were set on the target object.
+    * Set properties on an object using the provided map. The return value indicates if all properties from the given
+    * map were set on the target object.
     *
     * @param target     the object whose properties are to be set from the map options.
     * @param properties the properties that should be applied to the given object.
-    * @return true if all values in the properties map were applied to the target object.
+    * @return true if all values in the properties map were applied to the target object
     */
    public static Map<String, String> setProperties(Object target, Map<String, String> properties) {
       if (target == null) {
@@ -296,12 +294,12 @@ public class PropertyUtil {
    //TODO: common impl for above and below methods.
 
    /**
-    * Set properties on an object using the provided Properties object. The return value
-    * indicates if all properties from the given map were set on the target object.
+    * Set properties on an object using the provided Properties object. The return value indicates if all properties
+    * from the given map were set on the target object.
     *
     * @param target     the object whose properties are to be set from the map options.
     * @param properties the properties that should be applied to the given object.
-    * @return an unmodifiable map with any values that could not be applied to the target.
+    * @return an unmodifiable map with any values that could not be applied to the target
     */
    public static Map<String, Object> setProperties(Object target, Properties properties) {
       if (target == null) {
@@ -323,11 +321,10 @@ public class PropertyUtil {
    }
 
    /**
-    * Get properties from an object using reflection.  If the passed object is null an
-    * empty <code>Map</code> is returned.
+    * Get properties from an object using reflection.  If the passed object is null an empty {@code Map} is returned.
     *
     * @param object the Object whose properties are to be extracted.
-    * @return <Code>Map</Code> of properties extracted from the given object.
+    * @return {@code Map} of properties extracted from the given object
     * @throws Exception if an error occurs while examining the object's properties.
     */
    public static Map<String, String> getProperties(Object object) throws Exception {
@@ -367,7 +364,7 @@ public class PropertyUtil {
     *
     * @param object the object to search.
     * @param name   the property name to search for.
-    * @return the result of invoking the specific property get method.
+    * @return the result of invoking the specific property get method
     * @throws Exception if an error occurs while searching the object's bean info.
     */
    public static Object getProperty(Object object, String name) throws Exception {
@@ -386,14 +383,13 @@ public class PropertyUtil {
    /**
     * Set a property named property on a given Object.
     * <p>
-    * The object is searched for an set method that would match the given named
-    * property and if one is found.  If necessary an attempt will be made to convert
-    * the new value to an acceptable type.
+    * The object is searched for an set method that would match the given named property and if one is found.  If
+    * necessary an attempt will be made to convert the new value to an acceptable type.
     *
     * @param target The object whose property is to be set.
     * @param name   The name of the property to set.
     * @param value  The new value to set for the named property.
-    * @return true if the property was able to be set on the target object.
+    * @return true if the property was able to be set on the target object
     */
    public static boolean setProperty(Object target, String name, Object value) {
       try {
@@ -424,12 +420,12 @@ public class PropertyUtil {
    }
 
    /**
-    * Return a String minus the given prefix.  If the string does not start
-    * with the given prefix the original string value is returned.
+    * Return a String minus the given prefix.  If the string does not start with the given prefix the original string
+    * value is returned.
     *
     * @param value  The String whose prefix is to be removed.
     * @param prefix The prefix string to remove from the target string.
-    * @return stripped version of the original input string.
+    * @return stripped version of the original input string
     */
    public static String stripPrefix(String value, String prefix) {
       if (value != null && prefix != null && value.startsWith(prefix)) {
@@ -439,12 +435,11 @@ public class PropertyUtil {
    }
 
    /**
-    * Return a portion of a String value by looking beyond the given
-    * character.
+    * Return a portion of a String value by looking beyond the given character.
     *
     * @param value The string value to split
     * @param c     The character that marks the split point.
-    * @return the sub-string value starting beyond the given character.
+    * @return the sub-string value starting beyond the given character
     */
    public static String stripUpto(String value, char c) {
       String result = null;
@@ -462,7 +457,7 @@ public class PropertyUtil {
     *
     * @param value The string value to split
     * @param c     The character that marks the start of split point.
-    * @return the sub-string value starting from the given character.
+    * @return the sub-string value starting from the given character
     */
    public static String stripBefore(String value, char c) {
       String result = value;

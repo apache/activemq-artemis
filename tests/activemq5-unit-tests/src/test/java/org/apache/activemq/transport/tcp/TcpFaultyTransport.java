@@ -27,8 +27,6 @@ import org.apache.activemq.wireformat.WireFormat;
 
 /**
  * An implementation of the {@link Transport} interface using raw tcp/ip
- *
- * @author David Martin Clavo david(dot)martin(dot)clavo(at)gmail.com (logging improvement modifications)
  */
 public class TcpFaultyTransport extends TcpTransport implements Transport, Service, Runnable {
 
@@ -39,9 +37,6 @@ public class TcpFaultyTransport extends TcpTransport implements Transport, Servi
       super(wireFormat, socketFactory, remoteLocation, localLocation);
    }
 
-   /**
-    * @return pretty print of 'this'
-    */
    @Override
    public String toString() {
       return "tcpfaulty://" + socket.getInetAddress() + ":" + socket.getPort();

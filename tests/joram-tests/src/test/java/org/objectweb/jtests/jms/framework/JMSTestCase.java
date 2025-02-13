@@ -26,11 +26,10 @@ import org.objectweb.jtests.jms.admin.Admin;
 import org.objectweb.jtests.jms.admin.AdminFactory;
 
 /**
- * Class extending <code>junit.framework.TestCase</code> to
- * provide a new <code>fail()</code> method with an <code>Exception</code>
- * as parameter.
- * <br />
- * Every Test Case for JMS should extend this class instead of <code>junit.framework.TestCase</code>
+ * Class extending {@code junit.framework.TestCase} to provide a new {@code fail()} method with an {@code Exception} as
+ * parameter.
+ * <p>
+ * Every Test Case for JMS should extend this class instead of {@code junit.framework.TestCase}
  */
 public abstract class JMSTestCase extends Assert {
 
@@ -51,10 +50,9 @@ public abstract class JMSTestCase extends Assert {
 
    /**
     * Fails a test with an exception which will be used for a message.
-    *
-    * If the exception is an instance of <code>javax.jms.JMSException</code>, the
-    * message of the failure will contained both the JMSException and its linked exception
-    * (provided there's one).
+    * <p>
+    * If the exception is an instance of {@code javax.jms.JMSException}, the message of the failure will contained both
+    * the JMSException and its linked exception (provided there's one).
     */
    public void fail(final Exception e) {
       if (e instanceof javax.jms.JMSException exception) {
@@ -71,8 +69,6 @@ public abstract class JMSTestCase extends Assert {
 
    /**
     * Should be overridden
-    *
-    * @return
     */
    protected Properties getProviderProperties() throws IOException {
       Properties props = new Properties();

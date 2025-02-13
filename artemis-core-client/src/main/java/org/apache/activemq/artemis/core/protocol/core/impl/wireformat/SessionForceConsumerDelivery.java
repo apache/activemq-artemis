@@ -19,9 +19,6 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
-/**
- * A SessionConsumerForceDelivery
- */
 public class SessionForceConsumerDelivery extends PacketImpl {
 
    private long consumerID;

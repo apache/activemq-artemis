@@ -46,9 +46,9 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
 
 /**
- * Journal used at a replicating backup server during the synchronization of data with the 'live'
- * server. It just wraps a single {@link JournalFile}.
- *
+ * Journal used at a replicating backup server during the synchronization of data with the 'live' server. It just wraps
+ * a single {@link JournalFile}.
+ * <p>
  * Its main purpose is to store the data as a Journal would, but without verifying records.
  */
 public final class FileWrapperJournal extends JournalBase {
@@ -64,10 +64,6 @@ public final class FileWrapperJournal extends JournalBase {
       journal.replaceableRecord(recordType);
    }
 
-   /**
-    * @param journal
-    * @throws Exception
-    */
    public FileWrapperJournal(Journal journal) throws Exception {
       super(journal.getFileFactory().isSupportsCallbacks(), journal.getFileSize());
       this.journal = (JournalImpl) journal;
@@ -123,8 +119,6 @@ public final class FileWrapperJournal extends JournalBase {
 
    /**
     * The max size record that can be stored in the journal
-    *
-    * @return
     */
    @Override
    public long getMaxRecordSize() {

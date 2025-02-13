@@ -31,9 +31,6 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * A ReceiveNoWaitTest
- */
 public class ReceiveNoWaitTest extends JMSTestBase {
 
    private Queue queue;
@@ -46,10 +43,9 @@ public class ReceiveNoWaitTest extends JMSTestBase {
       queue = createQueue("TestQueue");
    }
 
-   /*
-    * Test that after sending persistent messages to a queue (these will be sent blocking)
-    * that all messages are available for consumption by receiveNoWait()
-    * https://jira.jboss.org/jira/browse/HORNETQ-284
+   /**
+    * Test that after sending persistent messages to a queue (these will be sent blocking) that all messages are
+    * available for consumption by receiveNoWait()
     */
    @Test
    public void testReceiveNoWait() throws Exception {

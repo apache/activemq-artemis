@@ -19,7 +19,9 @@ package org.apache.activemq.artemis.core.paging.impl;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.utils.SizeAwareMetric;
 
-/** Use this class to access things that are meant on test only */
+/**
+ * Use this class to access things that are meant on test only
+ */
 public class PagingManagerTestAccessor {
 
    public static void resetMaxSize(PagingManager pagingManager, long maxSize, long maxElements) {

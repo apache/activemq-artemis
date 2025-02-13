@@ -29,9 +29,6 @@ import org.apache.activemq.command.SessionId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class NumberRangesWhileMarshallingTest extends TestCase {
 
    private static final Logger LOG = LoggerFactory.getLogger(NumberRangesWhileMarshallingTest.class);

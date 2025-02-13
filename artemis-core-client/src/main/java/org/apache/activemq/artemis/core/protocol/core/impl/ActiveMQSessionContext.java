@@ -552,8 +552,6 @@ public class ActiveMQSessionContext extends SessionContext {
 
    /**
     * ActiveMQ Artemis does support large messages
-    *
-    * @return
     */
    @Override
    public boolean supportsLargeMessage() {
@@ -962,7 +960,6 @@ public class ActiveMQSessionContext extends SessionContext {
 
          sendPacketWithoutLock(sessionChannel, packet);
       } else {
-         // https://jira.jboss.org/browse/HORNETQ-522
          SessionConsumerFlowCreditMessage packet = new SessionConsumerFlowCreditMessage(getConsumerID(consumerInternal), 1);
          sendPacketWithoutLock(sessionChannel, packet);
       }
@@ -1019,8 +1016,6 @@ public class ActiveMQSessionContext extends SessionContext {
 
    /**
     * This doesn't apply to other protocols probably, so it will be an ActiveMQ Artemis exclusive feature
-    *
-    * @throws ActiveMQException
     */
    private void handleConsumerDisconnected(DisconnectConsumerMessage packet) throws ActiveMQException {
       DisconnectConsumerMessage message = packet;

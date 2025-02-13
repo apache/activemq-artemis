@@ -32,9 +32,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * test Written to replicate https://issues.jboss.org/browse/HORNETQ-1312
- */
 public class RemoteConnectionStressTest extends ActiveMQTestBase {
 
    ActiveMQServer server;
