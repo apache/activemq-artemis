@@ -35,7 +35,6 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    private List<QueueStatusEncoding> queueStatusEncodings;
 
    public PersistentQueueBindingEncoding() {
-      config = new QueueConfiguration();
    }
 
    @Override
@@ -67,7 +66,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
 
    @Override
    public void decode(final ActiveMQBuffer buffer) {
-      config.setName(buffer.readSimpleString());
+      config = QueueConfiguration.of(buffer.readSimpleString());
       config.setAddress(buffer.readSimpleString());
       config.setFilterString(buffer.readNullableSimpleString());
 

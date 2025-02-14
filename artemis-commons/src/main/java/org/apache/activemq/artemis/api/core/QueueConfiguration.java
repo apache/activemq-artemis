@@ -140,6 +140,11 @@ public class QueueConfiguration implements Serializable {
       return new QueueConfiguration(queueConfiguration);
    }
 
+   /**
+    * @deprecated
+    * Use {@link #of(String)} instead.
+    */
+   @Deprecated(forRemoval = true)
    public QueueConfiguration() {
    }
 
@@ -410,15 +415,27 @@ public class QueueConfiguration implements Serializable {
       return filterString;
    }
 
+   /**
+    * This sets the {@code SimpleString} value that will be used to create a {@code Filter} for the {@code Queue}
+    * implementation on the broker. The filter's syntax is not validated here.
+    * @param filterString the filter to use; an empty value or a value filled with whitespace is equivalent to passing
+    *                     {@code null}
+    * @return this {@code QueueConfiguration}
+    */
    public QueueConfiguration setFilterString(SimpleString filterString) {
-      if (filterString != null && !filterString.isEmpty() && !filterString.isBlank()) {
-         this.filterString = filterString;
-      } else if (filterString == null) {
+      if (filterString == null || filterString.isEmpty() || filterString.isBlank()) {
+         this.filterString = null;
+      } else {
          this.filterString = filterString;
       }
       return this;
    }
 
+   /**
+    * Converts the {@code String} parameter to {@code SimpleString} and invokes
+    * {@link #setFilterString(SimpleString)}
+    * @see #setFilterString(SimpleString)
+    */
    public QueueConfiguration setFilterString(String filterString) {
       return setFilterString(SimpleString.of(filterString));
    }
