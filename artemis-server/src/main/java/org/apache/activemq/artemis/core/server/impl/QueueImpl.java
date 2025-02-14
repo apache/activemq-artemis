@@ -318,7 +318,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private final int initialQueueBufferSize;
 
-   private final QueueConfiguration queueConfiguration;
+   protected final QueueConfiguration queueConfiguration;
 
    @Override
    public boolean isSwept() {
@@ -385,7 +385,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       this.createdTimestamp = System.currentTimeMillis();
 
-      this.queueConfiguration = queueConfiguration;
+      this.queueConfiguration = QueueConfiguration.of(queueConfiguration);
       QueueConfigurationUtils.applyStaticDefaults(this.queueConfiguration);
 
       this.refCountForConsumers = this.queueConfiguration.isTransient() ? new TransientQueueManagerImpl(server, this.queueConfiguration.getName()) : new QueueManagerImpl(server, this.queueConfiguration.getName());
@@ -537,12 +537,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public boolean isLastValue() {
-      return false;
+      return queueConfiguration.isLastValue();
    }
 
    @Override
    public SimpleString getLastValueKey() {
-      return null;
+      return queueConfiguration.getLastValueKey();
    }
 
    @Override
@@ -4081,7 +4081,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public QueueConfiguration getQueueConfiguration() {
-      return queueConfiguration;
+      return QueueConfiguration.of(queueConfiguration);
    }
 
    protected static class ConsumerHolder<T extends Consumer> implements PriorityAware {

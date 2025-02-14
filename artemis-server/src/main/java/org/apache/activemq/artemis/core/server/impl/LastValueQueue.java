@@ -52,7 +52,6 @@ import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 public class LastValueQueue extends QueueImpl {
 
    private final Map<SimpleString, MessageReference> map = new ConcurrentHashMap<>();
-   private final SimpleString lastValueKey;
 
    public LastValueQueue(final QueueConfiguration queueConfiguration,
                          final Filter filter,
@@ -66,7 +65,6 @@ public class LastValueQueue extends QueueImpl {
                          final ActiveMQServer server,
                          final QueueFactory factory) {
       super(queueConfiguration, filter, pagingStore, pageSubscription, scheduledExecutor, postOffice, storageManager, addressSettingsRepository, executor, server, factory);
-      this.lastValueKey = queueConfiguration.getLastValueKey();
    }
 
    @Override
@@ -119,11 +117,6 @@ public class LastValueQueue extends QueueImpl {
    @Override
    public boolean allowsReferenceCallback() {
       return false;
-   }
-
-   @Override
-   public QueueConfiguration getQueueConfiguration() {
-      return super.getQueueConfiguration().setLastValue(true).setLastValueKey(lastValueKey);
    }
 
    @Override
@@ -212,16 +205,6 @@ public class LastValueQueue extends QueueImpl {
             return queueIterateAction.actMessage(tx, ref);
          }
       };
-   }
-
-   @Override
-   public boolean isLastValue() {
-      return true;
-   }
-
-   @Override
-   public SimpleString getLastValueKey() {
-      return lastValueKey;
    }
 
    public synchronized Set<SimpleString> getLastValueKeys() {

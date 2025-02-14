@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import java.util.Arrays;
+import java.util.List;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -43,20 +46,27 @@ public class SimpleStringTest {
 
    @Test
    public void testBlank() {
-      for (int i = 0; i <= 10; i++) {
-         assertTrue(SimpleString.of(" ".repeat(i)).isBlank());
+      List<String> whitespace = Arrays.asList(" ", "\t", "\n", "\r");
+
+      // check empty and pure whitespace
+      for (String s : whitespace) {
+         for (int i = 0; i <= 10; i++) {
+            assertTrue(SimpleString.of(s.repeat(i)).isBlank());
+         }
       }
-      for (int i = 0; i <= 10; i++) {
-         assertTrue(SimpleString.of("\t".repeat(i)).isBlank());
-      }
-      for (int i = 0; i <= 10; i++) {
-         assertTrue(SimpleString.of("\n".repeat(i)).isBlank());
-      }
-      for (int i = 0; i <= 10; i++) {
-         assertTrue(SimpleString.of("\r".repeat(i)).isBlank());
-      }
+
+      // check pure non-whitespace
       for (int i = 1; i <= 10; i++) {
          assertFalse(SimpleString.of("x".repeat(i)).isBlank());
+      }
+
+      // check a mix of both whitespace and non-whitepsace
+      for (String s : whitespace) {
+         for (int i = 1; i <= 10; i++) {
+            assertFalse(SimpleString.of(s + "x".repeat(i)).isBlank());
+            assertFalse(SimpleString.of("x".repeat(i) + s).isBlank());
+            assertFalse(SimpleString.of(s + "x".repeat(i) + s).isBlank());
+         }
       }
    }
 }
