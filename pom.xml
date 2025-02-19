@@ -83,7 +83,6 @@
       <maven.compiler.target>17</maven.compiler.target>
       <maven.compiler.release>17</maven.compiler.release>
 
-      <retryTests>false</retryTests>
       <logging.config>log4j2-tests-config.properties</logging.config>
       <modular.jdk.surefire.arg>--add-modules java.sql,jdk.unsupported </modular.jdk.surefire.arg>
 
@@ -254,7 +253,7 @@
       <!-- for tests that will need a new server created -->
       <artemis.distribution.output>${activemq.basedir}/artemis-distribution/target/apache-artemis-${project.version}-bin/apache-artemis-${project.version}</artemis.distribution.output>
 
-      <activemq-surefire-argline>-Dorg.apache.activemq.artemis.utils.RetryRule.retry=${retryTests} -Dbrokerconfig.maxDiskUsage=100 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_QUIET_PERIOD=0 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT=0
+      <activemq-surefire-argline>-Dbrokerconfig.maxDiskUsage=100 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_QUIET_PERIOD=0 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT=0
          -Djava.library.path="${activemq.basedir}/target/bin/lib/linux-x86_64:${activemq.basedir}/target/bin/lib/linux-i686" -Djgroups.bind_addr=localhost
          -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
          -Djdk.attach.allowAttachSelf=true
@@ -502,13 +501,6 @@
                </plugin>
             </plugins>
          </build>
-      </profile>
-      <profile>
-         <!-- this will activate the property required to play with tests retry -->
-         <id>tests-retry</id>
-         <properties>
-            <retryTests>true</retryTests>
-         </properties>
       </profile>
       <profile>
          <!-- tests is the profile we use to run the entire testsuite

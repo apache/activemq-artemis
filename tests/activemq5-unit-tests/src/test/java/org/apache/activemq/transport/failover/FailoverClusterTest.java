@@ -35,17 +35,12 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
-import org.apache.activemq.broker.artemiswrapper.RetryRule;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 public class FailoverClusterTest extends OpenwireArtemisBaseTest {
-
-   @Rule
-   public RetryRule retryRule = new RetryRule(2);
 
    private static final int NUMBER = 10;
    private String clientUrl;
