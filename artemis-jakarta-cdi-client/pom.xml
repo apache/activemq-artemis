@@ -123,6 +123,21 @@
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
+
+      <!-- The johnzon-core and json-api contents are repackaged in -commons,
+           However maven can still need them during tests, which run against
+           the original -commons classes when built+run in the same reactor,
+           and not the jar containing the shaded bits. -->
+      <dependency>
+         <groupId>org.apache.johnzon</groupId>
+         <artifactId>johnzon-core</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>jakarta.json</groupId>
+         <artifactId>jakarta.json-api</artifactId>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 
    <build>
