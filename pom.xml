@@ -137,7 +137,7 @@
       <protonj2.version>1.0.0-M22</protonj2.version>
       <slf4j.version>2.0.16</slf4j.version>
       <log4j.version>2.24.3</log4j.version>
-      <qpid.jms.version>1.12.1</qpid.jms.version>
+      <qpid.jms.version>1.13.0</qpid.jms.version>
       <johnzon.version>1.2.21</johnzon.version>
       <hawtbuff.version>1.11</hawtbuff.version>
       <hawtdispatch.version>1.22</hawtdispatch.version>
