@@ -420,6 +420,10 @@ public interface ActiveMQServer extends ServiceComponent {
 
    long getTotalConnectionCount();
 
+   int getSessionCount();
+
+   long getTotalSessionCount();
+
    long getTotalMessageCount();
 
    long getTotalMessagesAdded();

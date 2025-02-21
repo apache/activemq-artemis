@@ -52,6 +52,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -348,6 +349,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private FileStoreMonitor fileStoreMonitor;
 
    private final ConcurrentMap<String, ServerSession> sessions = new ConcurrentHashMap<>();
+
+   private AtomicLong totalSessionCount = new AtomicLong(0);
 
    private final Semaphore activationLock = new Semaphore(1);
    /**
@@ -1866,6 +1869,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       ServerSessionImpl session = new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : SimpleString.of(defaultAddress), callback, context, pagingManager, prefixes, securityDomain, isLegacyProducer);
 
       sessions.put(name, session);
+      totalSessionCount.incrementAndGet();
 
       if (hasBrokerSessionPlugins()) {
          callBrokerSessionPlugins(plugin -> plugin.afterCreateSession(session));
@@ -1940,6 +1944,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public long getTotalConnectionCount() {
       return remotingService.getTotalConnectionCount();
+   }
+
+   @Override
+   public int getSessionCount() {
+      return sessions.size();
+   }
+
+   @Override
+   public long getTotalSessionCount() {
+      return totalSessionCount.get();
    }
 
    @Override

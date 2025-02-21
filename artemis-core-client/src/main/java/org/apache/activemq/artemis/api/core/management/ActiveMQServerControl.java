@@ -27,7 +27,9 @@ import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException
  */
 public interface ActiveMQServerControl {
    String CONNECTION_COUNT_DESCRIPTION = "Number of clients connected to this server";
-   String TOTAL_CONNECTION_COUNT_DESCRIPTION = "Number of clients which have connected to this server since it was started";
+   String TOTAL_CONNECTION_COUNT_DESCRIPTION = "Total number of clients which have connected to this server since it was started";
+   String SESSION_COUNT_DESCRIPTION = "Number of sessions on this server";
+   String TOTAL_SESSION_COUNT_DESCRIPTION = "Total number of sessions created on this server since it was started";
    String ADDRESS_MEMORY_USAGE_DESCRIPTION = "Memory used by all the addresses on broker for in-memory messages";
    String ADDRESS_MEMORY_USAGE_PERCENTAGE_DESCRIPTION = "Memory used by all the addresses on broker as a percentage of the global-max-size";
    String DISK_STORE_USAGE_DESCRIPTION = "Fraction of total disk store used";
@@ -64,10 +66,22 @@ public interface ActiveMQServerControl {
    int getConnectionCount();
 
    /**
-    * {@return the number of clients which have connected to this server since it was started.}
+    * {@return the total number of clients which have connected to this server since it was started.}
     */
    @Attribute(desc = TOTAL_CONNECTION_COUNT_DESCRIPTION)
    long getTotalConnectionCount();
+
+   /**
+    * Returns the number of sessions on this server.
+    */
+   @Attribute(desc = SESSION_COUNT_DESCRIPTION)
+   int getSessionCount();
+
+   /**
+    * Returns the total number of sessions created on this server since it was started.
+    */
+   @Attribute(desc = TOTAL_SESSION_COUNT_DESCRIPTION)
+   long getTotalSessionCount();
 
    /**
     * {@return the number of messages in all queues currently on the server.}

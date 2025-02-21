@@ -402,6 +402,16 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public int getSessionCount() {
+            return (Integer) proxy.retrieveAttributeValue("sessionCount", Integer.class);
+         }
+
+         @Override
+         public long getTotalSessionCount() {
+            return (Long) proxy.retrieveAttributeValue("totalSessionCount", Long.class);
+         }
+
+         @Override
          public long getTotalMessageCount() {
             return (Long) proxy.retrieveAttributeValue("totalMessageCount", Long.class);
          }
