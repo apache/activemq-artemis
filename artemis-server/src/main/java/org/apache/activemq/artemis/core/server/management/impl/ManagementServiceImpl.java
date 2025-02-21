@@ -248,6 +248,8 @@ public class ManagementServiceImpl implements ManagementService {
          metricsManager.registerBrokerGauge(builder -> {
             builder.build(BrokerMetricNames.CONNECTION_COUNT, messagingServer, metrics -> (double) messagingServer.getConnectionCount(), ActiveMQServerControl.CONNECTION_COUNT_DESCRIPTION, Collections.emptyList());
             builder.build(BrokerMetricNames.TOTAL_CONNECTION_COUNT, messagingServer, metrics -> (double) messagingServer.getTotalConnectionCount(), ActiveMQServerControl.TOTAL_CONNECTION_COUNT_DESCRIPTION, Collections.emptyList());
+            builder.build(BrokerMetricNames.SESSION_COUNT, messagingServer, metrics -> (double) messagingServer.getSessionCount(), ActiveMQServerControl.SESSION_COUNT_DESCRIPTION, Collections.emptyList());
+            builder.build(BrokerMetricNames.TOTAL_SESSION_COUNT, messagingServer, metrics -> (double) messagingServer.getTotalSessionCount(), ActiveMQServerControl.TOTAL_SESSION_COUNT_DESCRIPTION, Collections.emptyList());
             builder.build(BrokerMetricNames.ADDRESS_MEMORY_USAGE, messagingServer, metrics -> (double) messagingServerControl.getAddressMemoryUsage(), ActiveMQServerControl.ADDRESS_MEMORY_USAGE_DESCRIPTION, Collections.emptyList());
             builder.build(BrokerMetricNames.ADDRESS_MEMORY_USAGE_PERCENTAGE, messagingServer, metrics -> (double) messagingServerControl.getAddressMemoryUsagePercentage(), ActiveMQServerControl.ADDRESS_MEMORY_USAGE_PERCENTAGE_DESCRIPTION, Collections.emptyList());
             builder.build(BrokerMetricNames.DISK_STORE_USAGE, messagingServer, metrics -> messagingServer.getDiskStoreUsage(), ActiveMQServerControl.DISK_STORE_USAGE_DESCRIPTION, Collections.emptyList());

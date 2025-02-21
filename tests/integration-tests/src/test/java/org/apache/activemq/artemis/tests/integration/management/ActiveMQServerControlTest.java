@@ -2520,7 +2520,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @TestTemplate
-   public void testTotalConnectionCount() throws Exception {
+   public void testConnectionCounts() throws Exception {
       final int CONNECTION_COUNT = 100;
 
       ActiveMQServerControl serverControl = createManagementControl();
@@ -2532,6 +2532,37 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       assertEquals(CONNECTION_COUNT + (usingCore() ? 1 : 0), serverControl.getTotalConnectionCount());
       assertEquals((usingCore() ? 1 : 0), serverControl.getConnectionCount());
+
+      locator.close();
+   }
+
+   @TestTemplate
+   public void testSessionCounts() throws Exception {
+      // don't test this with management messages as it completely throws off the session counts
+      assumeFalse(usingCore());
+      final int SESSION_COUNT = 100;
+
+      ActiveMQServerControl serverControl = createManagementControl();
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory csf = createSessionFactory(locator);
+      List<ClientSession> sessions = new ArrayList<>(SESSION_COUNT);
+
+      assertEquals(0, serverControl.getSessionCount());
+
+      for (int i = 1; i <= SESSION_COUNT; i++) {
+         sessions.add(csf.createSession());
+         assertEquals(i, serverControl.getSessionCount());
+      }
+
+      assertEquals(SESSION_COUNT, serverControl.getTotalSessionCount());
+
+      for (int i = 1; i <= SESSION_COUNT; i++) {
+         sessions.get(i - 1).close();
+         assertEquals(SESSION_COUNT - i, serverControl.getSessionCount());
+      }
+
+      assertEquals(SESSION_COUNT, serverControl.getTotalSessionCount());
+      assertEquals(0, serverControl.getSessionCount());
 
       locator.close();
    }

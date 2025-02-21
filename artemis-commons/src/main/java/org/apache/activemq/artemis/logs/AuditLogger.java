@@ -2839,7 +2839,6 @@ public interface AuditLogger {
    @LogMessage(id = 601794, value = "User {} is getting prefetchPageMessages on target resource: {}", level = LogMessage.Level.INFO)
    void getPrefetchPageMessages(String user, Object source);
 
-
    static void getPrefetchPageBytes(Object source) {
       BASE_LOGGER.getPrefetchPageBytes(getCaller(), source);
    }
@@ -2847,4 +2846,17 @@ public interface AuditLogger {
    @LogMessage(id = 601795, value = "User {} is getting prefetchPageBytes on target resource: {}", level = LogMessage.Level.INFO)
    void getPrefetchPageBytes(String user, Object source);
 
+   static void getSessionCount(Object source, Object... args) {
+      BASE_LOGGER.getSessionCount(getCaller(), source, parametersList(args));
+   }
+
+   @LogMessage(id = 601796, value = "User {} is getting session count on target resource: {} {}", level = LogMessage.Level.INFO)
+   void getSessionCount(String user, Object source, String args);
+
+   static void getTotalSessionCount(Object source) {
+      BASE_LOGGER.getTotalSessionCount(getCaller(), source);
+   }
+
+   @LogMessage(id = 601797, value = "User {} is getting total session count on target resource: {}", level = LogMessage.Level.INFO)
+   void getTotalSessionCount(String user, Object source);
 }

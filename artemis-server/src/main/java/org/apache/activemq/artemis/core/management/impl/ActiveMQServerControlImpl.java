@@ -1732,6 +1732,36 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public int getSessionCount() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getSessionCount(this.server);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return server.getSessionCount();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public long getTotalSessionCount() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getTotalSessionCount(this.server);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return server.getTotalSessionCount();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public long getTotalMessageCount() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getTotalMessageCount(this.server);

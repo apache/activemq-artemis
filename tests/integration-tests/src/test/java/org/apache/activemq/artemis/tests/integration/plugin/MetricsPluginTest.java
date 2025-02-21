@@ -140,6 +140,8 @@ public class MetricsPluginTest extends ActiveMQTestBase {
               new Metric("artemis.address.memory.usage.percentage", 0.0, Arrays.asList(Tag.of("broker", "localhost"))),
               new Metric("artemis.connection.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
               new Metric("artemis.total.connection.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
+              new Metric("artemis.session.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
+              new Metric("artemis.total.session.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
               new Metric("artemis.active", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
               new Metric("artemis.replica.sync", 0.0, Arrays.asList(Tag.of("broker", "localhost"))),
               new Metric("artemis.disk.store.usage", 0.0, Arrays.asList(Tag.of("broker", "localhost"))),
