@@ -1486,4 +1486,7 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224140, value = "Clearing bindings on cluster-connection {} failed to remove binding {}: {}", level = LogMessage.Level.WARN)
    void clusterConnectionFailedToRemoveBindingOnClear(String clusterConnection, String binding, String exceptionMessage);
+
+   @LogMessage(id = 224141, value = "Illegal implementation(s) of java.security.Principal returned from LoginModule:  {}", level = LogMessage.Level.WARN)
+   void illegalPrincipal(String principals);
 }

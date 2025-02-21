@@ -26,6 +26,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
+import java.util.stream.Collectors;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -47,12 +48,14 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager4;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
 import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
@@ -219,8 +222,10 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             if (securityManager instanceof ActiveMQSecurityManager5 manager5) {
                try {
                   subject = manager5.authenticate(user, password, connection, securityDomain);
-                  putAuthenticationCacheEntry(authnCacheKey, subject);
-                  validatedUser = getUserFromSubject(subject);
+                  if (validateExpectedUserPrincipal(subject)) {
+                     validatedUser = getUserFromSubject(subject);
+                     putAuthenticationCacheEntry(authnCacheKey, subject);
+                  }
                } catch (NoCacheLoginException e) {
                   handleNoCacheLoginException(e);
                }
@@ -256,6 +261,27 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       }
 
       return null;
+   }
+
+   /*
+    * Verify that the Subject (if not null) contains at least one instance of the expected java.security.Principal
+    * implementation. This check is done before any caching because a failure here is considered an infrastructure
+    * failure and not something which should be cached as opposed to a "normal" authentication failure (e.g. wrong
+    * password) which should be cached.
+    */
+   private boolean validateExpectedUserPrincipal(Subject subject) throws ClassNotFoundException {
+      if (subject != null) {
+         Class expectedPrincipal = UserPrincipal.class;
+         if (securityManager instanceof ActiveMQJAASSecurityManager jaasManager) {
+            expectedPrincipal = Class.forName(jaasManager.getUserPrincipalClass());
+         }
+
+         if (subject.getPrincipals(expectedPrincipal).size() == 0) {
+            ActiveMQServerLogger.LOGGER.illegalPrincipal(subject.getPrincipals().stream().map(p -> p.getClass().getName() + " (" + p.getName() + ")").collect(Collectors.joining(", ")));
+            return false;
+         }
+      }
+      return true;
    }
 
    @Override
