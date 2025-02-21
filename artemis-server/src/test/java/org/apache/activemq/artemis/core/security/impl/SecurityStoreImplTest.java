@@ -16,11 +16,8 @@
  */
 package org.apache.activemq.artemis.core.security.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.security.auth.Subject;
+import java.security.Principal;
 import java.security.PrivilegedExceptionAction;
 import java.util.Set;
 
@@ -40,6 +37,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 public class SecurityStoreImplTest {
 
    final ActiveMQSecurityManager5 securityManager = new ActiveMQSecurityManager5() {
@@ -50,6 +51,38 @@ public class SecurityStoreImplTest {
                                   String securityDomain) {
          Subject subject = new Subject();
          subject.getPrincipals().add(new UserPrincipal(user));
+         return subject;
+      }
+
+      @Override
+      public boolean authorize(Subject subject, Set<Role> roles, CheckType checkType, String address) {
+         return true;
+      }
+
+      @Override
+      public boolean validateUser(String user, String password) {
+         return false;
+      }
+
+      @Override
+      public boolean validateUserAndRole(String user, String password, Set<Role> roles, CheckType checkType) {
+         return false;
+      }
+   };
+
+   final ActiveMQSecurityManager5 wrongPrincipalSecurityManager = new ActiveMQSecurityManager5() {
+      @Override
+      public Subject authenticate(String user,
+                                  String password,
+                                  RemotingConnection remotingConnection,
+                                  String securityDomain) {
+         Subject subject = new Subject();
+         subject.getPrincipals().add(new Principal() {
+            @Override
+            public String getName() {
+               return "wrong";
+            }
+         });
          return subject;
       }
 
@@ -164,5 +197,19 @@ public class SecurityStoreImplTest {
       });
 
       assertEquals(true, checkResult);
+   }
+
+   @Test
+   public void testWrongPrincipal() throws Exception {
+      SecurityStoreImpl securityStore = new SecurityStoreImpl(new HierarchicalObjectRepository<>(), wrongPrincipalSecurityManager, 999, true, "", null, null, 10, 0);
+      try {
+         securityStore.authenticate(null, null, Mockito.mock(RemotingConnection.class), null);
+         fail();
+      } catch (ActiveMQSecurityException ignored) {
+         // ignored
+      }
+      assertEquals(0, securityStore.getAuthenticationSuccessCount());
+      assertEquals(1, securityStore.getAuthenticationFailureCount());
+      assertEquals(0, securityStore.getAuthenticationCacheSize());
    }
 }
