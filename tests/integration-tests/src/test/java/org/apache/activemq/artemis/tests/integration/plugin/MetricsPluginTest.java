@@ -169,11 +169,13 @@ public class MetricsPluginTest extends ActiveMQTestBase {
               new Metric("artemis.unrouted.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
               new Metric("artemis.address.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
               new Metric("artemis.number.of.pages", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
+              new Metric("artemis.limit.percent", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
               // activemq.notifications metrics
               new Metric("artemis.routed.message.count", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
               new Metric("artemis.unrouted.message.count", 2.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
               new Metric("artemis.address.size", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
-              new Metric("artemis.number.of.pages", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost")))
+              new Metric("artemis.number.of.pages", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
+              new Metric("artemis.limit.percent", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost")))
       ));
    }
 

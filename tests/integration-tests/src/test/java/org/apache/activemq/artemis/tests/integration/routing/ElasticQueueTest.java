@@ -492,7 +492,10 @@ public class ElasticQueueTest extends ActiveMQTestBase {
             int usage = addressControl1.getAddressLimitPercent();
             System.out.println("Node1 (head) usage % " + usage);
             return usage > 10;
-         } catch (javax.management.InstanceNotFoundException notYetReadyExpected) {
+         } catch (Exception e) {
+            if (!(e.getCause() instanceof javax.management.InstanceNotFoundException)) {
+               throw e;
+            }
          }
          return false;
       }, 5000, 200), "Producer is on Head, Node1");
@@ -560,7 +563,10 @@ public class ElasticQueueTest extends ActiveMQTestBase {
             int usage = addressControl0.getAddressLimitPercent();
             System.out.println("Head&Tail usage % " + usage);
             return usage == 100;
-         } catch (javax.management.InstanceNotFoundException notYetReadyExpected) {
+         } catch (Exception e) {
+            if (!(e.getCause() instanceof javax.management.InstanceNotFoundException)) {
+               throw e;
+            }
          }
          return false;
       }, 10000, 200));
@@ -659,7 +665,10 @@ public class ElasticQueueTest extends ActiveMQTestBase {
             int usage = addressControl0.getAddressLimitPercent();
             System.out.println("Head&Tail usage % " + usage);
             return usage == 100;
-         } catch (javax.management.InstanceNotFoundException notYetReadyExpected) {
+         } catch (Exception e) {
+            if (!(e.getCause() instanceof javax.management.InstanceNotFoundException)) {
+               throw e;
+            }
          }
          return false;
       }, 20000, 200));

@@ -112,7 +112,7 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
-         public int getAddressLimitPercent() throws Exception {
+         public int getAddressLimitPercent() {
             return (int)  proxy.retrieveAttributeValue("addressLimitPercent", Integer.class);
          }
 

@@ -27,6 +27,7 @@ public interface AddressControl {
    String UNROUTED_MESSAGE_COUNT_DESCRIPTION = "number of messages not routed to any bindings";
    String ADDRESS_SIZE_DESCRIPTION = "the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking";
    String NUMBER_OF_PAGES_DESCRIPTION = "number of pages used by this address";
+   String LIMIT_PERCENT_DESCRIPTION = "the % of memory limit (global or local) that is in use by this address";
 
    /**
     * Returns the managed address.
@@ -124,11 +125,9 @@ public interface AddressControl {
 
    /**
     * Returns the % of memory limit that is currently in use
-    *
-    * @throws Exception
     */
-   @Attribute(desc = "the % of memory limit (global or local) that is in use by this address")
-   int getAddressLimitPercent() throws Exception;
+   @Attribute(desc = LIMIT_PERCENT_DESCRIPTION)
+   int getAddressLimitPercent();
 
    /**
     * Blocks message production to this address by limiting credit

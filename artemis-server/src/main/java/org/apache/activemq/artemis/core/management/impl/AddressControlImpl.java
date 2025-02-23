@@ -417,7 +417,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
-   public int getAddressLimitPercent() throws Exception {
+   public int getAddressLimitPercent() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getAddressLimitPercent(this.addressInfo);
       }
