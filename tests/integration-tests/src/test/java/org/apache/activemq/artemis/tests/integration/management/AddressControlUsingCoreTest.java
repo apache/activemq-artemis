@@ -32,6 +32,26 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          private final CoreMessagingProxy proxy = new CoreMessagingProxy(addServerLocator(createInVMNonHALocator()), ResourceNames.ADDRESS + name);
 
          @Override
+         public int getMaxPageReadBytes() {
+            return ((Number)proxy.retrieveAttributeValue("maxPageReadBytes")).intValue();
+         }
+
+         @Override
+         public int getMaxPageReadMessages() {
+            return ((Number)proxy.retrieveAttributeValue("maxPageReadMessages")).intValue();
+         }
+
+         @Override
+         public int getPrefetchPageBytes() {
+            return ((Number)proxy.retrieveAttributeValue("prefetchPageBytes")).intValue();
+         }
+
+         @Override
+         public int getPrefetchPageMessages() {
+            return ((Number)proxy.retrieveAttributeValue("prefetchPageMessages")).intValue();
+         }
+
+         @Override
          public String getAddress() {
             return (String) proxy.retrieveAttributeValue("address");
          }

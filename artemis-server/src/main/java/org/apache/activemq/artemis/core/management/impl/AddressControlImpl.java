@@ -283,6 +283,87 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
+   public int getMaxPageReadBytes() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getMaxPageReadBytes(this.addressInfo);
+      }
+      clearIO();
+      try {
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return 0;
+         }
+         return pagingStore.getMaxPageReadBytes();
+      } catch (Exception e) {
+         logger.debug("Failed to get attribute value", e);
+         return -1;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getMaxPageReadMessages() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getMaxPageReadMessages(this.addressInfo);
+      }
+      clearIO();
+      try {
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return 0;
+         }
+         return pagingStore.getMaxPageReadMessages();
+      } catch (Exception e) {
+         logger.debug("Failed to get attribute value", e);
+         return -1;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getPrefetchPageBytes() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getPrefetchPageBytes(this.addressInfo);
+      }
+      clearIO();
+      try {
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return 0;
+         }
+         return pagingStore.getPrefetchPageBytes();
+      } catch (Exception e) {
+         logger.debug("Failed to get attribute value", e);
+         return -1;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public int getPrefetchPageMessages() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getPrefetchPageMessages(this.addressInfo);
+      }
+      clearIO();
+      try {
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return 0;
+         }
+         return pagingStore.getPrefetchPageMessages();
+      } catch (Exception e) {
+         logger.debug("Failed to get attribute value", e);
+         return -1;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+
+   @Override
    public void schedulePageCleanup() throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.schedulePageCleanup(this.addressInfo);

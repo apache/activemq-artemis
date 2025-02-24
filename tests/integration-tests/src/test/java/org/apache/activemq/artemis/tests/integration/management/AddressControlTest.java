@@ -296,14 +296,19 @@ public class AddressControlTest extends ManagementTestBase {
    }
 
    @Test
-   public void testGetNumberOfPages() throws Exception {
+   public void testGetPageAttributes() throws Exception {
       session.close();
       server.stop();
       server.getConfiguration().setPersistenceEnabled(true);
 
       SimpleString address = RandomUtil.randomUUIDSimpleString();
 
-      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(1024).setMaxSizeBytes(10 * 1024);
+      int maxReadBytes = 555;
+      int maxReadMessages = 666;
+      int prefetchBytes = 777;
+      int prefetchMessages = 888;
+
+      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(1024).setMaxSizeBytes(10 * 1024).setMaxReadPageBytes(maxReadBytes).setMaxReadPageMessages(maxReadMessages).setPrefetchPageMessages(prefetchMessages).setPrefetchPageBytes(prefetchBytes);
       final int NUMBER_MESSAGES_BEFORE_PAGING = 7;
 
       server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
@@ -353,6 +358,11 @@ public class AddressControlTest extends ManagementTestBase {
       assertEquals(2, addressControl.getNumberOfPages(), "# of pages is 2");
 
       assertEquals(serverQueue.getPageSubscription().getPagingStore().getAddressSize(), addressControl.getAddressSize());
+
+      assertEquals(maxReadBytes, addressControl.getMaxPageReadBytes());
+      assertEquals(maxReadMessages, addressControl.getMaxPageReadMessages());
+      assertEquals(prefetchBytes, addressControl.getPrefetchPageBytes());
+      assertEquals(prefetchMessages, addressControl.getPrefetchPageMessages());
    }
 
 

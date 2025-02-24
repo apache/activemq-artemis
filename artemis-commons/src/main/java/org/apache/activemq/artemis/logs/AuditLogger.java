@@ -2823,4 +2823,33 @@ public interface AuditLogger {
    @LogMessage(id = 601791, value = "User {} is getting the number of messages sent on target resource: {}", level = LogMessage.Level.INFO)
    void getMessagesSent(String user, Object source);
 
+   static void getMaxPageReadBytes(Object source) {
+      BASE_LOGGER.getMaxPageReadBytes(getCaller(), source);
+   }
+
+   @LogMessage(id = 601792, value = "User {} is getting maxPageReadBytes on target resource: {}", level = LogMessage.Level.INFO)
+   void getMaxPageReadBytes(String user, Object source);
+
+   static void getMaxPageReadMessages(Object source) {
+      BASE_LOGGER.getMaxPageReadMessages(getCaller(), source);
+   }
+
+   @LogMessage(id = 601793, value = "User {} is getting maxPageReadMessages on target resource: {}", level = LogMessage.Level.INFO)
+   void getMaxPageReadMessages(String user, Object source);
+
+   static void getPrefetchPageMessages(Object source) {
+      BASE_LOGGER.getPrefetchPageMessages(getCaller(), source);
+   }
+
+   @LogMessage(id = 601794, value = "User {} is getting prefetchPageMessages on target resource: {}", level = LogMessage.Level.INFO)
+   void getPrefetchPageMessages(String user, Object source);
+
+
+   static void getPrefetchPageBytes(Object source) {
+      BASE_LOGGER.getPrefetchPageBytes(getCaller(), source);
+   }
+
+   @LogMessage(id = 601795, value = "User {} is getting prefetchPageBytes on target resource: {}", level = LogMessage.Level.INFO)
+   void getPrefetchPageBytes(String user, Object source);
+
 }
