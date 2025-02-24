@@ -511,7 +511,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    }
 
    /* Hook for processing message before forwarding */
-   protected Message beforeForward(Message message, final SimpleString forwardingAddress) {
+   protected Message beforeForward(Message message, final SimpleString forwardingAddress) throws ActiveMQException {
       message = message.copy();
       ((RefCountMessage)message).setParentRef((RefCountMessage)message);
 
@@ -610,7 +610,15 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             dest = ref.getMessage().getAddressSimpleString();
          }
 
-         final Message message = beforeForward(ref.getMessage(), dest);
+         final Message message;
+         try {
+            message = beforeForward(ref.getMessage(), dest);
+         } catch (ActiveMQException ex) {
+            ref.getMessage().putStringProperty(Message.HDR_ROUTE_DLQ_DETAIL, SimpleString.of(ex.toString()));
+            ref.getQueue().sendToDeadLetterAddress(null, ref);
+            refs.remove(ref.getMessageID());
+            return HandleStatus.HANDLED;
+         }
 
          pendingAcks.countUp();
 
