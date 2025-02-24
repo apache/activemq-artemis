@@ -35,7 +35,6 @@ import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeBody;
-import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -660,7 +659,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
       super.referenceOriginalMessage(original, originalQueue);
 
-      if (original instanceof LargeServerMessageImpl) {
+      if (original instanceof AMQPLargeMessage) {
          this.largeBody.referenceOriginalMessage(((AMQPLargeMessage) original).largeBody);
       }
    }
