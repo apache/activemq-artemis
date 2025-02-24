@@ -67,6 +67,19 @@ public interface AddressControl {
    @Attribute(desc = ADDRESS_SIZE_DESCRIPTION)
    long getAddressSize();
 
+
+   @Attribute(desc = "The maximum number of bytes that can be read into memory from paged files")
+   int getMaxPageReadBytes();
+
+   @Attribute(desc = "The maximum number of messages that can be read into memory from paged files")
+   int getMaxPageReadMessages();
+
+   @Attribute(desc = "The number of bytes to prefetch from storage into memory before reching maxReadBytes")
+   int getPrefetchPageBytes();
+
+   @Attribute(desc = "The number of messages prefetch from storage into memory before reching maxReadBytes")
+   int getPrefetchPageMessages();
+
    @Operation(desc = "Schedule Page Cleanup on this address")
    void schedulePageCleanup() throws Exception;
 
