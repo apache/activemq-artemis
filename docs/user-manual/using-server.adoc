@@ -423,10 +423,9 @@ The different configuration will be explained throughout the manual or you can r
 
 == Other Use-Cases
 
-=== System Property Substitution
+=== System Property or Environment Variable Substitution
 
-It is possible to use system property substitution in all the configuration files.
-by replacing a value with the name of a system property.
+It is possible to use system property or environment variable substitution in all the configuration files by replacing a value with the name of the system property or the environment variable.
 Here is an example of this with a connector configuration:
 
 [,xml]
