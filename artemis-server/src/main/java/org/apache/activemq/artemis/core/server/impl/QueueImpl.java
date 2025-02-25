@@ -2544,9 +2544,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          @Override
          public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
             RoutingContext routingContext = new RoutingContextImpl(tx);
-            routingContext.setAddress(server.locateQueue(queueName).getAddress());
-            server.getPostOffice().getBinding(queueName).route(ref.getMessage(), routingContext);
-            postOffice.processRoute(ref.getMessage(), routingContext, false);
+            SimpleString address = server.locateQueue(queueName).getAddress();
+            routingContext.setAddress(address);
+            Message m = ref.getMessage();
+            m.setAddress(address);
+            server.getPostOffice().getBinding(queueName).route(m, routingContext);
+            postOffice.processRoute(m, routingContext, false);
             return false;
          }
       });

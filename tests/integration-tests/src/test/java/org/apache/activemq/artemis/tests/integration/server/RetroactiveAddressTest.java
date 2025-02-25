@@ -181,6 +181,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
             ClientMessage message = consumer.receive(1000);
             assertNotNull(message);
             message.acknowledge();
+            assertEquals(addressName.toString(), message.getAddress());
             assertEquals((i * COUNT) + j, (int) message.getIntProperty("xxx"));
          }
          consumer.close();
