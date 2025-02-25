@@ -95,6 +95,31 @@ public class MQTT5Test extends MQTT5TestSupport {
 
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testSimpleRetroSendReceive() throws Exception {
+      final String topic = RandomUtil.randomUUIDString();
+      server.getAddressSettingsRepository().addMatch(topic, new AddressSettings().setRetroactiveMessageCount(1));
+
+      MqttClient producer = createPahoClient("producer");
+      producer.connect();
+      producer.publish(topic, "myMessage".getBytes(StandardCharsets.UTF_8), 1, false);
+
+      CountDownLatch latch = new CountDownLatch(1);
+      MqttClient subscriber = createPahoClient("subscriber");
+      subscriber.connect();
+      subscriber.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String t, MqttMessage message) {
+            logger.info("Message received from topic {}, message={}", t, message);
+            assertEquals(topic.toString(), t);
+            latch.countDown();
+         }
+      });
+      subscriber.subscribe(topic, AT_LEAST_ONCE);
+      assertTrue(latch.await(500, TimeUnit.MILLISECONDS));
+   }
+
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testTopicNameEscape() throws Exception {
       final String topic = "foo1.0/bar/baz";
       AtomicReference<String> receivedTopic = new AtomicReference<>();
