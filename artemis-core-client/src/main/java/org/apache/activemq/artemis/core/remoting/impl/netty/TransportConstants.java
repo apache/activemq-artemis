@@ -142,6 +142,8 @@ public class TransportConstants {
 
    public static final String TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME = "trustManagerFactoryPlugin";
 
+   public static final String AMQP_SASL_MECHANISM = "amqp.saslMechanisms";
+
    public static final String NETTY_VERSION;
 
    /**
@@ -536,6 +538,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.HANDSHAKE_TIMEOUT);
       allowableConnectorKeys.add(TransportConstants.CRL_PATH_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.AMQP_SASL_MECHANISM);
 
       ALLOWABLE_CONNECTOR_KEYS = Collections.unmodifiableSet(allowableConnectorKeys);
 
