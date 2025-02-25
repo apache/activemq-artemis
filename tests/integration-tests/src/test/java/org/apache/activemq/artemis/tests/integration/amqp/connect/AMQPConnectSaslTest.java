@@ -57,6 +57,7 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
    private static final String ANONYMOUS = "ANONYMOUS";
    private static final String EXTERNAL = "EXTERNAL";
    private static final String SCRAM_SHA_512 = "SCRAM-SHA-512";
+   private static final String XOAUTH2 = "XOAUTH2";
 
    @Override
    protected ActiveMQServer createServer() throws Exception {
@@ -104,6 +105,111 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
          // User and pass are given, it will select PLAIN
          AMQPBrokerConnectConfiguration amqpConnection =
                new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setUser(USER);
+         amqpConnection.setPassword(PASSWD);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testConnectsWithXOauth2() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLHeader().respondWithSASLHeader();
+         peer.remoteSaslMechanisms().withMechanisms(PLAIN, XOAUTH2, ANONYMOUS).queue();
+         peer.expectSaslInit().withMechanism(XOAUTH2).withInitialResponse(peer.saslXOauth2InitialResponse(USER, PASSWD));
+         peer.remoteSaslOutcome().withCode(SaslCode.OK).queue();
+         peer.expectAMQPHeader().respondWithAMQPHeader();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + remoteURI.getPort() + "?saslMechanisms=" + XOAUTH2);
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setUser(USER);
+         amqpConnection.setPassword(PASSWD);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testXOAuth2NotSelectedWhenUserAndPasswordNotProvided() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect(XOAUTH2, ANONYMOUS);
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+             new AMQPBrokerConnectConfiguration(getTestName(),
+                 "tcp://localhost:" + remoteURI.getPort() + "?saslMechanisms=" + XOAUTH2 + "," + ANONYMOUS);
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testConnectsWithPlainWhenPlainAndXOauth2IsValid() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLPlainConnect(USER, PASSWD, PLAIN, XOAUTH2, ANONYMOUS);
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+             new AMQPBrokerConnectConfiguration(getTestName(),
+                 "tcp://localhost:" + remoteURI.getPort() + "?saslMechanisms=" + XOAUTH2 + "," + PLAIN);
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setUser(USER);
+         amqpConnection.setPassword(PASSWD);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testConnectionFailsIfFilterExcudesAnyOfferedMechanism() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLHeader().respondWithSASLHeader();
+         peer.remoteSaslMechanisms().withMechanisms(PLAIN, ANONYMOUS).queue();
+         peer.expectConnectionToDrop();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+             new AMQPBrokerConnectConfiguration(getTestName(),
+                 "tcp://localhost:" + remoteURI.getPort() + "?saslMechanisms=" + XOAUTH2);
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.setUser(USER);
          amqpConnection.setPassword(PASSWD);
