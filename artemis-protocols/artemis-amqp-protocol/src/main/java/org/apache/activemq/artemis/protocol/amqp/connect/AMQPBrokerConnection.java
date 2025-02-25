@@ -99,6 +99,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.Target;
@@ -1129,6 +1130,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    private static final String EXTERNAL = "EXTERNAL";
    private static final String PLAIN = "PLAIN";
    private static final String ANONYMOUS = "ANONYMOUS";
+   private static final String XOAUTH2 = "XOAUTH2";
    private static final byte[] EMPTY = new byte[0];
 
    private static class PlainSASLMechanism implements ClientSASL {
@@ -1204,6 +1206,37 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       }
    }
 
+   private static class XOAuth2SASLMechanism implements ClientSASL {
+
+      private final String userName;
+      private final String token;
+
+      public XOAuth2SASLMechanism(String userName, String token) {
+         this.userName = userName;
+         this.token = token;
+      }
+
+      @Override
+      public String getName() {
+         return XOAUTH2;
+      }
+
+      @Override
+      public byte[] getInitialResponse() {
+         String response = String.format("user=%s\u0001auth=Bearer %s\u0001\u0001", userName, token);
+         return response.getBytes(StandardCharsets.UTF_8);
+      }
+
+      @Override
+      public byte[] getResponse(byte[] challenge) {
+         return EMPTY;
+      }
+
+      public static boolean isApplicable(final String username, final String password) {
+         return StringUtils.isNoneEmpty(username, password);
+      }
+   }
+
    private static final class SaslFactory implements ClientSASLFactory {
 
       private final NettyConnection connection;
@@ -1218,27 +1251,52 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       public ClientSASL chooseMechanism(String[] offeredMechanims) {
          List<String> availableMechanisms = offeredMechanims == null ? Collections.emptyList() : Arrays.asList(offeredMechanims);
 
-         if (availableMechanisms.contains(EXTERNAL) && ExternalSASLMechanism.isApplicable(connection)) {
+         List<String> acceptedMechanisms = getAcceptedMechanisms(availableMechanisms);
+
+         if (acceptedMechanisms.contains(EXTERNAL) && ExternalSASLMechanism.isApplicable(connection)) {
             return new ExternalSASLMechanism();
          }
          if (SCRAMClientSASL.isApplicable(brokerConnectConfiguration.getUser(),
                                           brokerConnectConfiguration.getPassword())) {
             for (SCRAM scram : SCRAM.values()) {
-               if (availableMechanisms.contains(scram.getName())) {
+               if (acceptedMechanisms.contains(scram.getName())) {
                   return new SCRAMClientSASL(scram, brokerConnectConfiguration.getUser(),
                                              brokerConnectConfiguration.getPassword());
                }
             }
          }
-         if (availableMechanisms.contains(PLAIN) && PlainSASLMechanism.isApplicable(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword())) {
+
+         if (acceptedMechanisms.contains(PLAIN) && PlainSASLMechanism.isApplicable(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword())) {
             return new PlainSASLMechanism(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword());
          }
 
-         if (availableMechanisms.contains(ANONYMOUS)) {
+         if (acceptedMechanisms.contains(XOAUTH2) && XOAuth2SASLMechanism.isApplicable(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword())) {
+            return new XOAuth2SASLMechanism(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword());
+         }
+
+         if (acceptedMechanisms.contains(ANONYMOUS)) {
             return new AnonymousSASLMechanism();
          }
 
          return null;
+      }
+
+      private List<String> getAcceptedMechanisms(List<String> availableMechanisms) {
+         TransportConfiguration connectorConfig = connection.getConnectorConfig();
+         if(connectorConfig == null){
+            return availableMechanisms;
+         }
+
+         Map<String, Object> params = connectorConfig.getParams();
+         String acceptableMechanisms = ConfigurationHelper.getStringProperty(TransportConstants.SASL_MECHANISMS, null, params);
+
+         if(acceptableMechanisms == null){
+            return availableMechanisms;
+         }
+
+         return availableMechanisms.stream()
+             .filter(mechanism -> StringUtils.containsIgnoreCase(acceptableMechanisms, mechanism))
+             .toList();
       }
    }
 
