@@ -137,6 +137,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    public static final boolean DEFAULT_CORE_MESSAGE_TUNNELING_ENABLED = true;
 
    private static final NettyConnectorFactory CONNECTOR_FACTORY = new NettyConnectorFactory().setServerConnector(true);
+   private static final String SASL_MECHANISMS_KEY = "saslMechanisms";
 
    private final ProtonProtocolManagerFactory protonProtocolManagerFactory;
    private final ReferenceIDSupplier referenceIdSupplier;
@@ -491,7 +492,8 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          senders.clear();
          receivers.clear();
 
-         ClientSASLFactory saslFactory = new SaslFactory(connection, brokerConnectConfiguration);
+         final String[] enabledSaslMechanisms = configuration.getExtraParams().containsKey(SASL_MECHANISMS_KEY) ? protonProtocolManager.getSaslMechanisms() : null;
+         final ClientSASLFactory saslFactory = new SaslFactory(connection, brokerConnectConfiguration, enabledSaslMechanisms);
 
          final Map<String, Object> brokerConnectionInfo = new HashMap<>();
 
@@ -1181,6 +1183,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    private static final String EXTERNAL = "EXTERNAL";
    private static final String PLAIN = "PLAIN";
    private static final String ANONYMOUS = "ANONYMOUS";
+   private static final String XOAUTH2 = "XOAUTH2";
    private static final byte[] EMPTY = new byte[0];
 
    private static class PlainSASLMechanism implements ClientSASL {
@@ -1256,41 +1259,93 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       }
    }
 
+   private static class XOAuth2SASLMechanism implements ClientSASL {
+
+      private final String userName;
+      private final String token;
+
+      XOAuth2SASLMechanism(String userName, String token) {
+         this.userName = userName;
+         this.token = token;
+      }
+
+      @Override
+      public String getName() {
+         return XOAUTH2;
+      }
+
+      @Override
+      public byte[] getInitialResponse() {
+         String response = String.format("user=%s\u0001auth=Bearer %s\u0001\u0001", userName, token);
+         return response.getBytes(StandardCharsets.UTF_8);
+      }
+
+      @Override
+      public byte[] getResponse(byte[] challenge) {
+         return EMPTY;
+      }
+
+      public static boolean isApplicable(final String username, final String password) {
+         return username != null && !username.isEmpty() && password != null && !password.isEmpty();
+      }
+   }
+
    private static final class SaslFactory implements ClientSASLFactory {
 
       private final NettyConnection connection;
       private final AMQPBrokerConnectConfiguration brokerConnectConfiguration;
+      private final String[] enabledSaslMechanisms;
 
-      SaslFactory(NettyConnection connection, AMQPBrokerConnectConfiguration brokerConnectConfiguration) {
+      SaslFactory(NettyConnection connection, AMQPBrokerConnectConfiguration brokerConnectConfiguration, String[] enabledSaslMechanisms) {
          this.connection = connection;
          this.brokerConnectConfiguration = brokerConnectConfiguration;
+         this.enabledSaslMechanisms = enabledSaslMechanisms;
       }
 
       @Override
-      public ClientSASL chooseMechanism(String[] offeredMechanims) {
-         List<String> availableMechanisms = offeredMechanims == null ? Collections.emptyList() : Arrays.asList(offeredMechanims);
+      public ClientSASL chooseMechanism(String[] offeredMechanisms) {
+         Set<String> offeredMechanismsSet = filterOfferedMechanisms(offeredMechanisms, enabledSaslMechanisms);
 
-         if (availableMechanisms.contains(EXTERNAL) && ExternalSASLMechanism.isApplicable(connection)) {
+         if (offeredMechanismsSet.contains(EXTERNAL) && ExternalSASLMechanism.isApplicable(connection)) {
             return new ExternalSASLMechanism();
          }
+
          if (SCRAMClientSASL.isApplicable(brokerConnectConfiguration.getUser(),
                                           brokerConnectConfiguration.getPassword())) {
             for (SCRAM scram : SCRAM.values()) {
-               if (availableMechanisms.contains(scram.getName())) {
+               if (offeredMechanismsSet.contains(scram.getName())) {
                   return new SCRAMClientSASL(scram, brokerConnectConfiguration.getUser(),
                                              brokerConnectConfiguration.getPassword());
                }
             }
          }
-         if (availableMechanisms.contains(PLAIN) && PlainSASLMechanism.isApplicable(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword())) {
+
+         if (offeredMechanismsSet.contains(PLAIN) && PlainSASLMechanism.isApplicable(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword())) {
             return new PlainSASLMechanism(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword());
          }
 
-         if (availableMechanisms.contains(ANONYMOUS)) {
+         if (offeredMechanismsSet.contains(XOAUTH2) && XOAuth2SASLMechanism.isApplicable(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword())) {
+            return new XOAuth2SASLMechanism(brokerConnectConfiguration.getUser(), brokerConnectConfiguration.getPassword());
+         }
+
+         if (offeredMechanismsSet.contains(ANONYMOUS)) {
             return new AnonymousSASLMechanism();
          }
 
          return null;
+      }
+
+      private Set<String> filterOfferedMechanisms(String[] offeredSaslMechanisms, String[] enabledSaslMechanisms) {
+         Set<String> offeredSaslMechanismsSet = offeredSaslMechanisms == null ? Collections.emptySet() : new HashSet<>(Arrays.asList(offeredSaslMechanisms));
+
+         if (enabledSaslMechanisms == null || enabledSaslMechanisms.length == 0) {
+            return offeredSaslMechanismsSet;
+         }
+
+         Set<String> enabledSaslMechanismsSet = new HashSet<>(Arrays.asList(enabledSaslMechanisms));
+         enabledSaslMechanismsSet.retainAll(offeredSaslMechanismsSet);
+
+         return enabledSaslMechanismsSet;
       }
    }
 
