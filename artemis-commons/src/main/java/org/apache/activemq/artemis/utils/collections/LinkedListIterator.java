@@ -27,7 +27,7 @@ public interface LinkedListIterator<E> extends Iterator<E>, AutoCloseable {
 
    void repeat();
 
-   /** This method is doing exactly what {@link Iterator#remove()} would do, however it will return the removed element being removed. */
+   /** This method is doing exactly what {@link Iterator#remove()} would do, however it will return the element being removed. */
    E removeLastElement();
 
    @Override
