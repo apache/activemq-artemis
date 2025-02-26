@@ -1504,4 +1504,6 @@ public interface Configuration {
    Configuration setMirrorAckManagerWarnUnacked(boolean warnUnacked);
 
    boolean isMirrorAckManagerWarnUnacked();
+
+   void exportAsProperties(File to) throws Exception;
 }
