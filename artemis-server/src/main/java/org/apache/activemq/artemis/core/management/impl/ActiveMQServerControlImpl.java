@@ -157,7 +157,8 @@ import org.slf4j.LoggerFactory;
 public class ActiveMQServerControlImpl extends AbstractControl implements ActiveMQServerControl, NotificationEmitter, org.apache.activemq.artemis.core.server.management.NotificationListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
+   public static final String CONFIG_AS_PROPERTIES_FILE = "broker_config_as_properties.txt";
+   public static final String TMP_DIR_SYSTEM_PROPERTY = "java.io.tmpdir";
 
    private final PostOffice postOffice;
 
@@ -4744,6 +4745,22 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
          AuditLogger.getAuthorizationFailureCount(this.server);
       }
       return server.getSecurityStore().getAuthorizationFailureCount();
+   }
+
+   @Override
+   public void exportConfigAsProperties() throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.exportConfigAsProperties(this.server);
+      }
+
+      try (AutoCloseable lock = server.managementLock()) {
+         if (System.getProperty(TMP_DIR_SYSTEM_PROPERTY) == null) {
+            throw new IllegalStateException(TMP_DIR_SYSTEM_PROPERTY + " system property must be set");
+         } else {
+            File exportFileInTmp = new File(System.getProperty(TMP_DIR_SYSTEM_PROPERTY), CONFIG_AS_PROPERTIES_FILE);
+            this.server.getConfiguration().exportAsProperties(exportFileInTmp);
+         }
+      }
    }
 
    public ActiveMQServer getServer() {

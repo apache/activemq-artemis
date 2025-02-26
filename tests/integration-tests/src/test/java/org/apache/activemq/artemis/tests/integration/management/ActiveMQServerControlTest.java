@@ -26,6 +26,8 @@ import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.io.File;
+import java.io.FileReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -39,6 +41,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -83,6 +86,7 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
+import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
 import org.apache.activemq.artemis.core.management.impl.view.ConnectionField;
 import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
 import org.apache.activemq.artemis.core.management.impl.view.ProducerField;
@@ -138,6 +142,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl.TMP_DIR_SYSTEM_PROPERTY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -378,6 +383,22 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals(1, serverControl.getAuthenticationFailureCount());
       assertEquals(1, serverControl.getAuthorizationSuccessCount());
       assertEquals(1, serverControl.getAuthorizationFailureCount());
+   }
+
+   @TestTemplate
+   public void testExportAsProperties() throws Exception {
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      serverControl.exportConfigAsProperties();
+
+      File out = new File(System.getProperty(TMP_DIR_SYSTEM_PROPERTY), ActiveMQServerControlImpl.CONFIG_AS_PROPERTIES_FILE);
+      assertTrue(out.exists());
+      try (FileReader reader = new FileReader(out)) {
+         Properties properties = new Properties();
+         properties.load(reader);
+         assertEquals(properties.getProperty("name"), serverControl.getName());
+      }
    }
 
    @TestTemplate

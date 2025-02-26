@@ -27,7 +27,7 @@ public class AMQPBrokerConnectionElement implements Serializable {
 
    private static final long serialVersionUID = 3653295602796835937L;
 
-   String name;
+   String name = "default";
    SimpleString matchAddress;
    SimpleString queueName;
    AMQPBrokerConnectionAddressType type;

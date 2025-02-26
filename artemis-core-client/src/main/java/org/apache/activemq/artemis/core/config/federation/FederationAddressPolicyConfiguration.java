@@ -177,6 +177,9 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
       private String name;
 
       public String getName() {
+         if (name == null) {
+            return addressMatch;
+         }
          return name;
       }
 

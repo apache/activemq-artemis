@@ -19,10 +19,12 @@ package org.apache.activemq.artemis.core.config.impl;
 import java.beans.IndexedPropertyDescriptor;
 import java.beans.PropertyDescriptor;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -42,21 +44,27 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.Adler32;
 import java.util.zip.Checksum;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.JsonUtil;
@@ -78,7 +86,13 @@ import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationBrokerPlugin;
+import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationPolicy;
+import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
@@ -125,6 +139,7 @@ import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.XMLUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
+import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.Converter;
@@ -137,6 +152,8 @@ import org.apache.commons.beanutils.expression.Resolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.activemq.artemis.utils.PasswordMaskingUtil.isEncMasked;
+
 public class ConfigurationImpl implements Configuration, Serializable {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -144,6 +161,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public static final JournalType DEFAULT_JOURNAL_TYPE = JournalType.ASYNCIO;
 
    public static final String PROPERTY_CLASS_SUFFIX = ".class";
+
+   public static final String REDACTED = "**redacted**";
 
    private static final long serialVersionUID = 4077088945050267843L;
 
@@ -451,6 +470,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private File artemisInstance;
    private transient JsonObject jsonStatus = JsonLoader.createObjectBuilder().build();
    private transient Checksum transientChecksum = null;
+   private final Set<String> keysToRedact = new HashSet<>();
 
    private JsonObject getJsonStatus() {
       if (jsonStatus == null) {
@@ -548,10 +568,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return brokerPropertiesRemoveValue;
    }
 
-   public void setBrokerPropertiesRemoveValue(String brokerPropertiesRemoveValue) {
-      this.brokerPropertiesRemoveValue = brokerPropertiesRemoveValue;
-   }
-
    @Override
    public Configuration parseProperties(String fileUrlToProperties) throws Exception {
       // system property overrides location of file(s)
@@ -579,7 +595,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
-   private void parseFileProperties(File file) throws Exception {
+   public void parseFileProperties(File file) throws Exception {
       InsertionOrderedProperties brokerProperties = new InsertionOrderedProperties();
       try (FileReader fileReader = new FileReader(file);
            BufferedReader reader = new BufferedReader(fileReader)) {
@@ -621,9 +637,13 @@ public class ConfigurationImpl implements Configuration, Serializable {
             checksum.update(value.getBytes(StandardCharsets.UTF_8));
 
             value = XMLUtil.replaceSystemPropsInString(value);
-            value = PasswordMaskingUtil.resolveMask(isMaskPassword(), value, getPasswordCodec());
             key = XMLUtil.replaceSystemPropsInString(key);
-            logger.debug("Property config, {}={}", key, value);
+            final boolean masked = isEncMasked(value);
+            if (masked) {
+               value = PasswordMaskingUtil.resolveMask(null, value, getPasswordCodec());
+               keysToRedact.add(key);
+            }
+            logger.debug("Property config, {}={}", key, (masked || shouldRedact(key)) ? REDACTED : value);
             beanProperties.put(key, value);
          }
          alder32Hash = checksum.getValue();
@@ -919,7 +939,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
       logger.trace("populate: bean: {} with {}", this, beanProperties);
 
-      Map<String, String> errors = new HashMap<>();
+      Map<String, String> errors = new LinkedHashMap<>();
       // Loop through the property name/value pairs to be set
       for (final Map.Entry<String, ? extends Object> entry : beanProperties.entrySet()) {
          // Identify the property name and value(s) to be assigned
@@ -943,6 +963,209 @@ public class ConfigurationImpl implements Configuration, Serializable {
          }
       }
       updateApplyStatus(propsId, errors);
+   }
+
+   @Override
+   public void exportAsProperties(File file) throws Exception {
+      try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
+         writeProperties(writer);
+      }
+   }
+
+   private void writeProperties(FileWriter writer) throws Exception {
+      final BeanUtilsBean beanUtilsBean = BeanUtilsBean.getInstance();
+      beanUtilsBean.getPropertyUtils().addBeanIntrospector(new FluentPropertyBeanIntrospectorWithIgnores());
+
+      try (BufferedWriter bufferedWriter = new BufferedWriter(writer)) {
+         export(beanUtilsBean, new Stack<String>(), bufferedWriter, this);
+      }
+   }
+
+   final Set<String> ignored = Set.of(
+      // we report errors through the status, it should not typically be set
+      "status",
+      // we cannot import a map<string,set<string>> property and this feature is only applied by the xml parser
+      "securityRoleNameMappings",
+      // another xml ism using a deprecated config object
+      "queueConfigs",
+      "encodeSize",
+      // duplicates
+      "federationPolicyMap",       // core federation
+      "policySets",
+      "AMQPConnection",
+      "AMQPConnectionConfigurations",
+      "combinedParams",
+      "type",
+      // AMQPBrokerConnectConfiguration
+      // needs uri first
+      "uri",
+      // this relation breaks recursion
+      "parent",
+      // and connectionElements need to be split
+      "connectionElements"
+   );
+   private void export(BeanUtilsBean beanUtils, Stack<String> nested, BufferedWriter bufferedWriter, Object value) {
+
+      if (value instanceof Collection collection) {
+         if (!collection.isEmpty()) {
+            // collection of strings, as a comma list
+            if (collection.stream().findFirst().orElseThrow() instanceof String) {
+               exportKeyValue(nested, bufferedWriter, (String) collection.stream().collect(Collectors.joining(",")));
+            } else if (collection instanceof EnumSet enumSet) {
+               exportKeyValue(nested, bufferedWriter, (String) enumSet.stream().map(Object::toString).collect(Collectors.joining(",")));
+            } else {
+
+               Stream stream  = collection.stream();
+               if (collection.stream().findFirst().orElseThrow() instanceof AMQPBrokerConnectionElement amqpBrokerConnectionElement) {
+                  // filter type from the shared underlying collection
+                  String collectionName = nested.peek();
+                  AMQPBrokerConnectionAddressType subsetType = AMQPBrokerConnectionAddressType.valueOf(collectionName.substring(0, collectionName.length() - 1).toUpperCase(Locale.ENGLISH));
+                  stream = stream.filter((Object connectionElement)-> subsetType == ((AMQPBrokerConnectionElement)connectionElement).getType());
+               }
+               // output nested by name
+               stream.forEach((Consumer<Object>) o -> {
+                  nested.push(extractName(o));
+                  export(beanUtils, nested, bufferedWriter, o);
+                  nested.pop();
+               });
+            }
+         }
+      } else if (value instanceof Map map) {
+         if (!map.isEmpty()) {
+            // possibly filter
+            Stream<Map.Entry<?, ?>> stream = map.entrySet().stream();
+            if (map.values().stream().findFirst().orElseThrow() instanceof FederationPolicy) {
+               // filter type from the shared underlying collection
+               final Class filterOn = "addressPolicies".equals(nested.peek()) ? FederationAddressPolicyConfiguration.class : FederationQueuePolicyConfiguration.class;
+               stream = stream.filter((Map.Entry<?, ?> entry)-> filterOn.isAssignableFrom(entry.getClass()));
+            }
+            stream.forEach(entry -> {
+               // nested by name
+               nested.push(entry.getKey().toString());
+               export(beanUtils, nested, bufferedWriter, entry.getValue());
+               nested.pop();
+            });
+         }
+      } else if (isComplexConfigObject(value)) {
+
+         // these need constructor properties or .class values or particular attributes as first entry
+         if (value instanceof BrokerConnectConfiguration brokerConnectConfiguration) {
+            nested.push("uri"); // is in the ignored list so won't get duplicated
+            exportKeyValue(nested, bufferedWriter, brokerConnectConfiguration.getUri());
+            nested.pop();
+         } else if (value instanceof AMQPBrokerConnectionElement connectionElement) {
+            nested.push("type"); // is in the ignored list so won't get duplicated
+            exportKeyValue(nested, bufferedWriter, connectionElement.getType().toString());
+            nested.pop();
+         } else if (value instanceof HAPolicyConfiguration haPolicyConfiguration) {
+            exportKeyValue(nested, bufferedWriter, haPolicyConfiguration.getType().toString());
+         } else if (value instanceof StoreConfiguration storeConfiguration) {
+            exportKeyValue(nested, bufferedWriter, storeConfiguration.getStoreType().toString());
+         } else if (value instanceof NamedPropertyConfiguration namedPropertyConfiguration) {
+            exportKeyValue(nested, bufferedWriter, namedPropertyConfiguration.getName());
+         } else if (value instanceof BroadcastEndpointFactory broadcastEndpointFactory) {
+            exportKeyValue(nested, bufferedWriter, broadcastEndpointFactory.getClass().getCanonicalName() + ".class");
+         } else if (value instanceof ActiveMQMetricsPlugin plugin) {
+            exportKeyValue(nested, bufferedWriter, plugin.getClass().getCanonicalName() + ".class");
+            nested.push("init");
+            exportKeyValue(nested, bufferedWriter, "");
+            nested.pop();
+         }
+         // recursive export via accessors
+         Arrays.stream(beanUtils.getPropertyUtils().getPropertyDescriptors(value)).filter(propertyDescriptor -> {
+
+            if (ignored.contains(propertyDescriptor.getName())) {
+               return false;
+            }
+            final Method descriptorReadMethod = propertyDescriptor.getReadMethod();
+            if (descriptorReadMethod == null) {
+               return false;
+            }
+            Method descriptorWriteMethod = propertyDescriptor.getWriteMethod();
+            if (descriptorWriteMethod == null) {
+               // we can write to a returned simple map or collection ok
+               final Class type = propertyDescriptor.getPropertyType();
+               return Map.class.isAssignableFrom(type) || Collection.class.isAssignableFrom(type);
+            }
+            return true;
+         }).sorted((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(a.getName(), b.getName())).forEach(propertyDescriptor -> {
+            Object attributeValue = null;
+            try {
+               attributeValue = propertyDescriptor.getReadMethod().invoke(value, null);
+            } catch (Exception e) {
+               throw new RuntimeException("accessing: " + propertyDescriptor.getName()  + "@" + nested, e);
+            }
+            if (attributeValue != null) {
+               nested.push(propertyDescriptor.getName());
+               export(beanUtils, nested, bufferedWriter, attributeValue);
+               nested.pop();
+            }
+         });
+      } else {
+         // string form works ok otherwise
+         exportKeyValue(nested, bufferedWriter, value.toString());
+      }
+   }
+
+   private void exportKeyValue(Stack<String> nested, BufferedWriter bufferedWriter, String value) {
+      String key = writeKeyEquals(nested, bufferedWriter);
+
+      try {
+         if (shouldRedact(key)) {
+            bufferedWriter.write(REDACTED);
+         } else {
+            bufferedWriter.write(value);
+         }
+         bufferedWriter.newLine();
+      } catch (IOException e) {
+         throw new RuntimeException("error accessing: " + nested, e);
+      }
+   }
+
+   private boolean isComplexConfigObject(Object value) {
+      return !(value instanceof SimpleString || value instanceof Enum<?>) && value.getClass().getPackage().getName().contains("artemis");
+   }
+
+   private boolean shouldRedact(String name) {
+      return name.toUpperCase(Locale.ENGLISH).contains("PASSWORD") || keysToRedact.contains(name);
+   }
+
+   private String writeKeyEquals(Stack<String> nested, BufferedWriter bufferedWriter) {
+
+      String key = nested.stream().sequential().map(ConfigurationImpl::quote).collect(Collectors.joining("."));
+      try {
+         bufferedWriter.write(key);
+         bufferedWriter.write("=");
+      } catch (IOException e) {
+         throw new RuntimeException("error accessing: " + nested, e);
+      }
+      return key;
+   }
+
+   public static String quote(String s) {
+      String escaped = s.replace("=", "\\\\=").replace(":", "\\\\:");
+      if (s.contains(".")) {
+         escaped = "\"" + escaped + "\"";
+      }
+      return escaped;
+   }
+
+   String extractName(Object o) {
+      if (o instanceof String s) {
+         return s;
+      }
+      try {
+         Method m = o.getClass().getMethod("getName", null);
+         if (m != null) {
+            Object nameVal = m.invoke(o, null);
+            if (nameVal == null) {
+               return "name-attribute-must-be-set-for-properties-key-export";
+            }
+            return nameVal.toString();
+         }
+      } catch (Exception expectedAndWillDefaultToStringForm) {
+      }
+      return String.valueOf(o);
    }
 
    protected static boolean isClassProperty(String property) {
@@ -1460,6 +1683,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   @Deprecated
    public ConfigurationImpl addQueueConfiguration(final CoreQueueConfiguration config) {
       coreQueueConfigurations.add(config);
       return this;
@@ -3566,6 +3790,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
                // or strategies becomes strategy etc.
                addPropertyNameBuilder.append(collectionPropertyName, 1, collectionPropertyName.length() - 3);
                addPropertyNameBuilder.append('y');
+            } else if (collectionPropertyName.endsWith("Map")) {
+               addPropertyNameBuilder.append(collectionPropertyName, 1, collectionPropertyName.length() - 3);
             } else {
                addPropertyNameBuilder.append(collectionPropertyName, 1, collectionPropertyName.length() - 1);
             }
@@ -3580,7 +3806,18 @@ public class ConfigurationImpl implements Configuration, Serializable {
                // has a String key
                && String.class.equals(method.getParameterTypes()[0])
                // but not initialised from a String form (eg: uri)
-               && !String.class.equals(method.getParameterTypes()[1])))).sorted((method1, method2) -> method2.getParameterCount() - method1.getParameterCount()).findFirst().orElse(null);
+               && !String.class.equals(method.getParameterTypes()[1])))).sorted((method1, method2) -> {
+                  int result = method2.getParameterCount() - method1.getParameterCount();
+                  if (result == 0) {
+                     // choose non deprecated
+                     if (method1.getDeclaredAnnotation(Deprecated.class) == null) {
+                        result = 1;
+                     } else {
+                        result = -1;
+                     }
+                  }
+                  return result;
+               }).findFirst().orElse(null);
 
             if (candidate == null) {
                throw new IllegalArgumentException("failed to locate add method for collection property " + addPropertyName);

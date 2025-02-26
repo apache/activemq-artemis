@@ -1198,7 +1198,7 @@ public interface Configuration {
    Configuration setMaskPassword(Boolean maskPassword);
 
    /**
-    * If passwords are masked. True means the passwords are masked.enableda
+    * If passwords are masked. True means the passwords are masked.
     */
    Boolean isMaskPassword();
 
@@ -1504,4 +1504,6 @@ public interface Configuration {
    Configuration setMirrorAckManagerWarnUnacked(boolean warnUnacked);
 
    boolean isMirrorAckManagerWarnUnacked();
+
+   void exportAsProperties(File to) throws Exception;
 }

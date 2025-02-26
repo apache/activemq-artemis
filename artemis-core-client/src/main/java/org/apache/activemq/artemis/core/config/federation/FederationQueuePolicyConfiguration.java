@@ -139,6 +139,9 @@ public class FederationQueuePolicyConfiguration implements FederationPolicy<Fede
       private String name;
 
       public String getName() {
+         if (name == null) {
+            return addressMatch + queueMatch;
+         }
          return name;
       }
 
