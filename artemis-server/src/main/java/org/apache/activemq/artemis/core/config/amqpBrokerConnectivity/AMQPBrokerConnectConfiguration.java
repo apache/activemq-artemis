@@ -83,8 +83,7 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
       return connectionElements;
    }
 
-   public AMQPBrokerConnectConfiguration addPeer(AMQPBrokerConnectionElement element) {
-      element.setType(AMQPBrokerConnectionAddressType.PEER);
+   public AMQPBrokerConnectConfiguration addPeer(AMQPPeerBrokerConnectionElement element) {
       return addElement(element);
    }
 
@@ -92,8 +91,7 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
       return connectionElements;
    }
 
-   public AMQPBrokerConnectConfiguration addSender(AMQPBrokerConnectionElement element) {
-      element.setType(AMQPBrokerConnectionAddressType.SENDER);
+   public AMQPBrokerConnectConfiguration addSender(AMQPSenderBrokerConnectionElement element) {
       return addElement(element);
    }
 
@@ -101,8 +99,7 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
       return connectionElements;
    }
 
-   public AMQPBrokerConnectConfiguration addReceiver(AMQPBrokerConnectionElement element) {
-      element.setType(AMQPBrokerConnectionAddressType.RECEIVER);
+   public AMQPBrokerConnectConfiguration addReceiver(AMQPReceiverBrokerConnectionElement element) {
       return addElement(element);
    }
 

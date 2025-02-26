@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.apache.activemq.artemis.core.config.impl.ConfigurationImpl.REDACTED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -179,89 +180,93 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
    @TestTemplate
    public void testFileConfiguration() {
+      validateFullConfig(conf);
+   }
+
+   private void validateFullConfig(Configuration configInstance) {
       // Check they match the values from the test file
-      assertEquals("SomeNameForUseOnTheApplicationServer", conf.getName());
-      assertFalse(conf.isPersistenceEnabled());
-      assertTrue(conf.isClustered());
-      assertEquals(12345, conf.getScheduledThreadPoolMaxSize());
-      assertEquals(54321, conf.getThreadPoolMaxSize());
-      assertFalse(conf.isSecurityEnabled());
-      assertEquals(5423, conf.getSecurityInvalidationInterval());
-      assertEquals(333, conf.getAuthenticationCacheSize());
-      assertEquals(444, conf.getAuthorizationCacheSize());
-      assertTrue(conf.isWildcardRoutingEnabled());
-      assertEquals(SimpleString.of("Giraffe"), conf.getManagementAddress());
-      assertEquals(SimpleString.of("Whatever"), conf.getManagementNotificationAddress());
-      assertEquals("Frog", conf.getClusterUser());
-      assertEquals("Wombat", conf.getClusterPassword());
-      assertFalse(conf.isJMXManagementEnabled());
-      assertEquals("gro.qtenroh", conf.getJMXDomain());
-      assertTrue(conf.isMessageCounterEnabled());
-      assertEquals(5, conf.getMessageCounterMaxDayHistory());
-      assertEquals(123456, conf.getMessageCounterSamplePeriod());
-      assertEquals(12345, conf.getConnectionTTLOverride());
-      assertEquals(98765, conf.getTransactionTimeout());
-      assertEquals(56789, conf.getTransactionTimeoutScanPeriod());
-      assertEquals(10111213, conf.getMessageExpiryScanPeriod());
-      assertEquals(25000, conf.getAddressQueueScanPeriod());
-      assertEquals(127, conf.getIDCacheSize());
-      assertTrue(conf.isPersistIDCache());
-      assertEquals(Integer.valueOf(777), conf.getJournalDeviceBlockSize());
-      assertTrue(conf.isPersistDeliveryCountBeforeDelivery());
-      assertEquals("pagingdir", conf.getPagingDirectory());
-      assertEquals("somedir", conf.getBindingsDirectory());
-      assertFalse(conf.isCreateBindingsDir());
-      assertTrue(conf.isAmqpUseCoreSubscriptionNaming());
-      assertFalse(conf.isSuppressSessionNotifications());
-      assertEquals("()", conf.getLiteralMatchMarkers());
+      assertEquals("SomeNameForUseOnTheApplicationServer", configInstance.getName());
+      assertFalse(configInstance.isPersistenceEnabled());
+      assertTrue(configInstance.isClustered());
+      assertEquals(12345, configInstance.getScheduledThreadPoolMaxSize());
+      assertEquals(54321, configInstance.getThreadPoolMaxSize());
+      assertFalse(configInstance.isSecurityEnabled());
+      assertEquals(5423, configInstance.getSecurityInvalidationInterval());
+      assertEquals(333, configInstance.getAuthenticationCacheSize());
+      assertEquals(444, configInstance.getAuthorizationCacheSize());
+      assertTrue(configInstance.isWildcardRoutingEnabled());
+      assertEquals(SimpleString.of("Giraffe"), configInstance.getManagementAddress());
+      assertEquals(SimpleString.of("Whatever"), configInstance.getManagementNotificationAddress());
+      assertEquals("Frog", configInstance.getClusterUser());
+      assertEquals("Wombat", configInstance.getClusterPassword());
+      assertFalse(configInstance.isJMXManagementEnabled());
+      assertEquals("gro.qtenroh", configInstance.getJMXDomain());
+      assertTrue(configInstance.isMessageCounterEnabled());
+      assertEquals(5, configInstance.getMessageCounterMaxDayHistory());
+      assertEquals(123456, configInstance.getMessageCounterSamplePeriod());
+      assertEquals(12345, configInstance.getConnectionTTLOverride());
+      assertEquals(98765, configInstance.getTransactionTimeout());
+      assertEquals(56789, configInstance.getTransactionTimeoutScanPeriod());
+      assertEquals(10111213, configInstance.getMessageExpiryScanPeriod());
+      assertEquals(25000, configInstance.getAddressQueueScanPeriod());
+      assertEquals(127, configInstance.getIDCacheSize());
+      assertTrue(configInstance.isPersistIDCache());
+      assertEquals(Integer.valueOf(777), configInstance.getJournalDeviceBlockSize());
+      assertTrue(configInstance.isPersistDeliveryCountBeforeDelivery());
+      assertEquals("pagingdir", configInstance.getPagingDirectory());
+      assertEquals("somedir", configInstance.getBindingsDirectory());
+      assertFalse(configInstance.isCreateBindingsDir());
+      assertTrue(configInstance.isAmqpUseCoreSubscriptionNaming());
+      assertFalse(configInstance.isSuppressSessionNotifications());
+      assertEquals("()", configInstance.getLiteralMatchMarkers());
 
-      assertEquals(17, conf.getPageMaxConcurrentIO(), "max concurrent io");
-      assertTrue(conf.isReadWholePage());
-      assertEquals("somedir2", conf.getJournalDirectory());
-      assertEquals("history", conf.getJournalRetentionDirectory());
-      assertEquals(10L * 1024L * 1024L * 1024L, conf.getJournalRetentionMaxBytes());
-      assertEquals(TimeUnit.DAYS.toMillis(365), conf.getJournalRetentionPeriod());
-      assertFalse(conf.isCreateJournalDir());
-      assertEquals(JournalType.NIO, conf.getJournalType());
-      assertEquals(10000, conf.getJournalBufferSize_NIO());
-      assertEquals(1000, conf.getJournalBufferTimeout_NIO());
-      assertEquals(56546, conf.getJournalMaxIO_NIO());
-      assertEquals(9876, conf.getJournalFileOpenTimeout());
+      assertEquals(17, configInstance.getPageMaxConcurrentIO(), "max concurrent io");
+      assertTrue(configInstance.isReadWholePage());
+      assertEquals("somedir2", configInstance.getJournalDirectory());
+      assertEquals("history", configInstance.getJournalRetentionDirectory());
+      assertEquals(10L * 1024L * 1024L * 1024L, configInstance.getJournalRetentionMaxBytes());
+      assertEquals(TimeUnit.DAYS.toMillis(365), configInstance.getJournalRetentionPeriod());
+      assertFalse(configInstance.isCreateJournalDir());
+      assertEquals(JournalType.NIO, configInstance.getJournalType());
+      assertEquals(10000, configInstance.getJournalBufferSize_NIO());
+      assertEquals(1000, configInstance.getJournalBufferTimeout_NIO());
+      assertEquals(56546, configInstance.getJournalMaxIO_NIO());
+      assertEquals(9876, configInstance.getJournalFileOpenTimeout());
 
-      assertFalse(conf.isJournalSyncTransactional());
-      assertTrue(conf.isJournalSyncNonTransactional());
-      assertEquals(12345678, conf.getJournalFileSize());
-      assertEquals(100, conf.getJournalMinFiles());
-      assertEquals(123, conf.getJournalCompactMinFiles());
-      assertEquals(33, conf.getJournalCompactPercentage());
-      assertEquals(7654, conf.getJournalLockAcquisitionTimeout());
-      assertTrue(conf.isGracefulShutdownEnabled());
-      assertEquals(12345, conf.getGracefulShutdownTimeout());
-      assertTrue(conf.isPopulateValidatedUser());
-      assertFalse(conf.isRejectEmptyValidatedUser());
-      assertEquals(123456, conf.getMqttSessionScanInterval());
-      assertEquals(567890, conf.getMqttSessionStatePersistenceTimeout());
-      assertEquals(98765, conf.getConnectionTtlCheckInterval());
-      assertEquals(1234567, conf.getConfigurationFileRefreshPeriod());
-      assertEquals("TEMP", conf.getTemporaryQueueNamespace());
+      assertFalse(configInstance.isJournalSyncTransactional());
+      assertTrue(configInstance.isJournalSyncNonTransactional());
+      assertEquals(12345678, configInstance.getJournalFileSize());
+      assertEquals(100, configInstance.getJournalMinFiles());
+      assertEquals(123, configInstance.getJournalCompactMinFiles());
+      assertEquals(33, configInstance.getJournalCompactPercentage());
+      assertEquals(7654, configInstance.getJournalLockAcquisitionTimeout());
+      assertTrue(configInstance.isGracefulShutdownEnabled());
+      assertEquals(12345, configInstance.getGracefulShutdownTimeout());
+      assertTrue(configInstance.isPopulateValidatedUser());
+      assertFalse(configInstance.isRejectEmptyValidatedUser());
+      assertEquals(123456, configInstance.getMqttSessionScanInterval());
+      assertEquals(567890, configInstance.getMqttSessionStatePersistenceTimeout());
+      assertEquals(98765, configInstance.getConnectionTtlCheckInterval());
+      assertEquals(1234567, configInstance.getConfigurationFileRefreshPeriod());
+      assertEquals("TEMP", configInstance.getTemporaryQueueNamespace());
 
-      assertEquals("127.0.0.1", conf.getNetworkCheckList());
-      assertEquals("some-nick", conf.getNetworkCheckNIC());
-      assertEquals(123, conf.getNetworkCheckPeriod());
-      assertEquals(321, conf.getNetworkCheckTimeout());
-      assertEquals("ping-four", conf.getNetworkCheckPingCommand());
-      assertEquals("ping-six", conf.getNetworkCheckPing6Command());
+      assertEquals("127.0.0.1", configInstance.getNetworkCheckList());
+      assertEquals("some-nick", configInstance.getNetworkCheckNIC());
+      assertEquals(123, configInstance.getNetworkCheckPeriod());
+      assertEquals(321, configInstance.getNetworkCheckTimeout());
+      assertEquals("ping-four", configInstance.getNetworkCheckPingCommand());
+      assertEquals("ping-six", configInstance.getNetworkCheckPing6Command());
 
-      assertEquals("largemessagesdir", conf.getLargeMessagesDirectory());
-      assertEquals(95, conf.getMemoryWarningThreshold());
+      assertEquals("largemessagesdir", configInstance.getLargeMessagesDirectory());
+      assertEquals(95, configInstance.getMemoryWarningThreshold());
 
-      assertEquals(2, conf.getIncomingInterceptorClassNames().size());
-      assertTrue(conf.getIncomingInterceptorClassNames().contains("org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1"));
-      assertTrue(conf.getIncomingInterceptorClassNames().contains("org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2"));
+      assertEquals(2, configInstance.getIncomingInterceptorClassNames().size());
+      assertTrue(configInstance.getIncomingInterceptorClassNames().contains("org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1"));
+      assertTrue(configInstance.getIncomingInterceptorClassNames().contains("org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2"));
 
-      assertEquals(2, conf.getConnectorConfigurations().size());
+      assertEquals(2, configInstance.getConnectorConfigurations().size());
 
-      TransportConfiguration tc = conf.getConnectorConfigurations().get("connector1");
+      TransportConfiguration tc = configInstance.getConnectorConfigurations().get("connector1");
       assertNotNull(tc);
       assertEquals("org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory", tc.getFactoryClassName());
       assertEquals("mylocal", tc.getParams().get("localAddress"));
@@ -269,13 +274,13 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertEquals("localhost1", tc.getParams().get("host"));
       assertEquals("5678", tc.getParams().get("port"));
 
-      tc = conf.getConnectorConfigurations().get("connector2");
+      tc = configInstance.getConnectorConfigurations().get("connector2");
       assertNotNull(tc);
       assertEquals("org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory", tc.getFactoryClassName());
       assertEquals("5", tc.getParams().get("serverId"));
 
-      assertEquals(2, conf.getAcceptorConfigurations().size());
-      for (TransportConfiguration ac : conf.getAcceptorConfigurations()) {
+      assertEquals(2, configInstance.getAcceptorConfigurations().size());
+      for (TransportConfiguration ac : configInstance.getAcceptorConfigurations()) {
          if (ac.getFactoryClassName().equals("org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory")) {
             assertEquals("456", ac.getParams().get("tcpNoDelay"));
             assertEquals("44", ac.getParams().get("connectionTtl"));
@@ -287,8 +292,8 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
          }
       }
 
-      assertEquals(2, conf.getBroadcastGroupConfigurations().size());
-      for (BroadcastGroupConfiguration bc : conf.getBroadcastGroupConfigurations()) {
+      assertEquals(2, configInstance.getBroadcastGroupConfigurations().size());
+      for (BroadcastGroupConfiguration bc : configInstance.getBroadcastGroupConfigurations()) {
          UDPBroadcastEndpointFactory udpBc = (UDPBroadcastEndpointFactory) bc.getEndpointFactory();
          if (bc.getName().equals("bg1")) {
             assertEquals("bg1", bc.getName());
@@ -307,23 +312,23 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
          }
       }
 
-      assertEquals(2, conf.getDiscoveryGroupConfigurations().size());
-      DiscoveryGroupConfiguration dc = conf.getDiscoveryGroupConfigurations().get("dg1");
+      assertEquals(2, configInstance.getDiscoveryGroupConfigurations().size());
+      DiscoveryGroupConfiguration dc = configInstance.getDiscoveryGroupConfigurations().get("dg1");
       assertEquals("dg1", dc.getName());
       assertEquals("192.168.0.120", ((UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory()).getGroupAddress());
       assertEquals("172.16.8.10", ((UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory()).getLocalBindAddress());
       assertEquals(11999, ((UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory()).getGroupPort());
       assertEquals(12345, dc.getRefreshTimeout());
 
-      dc = conf.getDiscoveryGroupConfigurations().get("dg2");
+      dc = configInstance.getDiscoveryGroupConfigurations().get("dg2");
       assertEquals("dg2", dc.getName());
       assertEquals("192.168.0.121", ((UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory()).getGroupAddress());
       assertEquals("172.16.8.11", ((UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory()).getLocalBindAddress());
       assertEquals(12999, ((UDPBroadcastEndpointFactory) dc.getBroadcastEndpointFactory()).getGroupPort());
       assertEquals(23456, dc.getRefreshTimeout());
 
-      assertEquals(3, conf.getDivertConfigurations().size());
-      for (DivertConfiguration dic : conf.getDivertConfigurations()) {
+      assertEquals(3, configInstance.getDivertConfigurations().size());
+      for (DivertConfiguration dic : configInstance.getDivertConfigurations()) {
          if (dic.getName().equals("divert1")) {
             assertEquals("divert1", dic.getName());
             assertEquals("routing-name1", dic.getRoutingName());
@@ -348,8 +353,8 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
          }
       }
 
-      assertEquals(6, conf.getConnectionRouters().size());
-      for (ConnectionRouterConfiguration bc : conf.getConnectionRouters()) {
+      assertEquals(6, configInstance.getConnectionRouters().size());
+      for (ConnectionRouterConfiguration bc : configInstance.getConnectionRouters()) {
          if (bc.getName().equals("simple-local")) {
             assertEquals(KeyType.CLIENT_ID, bc.getKeyType());
             assertNotNull(bc.getLocalTargetFilter());
@@ -400,8 +405,8 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
          }
       }
 
-      assertEquals(4, conf.getBridgeConfigurations().size());
-      for (BridgeConfiguration bc : conf.getBridgeConfigurations()) {
+      assertEquals(4, configInstance.getBridgeConfigurations().size());
+      for (BridgeConfiguration bc : configInstance.getBridgeConfigurations()) {
          if (bc.getName().equals("bridge1")) {
             assertEquals("bridge1", bc.getName());
             assertEquals("queue1", bc.getQueueName());
@@ -442,9 +447,9 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
          }
       }
 
-      assertEquals(3, conf.getClusterConfigurations().size());
+      assertEquals(3, configInstance.getClusterConfigurations().size());
 
-      HAPolicyConfiguration pc = conf.getHAPolicyConfiguration();
+      HAPolicyConfiguration pc = configInstance.getHAPolicyConfiguration();
       assertNotNull(pc);
       assertInstanceOf(PrimaryOnlyPolicyConfiguration.class, pc);
       PrimaryOnlyPolicyConfiguration lopc = (PrimaryOnlyPolicyConfiguration) pc;
@@ -453,7 +458,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertEquals("dg1", lopc.getScaleDownConfiguration().getDiscoveryGroup());
       assertEquals(33, lopc.getScaleDownConfiguration().getCommitInterval());
 
-      for (ClusterConnectionConfiguration ccc : conf.getClusterConfigurations()) {
+      for (ClusterConnectionConfiguration ccc : configInstance.getClusterConfigurations()) {
          if (ccc.getName().equals("cluster-connection3")) {
             assertEquals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, ccc.getMessageLoadBalancingType());
             assertEquals(ActiveMQDefaultConfiguration.getDefaultClusterCallTimeout(), ccc.getCallTimeout());
@@ -495,125 +500,125 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
          }
       }
 
-      assertEquals(2, conf.getAddressSettings().size());
+      assertEquals(2, configInstance.getAddressSettings().size());
 
-      assertNotNull(conf.getAddressSettings().get("a1"));
-      assertNotNull(conf.getAddressSettings().get("a2"));
+      assertNotNull(configInstance.getAddressSettings().get("a1"));
+      assertNotNull(configInstance.getAddressSettings().get("a2"));
 
-      assertEquals("a1.1", conf.getAddressSettings().get("a1").getDeadLetterAddress().toString());
-      assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_DEAD_LETTER_RESOURCES, conf.getAddressSettings().get("a1").isAutoCreateDeadLetterResources());
-      assertEquals(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX, conf.getAddressSettings().get("a1").getDeadLetterQueuePrefix());
-      assertEquals(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX, conf.getAddressSettings().get("a1").getDeadLetterQueueSuffix());
-      assertEquals("a1.2", conf.getAddressSettings().get("a1").getExpiryAddress().toString());
-      assertEquals(1L, (long) conf.getAddressSettings().get("a1").getExpiryDelay());
-      assertEquals(2L, (long) conf.getAddressSettings().get("a1").getMinExpiryDelay());
-      assertEquals(3L, (long) conf.getAddressSettings().get("a1").getMaxExpiryDelay());
-      assertTrue(conf.getAddressSettings().get("a1").isNoExpiry());
-      assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_EXPIRY_RESOURCES, conf.getAddressSettings().get("a1").isAutoCreateExpiryResources());
-      assertEquals(AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX, conf.getAddressSettings().get("a1").getExpiryQueuePrefix());
-      assertEquals(AddressSettings.DEFAULT_EXPIRY_QUEUE_SUFFIX, conf.getAddressSettings().get("a1").getExpiryQueueSuffix());
-      assertEquals(1, conf.getAddressSettings().get("a1").getRedeliveryDelay());
-      assertEquals(0.5, conf.getAddressSettings().get("a1").getRedeliveryCollisionAvoidanceFactor(), 0);
-      assertEquals(856686592L, conf.getAddressSettings().get("a1").getMaxSizeBytes());
-      assertEquals(817381738L, conf.getAddressSettings().get("a1").getPageSizeBytes());
-      assertEquals(10, conf.getAddressSettings().get("a1").getPageCacheMaxSize());
-      assertEquals(4, conf.getAddressSettings().get("a1").getMessageCounterHistoryDayLimit());
-      assertEquals(10, conf.getAddressSettings().get("a1").getSlowConsumerThreshold());
-      assertEquals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_HOUR, conf.getAddressSettings().get("a1").getSlowConsumerThresholdMeasurementUnit());
-      assertEquals(5, conf.getAddressSettings().get("a1").getSlowConsumerCheckPeriod());
-      assertEquals(SlowConsumerPolicy.NOTIFY, conf.getAddressSettings().get("a1").getSlowConsumerPolicy());
-      assertTrue(conf.getAddressSettings().get("a1").isAutoCreateJmsQueues());
-      assertTrue(conf.getAddressSettings().get("a1").isAutoDeleteJmsQueues());
-      assertTrue(conf.getAddressSettings().get("a1").isAutoCreateJmsTopics());
-      assertTrue(conf.getAddressSettings().get("a1").isAutoDeleteJmsTopics());
-      assertEquals(0, conf.getAddressSettings().get("a1").getAutoDeleteQueuesDelay());
-      assertFalse(conf.getAddressSettings().get("a1").getAutoDeleteQueuesSkipUsageCheck());
-      assertEquals(0, conf.getAddressSettings().get("a1").getAutoDeleteAddressesDelay());
-      assertFalse(conf.getAddressSettings().get("a1").isAutoDeleteAddressesSkipUsageCheck());
-      assertNotNull(conf.getAddressSettings().get("a1").isDefaultPurgeOnNoConsumers());
-      assertFalse(conf.getAddressSettings().get("a1").isDefaultPurgeOnNoConsumers());
-      assertEquals(Integer.valueOf(5), conf.getAddressSettings().get("a1").getDefaultMaxConsumers());
-      assertEquals(RoutingType.ANYCAST, conf.getAddressSettings().get("a1").getDefaultQueueRoutingType());
-      assertEquals(RoutingType.MULTICAST, conf.getAddressSettings().get("a1").getDefaultAddressRoutingType());
-      assertEquals(3, conf.getAddressSettings().get("a1").getDefaultRingSize());
-      assertEquals(0, conf.getAddressSettings().get("a1").getRetroactiveMessageCount());
-      assertTrue(conf.getAddressSettings().get("a1").isEnableMetrics());
-      assertTrue(conf.getAddressSettings().get("a1").isEnableIngressTimestamp());
-      assertNull(conf.getAddressSettings().get("a1").getIDCacheSize());
-      assertNull(conf.getAddressSettings().get("a1").getInitialQueueBufferSize());
+      assertEquals("a1.1", configInstance.getAddressSettings().get("a1").getDeadLetterAddress().toString());
+      assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_DEAD_LETTER_RESOURCES, configInstance.getAddressSettings().get("a1").isAutoCreateDeadLetterResources());
+      assertEquals(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_PREFIX, configInstance.getAddressSettings().get("a1").getDeadLetterQueuePrefix());
+      assertEquals(AddressSettings.DEFAULT_DEAD_LETTER_QUEUE_SUFFIX, configInstance.getAddressSettings().get("a1").getDeadLetterQueueSuffix());
+      assertEquals("a1.2", configInstance.getAddressSettings().get("a1").getExpiryAddress().toString());
+      assertEquals(1L, (long) configInstance.getAddressSettings().get("a1").getExpiryDelay());
+      assertEquals(2L, (long) configInstance.getAddressSettings().get("a1").getMinExpiryDelay());
+      assertEquals(3L, (long) configInstance.getAddressSettings().get("a1").getMaxExpiryDelay());
+      assertTrue(configInstance.getAddressSettings().get("a1").isNoExpiry());
+      assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_EXPIRY_RESOURCES, configInstance.getAddressSettings().get("a1").isAutoCreateExpiryResources());
+      assertEquals(AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX, configInstance.getAddressSettings().get("a1").getExpiryQueuePrefix());
+      assertEquals(AddressSettings.DEFAULT_EXPIRY_QUEUE_SUFFIX, configInstance.getAddressSettings().get("a1").getExpiryQueueSuffix());
+      assertEquals(1, configInstance.getAddressSettings().get("a1").getRedeliveryDelay());
+      assertEquals(0.5, configInstance.getAddressSettings().get("a1").getRedeliveryCollisionAvoidanceFactor(), 0);
+      assertEquals(856686592L, configInstance.getAddressSettings().get("a1").getMaxSizeBytes());
+      assertEquals(817381738L, configInstance.getAddressSettings().get("a1").getPageSizeBytes());
+      assertEquals(10, configInstance.getAddressSettings().get("a1").getPageCacheMaxSize());
+      assertEquals(4, configInstance.getAddressSettings().get("a1").getMessageCounterHistoryDayLimit());
+      assertEquals(10, configInstance.getAddressSettings().get("a1").getSlowConsumerThreshold());
+      assertEquals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_HOUR, configInstance.getAddressSettings().get("a1").getSlowConsumerThresholdMeasurementUnit());
+      assertEquals(5, configInstance.getAddressSettings().get("a1").getSlowConsumerCheckPeriod());
+      assertEquals(SlowConsumerPolicy.NOTIFY, configInstance.getAddressSettings().get("a1").getSlowConsumerPolicy());
+      assertTrue(configInstance.getAddressSettings().get("a1").isAutoCreateJmsQueues());
+      assertTrue(configInstance.getAddressSettings().get("a1").isAutoDeleteJmsQueues());
+      assertTrue(configInstance.getAddressSettings().get("a1").isAutoCreateJmsTopics());
+      assertTrue(configInstance.getAddressSettings().get("a1").isAutoDeleteJmsTopics());
+      assertEquals(0, configInstance.getAddressSettings().get("a1").getAutoDeleteQueuesDelay());
+      assertFalse(configInstance.getAddressSettings().get("a1").getAutoDeleteQueuesSkipUsageCheck());
+      assertEquals(0, configInstance.getAddressSettings().get("a1").getAutoDeleteAddressesDelay());
+      assertFalse(configInstance.getAddressSettings().get("a1").isAutoDeleteAddressesSkipUsageCheck());
+      assertNotNull(configInstance.getAddressSettings().get("a1").isDefaultPurgeOnNoConsumers());
+      assertFalse(configInstance.getAddressSettings().get("a1").isDefaultPurgeOnNoConsumers());
+      assertEquals(Integer.valueOf(5), configInstance.getAddressSettings().get("a1").getDefaultMaxConsumers());
+      assertEquals(RoutingType.ANYCAST, configInstance.getAddressSettings().get("a1").getDefaultQueueRoutingType());
+      assertEquals(RoutingType.MULTICAST, configInstance.getAddressSettings().get("a1").getDefaultAddressRoutingType());
+      assertEquals(3, configInstance.getAddressSettings().get("a1").getDefaultRingSize());
+      assertEquals(0, configInstance.getAddressSettings().get("a1").getRetroactiveMessageCount());
+      assertTrue(configInstance.getAddressSettings().get("a1").isEnableMetrics());
+      assertTrue(configInstance.getAddressSettings().get("a1").isEnableIngressTimestamp());
+      assertNull(configInstance.getAddressSettings().get("a1").getIDCacheSize());
+      assertNull(configInstance.getAddressSettings().get("a1").getInitialQueueBufferSize());
 
-      assertEquals("a2.1", conf.getAddressSettings().get("a2").getDeadLetterAddress().toString());
-      assertTrue(conf.getAddressSettings().get("a2").isAutoCreateDeadLetterResources());
-      assertEquals("", conf.getAddressSettings().get("a2").getDeadLetterQueuePrefix().toString());
-      assertEquals(".DLQ", conf.getAddressSettings().get("a2").getDeadLetterQueueSuffix().toString());
-      assertEquals("a2.2", conf.getAddressSettings().get("a2").getExpiryAddress().toString());
-      assertEquals(-1L, (long) conf.getAddressSettings().get("a2").getExpiryDelay());
-      assertEquals(-1L, (long) conf.getAddressSettings().get("a2").getMinExpiryDelay());
-      assertEquals(-1L, (long) conf.getAddressSettings().get("a2").getMaxExpiryDelay());
-      assertFalse(conf.getAddressSettings().get("a2").isNoExpiry());
-      assertTrue(conf.getAddressSettings().get("a2").isAutoCreateDeadLetterResources());
-      assertEquals("", conf.getAddressSettings().get("a2").getExpiryQueuePrefix().toString());
-      assertEquals(".EXP", conf.getAddressSettings().get("a2").getExpiryQueueSuffix().toString());
-      assertEquals(5, conf.getAddressSettings().get("a2").getRedeliveryDelay());
-      assertEquals(0.0, conf.getAddressSettings().get("a2").getRedeliveryCollisionAvoidanceFactor(), 0);
-      assertEquals(932489234928324L, conf.getAddressSettings().get("a2").getMaxSizeBytes());
-      assertEquals(712671626L, conf.getAddressSettings().get("a2").getPageSizeBytes());
-      assertEquals(20, conf.getAddressSettings().get("a2").getPageCacheMaxSize());
-      assertEquals(8, conf.getAddressSettings().get("a2").getMessageCounterHistoryDayLimit());
-      assertEquals(20, conf.getAddressSettings().get("a2").getSlowConsumerThreshold());
-      assertEquals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_DAY, conf.getAddressSettings().get("a2").getSlowConsumerThresholdMeasurementUnit());
-      assertEquals(15, conf.getAddressSettings().get("a2").getSlowConsumerCheckPeriod());
-      assertEquals(SlowConsumerPolicy.KILL, conf.getAddressSettings().get("a2").getSlowConsumerPolicy());
-      assertFalse(conf.getAddressSettings().get("a2").isAutoCreateJmsQueues());
-      assertFalse(conf.getAddressSettings().get("a2").isAutoDeleteJmsQueues());
-      assertFalse(conf.getAddressSettings().get("a2").isAutoCreateJmsTopics());
-      assertFalse(conf.getAddressSettings().get("a2").isAutoDeleteJmsTopics());
-      assertEquals(500, conf.getAddressSettings().get("a2").getAutoDeleteQueuesDelay());
-      assertTrue(conf.getAddressSettings().get("a2").getAutoDeleteQueuesSkipUsageCheck());
-      assertEquals(1000, conf.getAddressSettings().get("a2").getAutoDeleteAddressesDelay());
-      assertTrue(conf.getAddressSettings().get("a2").isAutoDeleteAddressesSkipUsageCheck());
-      assertNotNull(conf.getAddressSettings().get("a2").isDefaultPurgeOnNoConsumers());
-      assertTrue(conf.getAddressSettings().get("a2").isDefaultPurgeOnNoConsumers());
-      assertEquals(Integer.valueOf(15), conf.getAddressSettings().get("a2").getDefaultMaxConsumers());
-      assertEquals(RoutingType.MULTICAST, conf.getAddressSettings().get("a2").getDefaultQueueRoutingType());
-      assertEquals(RoutingType.ANYCAST, conf.getAddressSettings().get("a2").getDefaultAddressRoutingType());
-      assertEquals(10000, conf.getAddressSettings().get("a2").getDefaultConsumerWindowSize());
-      assertEquals(-1, conf.getAddressSettings().get("a2").getDefaultRingSize());
-      assertEquals(10, conf.getAddressSettings().get("a2").getRetroactiveMessageCount());
-      assertFalse(conf.getAddressSettings().get("a2").isEnableMetrics());
-      assertFalse(conf.getAddressSettings().get("a2").isEnableIngressTimestamp());
-      assertEquals(Integer.valueOf(500), conf.getAddressSettings().get("a2").getIDCacheSize());
-      assertEquals(Integer.valueOf(128), conf.getAddressSettings().get("a2").getInitialQueueBufferSize());
+      assertEquals("a2.1", configInstance.getAddressSettings().get("a2").getDeadLetterAddress().toString());
+      assertTrue(configInstance.getAddressSettings().get("a2").isAutoCreateDeadLetterResources());
+      assertEquals("", configInstance.getAddressSettings().get("a2").getDeadLetterQueuePrefix().toString());
+      assertEquals(".DLQ", configInstance.getAddressSettings().get("a2").getDeadLetterQueueSuffix().toString());
+      assertEquals("a2.2", configInstance.getAddressSettings().get("a2").getExpiryAddress().toString());
+      assertEquals(-1L, (long) configInstance.getAddressSettings().get("a2").getExpiryDelay());
+      assertEquals(-1L, (long) configInstance.getAddressSettings().get("a2").getMinExpiryDelay());
+      assertEquals(-1L, (long) configInstance.getAddressSettings().get("a2").getMaxExpiryDelay());
+      assertFalse(configInstance.getAddressSettings().get("a2").isNoExpiry());
+      assertTrue(configInstance.getAddressSettings().get("a2").isAutoCreateDeadLetterResources());
+      assertEquals("", configInstance.getAddressSettings().get("a2").getExpiryQueuePrefix().toString());
+      assertEquals(".EXP", configInstance.getAddressSettings().get("a2").getExpiryQueueSuffix().toString());
+      assertEquals(5, configInstance.getAddressSettings().get("a2").getRedeliveryDelay());
+      assertEquals(0.0, configInstance.getAddressSettings().get("a2").getRedeliveryCollisionAvoidanceFactor(), 0);
+      assertEquals(932489234928324L, configInstance.getAddressSettings().get("a2").getMaxSizeBytes());
+      assertEquals(712671626L, configInstance.getAddressSettings().get("a2").getPageSizeBytes());
+      assertEquals(20, configInstance.getAddressSettings().get("a2").getPageCacheMaxSize());
+      assertEquals(8, configInstance.getAddressSettings().get("a2").getMessageCounterHistoryDayLimit());
+      assertEquals(20, configInstance.getAddressSettings().get("a2").getSlowConsumerThreshold());
+      assertEquals(SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_DAY, configInstance.getAddressSettings().get("a2").getSlowConsumerThresholdMeasurementUnit());
+      assertEquals(15, configInstance.getAddressSettings().get("a2").getSlowConsumerCheckPeriod());
+      assertEquals(SlowConsumerPolicy.KILL, configInstance.getAddressSettings().get("a2").getSlowConsumerPolicy());
+      assertFalse(configInstance.getAddressSettings().get("a2").isAutoCreateJmsQueues());
+      assertFalse(configInstance.getAddressSettings().get("a2").isAutoDeleteJmsQueues());
+      assertFalse(configInstance.getAddressSettings().get("a2").isAutoCreateJmsTopics());
+      assertFalse(configInstance.getAddressSettings().get("a2").isAutoDeleteJmsTopics());
+      assertEquals(500, configInstance.getAddressSettings().get("a2").getAutoDeleteQueuesDelay());
+      assertTrue(configInstance.getAddressSettings().get("a2").getAutoDeleteQueuesSkipUsageCheck());
+      assertEquals(1000, configInstance.getAddressSettings().get("a2").getAutoDeleteAddressesDelay());
+      assertTrue(configInstance.getAddressSettings().get("a2").isAutoDeleteAddressesSkipUsageCheck());
+      assertNotNull(configInstance.getAddressSettings().get("a2").isDefaultPurgeOnNoConsumers());
+      assertTrue(configInstance.getAddressSettings().get("a2").isDefaultPurgeOnNoConsumers());
+      assertEquals(Integer.valueOf(15), configInstance.getAddressSettings().get("a2").getDefaultMaxConsumers());
+      assertEquals(RoutingType.MULTICAST, configInstance.getAddressSettings().get("a2").getDefaultQueueRoutingType());
+      assertEquals(RoutingType.ANYCAST, configInstance.getAddressSettings().get("a2").getDefaultAddressRoutingType());
+      assertEquals(10000, configInstance.getAddressSettings().get("a2").getDefaultConsumerWindowSize());
+      assertEquals(-1, configInstance.getAddressSettings().get("a2").getDefaultRingSize());
+      assertEquals(10, configInstance.getAddressSettings().get("a2").getRetroactiveMessageCount());
+      assertFalse(configInstance.getAddressSettings().get("a2").isEnableMetrics());
+      assertFalse(configInstance.getAddressSettings().get("a2").isEnableIngressTimestamp());
+      assertEquals(Integer.valueOf(500), configInstance.getAddressSettings().get("a2").getIDCacheSize());
+      assertEquals(Integer.valueOf(128), configInstance.getAddressSettings().get("a2").getInitialQueueBufferSize());
 
-      assertEquals(111, conf.getMirrorAckManagerQueueAttempts());
-      assertTrue(conf.isMirrorAckManagerWarnUnacked());
-      assertEquals(222, conf.getMirrorAckManagerPageAttempts());
-      assertEquals(333, conf.getMirrorAckManagerRetryDelay());
-      assertTrue(conf.isMirrorPageTransaction());
+      assertEquals(111, configInstance.getMirrorAckManagerQueueAttempts());
+      assertTrue(configInstance.isMirrorAckManagerWarnUnacked());
+      assertEquals(222, configInstance.getMirrorAckManagerPageAttempts());
+      assertEquals(333, configInstance.getMirrorAckManagerRetryDelay());
+      assertTrue(configInstance.isMirrorPageTransaction());
 
-      assertTrue(conf.getResourceLimitSettings().containsKey("myUser"));
+      assertTrue(configInstance.getResourceLimitSettings().containsKey("myUser"));
       // continue testing deprecated method
-      assertEquals(104, conf.getResourceLimitSettings().get("myUser").getMaxConnections());
-      assertEquals(104, conf.getResourceLimitSettings().get("myUser").getMaxSessions());
-      assertEquals(13, conf.getResourceLimitSettings().get("myUser").getMaxQueues());
+      assertEquals(104, configInstance.getResourceLimitSettings().get("myUser").getMaxConnections());
+      assertEquals(104, configInstance.getResourceLimitSettings().get("myUser").getMaxSessions());
+      assertEquals(13, configInstance.getResourceLimitSettings().get("myUser").getMaxQueues());
 
-      assertEquals(2, conf.getQueueConfigs().size());
+      assertEquals(2, configInstance.getQueueConfigs().size());
 
-      assertEquals("queue1", conf.getQueueConfigs().get(0).getName().toString());
-      assertEquals("address1", conf.getQueueConfigs().get(0).getAddress().toString());
-      assertEquals("color='red'", conf.getQueueConfigs().get(0).getFilterString().toString());
-      assertNotNull(conf.getQueueConfigs().get(0).isDurable());
-      assertFalse(conf.getQueueConfigs().get(0).isDurable());
+      assertEquals("queue1", configInstance.getQueueConfigs().get(0).getName().toString());
+      assertEquals("address1", configInstance.getQueueConfigs().get(0).getAddress().toString());
+      assertEquals("color='red'", configInstance.getQueueConfigs().get(0).getFilterString().toString());
+      assertNotNull(configInstance.getQueueConfigs().get(0).isDurable());
+      assertFalse(configInstance.getQueueConfigs().get(0).isDurable());
 
-      assertEquals("queue2", conf.getQueueConfigs().get(1).getName().toString());
-      assertEquals("address2", conf.getQueueConfigs().get(1).getAddress().toString());
-      assertEquals("color='blue'", conf.getQueueConfigs().get(1).getFilterString().toString());
-      assertNotNull(conf.getQueueConfigs().get(1).isDurable());
-      assertFalse(conf.getQueueConfigs().get(1).isDurable());
+      assertEquals("queue2", configInstance.getQueueConfigs().get(1).getName().toString());
+      assertEquals("address2", configInstance.getQueueConfigs().get(1).getAddress().toString());
+      assertEquals("color='blue'", configInstance.getQueueConfigs().get(1).getFilterString().toString());
+      assertNotNull(configInstance.getQueueConfigs().get(1).isDurable());
+      assertFalse(configInstance.getQueueConfigs().get(1).isDurable());
 
       verifyAddresses();
 
-      Map<String, Set<Role>> roles = conf.getSecurityRoles();
+      Map<String, Set<Role>> roles = configInstance.getSecurityRoles();
 
       assertEquals(2, roles.size());
 
@@ -640,26 +645,26 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertFalse(a2Role.isCreateNonDurableQueue());
       assertTrue(a2Role.isDeleteNonDurableQueue());
       assertFalse(a2Role.isManage());
-      assertEquals(1234567, conf.getGlobalMaxSize());
-      assertEquals(37, conf.getMaxDiskUsage());
-      assertEquals(123, conf.getDiskScanPeriod());
+      assertEquals(1234567, configInstance.getGlobalMaxSize());
+      assertEquals(37, configInstance.getMaxDiskUsage());
+      assertEquals(123, configInstance.getDiskScanPeriod());
 
-      assertEquals(333, conf.getCriticalAnalyzerCheckPeriod());
-      assertEquals(777, conf.getCriticalAnalyzerTimeout());
-      assertFalse(conf.isCriticalAnalyzer());
-      assertEquals(CriticalAnalyzerPolicy.HALT, conf.getCriticalAnalyzerPolicy());
+      assertEquals(333, configInstance.getCriticalAnalyzerCheckPeriod());
+      assertEquals(777, configInstance.getCriticalAnalyzerTimeout());
+      assertFalse(configInstance.isCriticalAnalyzer());
+      assertEquals(CriticalAnalyzerPolicy.HALT, configInstance.getCriticalAnalyzerPolicy());
 
-      assertFalse(conf.isJournalDatasync());
+      assertFalse(configInstance.isJournalDatasync());
 
       // keep test for backwards compatibility
-      ActiveMQMetricsPlugin metricsPlugin = conf.getMetricsPlugin();
+      ActiveMQMetricsPlugin metricsPlugin = configInstance.getMetricsPlugin();
       assertInstanceOf(SimpleMetricsPlugin.class, metricsPlugin);
       Map<String, String> options = ((SimpleMetricsPlugin) metricsPlugin).getOptions();
       assertEquals("x", options.get("foo"));
       assertEquals("y", options.get("bar"));
       assertEquals("z", options.get("baz"));
 
-      MetricsConfiguration metricsConfiguration = conf.getMetricsConfiguration();
+      MetricsConfiguration metricsConfiguration = configInstance.getMetricsConfiguration();
       assertInstanceOf(SimpleMetricsPlugin.class, metricsConfiguration.getPlugin());
       options = ((SimpleMetricsPlugin) metricsPlugin).getOptions();
       assertEquals("x", options.get("foo"));
@@ -1018,6 +1023,22 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
    @TestTemplate
    public void testSetConnectionRoutersPolicyConfiguration() throws Throwable {
       doSetConnectionRoutersPolicyConfigurationTestImpl(new FileConfiguration());
+   }
+
+   @TestTemplate()
+   public void testExportImportFromProperties() throws Exception {
+      File exported = new File(getTestDirfile(), "broker_config_as_properties_export.txt");
+
+      conf.exportAsProperties(exported);
+
+      ConfigurationImpl configuration = new FileConfiguration();
+      configuration.parseFileProperties(exported);
+
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+
+      assertTrue(REDACTED.equals(configuration.getClusterPassword()));
+      configuration.setClusterPassword("Wombat");
+      validateFullConfig(configuration);
    }
 
    private Configuration createConfiguration(String filename) throws Exception {

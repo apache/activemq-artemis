@@ -1856,6 +1856,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          public long getAuthorizationFailureCount() {
             return (long) proxy.retrieveAttributeValue("authorizationFailureCount");
          }
+
+         @Override
+         public void exportConfigAsProperties() throws Exception {
+            proxy.invokeOperation("exportConfigAsProperties");
+         }
       };
    }
 

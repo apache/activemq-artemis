@@ -1272,7 +1272,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return idCacheSize;
    }
 
-   public AddressSettings setIDCacheSize(int idCacheSize) {
+   public AddressSettings setIDCacheSize(Integer idCacheSize) {
       this.idCacheSize = idCacheSize;
       return this;
    }
@@ -1281,7 +1281,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return initialQueueBufferSize;
    }
 
-   public AddressSettings setInitialQueueBufferSize(int initialQueueBufferSize) {
+   public AddressSettings setInitialQueueBufferSize(Integer initialQueueBufferSize) {
       this.initialQueueBufferSize = initialQueueBufferSize;
       return this;
    }

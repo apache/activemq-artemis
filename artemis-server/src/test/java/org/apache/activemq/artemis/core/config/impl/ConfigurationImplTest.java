@@ -16,15 +16,18 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import static org.apache.activemq.artemis.core.config.impl.ConfigurationImpl.REDACTED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.beans.PropertyDescriptor;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -104,6 +107,8 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
+import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
+import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.lang3.ClassUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -362,7 +367,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
       Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
-      insertionOrderedProperties.put("AMQPConnections.target.uri", "localhost:61617");
+      insertionOrderedProperties.put("AMQPConnections.target.uri", "tcp://localhost:61617");
       insertionOrderedProperties.put("AMQPConnections.target.retryInterval", 55);
       insertionOrderedProperties.put("AMQPConnections.target.reconnectAttempts", -2);
       insertionOrderedProperties.put("AMQPConnections.target.user", "admin");
@@ -385,7 +390,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals(1, configuration.getAMQPConnections().size());
       AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
       assertEquals("target", connectConfiguration.getName());
-      assertEquals("localhost:61617", connectConfiguration.getUri());
+      assertEquals("tcp://localhost:61617", connectConfiguration.getUri());
       assertEquals(55, connectConfiguration.getRetryInterval());
       assertEquals(-2, connectConfiguration.getReconnectAttempts());
       assertEquals("admin", connectConfiguration.getUser());
@@ -403,6 +408,14 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals("foo", amqpMirrorBrokerConnectionElement.getAddressFilter());
       assertFalse(amqpMirrorBrokerConnectionElement.getProperties().isEmpty());
       assertEquals("b", amqpMirrorBrokerConnectionElement.getProperties().get("a"));
+
+      File exported = new File(getTestDirfile(), "broker_config_as_properties_export.txt");
+      configuration.exportAsProperties(exported);
+
+      ConfigurationImpl loadFromExport = new ConfigurationImpl();
+      loadFromExport.parseFileProperties(exported);
+
+      assertTrue(loadFromExport.getStatus().contains("\"errors\":[]"));
    }
 
    @Test
@@ -421,7 +434,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       final String policyType = local ? "localAddressPolicies" : "remoteAddressPolicies";
 
       final Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
-      insertionOrderedProperties.put("AMQPConnections.target.uri", "localhost:61617");
+      insertionOrderedProperties.put("AMQPConnections.target.uri", "tcp://localhost:61617");
       insertionOrderedProperties.put("AMQPConnections.target.retryInterval", 55);
       insertionOrderedProperties.put("AMQPConnections.target.reconnectAttempts", -2);
       insertionOrderedProperties.put("AMQPConnections.target.user", "admin");
@@ -447,7 +460,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals(1, configuration.getAMQPConnections().size());
       AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
       assertEquals("target", connectConfiguration.getName());
-      assertEquals("localhost:61617", connectConfiguration.getUri());
+      assertEquals("tcp://localhost:61617", connectConfiguration.getUri());
       assertEquals(55, connectConfiguration.getRetryInterval());
       assertEquals(-2, connectConfiguration.getReconnectAttempts());
       assertEquals("admin", connectConfiguration.getUser());
@@ -528,6 +541,14 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       assertEquals(0, amqpFederationBrokerConnectionElement.getLocalQueuePolicies().size());
       assertEquals(0, amqpFederationBrokerConnectionElement.getRemoteQueuePolicies().size());
+
+      File exported = new File(getTestDirfile(), "broker_config_as_properties_export.txt");
+      configuration.exportAsProperties(exported);
+
+      ConfigurationImpl loadFromExport = new ConfigurationImpl();
+      loadFromExport.parseFileProperties(exported);
+
+      assertTrue(loadFromExport.getStatus().contains("\"errors\":[]"));
    }
 
    @Test
@@ -546,7 +567,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       final String policyType = local ? "localQueuePolicies" : "remoteQueuePolicies";
 
       final Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
-      insertionOrderedProperties.put("AMQPConnections.target.uri", "localhost:61617");
+      insertionOrderedProperties.put("AMQPConnections.target.uri", "tcp://localhost:61617");
       insertionOrderedProperties.put("AMQPConnections.target.retryInterval", 55);
       insertionOrderedProperties.put("AMQPConnections.target.reconnectAttempts", -2);
       insertionOrderedProperties.put("AMQPConnections.target.user", "admin");
@@ -572,7 +593,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals(1, configuration.getAMQPConnections().size());
       AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
       assertEquals("target", connectConfiguration.getName());
-      assertEquals("localhost:61617", connectConfiguration.getUri());
+      assertEquals("tcp://localhost:61617", connectConfiguration.getUri());
       assertEquals(55, connectConfiguration.getRetryInterval());
       assertEquals(-2, connectConfiguration.getReconnectAttempts());
       assertEquals("admin", connectConfiguration.getUser());
@@ -656,6 +677,14 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       assertEquals(0, amqpFederationBrokerConnectionElement.getLocalAddressPolicies().size());
       assertEquals(0, amqpFederationBrokerConnectionElement.getRemoteAddressPolicies().size());
+
+      File exported = new File(getTestDirfile(), "broker_config_as_properties_export.txt");
+      configuration.exportAsProperties(exported);
+
+      ConfigurationImpl loadFromExport = new ConfigurationImpl();
+      loadFromExport.parseFileProperties(exported);
+
+      assertTrue(loadFromExport.getStatus().contains("\"errors\":[]"));
    }
 
    @Test
@@ -1016,6 +1045,45 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals("secureexample", configuration.getFederationConfigurations().get(0).getCredentials().getPassword());
    }
 
+   @Test
+   public void testExportWithNonPasswordEnc() throws Exception {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+      properties.put("name", "ENC(2a7c211d21c295cdbcde3589c205decb)");
+
+      properties.put("AMQPConnections.target.uri", "tcp://amq-dc1-tls-amqp-svc.dc1.svc.cluster.local:5673?clientFailureCheckPeriod=30000&connectionTTL=60000&sslEnabled=true&verifyHost=false&trustStorePath=/remote-cluster-truststore/client.ts");
+      properties.put("AMQPConnections.target.transportConfigurations.target.params.enc", "ENC(2a7c211d21c295cdbcde3589c205decb)");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
+
+      assertEquals("secureexample", configuration.getName());
+      assertEquals("secureexample", configuration.getAMQPConnections().get(0).getTransportConfigurations().get(0).getParams().get("enc"));
+
+      File exported = new File(getTestDirfile(), "broker_config_as_properties_export.txt");
+      configuration.exportAsProperties(exported);
+
+      ConfigurationImpl loadFromExport = new ConfigurationImpl();
+      loadFromExport.parseFileProperties(exported);
+
+      assertTrue(loadFromExport.getStatus().contains("\"errors\":[]"));
+
+      assertEquals(REDACTED, loadFromExport.getName());
+      assertEquals(REDACTED, loadFromExport.getAMQPConnections().get(0).getTransportConfigurations().get(0).getParams().get("enc"));
+
+      ConfigurationImpl configurationCopy = (ConfigurationImpl) loadFromExport.copy();
+      configurationCopy.exportAsProperties(exported);
+
+      ConfigurationImpl loadFromExportCopy = new ConfigurationImpl();
+      loadFromExportCopy.parseFileProperties(exported);
+
+      assertTrue(loadFromExportCopy.getStatus().contains("\"errors\":[]"));
+
+      assertEquals(REDACTED, loadFromExportCopy.getName());
+      assertEquals(REDACTED, loadFromExportCopy.getAMQPConnections().get(0).getTransportConfigurations().get(0).getParams().get("enc"));
+   }
 
    @Test
    public void testAMQPBrokerConnectionMix() throws Throwable {
@@ -1043,6 +1111,12 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
             fail("unexpected amqp broker connection configuration: " + amqpBrokerConnectConfiguration.getName());
          }
       }
+
+      File exported = new File(getTestDirfile(), "broker_config_as_properties_export.txt");
+      configuration.exportAsProperties(exported);
+      ConfigurationImpl loadFromExport = new ConfigurationImpl();
+      loadFromExport.parseFileProperties(exported);
+      assertTrue(loadFromExport.getStatus().contains("\"errors\":[]"));
    }
 
    @Test
@@ -1177,12 +1251,13 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
    public void testAddressViaProperties() throws Throwable {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
-      Properties properties = new Properties();
-
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+      properties.put("addressConfigurations.\"LB.TEST\".name", "LB.TEST");
       properties.put("addressConfigurations.\"LB.TEST\".queueConfigs.\"LB.TEST\".routingType", "ANYCAST");
       properties.put("addressConfigurations.\"LB.TEST\".queueConfigs.\"LB.TEST\".durable", "false");
 
       configuration.parsePrefixedProperties(properties, null);
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
 
       assertEquals(1, configuration.getAddressConfigurations().size());
       assertEquals(1, configuration.getAddressConfigurations().get(0).getQueueConfigs().size());
@@ -1355,8 +1430,11 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       properties.put("addressSettings.NeedToSet.defaultExclusiveQueue", "true");
       properties.put("addressSettings.NeedToSet.defaultMaxConsumers", 10);
       properties.put("addressSettings.NeedToSet.iDCacheSize", 10);
+      properties.put("addressSettings.NeedToSet.noExpiry", true);
 
       configuration.parsePrefixedProperties(properties, null);
+
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
 
       assertEquals(4, configuration.getAddressSettings().size());
       assertEquals(SimpleString.of("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
@@ -1421,6 +1499,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertTrue(configuration.getAddressSettings().get("NeedToSet").isDefaultExclusiveQueue());
       assertEquals(Integer.valueOf(10), configuration.getAddressSettings().get("NeedToSet").getDefaultMaxConsumers());
       assertEquals(Integer.valueOf(10), configuration.getAddressSettings().get("NeedToSet").getIDCacheSize());
+      assertTrue(configuration.getAddressSettings().get("NeedToSet").isNoExpiry());
    }
 
    @Test
@@ -1713,6 +1792,23 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       role = configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null);
       assertNotNull(role);
       assertFalse(role.isCreateAddress());
+   }
+
+   @Test
+   public void testSecurityRoleMappingsViaPropertiesNotSupported() throws Exception {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      Properties properties = new Properties();
+
+      properties.put("securityRoleNameMappings.amq", "myrole4");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
+
+      Exception expected = assertThrows(ClassCastException.class, ()-> {
+         configuration.getSecurityRoleNameMappings().get("amq").contains("myrole4");
+      });
+      assertTrue(expected.toString().contains("Set"));
    }
 
    @Test
@@ -2482,6 +2578,27 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
    }
 
    @Test
+   public void testTypeMatchFluentDescriptor() throws Exception {
+      BeanUtilsBean beanUtilsBean = BeanUtilsBean.getInstance();
+      beanUtilsBean.getPropertyUtils().addBeanIntrospector(new FluentPropertyBeanIntrospectorWithIgnores());
+      PropertyDescriptor propertyDescriptor = beanUtilsBean.getPropertyUtils().getPropertyDescriptor(new DummyConfig(), "aBooleanProperty");
+
+      assertNotNull(propertyDescriptor);
+      assertNotNull(propertyDescriptor.getReadMethod());
+
+      propertyDescriptor = beanUtilsBean.getPropertyUtils().getPropertyDescriptor(new DummyConfig(), "IDCacheSize");
+
+      assertNotNull(propertyDescriptor);
+      assertNotNull(propertyDescriptor.getReadMethod());
+      assertNotNull(propertyDescriptor.getWriteMethod());
+
+      // legacy access to a setter for this
+      propertyDescriptor = beanUtilsBean.getPropertyUtils().getPropertyDescriptor(new DummyConfig(), "iDCacheSize");
+      assertNotNull(propertyDescriptor);
+      assertNotNull(propertyDescriptor.getWriteMethod());
+   }
+
+   @Test
    public void testConfigWithMultipleNullDescendantChildren() throws Throwable {
       String dummyPropertyPrefix = "dummy.";
       DummyConfig dummyConfig = new DummyConfig();
@@ -2515,6 +2632,8 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
    public static class DummyConfig {
       private int intProperty;
+      private int idCacheSize;
+      private Boolean aBooleanProperty;
 
       private DummyConfig childConfig;
 
@@ -2524,6 +2643,24 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       public DummyConfig setIntProperty(int intProperty) {
          this.intProperty = intProperty;
+         return this;
+      }
+
+      public Boolean isABooleanProperty() {
+         return aBooleanProperty;
+      }
+
+      public DummyConfig setABooleanProperty(Boolean booleanProperty) {
+         this.aBooleanProperty = booleanProperty;
+         return this;
+      }
+
+      public Integer getIDCacheSize() {
+         return idCacheSize;
+      }
+
+      public DummyConfig setIDCacheSize(Integer idCacheSize) {
+         this.idCacheSize = idCacheSize;
          return this;
       }
 

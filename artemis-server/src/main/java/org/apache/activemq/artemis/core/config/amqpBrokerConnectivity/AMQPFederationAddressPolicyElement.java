@@ -210,6 +210,9 @@ public final class AMQPFederationAddressPolicyElement implements Serializable {
       private String addressMatch;
 
       public String getName() {
+         if (name == null) {
+            return addressMatch;
+         }
          return name;
       }
 

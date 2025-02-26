@@ -86,6 +86,12 @@ To do this use the `forceFailover()` operation.
 
 Since this method actually stops the server you will probably receive some sort of error depending on which management service you use to call it.
 ====
+* The effective configuration of the broker core can be exported as properties using `exportConfigAsProperties()`. This operation will write a file to the broker's tmp dir called `broker_config_as_properties.txt`. The content can provide an entry point for using xref:configuration-index.adoc#broker-properties[brokerProperties].
+
+[NOTE]
+====
+The broker's tmp dir is configured via the system property `java.io.tmpdir`. The default value, set via the launch scripts, is `$ARTEMIS_INSTANCE/tmp`.
+====
 
 === Address Management
 

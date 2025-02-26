@@ -90,13 +90,13 @@
          <connector name="connector2">vm://5</connector>
       </connectors>
       <acceptors>
-         <acceptor>
+         <acceptor name="tcp">
             tcp://0.0.0.0:61616?
             tcpNoDelay=456;
             connectionTtl=44;
             connectionsAllowed=${ninetyTwoProp}
          </acceptor>
-         <acceptor>vm://0?e1=z1;e2=567;connectionsAllowed=87</acceptor>
+         <acceptor name="vm">vm://0?e1=z1;e2=567;connectionsAllowed=87</acceptor>
       </acceptors>
       <broadcast-groups>
          <broadcast-group name="bg1">
@@ -654,7 +654,7 @@
          </resource-limit-setting>
       </resource-limit-settings>
       <connector-services>
-         <connector-service>
+         <connector-service name="foo">
             <factory-class>org.foo</factory-class>
          </connector-service>
       </connector-services>

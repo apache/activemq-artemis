@@ -179,6 +179,9 @@ public final class AMQPFederationQueuePolicyElement implements Serializable {
       private String queueMatch;
 
       public String getName() {
+         if (name == null) {
+            return addressMatch + queueMatch;
+         }
          return name;
       }
 
