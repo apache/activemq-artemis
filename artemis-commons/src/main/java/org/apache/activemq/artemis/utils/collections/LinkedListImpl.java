@@ -212,7 +212,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
          logger.trace("adding head as there are no elements {}", e);
          addHead(e);
       } else {
-         if (comparator.compare(head.next.val(), e) < 0) {
+         if (comparator.compare(head.next.val(), e) <= 0) {
             if (logger.isTraceEnabled()) {
                logger.trace("addHead as e={} and head={}", e, head.next.val());
             }
@@ -270,7 +270,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    protected boolean scanRight(Node<E> position, E e) {
       Node<E> fetching = position.next;
       while (fetching != null) {
-         if (comparator.compare(fetching.val(), e) < 0) {
+         if (comparator.compare(fetching.val(), e) <= 0) {
             addAfter(position, e);
             return true;
          }
@@ -283,7 +283,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    protected boolean scanLeft(Node<E> position, E e) {
       Node<E> fetching = position.prev;
       while (fetching != null) {
-         if (comparator.compare(fetching.val(), e) > 0) {
+         if (comparator.compare(fetching.val(), e) >= 0) {
             addAfter(fetching, e);
             return true;
          }

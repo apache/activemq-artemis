@@ -161,6 +161,34 @@ public class LinkedListTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testDuplicateSorted() {
+      list.addSorted(1);
+      list.addSorted(2);
+      list.addSorted(1);
+
+      try (LinkedListIterator<Integer> listIterator = list.iterator()) {
+         assertEquals(1, listIterator.next().intValue());
+         assertEquals(1, listIterator.next().intValue());
+         assertEquals(2, listIterator.next().intValue());
+      }
+
+      list.clear();
+
+      list.addSorted(10);
+      list.addSorted(2);
+      list.addSorted(1);
+      list.addSorted(2);
+
+      try (LinkedListIterator<Integer> listIterator = list.iterator()) {
+         assertEquals(1, listIterator.next().intValue());
+         assertEquals(2, listIterator.next().intValue());
+         assertEquals(2, listIterator.next().intValue());
+         assertEquals(10, listIterator.next().intValue());
+      }
+
+   }
+
+   @Test
    public void randomSorted() {
 
       int elements = 10_000;
