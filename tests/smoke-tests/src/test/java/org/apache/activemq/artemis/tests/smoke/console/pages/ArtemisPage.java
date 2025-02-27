@@ -26,19 +26,33 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-public abstract class ArtemisPage extends ConsolePage {
-   private By logoutLocator = By.cssSelector("a[ng-focus='authService.logout()']");
-   private By dropdownMenuLocator = By.id("moreDropdown");
-   private By userDropdownMenuLocator = By.id("userDropdownMenu");
-   private By queuesMenuItemLocator = By.xpath("//a[contains(text(),'Queues')]");
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.ADDRESSES_TAB;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.BUTTON_LOCATOR;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.DATA_TABLE;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.LOGOUT_DROPDOWN_LOCATOR;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.LOGOUT_MENU_ITEM_LOCATOR;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.MANAGE_COLUMNS_BUTTON;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.MESSAGE_TABLE_QUEUES_BUTTON;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.MESSAGE_VIEW_QUEUES_BUTTON;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.QUEUES_TAB;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.QUEUES_TAB_SELECTED;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.SAVE_BUTTON;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.SEND_MESSAGE_BUTTON;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.SEND_MESSAGE_TITLE;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.TABLE_ROW_LOCATOR;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.TD_TAG_LOCATOR;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.TH_TAG_LOCATOR;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.USER_DROPDOWN_MENU_LOCATOR;
 
+
+public abstract class ArtemisPage extends ConsolePage {
    public ArtemisPage(WebDriver driver) {
       super(driver);
    }
 
    public String getUser() {
-      WebElement logoutWebElement = driver.findElement(logoutLocator);
-      WebElement userDropdownMenuWebElement = driver.findElement(userDropdownMenuLocator);
+      WebElement logoutWebElement = driver.findElement(LOGOUT_DROPDOWN_LOCATOR);
+      WebElement userDropdownMenuWebElement = driver.findElement(USER_DROPDOWN_MENU_LOCATOR);
 
       if (!logoutWebElement.isDisplayed()) {
          userDropdownMenuWebElement.click();
@@ -58,44 +72,96 @@ public abstract class ArtemisPage extends ConsolePage {
    }
 
    public SendMessagePage getAddressSendMessagePage(String address, int timeout) {
-      driver.get(getServerUrl() + "/console/artemis/artemisAddressSendMessage?nid=root-org.apache.activemq.artemis-0.0.0.0-addresses-" + address);
+      refresh(timeout);
+      driver.findElement(ADDRESSES_TAB).click();
 
-      waitForElementToBeVisible(By.xpath("//h1[contains(text(),'Send Message')]"), timeout);
+      List<WebElement> tdElements = driver.findElement(DATA_TABLE).findElement(By.xpath("//tr/td[contains(text(), '" + address + "')]")).findElement(By.xpath("./..")).findElements(TD_TAG_LOCATOR);
+
+      tdElements.get(tdElements.size() - 1).findElement(BUTTON_LOCATOR).click();
+
+      tdElements.get(tdElements.size() - 1).findElement(SEND_MESSAGE_BUTTON).click();
+
+      waitForElementToBeVisible(SEND_MESSAGE_TITLE, timeout);
+
+      return new SendMessagePage(driver);
+   }
+
+
+   public SendMessagePage getQueueSendMessagePage(String queue, int timeout) {
+      refresh(timeout);
+      driver.findElement(QUEUES_TAB).click();
+
+      List<WebElement> tdElements = driver.findElement(DATA_TABLE).findElement(By.xpath("//tr/td[contains(text(), '" + queue + "')]")).findElement(By.xpath("./..")).findElements(By.tagName("td"));
+
+      tdElements.get(tdElements.size() - 1).findElement(BUTTON_LOCATOR).click();
+
+      tdElements.get(tdElements.size() - 1).findElement(SEND_MESSAGE_BUTTON).click();
+
+      waitForElementToBeVisible(SEND_MESSAGE_TITLE, timeout);
 
       return new SendMessagePage(driver);
    }
 
    public QueuesPage getQueuesPage(int timeout) {
-      WebElement queuesMenuItem = driver.findElement(queuesMenuItemLocator);
-
-      if (!queuesMenuItem.isDisplayed()) {
-         List<WebElement> dropdownMenu = driver.findElements(dropdownMenuLocator);
-
-         if (!dropdownMenu.isEmpty()) {
-            dropdownMenu.get(0).click();
-         } else {
-            waitForElementToBeVisible(queuesMenuItemLocator, timeout);
-         }
-      }
+      WebElement queuesMenuItem = driver.findElement(QUEUES_TAB);
 
       queuesMenuItem.click();
 
-      waitForElementToBeVisible(By.xpath("//h1[contains(text(),'Browse Queues')]"), timeout);
+      waitForElementToBeVisible(QUEUES_TAB_SELECTED, timeout);
+
+      return new QueuesPage(driver);
+   }
+
+   public int getIndexOfColumn(String name) {
+      WebElement headerRowWebElement = driver.findElement(TABLE_ROW_LOCATOR);
+
+      List<WebElement> columnWebElements = headerRowWebElement.findElements(TH_TAG_LOCATOR);
+      for (int i = 0; i < columnWebElements.size(); i++) {
+         if (name.equals(columnWebElements.get(i).getText())) {
+            return i;
+         }
+      }
+
+      return -1;
+   }
+
+
+   public QueuesPage getQueuesPageFromMessageView(int timeout) {
+      WebElement queuesMenuItem = driver.findElement(MESSAGE_VIEW_QUEUES_BUTTON);
+
+      queuesMenuItem.click();
+
+      waitForElementToBeVisible(QUEUES_TAB_SELECTED, timeout);
+
+      return new QueuesPage(driver);
+   }
+
+   public QueuesPage getQueuesPageFromMessagesView(int timeout) {
+      WebElement queuesMenuItem = driver.findElement(MESSAGE_TABLE_QUEUES_BUTTON);
+
+      queuesMenuItem.click();
+
+      waitForElementToBeVisible(QUEUES_TAB_SELECTED, timeout);
 
       return new QueuesPage(driver);
    }
 
    public LoginPage logout(int timeout) {
-      WebElement logoutWebElement = driver.findElement(logoutLocator);
-      WebElement userDropdownMenuWebElement = driver.findElement(userDropdownMenuLocator);
-
-      if (!logoutWebElement.isDisplayed()) {
-         userDropdownMenuWebElement.click();
-      }
-
+      WebElement logoutWebElement = driver.findElement(LOGOUT_DROPDOWN_LOCATOR);
       logoutWebElement.click();
+      WebElement userDropdownMenuWebElement = logoutWebElement.findElement(LOGOUT_MENU_ITEM_LOCATOR);
+
+      userDropdownMenuWebElement.click();
 
       return new LoginPage(driver);
+   }
+
+   public void enableColumn(String columnId) {
+      driver.findElement(MANAGE_COLUMNS_BUTTON).click();
+      driver.findElement(By.id("check-" + columnId)).click();
+      driver.findElement(SAVE_BUTTON).click();
+
+
    }
 
    public Object postJolokiaExecRequest(String mbean, String operation, String arguments) {

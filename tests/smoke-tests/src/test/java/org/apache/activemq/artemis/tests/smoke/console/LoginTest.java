@@ -23,11 +23,12 @@ import org.apache.activemq.artemis.tests.smoke.console.pages.LoginPage;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.DEFAULT_CONSOLE_LOGIN_BRAND_IMAGE;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.WEB_URL_PATH;
 //Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
-public class LoginTest extends ConsoleTest {
 
-   private static final String DEFAULT_CONSOLE_LOGIN_BRAND_IMAGE = "/activemq-branding/plugin/img/activemq.png";
+public class LoginTest extends ConsoleTest {
 
    public LoginTest(String browser) {
       super(browser);
@@ -35,17 +36,17 @@ public class LoginTest extends ConsoleTest {
 
    @TestTemplate
    public void testLogin() {
-      driver.get(webServerUrl + "/console");
+      driver.get(webServerUrl + WEB_URL_PATH);
       LoginPage loginPage = new LoginPage(driver);
       loginPage.loginValidUser(SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
    }
 
    @TestTemplate
    public void testLoginBrand() {
-      String expectedBrandImage = webServerUrl + System.getProperty(
+      String expectedBrandImage = webServerUrl + WEB_URL_PATH + System.getProperty(
          "artemis.console.login.brand.image", DEFAULT_CONSOLE_LOGIN_BRAND_IMAGE);
 
-      driver.get(webServerUrl + "/console");
+      driver.get(webServerUrl + WEB_URL_PATH);
       LoginPage loginPage = new LoginPage(driver);
       assertEquals(expectedBrandImage, loginPage.getBrandImage(DEFAULT_TIMEOUT));
    }
