@@ -187,11 +187,6 @@ public class ReplicatedPolicy implements HAPolicy<PrimaryActivation> {
       return groupName;
    }
 
-   @Override
-   public String getScaleDownGroupName() {
-      return null;
-   }
-
    public void setGroupName(String groupName) {
       this.groupName = groupName;
    }
@@ -209,11 +204,6 @@ public class ReplicatedPolicy implements HAPolicy<PrimaryActivation> {
    @Override
    public boolean canScaleDown() {
       return false;
-   }
-
-   @Override
-   public String getScaleDownClustername() {
-      return null;
    }
 
    public void setAllowAutoFailBack(boolean allowAutoFailBack) {

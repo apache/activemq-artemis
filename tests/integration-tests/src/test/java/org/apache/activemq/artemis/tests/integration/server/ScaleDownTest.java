@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.tests.integration.server;
 import javax.management.MBeanServer;
 import java.lang.reflect.Field;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -50,8 +48,6 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -62,8 +58,7 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 
 import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -71,23 +66,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(ParameterizedTestExtension.class)
 public class ScaleDownTest extends ClusterTestBase {
 
    private static final String AMQP_ACCEPTOR_URI = "tcp://127.0.0.1:5672";
-
-   private boolean useScaleDownGroupName;
-
-   // this will ensure that all tests in this class are run twice,
-   // once with "true" passed to the class' constructor and once with "false"
-   @Parameters(name = "useScaleDownGroupName={0}")
-   public static Collection getParameters() {
-      return Arrays.asList(new Object[][]{{true}, {false}});
-   }
-
-   public ScaleDownTest(boolean useScaleDownGroupName) {
-      this.useScaleDownGroupName = useScaleDownGroupName;
-   }
 
    @Override
    @BeforeEach
@@ -97,13 +78,9 @@ public class ScaleDownTest extends ClusterTestBase {
       setupPrimaryServer(1, isFileStorage(), isNetty(), true);
       servers[0].getConfiguration().addAcceptorConfiguration("amqp", AMQP_ACCEPTOR_URI + "?protocols=AMQP");
       PrimaryOnlyPolicyConfiguration haPolicyConfiguration0 = (PrimaryOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration();
-      haPolicyConfiguration0.setScaleDownConfiguration(new ScaleDownConfiguration());
+      haPolicyConfiguration0.setScaleDownConfiguration(getScaleDownConfiguration());
       PrimaryOnlyPolicyConfiguration haPolicyConfiguration1 = (PrimaryOnlyPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration();
-      haPolicyConfiguration1.setScaleDownConfiguration(new ScaleDownConfiguration());
-      if (useScaleDownGroupName) {
-         haPolicyConfiguration0.getScaleDownConfiguration().setGroupName("bill");
-         haPolicyConfiguration1.getScaleDownConfiguration().setGroupName("bill");
-      }
+      haPolicyConfiguration1.setScaleDownConfiguration(getScaleDownConfiguration());
       setupClusterConnection("cluster0", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
       setupClusterConnection("cluster0", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0);
       haPolicyConfiguration0.getScaleDownConfiguration().getConnectors().addAll(servers[0].getConfiguration().getClusterConfigurations().iterator().next().getStaticConnectors());
@@ -115,6 +92,10 @@ public class ScaleDownTest extends ClusterTestBase {
       setupSessionFactory(1, isNetty());
    }
 
+   protected ScaleDownConfiguration getScaleDownConfiguration() {
+      return new ScaleDownConfiguration();
+   }
+
    protected boolean isNetty() {
       return true;
    }
@@ -124,7 +105,7 @@ public class ScaleDownTest extends ClusterTestBase {
       return true;
    }
 
-   @TestTemplate
+   @Test
    public void testBasicScaleDown() throws Exception {
       final int TEST_SIZE = 2;
       final String addressName = "testAddress";
@@ -182,7 +163,7 @@ public class ScaleDownTest extends ClusterTestBase {
    }
 
 
-   @TestTemplate
+   @Test
    public void testScaleDownNodeReconnect() throws Exception {
 
       try {
@@ -246,7 +227,7 @@ public class ScaleDownTest extends ClusterTestBase {
       assertTrue(result, "topology should not be empty");
    }
 
-   @TestTemplate
+   @Test
    public void testStoreAndForward() throws Exception {
       final int TEST_SIZE = 50;
       final String addressName1 = "testAddress1";
@@ -341,7 +322,7 @@ public class ScaleDownTest extends ClusterTestBase {
       removeConsumer(0);
    }
 
-   @TestTemplate
+   @Test
    public void testScaleDownWithMissingQueue() throws Exception {
       final int TEST_SIZE = 2;
       final String addressName = "testAddress";
@@ -392,7 +373,7 @@ public class ScaleDownTest extends ClusterTestBase {
       removeConsumer(0);
    }
 
-   @TestTemplate
+   @Test
    public void testScaleDownWithMissingAnycastQueue() throws Exception {
       final int TEST_SIZE = 2;
       final String addressName = "testAddress";
@@ -433,7 +414,7 @@ public class ScaleDownTest extends ClusterTestBase {
       }
    }
 
-   @TestTemplate
+   @Test
    public void testScaleDownAMQPMessagesWithMissingAnycastQueue() throws Exception {
       final int TEST_SIZE = 2;
       final String addressName = "testAddress";
@@ -456,7 +437,7 @@ public class ScaleDownTest extends ClusterTestBase {
       clientMessage.acknowledge();
    }
 
-   @TestTemplate
+   @Test
    public void testScaleDownAMQPMessagesWithMissingMulticastQueues() throws Exception {
       final int TEST_SIZE = 2;
       ClientMessage clientMessage;
@@ -497,7 +478,7 @@ public class ScaleDownTest extends ClusterTestBase {
    }
 
 
-   @TestTemplate
+   @Test
    public void testMessageProperties() throws Exception {
       final int TEST_SIZE = 5;
       final String addressName = "testAddress";
@@ -565,7 +546,7 @@ public class ScaleDownTest extends ClusterTestBase {
       }
    }
 
-   @TestTemplate
+   @Test
    public void testLargeMessage() throws Exception {
       final String addressName = "testAddress";
       final String queueName = "testQueue";
@@ -613,7 +594,7 @@ public class ScaleDownTest extends ClusterTestBase {
       }
    }
 
-   @TestTemplate
+   @Test
    public void testPaging() throws Exception {
       final int CHUNK_SIZE = 50;
       int messageCount = 0;
@@ -651,7 +632,7 @@ public class ScaleDownTest extends ClusterTestBase {
       removeConsumer(0);
    }
 
-   @TestTemplate
+   @Test
    public void testOrderWithPaging() throws Exception {
       final int CHUNK_SIZE = 50;
       int messageCount = 0;
@@ -690,7 +671,7 @@ public class ScaleDownTest extends ClusterTestBase {
       removeConsumer(0);
    }
 
-   @TestTemplate
+   @Test
    public void testFilters() throws Exception {
       final int TEST_SIZE = 50;
       final String addressName = "testAddress";
@@ -739,7 +720,7 @@ public class ScaleDownTest extends ClusterTestBase {
       removeConsumer(1);
    }
 
-   @TestTemplate
+   @Test
    public void testScaleDownMessageWithAutoCreatedDLAResources() throws Exception {
       final SimpleString dla = SimpleString.of("DLA");
       final SimpleString queueName = SimpleString.of("q1");
@@ -800,7 +781,7 @@ public class ScaleDownTest extends ClusterTestBase {
       consumer.close();
    }
 
-   @TestTemplate
+   @Test
    public void testScaleDownPagedMessageWithMultipleAutoCreatedDLAResources() throws Exception {
       final SimpleString dla = SimpleString.of("DLA");
       final SimpleString qName = SimpleString.of("Q");

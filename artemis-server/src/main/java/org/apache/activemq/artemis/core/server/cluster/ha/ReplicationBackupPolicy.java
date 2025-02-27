@@ -117,16 +117,6 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
       return false;
    }
 
-   @Override
-   public String getScaleDownGroupName() {
-      return null;
-   }
-
-   @Override
-   public String getScaleDownClustername() {
-      return null;
-   }
-
    public String getClusterName() {
       return clusterName;
    }

@@ -3714,6 +3714,14 @@
                </xsd:complexType>
             </xsd:element>
          </xsd:choice>
+         <xsd:element name="commit-interval" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  How often to commit when scaling messages down from one broker to another.
+                  -1 means commit only after processing all the messages from a queue.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
       </xsd:sequence>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>

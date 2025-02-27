@@ -76,18 +76,21 @@ public class ScaleDownHandler {
    private NodeManager nodeManager;
    private final ClusterController clusterController;
    private final StorageManager storageManager;
+   private final int commitInterval;
    private String targetNodeId;
 
    public ScaleDownHandler(PagingManager pagingManager,
                            PostOffice postOffice,
                            NodeManager nodeManager,
                            ClusterController clusterController,
-                           StorageManager storageManager) {
+                           StorageManager storageManager,
+                           int commitInterval) {
       this.pagingManager = pagingManager;
       this.postOffice = postOffice;
       this.nodeManager = nodeManager;
       this.clusterController = clusterController;
       this.storageManager = storageManager;
+      this.commitInterval = commitInterval;
    }
 
    public long scaleDown(ClientSessionFactory sessionFactory,
@@ -214,6 +217,10 @@ public class ScaleDownHandler {
 
                   producer.send(address, message);
                   messageCount++;
+                  if (commitInterval > 0 && messageCount % commitInterval == 0) {
+                     tx.commit();
+                     tx = new TransactionImpl(storageManager);
+                  }
 
                   messagesIterator.remove();
 
@@ -307,6 +314,10 @@ public class ScaleDownHandler {
                producer.send(message.getAddress(), message);
 
                messageCount++;
+               if (commitInterval > 0 && messageCount % commitInterval == 0) {
+                  tx.commit();
+                  tx = new TransactionImpl(storageManager);
+               }
 
                messagesIterator.remove();
 

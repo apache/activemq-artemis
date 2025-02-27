@@ -74,11 +74,6 @@ public class ColocatedPolicy implements HAPolicy<PrimaryActivation> {
    }
 
    @Override
-   public String getScaleDownGroupName() {
-      return null;
-   }
-
-   @Override
    public boolean isSharedStore() {
       return backupPolicy.isSharedStore();
    }
@@ -99,11 +94,6 @@ public class ColocatedPolicy implements HAPolicy<PrimaryActivation> {
    @Override
    public boolean canScaleDown() {
       return false;
-   }
-
-   @Override
-   public String getScaleDownClustername() {
-      return null;
    }
 
    public boolean isRequestBackup() {

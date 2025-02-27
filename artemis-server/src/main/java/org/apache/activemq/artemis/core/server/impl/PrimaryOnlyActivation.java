@@ -127,7 +127,7 @@ public class PrimaryOnlyActivation extends Activation {
    public void postConnectionFreeze() {
       if (primaryOnlyPolicy.getScaleDownPolicy() != null && primaryOnlyPolicy.getScaleDownPolicy().isEnabled() && scaleDownClientSessionFactory != null) {
          try {
-            scaleDown();
+            scaleDown(primaryOnlyPolicy.getScaleDownPolicy().getCommitInterval());
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.failedToScaleDown(e);
          } finally {
@@ -190,8 +190,8 @@ public class PrimaryOnlyActivation extends Activation {
       }
    }
 
-   public long scaleDown() throws Exception {
-      ScaleDownHandler scaleDownHandler = new ScaleDownHandler(activeMQServer.getPagingManager(), activeMQServer.getPostOffice(), activeMQServer.getNodeManager(), activeMQServer.getClusterManager().getClusterController(), activeMQServer.getStorageManager());
+   public long scaleDown(int commitInterval) throws Exception {
+      ScaleDownHandler scaleDownHandler = new ScaleDownHandler(activeMQServer.getPagingManager(), activeMQServer.getPostOffice(), activeMQServer.getNodeManager(), activeMQServer.getClusterManager().getClusterController(), activeMQServer.getStorageManager(), commitInterval);
       ConcurrentMap<SimpleString, DuplicateIDCache> duplicateIDCaches = ((PostOfficeImpl) activeMQServer.getPostOffice()).getDuplicateIDCaches();
       Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap = new HashMap<>();
       for (SimpleString address : duplicateIDCaches.keySet()) {

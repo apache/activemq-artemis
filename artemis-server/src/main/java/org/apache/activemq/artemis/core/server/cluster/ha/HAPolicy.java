@@ -52,9 +52,17 @@ public interface HAPolicy<T extends Activation> {
 
    String getBackupGroupName();
 
-   String getScaleDownGroupName();
+   default String getScaleDownGroupName() {
+      return null;
+   }
 
-   String getScaleDownClustername();
+   default String getScaleDownClustername() {
+      return null;
+   }
+
+   default int getScaleDownCommitInterval() {
+      return -1;
+   }
 
    default boolean useQuorumManager() {
       return true;

@@ -38,11 +38,6 @@ public abstract class BackupPolicy implements HAPolicy<Activation> {
    }
 
    @Override
-   public String getScaleDownClustername() {
-      return null;
-   }
-
-   @Override
    public String getScaleDownGroupName() {
       return getScaleDownPolicy() != null ? getScaleDownPolicy().getGroupName() : null;
    }

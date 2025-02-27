@@ -440,6 +440,9 @@ public final class ActiveMQDefaultConfiguration {
    // its possible that you only want a server to partake in scale down as a receiver, via a group. In this case set scale-down to false
    private static boolean DEFAULT_SCALE_DOWN_ENABLED = true;
 
+   // How often to commit transactions for moving messages during scale-down
+   private static int DEFAULT_SCALE_DOWN_COMMIT_INTERVAL = -1;
+
    // How long to wait for a decision
    private static int DEFAULT_GROUPING_HANDLER_TIMEOUT = 5000;
 
@@ -1469,6 +1472,13 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static boolean isDefaultScaleDownEnabled() {
       return DEFAULT_SCALE_DOWN_ENABLED;
+   }
+
+   /**
+    * How often to commit transactions for moving messages during scale-down
+    */
+   public static int getDefaultScaleDownCommitInterval() {
+      return DEFAULT_SCALE_DOWN_COMMIT_INTERVAL;
    }
 
    /**
