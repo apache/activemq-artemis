@@ -444,6 +444,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private boolean mirrorPageTransaction = ActiveMQDefaultConfiguration.getMirrorPageTransaction();
 
+   private int globalMaxSizePercentOfJvmMaxMemory = ActiveMQDefaultConfiguration.DEFAULT_GLOBAL_MAX_MEMORY_PERCENT;
 
    /**
     * Parent folder for all data folders.
@@ -1035,7 +1036,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public long getGlobalMaxSize() {
       if (globalMaxSize == null) {
-         this.globalMaxSize = ActiveMQDefaultConfiguration.getDefaultMaxGlobalSize();
+         this.globalMaxSize = ActiveMQDefaultConfiguration.getDefaultMaxGlobalSizeAsPercentOfJvmMaxMemory(getGlobalMaxSizePercentOfJvmMaxMemory());
          if (!Env.isTestEnv()) {
             ActiveMQServerLogger.LOGGER.usingDefaultPaging(globalMaxSize);
          }
@@ -1043,6 +1044,16 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return globalMaxSize;
    }
 
+   @Override
+   public int getGlobalMaxSizePercentOfJvmMaxMemory() {
+      return globalMaxSizePercentOfJvmMaxMemory;
+   }
+
+   @Override
+   public ConfigurationImpl setGlobalMaxSizePercentOfJvmMaxMemory(int percentOfJvmMaxMemory) {
+      this.globalMaxSizePercentOfJvmMaxMemory = percentOfJvmMaxMemory;
+      return this;
+   }
 
    @Override
    public ConfigurationImpl setGlobalMaxMessages(long maxMessages) {
