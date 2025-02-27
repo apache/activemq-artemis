@@ -22,9 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.beans.PropertyDescriptor;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -104,6 +106,8 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
+import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
+import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.lang3.ClassUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -1175,12 +1179,13 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
    public void testAddressViaProperties() throws Throwable {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
-      Properties properties = new Properties();
-
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+      properties.put("addressConfigurations.\"LB.TEST\".name", "LB.TEST");
       properties.put("addressConfigurations.\"LB.TEST\".queueConfigs.\"LB.TEST\".routingType", "ANYCAST");
       properties.put("addressConfigurations.\"LB.TEST\".queueConfigs.\"LB.TEST\".durable", "false");
 
       configuration.parsePrefixedProperties(properties, null);
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
 
       assertEquals(1, configuration.getAddressConfigurations().size());
       assertEquals(1, configuration.getAddressConfigurations().get(0).getQueueConfigs().size());
@@ -1353,8 +1358,11 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       properties.put("addressSettings.NeedToSet.defaultExclusiveQueue", "true");
       properties.put("addressSettings.NeedToSet.defaultMaxConsumers", 10);
       properties.put("addressSettings.NeedToSet.iDCacheSize", 10);
+      properties.put("addressSettings.NeedToSet.noExpiry", true);
 
       configuration.parsePrefixedProperties(properties, null);
+
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
 
       assertEquals(4, configuration.getAddressSettings().size());
       assertEquals(SimpleString.of("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
@@ -1419,6 +1427,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertTrue(configuration.getAddressSettings().get("NeedToSet").isDefaultExclusiveQueue());
       assertEquals(Integer.valueOf(10), configuration.getAddressSettings().get("NeedToSet").getDefaultMaxConsumers());
       assertEquals(Integer.valueOf(10), configuration.getAddressSettings().get("NeedToSet").getIDCacheSize());
+      assertTrue(configuration.getAddressSettings().get("NeedToSet").isNoExpiry());
    }
 
    @Test
@@ -1711,6 +1720,23 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       role = configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null);
       assertNotNull(role);
       assertFalse(role.isCreateAddress());
+   }
+
+   @Test
+   public void testSecurityRoleMappingsViaPropertiesNotSupported() throws Exception {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      Properties properties = new Properties();
+
+      properties.put("securityRoleNameMappings.amq", "myrole4");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"), configuration.getStatus());
+
+      Exception expected = assertThrows(ClassCastException.class, ()-> {
+         configuration.getSecurityRoleNameMappings().get("amq").contains("myrole4");
+      });
+      assertTrue(expected.toString().contains("Set"));
    }
 
    @Test
@@ -2480,6 +2506,27 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
    }
 
    @Test
+   public void testTypeMatchFluentDescriptor() throws Exception {
+      BeanUtilsBean beanUtilsBean = BeanUtilsBean.getInstance();
+      beanUtilsBean.getPropertyUtils().addBeanIntrospector(new FluentPropertyBeanIntrospectorWithIgnores());
+      PropertyDescriptor propertyDescriptor = beanUtilsBean.getPropertyUtils().getPropertyDescriptor(new DummyConfig(), "aBooleanProperty");
+
+      assertNotNull(propertyDescriptor);
+      assertNotNull(propertyDescriptor.getReadMethod());
+
+      propertyDescriptor = beanUtilsBean.getPropertyUtils().getPropertyDescriptor(new DummyConfig(), "IDCacheSize");
+
+      assertNotNull(propertyDescriptor);
+      assertNotNull(propertyDescriptor.getReadMethod());
+      assertNotNull(propertyDescriptor.getWriteMethod());
+
+      // legacy access to a setter for this
+      propertyDescriptor = beanUtilsBean.getPropertyUtils().getPropertyDescriptor(new DummyConfig(), "iDCacheSize");
+      assertNotNull(propertyDescriptor);
+      assertNotNull(propertyDescriptor.getWriteMethod());
+   }
+
+   @Test
    public void testConfigWithMultipleNullDescendantChildren() throws Throwable {
       String dummyPropertyPrefix = "dummy.";
       DummyConfig dummyConfig = new DummyConfig();
@@ -2513,6 +2560,8 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
    public static class DummyConfig {
       private int intProperty;
+      private int idCacheSize;
+      private Boolean aBooleanProperty;
 
       private DummyConfig childConfig;
 
@@ -2522,6 +2571,24 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       public DummyConfig setIntProperty(int intProperty) {
          this.intProperty = intProperty;
+         return this;
+      }
+
+      public Boolean isABooleanProperty() {
+         return aBooleanProperty;
+      }
+
+      public DummyConfig setABooleanProperty(Boolean booleanProperty) {
+         this.aBooleanProperty = booleanProperty;
+         return this;
+      }
+
+      public Integer getIDCacheSize() {
+         return idCacheSize;
+      }
+
+      public DummyConfig setIDCacheSize(Integer idCacheSize) {
+         this.idCacheSize = idCacheSize;
          return this;
       }
 

@@ -34,6 +34,7 @@ public class Artemis {
 
    public static final String EXTRA_LIBS_SYSTEM_PROPERTY = "artemis.extra.libs";
    public static final String EXTRA_LIBS_ENVIRONMENT_VARIABLE = "ARTEMIS_EXTRA_LIBS";
+   public static final String TMP_DIR_SYSTEM_PROPERTY = "java.io.tmpdir";
 
    public static void main(String[] args) throws Throwable {
       String home = System.getProperty("artemis.home");
@@ -133,8 +134,8 @@ public class Artemis {
          }
       }
 
-      if (System.getProperty("java.io.tmpdir") == null && fileInstance != null) {
-         System.setProperty("java.io.tmpdir", new File(fileInstance, "tmp").getCanonicalPath());
+      if (System.getProperty(TMP_DIR_SYSTEM_PROPERTY) == null && fileInstance != null) {
+         System.setProperty(TMP_DIR_SYSTEM_PROPERTY, new File(fileInstance, "tmp").getCanonicalPath());
       }
 
       ClassLoader originalCL = Thread.currentThread().getContextClassLoader();

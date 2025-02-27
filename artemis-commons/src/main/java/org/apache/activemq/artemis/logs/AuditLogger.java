@@ -2859,4 +2859,11 @@ public interface AuditLogger {
 
    @LogMessage(id = 601797, value = "User {} is getting total session count on target resource: {}", level = LogMessage.Level.INFO)
    void getTotalSessionCount(String user, Object source);
+
+   static void exportConfigAsProperties(Object source) {
+      BASE_LOGGER.exportConfigAsProperties(getCaller(), source);
+   }
+
+   @LogMessage(id = 601798, value = "User {} is exporting configuration as properties on target resource: {}", level = LogMessage.Level.INFO)
+   void exportConfigAsProperties(String user, Object source);
 }

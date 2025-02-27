@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import static org.apache.activemq.artemis.boot.Artemis.TMP_DIR_SYSTEM_PROPERTY;
 
 public class SpawnedVMSupport {
 
@@ -191,7 +192,7 @@ public class SpawnedVMSupport {
          }
       }
 
-      commandList.add("-Djava.io.tmpdir=" + System.getProperty("java.io.tmpdir", "./tmp"));
+      commandList.add("-D" + TMP_DIR_SYSTEM_PROPERTY + "=" + System.getProperty(TMP_DIR_SYSTEM_PROPERTY, "./tmp"));
       commandList.add("-Djava.library.path=" + System.getProperty("java.library.path", "./native/bin"));
 
       String loggingConfigFile = System.getProperty("log4j2.configurationFile");

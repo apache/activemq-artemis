@@ -36,13 +36,13 @@ public class FluentPropertyBeanIntrospectorWithIgnores extends FluentPropertyBea
 
    private static ConcurrentHashSet<Pair<String, String>> ignores = new ConcurrentHashSet<>();
 
-   public static void addIgnore(String className, String propertyName) {
-      logger.trace("Adding ignore on {}/{}", className, propertyName);
-      ignores.add(new Pair<>(className, propertyName));
+   public static void addIgnore(String className, String methodName) {
+      logger.trace("Adding ignore on {}/{}", className, methodName);
+      ignores.add(new Pair<>(className, methodName));
    }
 
-   public static boolean isIgnored(String className, String propertyName) {
-      return ignores.contains(new Pair<>(className, propertyName));
+   public static boolean isIgnored(String className, String methodName) {
+      return ignores.contains(new Pair<>(className, methodName));
    }
 
    @Override
@@ -72,12 +72,28 @@ public class FluentPropertyBeanIntrospectorWithIgnores extends FluentPropertyBea
       if (pd != null) {
          readMethod = pd.getReadMethod();
       }
+      if (readMethod == null) {
+         try {
+            if (writeMethod != null && writeMethod.getParameterTypes().length == 1 && writeMethod.getParameterTypes()[0].equals(Boolean.class)) {
+               // is methods with Boolean return are not valid bean accessors but our fluent classes use them
+               readMethod = icontext.getTargetClass().getMethod("is" + capitalise(propertyName), null);
+            }
+         } catch (NoSuchMethodException ignored) {
+         }
+      }
       try {
          PropertyDescriptor withFluentWrite = createFluentPropertyDescriptor(readMethod, writeMethod, propertyName);
          icontext.addPropertyDescriptor(withFluentWrite);
       } catch (IntrospectionException e) {
          logger.trace("error on add fluent descriptor for property named {}", propertyName, e);
       }
+   }
+
+   private String capitalise(String name) {
+      if (name.length() > 1) {
+         return name.substring(0, 1).toUpperCase() + name.substring(1);
+      }
+      return name;
    }
 
    private PropertyDescriptor createFluentPropertyDescriptor(Method readMethod, Method writeMethod, String propertyName) throws IntrospectionException {
