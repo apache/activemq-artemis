@@ -501,7 +501,7 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final boolean DEFAULT_AMQP_USE_CORE_SUBSCRIPTION_NAMING = false;
 
-   public static final long DEFAULT_GLOBAL_MAX_SIZE = Runtime.getRuntime().maxMemory() / 2;
+   public static final int DEFAULT_GLOBAL_MAX_MEMORY_PERCENT = 50;
 
    public static final long DEFAULT_GLOBAL_MAX_MESSAGES = -1;
 
@@ -1589,11 +1589,8 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_AMQP_USE_CORE_SUBSCRIPTION_NAMING;
    }
 
-   /**
-    * The default global max size. -1 = no global max size.
-    */
-   public static long getDefaultMaxGlobalSize() {
-      return DEFAULT_GLOBAL_MAX_SIZE;
+   public static long getDefaultMaxGlobalSizeAsPercentOfJvmMaxMemory(int percentOfJvmMaxMemory) {
+      return (long) (Runtime.getRuntime().maxMemory() * (percentOfJvmMaxMemory / 100.0f));
    }
 
    public static long getDefaultMaxGlobalMessages() {

@@ -799,7 +799,15 @@
             <xsd:annotation>
                <xsd:documentation>
                   Number of messages before all addresses will enter into their Full Policy configured.
-                  It works in conjunction with global-max-size, being watever value hits its maximum first.
+                  It works in conjunction with global-max-size, being whatever value hits its maximum first.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="global-max-size-percent-of-jvm-max-memory" type="xsd:string" default="50" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Percentage of JVM Runtime Max Memory that should be used by default for global-max-size.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

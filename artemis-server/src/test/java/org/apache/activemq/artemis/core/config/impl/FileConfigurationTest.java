@@ -646,6 +646,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertTrue(a2Role.isDeleteNonDurableQueue());
       assertFalse(a2Role.isManage());
       assertEquals(1234567, configInstance.getGlobalMaxSize());
+      assertEquals(30, configInstance.getGlobalMaxSizePercentOfJvmMaxMemory());
       assertEquals(37, configInstance.getMaxDiskUsage());
       assertEquals(123, configInstance.getDiskScanPeriod());
 
