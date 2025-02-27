@@ -359,6 +359,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String GLOBAL_MAX_SIZE = "global-max-size";
 
+   private static final String GLOBAL_MAX_SIZE_PERCENT_JVM_MAX_MEM = "global-max-size-percent-of-jvm-max-memory";
+
    private static final String GLOBAL_MAX_MESSAGES = "global-max-messages";
 
    public static final String MAX_DISK_USAGE = "max-disk-usage";
@@ -504,6 +506,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       config.setMqttSessionScanInterval(getLong(e, "mqtt-session-scan-interval", config.getMqttSessionScanInterval(), GT_ZERO));
 
       config.setMqttSessionStatePersistenceTimeout(getLong(e, "mqtt-session-state-persistence-timeout", config.getMqttSessionStatePersistenceTimeout(), GT_ZERO));
+
+      config.setGlobalMaxSizePercentOfJvmMaxMemory(getInteger(e, GLOBAL_MAX_SIZE_PERCENT_JVM_MAX_MEM, config.getGlobalMaxSizePercentOfJvmMaxMemory(), GT_ZERO));
 
       long globalMaxSize = getTextBytesAsLongBytes(e, GLOBAL_MAX_SIZE, -1, MINUS_ONE_OR_GT_ZERO);
 
