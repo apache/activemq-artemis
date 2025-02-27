@@ -2630,6 +2630,24 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals("foo.class.bar", ConfigurationImpl.extractPropertyClassName("foo.class.bar.class"));
    }
 
+   @Test
+   public void testGlobalMaxSizePercentOfJvmMaxMemory() throws Exception {
+
+      // existing default
+      long half = Runtime.getRuntime().maxMemory() / 2;
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      assertEquals(half, configuration.getGlobalMaxSize());
+
+      configuration.setGlobalMaxSizePercentOfJvmMaxMemory(25);
+      assertEquals(half, configuration.getGlobalMaxSize());
+
+      // needs new instance
+      configuration = new ConfigurationImpl();
+      configuration.setGlobalMaxSizePercentOfJvmMaxMemory(25);
+      long quarter = Runtime.getRuntime().maxMemory() / 4;
+      assertEquals(quarter, configuration.getGlobalMaxSize());
+   }
+
    public static class DummyConfig {
       private int intProperty;
       private int idCacheSize;

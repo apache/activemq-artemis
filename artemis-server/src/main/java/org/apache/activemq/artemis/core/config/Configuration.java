@@ -1272,6 +1272,10 @@ public interface Configuration {
 
    Configuration setConfigurationFileRefreshPeriod(long configurationFileRefreshPeriod);
 
+   int getGlobalMaxSizePercentOfJvmMaxMemory();
+
+   ConfigurationImpl setGlobalMaxSizePercentOfJvmMaxMemory(int percentOfJvmMaxMemory);
+
    long getGlobalMaxSize();
 
    Configuration setGlobalMaxSize(long globalMaxSize);

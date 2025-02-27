@@ -158,7 +158,7 @@ You can also specify `global-max-messages` on the main configuration, specifying
 
 When you have more messages than what is configured `global-max-size` any new produced message will make that destination to go through its paging policy.
 
-`global-max-size` is calculated as half of the max memory available to the Java Virtual Machine, unless specified on the `broker.xml` configuration.
+`global-max-size` is calculated as a percentage of the max memory available to the Java Virtual Machine, unless specified in the broker.xml configuration directly. The percentage value used is configurable using the option `global-max-size-percent-of-jvm-max-memory` in the XML configuration and if not specified the default value of `global-max-size-percent-of-jvm-max-memory` is 50% or half the max available memory.
 
 By default `global-max-messages` = `-1` meaning it's disabled.
 

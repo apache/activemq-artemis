@@ -768,6 +768,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
                            <core>
                               <global-max-size>10M</global-max-size>
                               <global-max-messages>1000</global-max-messages>
+                              <global-max-size-percent-of-jvm-max-memory>30</global-max-size-percent-of-jvm-max-memory>
                            </core>
                         </configuration>""");
 
@@ -777,6 +778,7 @@ public class FileConfigurationParserTest extends ServerTestBase {
 
       assertEquals(10 * 1024 * 1024, configuration.getGlobalMaxSize());
       assertEquals(1000, configuration.getGlobalMaxMessages());
+      assertEquals(30, configuration.getGlobalMaxSizePercentOfJvmMaxMemory());
    }
 
    @Test
