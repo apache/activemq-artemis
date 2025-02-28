@@ -16,11 +16,7 @@
  */
 package org.apache.activemq.artemis.component;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.ServletRequestListener;
+import jakarta.servlet.DispatcherType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,6 +35,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.ServletRequestListener;
 import org.apache.activemq.artemis.ActiveMQWebLogger;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.components.ExternalComponent;
@@ -50,9 +50,9 @@ import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.marker.WebServerComponentMarker;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.PemConfigUtil;
-import org.eclipse.jetty.ee8.security.DefaultAuthenticatorFactory;
-import org.eclipse.jetty.ee8.servlet.FilterHolder;
-import org.eclipse.jetty.ee8.webapp.WebAppContext;
+import org.eclipse.jetty.ee9.security.DefaultAuthenticatorFactory;
+import org.eclipse.jetty.ee9.servlet.FilterHolder;
+import org.eclipse.jetty.ee9.webapp.WebAppContext;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Handler;
@@ -80,7 +80,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // this should match the value of <display-name> in the console war's WEB-INF/web.xml
-   public static final String WEB_CONSOLE_DISPLAY_NAME = System.getProperty("org.apache.activemq.artemis.webConsoleDisplayName", "hawtio");
+   public static final String WEB_CONSOLE_DISPLAY_NAME = System.getProperty("org.apache.activemq.artemis.webConsoleDisplayName", "Artemis Console");
 
    public static final boolean DEFAULT_SNI_HOST_CHECK_VALUE = true;
 

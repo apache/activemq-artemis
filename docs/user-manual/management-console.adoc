@@ -33,22 +33,22 @@ On the top right is small menu area you will see some icons.
 
 * `question mark`
 This will open a menu with the following items
-* `Help` This will navigate to the console user guide
-* `About` this will load an about screen, here you will be able to see and validate versions
+** `Help` This will navigate to the console user guide
+** `About` this will load an about screen, here you will be able to see and validate versions
 * `person`
 will provide a drop down menu with
-* `Preferences` this will open the preferences page
-* `Log out` self descriptive.
+** `Preferences` this will open the preferences page
+** `Log out` self descriptive.
 
 === Navigation Tabs
 
-Running below the Navigation Menu you will see several default feature tabs.
+Running below the Navigation Menu you will see several default feature tabs. The 1st 2 are specific to Artemis. The rest of
+this document will feature on these 2 tabs.
 
-* `Artemis` This is the core tab for Apache ActiveMQ Artemis specific functionality.
-The rest of this document will focus on this.
-* `Dashboard` Here you can create and save graphs and tables of metrics available via JMX, a default jvm health dashboard is provided.
+* `Artemis` This shows detailed information of Apache ActiveMQ Artemis specific functionality in a tabular format.
+* `Artemis JMX` This is a JMX view of Apache ActiveMQ Artemis specific functionality.
 * `JMX` This exposes the raw Jolokia JMX so you can browse/access all the JMX endpoints exposed by the JVM.
-* `Threads` This allows you to monitor the thread usage and their state.
+* `Runtime` This allows you to monitor the thread usage and their state as well as view metrics etc..
 
 In previous versions there was a "Connect" tab which could be used to connect to a remote broker from the same console.
 This was disabled by default for security purposes, but it can be enabled again by removing `-Dhawtio.disableProxy=true` from `artemis.profile` (or `artemis.profile.cmd` on Windows).
@@ -57,24 +57,65 @@ You can install further hawtio plugins if you wish to have further functionality
 
 == Artemis Tab
 
-Click `Artemis` in the left navigation bar to see the Artemis specific plugin.
+Click `Artemis` in the left navigation bar to see the Artemis specific plugin. The Artemis tab shows view of information
+in a tabular format.
 (The Artemis tab won't appear if there is no broker in this JVM).
-The Artemis plugin works very much the same as the JMX plugin however with a focus on interacting with an Artemis broker.
 
-=== Tree View
+=== Status Tab
 
-The tree view on the left-hand side shows the top level JMX tree of each broker instance running in the JVM.
-Expanding the tree will show the various MBeans registered by Artemis that you can inspect via the *Attributes* tab.
+The Status tan shows the basic health of the broker.
 
 ==== Acceptors
 
 This expands to show and expose details of the current configured acceptors.
 
-==== Addresses
+==== Broker Network
 
-This expands to show the current configured available `addresses`.
+This expands to show and expose details of the current Cluster of Brokers.
 
-Under the address you can expand to find the `queues` for the address exposing attributes
+=== Connections Tab
+
+This shows a table of all the brokers connections from clients and other Brokers.
+
+=== Sessions Tab
+
+This shows a table of all sessions that belong ti connected clients.
+
+=== Producers Tab
+
+This shows a table of all client producers including message sent information.
+
+=== Consumers Tab
+
+This shows a table of all client consumers including message delivered information.
+
+=== Addresses Tab
+
+This shows a table of all the Broker's addresses
+
+==== Key Operations
+
+===== Creating a new Address
+
+To create a new address simply click on the 'Create Address' button and filling in the form presented
+
+You can also perform operations on an address by clicking on the 3 dots and choosing the appropriate operation.
+
+
+=== Queues Tab
+
+This shows a table of all the Broker's queues
+
+== Artemis JMX Tab
+
+Click `Artemis JMX` in the left navigation bar to see the Artemis JMX specific plugin.
+(The Artemis JMX tab won't appear if there is no broker in this JVM).
+The Artemis JMX plugin works very much the same as the JMX plugin however with a focus on interacting with an Artemis broker.
+
+=== Tree View
+
+The tree view on the left-hand side shows the top level JMX tree of each broker instance running in the JVM.
+Expanding the tree will show the various MBeans registered by Artemis that you can inspect via the *Attributes* tab.
 
 === Key Operations
 
@@ -93,7 +134,7 @@ Simply click on the queue in th ejmx tree and click on the appropriate tab.
 
 You can also see a graphical view of all brokers, addresses, queues and their consumers using the *Diagram* tab.
 
-=== Status Logging
+== Status Logging
 
 When the broker starts it will detect the presence of the web console and log status information, e.g.:
 

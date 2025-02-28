@@ -42,8 +42,6 @@
 
             <!-- Handled later in web subdir for console bits -->
             <exclude>org.apache.activemq:artemis-console:war</exclude>
-            <exclude>org.apache.activemq:activemq-branding:war</exclude>
-            <exclude>org.apache.activemq:artemis-plugin:war</exclude>
          </excludes>
          <outputDirectory>lib</outputDirectory>
          <unpack>false</unpack>
@@ -88,31 +86,19 @@
          <directoryMode>0755</directoryMode>
          <fileMode>0644</fileMode>
       </dependencySet>
-      <dependencySet>
-         <includes>
-            <include>org.apache.activemq:activemq-branding:war</include>
-         </includes>
-         <outputDirectory>web</outputDirectory>
-         <unpack>false</unpack>
-         <outputFileNameMapping>activemq-branding.war</outputFileNameMapping>
-         <useProjectArtifact>false</useProjectArtifact>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0644</fileMode>
-      </dependencySet>
-      <dependencySet>
-         <includes>
-            <include>org.apache.activemq:artemis-plugin:war</include>
-         </includes>
-         <outputDirectory>web</outputDirectory>
-         <unpack>false</unpack>
-         <outputFileNameMapping>artemis-plugin.war</outputFileNameMapping>
-         <useProjectArtifact>false</useProjectArtifact>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0644</fileMode>
-      </dependencySet>
 
    </dependencySets>
    <fileSets>
+      <!-- Console Licenses -->
+      <fileSet>
+         <directory>target/console/apache-artemis-console-${artemis-console-version}/licenses</directory>
+         <outputDirectory>licenses</outputDirectory>
+         <includes>
+            <include>NPMLicenses.txt</include>
+         </includes>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
+      </fileSet>
       <!-- schema -->
       <fileSet>
          <directory>${activemq.basedir}/artemis-server/src/main/resources/schema/</directory>

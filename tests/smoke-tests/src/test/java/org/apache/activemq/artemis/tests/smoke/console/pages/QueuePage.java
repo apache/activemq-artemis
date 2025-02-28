@@ -20,73 +20,45 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import java.util.List;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.A_TAG_LOCATOR;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.COLUMN_MESSAGE_ID;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.COLUMN_ORIGINAL_QUEUE;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.MESSAGE_TABLE;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.TABLE_TAG_LOCATOR;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.TD_TAG_LOCATOR;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.TR_TAG_LOCATOR;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.VIEW_MESSAGE_TITLE_LOCATOR;
 
 public class QueuePage extends ArtemisPage {
-   private By messageRowLocator = By.cssSelector("tr[role='row'][class]");
 
    public QueuePage(WebDriver driver) {
       super(driver);
    }
-   private By dropdownMenuLocator = By.id("moreDropdown");
-   private By sendMessageMenuItemLocator = By.xpath("//a[contains(text(),'Send message')]");
 
    public MessagePage getMessagePage(int index, int timeout) {
-      driver.findElements(By.cssSelector("button[title='Show message']")).get(index).click();
+      int col = getIndexOfColumn(COLUMN_MESSAGE_ID);
+      driver.findElement(TABLE_TAG_LOCATOR).findElements(TD_TAG_LOCATOR).get(col).findElement(A_TAG_LOCATOR).click();
 
-      waitForElementToBeVisible(By.cssSelector("span[role='presentation']"), timeout);
+      waitForElementToBeVisible(VIEW_MESSAGE_TITLE_LOCATOR, timeout);
 
       return new MessagePage(driver);
    }
 
    public long getMessageId(int index) {
-      WebElement messageRowWebElement = driver.findElements(messageRowLocator).get(index);
+      WebElement messageRowWebElement = driver.findElement(MESSAGE_TABLE).findElements(TR_TAG_LOCATOR).get(index + 1);
 
-      String messageIdText = messageRowWebElement.findElements(By.tagName("td")).get(
-         getIndexOfColumn("Message ID")).findElement(By.tagName("span")).getText();
+      String messageIdText = messageRowWebElement.findElements(TD_TAG_LOCATOR).get(
+         getIndexOfColumn(COLUMN_MESSAGE_ID)).findElement(By.tagName("a")).getText();
 
       return Long.parseLong(messageIdText);
    }
 
    public String getMessageOriginalQueue(int index) {
-      WebElement messageRowWebElement = driver.findElements(messageRowLocator).get(index);
+      WebElement messageRowWebElement = driver.findElement(MESSAGE_TABLE).findElements(TR_TAG_LOCATOR).get(index + 1);
 
-      String messageOriginalQueue = messageRowWebElement.findElements(By.tagName("td")).get(
-         getIndexOfColumn("Original Queue")).findElement(By.tagName("span")).getText();
-
+      int col = getIndexOfColumn(COLUMN_ORIGINAL_QUEUE);
+      System.out.println("col = " + col);
+      String messageOriginalQueue = messageRowWebElement.findElements(TD_TAG_LOCATOR).get(col).getText();
       return messageOriginalQueue;
-   }
-
-   public int getIndexOfColumn(String name) {
-      WebElement headerRowWebElement = driver.findElement(By.cssSelector("tr[role='row']"));
-
-      List<WebElement> columnWebElements = headerRowWebElement.findElements(By.tagName("th"));
-      for (int i = 0; i < columnWebElements.size(); i++) {
-         if (name.equals(columnWebElements.get(i).getText())) {
-            return i;
-         }
-      }
-
-      return -1;
-   }
-
-   public SendMessagePage getSendMessagePage(int timeout) {
-      WebElement queuesMenuItem = driver.findElement(sendMessageMenuItemLocator);
-
-      if (!queuesMenuItem.isDisplayed()) {
-         List<WebElement> dropdownMenu = driver.findElements(dropdownMenuLocator);
-
-         if (!dropdownMenu.isEmpty()) {
-            dropdownMenu.get(0).click();
-         } else {
-            waitForElementToBeVisible(sendMessageMenuItemLocator, timeout);
-         }
-      }
-
-      queuesMenuItem.click();
-
-      waitForElementToBeVisible(By.xpath("//h1[contains(text(),'Send Message')]"), timeout);
-
-      return new SendMessagePage(driver);
    }
 }

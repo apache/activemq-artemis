@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class JVMArgumentParser {
 
-   public static void parseOriginalArgs(String prefix, String endOfLine, String originalLine, String[] keepingPrefixes, Map<String, String> originalArgs) {
+   public static void parseOriginalArgs(String prefix, String endOfLine, String originalLine, Map<String, String> keepPrefixAlternates, String[] keepingPrefixes, Map<String, String> originalArgs) {
       originalLine = originalLine.trim();
       String line = originalLine.substring(prefix.length(), originalLine.length() - endOfLine.length());
       String[] split = line.split(" ");
@@ -29,6 +29,12 @@ public class JVMArgumentParser {
          for (String k : keepingPrefixes) {
             if (s.startsWith(k)) {
                originalArgs.put(k, s);
+            } else if (keepPrefixAlternates.containsKey(k)) {
+               String oldKey = keepPrefixAlternates.get(k);
+               if (s.startsWith(oldKey)) {
+                  String renamed = s.replaceFirst(oldKey, k);
+                  originalArgs.put(k, renamed);
+               }
             }
          }
       }
