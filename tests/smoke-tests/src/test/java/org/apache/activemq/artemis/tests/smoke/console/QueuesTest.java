@@ -41,7 +41,7 @@ import javax.management.ObjectName;
 
 // Parameters set in super class
 @ExtendWith(ParameterizedTestExtension.class)
-public class QueuesTest extends ConsoleTest {
+public class QueuesTest extends ArtemisTest {
 
    public QueuesTest(String browser) {
       super(browser);
@@ -49,7 +49,7 @@ public class QueuesTest extends ConsoleTest {
 
    @TestTemplate
    public void testDefaultQueues() throws Exception {
-      driver.get(webServerUrl + "/console");
+      loadLandingPage();
       LoginPage loginPage = new LoginPage(driver);
       StatusPage statusPage = loginPage.loginValidUser(
          SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
@@ -68,7 +68,7 @@ public class QueuesTest extends ConsoleTest {
       final String queueName = "TEST";
       final String messageText = "TEST";
 
-      driver.get(webServerUrl + "/console");
+      loadLandingPage();
       LoginPage loginPage = new LoginPage(driver);
       StatusPage statusPage = loginPage.loginValidUser(
          SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
@@ -85,7 +85,7 @@ public class QueuesTest extends ConsoleTest {
       producer.setSilentInput(true);
       producer.execute(new ActionContext());
 
-      beforeQueuesPage.refresh(DEFAULT_TIMEOUT);
+      Wait.assertTrue(() -> beforeQueuesPage.searchQueues(queueName));
       Wait.assertEquals(1, () -> beforeQueuesPage.countQueue("DLQ"));
       Wait.assertEquals(1, () -> beforeQueuesPage.countQueue(queueName));
       assertEquals(messages, beforeQueuesPage.getMessagesCount(queueName));
@@ -106,7 +106,7 @@ public class QueuesTest extends ConsoleTest {
 
       assertEquals(messages, consumed);
 
-      QueuesPage afterQueuesPage = messagePage.getQueuesPage(DEFAULT_TIMEOUT);
+      QueuesPage afterQueuesPage = messagePage.getQueuesPageFromMessageView(DEFAULT_TIMEOUT);
       Wait.assertEquals(1, () -> afterQueuesPage.countQueue("DLQ"));
       Wait.assertEquals(0, () -> afterQueuesPage.getMessagesCount(queueName));
    }
@@ -121,7 +121,7 @@ public class QueuesTest extends ConsoleTest {
       final ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(null, "0.0.0.0", true);
       final ObjectName activeMQServerObjectName = objectNameBuilder.getActiveMQServerObjectName();
 
-      driver.get(webServerUrl + "/console");
+      loadLandingPage();
       LoginPage loginPage = new LoginPage(driver);
       StatusPage statusPage = loginPage.loginValidUser(
          SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
@@ -150,7 +150,7 @@ public class QueuesTest extends ConsoleTest {
          SimpleString.of(queueName),
          RoutingType.ANYCAST);
 
-      driver.get(webServerUrl + "/console");
+      loadLandingPage();
       LoginPage loginPage = new LoginPage(driver);
       StatusPage statusPage = loginPage.loginValidUser(
          SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
@@ -171,7 +171,7 @@ public class QueuesTest extends ConsoleTest {
       producer.setProtocol("amqp");
       producer.execute(new ActionContext());
 
-      beforeQueuesPage.refresh(DEFAULT_TIMEOUT);
+      Wait.assertTrue(() -> beforeQueuesPage.searchQueues(queueName));
       Wait.assertEquals(1, () -> beforeQueuesPage.countQueue(expiryQueueName));
       assertEquals(0, beforeQueuesPage.getMessagesCount(expiryQueueName));
       Wait.assertEquals(1, () -> beforeQueuesPage.countQueue(queueName));
@@ -187,13 +187,14 @@ public class QueuesTest extends ConsoleTest {
       assertTrue(queuePage.postJolokiaExecRequest(testQueueObjectName.getCanonicalName(), "expireMessage(long)",
          String.valueOf(queuePage.getMessageId(1))).toString().contains("\"status\":200"));
 
-      QueuesPage afterQueuesPage = queuePage.getQueuesPage(DEFAULT_TIMEOUT);
+      QueuesPage afterQueuesPage = queuePage.getQueuesPageFromMessagesView(DEFAULT_TIMEOUT);
       Wait.assertEquals(1, () -> afterQueuesPage.countQueue(expiryQueueName));
       assertEquals(2, afterQueuesPage.getMessagesCount(expiryQueueName));
       Wait.assertEquals(1, () -> afterQueuesPage.countQueue(queueName));
       assertEquals(0, afterQueuesPage.getMessagesCount(queueName));
 
       QueuePage expiryPage = afterQueuesPage.getQueuePage(expiryQueueName, DEFAULT_TIMEOUT);
+      expiryPage.enableColumn("originalQueue");
       assertEquals(queueName, expiryPage.getMessageOriginalQueue(0));
       assertEquals(queueName, expiryPage.getMessageOriginalQueue(1));
    }
@@ -203,7 +204,7 @@ public class QueuesTest extends ConsoleTest {
       final String queueName = "TEST";
       final String messageText = "TEST";
 
-      driver.get(webServerUrl + "/console");
+      loadLandingPage();
       LoginPage loginPage = new LoginPage(driver);
       StatusPage statusPage = loginPage.loginValidUser(
          SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
@@ -221,13 +222,12 @@ public class QueuesTest extends ConsoleTest {
       createQueueCommand.execute(new ActionContext());
 
       final long messages = 1;
-      beforeSendingQueuesPage.refresh(DEFAULT_TIMEOUT);
+      beforeSendingQueuesPage.searchQueues("foo");
       Wait.assertEquals(1, () -> beforeSendingQueuesPage.countQueue("DLQ"));
       Wait.assertEquals(1, () -> beforeSendingQueuesPage.countQueue(queueName));
       assertEquals(0, beforeSendingQueuesPage.getMessagesCount(queueName));
 
-      QueuePage queuePage = beforeSendingQueuesPage.getQueuePage(queueName, DEFAULT_TIMEOUT);
-      SendMessagePage sendMessagePage = queuePage.getSendMessagePage(DEFAULT_TIMEOUT);
+      SendMessagePage sendMessagePage = beforeSendingQueuesPage.getQueueSendMessagePage(queueName, DEFAULT_TIMEOUT);
       for (int i = 0; i < messages; i++) {
          sendMessagePage.clearMessageText();
          sendMessagePage.selectUseCurrentLogonUser();
@@ -251,7 +251,7 @@ public class QueuesTest extends ConsoleTest {
 
       assertEquals(messages, consumed);
 
-      afterSendingQueuesPage.refresh(DEFAULT_TIMEOUT);
+      afterSendingQueuesPage.searchQueues("foo");
       Wait.assertEquals(1, () -> afterSendingQueuesPage.countQueue("DLQ"));
       Wait.assertEquals(0, () -> afterSendingQueuesPage.getMessagesCount(queueName));
    }

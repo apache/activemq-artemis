@@ -184,12 +184,6 @@
          </dependency>
          <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-plugin</artifactId>
-            <type>war</type>
-            <version>${project.version}</version>
-         </dependency>
-         <dependency>
-            <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-lockmanager-api</artifactId>
             <version>${project.version}</version>
          </dependency>
