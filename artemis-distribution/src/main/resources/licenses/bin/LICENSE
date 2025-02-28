@@ -293,163 +293,19 @@ This subcomponent is bundled by default but is optional.
 It bundles the below declared packages not covered by ASL V2.
 
 ==============================================================================
-For jquery:
+For JSON-java
 ==============================================================================
-This product bundles jquery, which is available under a "MIT" license.
-For details, see licenses/LICENSE-jquery.txt
+This product bundles the JSON Java API, which is available under a
+public domain license. for details see licenses/LICENSE-JSON-java.txt
 
 ==============================================================================
-For datatables:
+For checker-qual
 ==============================================================================
-This product bundles datatables, which is available under a "MIT" license.
-For details, see licenses/LICENSE-datatables.txt
+This product bundles the checker qual API which is available under
+the MIT license, for details see licenses/LICENSE-checker-qual.txt
 
 ==============================================================================
-For bootstrap:
+For all the NPM dependencies
 ==============================================================================
-This product bundles bootstrap, which is available under a "MIT" license.
-For details, see licenses/LICENSE-bootstrap.txt
-
-==============================================================================
-For patternfly:
-==============================================================================
-This product bundles patternfly, which is available under a "MIT" license.
-For details, see licenses/LICENSE-patternfly.txt
-
-==============================================================================
-For angular:
-==============================================================================
-This product bundles angular, which is available under a "MIT" license.
-For details, see licenses/LICENSE-angular.txt
-
-==============================================================================
-For angular-animate:
-==============================================================================
-This product bundles angular-animate, which is available under a "MIT" license.
-For details, see licenses/LICENSE-angular-animate.txt
-
-==============================================================================
-For angular-sanitize:
-==============================================================================
-This product bundles angular-sanitize, which is available under a "MIT" license.
-For details, see licenses/LICENSE-angular-sanitize.txt
-
-==============================================================================
-For angular-route:
-==============================================================================
-This product bundles angular-route, which is available under a "MIT" license.
-For details, see licenses/LICENSE-angular-route.txt
-
-==============================================================================
-For angular-ui-bootstrap:
-==============================================================================
-This product bundles angular-ui-bootstrap, which is available under a "MIT" license.
-For details, see licenses/LICENSE-angular-ui-bootstrap.txt
-
-==============================================================================
-For angular-resizable:
-==============================================================================
-This product bundles angular-resizable, which is available under a "MIT" license.
-For details, see licenses/LICENSE-angular-resizable.txt
-
-==============================================================================
-For angular-drag-and-drop-lists:
-==============================================================================
-This product bundles angular-drag-and-drop-lists, which is available under a "MIT" license.
-For details, see licenses/LICENSE-angular-drag-and-drop-lists.txt
-
-==============================================================================
-For angular-datatables:
-==============================================================================
-This product bundles angular-datatables, which is available under a "MIT" license.
-For details, see licenses/LICENSE-angular-datatables.txt
-
-==============================================================================
-For angular-cookies:
-==============================================================================
-This product bundles angular-cookies, which is available under a "MIT" license.
-For details, see licenses/LICENSE-angular-cookies.txt
-
-==============================================================================
-For angular-patternfly:
-==============================================================================
-This product bundles angular-patternfly, which is available under a "MIT" license.
-For details, see licenses/LICENSE-angular-patternfly.txt
-
-==============================================================================
-For angular-idle:
-==============================================================================
-This product bundles angular-idle, which is available under a "MIT" license.
-For details, see licenses/LICENSE-angular-idle.txt
-
-==============================================================================
-For c3:
-==============================================================================
-This product bundles c3, which is available under a "MIT" license.
-For details, see licenses/LICENSE-c3.txt
-
-==============================================================================
-For d3:
-==============================================================================
-This product bundles d3, which is available under a "BSD 3-clause" license.
-For details, see licenses/LICENSE-d3.txt
-
-==============================================================================
-For lodash:
-==============================================================================
-This product bundles lodash, which is available under a "MIT" license.
-For details, see licenses/LICENSE-lodash.txt
-
-==============================================================================
-For urijs:
-==============================================================================
-This product bundles urijs, which is available under a "MIT" license.
-For details, see licenses/LICENSE-urijs.txt
-
-==============================================================================
-For js-logger:
-==============================================================================
-This product bundles js-logger, which is available under a "MIT" license.
-For details, see licenses/LICENSE-js-logger.txt
-
-==============================================================================
-For clipboard:
-==============================================================================
-This product bundles clipboard, which is available under a "MIT" license.
-For details, see licenses/LICENSE-clipboard.txt
-
-==============================================================================
-For marked:
-==============================================================================
-This product bundles marked, which is available under a "MIT" license.
-For details, see licenses/LICENSE-marked.txt
-
-==============================================================================
-For js-beautify:
-==============================================================================
-This product bundles js-beautify, which is available under a "MIT" license.
-For details, see licenses/LICENSE-js-beautify.txt
-
-==============================================================================
-For codemirror:
-==============================================================================
-This product bundles codemirror, which is available under a "MIT" license.
-For details, see licenses/LICENSE-codemirror.txt
-
-==============================================================================
-For graphlib:
-==============================================================================
-This product bundles graphlib, which is available under a "MIT" license.
-For details, see licenses/LICENSE-graphlib.txt
-
-==============================================================================
-For dagre:
-==============================================================================
-This product bundles dagre, which is available under a "MIT" license.
-For details, see licenses/LICENSE-dagre.txt
-
-==============================================================================
-For ng-infinite-scroll:
-==============================================================================
-This product bundles ng-infinite-scroll, which is available under a "MIT" license.
-For details, see licenses/LICENSE-ng-infinite-scroll.txt
+The licenses for dependencies sourced from NPM can be found in
+licenses/NPMLicenses.txt

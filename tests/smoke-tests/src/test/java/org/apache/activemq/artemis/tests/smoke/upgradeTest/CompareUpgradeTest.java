@@ -192,6 +192,7 @@ public class CompareUpgradeTest {
       final String windowsBin = windows + "/bin";
       final String windowsETC = basedir + "/target/classes/servers/windowsUpgradeETC";
       final String windowsData = windows + "/data-custom";
+      final String hawtioRoles = "amq";
 
       checkExpectedValues(windowsBin + "/artemis.cmd", "set ARTEMIS_INSTANCE_ETC=", "\"" + windowsETC + "\"");
       Map<String, String> result = checkExpectedValues(windowsBin + "/artemis-service.xml",
@@ -199,7 +200,8 @@ public class CompareUpgradeTest {
                                                        "<env name=\"ARTEMIS_INSTANCE\" value=", "\"" + windows  + "\"/>",
                                                        "<env name=\"ARTEMIS_INSTANCE_ETC\" value=", "\"" + windowsETC + "\"/>",
                                                        "<env name=\"ARTEMIS_INSTANCE_URI\" value=", "\"file:" + windows + "/\"/>",
-                                                       "<env name=\"ARTEMIS_DATA_DIR\" value=", "\"" + windowsData + "\"/>"
+                                                       "<env name=\"ARTEMIS_DATA_DIR\" value=", "\"" + windowsData + "\"/>",
+                                                       "<startargument>-Dhawtio.roles=", hawtioRoles + "</startargument>"
       );
 
       String home = result.get("<env name=\"ARTEMIS_HOME\" value=");

@@ -97,7 +97,7 @@ public class ConsoleMutualSSLTest extends SmokeTestBase {
          Wait.assertTrue(() -> {
             try {
                try (CloseableHttpResponse response = httpClient.execute(new HttpGet("https://localhost:8443/console/"))) {
-                  return response.getStatusLine().getStatusCode() == 302 && response.getFirstHeader("Location").getValue().endsWith("auth/login");
+                  return response.getStatusLine().getStatusCode() == 302 && response.getFirstHeader("Location").getValue().endsWith("/console/login#noauth");
                }
             } catch (Exception ignore) {
                return false;

@@ -65,7 +65,7 @@
       <module>artemis-jdbc-store</module>
       <module>artemis-maven-plugin</module>
       <module>artemis-server-osgi</module>
-      <module>artemis-hawtio</module>
+      <module>artemis-console</module>
       <module>artemis-distribution</module>
       <module>artemis-unit-test-support</module>
       <module>tests</module>
@@ -87,6 +87,7 @@
       <modular.jdk.surefire.arg>--add-modules java.sql,jdk.unsupported </modular.jdk.surefire.arg>
 
       <activemq-artemis-native-version>2.0.0</activemq-artemis-native-version>
+      <artemis-console-version>1.1.0</artemis-console-version>
       <karaf.version>4.4.7</karaf.version>
       <pax.exam.version>4.14.0</pax.exam.version>
       <commons.config.version>2.11.0</commons.config.version>
@@ -105,10 +106,9 @@
       <fuse.mqtt.client.version>1.16</fuse.mqtt.client.version>
       <caffeine.version>3.2.0</caffeine.version>
       <guava.version>33.4.0-jre</guava.version>
-      <hawtio.version>2.17.7</hawtio.version>
       <jsr305.version>3.0.2</jsr305.version>
       <jetty.version>12.0.15</jetty.version>
-      <jetty-servlet-api.version>4.0.6</jetty-servlet-api.version>
+      <jetty-servlet-api.version>5.0.2</jetty-servlet-api.version>
       <jgroups.version>5.3.13.Final</jgroups.version>
       <errorprone.version>2.36.0</errorprone.version>
       <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>

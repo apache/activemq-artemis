@@ -14,19 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.smoke.console.pages;
+package org.apache.activemq.artemis.tests.smoke.console;
 
-import org.openqa.selenium.WebDriver;
-
-import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.MESSAGE_VIEW_BODY;
-
-public class MessagePage extends ArtemisPage {
-
-   public MessagePage(WebDriver driver) {
-      super(driver);
+public abstract class ArtemisTest  extends ConsoleTest {
+   public ArtemisTest(String browser) {
+      super(browser);
    }
 
-   public String getMessageText() {
-      return driver.findElement(MESSAGE_VIEW_BODY).getText();
+
+   public void loadLandingPage() {
+      driver.get(webServerUrl + "/console/artemis");
    }
 }
