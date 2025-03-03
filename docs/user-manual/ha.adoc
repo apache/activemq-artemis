@@ -836,6 +836,19 @@ It is also possible to use discovery to scale down, this would look like:
 </ha-policy>
 ----
 
+[NOTE]
+====
+Moving messages from one broker to another during scale-down involves an internal transaction.
+By default this transaction is only committed once per queue.
+However, as the number of messages in the queue grows so does the memory requirements for the transaction.
+At some point the memory requirements for the transaction will exceed the limits of the available heap.
+
+In order to deal with this you can configure the `commit-interval` in the `scale-down` element.
+This will allow the transaction to be committed every so often which will free the memory from the transaction.
+It must be greater than `0` or `-1`.
+It is `-1` by default (i.e. don't commit until all the messages in the queue are scaled-down).
+====
+
 === Scale Down with groups
 
 It is also possible to configure servers to only scale down to servers that belong in the same group.

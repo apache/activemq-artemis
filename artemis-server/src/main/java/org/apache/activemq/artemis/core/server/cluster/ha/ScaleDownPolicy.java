@@ -41,21 +41,25 @@ public class ScaleDownPolicy {
 
    private boolean enabled;
 
+   private int commitInterval;
+
    public ScaleDownPolicy() {
    }
 
-   public ScaleDownPolicy(List<String> connectors, String groupName, String clusterName, boolean enabled) {
+   public ScaleDownPolicy(List<String> connectors, String groupName, String clusterName, boolean enabled, int commitInterval) {
       this.connectors = connectors;
       this.groupName = groupName;
       this.clusterName = clusterName;
       this.enabled = enabled;
+      this.commitInterval = commitInterval;
    }
 
-   public ScaleDownPolicy(String discoveryGroup, String groupName, String clusterName, boolean enabled) {
+   public ScaleDownPolicy(String discoveryGroup, String groupName, String clusterName, boolean enabled, int commitInterval) {
       this.discoveryGroup = discoveryGroup;
       this.groupName = groupName;
       this.clusterName = clusterName;
       this.enabled = enabled;
+      this.commitInterval = commitInterval;
    }
 
    public List<String> getConnectors() {
@@ -96,6 +100,14 @@ public class ScaleDownPolicy {
 
    public void setEnabled(boolean enabled) {
       this.enabled = enabled;
+   }
+
+   public int getCommitInterval() {
+      return commitInterval;
+   }
+
+   public void setCommitInterval(int commitInterval) {
+      this.commitInterval = commitInterval;
    }
 
    public static ServerLocatorInternal getScaleDownConnector(ScaleDownPolicy scaleDownPolicy,

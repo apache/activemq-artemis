@@ -58,6 +58,11 @@ public class PrimaryOnlyPolicy implements HAPolicy<Activation> {
    }
 
    @Override
+   public int getScaleDownCommitInterval() {
+      return scaleDownPolicy == null ? -1 : scaleDownPolicy.getCommitInterval();
+   }
+
+   @Override
    public boolean isSharedStore() {
       return false;
    }
