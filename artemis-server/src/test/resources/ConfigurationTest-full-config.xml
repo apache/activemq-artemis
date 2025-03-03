@@ -413,6 +413,7 @@
                <group-name>boo!</group-name>
                <!--either a discovery group-->
                <discovery-group-ref discovery-group-name="dg1"/>
+               <commit-interval>33</commit-interval>
             </scale-down>
          </primary-only>
 

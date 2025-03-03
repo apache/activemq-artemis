@@ -128,16 +128,6 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
       return groupName;
    }
 
-   @Override
-   public String getScaleDownGroupName() {
-      return null;
-   }
-
-   @Override
-   public String getScaleDownClustername() {
-      return null;
-   }
-
    public boolean isAllowAutoFailBack() {
       return allowAutoFailBack;
    }

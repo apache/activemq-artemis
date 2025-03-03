@@ -100,14 +100,4 @@ public class SharedStorePrimaryPolicy implements HAPolicy<PrimaryActivation> {
    public String getBackupGroupName() {
       return null;
    }
-
-   @Override
-   public String getScaleDownGroupName() {
-      return null;
-   }
-
-   @Override
-   public String getScaleDownClustername() {
-      return null;
-   }
 }

@@ -953,6 +953,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       properties.put("HAPolicyConfiguration.scaleDownConfiguration.groupName", "g0");
       properties.put("HAPolicyConfiguration.scaleDownConfiguration.clusterName", "c0");
       properties.put("HAPolicyConfiguration.scaleDownConfiguration.enabled", "false");
+      properties.put("HAPolicyConfiguration.scaleDownConfiguration.commitInterval", "73");
    }
 
    private void checkScaleDownConfiguration(ScaleDownConfiguration scaleDownConfiguration) {
@@ -962,6 +963,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals("g0", scaleDownConfiguration.getGroupName());
       assertEquals("c0", scaleDownConfiguration.getClusterName());
       assertFalse(scaleDownConfiguration.isEnabled());
+      assertEquals(73, scaleDownConfiguration.getCommitInterval());
    }
 
    @Test

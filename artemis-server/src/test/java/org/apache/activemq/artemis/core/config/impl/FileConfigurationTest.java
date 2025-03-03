@@ -451,6 +451,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertNotNull(lopc.getScaleDownConfiguration());
       assertEquals("boo!", lopc.getScaleDownConfiguration().getGroupName());
       assertEquals("dg1", lopc.getScaleDownConfiguration().getDiscoveryGroup());
+      assertEquals(33, lopc.getScaleDownConfiguration().getCommitInterval());
 
       for (ClusterConnectionConfiguration ccc : conf.getClusterConfigurations()) {
          if (ccc.getName().equals("cluster-connection3")) {
