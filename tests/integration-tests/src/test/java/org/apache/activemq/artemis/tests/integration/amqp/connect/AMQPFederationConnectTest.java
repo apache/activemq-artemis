@@ -299,6 +299,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          federation.addProperty(RECEIVER_QUIESCE_TIMEOUT, AMQP_RECEIVER_QUIESCE_TIMEOUT);
          federation.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, AMQP_ADDRESS_RECEIVER_IDLE_TIMEOUT);
          federation.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, AMQP_QUEUE_RECEIVER_IDLE_TIMEOUT);
+         federation.addProperty(IGNORE_QUEUE_CONSUMER_PRIORITIES, Boolean.toString(AMQP_INGNORE_CONSUMER_PRIORITIES));
          amqpConnection.addElement(federation);
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();

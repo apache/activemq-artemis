@@ -73,7 +73,7 @@ public final class AMQPFederationConfiguration {
     * consumer subscription is used or if the policy priority offset value is simply applied to the default consumer
     * priority value.
     */
-   public static final boolean DEFAULT_IGNNORE_QUEUE_CONSUMER_PRIORITIES = false;
+   public static final boolean DEFAULT_IGNNORE_QUEUE_CONSUMER_PRIORITIES = true;
 
    /**
     * Default timeout (milliseconds) applied to federation receivers that are being stopped due to removal of local
