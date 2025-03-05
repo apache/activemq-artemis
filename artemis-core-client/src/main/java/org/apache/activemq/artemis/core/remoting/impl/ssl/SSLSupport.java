@@ -352,11 +352,14 @@ public class SSLSupport {
       return ks;
    }
 
+   /**
+    * This method calls out to a separate class in order to avoid a hard dependency on the provider's implementation.
+    * This allows folks who don't use PEM to avoid using the corresponding dependency.
+    */
    public static void checkPemProviderLoaded(String keystoreType) {
       if (keystoreType != null && keystoreType.startsWith("PEM")) {
          if (Security.getProvider("PEM") == null) {
-            Security.insertProviderAt(new de.dentrassi.crypto.pem.PemKeyStoreProvider(),
-               Integer.parseInt(System.getProperty("artemis.pemProvider.insertAt", "0")));
+            PemSupport.loadProvider();
          }
       }
    }
