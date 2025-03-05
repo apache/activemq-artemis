@@ -100,6 +100,27 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       return CONTROLLER_THREAD_LOCAL.get();
    }
 
+
+   @Override
+   public boolean isBusy() {
+      return getAckManager().size() > getMirrorMaxPendingAcks();
+   }
+
+   public int getMirrorMaxPendingAcks() {
+      try {
+         return connection.getProtocolManager().getMirrorMaxPendingAcks();
+      } catch (Throwable e) {
+         // It shouldn't happen, but if it did we just log it
+         logger.warn(e.getMessage(), e);
+         return 0;
+      }
+   }
+
+   public void verifyCredits() {
+      connection.runNow(creditTopUpRunner);
+   }
+
+
    /**
     * Objects of this class can be used by either transaction or by OperationContext. It is important that when you're
     * using the transactions you clear any references to the operation context. Don't use transaction and
@@ -473,14 +494,17 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
          logger.trace("performAck (nodeID={}, messageID={}), targetQueue={})", nodeID, messageID, targetQueue.getName());
       }
 
+      getAckManager().ack(nodeID, targetQueue, messageID, reason, true);
+
+      OperationContextImpl.getContext().executeOnCompletion(ackMessageOperation, OperationConsistencyLevel.FULL);
+   }
+
+   private AckManager getAckManager() {
       if (ackManager == null) {
          ackManager = AckManagerProvider.getManager(server);
          ackManager.registerMirror(this);
       }
-
-      ackManager.ack(nodeID, targetQueue, messageID, reason, true);
-
-      OperationContextImpl.getContext().executeOnCompletion(ackMessageOperation, OperationConsistencyLevel.FULL);
+      return ackManager;
    }
 
    /**
