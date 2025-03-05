@@ -112,6 +112,8 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private boolean directDeliver = true;
 
+   private int mirrorMaxPendingAcks = 10_000;
+
    private final AMQPRoutingHandler routingHandler;
 
    /*
@@ -162,6 +164,15 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    public int getAmqpMinLargeMessageSize() {
       return amqpMinLargeMessageSize;
+   }
+
+   public int getMirrorMaxPendingAcks() {
+      return mirrorMaxPendingAcks;
+   }
+
+   public ProtonProtocolManager setMirrorMaxPendingAcks(int maxPendingAcks) {
+      this.mirrorMaxPendingAcks = maxPendingAcks;
+      return this;
    }
 
    public ProtonProtocolManager setAmqpMinLargeMessageSize(int amqpMinLargeMessageSize) {

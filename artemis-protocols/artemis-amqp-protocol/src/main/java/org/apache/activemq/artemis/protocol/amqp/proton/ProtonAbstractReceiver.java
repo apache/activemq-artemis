@@ -175,6 +175,10 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       return state == ReceiverState.STARTED;
    }
 
+   public boolean isBusy() {
+      return false;
+   }
+
    public boolean isStopping() {
       return state == ReceiverState.STOPPING;
    }
@@ -276,7 +280,7 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
          if (connection.isHandler()) {
             connection.requireInHandler();
 
-            if (context.isStarted()) {
+            if (context.isStarted() && !context.isBusy()) {
                final int pending = context.pendingSettles;
 
                if (isBellowThreshold(receiver.getCredit(), pending, threshold)) {
