@@ -191,6 +191,15 @@
             <filtering>true</filtering>
          </resource>
       </resources>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+               <argLine>${activemq-surefire-argline} --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+            </configuration>
+         </plugin>
+      </plugins>
    </build>
 
 </project>
