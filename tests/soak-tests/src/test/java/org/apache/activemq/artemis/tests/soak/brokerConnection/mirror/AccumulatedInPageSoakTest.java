@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBroker
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
@@ -109,6 +110,10 @@ public class AccumulatedInPageSoakTest extends SoakTestBase {
 
       File brokerPropertiesFile = new File(serverLocation, "broker.properties");
       saveProperties(brokerProperties, brokerPropertiesFile);
+
+      File brokerXML = new File(serverLocation, "/etc/broker.xml");
+      // Making sure we flow control mirrorACK on the lower side to make sure things are working
+      assertTrue(FileUtil.findReplace(brokerXML, "</acceptor>", ";mirrorMaxPendingAcks=50</acceptor>"));
    }
 
    @BeforeAll
