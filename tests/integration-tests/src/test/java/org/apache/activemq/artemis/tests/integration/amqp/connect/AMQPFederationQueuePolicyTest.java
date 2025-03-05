@@ -1492,9 +1492,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          receiveFromQueue.setName("queue-policy");
          receiveFromQueue.setPriorityAdjustment(TEST_BASE_PRIORITY_ADJUSTMENT);
          receiveFromQueue.addToIncludes("test", "test");
-         if (ignoreConsumerPriority) {
-            receiveFromQueue.addProperty(IGNORE_QUEUE_CONSUMER_PRIORITIES, Boolean.valueOf(ignoreConsumerPriority).toString());
-         }
+         receiveFromQueue.addProperty(IGNORE_QUEUE_CONSUMER_PRIORITIES, Boolean.valueOf(ignoreConsumerPriority).toString());
 
          final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
          element.setName(getTestName());
@@ -2531,6 +2529,7 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          element.setName(getTestName());
          element.addLocalQueuePolicy(receiveFromQueue);
          element.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 5);
+         element.addProperty(IGNORE_QUEUE_CONSUMER_PRIORITIES, "false");
 
          final AMQPBrokerConnectConfiguration amqpConnection =
             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());

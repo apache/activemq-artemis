@@ -1493,17 +1493,28 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
    @RepeatedTest(1)
    @Timeout(20)
    public void testTwoPullConsumerOnPullingFederationConfigurationEachCanTakeOneMessageProduceOnLocal() throws Exception {
-      doTestTwoPullConsumerOnPullingFederationConfigurationEachCanTakeOneMessage(true);
+      doTestTwoPullConsumerOnPullingFederationConfigurationEachCanTakeOneMessage(true, false);
    }
-
 
    @RepeatedTest(1)
    @Timeout(20)
    public void testTwoPullConsumerOnPullingFederationConfigurationEachCanTakeOneMessageProduceOnRemote() throws Exception {
-      doTestTwoPullConsumerOnPullingFederationConfigurationEachCanTakeOneMessage(false);
+      doTestTwoPullConsumerOnPullingFederationConfigurationEachCanTakeOneMessage(false, false);
    }
 
-   public void doTestTwoPullConsumerOnPullingFederationConfigurationEachCanTakeOneMessage(boolean produceLocal) throws Exception {
+   @RepeatedTest(1)
+   @Timeout(20)
+   public void testTwoPullConsumerOnPullingFederationConfigurationEachCanTakeOneMessageProduceOnLocalIncludeFederated() throws Exception {
+      doTestTwoPullConsumerOnPullingFederationConfigurationEachCanTakeOneMessage(true, true);
+   }
+
+   @RepeatedTest(1)
+   @Timeout(20)
+   public void testTwoPullConsumerOnPullingFederationConfigurationEachCanTakeOneMessageProduceOnRemoteIncludeFederated() throws Exception {
+      doTestTwoPullConsumerOnPullingFederationConfigurationEachCanTakeOneMessage(false, true);
+   }
+
+   public void doTestTwoPullConsumerOnPullingFederationConfigurationEachCanTakeOneMessage(boolean produceLocal, boolean includeFederated) throws Exception {
       logger.info("Test started: {}", getTestName());
 
       final AMQPFederationQueuePolicyElement localQueuePolicy = new AMQPFederationQueuePolicyElement();
@@ -1511,12 +1522,14 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
       localQueuePolicy.addToIncludes(getTestName(), getTestName());
       localQueuePolicy.addProperty(RECEIVER_CREDITS, 0);         // Enable Pull mode
       localQueuePolicy.addProperty(PULL_RECEIVER_BATCH_SIZE, 1); // Pull mode batch is one
+      localQueuePolicy.setIncludeFederated(includeFederated);
 
       final AMQPFederationQueuePolicyElement remoteQueuePolicy = new AMQPFederationQueuePolicyElement();
       remoteQueuePolicy.setName("test-policy-2");
       remoteQueuePolicy.addToIncludes(getTestName(), getTestName());
       remoteQueuePolicy.addProperty(RECEIVER_CREDITS, 0);         // Enable Pull mode
       remoteQueuePolicy.addProperty(PULL_RECEIVER_BATCH_SIZE, 1); // Pull mode batch is one
+      remoteQueuePolicy.setIncludeFederated(includeFederated);
 
       final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
       element.setName(getTestName());
@@ -1586,6 +1599,10 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          assertNotNull(messageL);
          assertNotNull(messageR);
+
+         // Should be a single JMS consumer and a single Federation consumer on each server's Queue
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of(getTestName())).getConsumerCount() == 2, 10_000);
+         Wait.assertTrue(() -> remoteServer.queueQuery(SimpleString.of(getTestName())).getConsumerCount() == 2, 10_000);
       }
    }
 }
