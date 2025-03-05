@@ -26,10 +26,13 @@ import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 
 import java.lang.invoke.MethodHandles;
+import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.util.collection.LongObjectHashMap;
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.collections.JournalHashMap;
@@ -43,9 +46,11 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
+import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManager;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManagerProvider;
@@ -57,17 +62,27 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.transport.amqp.client.AmqpClient;
+import org.apache.activemq.transport.amqp.client.AmqpConnection;
+import org.apache.activemq.transport.amqp.client.AmqpMessage;
+import org.apache.activemq.transport.amqp.client.AmqpSender;
+import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_DESTINATION;
+import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AckManagerTest extends ActiveMQTestBase {
 
@@ -86,11 +101,11 @@ public class AckManagerTest extends ActiveMQTestBase {
       server1.getConfiguration().addAddressSetting(SNF_NAME, new AddressSettings().setMaxSizeBytes(-1).setMaxSizeMessages(-1).setMaxReadPageMessages(20));
       server1.getConfiguration().getAcceptorConfigurations().clear();
       server1.getConfiguration().addAcceptorConfiguration("server", "tcp://localhost:61616");
-      server1.start();
    }
 
    @Test
    public void testDirectACK() throws Throwable {
+      server1.start();
 
       String protocol = "AMQP";
 
@@ -289,9 +304,9 @@ public class AckManagerTest extends ActiveMQTestBase {
       assertEquals(0, AckManagerProvider.getSize());
    }
 
-
    @Test
    public void testLogUnack() throws Throwable {
+      server1.start();
       String protocol = "AMQP";
 
       SimpleString TOPIC_NAME = SimpleString.of("tp" + RandomUtil.randomUUIDString());
@@ -340,6 +355,7 @@ public class AckManagerTest extends ActiveMQTestBase {
 
    @Test
    public void testRetryFromPaging() throws Throwable {
+      server1.start();
 
       String protocol = "AMQP";
 
@@ -440,6 +456,140 @@ public class AckManagerTest extends ActiveMQTestBase {
 
 
 
+   @Test
+   public void testFlowControlOnPendingAcks() throws Throwable {
+
+      server1.getConfiguration().getAcceptorConfigurations().clear();
+      server1.getConfiguration().addAcceptorConfiguration("server", "tcp://localhost:61616?mirrorMaxPendingAcks=100&amqpCredits=100");
+      server1.start();
+
+      String protocol = "AMQP";
+
+      SimpleString QUEUE_NAME = SimpleString.of("queue_" + RandomUtil.randomUUIDString());
+
+      Queue testQueue = server1.createQueue(QueueConfiguration.of(QUEUE_NAME).setRoutingType(RoutingType.ANYCAST));
+
+      ConnectionFactory connectionFactory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+
+      // First step... adding messages to a queue // 50% paging 50% queue
+      try (Connection connection = connectionFactory.createConnection()) {
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         javax.jms.Queue jmsQueue = session.createQueue(QUEUE_NAME.toString());
+         MessageProducer producer = session.createProducer(jmsQueue);
+         for (int i = 0; i < 100; i++) {
+            if (i == 50) {
+               session.commit();
+               testQueue.getPagingStore().startPaging();
+            }
+            producer.send(session.createTextMessage("hello there " + i));
+         }
+         session.commit();
+      }
+
+      Wait.assertEquals(100, testQueue::getMessageCount);
+
+      AckManager ackManager = AckManagerProvider.getManager(server1);
+      assertTrue(ackManager.isStarted());
+      ackManager.pause();
+      assertFalse(ackManager.isStarted());
+      assertSame(ackManager, AckManagerProvider.getManager(server1));
+
+      // adding fake retries to flood the manager beyond capacity
+      addFakeRetries(ackManager, testQueue, 1000);
+
+      AmqpClient client = new AmqpClient(new URI("tcp://localhost:61616"), null, null);
+      AmqpConnection connection = client.connect();
+      runAfter(connection::close);
+      AmqpSession session = connection.createSession();
+
+      Map<Symbol, Object> properties = new HashMap<>();
+      properties.put(AMQPMirrorControllerSource.BROKER_ID, "whatever");
+
+      // this is simulating a mirror connection...
+      // we play with a direct sender here to make sure flow control is working as expected when the records are beyond capacity.
+      AmqpSender sender = session.createSender(QueueImpl.MIRROR_ADDRESS, true, new Symbol[]{Symbol.getSymbol("amq.mirror")}, new Symbol[]{Symbol.getSymbol("amq.mirror")}, properties);
+
+      AMQPMirrorControllerTarget mirrorControllerTarget = Wait.assertNotNull(() -> locateMirrorTarget(server1), 5000, 100);
+      assertEquals(100, mirrorControllerTarget.getConnection().getProtocolManager().getMirrorMaxPendingAcks());
+      assertTrue(mirrorControllerTarget.isBusy());
+      // first connection it should be beyond flow control capacity, we should not have any credits here now
+      assertEquals(0, sender.getEndpoint().getCredit());
+      ackManager.start();
+
+      // manager resumed and the records will be eventually removed, we should be back to capacity
+      Wait.assertEquals(100, () -> sender.getEndpoint().getCredit(), 5000, 100);
+      ackManager.pause();
+
+      addFakeRetries(ackManager, testQueue, 1000);
+      assertEquals(1000, ackManager.size());
+
+      // we should be able to send 100 messages
+      for (int i = 0; i < 100; i++) {
+         AmqpMessage message = new AmqpMessage();
+         message.setAddress(testQueue.getAddress().toString());
+         message.setText("hello again " + i);
+         message.setDeliveryAnnotation(INTERNAL_ID.toString(), server1.getStorageManager().generateID());
+         message.setDeliveryAnnotation(INTERNAL_DESTINATION.toString(), testQueue.getAddress().toString());
+         sender.send(message);
+      }
+      // we should not get any credits
+      assertEquals(0, sender.getEndpoint().getCredit());
+
+      Wait.assertEquals(200, testQueue::getMessageCount);
+
+      ackManager.start();
+      // after restart, we should eventually get replenished on credits
+      Wait.assertEquals(100, () -> sender.getEndpoint().getCredit(), 5000, 100);
+
+      Wait.assertEquals(200L, testQueue::getMessageCount, 5000, 100);
+
+      AtomicInteger acked = new AtomicInteger(0);
+      ackManager.pause();
+
+      // Adding real deletes, we should still flow control credits
+      testQueue.forEach(ref -> {
+         long messageID = ref.getMessageID();
+
+         Long internalID = (Long) ref.getMessage().getAnnotation(AMQPMirrorControllerSource.INTERNAL_ID_EXTRA_PROPERTY);
+         String nodeId = (String) ref.getMessage().getAnnotation(AMQPMirrorControllerSource.BROKER_ID_SIMPLE_STRING);
+         if (internalID != null) {
+            messageID = internalID.longValue();
+         }
+         ackManager.addRetry(nodeId, testQueue, messageID, AckReason.NORMAL);
+         acked.incrementAndGet();
+      });
+
+      assertEquals(200, acked.get());
+      ackManager.start();
+
+      // Adding hot data... we should be able to flow credits during that
+      for (int i = 0; i < 100; i++) {
+         AmqpMessage message = new AmqpMessage();
+         message.setAddress(testQueue.getAddress().toString());
+         message.setText("one of the last 100");
+         message.setDeliveryAnnotation(INTERNAL_ID.toString(), server1.getStorageManager().generateID());
+         message.setDeliveryAnnotation(INTERNAL_DESTINATION.toString(), testQueue.getAddress().toString());
+         sender.send(message);
+      }
+      Wait.assertTrue(() -> sender.getEndpoint().getCredit() > 0, 5000, 100);
+
+      Wait.assertEquals(100L, testQueue::getMessageCount, 5000, 100);
+
+      ackManager.stop();
+
+      connection.close();
+
+      server1.stop();
+
+      assertEquals(0, AckManagerProvider.getSize());
+   }
+
+   private void addFakeRetries(AckManager ackManager, Queue testQueue, int size) {
+      for (int i = 0; i < size; i++) {
+         // adding retries that will never succeed, just to fillup the storage hashmap
+         ackManager.addRetry(null, testQueue, server1.getStorageManager().generateID(), AckReason.NORMAL);
+      }
+   }
 
    private int getCounter(byte typeRecord, Map<Integer, AtomicInteger> values) {
       AtomicInteger value = values.get((int) typeRecord);
