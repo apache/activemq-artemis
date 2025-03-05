@@ -34,6 +34,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PrivilegedAction;
+import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
@@ -68,6 +69,7 @@ import org.apache.activemq.artemis.utils.ClassloadingUtil;
 public class SSLSupport {
 
    public static final String NONE = "NONE";
+   public static final String PEM_PROVIDER = "de.dentrassi.crypto.pem.PemKeyStoreProvider";
    private String keystoreProvider = TransportConstants.DEFAULT_KEYSTORE_PROVIDER;
    private String keystoreType = TransportConstants.DEFAULT_KEYSTORE_TYPE;
    private String keystorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
@@ -352,10 +354,15 @@ public class SSLSupport {
       return ks;
    }
 
-   public static void checkPemProviderLoaded(String keystoreType) {
+   /**
+    * This method uses reflection to load the appropriate java.security.Provider for PEM use-cases. Reflection is used
+    * to avoid a hard dependency on the provider's implementation so that folks who don't use PEM don't have to include
+    * the corresponding dependency.
+    */
+   public static void checkPemProviderLoaded(String keystoreType) throws Exception {
       if (keystoreType != null && keystoreType.startsWith("PEM")) {
          if (Security.getProvider("PEM") == null) {
-            Security.insertProviderAt(new de.dentrassi.crypto.pem.PemKeyStoreProvider(),
+            Security.insertProviderAt((Provider) Class.forName(PEM_PROVIDER).getDeclaredConstructor().newInstance(),
                Integer.parseInt(System.getProperty("artemis.pemProvider.insertAt", "0")));
          }
       }
