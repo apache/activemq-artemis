@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.artemis.api.core.management.Attribute;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
@@ -1855,6 +1856,12 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          @Override
          public long getAuthorizationFailureCount() {
             return (long) proxy.retrieveAttributeValue("authorizationFailureCount");
+         }
+
+
+         @Attribute(desc = "Number of pending acknowledgements records on mirroring")
+         public int getPendingMirrorAcks() {
+            return ((Number) proxy.retrieveAttributeValue("pendingMirrorAcks")).intValue();
          }
 
          @Override

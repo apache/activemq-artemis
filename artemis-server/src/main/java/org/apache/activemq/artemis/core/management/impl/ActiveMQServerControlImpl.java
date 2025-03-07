@@ -4748,6 +4748,14 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public int getPendingMirrorAcks() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getPendingMirrorAcks(this.server);
+      }
+      return server.getPendingMirrorAcks();
+   }
+
+   @Override
    public void exportConfigAsProperties() throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.exportConfigAsProperties(this.server);

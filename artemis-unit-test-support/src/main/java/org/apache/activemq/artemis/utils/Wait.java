@@ -172,6 +172,11 @@ public class Wait {
       assertTrue(failureMessage, condition, duration, SLEEP_MILLIS);
    }
 
+   public static <T> T assertNotNull(Supplier<T> supplier, final long duration, final long sleep) throws Exception {
+      Assertions.assertTrue(waitFor(() -> supplier.get() != null, duration, sleep));
+      return supplier.get();
+   }
+
    public static void assertTrue(Condition condition, final long duration, final long sleep) {
       assertTrue(DEFAULT_FAILURE_MESSAGE, condition, duration, sleep);
    }

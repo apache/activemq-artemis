@@ -2866,4 +2866,13 @@ public interface AuditLogger {
 
    @LogMessage(id = 601798, value = "User {} is exporting configuration as properties on target resource: {}", level = LogMessage.Level.INFO)
    void exportConfigAsProperties(String user, Object source);
+
+   static void getPendingMirrorAcks(Object source) {
+      BASE_LOGGER.getPendingMirrorAcks(getCaller(), source);
+   }
+
+   @LogMessage(id = 601799, value = "User {} is getting PendingMirrorAcks on target resource: {}", level = LogMessage.Level.INFO)
+   void getPendingMirrorAcks(String user, Object source);
+
+
 }

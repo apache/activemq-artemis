@@ -49,6 +49,9 @@ public class AckManagerProvider {
    }
 
    public static AckManager getManager(ActiveMQServer server) {
+      if (server == null) {
+         throw new NullPointerException("server is null");
+      }
       synchronized (managerHashMap) {
          AckManager ackManager = managerHashMap.get(server);
          if (ackManager != null) {
