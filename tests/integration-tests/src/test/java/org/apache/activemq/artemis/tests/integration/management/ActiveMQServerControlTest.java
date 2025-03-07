@@ -251,6 +251,18 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @TestTemplate
+   public void testPendingMirrorAcks() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+      // faking some data, to make sure we are not just returning a default value
+      for (int i = 0; i < 7; i++) {
+         server.getMirrorRegistry().incrementMirrorAckSize();
+      }
+
+      assertEquals(7, serverControl.getPendingMirrorAcks());
+      assertEquals(7, server.getPendingMirrorAcks());
+   }
+
+   @TestTemplate
    public void testBrokerPluginClassNames() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 

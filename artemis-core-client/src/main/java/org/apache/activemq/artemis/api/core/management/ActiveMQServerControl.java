@@ -2091,6 +2091,9 @@ public interface ActiveMQServerControl {
    @Attribute(desc = AUTHORIZATION_FAILURE_COUNT)
    long getAuthorizationFailureCount();
 
+   @Attribute(desc = "Number of pending acknowledgements records on mirroring")
+   int getPendingMirrorAcks();
+
    @Operation(desc = "Export the broker configuration as properties", impact = MBeanOperationInfo.ACTION)
    void exportConfigAsProperties() throws Exception;
 }

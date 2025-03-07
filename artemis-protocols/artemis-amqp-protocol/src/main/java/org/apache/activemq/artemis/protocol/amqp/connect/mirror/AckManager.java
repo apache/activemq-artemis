@@ -28,7 +28,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.LongSupplier;
 
 import io.netty.util.collection.LongObjectHashMap;
@@ -56,6 +55,7 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
+import org.apache.activemq.artemis.core.server.mirror.MirrorRegistry;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
@@ -79,11 +79,10 @@ public class AckManager implements ActiveMQComponent {
    volatile MultiStepProgress progress;
    ActiveMQScheduledComponent scheduledComponent;
 
-   private volatile int size;
-   private static final AtomicIntegerFieldUpdater<AckManager> sizeUpdater = AtomicIntegerFieldUpdater.newUpdater(AckManager.class, "size");
+   final MirrorRegistry mirrorRegistry;
 
    public int size() {
-      return sizeUpdater.get(this);
+      return mirrorRegistry.getMirrorAckSize();
    }
 
    public AckManager(ActiveMQServer server) {
@@ -92,7 +91,7 @@ public class AckManager implements ActiveMQComponent {
       this.configuration = server.getConfiguration();
       this.ioCriticalErrorListener = server.getIoCriticalErrorListener();
       this.sequenceGenerator = server.getStorageManager()::generateID;
-
+      this.mirrorRegistry = server.getMirrorRegistry();
       // The JournalHashMap has to use the storage manager to guarantee we are using the Replicated Journal Wrapper in case this is a replicated journal
       journalHashMapProvider = new JournalHashMapProvider<>(sequenceGenerator, server.getStorageManager(), AckRetry.getPersister(), JournalRecordIds.ACK_RETRY, OperationContextImpl::getContext, server.getPostOffice()::findQueue, server.getIoCriticalErrorListener());
       this.referenceIDSupplier = new ReferenceIDSupplier(server);
@@ -100,7 +99,7 @@ public class AckManager implements ActiveMQComponent {
 
    public void reload(RecordInfo recordInfo) {
       journalHashMapProvider.reload(recordInfo);
-      sizeUpdater.incrementAndGet(this);
+      mirrorRegistry.incrementMirrorAckSize();
    }
 
    @Override
@@ -323,7 +322,7 @@ public class AckManager implements ActiveMQComponent {
                   logger.debug("Retried {} {} times, giving up on the entry now. Configured Page Attempts={}", retry, retry.getPageAttempts(), configuration.getMirrorAckManagerPageAttempts());
                }
                if (retries.remove(retry) != null) {
-                  sizeUpdater.decrementAndGet(AckManager.this);
+                  mirrorRegistry.decrementMirrorAckSize();
                }
             } else {
                if (logger.isDebugEnabled()) {
@@ -379,7 +378,7 @@ public class AckManager implements ActiveMQComponent {
                         }
                      }
                      if (retries.remove(ackRetry, transaction.getID()) != null) {
-                        sizeUpdater.decrementAndGet(AckManager.this);
+                        mirrorRegistry.decrementMirrorAckSize();
                      }
                      transaction.setContainsPersistent();
                      logger.trace("retry performed ok, ackRetry={} for message={} on queue", ackRetry, pagedMessage);
@@ -416,7 +415,7 @@ public class AckManager implements ActiveMQComponent {
             if (ack(retry.getNodeID(), queue, retry.getMessageID(), retry.getReason(), false)) {
                logger.trace("Removing retry {} as the retry went ok", retry);
                queueRetries.remove(retry);
-               sizeUpdater.decrementAndGet(this);
+               mirrorRegistry.decrementMirrorAckSize();
             } else {
                int retried = retry.attemptedQueue();
                if (logger.isTraceEnabled()) {
@@ -438,7 +437,7 @@ public class AckManager implements ActiveMQComponent {
       }
       AckRetry retry = new AckRetry(nodeID, messageID, reason);
       journalHashMapProvider.getMap(queue.getID(), queue).put(retry, retry);
-      sizeUpdater.incrementAndGet(this);
+      mirrorRegistry.incrementMirrorAckSize();
       if (scheduledComponent != null) {
          // we set the retry delay again in case it was changed.
          scheduledComponent.setPeriod(configuration.getMirrorAckManagerRetryDelay());
