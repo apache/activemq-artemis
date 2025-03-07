@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+
 public class WildcardConfiguration implements Serializable {
 
    private static final long serialVersionUID = 1L;
@@ -178,6 +180,22 @@ public class WildcardConfiguration implements Serializable {
       }
    }
 
+   /**
+    * Detect whether the input {@code String} contains the "any words" or "single word" character and is not escaped.
+    */
+   public boolean isWild(String input) {
+      return input == null ? false : ((input.contains(getAnyWordsString()) || input.contains(getSingleWordString())) && !isEscaped(input));
+   }
+
+   /**
+    * Same semantics as {@link #isWild(String)} but with a {@code SimpleString} instead of a {@code String}.
+    *
+    * @see #isWild(String)
+    */
+   public boolean isWild(SimpleString input) {
+      return input == null ? false : ((input.contains(getAnyWords()) || input.contains(getSingleWord())) && !isEscaped(input));
+   }
+
    private String escape(final String input, WildcardConfiguration from) {
       String result = input.replace(escapeString, escapeString + escapeString);
       if (delimiter != from.getDelimiter()) {
@@ -201,6 +219,15 @@ public class WildcardConfiguration implements Serializable {
    }
 
    private boolean isEscaped(final String input) {
+      for (int i = 0; i < input.length() - 1; i++) {
+         if (input.charAt(i) == ESCAPE && (input.charAt(i + 1) == getDelimiter() || input.charAt(i + 1) == getSingleWord() || input.charAt(i + 1) == getAnyWords())) {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   private boolean isEscaped(final SimpleString input) {
       for (int i = 0; i < input.length() - 1; i++) {
          if (input.charAt(i) == ESCAPE && (input.charAt(i + 1) == getDelimiter() || input.charAt(i + 1) == getSingleWord() || input.charAt(i + 1) == getAnyWords())) {
             return true;
