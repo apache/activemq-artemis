@@ -70,6 +70,7 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.core.server.TempQueueObserver;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
@@ -743,7 +744,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    @Override
    public void fail(ActiveMQException me, String message) {
-
       final ThresholdActor<Command> localVisibleActor = openWireActor;
       if (localVisibleActor != null) {
          localVisibleActor.requestShutdown();
@@ -1022,7 +1022,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    public void addKnownDestination(final SimpleString address) {
-      knownDestinations.add(address);
+      AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(address.toString());
+      if (!addressSettings.isAutoDeleteAddresses() && !addressSettings.isAutoDeleteQueues()) {
+         knownDestinations.add(address);
+      }
    }
 
    public boolean containsKnownDestination(final SimpleString address) {

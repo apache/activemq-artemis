@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.core.config;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WildcardConfigurationTest {
 
@@ -123,5 +125,29 @@ public class WildcardConfigurationTest {
       assertNotEquals(a, b);
       assertNotEquals(b, a);
       assertNotEquals(a.hashCode(), b.hashCode());
+   }
+
+   @Test
+   public void testIsWild() {
+      assertFalse(DEFAULT_WILDCARD.isWild(null));
+      assertFalse(DEFAULT_WILDCARD.isWild(""));
+
+      assertFalse(DEFAULT_WILDCARD.isWild("a"));
+      assertFalse(DEFAULT_WILDCARD.isWild("a.b"));
+      assertFalse(DEFAULT_WILDCARD.isWild("a\\.\\#"));
+      assertFalse(DEFAULT_WILDCARD.isWild("a\\.\\*"));
+      assertFalse(DEFAULT_WILDCARD.isWild("\\*"));
+      assertFalse(DEFAULT_WILDCARD.isWild("\\#"));
+
+      assertTrue(DEFAULT_WILDCARD.isWild("*"));
+      assertTrue(DEFAULT_WILDCARD.isWild("#"));
+      assertTrue(DEFAULT_WILDCARD.isWild("a.*"));
+      assertTrue(DEFAULT_WILDCARD.isWild("*.b"));
+      assertTrue(DEFAULT_WILDCARD.isWild("a.*.c"));
+      assertTrue(DEFAULT_WILDCARD.isWild("a.#"));
+      assertTrue(DEFAULT_WILDCARD.isWild("a.b.#"));
+      assertTrue(DEFAULT_WILDCARD.isWild("a.*.#"));
+      assertTrue(DEFAULT_WILDCARD.isWild("a.*.\\#"));
+      assertTrue(DEFAULT_WILDCARD.isWild("a.\\*.#"));
    }
 }

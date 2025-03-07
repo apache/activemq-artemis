@@ -198,7 +198,7 @@ public class SimpleAddressManager implements AddressManager {
          Bindings bindings = mappings.get(realAddress);
          if (bindings != null) {
             for (Binding theBinding : bindings.getBindings()) {
-               if (theBinding instanceof LocalQueueBinding) {
+               if (theBinding instanceof LocalQueueBinding && !wildcardConfiguration.isWild(theBinding.getUniqueName())) {
                   binding = theBinding;
                   break;
                }

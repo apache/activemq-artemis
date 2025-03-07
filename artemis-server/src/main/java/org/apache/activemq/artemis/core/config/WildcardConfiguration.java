@@ -178,6 +178,26 @@ public class WildcardConfiguration implements Serializable {
       }
    }
 
+   /**
+    * Detect whether the input {@code CharSequence} contains any unescaped "single word" or "any words" characters.
+    *
+    * {@code CharSequence} is used here to support both {@code String} and {@code SimpleString} objects.
+    */
+   public boolean isWild(CharSequence input) {
+      if (input == null || input.isEmpty()) {
+         return false;
+      } else if (input.charAt(0) == getSingleWord() || input.charAt(0) == getAnyWords()) {
+         return true;
+      } else {
+         for (int i = 1; i < input.length(); i++) {
+            if ((input.charAt(i) == getSingleWord() || input.charAt(i) == getAnyWords()) && input.charAt(i - 1) != ESCAPE) {
+               return true;
+            }
+         }
+      }
+      return false;
+   }
+
    private String escape(final String input, WildcardConfiguration from) {
       String result = input.replace(escapeString, escapeString + escapeString);
       if (delimiter != from.getDelimiter()) {
@@ -200,7 +220,12 @@ public class WildcardConfiguration implements Serializable {
          .replace(ESCAPE + getAnyWordsString(), getAnyWordsString());
    }
 
-   private boolean isEscaped(final String input) {
+   /**
+    * {@return whether the input contains any escaped characters}
+    *
+    * @param input the {@code CharSequence} to inspect
+    */
+   private boolean isEscaped(final CharSequence input) {
       for (int i = 0; i < input.length() - 1; i++) {
          if (input.charAt(i) == ESCAPE && (input.charAt(i + 1) == getDelimiter() || input.charAt(i + 1) == getSingleWord() || input.charAt(i + 1) == getAnyWords())) {
             return true;

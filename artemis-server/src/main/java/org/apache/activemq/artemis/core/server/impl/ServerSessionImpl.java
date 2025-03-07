@@ -61,7 +61,6 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
-import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
@@ -1833,9 +1832,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          Queue q = server.locateQueue(unPrefixedQueue);
          if (q == null) {
             // The queue doesn't exist.
-            Bindings bindings = server.getPostOffice().lookupBindingsForAddress(unPrefixedAddress);
-            if (bindings != null && bindings.hasLocalBinding() && !queueConfig.isFqqn()) {
-               // The address has another queue with a different name, which is fine. Just ignore it.
+            if (!queueConfig.isFqqn() && server.getPostOffice().getMatchingQueue(unPrefixedAddress, queueConfig.getRoutingType()) != null) {
+               // The address has a local, non-wildcard queue with a different name, which is fine. Just ignore it.
                result = AutoCreateResult.EXISTED;
             } else if (addressSettings.isAutoCreateQueues() || queueConfig.isTemporary()) {
                // Try to create the queue.
