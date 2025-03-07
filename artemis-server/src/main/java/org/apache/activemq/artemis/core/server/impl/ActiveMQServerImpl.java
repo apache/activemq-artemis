@@ -170,6 +170,7 @@ import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.impl.ManagementServiceImpl;
 import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
+import org.apache.activemq.artemis.core.server.mirror.MirrorRegistry;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQPluginRunnable;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
@@ -258,6 +259,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public static final String GENERIC_IGNORED_FILTER = Filter.GENERIC_IGNORED_FILTER;
 
    private HAPolicy haPolicy;
+
+   private MirrorRegistry mirrorRegistry = new MirrorRegistry();
 
    // This will be useful on tests or embedded
    private boolean rebuildCounters = true;
@@ -4820,5 +4823,15 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public IOCriticalErrorListener getIoCriticalErrorListener() {
       return ioCriticalErrorListener;
+   }
+
+   @Override
+   public MirrorRegistry getMirrorRegistry() {
+      return mirrorRegistry;
+   }
+
+   @Override
+   public int getPendingMirrorAcks() {
+      return mirrorRegistry.getMirrorAckSize();
    }
 }

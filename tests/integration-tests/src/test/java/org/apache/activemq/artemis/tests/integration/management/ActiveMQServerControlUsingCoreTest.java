@@ -1857,6 +1857,12 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             return (long) proxy.retrieveAttributeValue("authorizationFailureCount");
          }
 
+
+         @Override
+         public int getPendingMirrorAcks() {
+            return ((Number) proxy.retrieveAttributeValue("pendingMirrorAcks")).intValue();
+         }
+
          @Override
          public void exportConfigAsProperties() throws Exception {
             proxy.invokeOperation("exportConfigAsProperties");
