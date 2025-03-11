@@ -698,4 +698,14 @@ public class DestinationProxy implements Destination {
    public void setAdvancedNetworkStatisticsEnabled(boolean advancedNetworkStatisticsEnabled) {
       throw new UnsupportedOperationException("Not implemented yet");
    }
+
+   @Override
+   public boolean isAdvancedMessageStatisticsEnabled() {
+      return false;
+   }
+
+   @Override
+   public void setAdvancedMessageStatisticsEnabled(boolean advancedMessageStatisticsEnabled) {
+      throw new UnsupportedOperationException("Not implemented yet");
+   }
 }
