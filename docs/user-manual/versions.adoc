@@ -38,7 +38,7 @@ Resources are now displayed exclusively on categorized tabs which offer a paged 
 +
 The behavior and presentation should be more consistent overall and anything that was possible before should still be possible since the underlying management API has not changed.
 +
-Make the following modifications to upgrade from an existing instance of 2.39.0 to 2.40.0.
+In order to upgrade an existing instance of 2.39.0 to 2.40.0 you can use the xref:upgrading.adoc#upgrading-tool[`upgrade` command] which will *automatically perform* all the changes or you can make the following changes manually:
 +
 . Remove references to the "branding" and "plugin" app in `bootstrap.xml`. These are the relevant lines from the default `bootstrap.xml` that should be removed:
 +
