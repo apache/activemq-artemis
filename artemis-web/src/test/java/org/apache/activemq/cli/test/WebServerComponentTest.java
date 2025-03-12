@@ -103,6 +103,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -275,9 +277,27 @@ public class WebServerComponentTest extends ArtemisTestCase {
    }
 
    private WebServerComponent startSimpleSecureServer(Boolean sniHostCheck, Boolean sniRequired) throws Exception {
+      return startSimpleSecureServer(sniHostCheck, sniRequired, KeyStorePasswordMode.DIRECT);
+   }
+
+   private WebServerComponent startSimpleSecureServer(Boolean sniHostCheck, Boolean sniRequired, KeyStorePasswordMode mode) throws Exception {
       BindingDTO bindingDTO = new BindingDTO();
-      bindingDTO.setKeyStorePath(KEY_STORE_PATH);
-      bindingDTO.setKeyStorePassword(KEY_STORE_PASSWORD);
+      if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
+         bindingDTO.setKeyStorePath(KEY_STORE_PATH.substring(1));
+      } else {
+         bindingDTO.setKeyStorePath(KEY_STORE_PATH);
+      }
+
+      switch (mode) {
+         case DIRECT -> {
+            bindingDTO.setKeyStorePassword(KEY_STORE_PASSWORD);
+         }
+         case PROPERTY -> {
+            System.setProperty("KEY_STORE_PASSWORD", KEY_STORE_PASSWORD);
+            bindingDTO.setKeyStorePassword("${KEY_STORE_PASSWORD}");
+         }
+      }
+
       if (sniHostCheck != null) {
          bindingDTO.setSniHostCheck(sniHostCheck);
       }
@@ -313,9 +333,16 @@ public class WebServerComponentTest extends ArtemisTestCase {
       return webServerComponent;
    }
 
-   @Test
-   public void simpleSecureServer() throws Exception {
-      WebServerComponent webServerComponent = startSimpleSecureServer(null, null);
+
+   enum KeyStorePasswordMode {
+      DIRECT,
+      PROPERTY,
+   }
+
+   @ParameterizedTest
+   @EnumSource(KeyStorePasswordMode.class)
+   public void simpleSecureServer(KeyStorePasswordMode mode) throws Exception {
+      WebServerComponent webServerComponent = startSimpleSecureServer(null, null, mode);
       final int port = webServerComponent.getPort();
       // Make the connection attempt.
 
