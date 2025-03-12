@@ -18,10 +18,25 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 === Highlights
 
-* New Improved Web Console
-* Improved performance on paging when using multiple producers on the same destination
-* Jakarta client for CDI Clients
-* Codebase has been revisited for new JDK standard and improved javadocs
+* New & Improved xref:management-console.adoc[Management Console]
+* Performance improvements for paging when multiple producers send to the same address
+* Performance improvements for read-heavy uses cases involving message properties
+* xref:using-server.adoc#system-property-or-environment-variable-substitution[Environment variable substitution] is now supported in `bootstrap.xml`
+* New management operation to dump the broker's config as a properties file
+* The global max size can now be set as a xref:paging.adoc#global-max-messages[percentage of the JVM's max memory via `global-max-size-percent-of-jvm-max-memory`]
+* Jakarta-based CDI Client
+* And for developers...lots of updates to the code-base for style consistency & clarity plus adoption of many Java 17 features and APIs
+
+=== Upgrading from 2.38.0
+
+* Due to EOL components in Hawt.io 2.x used by our web console we've moved to a https://github.com/apache/activemq-artemis-console[new web console] based on Hawt.io 4.
+This move is about security just like the recent move to Java 17.
++
+From a user's perspective the main change is that the "tree" component prominently featured on the left of the screen has been removed.
+This component was removed because it causes significant problems for use-cases with a large number of addresses and/or queues due to the amount of JMX-related data that it pulls from the broker.
+Resources are now displayed exclusively on categorized tabs which offer a paged view which is filterable and sortable and scales much better for resource heavy use-cases.
++
+The behavior and presentation should be more consistent overall and anything that was possible before should still be possible since the underlying management API has not changed.
 
 == 2.39.0
 
