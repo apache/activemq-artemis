@@ -20,23 +20,43 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class XmlUtilTest {
+public class XmlUtilTest extends ArtemisTestCase {
 
    @Test
    public void testPropertySubstituion(@TempDir Path tempDir) throws Exception {
-      final String SYSTEM_PROP_NAME = "sysPropName";
-      final String SYSTEM_PROP_VALUE = "sysPropValue";
+      final String SYSTEM_PROP_NAME = getTestMethodName() + "SysPropName";
+      final String SYSTEM_PROP_VALUE = getTestMethodName() + "SysPropValue";
       System.setProperty(SYSTEM_PROP_NAME, SYSTEM_PROP_VALUE);
 
       // since System.getenv() returns an immutable Map we rely here on an environment variable that is likely to exist
       final String ENV_VAR_NAME = "HOME";
 
+      BrokerDTO brokerDTO = getBrokerDTO(tempDir, SYSTEM_PROP_NAME, ENV_VAR_NAME);
+      assertEquals(SYSTEM_PROP_VALUE, ((JaasSecurityDTO)brokerDTO.security).domain);
+      assertEquals(System.getenv(ENV_VAR_NAME), brokerDTO.server.configuration);
+   }
+
+   @Test
+   public void testPropertySubstituionPrecedence(@TempDir Path tempDir) throws Exception {
+      final String SYSTEM_PROP_NAME = "HOME";
+      final String SYSTEM_PROP_VALUE = getTestMethodName() + "SysPropValue";
+      System.setProperty(SYSTEM_PROP_NAME, SYSTEM_PROP_VALUE);
+
+      final String ENV_VAR_NAME = SYSTEM_PROP_NAME;
+
+      BrokerDTO brokerDTO = getBrokerDTO(tempDir, SYSTEM_PROP_NAME, ENV_VAR_NAME);
+      assertEquals(SYSTEM_PROP_VALUE, ((JaasSecurityDTO)brokerDTO.security).domain);
+      assertEquals(SYSTEM_PROP_VALUE, brokerDTO.server.configuration);
+   }
+
+   private static BrokerDTO getBrokerDTO(Path tempDir, String SYSTEM_PROP_NAME, String ENV_VAR_NAME) throws Exception {
       String data = """
          <broker xmlns="http://activemq.apache.org/schema">
             <jaas-security domain="${%s}"/>
@@ -49,7 +69,6 @@ public class XmlUtilTest {
       assertTrue(Files.exists(tempFile));
 
       BrokerDTO brokerDTO = XmlUtil.decode(BrokerDTO.class, tempFile.toFile());
-      assertEquals(SYSTEM_PROP_VALUE, ((JaasSecurityDTO)brokerDTO.security).domain);
-      assertEquals(System.getenv(ENV_VAR_NAME), brokerDTO.server.configuration);
+      return brokerDTO;
    }
 }

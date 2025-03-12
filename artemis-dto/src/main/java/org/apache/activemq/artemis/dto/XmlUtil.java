@@ -94,8 +94,9 @@ public class XmlUtil {
          "http://apache.org/xml/features/validation/schema-full-checking", false));
       unmarshaller.setSchema(schema);
 
-      Properties props = new Properties(System.getProperties());
+      Properties props = new Properties();
       props.putAll(System.getenv());
+      props.putAll(System.getProperties());
       if (artemisHome != null) {
          props.put("artemis.home", artemisHome);
       }
