@@ -27,7 +27,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 * Jakarta-based CDI Client
 * And for developers...lots of updates to the code-base for style consistency & clarity plus adoption of many Java 17 features and APIs
 
-=== Upgrading from 2.38.0
+=== Upgrading from 2.39.0
 
 * Due to EOL components in Hawt.io 2.x used by our web console we've moved to a https://github.com/apache/activemq-artemis-console[new web console] based on Hawt.io 4.
 This move is about security just like the recent move to Java 17.
