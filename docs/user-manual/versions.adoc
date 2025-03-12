@@ -12,6 +12,17 @@ NOTE: If the upgrade spans multiple versions then the steps from *each* version 
 
 NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#upgrading-the-broker[Upgrading the Broker]  chapter in addition to any version-specific upgrade instructions outlined here.
 
+== 2.40.0
+
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12355489[Full release notes]
+
+=== Highlights
+
+* New Improved Web Console
+* Improved performance on paging when using multiple producers on the same destination
+* Jakarta client for CDI Clients
+* Codebase has been revisited for new JDK standard and improved javadocs
+
 == 2.39.0
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12355167[Full release notes]
