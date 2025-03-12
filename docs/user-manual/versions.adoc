@@ -37,6 +37,21 @@ This component was removed because it causes significant problems for use-cases 
 Resources are now displayed exclusively on categorized tabs which offer a paged view which is filterable and sortable and scales much better for resource heavy use-cases.
 +
 The behavior and presentation should be more consistent overall and anything that was possible before should still be possible since the underlying management API has not changed.
++
+Make the following modifications to upgrade from an existing instance of 2.39.0 to 2.40.0.
++
+. Remove references to the "branding" and "plugin" app in `bootstrap.xml`. These are the relevant lines from the default `bootstrap.xml` that should be removed:
++
+[,xml]
+----
+<app name="branding" url="activemq-branding" war="activemq-branding.war"/>
+<app name="plugin" url="artemis-plugin" war="artemis-plugin.war"/>
+----
++
+The only app needed for the new web console is `console.war`.
+. Rename the `hawtio.role` Java system property to `hawtio.roles`. A simple search & replace will suffice.
+.. If using Linux or similar this change will be in the `bin/artemis` script.
+.. If using Windows this change will be in `etc/artemis.profile.cmd`.
 
 == 2.39.0
 
