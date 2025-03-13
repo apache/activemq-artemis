@@ -35,6 +35,7 @@ import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.impl.ClientConsumerImpl;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConstants;
@@ -215,6 +216,7 @@ public class AMQConsumer {
          if (info.getDestination().isComposite()) {
             queueName =  queueName.concat(physicalName);
          }
+         QueueConfiguration queueConfiguration = QueueConfiguration.of(queueName).setAddress(address).setRoutingType(RoutingType.MULTICAST).setFilterString(selector).setInternal(internalAddress);
          QueueQueryResult result = session.getCoreSession().executeQueueQuery(queueName);
          if (result.isExists()) {
             // Already exists
@@ -235,10 +237,10 @@ public class AMQConsumer {
                session.getCoreSession().deleteQueue(queueName);
 
                // Create the new one
-               session.getCoreSession().createQueue(QueueConfiguration.of(queueName).setAddress(address).setFilterString(selector).setInternal(internalAddress));
+               session.getCoreSession().createQueue(queueConfiguration);
             }
          } else {
-            session.getCoreSession().createQueue(QueueConfiguration.of(queueName).setAddress(address).setFilterString(selector).setInternal(internalAddress));
+            session.getCoreSession().createQueue(queueConfiguration);
          }
       } else {
          // The consumer may be using FQQN in which case the queue might already exist.
@@ -251,7 +253,7 @@ public class AMQConsumer {
             queueName = SimpleString.of(UUID.randomUUID().toString());
          }
 
-         session.getCoreSession().createQueue(QueueConfiguration.of(queueName).setAddress(address).setFilterString(selector).setDurable(false).setTemporary(true).setInternal(internalAddress));
+         session.getCoreSession().createQueue(QueueConfiguration.of(queueName).setAddress(address).setRoutingType(RoutingType.MULTICAST).setFilterString(selector).setDurable(false).setTemporary(true).setInternal(internalAddress));
       }
 
       return queueName;
