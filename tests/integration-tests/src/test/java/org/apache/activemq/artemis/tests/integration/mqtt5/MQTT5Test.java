@@ -32,8 +32,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -41,9 +43,13 @@ import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingManagerImplAccessor;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeTestAccessor;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSessionAccessor;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -741,6 +747,44 @@ public class MQTT5Test extends MQTT5TestSupport {
       client.subscribe(topic, 1);
       Wait.assertTrue(() -> getSubscriptionQueue(topic, clientID) != null, 2000, 100);
       client.disconnect();
+      client.close();
+   }
+
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testSessionDisconnectWithFailure() throws Exception {
+      testSessionDisconnect(true);
+   }
+
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testSessionDisconnectWithoutFailure() throws Exception {
+      testSessionDisconnect(false);
+   }
+
+   private void testSessionDisconnect(boolean failure) throws Exception {
+      AtomicBoolean beforeCloseFailed = new AtomicBoolean(!failure);
+      AtomicBoolean afterCloseFailed = new AtomicBoolean(!failure);
+      server.registerBrokerPlugin(new ActiveMQServerSessionPlugin() {
+         @Override
+         public void beforeCloseSession(ServerSession session, boolean failed) throws ActiveMQException {
+            beforeCloseFailed.set(failed);
+         }
+
+         @Override
+         public void afterCloseSession(ServerSession session, boolean failed) throws ActiveMQException {
+            afterCloseFailed.set(failed);
+         }
+      });
+      MqttClient client = createPahoClient(getName());
+      client.connect();
+      MQTTProtocolManager protocolManager = getProtocolManager();
+      MQTTSessionAccessor.disconnectSession(protocolManager.getStateManager().getSessionState(getName()).getSession(), failure);
+      Wait.assertEquals(failure, () -> beforeCloseFailed.get(), 2000, 50);
+      Wait.assertEquals(failure, () -> afterCloseFailed.get(), 2000, 50);
+      if (client.isConnected()) {
+         client.disconnect();
+      }
       client.close();
    }
 }
