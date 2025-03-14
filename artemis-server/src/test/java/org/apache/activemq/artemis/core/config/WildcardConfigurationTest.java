@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.core.config;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-
-import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WildcardConfigurationTest {
 
@@ -123,5 +125,34 @@ public class WildcardConfigurationTest {
       assertNotEquals(a, b);
       assertNotEquals(b, a);
       assertNotEquals(a.hashCode(), b.hashCode());
+   }
+
+   @Test
+   public void testIsWild() {
+      assertTrue(verifyIsNotWild(DEFAULT_WILDCARD, null));
+      assertTrue(verifyIsNotWild(DEFAULT_WILDCARD, ""));
+
+      assertTrue(verifyIsNotWild(DEFAULT_WILDCARD, "a"));
+      assertTrue(verifyIsNotWild(DEFAULT_WILDCARD, "a.b"));
+      assertTrue(verifyIsNotWild(DEFAULT_WILDCARD, "a\\.\\#"));
+      assertTrue(verifyIsNotWild(DEFAULT_WILDCARD, "a\\.\\*"));
+      assertTrue(verifyIsNotWild(DEFAULT_WILDCARD, "\\*"));
+      assertTrue(verifyIsNotWild(DEFAULT_WILDCARD, "\\#"));
+
+      assertTrue(verifyIsWild(DEFAULT_WILDCARD, "*"));
+      assertTrue(verifyIsWild(DEFAULT_WILDCARD, "#"));
+      assertTrue(verifyIsWild(DEFAULT_WILDCARD, "a.*"));
+      assertTrue(verifyIsWild(DEFAULT_WILDCARD, "*.b"));
+      assertTrue(verifyIsWild(DEFAULT_WILDCARD, "a.*.c"));
+      assertTrue(verifyIsWild(DEFAULT_WILDCARD, "a.#"));
+      assertTrue(verifyIsWild(DEFAULT_WILDCARD, "a.b.#"));
+   }
+
+   private boolean verifyIsWild(WildcardConfiguration wc, String input) {
+      return wc.isWild(input) && wc.isWild(SimpleString.of(input));
+   }
+
+   private boolean verifyIsNotWild(WildcardConfiguration wc, String input) {
+      return !wc.isWild(input) && !wc.isWild(SimpleString.of(input));
    }
 }

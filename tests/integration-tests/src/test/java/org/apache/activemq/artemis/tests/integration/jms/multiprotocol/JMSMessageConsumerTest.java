@@ -34,6 +34,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
+import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeTestAccessor;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.utils.DestinationUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -110,6 +112,82 @@ public class JMSMessageConsumerTest extends MultiprotocolJMSClientTestSupport {
       } finally {
          connection1.close();
          connection2.close();
+      }
+   }
+
+   @Test
+   @Timeout(30)
+   public void testAnycastPlusWildcardCore() throws Exception {
+      testAnycastPlusWildcard(CoreConnection);
+   }
+
+   @Test
+   @Timeout(30)
+   public void testAnycastPlusWildcardAMQP() throws Exception {
+      testAnycastPlusWildcard(AMQPConnection);
+   }
+
+   @Test
+   @Timeout(30)
+   public void testAnycastPlusWildcardOpenWire() throws Exception {
+      testAnycastPlusWildcard(OpenWireConnection);
+   }
+
+   /*
+    * This test ensures that even if a binding for a wildcard queue already exists on an anycast address the broker will
+    * still create a normal queue for a consumer.
+    */
+   private void testAnycastPlusWildcard(ConnectionSupplier supplier) throws Exception {
+      final String wildcardQueueName = "a.*.c";
+      final String normalQueueName = "a.b.c";
+
+      Connection wildcardConnection = supplier.createConnection();
+      Connection normalConnection = supplier.createConnection();
+      Connection producerConnection = supplier.createConnection();
+
+      try {
+         Session wildcardSession = wildcardConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Session normalSession = normalConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         javax.jms.Queue wildcardQueue = wildcardSession.createQueue(wildcardQueueName);
+         javax.jms.Queue normalQueue = normalSession.createQueue(normalQueueName);
+
+         MessageConsumer wildcardConsumer = wildcardSession.createConsumer(wildcardQueue);
+         assertNotNull(server.locateQueue(wildcardQueueName));
+
+         MessageConsumer normalConsumer = normalSession.createConsumer(normalQueue);
+         assertNotNull(server.locateQueue(normalQueueName));
+
+         normalConsumer.close();
+
+         Wait.assertEquals(0L, () -> server.locateQueue(normalQueueName).getConsumerCount(), 3000, 20);
+
+         PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
+
+         Wait.assertTrue(() -> server.locateQueue(normalQueueName) == null, 3000, 20);
+         assertNotNull(server.locateQueue(wildcardQueueName));
+
+         normalConsumer = normalSession.createConsumer(normalQueue);
+
+         assertNotNull(server.locateQueue(normalQueueName));
+
+         assertEquals(0L, server.locateQueue(wildcardQueueName).getMessageCount());
+         assertEquals(0L, server.locateQueue(normalQueueName).getMessageCount());
+
+         Session producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageProducer producer = producerSession.createProducer(normalQueue);
+         producer.send(producerSession.createMessage());
+         producer.close();
+
+         Wait.assertEquals(1L, () -> server.locateQueue(wildcardQueueName).getMessageCount(), 1000, 20);
+         Wait.assertEquals(1L, () -> server.locateQueue(normalQueueName).getMessageCount(), 1000, 20);
+
+         assertNotNull(wildcardConsumer.receive(200));
+         assertNotNull(normalConsumer.receive(200));
+      } finally {
+         wildcardConnection.close();
+         normalConnection.close();
+         producerConnection.close();
       }
    }
 
