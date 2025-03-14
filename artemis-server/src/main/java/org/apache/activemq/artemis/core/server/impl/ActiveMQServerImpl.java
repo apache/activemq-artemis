@@ -3007,14 +3007,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public boolean deployBridge(BridgeConfiguration config) throws Exception {
       if (clusterManager != null && clusterManager.deployBridge(config)) {
-         //copying and modifying bridgeConfig before storing to deal with "concurrency > 1" bridges
+         //Iterating through all bridges to catch "concurrency > 1" bridges matching supplied name
          for (Bridge bridge : clusterManager.getBridges().values()) {
-            BridgeConfiguration copyConfig = new BridgeConfiguration(bridge.getConfiguration());
-            if (copyConfig.getConcurrency() > 1 && !copyConfig.getName().endsWith("-0")) {
-               continue;
+            if (bridge.getConfiguration().getParentName().equals(config.getParentName())) {
+               storageManager.storeBridgeConfiguration(new PersistedBridgeConfiguration(bridge.getConfiguration()));
             }
-            copyConfig.setName(copyConfig.getParentName());
-            storageManager.storeBridgeConfiguration(new PersistedBridgeConfiguration(copyConfig));
          }
          return true;
       }
@@ -3028,9 +3025,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          for (Bridge bridge : clusterManager.getBridges().values()) {
             if (bridge.getConfiguration().getParentName().equals(name)) {
                clusterManager.destroyBridge(bridge.getConfiguration().getName());
+               storageManager.deleteBridgeConfiguration(bridge.getConfiguration().getName());
             }
          }
-         storageManager.deleteBridgeConfiguration(name);
       }
    }
 
@@ -4417,7 +4414,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private void recoverStoredBridges() throws Exception {
       if (storageManager.recoverBridgeConfigurations() != null) {
          for (PersistedBridgeConfiguration persistedBridgeConfiguration : storageManager.recoverBridgeConfigurations()) {
-            deployBridge(persistedBridgeConfiguration.getBridgeConfiguration());
+            if (!clusterManager.getBridges().containsKey(persistedBridgeConfiguration.getBridgeConfiguration().getName())) {
+               deployBridge(persistedBridgeConfiguration.getBridgeConfiguration());
+            }
          }
       }
    }
