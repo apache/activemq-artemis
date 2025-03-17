@@ -3068,15 +3068,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public boolean deployBridge(BridgeConfiguration config) throws Exception {
       if (clusterManager != null && clusterManager.deployBridge(config)) {
-         //copying and modifying bridgeConfig before storing to deal with "concurrency > 1" bridges
-         for (Bridge bridge : clusterManager.getBridges().values()) {
-            BridgeConfiguration copyConfig = new BridgeConfiguration(bridge.getConfiguration());
-            if (copyConfig.getConcurrency() > 1 && !copyConfig.getName().endsWith("-0")) {
-               continue;
-            }
-            copyConfig.setName(copyConfig.getParentName());
-            storageManager.storeBridgeConfiguration(new PersistedBridgeConfiguration(copyConfig));
-         }
+         storageManager.storeBridgeConfiguration(new PersistedBridgeConfiguration(config));
          return true;
       }
       return false;
@@ -3089,9 +3081,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          for (Bridge bridge : clusterManager.getBridges().values()) {
             if (bridge.getConfiguration().getParentName().equals(name)) {
                clusterManager.destroyBridge(bridge.getConfiguration().getName());
+               storageManager.deleteBridgeConfiguration(bridge.getConfiguration().getParentName());
             }
          }
-         storageManager.deleteBridgeConfiguration(name);
       }
    }
 
@@ -4478,7 +4470,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private void recoverStoredBridges() throws Exception {
       if (storageManager.recoverBridgeConfigurations() != null) {
          for (PersistedBridgeConfiguration persistedBridgeConfiguration : storageManager.recoverBridgeConfigurations()) {
-            deployBridge(persistedBridgeConfiguration.getBridgeConfiguration());
+
+            boolean bridgeMissing = clusterManager.getBridges().values().stream()
+               .noneMatch(bridge -> bridge.getConfiguration().getParentName()
+                  .equals(persistedBridgeConfiguration.getName()));
+
+            if (bridgeMissing) {
+               deployBridge(persistedBridgeConfiguration.getBridgeConfiguration());
+            }
          }
       }
    }
