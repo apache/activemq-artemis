@@ -2437,6 +2437,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             List<ServerSession> sessions = server.getSessions(connectionID);
             for (ServerSession session : sessions) {
                if (session.getName().equals(ID)) {
+                  for (ServerConsumer consumer : session.getServerConsumers()) {
+                     try {
+                        consumer.disconnect();
+                     } catch (Exception e) {
+                        ActiveMQServerLogger.LOGGER.unexpectedResultDisconnectingConsumer(consumer.getID(), consumer.getSessionID(), e.getMessage());
+                     }
+                  }
                   session.close(true, force);
                   return true;
                }
