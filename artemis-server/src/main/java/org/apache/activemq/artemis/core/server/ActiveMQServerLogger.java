@@ -1489,4 +1489,7 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224141, value = "Illegal implementation(s) of java.security.Principal returned from LoginModule:  {}", level = LogMessage.Level.WARN)
    void illegalPrincipal(String principals);
+
+   @LogMessage(id = 224142, value = "Unexpected result disconnecting consumer {} while closing session {}: {}", level = LogMessage.Level.WARN)
+   void unexpectedResultDisconnectingConsumer(long consumerId, String sessionId, String exceptionMessage);
 }

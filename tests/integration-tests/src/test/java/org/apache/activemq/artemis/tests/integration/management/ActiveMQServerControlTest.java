@@ -54,6 +54,7 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.ActiveMQTimeoutException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
@@ -138,6 +139,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -5978,16 +5980,19 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertTrue(((org.apache.activemq.artemis.jms.client.ActiveMQMessageConsumer)JMSclient).isClosed());
    }
 
+   @Timeout(30)
    @TestTemplate
    public void testForceCloseSession() throws Exception {
       testForceCloseSession(false, false);
    }
 
+   @Timeout(30)
    @TestTemplate
    public void testForceCloseSessionWithError() throws Exception {
       testForceCloseSession(true, false);
    }
 
+   @Timeout(30)
    @TestTemplate
    public void testForceCloseSessionWithPendingStoreOperation() throws Exception {
       testForceCloseSession(false, true);
@@ -6030,6 +6035,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       Wait.assertTrue(() -> serverSession.getServerConsumers().isEmpty(), 500);
       Wait.assertTrue(() -> server.getSessions().isEmpty(), 500);
+
+      try {
+         clientConsumer.receive(100);
+         fail("Using the consumer should throw an exception here since its session was closed administratively");
+      } catch (Exception e) {
+         assertTrue(e instanceof ActiveMQObjectClosedException);
+      }
    }
 
    @TestTemplate
