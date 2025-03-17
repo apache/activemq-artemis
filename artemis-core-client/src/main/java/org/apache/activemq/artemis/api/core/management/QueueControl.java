@@ -643,7 +643,13 @@ public interface QueueControl {
     * {@return whether the queue is paused}
     */
    @Attribute(desc = "whether the queue is paused")
-   boolean isPaused() throws Exception;
+   boolean isPaused();
+
+   /**
+    * {@return whether the queue's paused status is persisted}
+    */
+   @Attribute(desc = "whether the queue's paused status is persisted")
+   boolean isPersistedPause();
 
    @Operation(desc = "Browse Messages", impact = MBeanOperationInfo.ACTION)
    CompositeData[] browse() throws Exception;

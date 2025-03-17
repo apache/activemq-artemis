@@ -2874,5 +2874,10 @@ public interface AuditLogger {
    @LogMessage(id = 601799, value = "User {} is getting PendingMirrorAcks on target resource: {}", level = LogMessage.Level.INFO)
    void getPendingMirrorAcks(String user, Object source);
 
+   static void isPersistedPause(Object source) {
+      BASE_LOGGER.isPaused(getCaller(), source);
+   }
 
+   @LogMessage(id = 601800, value = "User {} is getting persisted pause property on target resource: {}", level = LogMessage.Level.INFO)
+   void isPersistedPause(String user, Object source);
 }

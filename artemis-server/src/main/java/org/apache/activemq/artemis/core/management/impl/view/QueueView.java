@@ -50,7 +50,8 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
          .add(QueueField.ADDRESS.getName(), toString(queue.getAddress()))
          .add(QueueField.FILTER.getName(), toString(queue.getFilter()))
          .add(QueueField.DURABLE.getName(), toString(queue.isDurable()))
-         .add(QueueField.PAUSED.getName(), toString(q.isPaused()))
+         .add(QueueField.PAUSED.getName(), toString(queue.isPaused()))
+         .add(QueueField.PERSISTEDPAUSE.getName(), toString(queue.isPersistedPause()))
          .add(QueueField.TEMPORARY.getName(), toString(queue.isTemporary()))
          .add(QueueField.PURGE_ON_NO_CONSUMERS.getName(), toString(queue.isPurgeOnNoConsumers()))
          .add(QueueField.CONSUMER_COUNT.getName(), toString(queue.getConsumerCount()))
@@ -94,7 +95,8 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
          case ADDRESS -> queue.getAddress();
          case FILTER -> queue.getFilter();
          case DURABLE -> queue.isDurable();
-         case PAUSED -> q.isPaused();
+         case PAUSED -> queue.isPaused();
+         case PERSISTEDPAUSE -> queue.isPersistedPause();
          case TEMPORARY -> queue.isTemporary();
          case PURGE_ON_NO_CONSUMERS -> queue.isPurgeOnNoConsumers();
          case CONSUMER_COUNT -> queue.getConsumerCount();

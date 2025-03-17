@@ -605,8 +605,13 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
-         public boolean isPaused() throws Exception {
-            return (Boolean) proxy.invokeOperation("isPaused");
+         public boolean isPaused() {
+            return (Boolean) proxy.retrieveAttributeValue("paused");
+         }
+
+         @Override
+         public boolean isPersistedPause() {
+            return (Boolean) proxy.retrieveAttributeValue("persistedPause");
          }
 
          @Override
