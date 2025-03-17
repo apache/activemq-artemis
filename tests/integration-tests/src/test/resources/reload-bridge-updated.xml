@@ -24,8 +24,13 @@ under the License.
 
    <core xmlns="urn:activemq:core">
       <security-enabled>false</security-enabled>
-      <persistence-enabled>false</persistence-enabled>
+      <persistence-enabled>true</persistence-enabled>
       <configuration-file-refresh-period>100</configuration-file-refresh-period>
+
+      <paging-directory>./target/tmp/reload-bridge-test/paging</paging-directory>
+      <bindings-directory>./target/tmp/reload-bridge-test/binding</bindings-directory>
+      <journal-directory>./target/tmp/reload-bridge-test/journal</journal-directory>
+      <large-messages-directory>./target/tmp/reload-bridge-test/largemessages</large-messages-directory>
 
       <acceptors>
          <acceptor name="artemis">tcp://0.0.0.0:61616</acceptor>
