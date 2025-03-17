@@ -4206,26 +4206,52 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @TestTemplate
-   public void testPauseAndResume() {
+   public void testPauseAndResume() throws Exception {
       long counterPeriod = 1000;
       SimpleString address = RandomUtil.randomUUIDSimpleString();
       SimpleString queue = RandomUtil.randomUUIDSimpleString();
 
-      try {
-         session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
-         QueueControl queueControl = createManagementControl(address, queue);
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
+      QueueControl queueControl = createManagementControl(address, queue);
 
-         ActiveMQServerControl serverControl = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
-         serverControl.enableMessageCounters();
-         serverControl.setMessageCounterSamplePeriod(counterPeriod);
-         assertFalse(queueControl.isPaused());
-         queueControl.pause();
-         assertTrue(queueControl.isPaused());
-         queueControl.resume();
-         assertFalse(queueControl.isPaused());
-      } catch (Exception e) {
-         e.printStackTrace();
-      }
+      ActiveMQServerControl serverControl = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
+      serverControl.enableMessageCounters();
+      serverControl.setMessageCounterSamplePeriod(counterPeriod);
+      assertFalse(queueControl.isPaused());
+      assertFalse(queueControl.isPersistedPause());
+      queueControl.pause();
+      assertTrue(queueControl.isPaused());
+      assertFalse(queueControl.isPersistedPause());
+      queueControl.resume();
+      assertFalse(queueControl.isPaused());
+      assertFalse(queueControl.isPersistedPause());
+   }
+
+   @TestTemplate
+   public void testPersistedPauseAndResume() throws Exception {
+      assumeTrue(durable);
+      long counterPeriod = 1000;
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      SimpleString queue = RandomUtil.randomUUIDSimpleString();
+
+      session.createQueue(QueueConfiguration.of(queue).setAddress(address).setDurable(durable));
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      ActiveMQServerControl serverControl = ManagementControlHelper.createActiveMQServerControl(mbeanServer);
+      serverControl.enableMessageCounters();
+      serverControl.setMessageCounterSamplePeriod(counterPeriod);
+      assertFalse(queueControl.isPaused());
+      queueControl.pause(true);
+      assertTrue(queueControl.isPaused());
+      assertTrue(queueControl.isPersistedPause());
+      server.stop();
+      server.start();
+      queueControl = createManagementControl(address, queue);
+      assertTrue(queueControl.isPaused());
+      assertTrue(queueControl.isPersistedPause());
+      queueControl.resume();
+      assertFalse(queueControl.isPaused());
+      assertFalse(queueControl.isPersistedPause());
    }
 
    @TestTemplate

@@ -1708,7 +1708,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    @Override
-   public boolean isPaused() throws Exception {
+   public boolean isPaused() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.isPaused(queue);
       }
@@ -1717,6 +1717,21 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       clearIO();
       try {
          return queue.isPaused();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public boolean isPersistedPause() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.isPersistedPause(queue);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return queue.isPersistedPause();
       } finally {
          blockOnIO();
       }

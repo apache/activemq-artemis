@@ -37,6 +37,7 @@ public enum QueueField {
    AUTO_CREATED("autoCreated"),
    DURABLE("durable"),
    PAUSED("paused"),
+   PERSISTEDPAUSE("persistedPause"),
    TEMPORARY("temporary"),
    PURGE_ON_NO_CONSUMERS("purgeOnNoConsumers"),
    MESSAGES_KILLED("messagesKilled"),
