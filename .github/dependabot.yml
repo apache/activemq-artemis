@@ -72,3 +72,5 @@ updates:
     commit-message:
       # This prefix is added to remind committers to create a Jira for this dependency upgrade and update the branch with the actual Jira ID
       prefix: "ARTEMIS-X "
+    labels:
+      - "dependencies"
