@@ -1492,4 +1492,7 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224142, value = "Unexpected result disconnecting consumer {} while closing session {}: {}", level = LogMessage.Level.WARN)
    void unexpectedResultDisconnectingConsumer(long consumerId, String sessionId, String exceptionMessage);
+
+   @LogMessage(id = 224143, value = "Bridge {} failed to send {}: {} {}", level = LogMessage.Level.WARN)
+   void bridgeFailedToSend(String bridgeName, String message, String exceptionName, String exceptionMessage);
 }
