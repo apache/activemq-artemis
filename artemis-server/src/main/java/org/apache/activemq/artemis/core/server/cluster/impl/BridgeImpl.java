@@ -447,8 +447,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    @Override
    public void sendFailed(Message message, Exception e) {
+      ActiveMQServerLogger.LOGGER.bridgeFailedToSend(configuration.getName(), message.toString(), e.getClass().getSimpleName(), e.getMessage());
       if (e instanceof ActiveMQAddressFullException) {
-         logger.warn(e.getMessage(), e);
          failed(e);
       }
    }
