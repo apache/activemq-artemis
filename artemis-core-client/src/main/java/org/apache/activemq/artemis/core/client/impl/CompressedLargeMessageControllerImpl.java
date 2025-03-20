@@ -48,6 +48,16 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       bufferDelegate.discardUnusedPackets();
    }
 
+   @Override
+   public boolean isOriginallyRegular() {
+      return bufferDelegate.isOriginallyRegular();
+   }
+
+   @Override
+   public void setOriginallyRegular(boolean regular) {
+      bufferDelegate.setOriginallyRegular(regular);
+   }
+
    /**
     * Add a buff to the List, or save it to the OutputStream if set
     */

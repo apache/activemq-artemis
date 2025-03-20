@@ -91,7 +91,8 @@ public class LargeMessageControllerImpl implements LargeMessageController {
 
    private final FileCache fileCache;
 
-   private boolean local = false;
+   // converted from a regular compressed message
+   private boolean originallyRegular = false;
 
    public LargeMessageControllerImpl(final ClientConsumerInternal consumerInternal,
                                      final long totalSize,
@@ -122,14 +123,20 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       this.bufferSize = bufferSize;
    }
 
-   public void setLocal(boolean local) {
-      this.local = local;
+   @Override
+   public boolean isOriginallyRegular() {
+      return originallyRegular;
+   }
+
+   @Override
+   public void setOriginallyRegular(boolean originallyRegular) {
+      this.originallyRegular = originallyRegular;
    }
 
    @Override
    public void discardUnusedPackets() {
       if (outStream == null) {
-         if (local)
+         if (originallyRegular)
             return;
          try {
             checkForPacket(totalSize - 1);

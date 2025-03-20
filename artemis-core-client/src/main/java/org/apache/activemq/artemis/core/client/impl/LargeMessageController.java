@@ -24,6 +24,13 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 public interface LargeMessageController extends ActiveMQBuffer {
 
    /**
+    * Message was originally a regular message.
+    * */
+   boolean isOriginallyRegular();
+
+   void setOriginallyRegular(boolean regular);
+
+   /**
     * {@return the size of this buffer.}
     */
    long getSize();

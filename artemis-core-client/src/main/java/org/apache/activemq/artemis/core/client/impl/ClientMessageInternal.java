@@ -33,4 +33,8 @@ public interface ClientMessageInternal extends ClientMessage {
 
    boolean isCompressed();
 
+   default boolean isOriginallyRegular() {
+      return false;
+   }
+
 }
