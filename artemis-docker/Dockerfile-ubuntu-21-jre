@@ -55,7 +55,7 @@ EXPOSE \
 
 USER root
 
-RUN mkdir /var/lib/artemis-instance && chown -R artemis.artemis /var/lib/artemis-instance
+RUN mkdir /var/lib/artemis-instance && chown -R artemis:artemis /var/lib/artemis-instance
 
 COPY ./docker/docker-run.sh /
 
