@@ -28,10 +28,10 @@ RUN /bin/sh -c "apk update && apk upgrade --no-cache && apk add --no-cache bash 
 
 WORKDIR /opt
 
-ENV ARTEMIS_USER artemis
-ENV ARTEMIS_PASSWORD artemis
-ENV ANONYMOUS_LOGIN false
-ENV EXTRA_ARGS --http-host 0.0.0.0 --relax-jolokia
+ENV ARTEMIS_USER=artemis
+ENV ARTEMIS_PASSWORD=artemis
+ENV ANONYMOUS_LOGIN=false
+ENV EXTRA_ARGS="--http-host 0.0.0.0 --relax-jolokia"
 
 USER artemis
 
@@ -53,7 +53,7 @@ EXPOSE \
 
 USER root
 
-RUN mkdir /var/lib/artemis-instance && chown -R artemis.artemis /var/lib/artemis-instance
+RUN mkdir /var/lib/artemis-instance && chown -R artemis:artemis /var/lib/artemis-instance
 
 COPY ./docker/docker-run.sh /
 
