@@ -27,6 +27,7 @@ import javax.resource.spi.work.WorkManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.xa.XAResource;
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,10 +59,9 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.ra.recovery.RecoveryManager;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
+import org.jgroups.JChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import org.jgroups.JChannel;
 
 /**
  * The resource adapter for ActiveMQ
@@ -74,7 +74,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
    public static final String PRODUCT_NAME = "ActiveMQ Artemis";
 
-   private BootstrapContext ctx;
+   private transient BootstrapContext ctx;
 
    private final ActiveMQRAProperties raProperties;
 

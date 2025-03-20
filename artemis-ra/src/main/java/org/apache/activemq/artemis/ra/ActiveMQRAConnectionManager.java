@@ -25,6 +25,9 @@ import javax.resource.spi.ManagedConnectionFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.lang.invoke.MethodHandles;
 
 /**
@@ -39,7 +42,7 @@ public class ActiveMQRAConnectionManager implements ConnectionManager {
       logger.trace("constructor()");
    }
 
-   ConcurrentHashSet<ManagedConnection> connections = new ConcurrentHashSet<>();
+   transient ConcurrentHashSet<ManagedConnection> connections = new ConcurrentHashSet<>();
 
    /**
     * Allocates a connection
@@ -71,5 +74,13 @@ public class ActiveMQRAConnectionManager implements ConnectionManager {
 
          }
       }
+   }
+
+   /*
+    * Java serialization needs this in order to intialize transient fields
+    */
+   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+      in.defaultReadObject();
+      connections = new ConcurrentHashSet<>();
    }
 }
