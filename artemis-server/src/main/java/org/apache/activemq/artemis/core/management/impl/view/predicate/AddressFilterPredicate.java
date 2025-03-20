@@ -16,11 +16,13 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
+import java.util.Arrays;
+
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.core.management.impl.view.AddressField;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 
-public class AddressFilterPredicate extends ActiveMQFilterPredicate<AddressInfo> {
+public class AddressFilterPredicate extends ActiveMQFilterPredicate<AddressControl> {
 
    private AddressField f;
 
@@ -32,27 +34,37 @@ public class AddressFilterPredicate extends ActiveMQFilterPredicate<AddressInfo>
    }
 
    @Override
-   public boolean test(AddressInfo address) {
+   public boolean test(AddressControl address) {
       if (f == null)
          return true;
       try {
-         switch (f) {
-            case ID:
-               return matches(address.getId());
-            case NAME:
-               return matches(address.getName());
-            case ROUTING_TYPES:
-               return matchAny(address.getRoutingTypes());
-            case PRODUCER_ID:
-               return matches("TODO");
-            case QUEUE_COUNT:
-               return matches(server.bindingQuery(address.getName()).getQueueNames().size());
-         }
+         return switch (f) {
+            case ID -> matches(address.getId());
+            case NAME -> matches(address.getAddress());
+            case ROUTING_TYPES -> matchAny(Arrays.asList(address.getRoutingTypes()));
+            case QUEUE_COUNT -> matches(address.getQueueCount());
+            case INTERNAL -> matches(address.isInternal());
+            case TEMPORARY -> matches(address.isTemporary());
+            case AUTO_CREATED -> matches(address.isAutoCreated());
+            case PAUSED -> matches(address.isPaused());
+            case CURRENT_DUPLICATE_ID_CACHE_SIZE -> matches(address.getCurrentDuplicateIdCacheSize());
+            case RETROACTIVE_RESOURCE -> matches(address.isRetroactiveResource());
+            case UNROUTED_MESSAGE_COUNT -> matches(address.getUnRoutedMessageCount());
+            case ROUTED_MESSAGE_COUNT -> matches(address.getRoutedMessageCount());
+            case MESSAGE_COUNT -> matches(address.getMessageCount());
+            case NUMBER_OF_BYTES_PER_PAGE -> matches(address.getNumberOfBytesPerPage());
+            case ADDRESS_LIMIT_PERCENT -> matches(address.getAddressLimitPercent());
+            case PAGING -> matches(address.isPaging());
+            case NUMBER_OF_PAGES -> matches(address.getNumberOfPages());
+            case ADDRESS_SIZE -> matches(address.getAddressSize());
+            case MAX_PAGE_READ_BYTES -> matches(address.getMaxPageReadBytes());
+            case MAX_PAGE_READ_MESSAGES -> matches(address.getMaxPageReadMessages());
+            case PREFETCH_PAGE_BYTES -> matches(address.getPrefetchPageBytes());
+            case PREFETCH_PAGE_MESSAGES -> matches(address.getPrefetchPageBytes());
+         };
       } catch (Exception e) {
          return false;
       }
-
-      return true;
    }
 
    @Override

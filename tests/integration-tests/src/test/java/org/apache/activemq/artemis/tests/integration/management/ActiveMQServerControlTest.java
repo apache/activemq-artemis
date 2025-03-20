@@ -4175,6 +4175,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       addressesAsJsonString = serverControl.listAddresses(filterString, 1, 50);
       addressesAsJsonObject = JsonUtil.readJsonObject(addressesAsJsonString);
       array = (JsonArray) addressesAsJsonObject.get("data");
+      System.out.println(array);
 
       assertEquals(1, array.size(), "number of addresses returned from query");
       //check all field names
