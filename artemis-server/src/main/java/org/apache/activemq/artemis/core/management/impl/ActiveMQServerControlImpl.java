@@ -2607,17 +2607,13 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       checkStarted();
       clearIO();
       try {
-         final Set<SimpleString> addresses = server.getPostOffice().getAddresses();
-         List<AddressInfo> addressInfo = new ArrayList<>();
-         for (SimpleString address : addresses) {
-            AddressInfo info = server.getPostOffice().getAddressInfo(address);
-            //ignore if no longer available
-            if (info != null) {
-               addressInfo.add(info);
-            }
+         List<AddressControl> addresses = new ArrayList<>();
+         Object[] qs = server.getManagementService().getResources(AddressControl.class);
+         for (int i = 0; i < qs.length; i++) {
+            addresses.add((AddressControl) qs[i]);
          }
          AddressView view = new AddressView(server);
-         view.setCollection(addressInfo);
+         view.setCollection(addresses);
          view.setOptions(options);
          return view.getResultsAsJson(page, pageSize);
       } finally {
