@@ -39,7 +39,7 @@ public class ActiveMQRAConnectionManager implements ConnectionManager {
       logger.trace("constructor()");
    }
 
-   ConcurrentHashSet<ManagedConnection> connections = new ConcurrentHashSet<>();
+   transient ConcurrentHashSet<ManagedConnection> connections = new ConcurrentHashSet<>();
 
    /**
     * Allocates a connection

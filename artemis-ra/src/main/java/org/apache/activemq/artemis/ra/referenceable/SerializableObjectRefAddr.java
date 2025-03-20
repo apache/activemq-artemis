@@ -52,7 +52,9 @@ public class SerializableObjectRefAddr extends RefAddr {
 
          bytes = bos.toByteArray();
       } catch (IOException e) {
-         throw new NamingException("Failed to serialize object:" + content + ", " + e.getMessage());
+         NamingException ne = new NamingException("Failed to serialize object: " + content);
+         ne.initCause(e);
+         throw ne;
       }
    }
 
