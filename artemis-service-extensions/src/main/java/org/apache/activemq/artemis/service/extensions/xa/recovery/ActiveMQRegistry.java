@@ -17,7 +17,9 @@
 
 package org.apache.activemq.artemis.service.extensions.xa.recovery;
 
-public interface ActiveMQRegistry {
+import java.io.Serializable;
+
+public interface ActiveMQRegistry extends Serializable {
 
    void register(XARecoveryConfig resourceConfig);
 

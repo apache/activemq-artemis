@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.ra.recovery;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -27,17 +31,18 @@ import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConf
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
-public final class RecoveryManager {
+public final class RecoveryManager implements Serializable {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   private static final long serialVersionUID = 8959429342056727955L;
 
    private ActiveMQRegistry registry;
 
    private static final String RESOURCE_RECOVERY_CLASS_NAMES = "org.jboss.as.messaging.jms.AS7RecoveryRegistry;" + "org.jboss.as.integration.activemq.recovery.AS5RecoveryRegistry";
 
-   private final Set<XARecoveryConfig> resources = new ConcurrentHashSet<>();
+   private transient Set<XARecoveryConfig> resources = new ConcurrentHashSet<>();
 
    public void start(final boolean useAutoRecovery) {
       if (useAutoRecovery) {
@@ -104,5 +109,13 @@ public final class RecoveryManager {
 
    public Set<XARecoveryConfig> getResources() {
       return resources;
+   }
+
+   /*
+    * Java serialization needs this in order to intialize transient fields
+    */
+   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+      in.defaultReadObject();
+      resources = new ConcurrentHashSet<>();
    }
 }
