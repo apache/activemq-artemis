@@ -21,10 +21,10 @@ FROM eclipse-temurin:21-jre
 LABEL maintainer="Apache ActiveMQ Team"
 WORKDIR /opt
 
-ENV ARTEMIS_USER artemis
-ENV ARTEMIS_PASSWORD artemis
-ENV ANONYMOUS_LOGIN false
-ENV EXTRA_ARGS --http-host 0.0.0.0 --relax-jolokia
+ENV ARTEMIS_USER=artemis
+ENV ARTEMIS_PASSWORD=artemis
+ENV ANONYMOUS_LOGIN=false
+ENV EXTRA_ARGS="--http-host 0.0.0.0 --relax-jolokia"
 
 # add user and group for artemis
 RUN groupadd -g 1001 -r artemis && useradd -r -u 1001 -g artemis artemis
