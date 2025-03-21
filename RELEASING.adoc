@@ -325,7 +325,8 @@ It should have a subject like:
 [VOTE] Apache ActiveMQ Artemis <version>
 ----
 
-Here is an example for the body of the message:
+Here is an example for the body of the message. 
+Be sure to identify the approximate date that the vote will end which should be *three business days* from when this email is sent.
 
 ----
 I would like to propose an Apache ActiveMQ Artemis <version> release.
@@ -350,7 +351,9 @@ https://repository.apache.org/content/repositories/orgapacheactivemq-<repoID>
 * How to validate the release:
 https://activemq.apache.org/components/artemis/documentation/hacking-guide/#validating-releases
 
-It is tagged in the source repo as <version>
+It is tagged in the source repo as <version>.
+
+This vote will stay open until at least <3-business-days-from-now>.
 
 [ ] +1 approve this release
 [ ] +0 no opinion
@@ -359,7 +362,7 @@ It is tagged in the source repo as <version>
 Here's my +1
 ----
 
-== Sent Result Email
+== Send Result Email
 
 Rules for the Apache voting process are stipulated https://www.apache.org/foundation/voting.html[here].
 
