@@ -45,12 +45,6 @@
          </dependency>
          <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-branding</artifactId>
-            <type>war</type>
-            <version>${project.version}</version>
-         </dependency>
-         <dependency>
-            <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-cdi-client</artifactId>
             <version>${project.version}</version>
          </dependency>
