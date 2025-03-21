@@ -27,7 +27,7 @@
    <!-- The web server is only bound to localhost by default -->
    <web path="web">
       <binding uri="https://localhost:8443" keyStorePassword="ENC(-5a2376c61c668aaf)" trustStorePassword="ENC(3d617352d12839eb71208edf41d66b34)">
-         <app url="activemq-branding" war="activemq-branding.war"/>
+         <app url="console" war="console.war"/>
       </binding>
    </web>
 
