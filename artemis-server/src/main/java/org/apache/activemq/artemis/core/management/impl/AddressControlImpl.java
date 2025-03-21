@@ -93,6 +93,11 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    // AddressControlMBean implementation ----------------------------
 
    @Override
+   public long getId() {
+      return addressInfo.getId();
+   }
+
+   @Override
    public String getAddress() {
       return addressInfo.getName().toString();
    }
@@ -112,7 +117,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
-   public String getRoutingTypesAsJSON() throws Exception {
+   public String getRoutingTypesAsJSON() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getRoutingTypesAsJSON(this.addressInfo);
       }
@@ -506,6 +511,19 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             AuditLogger.getMessageCount(this.addressInfo);
          }
          return getMessageCount(DurabilityType.ALL);
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
+      }
+   }
+
+   @Override
+   public long getQueueCount() {
+      // prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.getQueueCount(this.addressInfo);
+         }
+         return getQueueNames(SearchType.LOCAL).length;
       } catch (Exception e) {
          throw new RuntimeException(e.getMessage(), e);
       }

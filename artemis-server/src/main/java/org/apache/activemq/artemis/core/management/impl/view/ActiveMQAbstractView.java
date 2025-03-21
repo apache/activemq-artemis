@@ -34,6 +34,9 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public abstract class ActiveMQAbstractView<T> {
 
+   // use this for values which couldn't be retrieved (e.g. an exception was thrown)
+   protected static final String N_A = "n/a";
+
    private static final String FILTER_FIELD = "field";
 
    private static final String FILTER_OPERATION = "operation";

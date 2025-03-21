@@ -52,6 +52,11 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
+         public long getId() {
+            return ((Number)proxy.retrieveAttributeValue("id")).longValue();
+         }
+
+         @Override
          public String getAddress() {
             return (String) proxy.retrieveAttributeValue("address");
          }
@@ -62,7 +67,7 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
-         public String getRoutingTypesAsJSON() throws Exception {
+         public String getRoutingTypesAsJSON() {
             return (String) proxy.retrieveAttributeValue("routingTypesAsJSON");
          }
 
@@ -134,6 +139,11 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          @Override
          public String[] getBindingNames() throws Exception {
             return (String[]) proxy.retrieveAttributeValue("bindingNames", String.class);
+         }
+
+         @Override
+         public long getQueueCount() {
+            return (long) proxy.retrieveAttributeValue("queueCount");
          }
 
          @Override

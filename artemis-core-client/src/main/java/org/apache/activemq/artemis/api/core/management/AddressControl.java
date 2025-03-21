@@ -30,22 +30,28 @@ public interface AddressControl {
    String LIMIT_PERCENT_DESCRIPTION = "the % of memory limit (global or local) that is in use by this address";
 
    /**
-    * {@return the managed address}
+    * {@return the internal ID of this address}
     */
-   @Attribute(desc = "managed address")
+   @Attribute(desc = "the internal ID of this address")
+   long getId();
+
+   /**
+    * {@return the name of this address}
+    */
+   @Attribute(desc = "the name of this address")
    String getAddress();
 
    /**
-    * {@return whether multicast routing is enabled for this address}
+    * {@return the routing types enabled on this address}
     */
-   @Attribute(desc = "Get the routing types enabled on this address")
+   @Attribute(desc = "the routing types enabled on this address")
    String[] getRoutingTypes();
 
    /**
     * {@return the routing types enabled on this address as JSON}
     */
-   @Attribute(desc = "Get the routing types enabled on this address as JSON")
-   String getRoutingTypesAsJSON() throws Exception;
+   @Attribute(desc = "the routing types enabled on this address as JSON")
+   String getRoutingTypesAsJSON();
 
    /**
     * {@return the roles (name and permissions) associated with this address}
@@ -58,7 +64,7 @@ public interface AddressControl {
     * <p>
     * Java objects can be recreated from JSON serialization using {@link RoleInfo#from(String)}}.
     */
-   @Attribute(desc = "roles  (name and permissions) associated with this address using JSON serialization")
+   @Attribute(desc = "roles (name and permissions) associated with this address using JSON serialization")
    String getRolesAsJSON() throws Exception;
 
    /**
@@ -67,7 +73,6 @@ public interface AddressControl {
     */
    @Attribute(desc = ADDRESS_SIZE_DESCRIPTION)
    long getAddressSize();
-
 
    /**
     * {@return the maximum number of bytes that can be read into memory from paged files}
@@ -162,6 +167,15 @@ public interface AddressControl {
    @Attribute(desc = "names of all bindings (both queues and diverts) bound to this address")
    String[] getBindingNames() throws Exception;
 
+   /**
+    * {@return number of local queues bound to this address}
+    */
+   @Attribute(desc = "number of local queues bound to this address")
+   long getQueueCount();
+
+   /**
+    * {@return number of messages currently in all queues bound to this address (includes scheduled, paged, and in-delivery messages)}
+    */
    @Attribute(desc = "number of messages currently in all queues bound to this address (includes scheduled, paged, and in-delivery messages)")
    long getMessageCount();
 

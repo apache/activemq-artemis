@@ -23,9 +23,25 @@ public enum AddressField {
    ID("id"),
    NAME("name"),
    ROUTING_TYPES("routingTypes"),
-   PRODUCER_ID("producerId"),
    QUEUE_COUNT("queueCount"),
-   INTERNAL("internal");
+   INTERNAL("internal"),
+   TEMPORARY("temporary"),
+   AUTO_CREATED("autoCreated"),
+   PAUSED("paused"),
+   CURRENT_DUPLICATE_ID_CACHE_SIZE("currentDuplicateIdCacheSize"),
+   RETROACTIVE_RESOURCE("retroactiveResource"),
+   UNROUTED_MESSAGE_COUNT("unroutedMessageCount"),
+   ROUTED_MESSAGE_COUNT("routedMessageCount"),
+   MESSAGE_COUNT("MessageCount"),
+   NUMBER_OF_BYTES_PER_PAGE("numberOfBytesPerPage"),
+   ADDRESS_LIMIT_PERCENT("addressLimitPercent"),
+   PAGING("paging"),
+   NUMBER_OF_PAGES("numberOfPages"),
+   ADDRESS_SIZE("addressSize"),
+   MAX_PAGE_READ_BYTES("maxPageReadBytes"),
+   MAX_PAGE_READ_MESSAGES("maxPageReadMessages"),
+   PREFETCH_PAGE_BYTES("prefetchPageBytes"),
+   PREFETCH_PAGE_MESSAGES("prefetchPageMessages");
 
    private static final Map<String, AddressField> lookup = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 

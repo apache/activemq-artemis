@@ -36,71 +36,46 @@ public class QueueFilterPredicate extends ActiveMQFilterPredicate<QueueControl> 
 
    @Override
    public boolean test(QueueControl queue) {
-      // Using switch over enum vs string comparison is better for perf.
+      if (f == null)
+         return true;
       try {
-         if (f == null)
-            return true;
-         switch (f) {
-            case ID:
-               return matches(queue.getID());
-            case NAME:
-               return matches(queue.getName());
-            case CONSUMER_ID:
+         return switch (f) {
+            case ID -> matches(queue.getID());
+            case NAME -> matches(queue.getName());
+            case CONSUMER_ID -> {
                Queue q = server.locateQueue(SimpleString.of(queue.getName()));
                for (Consumer consumer : q.getConsumers()) {
                   if (matches(consumer.sequentialID()))
-                     return true;
+                     yield true;
                }
-               return false;
-            case MAX_CONSUMERS:
-               return matches(queue.getMaxConsumers());
-            case ADDRESS:
-               return matches(queue.getAddress());
-            case FILTER:
-               return matches(queue.getFilter());
-            case MESSAGE_COUNT:
-               return matches(queue.getMessageCount());
-            case CONSUMER_COUNT:
-               return matches(queue.getConsumerCount());
-            case DELIVERING_COUNT:
-               return matches(queue.getDeliveringCount());
-            case MESSAGES_ADDED:
-               return matches(queue.getMessagesAdded());
-            case MESSAGES_ACKED:
-               return matches(queue.getMessagesAcknowledged());
-            case MESSAGES_EXPIRED:
-               return matches(queue.getMessagesExpired());
-            case ROUTING_TYPE:
-               return matches(queue.getRoutingType());
-            case AUTO_CREATED:
-               return matches(server.locateQueue(SimpleString.of(queue.getName())).isAutoCreated());
-            case DURABLE:
-               return matches(queue.isDurable());
-            case PAUSED:
-               return matches(queue.isPaused());
-            case TEMPORARY:
-               return matches(queue.isTemporary());
-            case PURGE_ON_NO_CONSUMERS:
-               return matches(queue.isPurgeOnNoConsumers());
-            case MESSAGES_KILLED:
-               return matches(queue.getMessagesKilled());
-            case EXCLUSIVE:
-               return matches(queue.isExclusive());
-            case LAST_VALUE:
-               return matches(queue.isLastValue());
-            case SCHEDULED_COUNT:
-               return matches(queue.getScheduledCount());
-            case USER:
-               return matches(queue.getUser());
-            case INTERNAL_QUEUE:
-               return matches(queue.isInternalQueue());
-            default:
-               return true;
-         }
+               yield false;
+            }
+            case MAX_CONSUMERS -> matches(queue.getMaxConsumers());
+            case ADDRESS -> matches(queue.getAddress());
+            case FILTER -> matches(queue.getFilter());
+            case MESSAGE_COUNT -> matches(queue.getMessageCount());
+            case CONSUMER_COUNT -> matches(queue.getConsumerCount());
+            case DELIVERING_COUNT -> matches(queue.getDeliveringCount());
+            case MESSAGES_ADDED -> matches(queue.getMessagesAdded());
+            case MESSAGES_ACKED -> matches(queue.getMessagesAcknowledged());
+            case MESSAGES_EXPIRED -> matches(queue.getMessagesExpired());
+            case ROUTING_TYPE -> matches(queue.getRoutingType());
+            case AUTO_CREATED -> matches(server.locateQueue(SimpleString.of(queue.getName())).isAutoCreated());
+            case DURABLE -> matches(queue.isDurable());
+            case PAUSED -> matches(queue.isPaused());
+            case TEMPORARY -> matches(queue.isTemporary());
+            case PURGE_ON_NO_CONSUMERS -> matches(queue.isPurgeOnNoConsumers());
+            case MESSAGES_KILLED -> matches(queue.getMessagesKilled());
+            case EXCLUSIVE -> matches(queue.isExclusive());
+            case LAST_VALUE -> matches(queue.isLastValue());
+            case SCHEDULED_COUNT -> matches(queue.getScheduledCount());
+            case USER -> matches(queue.getUser());
+            case INTERNAL_QUEUE -> matches(queue.isInternalQueue());
+            default -> true;
+         };
       } catch (Exception e) {
          return true;
       }
-
    }
 
    @Override
