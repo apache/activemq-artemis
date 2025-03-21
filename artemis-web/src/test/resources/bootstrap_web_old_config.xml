@@ -26,7 +26,7 @@
 
    <!-- The web server is only bound to localhost by default -->
    <web path="web" bind="http://localhost:8161"  passwordCodec="org.apache.activemq.artemis.utils.SimpleWebTestPasswordCodec" keyStorePassword="ENC(youneverknow)" trustStorePassword="ENC(youcanguess)">
-      <app url="activemq-branding" war="activemq-branding.war"/>
+      <app url="console" war="console.war"/>
    </web>
 
 

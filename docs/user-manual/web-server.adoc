@@ -12,11 +12,9 @@ The embedded Jetty instance is configured in `etc/bootstrap.xml` via the `web` e
 
 [,xml]
 ----
-<web path="web">
-   <binding uri="http://localhost:8161">
-      <app url="activemq-branding" war="activemq-branding.war"/>
-      <app url="artemis-plugin" war="artemis-plugin.war"/>
-      <app url="console" war="console.war"/>
+<web path="web" rootRedirectLocation="console">
+   <binding name="artemis" uri="http://localhost:8161">
+      <app name="console" url="console" war="console.war"/>
    </binding>
 </web>
 ----
@@ -176,11 +174,9 @@ Here is an example configuration:
 
 [,xml]
 ----
-<web path="web">
-   <binding uri="http://localhost:8161">
-      <app url="activemq-branding" war="activemq-branding.war"/>
-      <app url="artemis-plugin" war="artemis-plugin.war"/>
-      <app url="console" war="console.war"/>
+<web path="web" rootRedirectLocation="console">
+   <binding name="artemis" uri="http://localhost:8161">
+      <app name="console" url="console" war="console.war"/>
    </binding>
    <request-log filename="${artemis.instance}/log/http-access-yyyy_MM_dd.log" append="true" extended="true"/>
 </web>
@@ -206,9 +202,9 @@ java -Dwebconfig.bindings.my-binding.apps.my-app.war=my-app.war
 To update a binding without a name use its uri and to update an app without a name use its url , i.e.
 [,xml]
 ----
-<web path="web">
-  <binding uri="http://localhost:8161">
-    <app url="activemq-branding" war="activemq-branding.war"/>
+<web path="web" rootRedirectLocation="console">
+   <binding uri="http://localhost:8161">
+      <app url="console" war="console.war"/>
 ...
 ----
 
@@ -217,7 +213,7 @@ java -Dwebconfig.bindings."http://localhost:8161".clientAuth=true
 ----
 
 ----
-java -Dwebconfig.bindings."http://localhost:8161".apps."activemq-branding".war=my-branding.war
+java -Dwebconfig.bindings."http://localhost:8161".apps."console".war=my-console.war
 ----
 
 == Proxy Forwarding
@@ -228,11 +224,9 @@ Set the `customizer` attribute via the `web` element to enable the https://www.e
 
 [,xml]
 ----
-<web path="web" customizer="org.eclipse.jetty.server.ForwardedRequestCustomizer">
-   <binding uri="http://localhost:8161">
-      <app url="activemq-branding" war="activemq-branding.war"/>
-      <app url="artemis-plugin" war="artemis-plugin.war"/>
-      <app url="console" war="console.war"/>
+<web path="web" rootRedirectLocation="console" customizer="org.eclipse.jetty.server.ForwardedRequestCustomizer">
+   <binding name="artemis" uri="http://localhost:8161">
+      <app name="console" url="console" war="console.war"/>
    </binding>
 </web>
 ----
