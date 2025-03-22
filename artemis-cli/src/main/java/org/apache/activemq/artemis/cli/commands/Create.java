@@ -929,13 +929,10 @@ public class Create extends InstallAbstract {
       // I am using a different replacing pattern here, for cases where want an actual ${artemis.instance} in the output
       // so that's just to make a distinction
       filters.put("@artemis.instance@", path(directory));
-      filters.put("${artemis.instance.uri}", directory.toURI().toString());
-      filters.put("${artemis.instance.uri.windows}", directory.toURI().toString().replaceAll("%", "%%"));
       filters.put("${artemis.instance.name}", directory.getName());
       filters.put("${java.home}", path(System.getProperty("java.home")));
 
       filters.put("${artemis.instance.etc.uri}", etcFolder.toURI().toString());
-      filters.put("${artemis.instance.etc.uri.windows}", etcFolder.toURI().toString().replaceAll("%", "%%"));
       filters.put("${artemis.instance.etc}", path(etcFolder));
       filters.put("${artemis.instance.oome.dump}", path(oomeDumpFile));
       filters.put("${artemis.instance.data}", path(dataFolder));

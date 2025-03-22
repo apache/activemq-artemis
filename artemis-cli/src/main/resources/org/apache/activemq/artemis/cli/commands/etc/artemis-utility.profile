@@ -18,17 +18,9 @@
 ARTEMIS_HOME='${artemis.home}'
 ARTEMIS_INSTANCE='@artemis.instance@'
 ARTEMIS_DATA_DIR='${artemis.instance.data}'
-ARTEMIS_ETC_DIR='${artemis.instance.etc}'
-ARTEMIS_OOME_DUMP='${artemis.instance.oome.dump}'
-
-# The logging config will need an URI
-# this will be encoded in case you use spaces or special characters
-# on your directory structure
-ARTEMIS_INSTANCE_URI='${artemis.instance.uri}'
-ARTEMIS_INSTANCE_ETC_URI='${artemis.instance.etc.uri}'
 
 if [ -z "$LOGGING_ARGS" ]; then
-    LOGGING_ARGS="-Dlog4j2.configurationFile=${ARTEMIS_INSTANCE_ETC_URI}log4j2-utility.properties"
+    LOGGING_ARGS="-Dlog4j2.configurationFile=log4j2-utility.properties"
 fi
 
 if [ -z "$JAVA_ARGS" ]; then

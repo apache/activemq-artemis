@@ -48,10 +48,10 @@ public class JVMArgumentTest {
       final String arguments;
       if (useNewArgPropName) {
          // Uses new args prop -Dhawtio.roles=
-         arguments = "IF \"%JAVA_ARGS%\"==\"\" (set JAVA_ARGS= -must-go -XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram  -XX:+UseG1GC -XX:+UseStringDeduplication -Xms333M -Xmx77G -Djava.security.auth.login.config=%ARTEMIS_ETC_DIR%\\login.config -Dhawtio.disableProxy=true -Dhawtio.offline=true -Dhawtio.realm=activemq -Dhawtio.roles=amq -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Dhawtio.http.strictTransportSecurity=max-age=31536000;includeSubDomains;preload -Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%\\jolokia-access.xml -Dartemis.instance=%ARTEMIS_INSTANCE%  --add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Dlog4j2.disableJmx=true)";
+         arguments = "IF \"%JAVA_ARGS%\"==\"\" (set JAVA_ARGS= -must-go -XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram  -XX:+UseG1GC -XX:+UseStringDeduplication -Xms333M -Xmx77G -Dhawtio.disableProxy=true -Dhawtio.offline=true -Dhawtio.realm=activemq -Dhawtio.roles=amq -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Dhawtio.http.strictTransportSecurity=max-age=31536000;includeSubDomains;preload -Djolokia.policyLocation=classpath:jolokia-access.xml --add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Dlog4j2.disableJmx=true)";
       } else {
          // Uses old args prop -Dhawtio.role=
-         arguments = "IF \"%JAVA_ARGS%\"==\"\" (set JAVA_ARGS= -must-go -XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram  -XX:+UseG1GC -XX:+UseStringDeduplication -Xms333M -Xmx77G -Djava.security.auth.login.config=%ARTEMIS_ETC_DIR%\\login.config -Dhawtio.disableProxy=true -Dhawtio.offline=true -Dhawtio.realm=activemq -Dhawtio.role=amq -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Dhawtio.http.strictTransportSecurity=max-age=31536000;includeSubDomains;preload -Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%\\jolokia-access.xml -Dartemis.instance=%ARTEMIS_INSTANCE%  --add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Dlog4j2.disableJmx=true)";
+         arguments = "IF \"%JAVA_ARGS%\"==\"\" (set JAVA_ARGS= -must-go -XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram  -XX:+UseG1GC -XX:+UseStringDeduplication -Xms333M -Xmx77G -Dhawtio.disableProxy=true -Dhawtio.offline=true -Dhawtio.realm=activemq -Dhawtio.role=amq -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Dhawtio.http.strictTransportSecurity=max-age=31536000;includeSubDomains;preload -Djolokia.policyLocation=classpath:jolokia-access.xml --add-opens java.base/jdk.internal.misc=ALL-UNNAMED -Dlog4j2.disableJmx=true)";
       }
 
       String prefix = "IF \"%JAVA_ARGS%\"==\"\" (set JAVA_ARGS= ";
@@ -66,7 +66,7 @@ public class JVMArgumentTest {
       assertEquals("-Xms333M", usedArgs.get("-Xms"));
       assertEquals("-Dhawtio.roles=amq", usedArgs.get("-Dhawtio.roles="));
 
-      String newLine = "IF \"%JAVA_ARGS%\"==\"\" (set JAVA_ARGS= -XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram  -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx1G -Djava.security.auth.login.config=%ARTEMIS_ETC_DIR%\\login.config -Dhawtio.disableProxy=true -Dhawtio.offline=true -Dhawtio.realm=activemq -Dhawtio.roles=replaceThisRole -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%\\jolokia-access.xml -Dartemis.instance=%ARTEMIS_INSTANCE%)";
+      String newLine = "IF \"%JAVA_ARGS%\"==\"\" (set JAVA_ARGS= -XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram  -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx1G -Dhawtio.disableProxy=true -Dhawtio.offline=true -Dhawtio.realm=activemq -Dhawtio.roles=replaceThisRole -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=classpath:jolokia-access.xml)";
 
       String resultLine = JVMArgumentParser.parseNewLine(prefix, "\"", newLine, fixedArguments, usedArgs);
 
@@ -85,7 +85,7 @@ public class JVMArgumentTest {
 
    @Test
    public void testArgumentsLinux() {
-      String arguments = "    JAVA_ARGS=\"-must-go -XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+UseStringDeduplication -Xms333M -Xmx77G -Dhawtio.disableProxy=true -Dhawtio.realm=activemq -Dhawtio.offline=true -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Dhawtio.http.strictTransportSecurity=max-age=31536000;includeSubDomains;preload -Djolokia.policyLocation=${ARTEMIS_INSTANCE_ETC_URI}jolokia-access.xml -Dlog4j2.disableJmx=true --add-opens java.base/jdk.internal.misc=ALL-UNNAMED \"";
+      String arguments = "    JAVA_ARGS=\"-must-go -XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+UseStringDeduplication -Xms333M -Xmx77G -Dhawtio.disableProxy=true -Dhawtio.realm=activemq -Dhawtio.offline=true -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Dhawtio.http.strictTransportSecurity=max-age=31536000;includeSubDomains;preload -Djolokia.policyLocation=classpath:jolokia-access.xml -Dlog4j2.disableJmx=true --add-opens java.base/jdk.internal.misc=ALL-UNNAMED \"";
 
       String prefix = "JAVA_ARGS=";
 
@@ -97,7 +97,7 @@ public class JVMArgumentTest {
       assertEquals("-Xmx77G", usedArgs.get("-Xmx"));
       assertEquals("-Xms333M", usedArgs.get("-Xms"));
 
-      String newLine = "    JAVA_ARGS=\"-XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx1G -Dhawtio.disableProxy=true -Dhawtio.realm=activemq -Dhawtio.offline=true -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Dhawtio.http.strictTransportSecurity=max-age=31536000;includeSubDomains;preload -Djolokia.policyLocation=${ARTEMIS_INSTANCE_ETC_URI}jolokia-access.xml -Dlog4j2.disableJmx=true --add-opens java.base/jdk.internal.misc=ALL-UNNAMED \"";
+      String newLine = "    JAVA_ARGS=\"-XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx1G -Dhawtio.disableProxy=true -Dhawtio.realm=activemq -Dhawtio.offline=true -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Dhawtio.http.strictTransportSecurity=max-age=31536000;includeSubDomains;preload -Djolokia.policyLocation=classpath:jolokia-access.xml -Dlog4j2.disableJmx=true --add-opens java.base/jdk.internal.misc=ALL-UNNAMED \"";
 
       String resultLine = JVMArgumentParser.parseNewLine(prefix, "\"", newLine, fixedArguments, usedArgs);
 
