@@ -25,8 +25,6 @@
    <env name="ARTEMIS_HOME" value="${artemis.home}"/>
    <env name="ARTEMIS_INSTANCE" value="@artemis.instance@"/>
    <env name="ARTEMIS_INSTANCE_ETC" value="${artemis.instance.etc}"/>
-   <env name="ARTEMIS_INSTANCE_URI" value="${artemis.instance.uri}"/>
-   <env name="ARTEMIS_INSTANCE_ETC_URI" value="${artemis.instance.etc.uri}"/>
    <env name="ARTEMIS_DATA_DIR" value="${artemis.instance.data}"/>
 
    <logpath>@artemis.instance@\log</logpath>
@@ -56,7 +54,7 @@
    <startargument>-Dhawtio.offline="true"</startargument>
    <startargument>-Dhawtio.roles=${role}</startargument>
    <startargument>-Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal</startargument>
-   <startargument>-Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%/jolokia-access.xml</startargument>
+   <startargument>-Djolokia.policyLocation=classpath:jolokia-access.xml</startargument>
 
    <!-- Debug args: Uncomment to enable debug
    <startargument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</startargument>
