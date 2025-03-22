@@ -199,7 +199,6 @@ public class CompareUpgradeTest {
                                                        "<env name=\"ARTEMIS_HOME\" value=", null, // no expected value for this, we will check on the output
                                                        "<env name=\"ARTEMIS_INSTANCE\" value=", "\"" + windows  + "\"/>",
                                                        "<env name=\"ARTEMIS_INSTANCE_ETC\" value=", "\"" + windowsETC + "\"/>",
-                                                       "<env name=\"ARTEMIS_INSTANCE_URI\" value=", "\"file:" + windows + "/\"/>",
                                                        "<env name=\"ARTEMIS_DATA_DIR\" value=", "\"" + windowsData + "\"/>",
                                                        "<startargument>-Dhawtio.roles=", hawtioRoles + "</startargument>"
       );
@@ -212,10 +211,7 @@ public class CompareUpgradeTest {
                                    "set ARTEMIS_HOME=", null, // no expected value for this, we will check on the output
                                    "set ARTEMIS_INSTANCE=", "\"" + windows + "\"",
                                    "set ARTEMIS_DATA_DIR=", "\"" + windowsData + "\"",
-                                   "set ARTEMIS_ETC_DIR=", "\"" + windowsETC + "\"",
-                                   "set ARTEMIS_OOME_DUMP=", "\"" + windows + "/log/oom_dump.hprof\"",
-                                   "set ARTEMIS_INSTANCE_URI=", "\"file:" + windows + "/\"",
-                                   "set ARTEMIS_INSTANCE_ETC_URI=", "\"file:" + windowsETC + "/\"");
+                                   "set ARTEMIS_OOME_DUMP=", "\"" + windows + "/log/oom_dump.hprof\"");
 
       home = brokerProfileResult.get("set ARTEMIS_HOME=");
       assertNotNull(home);
@@ -237,13 +233,9 @@ public class CompareUpgradeTest {
       Map<String, String> utilityProfileResult = checkExpectedValues(utilityProfilePath,
             "set ARTEMIS_HOME=", null, // no expected value for this, we will check on the output
             "set ARTEMIS_INSTANCE=", "\"" + windows + "\"",
-            "set ARTEMIS_DATA_DIR=", "\"" + windowsData + "\"",
-            "set ARTEMIS_ETC_DIR=", "\"" + windowsETC + "\"",
-            "set ARTEMIS_OOME_DUMP=", "\"" + windows + "/log/oom_dump.hprof\"",
-            "set ARTEMIS_INSTANCE_URI=", "\"file:" + windows + "/\"",
-            "set ARTEMIS_INSTANCE_ETC_URI=", "\"file:" + windowsETC + "/\"");
+            "set ARTEMIS_DATA_DIR=", "\"" + windowsData + "\"");
 
-      assertEquals(7, utilityProfileResult.size(), "Unexpected number of results");
+      assertEquals(3, utilityProfileResult.size(), "Unexpected number of results");
 
       utilityProfileResult.forEach((key, value) -> {
          assertEquals(value, brokerProfileResult.get(key), "Unexpected difference between profile values for key: " + key);
@@ -264,10 +256,7 @@ public class CompareUpgradeTest {
                                                        "ARTEMIS_HOME=", null, // no expected value, will check on result
                                                        "ARTEMIS_INSTANCE=", "'" + instanceDir + "'",
                                                        "ARTEMIS_DATA_DIR=", "'" + data + "'",
-                                                       "ARTEMIS_ETC_DIR=", "'" + etc + "'",
-                                                       "ARTEMIS_OOME_DUMP=", "'" + instanceDir + "/log/oom_dump.hprof'",
-                                                       "ARTEMIS_INSTANCE_URI=", "'file:" + instanceDir + "/'",
-                                                       "ARTEMIS_INSTANCE_ETC_URI=", "'file:" + etc + "/'");
+                                                       "ARTEMIS_OOME_DUMP=", "'" + instanceDir + "/log/oom_dump.hprof'");
 
       String home = brokerProfileResult.get("ARTEMIS_HOME=");
       assertNotNull(home);
@@ -286,13 +275,9 @@ public class CompareUpgradeTest {
       Map<String, String> utilityProfileResult = checkExpectedValues(utilityProfilePath,
             "ARTEMIS_HOME=", null, // no expected value, will check on result
             "ARTEMIS_INSTANCE=", "'" + instanceDir + "'",
-            "ARTEMIS_DATA_DIR=", "'" + data + "'",
-            "ARTEMIS_ETC_DIR=", "'" + etc + "'",
-            "ARTEMIS_OOME_DUMP=", "'" + instanceDir + "/log/oom_dump.hprof'",
-            "ARTEMIS_INSTANCE_URI=", "'file:" + instanceDir + "/'",
-            "ARTEMIS_INSTANCE_ETC_URI=", "'file:" + etc + "/'");
+            "ARTEMIS_DATA_DIR=", "'" + data + "'");
 
-      assertEquals(7, utilityProfileResult.size(), "Unexpected number of results");
+      assertEquals(3, utilityProfileResult.size(), "Unexpected number of results");
 
       utilityProfileResult.forEach((key, value) -> {
          assertEquals(value, brokerProfileResult.get(key), "Unexpected difference between profile values for key: " + key);

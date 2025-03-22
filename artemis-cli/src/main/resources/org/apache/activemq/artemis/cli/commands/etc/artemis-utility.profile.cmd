@@ -19,17 +19,8 @@ rem under the License.
 set ARTEMIS_HOME="${artemis.home}"
 set ARTEMIS_INSTANCE="@artemis.instance@"
 set ARTEMIS_DATA_DIR="${artemis.instance.data}"
-set ARTEMIS_ETC_DIR="${artemis.instance.etc}"
-set ARTEMIS_OOME_DUMP="${artemis.instance.oome.dump}"
 
-
-rem The logging config will need an URI
-rem this will be encoded in case you use spaces or special characters
-rem on your directory structure
-set ARTEMIS_INSTANCE_URI="${artemis.instance.uri.windows}"
-set ARTEMIS_INSTANCE_ETC_URI="${artemis.instance.etc.uri.windows}"
-
-IF "%LOGGING_ARGS%"=="" (set LOGGING_ARGS=-Dlog4j2.configurationFile=%ARTEMIS_INSTANCE_ETC_URI%log4j2-utility.properties)
+IF "%LOGGING_ARGS%"=="" (set LOGGING_ARGS=-Dlog4j2.configurationFile=log4j2-utility.properties)
 
 IF "%JAVA_ARGS%"=="" (set JAVA_ARGS=-Dlog4j2.disableJmx=true --add-opens java.base/jdk.internal.misc=ALL-UNNAMED ${java-utility-opts})
 

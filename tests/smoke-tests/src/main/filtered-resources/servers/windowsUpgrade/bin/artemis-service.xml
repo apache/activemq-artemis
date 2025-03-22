@@ -35,7 +35,7 @@
    <executable>%JAVA_HOME%\bin\java.exe</executable>
    <startargument>-XX:+UseParallelGC</startargument>
    <startargument>-Xms512M</startargument>
-   <startargument>-Xmx1024M</startargument>
+   <startargument>-Xmx1G</startargument>
 
    <!-- Cluster Properties: Used to pass startarguments to ActiveMQ Artemis which can be referenced in broker.xml
    <startargument>-Dartemis.remoting.default.port=61617</startargument>

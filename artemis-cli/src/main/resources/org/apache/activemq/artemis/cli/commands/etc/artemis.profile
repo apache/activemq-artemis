@@ -18,14 +18,7 @@
 ARTEMIS_HOME='${artemis.home}'
 ARTEMIS_INSTANCE='@artemis.instance@'
 ARTEMIS_DATA_DIR='${artemis.instance.data}'
-ARTEMIS_ETC_DIR='${artemis.instance.etc}'
 ARTEMIS_OOME_DUMP='${artemis.instance.oome.dump}'
-
-# The logging config will need an URI
-# this will be encoded in case you use spaces or special characters
-# on your directory structure
-ARTEMIS_INSTANCE_URI='${artemis.instance.uri}'
-ARTEMIS_INSTANCE_ETC_URI='${artemis.instance.etc.uri}'
 
 # Cluster Properties: Used to pass arguments to ActiveMQ Artemis which can be referenced in broker.xml
 #ARTEMIS_CLUSTER_PROPS="-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446"
@@ -37,7 +30,7 @@ HAWTIO_ROLES='${role}'
 
 # Java Opts
 if [ -z "$JAVA_ARGS" ]; then
-    JAVA_ARGS="-XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx${java-memory} -Dhawtio.disableProxy=true -Dhawtio.realm=activemq -Dhawtio.offline=true -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Dhawtio.http.strictTransportSecurity=max-age=31536000;includeSubDomains;preload -Djolokia.policyLocation=${ARTEMIS_INSTANCE_ETC_URI}jolokia-access.xml -Dlog4j2.disableJmx=true --add-opens java.base/jdk.internal.misc=ALL-UNNAMED ${java-opts}"
+    JAVA_ARGS="-XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx${java-memory} -Dhawtio.disableProxy=true -Dhawtio.realm=activemq -Dhawtio.offline=true -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Dhawtio.http.strictTransportSecurity=max-age=31536000;includeSubDomains;preload -Djolokia.policyLocation=classpath:jolokia-access.xml -Dlog4j2.disableJmx=true --add-opens java.base/jdk.internal.misc=ALL-UNNAMED ${java-opts}"
 fi
 
 # Uncomment to enable logging for Safepoint JVM pauses

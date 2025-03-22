@@ -25,17 +25,15 @@
    <env name="ARTEMIS_HOME" value="${artemis.home}"/>
    <env name="ARTEMIS_INSTANCE" value="@artemis.instance@"/>
    <env name="ARTEMIS_INSTANCE_ETC" value="${artemis.instance.etc}"/>
-   <env name="ARTEMIS_INSTANCE_URI" value="${artemis.instance.uri}"/>
-   <env name="ARTEMIS_INSTANCE_ETC_URI" value="${artemis.instance.etc.uri}"/>
    <env name="ARTEMIS_DATA_DIR" value="${artemis.instance.data}"/>
 
    <logpath>@artemis.instance@\log</logpath>
    <logmode>roll</logmode>
 
    <executable>%JAVA_HOME%\bin\java.exe</executable>
-   <startargument>-XX:+UseParallelGC</startargument>
+   <startargument>-XX:+UseG1GC</startargument>
    <startargument>-Xms512M</startargument>
-   <startargument>-Xmx1024M</startargument>
+   <startargument>-Xmx${java-memory}</startargument>
 
    <!-- Cluster Properties: Used to pass startarguments to ActiveMQ Artemis which can be referenced in broker.xml
    <startargument>-Dartemis.remoting.default.port=61617</startargument>
@@ -56,7 +54,7 @@
    <startargument>-Dhawtio.offline="true"</startargument>
    <startargument>-Dhawtio.roles=${role}</startargument>
    <startargument>-Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal</startargument>
-   <startargument>-Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%/jolokia-access.xml</startargument>
+   <startargument>-Djolokia.policyLocation=classpath:jolokia-access.xml</startargument>
 
    <!-- Debug args: Uncomment to enable debug
    <startargument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005</startargument>
@@ -67,9 +65,6 @@
    <startargument>run</startargument>
 
    <stopexecutable>%JAVA_HOME%\bin\java.exe</stopexecutable>
-   <stopargument>-XX:+UseParallelGC</stopargument>
-   <stopargument>-Xms512M</stopargument>
-   <stopargument>-Xmx1024M</stopargument>
 
    <stopargument>-classpath</stopargument>
    <stopargument>%ARTEMIS_HOME%\lib\artemis-boot.jar</stopargument>

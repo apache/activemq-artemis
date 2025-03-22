@@ -20,19 +20,12 @@
 ARTEMIS_HOME='/opt/activemq-artemis'
 ARTEMIS_INSTANCE='/var/lib/artemis-instance'
 ARTEMIS_DATA_DIR='/var/lib/artemis-instance/data'
-ARTEMIS_ETC_DIR='/var/lib/artemis-instance/etc'
 ARTEMIS_OOME_DUMP='/var/lib/artemis-instance/log/oom_dump.hprof'
-
-# The logging config will need an URI
-# this will be encoded in case you use spaces or special characters
-# on your directory structure
-ARTEMIS_INSTANCE_URI='file:/var/lib/artemis-instance/./'
-ARTEMIS_INSTANCE_ETC_URI='file:/var/lib/artemis-instance/./etc/'
 
 # Hawtio Properties
 HAWTIO_ROLE='amq'
 
 # Java Opts
 if [ -z "$JAVA_ARGS" ]; then
-    JAVA_ARGS="-XX:+PrintClassHistogram -XX:+UseG1GC -XX:+UseStringDeduplication -Xms128M -Xmx512M -Dhawtio.disableProxy=true -Dhawtio.realm=activemq -Dhawtio.offline=true -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=${ARTEMIS_INSTANCE_ETC_URI}jolokia-access.xml -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.rmi.port=1099 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+    JAVA_ARGS="-XX:+PrintClassHistogram -XX:+UseG1GC -XX:+UseStringDeduplication -Xms128M -Xmx512M -Dhawtio.disableProxy=true -Dhawtio.realm=activemq -Dhawtio.offline=true -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=classpath:jolokia-access.xml -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.rmi.port=1099 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
 fi
