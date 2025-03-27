@@ -2544,14 +2544,14 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
 
          target.waitForScriptToComplete(5, TimeUnit.SECONDS);
          // broker should create a new receiver that extends the federation receiver to this "broker"
-         // but because this is a federation of a federation the priority should drop by an additional
-         // increment as we apply the adjustment on each step
+         // but because this is a federation of a federation the priority should remain unchanged from
+         // what the source broker requested when creating the initial consumer.
          target.expectAttach().ofReceiver().withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
                                            .withName(allOf(containsString(getTestName()),
                                                            containsString("test::test"),
                                                            containsString("queue-receiver"),
                                                            containsString(server.getNodeID().toString())))
-                                           .withProperty(FEDERATION_RECEIVER_PRIORITY.toString(), DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT - 1).respond()
+                                           .withProperty(FEDERATION_RECEIVER_PRIORITY.toString(), DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT).respond()
                                            .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString());
          // Should get a flow but if the link goes away quick enough the broker won't get to this before detaching.
          target.expectFlow().withLinkCredit(1000).optional();
@@ -4819,6 +4819,104 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          }
 
          peer.close();
+      }
+   }
+
+   @Test
+   public void testOverlappingPolicyTargetsRetainDemandTrackingState() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSenderSettleModeSettled()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         // Ensure that policies that overlap on the same queue don't break the tracking of federation
+         // consumers for the other policy if they store state data in consumer attachments. We want the
+         // state data to not match between these two so that one could trip up the close event processing
+         // of the other if that was indeed broken.
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue1 = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue1.setName("first");
+         receiveFromQueue1.addToIncludes("#", getTestName());
+         receiveFromQueue1.addProperty(IGNORE_QUEUE_CONSUMER_FILTERS, Boolean.TRUE.toString());
+         receiveFromQueue1.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 10); // Stagger final drain to make frames predictable
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue2 = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue2.setName("second");
+         receiveFromQueue2.addToIncludes("#", getTestName());
+         receiveFromQueue2.addProperty(IGNORE_QUEUE_CONSUMER_FILTERS, Boolean.FALSE.toString());
+         receiveFromQueue2.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 20); // Stagger final drain to make frames predictable
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalQueuePolicy(receiveFromQueue1);
+         element.addLocalQueuePolicy(receiveFromQueue2);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.ANYCAST)
+                                                                .setAddress("test")
+                                                                .setAutoCreated(false));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("test::" + getTestName()),
+                                            containsString(server.getNodeID().toString())))
+                            .withProperty(FEDERATION_RECEIVER_PRIORITY.toString(), DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT)
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString());
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("test::" + getTestName()),
+                                            containsString(server.getNodeID().toString())))
+                            .withProperty(FEDERATION_RECEIVER_PRIORITY.toString(), DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT)
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_QUEUE_RECEIVER.toString());
+         peer.expectFlow().withLinkCredit(1000);
+         peer.expectFlow().withLinkCredit(1000);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageConsumer consumer = session.createConsumer(session.createQueue(getTestName()), "color='red' OR color = 'blue'");
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true).afterDelay(2);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true).afterDelay(2);
+
+            peer.expectDetach().respond();
+            peer.expectDetach().respond();
+
+            consumer.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.close();
+         }
       }
    }
 

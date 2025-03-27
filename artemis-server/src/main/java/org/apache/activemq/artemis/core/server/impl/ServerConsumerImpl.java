@@ -21,9 +21,11 @@ import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
@@ -162,6 +164,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    private boolean anycast = false;
 
    private boolean isClosed = false;
+
+   private Map<String, Object> attachments;
 
    @Override
    public boolean isClosed() {
@@ -638,6 +642,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          callback = null;
 
          session = null;
+
+         attachments = null;
       });
 
    }
@@ -1607,6 +1613,36 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    public SessionCallback getCallback() {
       return callback;
+   }
+
+   @Override
+   public synchronized void addAttachment(String key, Object attachment) {
+      if (attachments == null) {
+         attachments = new HashMap<>();
+      }
+
+      attachments.put(key, attachment);
+   }
+
+   @Override
+   public synchronized void removeAttachment(String key) {
+      if (attachments != null) {
+         attachments.remove(key);
+      }
+   }
+
+   @Override
+   public synchronized Object getAttachment(String key) {
+      if (attachments != null) {
+         return attachments.get(key);
+      } else {
+         return null;
+      }
+   }
+
+   @Override
+   public synchronized Map<String, Object> getAttachments() {
+      return attachments != null ? Collections.unmodifiableMap(attachments) : Collections.emptyMap();
    }
 
    static class ServerConsumerMetrics extends TransactionOperationAbstract {

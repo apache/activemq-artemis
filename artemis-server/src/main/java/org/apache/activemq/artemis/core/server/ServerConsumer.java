@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -108,4 +109,43 @@ public interface ServerConsumer extends Consumer, ConsumerInfo {
     * @param transaction the tx
     */
    void metricsAcknowledge(MessageReference ref, Transaction transaction);
+
+   /**
+    * Adds the given attachment to the {@link ServerConsumer} which will overwrite any previously
+    * assigned value with the same key.
+    *
+    * @param key
+    *    The key used to identify the attachment.
+    * @param attachment
+    *    The actual value to store for the assigned key.
+    */
+   void addAttachment(String key, Object attachment);
+
+   /**
+    * Remove the any attachment entry from the {@link ServerConsumer} clearing any previously assigned value
+    *
+    * @param key
+    *    The key used to identify the attachment.
+    */
+   void removeAttachment(String key);
+
+   /**
+    * Gets any attachment that has been assigned to this {@link ServerConsumer} using the provided key.
+    * If no value was assigned a null is returned.
+    *
+    * @param key
+    *    The key identifying the target attachment.
+    *
+    * @return the assigned value associated with the given key or null if nothing assigned.
+    */
+   Object getAttachment(String key);
+
+   /**
+    * Provides access to the full {@link Map} of consumer attachments in an unmodifiable {@link Map} instance.
+    * If no attachments are assigned to the consumer an empty {@link Map} instance is returned, never null.
+    *
+    * @return an unmodifiable {@link Map} that carries all consumer attachments.
+    */
+   Map<String, Object> getAttachments();
+
 }

@@ -23,15 +23,13 @@ import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Predicate;
+import java.util.UUID;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.filter.Filter;
-import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -52,9 +50,15 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   protected final Predicate<ServerConsumer> federationConsumerMatcher;
    protected final FederationReceiveFromQueuePolicy policy;
    protected final Map<FederationConsumerInfo, AMQPFederationQueueConsumerManager> federationConsumers = new HashMap<>();
+
+   /*
+    * Unique for the lifetime of this policy manager which is either the lifetime of the broker or until the
+    * configuration is reloaded and this federation instance happens to be updated but not removed in which
+    * case the full federation instance is shutdown and then removed and re-added as if it was new.
+    */
+   private final String CONSUMER_INFO_ATTACHMENT_KEY = UUID.randomUUID().toString();
 
    public AMQPFederationQueuePolicyManager(AMQPFederation federation, AMQPFederationMetrics metrics, FederationReceiveFromQueuePolicy queuePolicy) throws ActiveMQException {
       super(federation, metrics, queuePolicy);
@@ -62,7 +66,6 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
       Objects.requireNonNull(queuePolicy, "The Queue match policy cannot be null");
 
       this.policy = queuePolicy;
-      this.federationConsumerMatcher = createFederationConsumerMatcher(server, queuePolicy);
    }
 
    /**
@@ -100,12 +103,12 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
    @Override
    public synchronized void afterCloseConsumer(ServerConsumer consumer, boolean failed) {
       if (isActive()) {
-         final FederationConsumerInfo consumerInfo = createConsumerInfo(consumer);
-         final AMQPFederationQueueConsumerManager entry = federationConsumers.get(consumerInfo);
+         final FederationConsumerInfo consumerInfo = (FederationConsumerInfo) consumer.getAttachment(CONSUMER_INFO_ATTACHMENT_KEY);
 
-         if (entry != null) {
+         if (consumerInfo != null && federationConsumers.containsKey(consumerInfo)) {
+            final AMQPFederationQueueConsumerManager entry = federationConsumers.get(consumerInfo);
             logger.trace("Reducing demand on federated queue {}", entry.getQueueName());
-            entry.removeDemand(identifyConsumer(consumer));
+            entry.removeDemand(consumer);
          }
       }
    }
@@ -156,17 +159,19 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
       final String queueName = consumer.getQueue().getName().toString();
 
       if (testIfQueueMatchesPolicy(consumer.getQueueAddress().toString(), queueName)) {
+         final boolean federationConsumer = isFederationConsumer(consumer);
+
          // We should ignore federation consumers from remote peers but configuration does allow
          // these to be federated again for some very specific use cases so we check before then
          // moving onto any server plugin checks kick in.
-         if (federationConsumerMatcher.test(consumer)) {
+         if (federationConsumer && !policy.isIncludeFederated()) {
             return;
          }
 
          logger.trace("Federation Policy matched on consumer for binding: {}", consumer.getBinding());
 
          final AMQPFederationQueueConsumerManager entry;
-         final FederationConsumerInfo consumerInfo = createConsumerInfo(consumer);
+         final FederationConsumerInfo consumerInfo = createConsumerInfo(consumer, federationConsumer);
 
          // Check for existing consumer add demand from a additional local consumer to ensure
          // the remote consumer remains active until all local demand is withdrawn.
@@ -174,13 +179,13 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
             logger.trace("Federation Queue Policy manager found existing demand for queue: {}, adding demand", queueName);
             entry = federationConsumers.get(consumerInfo);
          } else {
-            federationConsumers.put(consumerInfo, entry = new AMQPFederationQueueConsumerManager(this, consumerInfo, consumer.getQueue()));
+            federationConsumers.put(consumerInfo, entry = new AMQPFederationQueueConsumerManager(this, CONSUMER_INFO_ATTACHMENT_KEY, consumerInfo, consumer.getQueue()));
          }
 
          // Demand passed all binding plugin blocking checks so we track it, plugin can still
          // stop federation of the queue based on some external criteria but once it does
          // (if ever) allow it we will have tracked all allowed demand.
-         entry.addDemand(identifyConsumer(consumer));
+         entry.addDemand(consumer);
       }
    }
 
@@ -190,6 +195,7 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
     *
     * @param addressName The address that was added on the remote.
     * @param queueName   The queue that was added on the remote.
+    *
     * @throws Exception if an error occurs while processing the queue added event.
     */
    public synchronized void afterRemoteQueueAdded(String addressName, String queueName) throws Exception {
@@ -219,6 +225,7 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
     *
     * @param address   The address that is being tested for a policy match.
     * @param queueName The name of the queue that is being tested for a policy match.
+    *
     * @return {@code true} if the address given is a match against the policy
     */
    private boolean testIfQueueMatchesPolicy(String address, String queueName) {
@@ -231,6 +238,7 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
     * configured matching policy.
     *
     * @param queueName The name of the queue that is being tested for a policy match.
+    *
     * @return {@code true} if the address given is a match against the policy
     */
    private boolean testIfQueueMatchesPolicy(String queueName) {
@@ -239,23 +247,20 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
 
    /**
     * Create a new {@link FederationConsumerInfo} based on the given {@link ServerConsumer} and the configured
-    * {@link FederationReceiveFromQueuePolicy}. A subclass must override this method to return a consumer information
-    * object with additional data used be that implementation.
+    * {@link FederationReceiveFromQueuePolicy}. This should only be called once when a consumer is added and
+    * we begin tracking it as demand on a federated queue.
     *
     * @param consumer The {@link ServerConsumer} to use as a basis for the consumer information object.
+    * @param federationConsumer Is the consumer one that was created by a remote federation controller
+    *
     * @return a new {@link FederationConsumerInfo} instance based on the server consumer
     */
-   private FederationConsumerInfo createConsumerInfo(ServerConsumer consumer) {
+   private FederationConsumerInfo createConsumerInfo(ServerConsumer consumer, boolean federationConsumer) {
       final Queue queue = consumer.getQueue();
       final String queueName = queue.getName().toString();
       final String address = queue.getAddress().toString();
-
-      final int priority = configuration.isIgnoreSubscriptionPriorities() ?
-         ActiveMQDefaultConfiguration.getDefaultConsumerPriority() + policy.getPriorityAjustment() :
-         consumer.getPriority() + policy.getPriorityAjustment();
-
-      final String filterString =
-         selectFilter(queue.getFilter(), configuration.isIgnoreSubscriptionFilters() ? null : consumer.getFilter());
+      final int priority = selectPriority(consumer, federationConsumer);
+      final String filterString = selectFilter(consumer);
 
       return new AMQPFederationGenericConsumerInfo(Role.QUEUE_CONSUMER,
                                                    address,
@@ -264,6 +269,57 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
                                                    filterString,
                                                    CompositeAddress.toFullyQualified(address, queueName),
                                                    priority);
+   }
+
+   private String selectFilter(ServerConsumer consumer) {
+      final Filter consumerFilter;
+      final Filter queueFilter = consumer.getQueue().getFilter();
+
+      if (!configuration.isIgnoreSubscriptionFilters()) {
+         consumerFilter = consumer.getFilter();
+      } else {
+         consumerFilter = null;
+      }
+
+      if (consumerFilter != null) {
+         return consumerFilter.getFilterString().toString();
+      } else if (queueFilter != null) {
+         return queueFilter.getFilterString().toString();
+      } else {
+         return null;
+      }
+   }
+
+   private int selectPriority(ServerConsumer consumer, boolean federationConsumer) {
+      // Use the priority from the federation consumer as indicated and only choose values for
+      // non-federation consumers to help avoid an infinite descending priority loop when the
+      // federation consumers are included and the configured brokers loop or are bi-directional.
+      if (federationConsumer) {
+         return consumer.getPriority();
+      } else if (configuration.isIgnoreSubscriptionPriorities()) {
+         return ActiveMQDefaultConfiguration.getDefaultConsumerPriority() + policy.getPriorityAjustment();
+      } else {
+         return consumer.getPriority() + policy.getPriorityAjustment();
+      }
+   }
+
+   /*
+    * This method matches on the same criteria as the original Core client based Federation code which
+    * allows this implementation to see those consumers as well as its own which in this methods
+    * implementation must also use this same mechanism to mark federation resources.
+    */
+   private boolean isFederationConsumer(ServerConsumer consumer) {
+      final ServerSession serverSession = server.getSessionByID(consumer.getSessionID());
+
+      // Care must be taken to only check this on consumer added and not on other consumer removed
+      // events as the session can be removed before those events are triggered and this will falsely
+      // indicate that the consumer is not a federation consumer. This check works for both AMQP and
+      // Core federation consumers.
+      if (serverSession != null && serverSession.getMetaData() != null) {
+         return serverSession.getMetaData(FEDERATION_NAME) != null;
+      } else {
+         return false;
+      }
    }
 
    @Override
@@ -279,65 +335,20 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
       return new AMQPFederationQueueConsumer(this, configuration, session, consumerInfo, metrics.newConsumerMetrics());
    }
 
-   /**
-    * Creates a {@link Predicate} that should return true if the given consumer is a federation created consumer which
-    * should not be further federated.
-    *
-    * @param server The server instance for use in creating the filtering {@link Predicate}.
-    * @param policy The configured Queue matching policy that can provide additional match criteria.
-    * @return a {@link Predicate} that will return true if the consumer should be filtered
-    * @throws ActiveMQException if an error occurs while creating the new consumer filter.
-    */
-   private Predicate<ServerConsumer> createFederationConsumerMatcher(ActiveMQServer server, FederationReceiveFromQueuePolicy policy) throws ActiveMQException {
-      if (policy.isIncludeFederated()) {
-         return (consumer) -> false; // Configuration says to federate these
-      } else {
-         // This filter matches on the same criteria as the original Core client based
-         // Federation code which allows this implementation to see those consumers as
-         // well as its own which in this methods implementation must also use this same
-         // mechanism to mark federation resources.
-
-         final Filter metaDataMatcher =
-            FilterImpl.createFilter("\"" + FEDERATION_NAME + "\" IS NOT NULL");
-
-         return (consumer) -> {
-            final ServerSession serverSession = server.getSessionByID(consumer.getSessionID());
-
-            if (serverSession != null && serverSession.getMetaData() != null) {
-               return metaDataMatcher.match(serverSession.getMetaData());
-            } else {
-               return false;
-            }
-         };
-      }
-   }
-
-   private static String identifyConsumer(ServerConsumer consumer) {
-      return consumer.getConnectionID().toString() + ":" +
-             consumer.getSessionID() + ":" +
-             consumer.getID();
-   }
-
-   private static String selectFilter(Filter queueFilter, Filter consumerFilter) {
-      if (consumerFilter != null) {
-         return consumerFilter.getFilterString().toString();
-      } else {
-         return queueFilter != null ? queueFilter.getFilterString().toString() : null;
-      }
-   }
-
-   private static class AMQPFederationQueueConsumerManager extends AMQPFederationConsumerManager {
+   private static class AMQPFederationQueueConsumerManager extends AMQPFederationConsumerManager<ServerConsumer> {
 
       private final AMQPFederationQueuePolicyManager manager;
       private final Queue queue;
       private final FederationConsumerInfo consumerInfo;
+      private final String policyInfoKey;
 
-      AMQPFederationQueueConsumerManager(AMQPFederationQueuePolicyManager manager, FederationConsumerInfo consumerInfo, Queue queue) {
+      AMQPFederationQueueConsumerManager(AMQPFederationQueuePolicyManager manager, String policyInfoKey, FederationConsumerInfo consumerInfo, Queue queue) {
          super(manager);
 
          this.manager = manager;
          this.queue = queue;
          this.consumerInfo = consumerInfo;
+         this.policyInfoKey = policyInfoKey;
       }
 
       /**
@@ -355,6 +366,18 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
       @Override
       protected boolean isPluginBlockingFederationConsumerCreate() {
          return manager.isPluginBlockingFederationConsumerCreate(queue);
+      }
+
+      @Override
+      protected void whenDemandTrackingEntryRemoved(ServerConsumer consumer) {
+         consumer.removeAttachment(policyInfoKey);
+      }
+
+      @Override
+      protected void whenDemandTrackingEntryAdded(ServerConsumer consumer) {
+         // Attach the consumer info to the server consumer for later use on consumer close or other
+         // operations that need to retrieve the data used to create the federation consumer identity.
+         consumer.addAttachment(policyInfoKey, consumerInfo);
       }
    }
 }
