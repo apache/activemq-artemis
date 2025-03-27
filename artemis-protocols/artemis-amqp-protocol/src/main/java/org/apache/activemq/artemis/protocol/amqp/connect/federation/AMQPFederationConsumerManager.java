@@ -32,8 +32,10 @@ import org.slf4j.LoggerFactory;
  * <p>
  * All interactions with the consumer tracking entry should occur under the lock of the parent manager instance and this
  * manager will perform any asynchronous work with a lock held on the parent manager instance.
+ *
+ * @param <E> The type used in the demand tracking collection.
  */
-public abstract class AMQPFederationConsumerManager {
+public abstract class AMQPFederationConsumerManager<E> {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -48,7 +50,7 @@ public abstract class AMQPFederationConsumerManager {
 
    private final AMQPFederation federation;
    private final AMQPFederationLocalPolicyManager manager;
-   private final Set<Object> demandTracking = new HashSet<>();
+   private final Set<E> demandTracking = new HashSet<>();
 
    private State state = State.READY;
    private AMQPFederationConsumer consumer;
@@ -94,6 +96,14 @@ public abstract class AMQPFederationConsumerManager {
          } finally {
             consumer = null;
 
+            demandTracking.forEach(entry -> {
+               try {
+                  whenDemandTrackingEntryRemoved(entry);
+               } catch (Exception ignore) {
+               }
+            });
+            demandTracking.clear();
+
             // Stop handler in closed state won't schedule idle timeout, ensure
             // any pending task is canceled just for proper cleanup purposes.
             if (pendingIdleTimeout != null) {
@@ -135,10 +145,12 @@ public abstract class AMQPFederationConsumerManager {
     *
     * @param demand A new unit of demand to add to this consumer manager.
     */
-   public void addDemand(Object demand) {
+   public void addDemand(E demand) {
       checkClosed();
 
-      demandTracking.add(demand);
+      if (demandTracking.add(demand)) {
+         whenDemandTrackingEntryAdded(demand);
+      }
 
       // This will create a new consumer only if there isn't one currently assigned to this entry and any configured
       // federation plugins don't block it from doing so. An already stopping consumer will check on stop if it should
@@ -159,10 +171,12 @@ public abstract class AMQPFederationConsumerManager {
     *
     * @param demand The element of demand that should be removed from tracking.
     */
-   public void removeDemand(Object demand) {
+   public void removeDemand(E demand) {
       checkClosed();
 
-      demandTracking.remove(demand);
+      if (demandTracking.remove(demand)) {
+         whenDemandTrackingEntryRemoved(demand);
+      }
 
       if (hasDemand() || state == State.READY) {
          return;
@@ -371,6 +385,22 @@ public abstract class AMQPFederationConsumerManager {
          throw new IllegalStateException("The federated consumer has been closed already");
       }
    }
+
+   /**
+    * An event point that a subclass can use to perform an initialization action whenever an entry is added to
+    * demand tracking.
+    *
+    * @param entry The entry that is being added to demand tracking.
+    */
+   protected abstract void whenDemandTrackingEntryAdded(E entry);
+
+   /**
+    * An event point that a subclass can use to perform a cleanup action whenever an entry is removed from
+    * demand tracking.
+    *
+    * @param entry The entry that is being removed from demand tracking.
+    */
+   protected abstract void whenDemandTrackingEntryRemoved(E entry);
 
    /**
     * Creates a new federation consumer that this manager will monitor and maintain. The returned consumer should be in

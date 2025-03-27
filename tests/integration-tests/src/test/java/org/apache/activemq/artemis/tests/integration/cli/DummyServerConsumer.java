@@ -16,7 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.cli;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -327,5 +329,25 @@ public class DummyServerConsumer implements ServerConsumer {
    @Override
    public int getMessagesAcknowledgedAwaitingCommit() {
       return 0;
+   }
+
+   @Override
+   public void addAttachment(String key, Object attachment) {
+
+   }
+
+   @Override
+   public Object getAttachment(String key) {
+      return null;
+   }
+
+   @Override
+   public Map<String, Object> getAttachments() {
+      return Collections.emptyMap();
+   }
+
+   @Override
+   public void removeAttachment(String key) {
+
    }
 }

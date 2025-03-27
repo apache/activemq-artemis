@@ -93,7 +93,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
    @Override
    public synchronized void afterRemoveAddress(SimpleString address, AddressInfo addressInfo) throws ActiveMQException {
       if (isActive()) {
-         final AMQPFederationConsumerManager entry = federationConsumers.remove(address.toString());
+         final AMQPFederationAddressConsumerManager entry = federationConsumers.remove(address.toString());
 
          if (entry != null) {
             logger.trace("Federated address {} was removed, closing federation consumer", address);
@@ -357,7 +357,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       // current demand and don't need to re-check the server state before trying to create the
       // remote address consumer.
       if (isActive() && testIfAddressMatchesPolicy(addressName, RoutingType.MULTICAST)) {
-         final AMQPFederationConsumerManager entry = federationConsumers.get(addressName);
+         final AMQPFederationAddressConsumerManager entry = federationConsumers.get(addressName);
 
          if (entry != null) {
             entry.recover();
@@ -451,7 +451,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       return false;
    }
 
-   private static class AMQPFederationAddressConsumerManager extends AMQPFederationConsumerManager {
+   private static class AMQPFederationAddressConsumerManager extends AMQPFederationConsumerManager<Binding> {
 
       private final AMQPFederationAddressPolicyManager manager;
       private final AddressInfo addressInfo;
@@ -485,6 +485,16 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       @Override
       protected boolean isPluginBlockingFederationConsumerCreate() {
          return manager.isPluginBlockingFederationConsumerCreate(addressInfo);
+      }
+
+      @Override
+      protected void whenDemandTrackingEntryAdded(Binding entry) {
+         // No current action needed
+      }
+
+      @Override
+      protected void whenDemandTrackingEntryRemoved(Binding entry) {
+         // No current action needed
       }
    }
 }
