@@ -32,6 +32,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -104,6 +105,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import static java.net.http.HttpClient.Version.HTTP_2;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -357,6 +359,43 @@ public class WebServerComponentTest extends ArtemisTestCase {
       assertTrue(webServerComponent.isStarted());
       webServerComponent.stop(true);
       assertFalse(webServerComponent.isStarted());
+   }
+
+   @Test
+   public void testHttp2() throws Exception {
+      WebServerComponent webServerComponent = startSimpleSecureServer(null, null);
+      final int port = webServerComponent.getPort();
+
+      SSLContext context = new SSLSupport()
+         .setKeystorePath(KEY_STORE_PATH)
+         .setKeystorePassword(KEY_STORE_PASSWORD)
+         .setTruststorePath(KEY_STORE_PATH)
+         .setTruststorePassword(KEY_STORE_PASSWORD)
+         .createContext();
+
+      HttpClient client = HttpClient.newBuilder()
+         .version(HTTP_2)
+         .sslContext(context)
+         .build();
+
+      java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+         .uri(new URI("https://localhost:" + port + "/WebServerComponentTest.txt"))
+         .GET()
+         .build();
+
+      java.net.http.HttpResponse<String> response = null;
+      try {
+         response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+      } finally {
+         assertTrue(webServerComponent.isStarted());
+         webServerComponent.stop(true);
+         assertFalse(webServerComponent.isStarted());
+      }
+
+      assertNotNull(response);
+      assertEquals(HTTP_2, response.version());
+      assertEquals(200, response.statusCode());
+      assertEquals("12345", response.body());
    }
 
    @Test
