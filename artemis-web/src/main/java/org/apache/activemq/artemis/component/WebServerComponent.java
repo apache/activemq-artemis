@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.component;
 
-import jakarta.servlet.DispatcherType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.ServletRequestEvent;
@@ -50,9 +50,12 @@ import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.marker.WebServerComponentMarker;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.PemConfigUtil;
+import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.ee9.security.DefaultAuthenticatorFactory;
 import org.eclipse.jetty.ee9.servlet.FilterHolder;
 import org.eclipse.jetty.ee9.webapp.WebAppContext;
+import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Handler;
@@ -309,8 +312,6 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
             addStoreResourceScannerTask(binding.getTrustStorePath(), binding.getTrustStoreType(), sslFactory);
          }
 
-         SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, "HTTP/1.1");
-
          SecureRequestCustomizer secureRequestCustomizer = new SecureRequestCustomizer();
          secureRequestCustomizer.setSniHostCheck(binding.getSniHostCheck() != null ? binding.getSniHostCheck() : DEFAULT_SNI_HOST_CHECK_VALUE);
          secureRequestCustomizer.setSniRequired(binding.getSniRequired() != null ? binding.getSniRequired() : DEFAULT_SNI_REQUIRED_VALUE);
@@ -318,7 +319,11 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          httpConfiguration.setSendServerVersion(false);
          HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfiguration);
 
-         connector = new ServerConnector(server, sslConnectionFactory, httpFactory);
+         HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpConfiguration);
+         ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
+         alpn.setDefaultProtocol(HttpVersion.HTTP_1_1.asString());
+         SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, alpn.getProtocol());
+         connector = new ServerConnector(server, sslConnectionFactory, alpn, h2, httpFactory);
       } else {
          httpConfiguration.setSendServerVersion(false);
          ConnectionFactory connectionFactory = new HttpConnectionFactory(httpConfiguration);
