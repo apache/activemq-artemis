@@ -600,13 +600,18 @@ public class ConfigurationImpl implements Configuration, Serializable {
       InsertionOrderedProperties brokerProperties = new InsertionOrderedProperties();
       try (FileReader fileReader = new FileReader(file);
            BufferedReader reader = new BufferedReader(fileReader)) {
-         if (file.getName().endsWith(".json")) {
-            brokerProperties.loadJson(reader);
-         } else {
-            brokerProperties.load(reader);
+         try {
+            if (file.getName().endsWith(".json")) {
+               brokerProperties.loadJson(reader);
+            } else {
+               brokerProperties.load(reader);
+            }
+         } catch (Exception readOrParseError) {
+            logger.debug("Properties config load error on file {}, {}", file.getName(), readOrParseError);
+            updateApplyStatus(file.getName(), Map.of("loadError", readOrParseError.toString()));
+            return;
          }
       }
-
       parsePrefixedProperties(this, file.getName(), brokerProperties, null);
    }
 

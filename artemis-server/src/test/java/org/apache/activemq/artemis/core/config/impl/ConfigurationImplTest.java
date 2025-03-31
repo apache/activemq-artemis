@@ -2077,6 +2077,36 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
    }
 
    @Test
+   public void testInvalidPropertiesReaderFromFile() throws Exception {
+
+      char[] invalidUnicode = {'\\', 'u', '9', '-', '0', 'E'};
+      File tmpFile = File.createTempFile("invalid-props-test", ".properties", temporaryFolder);
+      try (FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
+           PrintWriter printWriter = new PrintWriter(fileOutputStream)) {
+         printWriter.write(invalidUnicode);
+         printWriter.write("\\n");
+      }
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parseProperties(tmpFile.getAbsolutePath());
+
+      assertFalse(configuration.getStatus().contains(".properties\":{\"errors\":[]"), configuration.getStatus());
+
+      assertTrue(configuration.getStatus().contains("IllegalArgumentException"));
+      assertTrue(configuration.getStatus().contains(tmpFile.getName()));
+
+      // update to sane
+      try (FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
+           PrintWriter printWriter = new PrintWriter(fileOutputStream)) {
+         printWriter.write("brokerPropertiesKeySurround=$$");
+      }
+      configuration.parseProperties(tmpFile.getAbsolutePath());
+
+      assertTrue(configuration.getStatus().contains(".properties\":{\"errors\":[]"), configuration.getStatus());
+      assertEquals("$$", configuration.getBrokerPropertiesKeySurround());
+   }
+
+   @Test
    public void testInvalidJsonPropertiesReaderFromFile() throws Exception {
 
       File tmpFile = File.createTempFile("json-props-test", ".json", temporaryFolder);
@@ -2087,11 +2117,20 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
       ConfigurationImpl configuration = new ConfigurationImpl();
 
-      try {
-         configuration.parseProperties(tmpFile.getAbsolutePath());
-         fail("Expected JSON parsing exception.");
-      } catch (Exception e) {
+      configuration.parseProperties(tmpFile.getAbsolutePath());
+      assertFalse(configuration.getStatus().contains(".json\":{\"errors\":[]"), configuration.getStatus());
+
+      assertTrue(configuration.getStatus().contains("JsonParsingException"));
+      assertTrue(configuration.getStatus().contains(tmpFile.getName()));
+
+      // update to sane
+      try (FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
+           PrintWriter printWriter = new PrintWriter(fileOutputStream)) {
+         printWriter.write("{\"brokerPropertiesKeySurround\": \"$$\"}");
       }
+      configuration.parseProperties(tmpFile.getAbsolutePath());
+      assertTrue(configuration.getStatus().contains(".json\":{\"errors\":[]"), configuration.getStatus());
+      assertEquals("$$", configuration.getBrokerPropertiesKeySurround());
    }
 
    private JsonObject buildSimpleConfigJsonObject() {
