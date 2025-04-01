@@ -270,7 +270,7 @@ include::_auto-queue-creation-note.adoc[]
 
 auto-delete-queues::
 Whether or not the broker should automatically delete auto-created queues when they have both 0 consumers and the message count is  less than or equal to `auto-delete-queues-message-count`.
-Default is `true`.
+Default is xref:configuration-index.adoc#regarding-default-values[`true`].
 
 auto-delete-created-queues::
 Whether or not the broker should automatically delete created queues when they have both 0 consumers and the message count is  less than or equal to `auto-delete-queues-message-count`.
@@ -319,7 +319,7 @@ The core API is a low-level API and is not meant to have such automation.
 
 auto-delete-addresses::
 Whether or not the broker should automatically delete auto-created addresses once the address no longer has any queues.
-Default is `true`.
+Default is xref:configuration-index.adoc#regarding-default-values[`true`].
 
 auto-delete-addresses-delay::
 How long to wait (in milliseconds) before deleting auto-created addresses after they no longer have any queues.
