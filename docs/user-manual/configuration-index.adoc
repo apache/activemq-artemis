@@ -129,13 +129,20 @@ This describes the root of the XML configuration.
 You will see here also multiple sub-types listed.
 For example on the main config you will have bridges and at the <<bridge-type,list of bridge>> type we will describe the properties for that configuration.
 
-[WARNING]
-====
-The default values listed below are the values which will be used if the configuration parameter is *not set* either programmatically or via `broker.xml`.
-Some of these values are set in the `broker.xml` which is available out-of-the-box.
-Any values set in the out-of-the-box configuration will override the default values listed here.
-Please consult your specific configuration to know which values will actually be used when the broker is running.
-====
+[[regarding-default-values]]
+.Regarding _default_ Values
+****
+The documentation often refers to the _default_ values.
+This is the value of a configuration attribute if it is *not set* (e.g. programmatically, via XML, etc.).
+
+This is worth noting because a `broker.xml` is generated automatically when a xref:using-server.adoc#creating-a-broker-instance[broker instance is created] and this out-of-the-box `broker.xml` may have configuration values which may differ from and override the default values identified here.
+This is relatively rare, but it normally happens when we've discovered that a default is not actually suitable for most use-cases.
+
+Changing the actual default value cannot be done in a minor release as dictated by https://semver.org/[semantic versioning] so we have to wait for a major release to make such changes.
+However, in the mean-time we can address unsuitable defaults by modifying the generated `broker.xml` which maintains backwards compatibility for existing broker instances while giving new deployments an updated configuration.
+
+In general, it's recommended that you consult your specific configuration to know which values will actually be used when the broker is running.
+****
 
 |===
 | Name | Description | Default
