@@ -2029,9 +2029,10 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       ConfigurationImpl.InsertionOrderedProperties properties =
          new ConfigurationImpl.InsertionOrderedProperties();
 
+      ConfigurationImpl configuration = new ConfigurationImpl();
       JsonObject configJsonObject = buildSimpleConfigJsonObject();
       try (StringReader stringReader = new StringReader(configJsonObject.toString())) {
-         properties.loadJson(stringReader);
+         properties.loadJson(configuration, stringReader);
       }
 
       List<String> keys = new ArrayList<>();
@@ -2074,6 +2075,65 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parseProperties(tmpFile.getAbsolutePath());
 
       testSimpleConfig(configuration);
+   }
+
+   @Test
+   public void testJsonPropertiesKeySurround() throws Exception {
+
+      File tmpFile = File.createTempFile("json-surround-props-test", ".json", temporaryFolder);
+      try (FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
+           PrintWriter printWriter = new PrintWriter(fileOutputStream)) {
+         printWriter.write("{\n" +
+                              "\"key.surround\": \"$$\",\n" +
+                              "\"addressSettings\": {\n" +
+                              "\"$$a.\\\"with_quote\\\".b$$\": {\n" +
+                                 "\"maxDeliveryAttempts\": 0\n" +
+                              "}\n}\n}");
+      }
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parseProperties(tmpFile.getAbsolutePath());
+
+      assertEquals(0, configuration.getAddressSettings().get("a.\"with_quote\".b").getMaxDeliveryAttempts());
+   }
+
+   @Test
+   public void testJsonPropertiesGlobalKeySurround() throws Exception {
+
+      File tmpFile = File.createTempFile("json-global-surround-props-test", ".json", temporaryFolder);
+      try (FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
+           PrintWriter printWriter = new PrintWriter(fileOutputStream)) {
+         printWriter.write("{\n" +
+                              "\"addressSettings\": {\n" +
+                              "\"$$a.\\\"with_quote\\\".b$$\": {\n" +
+                              "\"maxDeliveryAttempts\": 0\n" +
+                              "}\n}\n}");
+      }
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.setBrokerPropertiesKeySurround("$$");
+      configuration.parseProperties(tmpFile.getAbsolutePath());
+
+      assertEquals(0, configuration.getAddressSettings().get("a.\"with_quote\".b").getMaxDeliveryAttempts());
+   }
+
+   @Test
+   public void testJsonPropertiesUserQuoted() throws Exception {
+
+      File tmpFile = File.createTempFile("json-user-quote-props-test", ".json", temporaryFolder);
+      try (FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
+           PrintWriter printWriter = new PrintWriter(fileOutputStream)) {
+         printWriter.write("{\n" +
+                              "\"addressSettings\": {\n" +
+                              "\"a.b.c\": {\n" +
+                              "\"maxDeliveryAttempts\": 2\n" +
+                              "}\n}\n}");
+      }
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parseProperties(tmpFile.getAbsolutePath());
+
+      assertEquals(2, configuration.getAddressSettings().get("a.b.c").getMaxDeliveryAttempts());
    }
 
    @Test
