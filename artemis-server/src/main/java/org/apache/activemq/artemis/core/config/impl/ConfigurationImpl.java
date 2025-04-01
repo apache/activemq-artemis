@@ -597,12 +597,13 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    public void parseFileProperties(File file) throws Exception {
+      final ConfigurationImpl configuration = this;
       InsertionOrderedProperties brokerProperties = new InsertionOrderedProperties();
       try (FileReader fileReader = new FileReader(file);
            BufferedReader reader = new BufferedReader(fileReader)) {
          try {
             if (file.getName().endsWith(".json")) {
-               brokerProperties.loadJson(reader);
+               brokerProperties.loadJson(configuration, reader);
             } else {
                brokerProperties.load(reader);
             }
@@ -3921,26 +3922,24 @@ public class ConfigurationImpl implements Configuration, Serializable {
          orderedMap.clear();
       }
 
-      public synchronized boolean loadJson(Reader reader) throws IOException {
+      public synchronized boolean loadJson(ConfigurationImpl configuration, Reader reader) throws IOException {
          JsonObject jsonObject = JsonLoader.readObject(reader);
-
-         loadJsonObject("", jsonObject);
+         final String surroundString = determineSurroundString(configuration, jsonObject);
+         loadJsonObject(surroundString, "", jsonObject);
 
          return true;
       }
 
-      private void loadJsonObject(String parentKey, JsonObject jsonObject) {
+      private void loadJsonObject(String keySurroundString, String parentKey, JsonObject jsonObject) {
          jsonObject.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(jsonEntry -> {
             JsonValue jsonValue = jsonEntry.getValue();
             JsonValue.ValueType jsonValueType = jsonValue.getValueType();
             String jsonKey = jsonEntry.getKey();
-            if (jsonKey.contains(".")) {
-               jsonKey = "\"" + jsonKey + "\"";
-            }
+            jsonKey = autoSurroundIfNecessary(jsonKey, keySurroundString);
             String propertyKey = parentKey + jsonKey;
             switch (jsonValueType) {
                case OBJECT:
-                  loadJsonObject(propertyKey + ".", jsonValue.asJsonObject());
+                  loadJsonObject(keySurroundString, propertyKey + ".", jsonValue.asJsonObject());
                   break;
                case STRING:
                   put(propertyKey, jsonObject.getString(jsonKey));
@@ -3954,6 +3953,26 @@ public class ConfigurationImpl implements Configuration, Serializable {
                   throw new IllegalStateException("JSON value type not supported: " + jsonValueType);
             }
          });
+      }
+
+      private String autoSurroundIfNecessary(String jsonKey, String keySurroundString) {
+         String result = jsonKey;
+         if (keyNeedsAutoSurround(jsonKey, keySurroundString)) {
+            result = keySurroundString + jsonKey + keySurroundString;
+         }
+         return result;
+      }
+
+      private boolean keyNeedsAutoSurround(String jsonKey, String keySurroundString) {
+         return jsonKey.contains(".") && !jsonKey.startsWith("key.") && !(jsonKey.startsWith(keySurroundString) && jsonKey.endsWith(keySurroundString));
+      }
+
+      private String determineSurroundString(ConfigurationImpl configuration, JsonObject jsonObject) {
+         String surroundString = jsonObject.getString(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_KEY_SURROUND_PROPERTY, null);
+         if (surroundString == null) {
+            surroundString = jsonObject.getString("brokerPropertiesKeySurround", configuration.getBrokerPropertiesKeySurround());
+         }
+         return surroundString;
       }
    }
 }
