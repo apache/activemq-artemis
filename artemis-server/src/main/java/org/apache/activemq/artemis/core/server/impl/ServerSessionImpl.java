@@ -490,18 +490,26 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       if (server.getConfiguration().isSuppressSessionNotifications()) {
          return;
       }
-      final TypedProperties props = new TypedProperties();
-      if (this.getConnectionID() != null) {
-         props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.of(this.getConnectionID().toString()));
-      }
-      props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.of(this.getUsername()));
-      props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.of(this.getName()));
+      // Send notification in a new thread to avoid blocking and potentially soft dead-locking during heavy session open/close
+      final RemotingConnection stableRemotingConnection = remotingConnection;
+      sessionExecutor.execute(() -> {
+         final TypedProperties props = new TypedProperties();
+         if (stableRemotingConnection.getID() != null) {
+            props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.of(stableRemotingConnection.getID().toString()));
+         }
+         props.putSimpleStringProperty(ManagementHelper.HDR_USER, SimpleString.of(this.getUsername()));
+         props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.of(this.getName()));
 
-      props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, SimpleString.of(this.remotingConnection.getClientID()));
-      props.putSimpleStringProperty(ManagementHelper.HDR_PROTOCOL_NAME, SimpleString.of(this.remotingConnection.getProtocolName()));
-      props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, managementService.getManagementNotificationAddress());
-      props.putIntProperty(ManagementHelper.HDR_DISTANCE, 0);
-      managementService.sendNotification(new Notification(null, type, props));
+         props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, SimpleString.of(stableRemotingConnection.getClientID()));
+         props.putSimpleStringProperty(ManagementHelper.HDR_PROTOCOL_NAME, SimpleString.of(stableRemotingConnection.getProtocolName()));
+         props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, managementService.getManagementNotificationAddress());
+         props.putIntProperty(ManagementHelper.HDR_DISTANCE, 0);
+         try {
+            managementService.sendNotification(new Notification(null, type, props));
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.failedToSendNotification(e);
+         }
+      });
    }
 
    private void securityCheck(SimpleString address, CheckType checkType, SecurityAuth auth) throws Exception {
