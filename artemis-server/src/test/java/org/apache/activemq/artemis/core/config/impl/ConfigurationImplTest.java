@@ -2059,6 +2059,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parseProperties(tmpFile.getAbsolutePath());
 
       testSimpleConfig(configuration);
+      assertTrue(configuration.getStatus().contains("\"fileAlder32\":\"2885074053\""));
    }
 
    @Test
@@ -2075,6 +2076,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parseProperties(tmpFile.getAbsolutePath());
 
       testSimpleConfig(configuration);
+      assertTrue(configuration.getStatus().contains("\"fileAlder32\":\"3147794929\""));
    }
 
    @Test
@@ -2277,6 +2279,9 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals("cc", configuration.getClusterConfigurations().get(0).getName());
       assertEquals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, configuration.getClusterConfigurations().get(0).getMessageLoadBalancingType());
       assertEquals(CriticalAnalyzerPolicy.SHUTDOWN, configuration.getCriticalAnalyzerPolicy());
+
+      assertTrue(configuration.getStatus().contains("\"alder32"));
+      assertTrue(configuration.getStatus().contains("\"fileAlder32"));
    }
 
    @Test

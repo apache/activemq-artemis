@@ -23,9 +23,11 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
@@ -61,6 +63,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.Adler32;
+import java.util.zip.CheckedInputStream;
 import java.util.zip.Checksum;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -470,7 +473,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
     */
    private File artemisInstance;
    private transient JsonObject jsonStatus = JsonLoader.createObjectBuilder().build();
-   private transient Checksum transientChecksum = null;
    private final Set<String> keysToRedact = new HashSet<>();
 
    private JsonObject getJsonStatus() {
@@ -479,17 +481,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
       }
       return jsonStatus;
    }
-
-   // Checksum would be otherwise final
-   // however some Quorum actiations are using Serialization to make a deep copy of ConfigurationImpl and it would become null
-   // for that reason this i making the proper initialization when needed.
-   private Checksum getCheckSun() {
-      if (transientChecksum == null) {
-         transientChecksum = new Adler32();
-      }
-      return transientChecksum;
-   }
-
 
    @Override
    public String getJournalRetentionDirectory() {
@@ -599,14 +590,14 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public void parseFileProperties(File file) throws Exception {
       final ConfigurationImpl configuration = this;
       InsertionOrderedProperties brokerProperties = new InsertionOrderedProperties();
-      try (FileReader fileReader = new FileReader(file);
-           BufferedReader reader = new BufferedReader(fileReader)) {
+      try (CheckedInputStream checkedInputStream = new CheckedInputStream(new FileInputStream(file), new Adler32())) {
          try {
             if (file.getName().endsWith(".json")) {
-               brokerProperties.loadJson(configuration, reader);
+               brokerProperties.loadJson(configuration, checkedInputStream);
             } else {
-               brokerProperties.load(reader);
+               brokerProperties.load(checkedInputStream);
             }
+            brokerProperties.setFileChecksum(checkedInputStream.getChecksum().getValue());
          } catch (Exception readOrParseError) {
             logger.debug("Properties config load error on file {}, {}", file.getName(), readOrParseError);
             updateApplyStatus(file.getName(), Map.of("loadError", readOrParseError.toString()));
@@ -623,11 +614,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public void parsePrefixedProperties(Object target, String name, Properties properties, String prefix) throws Exception {
       Map<String, Object> beanProperties = new LinkedHashMap<>();
-      long alder32Hash = 0;
+      final Checksum checksum = new Adler32();
       synchronized (properties) {
-         Checksum checksum = getCheckSun();
-
-         checksum.reset();
          String key = null;
          for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             key = entry.getKey().toString();
@@ -653,9 +641,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
             logger.debug("Property config, {}={}", key, (masked || shouldRedact(key)) ? REDACTED : value);
             beanProperties.put(key, value);
          }
-         alder32Hash = checksum.getValue();
       }
-      updateReadPropertiesStatus(name, alder32Hash);
+      long fileAlder32 = 0;
+      if (properties instanceof InsertionOrderedProperties insertionOrderedProperties) {
+         fileAlder32 = insertionOrderedProperties.getFileChecksum();
+      }
+      updateReadPropertiesStatus(name, checksum.getValue(), fileAlder32);
 
       if (!beanProperties.isEmpty()) {
          populateWithProperties(target, name, beanProperties);
@@ -1200,9 +1191,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
       this.jsonStatus = JsonUtil.mergeAndUpdate(status, jsonObjectBuilder.build());
    }
 
-   private synchronized void updateReadPropertiesStatus(String propsId, long alder32Hash) {
+   private synchronized void updateReadPropertiesStatus(String propsId, long alder32Hash, long fileAlder32) {
       JsonObjectBuilder propertiesReadStatusBuilder = JsonLoader.createObjectBuilder();
       propertiesReadStatusBuilder.add("alder32", String.valueOf(alder32Hash));
+      propertiesReadStatusBuilder.add("fileAlder32", String.valueOf(fileAlder32));
       JsonObjectBuilder jsonObjectBuilder = JsonUtil.objectBuilderWithValueAtPath("properties/" + propsId, propertiesReadStatusBuilder.build());
       JsonObject jsonStatus = getJsonStatus();
       this.jsonStatus = JsonUtil.mergeAndUpdate(jsonStatus, jsonObjectBuilder.build());
@@ -3906,6 +3898,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public static class InsertionOrderedProperties extends Properties {
 
       final LinkedHashMap<Object, Object> orderedMap = new LinkedHashMap<>();
+      long fileChecksum = 0;
 
       @Override
       public Object put(Object key, Object value) {
@@ -3920,6 +3913,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
       @Override
       public void clear() {
          orderedMap.clear();
+      }
+
+      public synchronized boolean loadJson(ConfigurationImpl configuration, InputStream inputStream) throws IOException {
+         try (Reader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            return loadJson(configuration, reader);
+         }
       }
 
       public synchronized boolean loadJson(ConfigurationImpl configuration, Reader reader) throws IOException {
@@ -3973,6 +3972,14 @@ public class ConfigurationImpl implements Configuration, Serializable {
             surroundString = jsonObject.getString("brokerPropertiesKeySurround", configuration.getBrokerPropertiesKeySurround());
          }
          return surroundString;
+      }
+
+      public void setFileChecksum(long value) {
+         fileChecksum = value;
+      }
+
+      public long getFileChecksum() {
+         return fileChecksum;
       }
    }
 }
