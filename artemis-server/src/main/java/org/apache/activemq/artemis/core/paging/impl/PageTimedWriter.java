@@ -118,6 +118,10 @@ public class PageTimedWriter extends ActiveMQScheduledComponent {
       }
       int credits = Math.min(message.getEncodeSize() + PageReadWriter.SIZE_RECORD, maxCredits);
       writeCredits.acquireUninterruptibly(credits);
+      if (tx != null) {
+         // this will delay the commit record until the portion of this task has been completed
+         tx.delay();
+      }
       synchronized (this) {
          final boolean replicated = storageManager.isReplicated();
          PageEvent event = new PageEvent(context, message, tx, listCtx, credits, replicated);
@@ -175,6 +179,11 @@ public class PageTimedWriter extends ActiveMQScheduledComponent {
          }
          if (requireSync) {
             performSync();
+         }
+         for (PageEvent event : pendingEvents) {
+            if (event.tx != null) {
+               event.tx.delayDone();
+            }
          }
 
       } catch (Exception e) {

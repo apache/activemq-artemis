@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 
+import javax.transaction.xa.Xid;
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -33,6 +34,7 @@ import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.OperationConsistencyLevel;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
@@ -60,8 +62,10 @@ import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -107,6 +111,9 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
 
    Journal mockBindingsJournal;
    Journal mockMessageJournal;
+
+   AtomicInteger numberOfCommitsMessageJournal = new AtomicInteger(0);
+   AtomicInteger numberOfPreparesMessageJournal = new AtomicInteger(0);
 
    AtomicBoolean useReplication = new AtomicBoolean(false);
    AtomicBoolean returnSynchronizing = new AtomicBoolean(false);
@@ -158,6 +165,15 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
       return msg;
    }
 
+   private int commitCall() {
+      return numberOfCommitsMessageJournal.incrementAndGet();
+   }
+
+   private int prepareCall() {
+      return numberOfPreparesMessageJournal.incrementAndGet();
+   }
+
+
    @BeforeEach
    public void setupMocks() throws Exception {
       configuration = new ConfigurationImpl();
@@ -173,6 +189,14 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
 
       mockBindingsJournal = Mockito.mock(Journal.class);
       mockMessageJournal = Mockito.mock(Journal.class);
+
+      Mockito.doAnswer(a -> commitCall()).when(mockMessageJournal).appendCommitRecord(Mockito.anyLong(), Mockito.anyBoolean());
+      Mockito.doAnswer(a -> commitCall()).when(mockMessageJournal).appendCommitRecord(Mockito.anyLong(), Mockito.anyBoolean(), Mockito.any());
+      Mockito.doAnswer(a -> commitCall()).when(mockMessageJournal).appendCommitRecord(Mockito.anyLong(), Mockito.anyBoolean(), Mockito.any(), Mockito.anyBoolean());
+
+      Mockito.doAnswer(a -> prepareCall()).when(mockMessageJournal).appendPrepareRecord(Mockito.anyLong(), (byte[]) Mockito.any(), Mockito.anyBoolean());
+      Mockito.doAnswer(a -> prepareCall()).when(mockMessageJournal).appendPrepareRecord(Mockito.anyLong(), Mockito.any(EncodingSupport.class), Mockito.anyBoolean(), Mockito.any());
+      Mockito.doAnswer(a -> prepareCall()).when(mockMessageJournal).appendPrepareRecord(Mockito.anyLong(), Mockito.any(EncodingSupport.class), Mockito.anyBoolean());
 
       mockReplicationManager = Mockito.mock(ReplicationManager.class);
       Mockito.when(mockReplicationManager.isStarted()).thenAnswer(a -> useReplication.get());
@@ -323,7 +347,7 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
 
       assertFalse(latch.await(10, TimeUnit.MILLISECONDS));
       allowRunning.countDown();
-      assertTrue(latch.await(1, TimeUnit.MINUTES));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
 
    }
 
@@ -348,7 +372,7 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
 
       assertFalse(latch.await(10, TimeUnit.MILLISECONDS));
       allowRunning.countDown();
-      assertTrue(latch.await(10, TimeUnit.MINUTES));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
    }
 
    @Test
@@ -373,7 +397,7 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
 
       assertFalse(latch.await(10, TimeUnit.MILLISECONDS));
       allowRunning.countDown();
-      assertTrue(latch.await(10, TimeUnit.MINUTES));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
    }
 
    @Test
@@ -409,7 +433,7 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
 
       assertFalse(latch.await(10, TimeUnit.MILLISECONDS));
       allowSync.countDown();
-      assertTrue(latch.await(10, TimeUnit.MINUTES));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
 
       assertEquals(numberOfMessages, pageWrites.get());
    }
@@ -432,13 +456,47 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
 
       timer.addTask(context, createPagedMessage(), transaction, Mockito.mock(RouteContextList.class));
 
+      numberOfCommitsMessageJournal.set(0); // it should been 0 before anyway but since I have no real reason to require it to be zero before, I'm doing this just in case it ever changes
       transaction.commit();
-
+      Assertions.assertEquals(0, numberOfCommitsMessageJournal.get());
       assertFalse(latch.await(10, TimeUnit.MILLISECONDS));
       useReplication.set(false);
       allowRunning.countDown();
-      assertTrue(latch.await(10, TimeUnit.MINUTES));
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
+      Wait.assertEquals(1, numberOfCommitsMessageJournal::get, 5000, 100);
    }
+
+
+   @Test
+   public void testTXCompletionPrepare() throws Exception {
+      CountDownLatch latch = new CountDownLatch(1);
+
+      useReplication.set(true);
+
+      TransactionImpl transaction = new TransactionImpl(Mockito.mock(Xid.class), realJournalStorageManager, -1);
+      transaction.setContainsPersistent();
+      transaction.addOperation(new TransactionOperationAbstract() {
+         @Override
+         public void afterPrepare(Transaction tx) {
+            super.afterCommit(tx);
+            latch.countDown();
+         }
+      });
+
+      timer.addTask(context, createPagedMessage(), transaction, Mockito.mock(RouteContextList.class));
+
+      numberOfCommitsMessageJournal.set(0); // it should been 0 before anyway but since I have no real reason to require it to be zero before, I'm doing this just in case it ever changes
+      numberOfPreparesMessageJournal.set(0);
+      transaction.prepare();
+      Assertions.assertEquals(0, numberOfCommitsMessageJournal.get());
+      Assertions.assertEquals(0, numberOfPreparesMessageJournal.get());
+      assertFalse(latch.await(10, TimeUnit.MILLISECONDS));
+      allowRunning.countDown();
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
+      Assertions.assertEquals(0, numberOfCommitsMessageJournal.get());
+      Wait.assertEquals(1, numberOfPreparesMessageJournal::get, 5000, 100);
+   }
+
 
    // add a task while replicating, process it when no longer replicating (disconnect a node scenario)
    @Test
