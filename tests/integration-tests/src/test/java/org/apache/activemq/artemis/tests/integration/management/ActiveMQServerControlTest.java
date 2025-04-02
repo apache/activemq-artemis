@@ -6036,13 +6036,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       Wait.assertTrue(() -> serverSession.getServerConsumers().isEmpty(), 500);
       Wait.assertTrue(() -> server.getSessions().isEmpty(), 500);
-
-      try {
-         clientConsumer.receive(100);
-         fail("Using the consumer should throw an exception here since its session was closed administratively");
-      } catch (Exception e) {
-         assertTrue(e instanceof ActiveMQObjectClosedException);
-      }
+      Wait.assertThrows(ActiveMQObjectClosedException.class, () -> clientConsumer.receive(10), 2000, 100, () -> "Using the consumer should throw an exception here since its session was closed administratively");
    }
 
    @TestTemplate
