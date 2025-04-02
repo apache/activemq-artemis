@@ -16,17 +16,18 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Utility adapted from: org.apache.activemq.util.Wait
@@ -53,12 +54,15 @@ public class Wait {
    }
 
    public interface Condition {
-
       boolean isSatisfied() throws Exception;
    }
 
    public interface LongCondition {
       long getCount() throws Exception;
+   }
+
+   public interface ExceptionCondition {
+      void isSatisfied() throws Exception;
    }
 
    public interface ObjectCondition {
@@ -133,6 +137,31 @@ public class Wait {
 
       if (!result) {
          Assertions.assertEquals(size, condition.getCount(), messageSupplier);
+      }
+   }
+
+   public static void assertThrows(Class type, ExceptionCondition condition, long timeout, long sleepMillis, Supplier<String> messageSupplier) throws Exception {
+      AtomicReference<Exception> ref = new AtomicReference();
+      boolean result = waitFor(() -> {
+         try {
+            condition.isSatisfied();
+         } catch (Exception e) {
+            ref.set(e);
+            if (type.isInstance(e)) {
+               return true;
+            }
+         }
+         return false;
+      }, timeout, sleepMillis);
+
+      if (!result) {
+         Assertions.assertThrows(type, () -> {
+            if (ref.get() != null) {
+               throw ref.get();
+            } else {
+               return;
+            }
+         }, messageSupplier);
       }
    }
 

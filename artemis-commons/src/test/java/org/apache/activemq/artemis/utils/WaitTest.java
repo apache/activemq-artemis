@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class WaitTest {
 
@@ -34,4 +36,39 @@ public class WaitTest {
       assertTrue(Wait.waitFor(() -> intValue.get() == 1, 100, 10));
    }
 
+   @Test
+   public void testAssertThrowsIncorrectException() throws Exception {
+      final String message = RandomUtil.randomUUIDString();
+      final Class<IllegalArgumentException> clazz = IllegalArgumentException.class;
+      try {
+         Wait.assertThrows(IllegalStateException.class, () -> {
+            throw clazz.getDeclaredConstructor().newInstance();
+         }, 100, 10, () -> message);
+         fail("Previous assertion should have failed!");
+      } catch (AssertionError e) {
+         assertTrue(e.getMessage().startsWith(message));
+         assertTrue(clazz.isInstance(e.getCause()));
+      }
+   }
+
+   @Test
+   public void testAssertThrowsNoException() throws Exception {
+      final String message = RandomUtil.randomUUIDString();
+      try {
+         Wait.assertThrows(IllegalStateException.class, () -> {
+            return;
+         }, 100, 10, () -> message);
+         fail("Previous assertion should have failed!");
+      } catch (AssertionError e) {
+         assertTrue(e.getMessage().startsWith(message));
+         assertNull(e.getCause());
+      }
+   }
+
+   @Test
+   public void testAssertThrowsCorrectException() throws Exception {
+      Wait.assertThrows(IllegalArgumentException.class, () -> {
+         throw new IllegalArgumentException();
+      }, 100, 10, null);
+   }
 }
