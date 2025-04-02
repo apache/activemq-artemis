@@ -115,4 +115,15 @@ public interface Transaction {
    default boolean isAllowPageTransaction() {
       return true;
    }
+
+   /**
+    * Calling this will defer the storage of the commit or prepare until delayDone is called.
+    */
+   void delay();
+
+   /**
+    * This is to be called when the delay portion is done.
+    */
+   void delayDone();
+
 }

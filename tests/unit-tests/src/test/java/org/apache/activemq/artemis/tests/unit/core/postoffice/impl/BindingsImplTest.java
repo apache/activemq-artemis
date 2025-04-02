@@ -296,6 +296,16 @@ public class BindingsImplTest extends ActiveMQTestBase {
       public boolean hasTimedOut() {
          return false;
       }
+
+      @Override
+      public void delay() {
+
+      }
+
+      @Override
+      public void delayDone() {
+
+      }
    }
 
    private final class FakeFilter implements Filter {
