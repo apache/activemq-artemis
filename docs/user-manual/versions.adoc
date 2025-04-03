@@ -32,11 +32,11 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 * Due to EOL components in Hawt.io 2.x used by our web console we've moved to a https://github.com/apache/activemq-artemis-console[new web console] based on Hawt.io 4.
 This move is about security just like the recent move to Java 17.
 +
-From a user's perspective the main change is that the "tree" component prominently featured on the left of the screen has been removed.
-This component was removed because it causes significant problems for use-cases with a large number of addresses and/or queues due to the amount of JMX-related data that it pulls from the broker.
-Resources are now displayed exclusively on categorized tabs which offer a paged view which is filterable and sortable and scales much better for resource heavy use-cases.
+From a user's perspective the main change is that the prominently featured "tree" component was relocated to the "Artemis JMX" view available from the menu on the left of the screen.
+The categorized resource tabs which were available previously are now the main and recommended way to interact with the broker.
+These tabs offer a paged view which is filterable and sortable and scales well for resource heavy use-cases.
 +
-The behavior and presentation should be more consistent overall and anything that was possible before should still be possible since the underlying management API has not changed.
+The behavior and presentation should be more consistent overall, and anything that was possible before should still be possible since the underlying management API has not changed.
 +
 In order to upgrade an existing instance of 2.39.0 to 2.40.0 you can use the xref:upgrading.adoc#upgrading-tool[`upgrade` command] which will *automatically perform* all the changes or you can make the following changes manually:
 +
