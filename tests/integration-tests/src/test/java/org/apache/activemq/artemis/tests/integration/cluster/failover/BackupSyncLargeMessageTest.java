@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.Set;
@@ -38,6 +37,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Test;
 
 public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
@@ -118,8 +118,18 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
       session.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS));
       final ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
       final ClientMessage message = session.createMessage(true);
-      final int largeMessageSize = 1000 * MIN_LARGE_MESSAGE;
-      message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(largeMessageSize));
+
+      String largeBody;
+      {
+         String randomString = "large >>> " + RandomUtil.randomUUIDString() + " <<< ";
+         StringBuilder builder = new StringBuilder(randomString.length() * 1000);
+         for (int i = 0; i < 1000; i++) {
+            builder.append(randomString);
+         }
+         largeBody = builder.toString();
+      }
+      message.getBodyBuffer().writeString(largeBody);
+
 
       final AtomicBoolean caughtException = new AtomicBoolean(false);
       final CountDownLatch latch = new CountDownLatch(1);
@@ -147,13 +157,12 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
 
       session.start();
       ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS);
-      ClientMessage msg = consumer.receive(2000);
-      ActiveMQBuffer buffer = msg.getBodyBuffer();
+      ClientMessage largeMessageReceived = consumer.receive(2000);
 
-      for (int j = 0; j < largeMessageSize; j++) {
-         assertTrue(buffer.readable(), "large msg , expecting " + largeMessageSize + " bytes, got " + j);
-         assertEquals(ActiveMQTestBase.getSamplebyte(j), buffer.readByte(), "equal at " + j);
-      }
+      ActiveMQBuffer readBuffer = largeMessageReceived.getBodyBuffer();
+      String readString = readBuffer.readString();
+      assertEquals(largeBody, readString);
+
       receiveMessages(consumer, 0, 20, true);
       assertNull(consumer.receiveImmediate(), "there should be no more messages!");
       consumer.close();
