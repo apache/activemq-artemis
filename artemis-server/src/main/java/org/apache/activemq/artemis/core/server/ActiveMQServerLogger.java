@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
+import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
@@ -1495,4 +1496,8 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224143, value = "Bridge {} failed to send {}: {} {}", level = LogMessage.Level.WARN)
    void bridgeFailedToSend(String bridgeName, String message, String exceptionName, String exceptionMessage);
+
+   @LogMessage(id = 224144, value = "The topology of the cluster connection {} doesn't include all th expected members. "
+       + "Check the discovery group or the static connectors of the cluster connection if the topology is correct: {} / {}", level = LogMessage.Level.WARN)
+   void incompleteClusterTopology(String clusterConnection, Topology topology, String topologyMembers);
 }

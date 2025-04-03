@@ -19,13 +19,16 @@ package org.apache.activemq.artemis.core.server.cluster.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.core.server.NodeManager;
@@ -87,7 +90,8 @@ public class ClusterConnectionImplMockTest extends ServerTestBase {
                 true, //final boolean allowDirectConnectionsOnly,
                 0, //final long clusterNotificationInterval,
                 0, //final int clusterNotificationAttempts)
-                null
+                null,
+                0
       );
 
       assertEquals(1, cci.allowableConnections.size());
@@ -106,13 +110,36 @@ public class ClusterConnectionImplMockTest extends ServerTestBase {
       ArtemisExecutor executor = ArtemisExecutor.delegate(Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       try {
-         ClusterConnectionImpl cci = new ClusterConnectionImpl(null, new TransportConfiguration[]{tc}, null, null, null, 0, 0L, 0L, 0L, 0, 0L, 0, 0, 0L, 0L, false, null, 0, 0, () -> executor, new MockServer(), null, null, null, 0, new FakeNodeManager(UUIDGenerator.getInstance().generateStringUUID()), null, null, true, 0, 0, null);
+         ClusterConnectionImpl cci = new ClusterConnectionImpl(null, new TransportConfiguration[]{tc}, null, null, null, 0, 0L, 0L, 0L, 0, 0L, 0, 0, 0L, 0L, false, null, 0, 0, () -> executor, new MockServer(), null, null, null, 0, new FakeNodeManager(UUIDGenerator.getInstance().generateStringUUID()), null, null, true, 0, 0, null, 0);
 
          TopologyMember topologyMember = new TopologyMemberImpl(RandomUtil.randomUUIDString(), null, null, null, null);
          cci.nodeUP(topologyMember, false);
       } finally {
          executor.shutdownNow();
       }
+   }
+
+   @Test
+   public void testCompareTCs() {
+      TransportConfiguration netty1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), Map.of("host", "localhost", "port", 61616));
+      assertTrue(ClusterConnectionImpl.TopologyScanner.compareTCs(netty1, netty1));
+
+      TransportConfiguration netty2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), Map.of("host", "127.0.0.1", "port", 61616));
+      assertTrue(ClusterConnectionImpl.TopologyScanner.compareTCs(netty2, netty2));
+
+      assertTrue(ClusterConnectionImpl.TopologyScanner.compareTCs(netty1, netty2));
+
+      TransportConfiguration netty3 = new TransportConfiguration(NettyConnectorFactory.class.getName(), Map.of("host", "my-host", "port", 61617));
+      assertTrue(ClusterConnectionImpl.TopologyScanner.compareTCs(netty3, netty3));
+
+      TransportConfiguration netty4 = new TransportConfiguration(NettyConnectorFactory.class.getName(), Map.of("host", "192.168.0.1", "port", 61617));
+      assertTrue(ClusterConnectionImpl.TopologyScanner.compareTCs(netty4, netty4));
+
+      assertFalse(ClusterConnectionImpl.TopologyScanner.compareTCs(netty1, netty3));
+      assertFalse(ClusterConnectionImpl.TopologyScanner.compareTCs(netty1, netty4));
+      assertFalse(ClusterConnectionImpl.TopologyScanner.compareTCs(netty2, netty3));
+      assertFalse(ClusterConnectionImpl.TopologyScanner.compareTCs(netty2, netty4));
+      assertFalse(ClusterConnectionImpl.TopologyScanner.compareTCs(netty3, netty4));
    }
 
    static final class MockServer extends ActiveMQServerImpl {

@@ -703,13 +703,17 @@ public final class ActiveMQDefaultConfiguration {
    // These properties used to defined with this prefix.
    // I'm keeping the older property name in an attempt to guarantee compatibility
    private static final String FORMER_ACK_RETRY_CLASS_NAME = "org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckRetry";
-   private static final int DEFAULT_MIRROR_ACK_MANAGER_QUEUE_ATTEMPTS = Integer.parseInt(System.getProperty(FORMER_ACK_RETRY_CLASS_NAME + ".MIN_QUEUE_ATTEMPTS", "5"));;
-   private static final int DEFAULT_MIRROR_ACK_MANAGER_PAGE_ATTEMPTS = Integer.parseInt(System.getProperty(FORMER_ACK_RETRY_CLASS_NAME + ".MAX_PAGE_ATTEMPT", "2"));;
+   private static final int DEFAULT_MIRROR_ACK_MANAGER_QUEUE_ATTEMPTS = Integer.parseInt(System.getProperty(FORMER_ACK_RETRY_CLASS_NAME + ".MIN_QUEUE_ATTEMPTS", "5"));
+   private static final int DEFAULT_MIRROR_ACK_MANAGER_PAGE_ATTEMPTS = Integer.parseInt(System.getProperty(FORMER_ACK_RETRY_CLASS_NAME + ".MAX_PAGE_ATTEMPT", "2"));
 
-   private static final int DEFAULT_MIRROR_ACK_MANAGER_RETRY_DELAY = Integer.parseInt(System.getProperty(FORMER_ACK_RETRY_CLASS_NAME + ".RETRY_DELAY", "100"));;
+   private static final int DEFAULT_MIRROR_ACK_MANAGER_RETRY_DELAY = Integer.parseInt(System.getProperty(FORMER_ACK_RETRY_CLASS_NAME + ".RETRY_DELAY", "100"));
 
    private static final boolean DEFAULT_MIRROR_ACK_MANAGER_WARN_UNACKED = false;
    private static final boolean DEFAULT_MIRROR_PAGE_TRANSACTION = false;
+
+
+   private static final int DEFAULT_CLUSTER_TOPOLOGY_SCANNER_ATTEMPTS = 30;
+
 
    /**
     * If {@code true} then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on
@@ -1996,5 +2000,9 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static int getInitialQueueBufferSize() {
       return INITIAL_QUEUE_BUFFER_SIZE;
+   }
+
+   public static int getClusterTopologyScannerAttempts() {
+      return DEFAULT_CLUSTER_TOPOLOGY_SCANNER_ATTEMPTS;
    }
 }

@@ -187,6 +187,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private String passwordCodec;
 
+   private DiscoveryListener discoveryListener;
+
    public static synchronized void clearThreadPools() {
       ActiveMQClient.clearThreadPools();
    }
@@ -440,6 +442,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       groupID = locator.groupID;
       nodeID = locator.nodeID;
       clusterTransportConfiguration = locator.clusterTransportConfiguration;
+      discoveryListener = locator.discoveryListener;
    }
 
    private boolean useInitConnector() {
@@ -584,6 +587,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    @Override
    public AfterConnectInternalListener getAfterConnectInternalListener() {
       return afterConnectListener;
+   }
+
+   @Override
+   public ServerLocatorImpl setDiscoveryListener(DiscoveryListener discoveryListener) {
+      this.discoveryListener = discoveryListener;
+      return this;
    }
 
    @Override
@@ -1624,18 +1633,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    @Override
    public synchronized void connectorsChanged(List<DiscoveryEntry> newConnectors) {
+      DiscoveryListener discoveryListener = this.discoveryListener;
+
       if (receivedTopology) {
+         if (discoveryListener != null) {
+            discoveryListener.connectorsChanged(newConnectors);
+         }
          return;
       }
 
       final List<TransportConfiguration> newInitialconnectors = new ArrayList<>(newConnectors.size());
 
       for (DiscoveryEntry entry : newConnectors) {
-         if (ha && topology.getMember(entry.getNodeID()) == null) {
-            TopologyMemberImpl member = new TopologyMemberImpl(entry.getNodeID(), null, null, entry.getConnector(), null);
-            // on this case we set it as zero as any update coming from server should be accepted
-            topology.updateMember(0, entry.getNodeID(), member);
-         }
          // ignore its own transport connector
          if (!entry.getConnector().equals(clusterTransportConfiguration)) {
             newInitialconnectors.add(entry.getConnector());
@@ -1660,6 +1669,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          } else {
             connectRunnable.run();
          }
+      }
+
+      if (discoveryListener != null) {
+         discoveryListener.connectorsChanged(newConnectors);
       }
    }
 
