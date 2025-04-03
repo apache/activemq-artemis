@@ -440,6 +440,7 @@
                <connector-ref>connector1</connector-ref>
                <connector-ref>connector2</connector-ref>
             </static-connectors>
+            <topology-scanner-attempts>-1</topology-scanner-attempts>
          </cluster-connection>
          <cluster-connection name="cluster-connection2">
             <discovery-group-ref discovery-group-name="dg1"/>
@@ -452,6 +453,7 @@
             <message-load-balancing>STRICT</message-load-balancing>
             <max-hops>2</max-hops>
             <producer-window-size>333</producer-window-size>
+            <topology-scanner-attempts>30</topology-scanner-attempts>
          </cluster-connection>
          <cluster-connection name="cluster-connection3">
             <connector-ref>connector2</connector-ref>

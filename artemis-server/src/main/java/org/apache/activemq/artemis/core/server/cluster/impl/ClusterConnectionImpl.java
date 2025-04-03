@@ -18,11 +18,15 @@ package org.apache.activemq.artemis.core.server.cluster.impl;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -48,12 +52,15 @@ import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.client.impl.TopologyManager;
 import org.apache.activemq.artemis.core.client.impl.TopologyMemberImpl;
+import org.apache.activemq.artemis.core.cluster.DiscoveryEntry;
+import org.apache.activemq.artemis.core.cluster.DiscoveryListener;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
+import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
@@ -78,8 +85,9 @@ import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public final class ClusterConnectionImpl implements ClusterConnection, AfterConnectInternalListener, TopologyManager {
+public final class ClusterConnectionImpl implements ClusterConnection, AfterConnectInternalListener, TopologyManager, DiscoveryListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -183,6 +191,12 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    private final String clientId;
 
+   private volatile List<DiscoveryEntry> discoveryEntries;
+
+   private final TransportConfiguration[] staticTransportConfigurations;
+
+   private final TopologyScanner topologyScanner;
+
    /**
     * For tests only
     */
@@ -222,7 +236,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final boolean allowDirectConnectionsOnly,
                                 final long clusterNotificationInterval,
                                 final int clusterNotificationAttempts,
-                                final String clientId) throws Exception {
+                                final String clientId,
+                                final int topologyScannerAttempts) throws Exception {
       this.nodeManager = nodeManager;
 
       this.connector = connector;
@@ -307,6 +322,11 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       this.storeAndForwardPrefix = server.getInternalNamingPrefix() + SN_PREFIX;
 
       this.clientId = clientId;
+
+      this.staticTransportConfigurations = staticTranspConfigs;
+
+      this.topologyScanner = topologyScannerAttempts == 0 ? null : new TopologyScanner(
+          scheduledExecutor, executor, topologyScannerAttempts);
    }
 
    public ClusterConnectionImpl(final ClusterManager manager,
@@ -340,7 +360,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                                 final boolean allowDirectConnectionsOnly,
                                 final long clusterNotificationInterval,
                                 final int clusterNotificationAttempts,
-                                final String clientId) throws Exception {
+                                final String clientId,
+                                final int topologyScannerAttempts) throws Exception {
       this.nodeManager = nodeManager;
 
       this.connector = connector;
@@ -410,6 +431,11 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       this.storeAndForwardPrefix = server.getInternalNamingPrefix() + SN_PREFIX;
 
       this.clientId = clientId;
+
+      this.staticTransportConfigurations = null;
+
+      this.topologyScanner = topologyScannerAttempts == 0 ? null : new TopologyScanner(
+          scheduledExecutor, executor, topologyScannerAttempts);
    }
 
    @Override
@@ -446,6 +472,11 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       if (serverLocator != null) {
          serverLocator.removeClusterTopologyListener(this);
+         serverLocator.setDiscoveryListener(null);
+      }
+
+      if (topologyScanner != null) {
+         topologyScanner.stop();
       }
 
       if (logger.isDebugEnabled()) {
@@ -593,6 +624,164 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       // false,
       // localMember.getConnector().a,
       // localMember.getConnector().b);
+
+      if (topologyScanner != null && !stopping) {
+         topologyScanner.start();
+         topologyScanner.resetCounter();
+         topologyScanner.delay();
+      }
+   }
+
+   @Override
+   public void connectorsChanged(List<DiscoveryEntry> newConnectors) {
+      discoveryEntries = newConnectors;
+
+      if (topologyScanner != null && !stopping && topologyScanner.isStarted()) {
+         topologyScanner.resetCounter();
+         topologyScanner.delay();
+      }
+   }
+
+   public TopologyScanner getTopologyScanner() {
+      return topologyScanner;
+   }
+
+   public final class TopologyScanner extends ActiveMQScheduledComponent {
+
+      private final int attempts;
+
+      private final AtomicInteger counter = new AtomicInteger();
+
+      private volatile boolean running = false;
+
+      public boolean isRunning() {
+         return running;
+      }
+
+      TopologyScanner(ScheduledExecutorService scheduledExecutorService, Executor executor, int attempts) {
+         super(scheduledExecutorService, executor, retryInterval, TimeUnit.MILLISECONDS, true);
+         this.attempts = attempts;
+      }
+
+      @Override
+      public boolean delay() {
+         running = true;
+
+         return super.delay();
+      }
+
+      public void resetCounter() {
+         counter.set(0);
+      }
+
+      @Override
+      public void run() {
+         TransportConfiguration[] transportConfigurations = null;
+
+         if (staticTransportConfigurations != null) {
+            transportConfigurations = staticTransportConfigurations;
+         } else {
+            List<DiscoveryEntry> discoveredEntries = discoveryEntries;
+
+            if (discoveredEntries != null) {
+               transportConfigurations = discoveryEntries.stream()
+                   .map(discoveryEntry -> discoveryEntry.getConnector())
+                   .toArray(TransportConfiguration[]::new);
+            } else {
+               logger.debug("No discovered entries");
+            }
+         }
+
+         if (transportConfigurations != null) {
+            boolean topologyUpdated = updateTopology(transportConfigurations);
+
+            int topologyScannerCount = counter.incrementAndGet();
+
+            boolean retry = (attempts == -1 || topologyScannerCount < attempts);
+
+            if (!topologyUpdated && !stopping && retry) {
+               delay();
+            } else {
+               running = false;
+
+               if (!topologyUpdated && !stopping) {
+                  ActiveMQServerLogger.LOGGER.incompleteClusterTopology(name.toString(),
+                      topology, topology.getMembers().toString());
+               }
+            }
+         }
+      }
+
+      private boolean updateTopology(TransportConfiguration[] transportConfigurations) {
+         boolean result = true;
+
+         for (TransportConfiguration transportConfiguration : transportConfigurations) {
+            if (!topology.getMembers().stream().anyMatch(member -> compareTCs(connector, transportConfiguration) ||
+                member.getPrimary() != null && compareTCs(member.getPrimary(), transportConfiguration) ||
+                member.getBackup() != null && compareTCs(member.getBackup(), transportConfiguration))) {
+
+               try (ServerLocatorInternal targetLocator = new ServerLocatorImpl(topology, true, transportConfiguration)) {
+                  targetLocator.setReconnectAttempts(0);
+                  targetLocator.setInitialConnectAttempts(0);
+                  targetLocator.setConnectionTTL(connectionTTL);
+                  targetLocator.setCallTimeout(callTimeout);
+                  targetLocator.setNodeID(nodeManager.getNodeId().toString());
+                  targetLocator.setClusterTransportConfiguration(connector);
+                  targetLocator.setIdentity("(Cluster-topology-scanner::" + server.toString() + ")");
+
+                  try {
+                     try (ClientSessionFactoryInternal targetClientSessionFactory = targetLocator.connect()) {
+                        boolean waitForTopology = targetClientSessionFactory.waitForTopology(
+                            callTimeout, TimeUnit.MILLISECONDS);
+
+                        if (logger.isDebugEnabled()) {
+                           logger.debug("Cluster topology scanner waitForTopology from {}: {}",
+                               transportConfiguration, waitForTopology);
+                        }
+                     }
+                  } catch (ActiveMQException e) {
+                     result = false;
+
+                     if (logger.isDebugEnabled()) {
+                        logger.debug("Cluster topology scanner failed to connect to {}: {}",
+                            transportConfiguration, e);
+                     }
+                  }
+               }
+            }
+         }
+
+         return result;
+      }
+
+      protected static boolean compareTCs(TransportConfiguration config, TransportConfiguration otherConfig) {
+         if (config.getFactoryClassName().contains("Netty") && otherConfig.getFactoryClassName().contains("Netty")) {
+            return Objects.equals(config.getParams().get("port"), otherConfig.getParams().get("port")) &&
+                compareHosts((String)config.getParams().get("host"), (String)otherConfig.getParams().get("host"));
+         } else if (config.getFactoryClassName().contains("InVM") && otherConfig.getFactoryClassName().contains("InVM")) {
+            return Objects.equals(config.getParams().get("serverId"), otherConfig.getParams().get("serverId"));
+         }
+
+         return false;
+      }
+
+      private static boolean compareHosts(String host, String otherHost) {
+         if (Objects.equals(host, otherHost)) {
+            return true;
+         }
+
+         if (host != null && otherHost != null) {
+            try {
+               InetAddress hostAddr = InetAddress.getByName(host);
+               InetAddress otherHostAddr = InetAddress.getByName(otherHost);
+               return hostAddr.equals(otherHostAddr);
+            } catch (UnknownHostException e) {
+               logger.debug("Error resolving hosts: {}", e);
+            }
+         }
+
+         return false;
+      }
    }
 
    @Override
@@ -704,6 +893,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
 
          serverLocator.setAfterConnectionInternalListener(this);
+         serverLocator.setDiscoveryListener(this);
 
          serverLocator.setProtocolManagerFactory(ActiveMQServerSideProtocolManagerFactory.getInstance(serverLocator, server.getStorageManager()));
 
