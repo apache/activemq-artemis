@@ -2038,10 +2038,40 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       List<String> keys = new ArrayList<>();
       properties.entrySet().forEach(entry -> keys.add((String) entry.getKey()));
 
-      List<String> sortedKeys = keys.stream().sorted().collect(Collectors.toList());
-      for (int i = 0; i < sortedKeys.size(); i++) {
-         assertEquals(i, keys.indexOf(sortedKeys.get(i)));
+      List<String> keysFromJson = configJsonObject.keySet().stream().collect(Collectors.toList());
+      // first 4 are root attributes which we can compare by key
+      for (int i = 0; i < 4; i++) {
+         assertEquals(keysFromJson.get(i), keys.get(i), "index " + i);
       }
+   }
+
+   @Test
+   public void testJsonNeedsInsertionOrder() throws Exception {
+
+      File tmpFile = File.createTempFile("insertion-order-props-test", ".json", temporaryFolder);
+      try (FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
+           PrintWriter printWriter = new PrintWriter(fileOutputStream)) {
+
+         printWriter.write("{\n");
+         printWriter.write("  \"AMQPConnections\" : {\n");
+         printWriter.write("    \"target\" : {\n");
+         printWriter.write("      \"uri\" : \"tcp://host:6449?trustStorePath=/client.ts\",\n");
+         printWriter.write("      \"transportConfigurations\" : {\n");
+         printWriter.write("        \"target\" : {\n");
+         printWriter.write("          \"params\" : { \"trustStorePassword\" : \"pass\"\n }\n");
+         printWriter.write("        }\n");
+         printWriter.write("      }\n");
+         printWriter.write("    }\n");
+         printWriter.write("  }\n");
+         printWriter.write("}\n");
+      }
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parseProperties(tmpFile.getAbsolutePath());
+
+      String matchNoErrors = "\"errors\":\\[]";
+      assertEquals(3, configuration.getStatus().split(matchNoErrors, 10).length, configuration.getStatus());
+      assertEquals(4, configuration.getAMQPConnections().get(0).getTransportConfigurations().get(0).getParams().size());
    }
 
    @Test
