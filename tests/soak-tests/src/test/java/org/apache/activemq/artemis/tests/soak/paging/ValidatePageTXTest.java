@@ -191,13 +191,13 @@ public class ValidatePageTXTest extends SoakTestBase {
 
       logger.debug("Waiting some time");
       Thread.sleep(100);
+
       running.set(false);
 
-      logger.debug("running set to false");
+      logger.debug("running set to false, waiting latchDone now");
       assertTrue(latchDone.await(300, TimeUnit.SECONDS));
 
-      logger.debug("latch done is done.. shutting down executor");
-
+      logger.debug("shutting down executor");
       executorService.shutdownNow();
       assertTrue(executorService.awaitTermination(60, TimeUnit.SECONDS));
 
@@ -281,7 +281,7 @@ public class ValidatePageTXTest extends SoakTestBase {
                      xasession = xaConnection.createXASession();
                      session = xasession;
                   } else {
-                     factory = CFUtil.createConnectionFactory("CORE", uri);
+                     factory = CFUtil.createConnectionFactory(protocol, uri);
                      connection = factory.createConnection();
                      session = connection.createSession(true, Session.SESSION_TRANSACTED);
                   }
@@ -330,7 +330,7 @@ public class ValidatePageTXTest extends SoakTestBase {
                      logger.warn("Exception of the exception on {}, message={}", threadID, e2.getMessage(), e2);
                   }
                }
-               if (e.getCause() != null && e.getCause() instanceof ActiveMQDuplicateIdException) {
+               if (e.getMessage() != null && e.getMessage().contains("Duplicate message detected") || e.getCause() != null && e.getCause() instanceof ActiveMQDuplicateIdException) {
                   logger.debug("duplicateID exception dupID={} error={}, threadID={}, storing the duplicateID as it is fine", dupID, e.getMessage(), threadID);
                   dupList.add(dupID);
                   dupID = String.valueOf(sequenceGenerator.incrementAndGet());
