@@ -3930,7 +3930,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       }
 
       private void loadJsonObject(String keySurroundString, String parentKey, JsonObject jsonObject) {
-         jsonObject.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(jsonEntry -> {
+         jsonObject.entrySet().stream().forEach(jsonEntry -> {
             JsonValue jsonValue = jsonEntry.getValue();
             JsonValue.ValueType jsonValueType = jsonValue.getValueType();
             String jsonKey = jsonEntry.getKey();
