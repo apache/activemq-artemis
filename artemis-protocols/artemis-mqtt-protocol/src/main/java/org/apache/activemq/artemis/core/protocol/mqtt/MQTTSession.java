@@ -122,12 +122,12 @@ public class MQTTSession {
 
          if (serverSession != null) {
             serverSession.stop();
-            serverSession.close(false);
+            serverSession.close(failure);
          }
 
          if (internalServerSession != null) {
             internalServerSession.stop();
-            internalServerSession.close(false);
+            internalServerSession.close(failure);
          }
 
          state.setAttached(false);
