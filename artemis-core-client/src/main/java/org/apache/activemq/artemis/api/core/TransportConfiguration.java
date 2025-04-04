@@ -239,6 +239,17 @@ public class TransportConfiguration implements Serializable {
       return true;
    }
 
+   public boolean isSameTarget(TransportConfiguration otherConfig) {
+      if (this.getFactoryClassName().contains("Netty") && otherConfig.getFactoryClassName().contains("Netty")) {
+         return Objects.equals(this.params.get("host"), otherConfig.params.get("host")) &&
+             Objects.equals(this.params.get("port"), otherConfig.params.get("port"));
+      } else if (this.getFactoryClassName().contains("InVM") && otherConfig.getFactoryClassName().contains("InVM")) {
+         return Objects.equals(this.params.get("serverId"), otherConfig.params.get("serverId"));
+      } else {
+         return false;
+      }
+   }
+
    /**
     * There's a case on ClusterConnections that we need to find an equivalent Connector and we can't use a Netty Cluster
     * Connection on an InVM ClusterConnection (inVM used on tests) for that reason I need to test if the two instances

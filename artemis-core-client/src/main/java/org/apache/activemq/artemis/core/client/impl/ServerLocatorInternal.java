@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.cluster.DiscoveryListener;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 
 public interface ServerLocatorInternal extends ServerLocator {
@@ -34,6 +35,8 @@ public interface ServerLocatorInternal extends ServerLocator {
    AfterConnectInternalListener getAfterConnectInternalListener();
 
    ServerLocatorInternal setAfterConnectionInternalListener(AfterConnectInternalListener listener);
+
+   ServerLocatorInternal setDiscoveryListener(DiscoveryListener listener);
 
    /**
     * Used to better identify Cluster Connection Locators on logs. To facilitate eventual debugging.

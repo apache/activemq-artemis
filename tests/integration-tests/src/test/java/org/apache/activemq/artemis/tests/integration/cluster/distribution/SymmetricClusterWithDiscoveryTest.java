@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
+import java.util.concurrent.TimeUnit;
+
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
+import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
+import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.Test;
@@ -35,7 +41,14 @@ public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest {
    @Test
    public void testStartStopServers() throws Exception {
       // When using discovery starting and stopping it too fast could have a race condition with UDP
-      doTestStartStopServers();
+      doTestStartStopServers(false);
+   }
+
+   @Override
+   @Test
+   public void testStartStopServersWithPartition() throws Exception {
+      // When using discovery starting and stopping it too fast could have a race condition with UDP
+      doTestStartStopServers(true);
    }
 
    @Override
@@ -71,6 +84,112 @@ public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest {
     */
    @Test
    public void testStartStopServersWithPauseBeforeRestarting() throws Exception {
-      doTestStartStopServers();
+      doTestStartStopServers(false);
+   }
+
+   @Override
+   protected void setupProxy(int nodeId) {
+      getServer(nodeId).getConfiguration().getDiscoveryGroupConfigurations().get("dg1").
+          setBroadcastEndpointFactory(new ProxyBroadcastEndpointFactory(nodeId, getServer(nodeId).
+          getConfiguration().getDiscoveryGroupConfigurations().get("dg1").getBroadcastEndpointFactory()));
+   }
+
+   @Override
+   protected void enablePartition() {
+      ProxyBroadcastEndpointFactory.interceptor = (nodeId, data) -> {
+         ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(data);
+
+         String originatingNodeID = buffer.readString();
+
+         if (nodeId == 0 || nodeId == 1 || nodeId == 2) {
+            if ((getServer(0).getNodeID() != null && getServer(0).getNodeID().toString().equals(originatingNodeID)) ||
+                (getServer(1).getNodeID() != null && getServer(1).getNodeID().toString().equals(originatingNodeID)) ||
+                (getServer(2).getNodeID() != null && getServer(2).getNodeID().toString().equals(originatingNodeID))) {
+               return true;
+            }
+         } else if (nodeId == 3 || nodeId == 4) {
+            if ((getServer(3).getNodeID() != null && getServer(3).getNodeID().toString().equals(originatingNodeID)) ||
+                (getServer(4).getNodeID() != null && getServer(4).getNodeID().toString().equals(originatingNodeID))) {
+               return true;
+            }
+         }
+
+         return false;
+      };
+   }
+
+   @Override
+   protected void disablePartition() {
+      ProxyBroadcastEndpointFactory.interceptor = null;
+   }
+
+   public interface ProxyBroadcastEndpointInterceptor {
+      boolean allowBroadcast(int nodeId, byte[] data);
+   }
+
+   public class ProxyBroadcastEndpointFactory implements BroadcastEndpointFactory {
+
+      public static volatile ProxyBroadcastEndpointInterceptor interceptor;
+
+      private int nodeId;
+      private final BroadcastEndpointFactory rawBroadcastEndpointFactory;
+
+      public ProxyBroadcastEndpointFactory(int nodeId, BroadcastEndpointFactory rawBroadcastEndpointFactory) {
+         this.nodeId = nodeId;
+         this.rawBroadcastEndpointFactory = rawBroadcastEndpointFactory;
+      }
+
+      @Override
+      public BroadcastEndpoint createBroadcastEndpoint() throws Exception {
+         return new ProxyBroadcastEndpoint(nodeId, rawBroadcastEndpointFactory.createBroadcastEndpoint());
+      }
+
+      private class ProxyBroadcastEndpoint implements BroadcastEndpoint {
+
+         private int nodeId;
+         private final BroadcastEndpoint rawBroadcastEndpoint;
+
+         ProxyBroadcastEndpoint(int nodeId, BroadcastEndpoint rawBroadcastEndpoint) {
+            this.nodeId = nodeId;
+            this.rawBroadcastEndpoint = rawBroadcastEndpoint;
+         }
+
+         @Override
+         public void openClient() throws Exception {
+            rawBroadcastEndpoint.openClient();
+         }
+
+         @Override
+         public void openBroadcaster() throws Exception {
+            rawBroadcastEndpoint.openBroadcaster();
+         }
+
+         @Override
+         public void close(boolean isBroadcast) throws Exception {
+            rawBroadcastEndpoint.close(isBroadcast);
+         }
+
+         @Override
+         public void broadcast(byte[] data) throws Exception {
+            rawBroadcastEndpoint.broadcast(data);
+         }
+
+         @Override
+         public byte[] receiveBroadcast() throws Exception {
+            return receiveBroadcast(Long.MAX_VALUE, TimeUnit.DAYS);
+         }
+
+         @Override
+         public byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception {
+            while (true) {
+               byte[] data = rawBroadcastEndpoint.receiveBroadcast(time, unit);
+
+               if (ProxyBroadcastEndpointFactory.interceptor == null ||
+                   ProxyBroadcastEndpointFactory.interceptor.allowBroadcast(nodeId, data)) {
+                  return data;
+               }
+            }
+         }
+      }
    }
 }
