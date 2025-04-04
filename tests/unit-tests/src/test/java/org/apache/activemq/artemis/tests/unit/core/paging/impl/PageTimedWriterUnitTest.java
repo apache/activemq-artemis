@@ -439,6 +439,47 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
    }
 
    @Test
+   public void testVerifyWritesAfterStop() throws Exception {
+      int numberOfMessages = 100;
+      CountDownLatch latch = new CountDownLatch(numberOfMessages);
+
+      allowRunning.countDown();
+      useReplication.set(false);
+      allowSync.setCount(1);
+
+      for (int i = 0; i < numberOfMessages; i++) {
+         TransactionImpl newTX = new TransactionImpl(realJournalStorageManager);
+         newTX.setContainsPersistent();
+         newTX.addOperation(new TransactionOperationAbstract() {
+            @Override
+            public void afterCommit(Transaction tx) {
+               super.afterCommit(tx);
+               latch.countDown();
+            }
+         });
+         pageStore.page(createMessage(), newTX, routeContextList);
+         newTX.commit();
+      }
+
+      assertFalse(latch.await(10, TimeUnit.MILLISECONDS));
+      allowSync.countDown();
+      // issuing a stop should finish whatever was pending before
+      // instead of sending it to the limbo
+      pageStore.stop();
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
+
+      assertEquals(numberOfMessages, pageWrites.get());
+   }
+
+   @Test
+   public void testVerifyTimedWriterIsStopped() throws Exception {
+      allowRunning.countDown();
+      useReplication.set(false);
+      pageStore.stop();
+      assertFalse(pageStore.getPageTimedWriter().isStarted());
+   }
+
+   @Test
    public void testTXCompletionWhileDisableReplica() throws Exception {
       CountDownLatch latch = new CountDownLatch(1);
 

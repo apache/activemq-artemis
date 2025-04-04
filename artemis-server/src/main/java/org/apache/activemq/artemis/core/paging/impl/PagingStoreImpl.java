@@ -636,7 +636,12 @@ public class PagingStoreImpl implements PagingStore {
    public void stop() throws Exception {
       synchronized (this) {
          if (running) {
-            cursorProvider.stop();
+            if (timedWriter != null) {
+               timedWriter.stop();
+            }
+            if (cursorProvider != null) {
+               cursorProvider.stop();
+            }
             running = false;
          } else {
             return;
@@ -740,6 +745,10 @@ public class PagingStoreImpl implements PagingStore {
                final Page page = currentPage;
                if (page != null && !(numberOfPages == 1 && page.getSize() == 0)) {
                   startPaging();
+               }
+
+               if (timedWriter != null) {
+                  timedWriter.start();
                }
             }
          }
