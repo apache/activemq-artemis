@@ -641,7 +641,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       final byte[] body = new byte[bytesToRead];
       qbuff.readBytes(body);
       largeMessage.setLargeMessageController(new CompressedLargeMessageControllerImpl(currentLargeMessageController));
-      currentLargeMessageController.addPacket(body, body.length, false);
+      currentLargeMessageController.addPacket(body, 0, false);
       largeMessage.putBooleanProperty(Message.HDR_LARGE_COMPRESSED, false);
 
       handleRegularMessage(largeMessage);
