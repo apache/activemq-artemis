@@ -191,9 +191,14 @@ public class PageTimedWriter extends ActiveMQScheduledComponent {
          // In case of failure, The context should propagate an exception to the client
          // We send an exception to the client even on the case of a failure
          // to avoid possible locks and the client not getting the exception back
-         for (PageEvent event : pendingEvents) {
-            event.context.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during ioSync for paging on " + pagingStore.getStoreName() + ": " + e.getMessage());
-         }
+         executor.execute(() -> {
+            // The onError has to be called from a separate executor
+            // because this PagedWriter will be holding the lock on the storage manager
+            // and this might lead to a deadlock
+            for (PageEvent event : pendingEvents) {
+               event.context.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getClass() + " during ioSync for paging on " + pagingStore.getStoreName() + ": " + e.getMessage());
+            }
+         });
       } finally {
          for (PageEvent event : pendingEvents) {
             event.context.done();
