@@ -117,6 +117,11 @@ public class OutgoingConnectionTest extends ActiveMQRATestBase {
    }
 
    @Test
+   public void testReference() throws Exception {
+      assertNotNull(qraConnectionFactory.getReference());
+   }
+
+   @Test
    public void testSimpleMessageSendAndReceiveXA() throws Exception {
       Xid xid = new XidImpl("xa1".getBytes(), 1, UUIDGenerator.getInstance().generateStringUUID().getBytes());
       XAQueueConnection queueConnection = qraConnectionFactory.createXAQueueConnection();
