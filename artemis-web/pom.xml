@@ -91,6 +91,18 @@
          <artifactId>jetty-http</artifactId>
       </dependency>
       <dependency>
+         <groupId>org.eclipse.jetty.http2</groupId>
+         <artifactId>jetty-http2-server</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-alpn-server</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-alpn-java-server</artifactId>
+      </dependency>
+      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-server</artifactId>
          <scope>test</scope>
