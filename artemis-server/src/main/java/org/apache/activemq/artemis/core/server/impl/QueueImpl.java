@@ -97,6 +97,7 @@ import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.NamedHierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -290,7 +291,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile boolean supportsDirectDeliver = false;
 
-   private AddressSettingsRepositoryListener addressSettingsRepositoryListener;
+   private HierarchicalRepository<AddressSettings> addressSettingsRepository;
+
+   private HierarchicalRepositoryChangeListener addressSettingsRepositoryListener;
 
    private final ReusableLatch deliveriesInTransit = new ReusableLatch(0);
 
@@ -415,8 +418,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       scheduledDeliveryHandler = new ScheduledDeliveryHandlerImpl(scheduledExecutor, this);
 
       if (addressSettingsRepository != null) {
-         addressSettingsRepositoryListener = new AddressSettingsRepositoryListener(addressSettingsRepository);
-         addressSettingsRepository.registerListener(addressSettingsRepositoryListener);
+         this.addressSettingsRepository = addressSettingsRepository;
+         addressSettingsRepositoryListener = new NamedHierarchicalRepositoryChangeListener(queueConfiguration.getName()) {
+            @Override
+            public void onChange() {
+               cachedAddressSettings = QueueImpl.this.addressSettingsRepository.getMatch(getAddressSettingsMatch());
+               checkDeadLetterAddressAndExpiryAddress();
+               configureSlowConsumerReaper();
+            }
+         };
+         this.addressSettingsRepository.registerListener(addressSettingsRepositoryListener);
          this.cachedAddressSettings = addressSettingsRepository.getMatch(getAddressSettingsMatch());
       } else {
          this.cachedAddressSettings = new AddressSettings();
@@ -1082,7 +1093,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public void close() throws Exception {
       getExecutor().execute(this::cancelRedistributor);
 
-      addressSettingsRepositoryListener.close();
+      addressSettingsRepository.unRegisterListener(addressSettingsRepositoryListener);
    }
 
    @Override
@@ -4481,26 +4492,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                logger.debug("Cannot preserve ringSize {}; message ref is null", queueConfiguration.getRingSize());
             }
          }
-      }
-   }
-
-   private class AddressSettingsRepositoryListener implements HierarchicalRepositoryChangeListener {
-
-      HierarchicalRepository<AddressSettings> addressSettingsRepository;
-
-      AddressSettingsRepositoryListener(HierarchicalRepository addressSettingsRepository) {
-         this.addressSettingsRepository = addressSettingsRepository;
-      }
-
-      @Override
-      public void onChange() {
-         cachedAddressSettings = addressSettingsRepository.getMatch(getAddressSettingsMatch());
-         checkDeadLetterAddressAndExpiryAddress();
-         configureSlowConsumerReaper();
-      }
-
-      public void close() {
-         addressSettingsRepository.unRegisterListener(this);
       }
    }
 
