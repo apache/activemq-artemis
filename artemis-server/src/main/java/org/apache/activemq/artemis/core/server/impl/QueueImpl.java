@@ -43,6 +43,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -2006,6 +2007,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                          QueueIterateAction messageAction) throws Exception {
       int count = 0;
       int txCount = 0;
+
+      if (filter1 != null) {
+         messageAction.addFilter(filter1);
+      }
+
       // This is to avoid scheduling depaging while iterQueue is happening
       // this should minimize the use of the paged executor.
       depagePending = true;
@@ -2024,7 +2030,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                while (iter.hasNext() && !messageAction.expectedHitsReached(count)) {
                   MessageReference ref = iter.next();
 
-                  if (filter1 == null || filter1.match(ref.getMessage())) {
+                  if (messageAction.match(ref)) {
                      if (messageAction.actMessage(tx, ref)) {
                         iter.remove();
                         refRemoved(ref);
@@ -2046,7 +2052,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   return count;
                }
 
-               List<MessageReference> cancelled = scheduledDeliveryHandler.cancel(ref -> filter1 == null ? true : filter1.match(ref.getMessage()));
+               List<MessageReference> cancelled = scheduledDeliveryHandler.cancel(ref -> messageAction.match(ref));
                for (MessageReference messageReference : cancelled) {
                   messageAction.actMessage(tx, messageReference);
                   count++;
@@ -2069,12 +2075,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                PagedReference reference = pageIterator.next();
                pageIterator.remove();
 
-               if (filter1 == null || filter1.match(reference.getMessage())) {
-                  count++;
-                  txCount++;
+               if (messageAction.match(reference)) {
                   if (!messageAction.actMessage(tx, reference)) {
                      addTail(reference, false);
                   }
+                  txCount++;
+                  count++;
                } else {
                   addTail(reference, false);
                }
@@ -2393,43 +2399,27 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public synchronized boolean sendMessageToDeadLetterAddress(final long messageID) throws Exception {
-      try (LinkedListIterator<MessageReference> iter = iterator()) {
-         while (iter.hasNext()) {
-            MessageReference ref = iter.next();
-            if (ref.getMessage().getMessageID() == messageID) {
-               incDelivering(ref);
-               sendToDeadLetterAddress(null, ref);
-               iter.remove();
-               refRemoved(ref);
-               return true;
-            }
+
+      return iterQueue(DEFAULT_FLUSH_LIMIT, null, new QueueIterateAction(messageID) {
+
+         @Override
+         public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
+            incDelivering(ref);
+            sendToDeadLetterAddress(tx, ref);
+            return true;
          }
-         if (pageIterator != null && !queueDestroyed) {
-            while (pageIterator.hasNext()) {
-               PagedReference ref = pageIterator.next();
-               if (ref.getMessage().getMessageID() == messageID) {
-                  incDelivering(ref);
-                  sendToDeadLetterAddress(null, ref);
-                  pageIterator.remove();
-                  refRemoved(ref);
-                  return true;
-               }
-            }
-         }
-         return false;
-      }
+      }) == 1;
    }
 
    @Override
    public synchronized int sendMessagesToDeadLetterAddress(Filter filter) throws Exception {
-
       return iterQueue(DEFAULT_FLUSH_LIMIT, filter, new QueueIterateAction() {
 
          @Override
          public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
-
             incDelivering(ref);
-            return sendToDeadLetterAddress(tx, ref);
+            sendToDeadLetterAddress(tx, ref);
+            return true;
          }
       });
    }
@@ -2439,24 +2429,17 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                                              final SimpleString toAddress,
                                              final Binding binding,
                                              final boolean rejectDuplicate) throws Exception {
-      try (LinkedListIterator<MessageReference> iter = iterator()) {
-         while (iter.hasNext()) {
-            MessageReference ref = iter.next();
-            if (ref.getMessage().getMessageID() == messageID) {
-               iter.remove();
-               refRemoved(ref);
-               incDelivering(ref);
-               try {
-                  move(null, toAddress, binding, ref, rejectDuplicate, AckReason.NORMAL, null, null, true);
-               } catch (Exception e) {
-                  decDelivering(ref);
-                  throw e;
-               }
-               return true;
-            }
+
+      return iterQueue(DEFAULT_FLUSH_LIMIT, null, new QueueIterateAction(messageID) {
+
+         @Override
+         public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
+            incDelivering(ref);
+            move(tx, toAddress, binding, ref, rejectDuplicate, AckReason.NORMAL, null, null, true);
+            return true;
          }
-         return false;
-      }
+
+      }) == 1;
    }
 
    @Override
@@ -2502,7 +2485,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
             if (!ignored) {
-               move(null, toAddress, binding, ref, rejectDuplicates, AckReason.NORMAL, null, null, true);
+               move(tx, toAddress, binding, ref, rejectDuplicates, AckReason.NORMAL, null, null, true);
             }
 
             return true;
@@ -2523,20 +2506,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public synchronized boolean copyReference(final long messageID,
                                              final SimpleString toQueue,
                                              final Binding binding) throws Exception {
-      try (LinkedListIterator<MessageReference> iter = iterator()) {
-         while (iter.hasNext()) {
-            MessageReference ref = iter.next();
-            if (ref.getMessage().getMessageID() == messageID) {
-               try {
-                  copy(null, toQueue, binding, ref);
-               } catch (Exception e) {
-                  throw e;
-               }
-               return true;
-            }
+
+      return iterQueue(DEFAULT_FLUSH_LIMIT, null, new QueueIterateAction(messageID) {
+
+         @Override
+         public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
+            copy(null, toQueue, binding, ref);
+            addTail(ref, false);
+            return true;
          }
-         return false;
-      }
+      }) == 1;
    }
 
    public synchronized int rerouteMessages(final SimpleString queueName, final Filter filter) throws Exception {
@@ -2609,39 +2588,28 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public synchronized boolean changeReferencePriority(final long messageID, final byte newPriority) throws Exception {
-      try (LinkedListIterator<MessageReference> iter = iterator()) {
+      return iterQueue(DEFAULT_FLUSH_LIMIT, null, new QueueIterateAction(messageID) {
 
-         while (iter.hasNext()) {
-            MessageReference ref = iter.next();
-            if (ref.getMessage().getMessageID() == messageID) {
-               iter.remove();
-               refRemoved(ref);
-               ref.getMessage().setPriority(newPriority);
-               addTail(ref, false);
-               return true;
-            }
+         @Override
+         public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
+            ref.getMessage().setPriority(newPriority);
+            addTail(ref, false);
+            return true;
          }
-
-         return false;
-      }
+      }) == 1;
    }
 
    @Override
    public synchronized int changeReferencesPriority(final Filter filter, final byte newPriority) throws Exception {
-      try (LinkedListIterator<MessageReference> iter = iterator()) {
-         int count = 0;
-         while (iter.hasNext()) {
-            MessageReference ref = iter.next();
-            if (filter == null || filter.match(ref.getMessage())) {
-               count++;
-               iter.remove();
-               refRemoved(ref);
-               ref.getMessage().setPriority(newPriority);
-               addTail(ref, false);
-            }
+      return iterQueue(DEFAULT_FLUSH_LIMIT, filter, new QueueIterateAction() {
+
+         @Override
+         public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
+            ref.getMessage().setPriority(newPriority);
+            addTail(ref, false);
+            return true;
          }
-         return count;
-      }
+      });
    }
 
    @Override
@@ -4177,13 +4145,23 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    abstract class QueueIterateAction {
 
       protected Integer expectedHits;
+      protected Long messageID;
+      protected Filter filter1 = null;
+      protected Predicate<MessageReference> match;
 
       QueueIterateAction(Integer expectedHits) {
          this.expectedHits = expectedHits;
+         this.match = ref -> filter1 == null ? true : filter1.match(ref.getMessage());
+      }
+
+      QueueIterateAction(Long messageID) {
+         this.expectedHits = 1;
+         this.match = ref -> ref.getMessage().getMessageID() == messageID;
       }
 
       QueueIterateAction() {
          this.expectedHits = null;
+         this.match = ref -> filter1 == null ? true : filter1.match(ref.getMessage());
       }
 
       /**
@@ -4198,6 +4176,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       public boolean expectedHitsReached(int currentHits) {
          return expectedHits != null && currentHits >= expectedHits.intValue();
       }
+
+      public void addFilter(Filter filter1) {
+         this.filter1 = filter1;
+      }
+
+      public boolean match(MessageReference ref) {
+         return match.test(ref);
+      }
+
    }
 
    // For external use we need to use a synchronized version since the list is not thread safe
