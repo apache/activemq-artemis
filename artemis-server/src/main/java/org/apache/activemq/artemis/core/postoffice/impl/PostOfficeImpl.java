@@ -95,6 +95,7 @@ import org.apache.activemq.artemis.core.server.management.NotificationListener;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
+import org.apache.activemq.artemis.core.settings.impl.NamedHierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
@@ -573,18 +574,21 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    private void registerRepositoryListenerForRetroactiveAddress(SimpleString name) {
-      HierarchicalRepositoryChangeListener repositoryChangeListener = () -> {
-         String prefix = server.getInternalNamingPrefix();
-         String delimiter = server.getConfiguration().getWildcardConfiguration().getDelimiterString();
-         String address = ResourceNames.decomposeRetroactiveResourceAddressName(prefix, delimiter, name.toString());
-         AddressSettings settings = addressSettingsRepository.getMatch(address);
-         Queue internalAnycastQueue = server.locateQueue(ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, SimpleString.of(address), RoutingType.ANYCAST));
-         if (internalAnycastQueue != null && internalAnycastQueue.getRingSize() != settings.getRetroactiveMessageCount()) {
-            internalAnycastQueue.setRingSize(settings.getRetroactiveMessageCount());
-         }
-         Queue internalMulticastQueue = server.locateQueue(ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, SimpleString.of(address), RoutingType.MULTICAST));
-         if (internalMulticastQueue != null && internalMulticastQueue.getRingSize() != settings.getRetroactiveMessageCount()) {
-            internalMulticastQueue.setRingSize(settings.getRetroactiveMessageCount());
+      HierarchicalRepositoryChangeListener repositoryChangeListener = new NamedHierarchicalRepositoryChangeListener(name) {
+         @Override
+         public void onChange() {
+            String prefix = server.getInternalNamingPrefix();
+            String delimiter = server.getConfiguration().getWildcardConfiguration().getDelimiterString();
+            String address = ResourceNames.decomposeRetroactiveResourceAddressName(prefix, delimiter, name.toString());
+            AddressSettings settings = addressSettingsRepository.getMatch(address);
+            Queue internalAnycastQueue = server.locateQueue(ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, SimpleString.of(address), RoutingType.ANYCAST));
+            if (internalAnycastQueue != null && internalAnycastQueue.getRingSize() != settings.getRetroactiveMessageCount()) {
+               internalAnycastQueue.setRingSize(settings.getRetroactiveMessageCount());
+            }
+            Queue internalMulticastQueue = server.locateQueue(ResourceNames.getRetroactiveResourceQueueName(prefix, delimiter, SimpleString.of(address), RoutingType.MULTICAST));
+            if (internalMulticastQueue != null && internalMulticastQueue.getRingSize() != settings.getRetroactiveMessageCount()) {
+               internalMulticastQueue.setRingSize(settings.getRetroactiveMessageCount());
+            }
          }
       };
       addressSettingsRepository.registerListener(repositoryChangeListener);

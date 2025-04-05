@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.core.settings.Mergeable;
+import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +103,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    /**
     * any registered listeners, these get fired on changes to the repository
     */
-   private final List<HierarchicalRepositoryChangeListener> listeners = new ArrayList<>();
+   private final ConcurrentHashSet<HierarchicalRepositoryChangeListener> listeners = new ConcurrentHashSet<>();
 
    public HierarchicalObjectRepository() {
       this(null);
@@ -319,25 +320,15 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
 
    @Override
    public void registerListener(final HierarchicalRepositoryChangeListener listener) {
-      lock.writeLock().lock();
-      try {
-         listeners.add(listener);
-         if (listenersEnabled) {
-            listener.onChange();
-         }
-      } finally {
-         lock.writeLock().unlock();
+      listeners.add(listener);
+      if (listenersEnabled) {
+         listener.onChange();
       }
    }
 
    @Override
    public void unRegisterListener(final HierarchicalRepositoryChangeListener listener) {
-      lock.writeLock().lock();
-      try {
-         listeners.remove(listener);
-      } finally {
-         lock.writeLock().unlock();
-      }
+      listeners.remove(listener);
    }
 
    /**
@@ -405,19 +396,14 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    }
 
    private void onChange() {
-      lock.readLock().lock();
-      try {
-         if (listenersEnabled) {
-            for (HierarchicalRepositoryChangeListener listener : listeners) {
-               try {
-                  listener.onChange();
-               } catch (Throwable e) {
-                  ActiveMQServerLogger.LOGGER.errorCallingRepoListener(e);
-               }
+      if (listenersEnabled) {
+         for (HierarchicalRepositoryChangeListener listener : listeners) {
+            try {
+               listener.onChange();
+            } catch (Throwable e) {
+               ActiveMQServerLogger.LOGGER.errorCallingRepoListener(e);
             }
          }
-      } finally {
-         lock.readLock().unlock();
       }
    }
 
