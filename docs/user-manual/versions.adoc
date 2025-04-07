@@ -36,6 +36,11 @@ From a user's perspective the main change is that the prominently featured "tree
 The categorized resource tabs which were available previously are now the main and recommended way to interact with the broker.
 These tabs offer a paged view which is filterable and sortable and scales well for resource heavy use-cases.
 +
+It's also worth noting that any request with an origin header using the `https` scheme which is ultimately received by Jolokia via HTTP is now discarded by default since it is deemed insecure.
+If you use a TLS proxy that transforms secure requests to insecure requests (e.g. in a Kubernetes environment) then consider changing the proxy to preserve HTTPS and switching the xref:embedded-web-server.adoc[embedded web server] to HTTPS.
+If that isn't feasible then you can accept the risk by adding `<ignore-scheme/>` to `etc/jolokia-access.xml`.
+See the https://jolokia.org/reference/html/manual/security.html[Jolokia documentation] for more details.
++
 The behavior and presentation should be more consistent overall, and anything that was possible before should still be possible since the underlying management API has not changed.
 +
 In order to upgrade an existing instance of 2.39.0 to 2.40.0 you can use the xref:upgrading.adoc#upgrading-tool[`upgrade` command] which will *automatically perform* all the changes or you can make the following changes manually:
