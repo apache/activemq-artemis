@@ -97,8 +97,6 @@ public class ReplicationFlowControlTest extends SoakTestBase {
    @Override
    public void after() throws Exception {
       super.after();
-      cleanupData(SERVER_NAME_0);
-      cleanupData(SERVER_NAME_1);
    }
 
    @Test
