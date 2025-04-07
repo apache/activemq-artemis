@@ -1079,15 +1079,17 @@ public final class PageSubscriptionImpl implements PageSubscription {
       }
 
       protected void checkDone() {
-         if (isDone()) {
-            onPageDone(this);
-         }
+         pageStore.execute(() -> {
+            if (isDone()) {
+               onPageDone(this);
+            }
+         });
       }
 
       private int getNumberOfMessages() {
          if (numberOfMessages < 0) {
             try {
-               Page page = pageStore.usePage(pageId, false);
+               Page page = pageStore.usePage(pageId, true, false);
 
                if (page == null) {
                   page = pageStore.newPageObject(pageId);
