@@ -52,6 +52,8 @@ The only app needed for the new web console is `console.war`.
 . Rename the `hawtio.role` Java system property to `hawtio.roles`. A simple search & replace will suffice.
 .. If using Linux or similar this change will be in the `bin/artemis` script.
 .. If using Windows this change will be in `etc/artemis.profile.cmd`.
++
+Insecure access to jolokia is discarded in the new web console. If you use a web proxy that transforms secure to insecure requests, consider switch it to a secured web proxy or configure in `jolokia-access.xml` an `<ignore-scheme/>` line.
 
 == 2.39.0
 
