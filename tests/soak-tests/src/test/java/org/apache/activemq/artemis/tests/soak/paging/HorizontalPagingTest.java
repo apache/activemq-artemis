@@ -38,8 +38,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
-import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -48,24 +46,21 @@ import org.apache.activemq.artemis.utils.TestParameters;
 import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.lang.invoke.MethodHandles;
 
 /**
  * Refer to ./scripts/parameters.sh for suggested parameters #You may choose to use zip files to save some time on
  * producing if you want to run this test over and over when debugging export TEST_HORIZONTAL_ZIP_LOCATION=a folder
  */
-@ExtendWith(ParameterizedTestExtension.class)
 public class HorizontalPagingTest extends SoakTestBase {
 
    private static final String TEST_NAME = "HORIZONTAL";
 
-   private final String protocol;
    private static final boolean TEST_ENABLED = Boolean.parseBoolean(testProperty(TEST_NAME, "TEST_ENABLED", "true"));
-   private static final String ZIP_LOCATION = testProperty(null, "ZIP_LOCATION", null);
    private static final int SERVER_START_TIMEOUT = testProperty(TEST_NAME, "SERVER_START_TIMEOUT", 300_000);
    private static final int TIMEOUT_MINUTES = testProperty(TEST_NAME, "TIMEOUT_MINUTES", 120);
    private static final String PROTOCOL_LIST = testProperty(TEST_NAME, "PROTOCOL_LIST", "OPENWIRE,CORE,AMQP");
@@ -78,7 +73,6 @@ public class HorizontalPagingTest extends SoakTestBase {
    private final int RECEIVE_COMMIT_INTERVAL;
    private final int MESSAGE_SIZE;
    private final int PARALLEL_SENDS;
-
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -99,77 +93,61 @@ public class HorizontalPagingTest extends SoakTestBase {
       }
    }
 
-   @Parameters(name = "protocol={0}")
-   public static Collection<Object[]> parameters() {
+   public static List<String> parseProtocolList() {
       String[] protocols = PROTOCOL_LIST.split(",");
 
-      List<Object[]> parameters = new ArrayList<>();
+      List<String> protocolList = new ArrayList<>();
       for (String str : protocols) {
          logger.info("Adding {} to the list for the test", str);
-         parameters.add(new Object[]{str});
+         protocolList.add(str);
       }
 
-      return parameters;
+      return protocolList;
    }
 
-   public HorizontalPagingTest(String protocol) {
-      this.protocol = protocol;
-      DESTINATIONS = TestParameters.testProperty(TEST_NAME, protocol + "_DESTINATIONS", 5);
-      MESSAGES = TestParameters.testProperty(TEST_NAME, protocol + "_MESSAGES", 1000);
-      COMMIT_INTERVAL = TestParameters.testProperty(TEST_NAME, protocol + "_COMMIT_INTERVAL", 100);
+   public HorizontalPagingTest() {
+      DESTINATIONS = TestParameters.testProperty(TEST_NAME, "DESTINATIONS", 5);
+      MESSAGES = TestParameters.testProperty(TEST_NAME, "MESSAGES", 1000);
+      COMMIT_INTERVAL = TestParameters.testProperty(TEST_NAME, "COMMIT_INTERVAL", 100);
       // if 0 will use AUTO_ACK
-      RECEIVE_COMMIT_INTERVAL = TestParameters.testProperty(TEST_NAME, protocol + "_RECEIVE_COMMIT_INTERVAL", 100);
-      MESSAGE_SIZE = TestParameters.testProperty(TEST_NAME, protocol + "_MESSAGE_SIZE", 10_000);
-      PARALLEL_SENDS = TestParameters.testProperty(TEST_NAME, protocol + "_PARALLEL_SENDS", 5);
+      RECEIVE_COMMIT_INTERVAL = TestParameters.testProperty(TEST_NAME, "RECEIVE_COMMIT_INTERVAL", 100);
+      MESSAGE_SIZE = TestParameters.testProperty(TEST_NAME, "MESSAGE_SIZE", 10_000);
+      PARALLEL_SENDS = TestParameters.testProperty(TEST_NAME, "PARALLEL_SENDS", 5);
    }
 
    Process serverProcess;
-
-   boolean unzipped = false;
-
-   private String getZipName() {
-      return "horizontal-" + protocol + "-" + DESTINATIONS + "-" + MESSAGES + "-" + MESSAGE_SIZE + ".zip";
-   }
 
    @BeforeEach
    public void before() throws Exception {
       assumeTrue(TEST_ENABLED);
       cleanupData(SERVER_NAME_0);
 
-      boolean useZip = ZIP_LOCATION != null;
-      String zipName = getZipName();
-      File zipFile = useZip ? new File(ZIP_LOCATION + "/" + zipName) : null;
-
-      if (ZIP_LOCATION  != null && zipFile.exists()) {
-         unzipped = true;
-         unzip(zipFile, new File(getServerLocation(SERVER_NAME_0)));
-      }
-
       serverProcess = startServer(SERVER_NAME_0, 0, SERVER_START_TIMEOUT);
    }
 
-
-   @TestTemplate
+   @Test
    public void testHorizontal() throws Exception {
-      ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+      Collection<String> protocolList = parseProtocolList();
       AtomicInteger errors = new AtomicInteger(0);
 
-      ExecutorService service = Executors.newFixedThreadPool(DESTINATIONS);
+      ExecutorService service = Executors.newFixedThreadPool(DESTINATIONS * protocolList.size());
       runAfter(service::shutdownNow);
 
-      if (!unzipped) {
+      String text = RandomUtil.randomAlphaNumericString(MESSAGE_SIZE);
+
+      ReusableLatch latchDone = new ReusableLatch(0);
+
+      for (String protocol : protocolList) {
+         String protocolUsed = protocol;
+
+         ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
          Connection connection = factory.createConnection();
          runAfter(connection::close);
-
-         String text = RandomUtil.randomAlphaNumericString(MESSAGE_SIZE);
-
-         ReusableLatch latchDone = new ReusableLatch(0);
-
 
          for (int i = 0; i < DESTINATIONS; i++) {
             latchDone.countUp();
             Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-            Queue queue = session.createQueue("queue_" + i);
+            Queue queue = session.createQueue("queue_" + i + protocolUsed);
             service.execute(() -> {
                try {
                   logger.info("*******************************************************************************************************************************\ndestination {}", queue.getQueueName());
@@ -193,87 +171,81 @@ public class HorizontalPagingTest extends SoakTestBase {
                   latchDone.countDown();
                }
             });
-
-            if ((i + 1) % PARALLEL_SENDS == 0) {
-               latchDone.await();
-            }
          }
-         latchDone.await();
-
-         connection.close();
-
-
-         killServer(serverProcess);
       }
 
+      assertTrue(latchDone.await(TIMEOUT_MINUTES, TimeUnit.MINUTES));
 
-
-      if (ZIP_LOCATION != null && !unzipped) {
-         String fileName = getZipName();
-         zip(new File(ZIP_LOCATION, fileName), new File(getServerLocation(SERVER_NAME_0)));
-      }
+      killServer(serverProcess);
 
       serverProcess = startServer(SERVER_NAME_0, 0, SERVER_START_TIMEOUT);
 
-      Connection connectionConsumer = factory.createConnection();
-
-      runAfter(connectionConsumer::close);
-
       AtomicInteger completedFine = new AtomicInteger(0);
 
-      for (int i = 0; i < DESTINATIONS; i++) {
-         int destination = i;
-         service.execute(() -> {
-            try {
-               Session sessionConsumer;
+      for (String protocol : protocolList) {
+         latchDone.countUp();
+         String protocolUsed = protocol;
 
-               if (RECEIVE_COMMIT_INTERVAL <= 0) {
-                  sessionConsumer = connectionConsumer.createSession(false, Session.AUTO_ACKNOWLEDGE);
-               } else {
-                  sessionConsumer = connectionConsumer.createSession(true, Session.SESSION_TRANSACTED);
-               }
+         ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+         Connection connectionConsumer = factory.createConnection();
+         runAfter(connectionConsumer::close);
 
-               MessageConsumer messageConsumer = sessionConsumer.createConsumer(sessionConsumer.createQueue("queue_" + destination));
-               for (int m = 0; m < MESSAGES; m++) {
-                  TextMessage message = (TextMessage) messageConsumer.receive(50_000);
-                  if (message == null) {
-                     m--;
-                     continue;
+         for (int i = 0; i < DESTINATIONS; i++) {
+            int destination = i;
+            service.execute(() -> {
+               try {
+                  Session sessionConsumer;
+
+                  if (RECEIVE_COMMIT_INTERVAL <= 0) {
+                     sessionConsumer = connectionConsumer.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                  } else {
+                     sessionConsumer = connectionConsumer.createSession(true, Session.SESSION_TRANSACTED);
                   }
 
-                  // The sending commit interval here will be used for printing
-                  if (PRINT_INTERVAL > 0 && m % PRINT_INTERVAL == 0) {
-                     logger.info("Destination {} received {} {} messages", destination, m, protocol);
+                  MessageConsumer messageConsumer = sessionConsumer.createConsumer(sessionConsumer.createQueue("queue_" + destination + protocolUsed));
+                  for (int m = 0; m < MESSAGES; m++) {
+                     TextMessage message = (TextMessage) messageConsumer.receive(50_000);
+                     if (message == null) {
+                        m--;
+                        continue;
+                     }
+
+                     // The sending commit interval here will be used for printing
+                     if (PRINT_INTERVAL > 0 && m % PRINT_INTERVAL == 0) {
+                        logger.info("Destination {} received {} {} messages", destination, m, protocol);
+                     }
+
+                     assertEquals(m, message.getIntProperty("m"));
+
+                     if (RECEIVE_COMMIT_INTERVAL > 0 && (m + 1) % RECEIVE_COMMIT_INTERVAL == 0) {
+                        sessionConsumer.commit();
+                     }
                   }
 
-                  assertEquals(m, message.getIntProperty("m"));
-
-                  if (RECEIVE_COMMIT_INTERVAL > 0 && (m + 1) % RECEIVE_COMMIT_INTERVAL == 0) {
+                  if (RECEIVE_COMMIT_INTERVAL > 0) {
                      sessionConsumer.commit();
                   }
+
+                  completedFine.incrementAndGet();
+
+               } catch (Throwable e) {
+                  logger.warn(e.getMessage(), e);
+                  errors.incrementAndGet();
+               } finally {
+                  latchDone.countDown();
                }
+            });
+         }
 
-               if (RECEIVE_COMMIT_INTERVAL > 0) {
-                  sessionConsumer.commit();
-               }
-
-               completedFine.incrementAndGet();
-
-            } catch (Throwable e) {
-               logger.warn(e.getMessage(), e);
-               errors.incrementAndGet();
-            }
-         });
+         connectionConsumer.start();
       }
 
-      connectionConsumer.start();
+      assertTrue(latchDone.await(TIMEOUT_MINUTES, TimeUnit.MINUTES));
 
       service.shutdown();
       assertTrue(service.awaitTermination(TIMEOUT_MINUTES, TimeUnit.MINUTES), "Test Timed Out");
       assertEquals(0, errors.get());
-      assertEquals(DESTINATIONS, completedFine.get());
-
-      connectionConsumer.close();
+      assertEquals(DESTINATIONS * protocolList.size(), completedFine.get());
    }
 
 }
