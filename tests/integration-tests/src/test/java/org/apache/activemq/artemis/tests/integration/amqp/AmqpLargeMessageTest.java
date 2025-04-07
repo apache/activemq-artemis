@@ -172,8 +172,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
       try {
          sendMessages(nMsgs, connection);
 
-         int count = getMessageCount(server.getPostOffice(), testQueueName);
-         assertEquals(nMsgs, count);
+         Wait.assertEquals(nMsgs, () -> getMessageCount(server.getPostOffice(), testQueueName), 5000, 100);
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(testQueueName);
          serverQueue.forEach(ref -> {
             try {
