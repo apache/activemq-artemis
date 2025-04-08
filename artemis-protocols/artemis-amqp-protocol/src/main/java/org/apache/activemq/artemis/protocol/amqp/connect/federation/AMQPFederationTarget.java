@@ -43,8 +43,9 @@ public class AMQPFederationTarget extends AMQPFederation {
    private final AMQPRemoteBrokerConnection brokerConnection;
    private final AMQPConnectionContext connection;
    private final AMQPFederationConfiguration configuration;
+   private final AMQPFederationCapabilities capabilities;
 
-   public AMQPFederationTarget(AMQPRemoteBrokerConnection brokerConnection, String name, AMQPFederationConfiguration configuration, AMQPSessionContext session) {
+   public AMQPFederationTarget(AMQPRemoteBrokerConnection brokerConnection, String name, AMQPFederationConfiguration configuration, AMQPFederationCapabilities capabilities, AMQPSessionContext session) {
       super(name, brokerConnection.getServer());
 
       Objects.requireNonNull(session, "Provided session instance cannot be null");
@@ -54,12 +55,18 @@ public class AMQPFederationTarget extends AMQPFederation {
       this.connection = session.getAMQPConnectionContext();
       this.connection.addLinkRemoteCloseListener(getName(), this::handleLinkRemoteClose);
       this.configuration = configuration;
+      this.capabilities = capabilities;
       this.connected = true;
    }
 
    @Override
    public AMQPConnectionContext getConnectionContext() {
       return connection;
+   }
+
+   @Override
+   public AMQPFederationCapabilities getCapabilities() {
+      return capabilities;
    }
 
    @Override

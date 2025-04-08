@@ -89,6 +89,7 @@ public final class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
 
    private String generateLinkName() {
       return "federation-" + federation.getName() +
+             "-policy-" + policy.getPolicyName() +
              "-queue-receiver-" + consumerInfo.getFqqn() +
              "-" + federation.getServer().getNodeID() + ":" +
              LINK_SEQUENCE_ID.getAndIncrement();

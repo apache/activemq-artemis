@@ -37,6 +37,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENTS_LINK_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_NAME;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FQQN_ADDRESS_SUBSCRIPTIONS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LARGE_MESSAGE_THRESHOLD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LINK_ATTACH_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.OPERATION_TYPE;
@@ -272,6 +273,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          peer.expectBegin().respond();
          peer.expectAttach().ofSender()
                             .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .withDesiredCapability(FQQN_ADDRESS_SUBSCRIPTIONS.toString())
                             .withName(allOf(containsString("federation-"), containsString("myFederation")))
                             .withProperty(FEDERATION_NAME.toString(), "myFederation")
                             .withProperty(FEDERATION_CONFIGURATION.toString(), federationConfiguration)
@@ -281,7 +283,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
                             .respond()
                             .withTarget().withAddress(controlLinkAddress)
                             .and()
-                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString(), FQQN_ADDRESS_SUBSCRIPTIONS.toString());
          peer.start();
 
          final URI remoteURI = peer.getServerURI();
@@ -301,6 +303,44 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          federation.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, AMQP_QUEUE_RECEIVER_IDLE_TIMEOUT);
          federation.addProperty(IGNORE_QUEUE_CONSUMER_PRIORITIES, Boolean.toString(AMQP_INGNORE_CONSUMER_PRIORITIES));
          amqpConnection.addElement(federation);
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         Wait.assertTrue(() -> server.locateQueue(FEDERATION_BASE_VALIDATION_ADDRESS +
+                                                  "." + FEDERATION_CONTROL_LINK_PREFIX +
+                                                  "." + controlLinkAddress) != null);
+
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationCreatesControlLinkAndContinuesIfDesiredFQQNCapabilitiesNotOfferedBack() throws Exception {
+      final String controlLinkAddress = "test-control-address";
+
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .withDesiredCapability(FQQN_ADDRESS_SUBSCRIPTIONS.toString())
+                            .respond()
+                            .withTarget().withAddress(controlLinkAddress)
+                            .and()
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(new AMQPFederatedBrokerConnectionElement(getTestName()));
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
 
@@ -380,6 +420,10 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          server.start();
 
          peer.waitForScriptToComplete(10, TimeUnit.SECONDS);
+
+         Wait.assertTrue(() -> server.locateQueue(FEDERATION_BASE_VALIDATION_ADDRESS +
+                                                  "." + FEDERATION_CONTROL_LINK_PREFIX +
+                                                  ".dynamic-name") != null);
 
          server.stop();
       }
@@ -1324,7 +1368,8 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       peer.expectBegin();
       peer.remoteAttach().ofSender()
                          .withName(federationControlLinkName)
-                         .withDesiredCapabilities(FEDERATION_CONTROL_LINK.toString())
+                         .withDesiredCapabilities(FEDERATION_CONTROL_LINK.toString(), FQQN_ADDRESS_SUBSCRIPTIONS.toString())
+                         .withOfferedCapabilities(FQQN_ADDRESS_SUBSCRIPTIONS.toString())
                          .withSenderSettleModeUnsettled()
                          .withReceivervSettlesFirst()
                          .withSource().also()
@@ -1340,7 +1385,8 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
                          .withTarget()
                             .withAddress(notNullValue())
                          .also()
-                         .withOfferedCapability(FEDERATION_CONTROL_LINK.toString());
+                         .withDesiredCapability(FQQN_ADDRESS_SUBSCRIPTIONS.toString())
+                         .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString(), FQQN_ADDRESS_SUBSCRIPTIONS.toString());
       peer.expectFlow();
 
       if (eventsSender) {

@@ -96,6 +96,7 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
 
    private String generateLinkName() {
       return "federation-" + federation.getName() +
+             "-policy-" + policy.getPolicyName() +
              "-address-receiver-" + consumerInfo.getAddress() +
              "-" + federation.getServer().getNodeID() +
              "-" + LINK_SEQUENCE_ID.incrementAndGet();
@@ -112,7 +113,6 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
          final Receiver protonReceiver = session.getSession().receiver(generateLinkName());
          final Target target = new Target();
          final Source source = new Source();
-         final String address = consumerInfo.getAddress();
 
          if (RoutingType.ANYCAST.equals(consumerInfo.getRoutingType())) {
             source.setCapabilities(AmqpSupport.QUEUE_CAPABILITY);
@@ -133,10 +133,15 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
          source.setDefaultOutcome(DEFAULT_OUTCOME);
          source.setDurable(TerminusDurability.NONE);
          source.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
-         source.setAddress(address);
          source.setFilter(filtersMap);
 
-         target.setAddress(address);
+         if (federation.getCapabilities().isUseFQQNAddressSubscriptions()) {
+            source.setAddress(consumerInfo.getFqqn());
+         } else {
+            source.setAddress(consumerInfo.getAddress()); // Legacy behavior
+         }
+
+         target.setAddress(consumerInfo.getAddress());
 
          final Map<String, Object> addressSourceProperties = new HashMap<>();
          // If the remote needs to create the address then it should apply these

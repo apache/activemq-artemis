@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.OPERATION_TYPE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_QUEUE_POLICY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FQQN_ADDRESS_SUBSCRIPTIONS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_ADDRESS_POLICY;
 
 /**
@@ -55,8 +56,13 @@ public class AMQPFederationCommandProcessor extends ProtonAbstractReceiver {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // Capabilities that are offered to the remote sender that indicate this receiver supports the
-   // control link functions which allows the link open to complete.
-   private static final Symbol[] OFFERED_LINK_CAPABILITIES = new Symbol[] {FEDERATION_CONTROL_LINK};
+   // control link functions and any other federation specific feature that are offered to the remote.
+   private static final Symbol[] OFFERED_LINK_CAPABILITIES = new Symbol[] {FEDERATION_CONTROL_LINK,
+                                                                           FQQN_ADDRESS_SUBSCRIPTIONS};
+
+   // Capabilities that are desired from the remote sender which indicate certain features this federation
+   // source would like to use against the remote federation instance.
+   private static final Symbol[] DESIRED_LINK_CAPABILITIES = new Symbol[] {FQQN_ADDRESS_SUBSCRIPTIONS};
 
    private static final int PROCESSOR_RECEIVER_CREDITS = 10;
    private static final int PROCESSOR_RECEIVER_CREDITS_LOW = 3;
@@ -103,9 +109,13 @@ public class AMQPFederationCommandProcessor extends ProtonAbstractReceiver {
       // as the address for the dynamic node.
       target.setAddress(receiver.getName());
 
-      // We need to offer back that we support control link instructions for the remote to succeed in
-      // opening its sender link.
+      // Configure offered and desired capabilities so that the remote can tell what services
+      // are available and knows what services we want to use.
       receiver.setOfferedCapabilities(OFFERED_LINK_CAPABILITIES);
+      receiver.setDesiredCapabilities(DESIRED_LINK_CAPABILITIES);
+
+      // Once we have configured this end of the control link we must initialize the federation capabilities
+      federation.getCapabilities().initialize(receiver);
 
       topUpCreditIfNeeded();
    }

@@ -75,6 +75,14 @@ public final class AMQPFederationConstants {
    public static final Symbol FEDERATION_EVENT_LINK = Symbol.getSymbol("AMQ_FEDERATION_EVENT_LINK");
 
    /**
+    * Capability added to federation control links that indicates to the remote if federation address consumers
+    * will use FQQN syntax in the source address for a federation address receiver. If the remote does not offer
+    * the capability then the older variant use address and subscription name from the link name variant must be
+    * used when creating address receivers based on local demand.
+    */
+   public static final Symbol FQQN_ADDRESS_SUBSCRIPTIONS = Symbol.getSymbol("FQQN_ADDRESS_SUBSCRIPTIONS");
+
+   /**
     * Property name used to embed a nested map of properties meant to be applied if the federation resources created on
     * the remote end of the control link if configured to do so. These properties essentially carry local configuration
     * to the remote side that would otherwise use broker defaults and not match behaviors of resources created on the

@@ -165,6 +165,11 @@ public abstract class AMQPFederation implements Federation {
    public abstract AMQPFederationConfiguration getConfiguration();
 
    /**
+    * {@return the federation capabilities that is in effect following negotiation}
+    */
+   public abstract AMQPFederationCapabilities getCapabilities();
+
+   /**
     * Initialize this federation instance if not already initialized.
     *
     * @throws ActiveMQException if an error occurs during the initialization process.
