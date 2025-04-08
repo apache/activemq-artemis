@@ -352,7 +352,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    @Override
    public boolean isConnected() {
-      return session != null;
+      return session != null && !session.isClosed();
    }
 
    /**
