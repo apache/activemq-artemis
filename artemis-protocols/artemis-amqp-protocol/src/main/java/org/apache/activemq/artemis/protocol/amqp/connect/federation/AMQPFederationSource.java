@@ -20,11 +20,12 @@ package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_NAME;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_V2;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_VERSION;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONFIGURATION;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LINK_INITIALIZER_KEY;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,9 +74,9 @@ public class AMQPFederationSource extends AMQPFederation {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   // Capabilities set on the sender link used to send policies or other control messages to
-   // the remote federation target.
-   private static final Symbol[] CONTROL_LINK_CAPABILITIES = new Symbol[] {FEDERATION_CONTROL_LINK};
+   // Capabilities we desire from the target federation instance, some can be required and others can
+   // be optional, checks must be performed once the remote attaches.
+   private static final Symbol[] CONTROL_LINK_DESIRED_CAPABILITIES = new Symbol[] {FEDERATION_CONTROL_LINK};
 
    // Capabilities set on the events links used to react to federation resources updates
    private static final Symbol[] EVENT_LINK_CAPABILITIES = new Symbol[] {FEDERATION_EVENT_LINK};
@@ -89,6 +90,7 @@ public class AMQPFederationSource extends AMQPFederation {
    private final Map<String, Object> properties;
 
    private volatile AMQPFederationConfiguration configuration;
+   private volatile AMQPFederationCapabilities capabilities;
 
    /**
     * Creates a new AMQP Federation instance that will manage the state of a single AMQP broker federation instance
@@ -143,6 +145,15 @@ public class AMQPFederationSource extends AMQPFederation {
       }
 
       return configuration;
+   }
+
+   @Override
+   public synchronized AMQPFederationCapabilities getCapabilities() {
+      if (!connected) {
+         throw new IllegalStateException("Cannot access connection while federation is not connected");
+      }
+
+      return capabilities;
    }
 
    /**
@@ -595,12 +606,13 @@ public class AMQPFederationSource extends AMQPFederation {
             // Send our local configuration data to the remote side of the control link
             // for use when creating remote federation resources.
             final Map<Symbol, Object> senderProperties = new HashMap<>();
+            senderProperties.put(FEDERATION_VERSION, FEDERATION_V2);
             senderProperties.put(FEDERATION_CONFIGURATION, configuration.toConfigurationMap());
             senderProperties.put(FEDERATION_NAME, getName());
 
             sender.setSenderSettleMode(SenderSettleMode.UNSETTLED);
             sender.setReceiverSettleMode(ReceiverSettleMode.FIRST);
-            sender.setDesiredCapabilities(CONTROL_LINK_CAPABILITIES);
+            sender.setDesiredCapabilities(CONTROL_LINK_DESIRED_CAPABILITIES);
             sender.setProperties(senderProperties);
             sender.setTarget(target);
             sender.setSource(new Source());
@@ -635,9 +647,9 @@ public class AMQPFederationSource extends AMQPFederation {
                      return;
                   }
 
-                  if (!AmqpSupport.verifyOfferedCapabilities(sender)) {
+                  if (!AmqpSupport.verifyOfferedCapabilities(sender, FEDERATION_CONTROL_LINK)) {
                      brokerConnection.connectError(
-                        ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingOfferedCapability(Arrays.toString(CONTROL_LINK_CAPABILITIES)));
+                        ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingOfferedCapability(FEDERATION_CONTROL_LINK.toString()));
                      return;
                   }
 
@@ -667,6 +679,7 @@ public class AMQPFederationSource extends AMQPFederation {
 
                   session.addSender(sender, senderContext);
 
+                  capabilities = new AMQPFederationCapabilities().initialize(sender);
                   connected = true;
 
                   // Setup events sender link to the target if there are any remote policies and

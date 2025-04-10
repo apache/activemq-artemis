@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.protocol.amqp.connect.AMQPRemoteBrokerConnection;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationCapabilities;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationCommandProcessor;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConfiguration;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationEventDispatcher;
@@ -451,7 +452,8 @@ public class AMQPSessionContext extends ProtonInitializable {
             final AMQPRemoteBrokerConnection brokerConnection =
                AMQPRemoteBrokerConnection.getOrCreateRemoteBrokerConnection(server, connection, protonConnection);
             final AMQPFederationConfiguration configuration = new AMQPFederationConfiguration(connection, federationConfigurationMap);
-            final AMQPFederationTarget federation = new AMQPFederationTarget(brokerConnection, remoteFederationName, configuration, this);
+            final AMQPFederationCapabilities capabilities = new AMQPFederationCapabilities();
+            final AMQPFederationTarget federation = new AMQPFederationTarget(brokerConnection, remoteFederationName, configuration, capabilities, this);
 
             federation.initialize();
 

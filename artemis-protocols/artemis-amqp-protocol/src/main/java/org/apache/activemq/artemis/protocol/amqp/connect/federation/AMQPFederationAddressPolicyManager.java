@@ -436,7 +436,10 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
    }
 
    private String generateQueueName(AddressInfo address) {
-      return "federation." + federation.getName() + ".address." + address.getName() + ".node." + server.getNodeID();
+      return "federation." + federation.getName() +
+             ".policy." + getPolicyName() +
+             ".address." + address.getName() +
+             ".node." + server.getNodeID();
    }
 
    private static boolean isAddressInDivertForwards(final SimpleString targetAddress, final SimpleString forwardAddress) {

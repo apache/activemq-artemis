@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.protocol.amqp.proton.SenderController;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.qpid.proton.amqp.DescribedType;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Source;
@@ -82,8 +83,8 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationS
    public ServerConsumer createServerConsumer(ProtonServerSenderContext senderContext) throws Exception {
       final Sender sender = senderContext.getSender();
       final Source source = (Source) sender.getRemoteSource();
+      final SimpleString sourceAddress = SimpleString.of(source.getAddress());
       final String selector;
-      final SimpleString queueName = SimpleString.of(sender.getName());
       final Connection protonConnection = session.getSession().getConnection();
 
       // Match the settlement mode of the remote instead of relying on the default of MIXED.
@@ -126,7 +127,18 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationS
          selector = jmsSelector;
       }
 
-      final SimpleString address = SimpleString.of(source.getAddress());
+      final SimpleString address;
+      final SimpleString queueName;
+
+      // Either we have negotiated subscriptions using FQQN or we default to older behavior based on link names
+      if (CompositeAddress.isFullyQualified(sourceAddress)) {
+         address = CompositeAddress.extractAddressName(sourceAddress);
+         queueName = CompositeAddress.extractQueueName(sourceAddress);
+      } else {
+         address = sourceAddress;
+         queueName = SimpleString.of(sender.getName());
+      }
+
       final AddressQueryResult addressQueryResult;
 
       try {
