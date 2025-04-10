@@ -223,8 +223,17 @@ public final class AMQPFederationAddressSenderController extends AMQPFederationS
       try {
          final Sender sender = senderContext.getSender();
          final Source source = (Source) sender.getRemoteSource();
-         final SimpleString queueName = SimpleString.of(sender.getName());
+         final SimpleString sourceAddress = SimpleString.of(source.getAddress());
          final RoutingType routingType = getRoutingType(source);
+
+         final SimpleString queueName;
+
+         // Either we have negotiated subscriptions using FQQN or we default to older behavior based on link names
+         if (CompositeAddress.isFullyQualified(sourceAddress)) {
+            queueName = CompositeAddress.extractQueueName(sourceAddress);
+         } else {
+            queueName = SimpleString.of(sender.getName());
+         }
 
          final QueueQueryResult queueQuery = sessionSPI.queueQuery(queueName, routingType, false);
          if (queueQuery.isExists()) {
