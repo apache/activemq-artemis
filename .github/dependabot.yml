@@ -57,8 +57,6 @@ updates:
         versions: '>= 2'
       - dependency-name: 'org.apache.activemq:activemq-client'
         versions: '>= 6'
-      - dependency-name: 'org.eclipse.jetty:*'
-        versions: '>= 11'
       - dependency-name: 'com.sun.xml.bind:*'
         versions: '>= 3'
       - dependency-name: 'jakarta.resource:jakarta.resource-api'
