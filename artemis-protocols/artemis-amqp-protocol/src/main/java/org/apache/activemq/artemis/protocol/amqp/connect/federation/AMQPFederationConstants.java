@@ -29,6 +29,32 @@ import org.apache.qpid.proton.amqp.Symbol;
 public final class AMQPFederationConstants {
 
    /**
+    * Property added on the AMQP federation control link that carries a version associated with the
+    * side of the link the attach frame that carries it came from. A control link will provide two
+    * versions to the AMQP federation instance, the local side and the remote side once the link has
+    * fully opened.
+    */
+   public static final Symbol FEDERATION_VERSION = Symbol.getSymbol("federation_version");
+
+   /**
+    * Default AMQP federation version used when the version is not set on the control link as that
+    * would indicate all versions prior to the addition of versions being added on the control link.
+    */
+   public static final int FEDERATION_V1 = 1;
+
+   /**
+    * Version 2 marker for AMQP federation control links. Version 2.0 bump primarily adjusts the address federation
+    * link names to avoid potential link stealing when demand is quickly added and removed and as a result the AMQP
+    * source address value uses an FQQN that provides a stable address and queue binding name for the remote federation
+    * subscription which is recoverable on reconnects or on broker restart.
+    * <p>
+    * Also in this version AMQP federation queue consumers that are included in federation demand tracking are forwarded
+    * to the remote with their original priority values to avoid a case of infinite decreasing priority loops that can
+    * occur in some configurations.
+    */
+   public static final int FEDERATION_V2 = 2;
+
+   /**
     * Address used by a remote broker instance to validate that an incoming federation connection has access rights to
     * perform federation operations. The user that connects to the AMQP federation endpoint and attempts to create the
     * control link must have write access to this address and any address prefixed by this value.

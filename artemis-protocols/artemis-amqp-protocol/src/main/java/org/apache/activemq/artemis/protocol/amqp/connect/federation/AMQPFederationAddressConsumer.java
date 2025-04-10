@@ -95,10 +95,23 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
    }
 
    private String generateLinkName() {
-      return "federation-" + federation.getName() +
-             "-address-receiver-" + consumerInfo.getAddress() +
-             "-" + federation.getServer().getNodeID() +
-             "-" + LINK_SEQUENCE_ID.incrementAndGet();
+      if (federation.getCapabilities().isUseFQQNAddressSubscriptions()) {
+         return "federation-" + federation.getName() +
+                "-policy-" + policy.getPolicyName() +
+                "-address-receiver-" + consumerInfo.getAddress() +
+                "-" + federation.getServer().getNodeID() +
+                "-" + LINK_SEQUENCE_ID.incrementAndGet();
+      } else {
+         // Stable legacy link naming that is used as the address subscription. This uses the
+         // non-sequence ID version which can allow link stealing to grab a closing link which
+         // will eventually result in the broker connection being closed and rebuilt as we see
+         // it as an unexpected link detach but this allows for stable names and eventually
+         // connection recovery which is arguably less broken than the sequence ID variant which
+         // creates unstable subscription queues that can be orphaned or consumed out of order.
+         return "federation-" + federation.getName() +
+                "-address-receiver-" + consumerInfo.getAddress() +
+                "-" + federation.getServer().getNodeID();
+      }
    }
 
    @Override
@@ -112,7 +125,6 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
          final Receiver protonReceiver = session.getSession().receiver(generateLinkName());
          final Target target = new Target();
          final Source source = new Source();
-         final String address = consumerInfo.getAddress();
 
          if (RoutingType.ANYCAST.equals(consumerInfo.getRoutingType())) {
             source.setCapabilities(AmqpSupport.QUEUE_CAPABILITY);
@@ -133,10 +145,15 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
          source.setDefaultOutcome(DEFAULT_OUTCOME);
          source.setDurable(TerminusDurability.NONE);
          source.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
-         source.setAddress(address);
          source.setFilter(filtersMap);
 
-         target.setAddress(address);
+         if (federation.getCapabilities().isUseFQQNAddressSubscriptions()) {
+            source.setAddress(consumerInfo.getFqqn());
+         } else {
+            source.setAddress(consumerInfo.getAddress()); // Legacy behavior
+         }
+
+         target.setAddress(consumerInfo.getAddress());
 
          final Map<String, Object> addressSourceProperties = new HashMap<>();
          // If the remote needs to create the address then it should apply these

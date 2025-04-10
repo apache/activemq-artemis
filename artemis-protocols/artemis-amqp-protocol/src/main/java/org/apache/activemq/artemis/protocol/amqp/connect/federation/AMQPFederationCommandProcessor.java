@@ -18,6 +18,8 @@
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -44,6 +46,8 @@ import org.slf4j.LoggerFactory;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.OPERATION_TYPE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_QUEUE_POLICY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_V2;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_VERSION;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_ADDRESS_POLICY;
 
 /**
@@ -55,7 +59,7 @@ public class AMQPFederationCommandProcessor extends ProtonAbstractReceiver {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // Capabilities that are offered to the remote sender that indicate this receiver supports the
-   // control link functions which allows the link open to complete.
+   // control link functions and any other federation specific feature that are offered to the remote.
    private static final Symbol[] OFFERED_LINK_CAPABILITIES = new Symbol[] {FEDERATION_CONTROL_LINK};
 
    private static final int PROCESSOR_RECEIVER_CREDITS = 10;
@@ -87,15 +91,22 @@ public class AMQPFederationCommandProcessor extends ProtonAbstractReceiver {
 
       final Target target = (Target) receiver.getRemoteTarget();
 
+      if (target == null || !target.getDynamic()) {
+         throw new ActiveMQAMQPInternalErrorException("Remote Target did not arrive as dynamic node: " + target);
+      }
+
       // Match the settlement mode of the remote instead of relying on the default of MIXED.
       receiver.setSenderSettleMode(receiver.getRemoteSenderSettleMode());
 
       // We don't currently support SECOND so enforce that the answer is always FIRST
       receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
 
-      if (target == null || !target.getDynamic()) {
-         throw new ActiveMQAMQPInternalErrorException("Remote Target did not arrive as dynamic node: " + target);
-      }
+      // Send the remote the version of AMQP Federation this target broker implements so it
+      // can match features with us.
+      final Map<Symbol, Object> receiverProperties = new HashMap<>();
+      receiverProperties.put(FEDERATION_VERSION, FEDERATION_V2);
+
+      receiver.setProperties(receiverProperties);
 
       // The target needs a unique address for the remote to send commands to which will get
       // deleted on connection close so no state is retained between connections, we know our
@@ -103,9 +114,11 @@ public class AMQPFederationCommandProcessor extends ProtonAbstractReceiver {
       // as the address for the dynamic node.
       target.setAddress(receiver.getName());
 
-      // We need to offer back that we support control link instructions for the remote to succeed in
-      // opening its sender link.
+      // Send back offered capabilities to advertise this is a control link command processor.
       receiver.setOfferedCapabilities(OFFERED_LINK_CAPABILITIES);
+
+      // Once we have configured this end of the control link we must initialize the federation capabilities
+      federation.getCapabilities().initialize(receiver);
 
       topUpCreditIfNeeded();
    }
