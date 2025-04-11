@@ -85,6 +85,8 @@ public final class ClusterConnectionConfiguration implements Serializable {
 
    private String clientId;
 
+   private int topologyScannerAttempts = ActiveMQDefaultConfiguration.getClusterTopologyScannerAttempts();
+
    public ClusterConnectionConfiguration() {
    }
 
@@ -318,6 +320,15 @@ public final class ClusterConnectionConfiguration implements Serializable {
       return this;
    }
 
+   public int getTopologyScannerAttempts() {
+      return topologyScannerAttempts;
+   }
+
+   public ClusterConnectionConfiguration setTopologyScannerAttempts(int topologyScannerAttempts) {
+      this.topologyScannerAttempts = topologyScannerAttempts;
+      return this;
+   }
+
    /**
     * This method will match the configuration and return the proper TransportConfiguration for the Configuration
     */
@@ -402,6 +413,7 @@ public final class ClusterConnectionConfiguration implements Serializable {
       result = prime * result + (int) (temp ^ (temp >>> 32));
       result = prime * result + ((staticConnectors == null) ? 0 : staticConnectors.hashCode());
       result = prime * result + ((clientId == null) ? 0 : clientId.hashCode());
+      result = prime * result + topologyScannerAttempts;
       return result;
    }
 
@@ -510,6 +522,9 @@ public final class ClusterConnectionConfiguration implements Serializable {
       } else if (!clientId.equals(other.clientId)) {
          return false;
       }
+      if (topologyScannerAttempts != other.topologyScannerAttempts) {
+         return false;
+      }
       return true;
    }
 
@@ -540,6 +555,7 @@ public final class ClusterConnectionConfiguration implements Serializable {
          ", clusterNotificationInterval=" + clusterNotificationInterval +
          ", clusterNotificationAttempts=" + clusterNotificationAttempts +
          ", clientId=" + clientId +
+         ", topologyScannerInterval=" + topologyScannerAttempts +
          '}';
    }
 }

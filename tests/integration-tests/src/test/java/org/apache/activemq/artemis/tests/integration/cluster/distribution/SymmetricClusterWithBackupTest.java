@@ -490,4 +490,14 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest {
       stopServers(5, 6, 7, 8, 9, 0, 1, 2, 3, 4);
    }
 
+   @Override
+   protected void setupProxy() {
+      super.setupProxy();
+
+      setupProxy(5);
+      setupProxy(6);
+      setupProxy(7);
+      setupProxy(8);
+      setupProxy(9);
+   }
 }
