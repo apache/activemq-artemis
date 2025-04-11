@@ -783,7 +783,11 @@ public class MQTT5Test extends MQTT5TestSupport {
       Wait.assertEquals(failure, () -> beforeCloseFailed.get(), 2000, 50);
       Wait.assertEquals(failure, () -> afterCloseFailed.get(), 2000, 50);
       if (client.isConnected()) {
-         client.disconnect();
+         try {
+            client.disconnect();
+         } catch (Exception e) {
+            // ignore
+         }
       }
       client.close();
    }
