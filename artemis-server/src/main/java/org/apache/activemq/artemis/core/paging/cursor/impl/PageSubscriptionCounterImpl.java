@@ -248,6 +248,9 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
       try (ArtemisCloseable lock = storage.closeableReadLock()) {
          synchronized (this) {
             if (recordID >= 0) {
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Deleting page counter with recordID={}, using TX={}", this.recordID, tx.getID());
+               }
                storage.deletePageCounter(tx.getID(), this.recordID);
                tx.setContainsPersistent();
             }

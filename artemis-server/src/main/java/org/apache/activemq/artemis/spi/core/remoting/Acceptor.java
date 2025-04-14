@@ -42,6 +42,8 @@ public interface Acceptor extends ActiveMQComponent {
     */
    void pause();
 
+   void notifyStop();
+
    /**
     * This will update the list of interceptors for each ProtocolManager inside the acceptor.
     */

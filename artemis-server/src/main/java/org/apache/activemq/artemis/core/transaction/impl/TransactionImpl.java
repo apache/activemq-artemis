@@ -399,6 +399,19 @@ public class TransactionImpl implements Transaction {
       }
    }
 
+   class NonPersistentDelay extends DelayedRunnable {
+      NonPersistentDelay(long id) {
+         super(id);
+      }
+
+      // a non persistent delay means a transaction with non persistent data was delayed
+      // no commit was generated but we still need to wait completions and delays before we move on
+      @Override
+      protected void actualRun() throws Exception {
+      }
+   }
+
+
    class DelayedCommit extends DelayedRunnable {
       DelayedCommit(long id) {
          super(id);
@@ -413,7 +426,6 @@ public class TransactionImpl implements Transaction {
          }
       }
    }
-
 
    class DelayedPrepare extends DelayedRunnable {
       long id;
@@ -444,6 +456,10 @@ public class TransactionImpl implements Transaction {
             } else {
                storageManager.commit(id);
             }
+         }
+      } else {
+         if (delayed > 0) {
+            delayedRunnable = new NonPersistentDelay(id);
          }
       }
 
@@ -478,6 +494,8 @@ public class TransactionImpl implements Transaction {
       logger.trace("TransactionImpl::rollback::{}", this);
 
       synchronized (timeoutLock) {
+         // if it was marked as prepare/commit while delay, it needs to be cancelled
+         delayedRunnable = null;
          if (state == State.ROLLEDBACK) {
             // I don't think this could happen, but just in case
             logger.debug("TransactionImpl::rollback::{} is being ignored", this);
@@ -499,6 +517,10 @@ public class TransactionImpl implements Transaction {
 
    private void internalRollback() throws Exception {
       logger.trace("TransactionImpl::internalRollback {}", this);
+
+      // even though rollback already sets this as null
+      // I'm setting this again for other cases where internalRollback is called
+      delayedRunnable = null;
 
       beforeRollback();
 
@@ -591,6 +613,9 @@ public class TransactionImpl implements Transaction {
             logger.trace("TransactionImpl::{} marking rollbackOnly for {}, msg={}", this, exception.toString(), exception.getMessage());
          }
 
+         // cancelling any delayed commit or prepare
+         delayedRunnable = null;
+
          if (isEffective()) {
             if (logger.isDebugEnabled()) {
                logger.debug("Trying to mark transaction {} xid={} as rollbackOnly but it was already effective (prepared, committed or rolledback!)", id, xid);
@@ -627,6 +652,10 @@ public class TransactionImpl implements Transaction {
             }
          }
       }
+   }
+
+   public int getPendingDelay() {
+      return delayed;
    }
 
 

@@ -165,6 +165,13 @@ public final class InVMAcceptor extends AbstractAcceptor {
 
       connections.clear();
 
+      started = false;
+
+      paused = false;
+   }
+
+   @Override
+   public void notifyStop() {
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
          props.putSimpleStringProperty(SimpleString.of("factory"), SimpleString.of(InVMAcceptorFactory.class.getName()));
@@ -176,10 +183,6 @@ public final class InVMAcceptor extends AbstractAcceptor {
             ActiveMQServerLogger.LOGGER.failedToSendNotification(e);
          }
       }
-
-      started = false;
-
-      paused = false;
    }
 
    @Override

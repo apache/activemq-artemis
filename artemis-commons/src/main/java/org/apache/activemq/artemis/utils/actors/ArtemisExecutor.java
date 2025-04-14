@@ -41,6 +41,10 @@ public interface ArtemisExecutor extends Executor {
       return 0;
    }
 
+   default boolean inHandler() {
+      return false;
+   }
+
    /**
     * To be used to flush an executor from a different thread.
     * <b>WARNING</b>: Do not call this within the executor. That would be stoopid ;)

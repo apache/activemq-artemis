@@ -748,47 +748,63 @@ public class NettyAcceptor extends AbstractAcceptor {
          callback.run();
          return;
       }
+      try {
 
-      if (protocolHandler != null) {
-         protocolHandler.close();
-      }
+         if (protocolHandler != null) {
+            protocolHandler.close();
+         }
 
-      if (batchFlusherFuture != null) {
-         batchFlusherFuture.cancel(false);
+         if (batchFlusherFuture != null) {
+            batchFlusherFuture.cancel(false);
 
-         flusher.cancel();
+            flusher.cancel();
 
-         flusher = null;
+            flusher = null;
 
-         batchFlusherFuture = null;
-      }
+            batchFlusherFuture = null;
+         }
 
-      // serverChannelGroup has been unbound in pause()
-      if (serverChannelGroup != null) {
-         serverChannelGroup.close().awaitUninterruptibly();
-      }
+         // serverChannelGroup has been unbound in pause()
+         if (serverChannelGroup != null) {
+            serverChannelGroup.close().awaitUninterruptibly();
+         }
 
-      if (channelGroup != null) {
-         ChannelGroupFuture future = channelGroup.close().awaitUninterruptibly();
+         if (channelGroup != null) {
+            ChannelGroupFuture future = channelGroup.close().awaitUninterruptibly();
 
-         if (!future.isSuccess()) {
-            ActiveMQServerLogger.LOGGER.nettyChannelGroupError();
-            for (Channel channel : future.group()) {
-               if (channel.isActive()) {
-                  ActiveMQServerLogger.LOGGER.nettyChannelStillOpen(channel, channel.remoteAddress());
+            if (!future.isSuccess()) {
+               ActiveMQServerLogger.LOGGER.nettyChannelGroupError();
+               for (Channel channel : future.group()) {
+                  if (channel.isActive()) {
+                     ActiveMQServerLogger.LOGGER.nettyChannelStillOpen(channel, channel.remoteAddress());
+                  }
                }
             }
          }
+
+         channelClazz = null;
+
+         for (Connection connection : connections.values()) {
+            listener.connectionDestroyed(connection.getID(), true);
+         }
+
+         connections.clear();
+
+         paused = false;
+      } finally {
+         if (eventLoopGroup == null) {
+            callback.run();
+         } else {
+            // Shutdown the EventLoopGroup if no new task was added for 100ms or if
+            // 3000ms elapsed.
+            eventLoopGroup.shutdownGracefully(quietPeriod, shutdownTimeout, TimeUnit.MILLISECONDS).addListener(f -> callback.run());
+            eventLoopGroup = null;
+         }
       }
+   }
 
-      channelClazz = null;
-
-      for (Connection connection : connections.values()) {
-         listener.connectionDestroyed(connection.getID(), true);
-      }
-
-      connections.clear();
-
+   @Override
+   public void notifyStop() {
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
          props.putSimpleStringProperty(SimpleString.of("factory"), SimpleString.of(NettyAcceptorFactory.class.getName()));
@@ -801,13 +817,6 @@ public class NettyAcceptor extends AbstractAcceptor {
             ActiveMQServerLogger.LOGGER.failedToSendNotification(e);
          }
       }
-
-      paused = false;
-
-      // Shutdown the EventLoopGroup if no new task was added for 100ms or if
-      // 3000ms elapsed.
-      eventLoopGroup.shutdownGracefully(quietPeriod, shutdownTimeout, TimeUnit.MILLISECONDS).addListener(f -> callback.run());
-      eventLoopGroup = null;
    }
 
    @Override

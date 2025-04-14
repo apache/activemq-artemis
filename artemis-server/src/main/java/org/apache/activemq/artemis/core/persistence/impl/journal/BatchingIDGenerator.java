@@ -24,12 +24,15 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * An ID generator that allocates a batch of IDs of size {@link #checkpointSize} and records the ID in the journal only
@@ -47,9 +50,13 @@ public final class BatchingIDGenerator implements IDGenerator {
 
    private volatile long nextID;
 
+   private boolean started = true;
+
    private final StorageManager storageManager;
 
    private List<Long> cleanupRecords = null;
+
+   private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
    public BatchingIDGenerator(final long start, final long checkpointSize, final StorageManager storageManager) {
       counter = new AtomicLong(start);
@@ -60,6 +67,19 @@ public final class BatchingIDGenerator implements IDGenerator {
       this.checkpointSize = checkpointSize;
 
       this.storageManager = storageManager;
+   }
+
+   public void stop() {
+      lock.writeLock().lock();
+      try {
+         if (logger.isTraceEnabled()) {
+            logger.trace("Stopping generator", new Exception("Trace"));
+         }
+         persistCurrentID();
+         started = false;
+      } finally {
+         lock.writeLock().unlock();
+      }
    }
 
    public void persistCurrentID() {
@@ -86,15 +106,23 @@ public final class BatchingIDGenerator implements IDGenerator {
    }
 
    public void loadState(final long journalID, final ActiveMQBuffer buffer) {
-      addCleanupRecord(journalID);
-      IDCounterEncoding encoding = new IDCounterEncoding();
+      lock.writeLock().lock();
+      try {
+         addCleanupRecord(journalID);
+         IDCounterEncoding encoding = new IDCounterEncoding();
 
-      encoding.decode(buffer);
+         encoding.decode(buffer);
 
-      // Keep nextID and counter the same, the next generateID will update the checkpoint
-      nextID = encoding.id + 1;
+         // Keep nextID and counter the same, the next generateID will update the checkpoint
+         nextID = encoding.id + 1;
 
-      counter.set(nextID);
+         counter.set(nextID);
+
+         // if we are loading we are restarting it
+         started = true;
+      } finally {
+         lock.writeLock().unlock();
+      }
    }
 
    // for testcases
@@ -107,12 +135,23 @@ public final class BatchingIDGenerator implements IDGenerator {
 
    @Override
    public long generateID() {
-      long id = counter.getAndIncrement();
+      lock.readLock().lock();
+      try {
+         if (!started) {
+            if (logger.isDebugEnabled()) {
+               logger.debug("BatchIDGenerator is not supposed to be used", new Exception("trace"));
+            }
+            throw ActiveMQMessageBundle.BUNDLE.idGeneratorStopped();
+         }
+         long id = counter.getAndIncrement();
 
-      if (id >= nextID) {
-         saveCheckPoint(id);
+         if (id >= nextID) {
+            saveCheckPoint(id);
+         }
+         return id;
+      } finally {
+         lock.readLock().unlock();
       }
-      return id;
    }
 
    @Override

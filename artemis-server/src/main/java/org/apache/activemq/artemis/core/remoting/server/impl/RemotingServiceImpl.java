@@ -372,17 +372,22 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
    }
 
    @Override
-   public void stop(final boolean criticalError) throws Exception {
-      if (!started) {
-         return;
-      }
-      SSLContextFactoryProvider.getSSLContextFactory().clearSSLContexts();
-      OpenSSLContextFactory openSSLContextFactory = OpenSSLContextFactoryProvider.getOpenSSLContextFactory();
-      if (openSSLContextFactory != null) {
-         openSSLContextFactory.clearSslContexts();
-      }
+   public void notifyStop() {
 
-      failureCheckAndFlushThread.close(criticalError);
+      // We need to stop them accepting first so no new connections are accepted after we send the disconnect message
+      for (Acceptor acceptor : acceptors.values()) {
+         logger.debug("send stop notifications on acceptor {}", acceptor);
+
+         try {
+            acceptor.notifyStop();
+         } catch (Throwable t) {
+            ActiveMQServerLogger.LOGGER.errorStoppingAcceptor(acceptor.getName());
+         }
+      }
+   }
+
+   @Override
+   public void prepareStop(boolean criticalError, Set<RemotingConnection> ignoreList) throws Exception {
 
       // We need to stop them accepting first so no new connections are accepted after we send the disconnect message
       for (Acceptor acceptor : acceptors.values()) {
@@ -396,7 +401,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       }
 
-      logger.debug("Sending disconnect on client connections");
+      logger.info("Sending disconnect on client connections");
 
       Set<ConnectionEntry> connectionEntries = new HashSet<>(connections.values());
 
@@ -405,10 +410,34 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       for (ConnectionEntry entry : connectionEntries) {
          RemotingConnection conn = entry.connection;
 
-         logger.trace("Sending connection.disconnection packet to {}", conn);
-
-         conn.disconnect(criticalError);
+         if (ignoreList.contains(conn)) {
+            logger.debug("ignoring connection {} during the close", conn);
+         } else {
+            logger.debug("Sending disconnect on connection {} from server {}", conn.getID(), server);
+            conn.disconnect(criticalError);
+         }
       }
+
+   }
+
+   @Override
+   public void stop(final boolean criticalError) throws Exception {
+      if (!started) {
+         return;
+      }
+      SSLContextFactoryProvider.getSSLContextFactory().clearSSLContexts();
+      OpenSSLContextFactory openSSLContextFactory = OpenSSLContextFactoryProvider.getOpenSSLContextFactory();
+      if (openSSLContextFactory != null) {
+         openSSLContextFactory.clearSslContexts();
+      }
+
+      failureCheckAndFlushThread.close(criticalError);
+
+      // ActiveMQServerImpl already calls prepareStop
+      // however we call this again here for two reasons:
+      // I - ActiveMQServer might have ignored the one connection for Replication
+      // II - this method could be called in other places for Embedding or testing and the semantic must be kept the same
+      prepareStop(criticalError, Collections.emptySet());
 
       CountDownLatch acceptorCountDownLatch = new CountDownLatch(acceptors.size());
       for (Acceptor acceptor : acceptors.values()) {
@@ -586,7 +615,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          AuditLogger.createdConnection(connection.getProtocolConnection() == null ? null : connection.getProtocolConnection().getProtocolName(), connection.getID(), connection.getRemoteAddress());
       }
       if (logger.isDebugEnabled()) {
-         logger.debug("Adding connection {}, we now have {}", connection.getID(), connections.size());
+         logger.debug("Adding connection {}, we now have {} on server {}", connection.getID(), connections.size(), server);
       }
    }
 

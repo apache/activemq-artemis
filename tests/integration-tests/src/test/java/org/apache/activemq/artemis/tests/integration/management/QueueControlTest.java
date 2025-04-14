@@ -78,7 +78,7 @@ import org.apache.activemq.artemis.core.management.impl.QueueControlImpl;
 import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.paging.PagingStore;
-import org.apache.activemq.artemis.core.paging.impl.PagingManagerTestAccessor;
+import org.apache.activemq.artemis.core.paging.impl.PagingManagerImplAccessor;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
@@ -3151,7 +3151,7 @@ public class QueueControlTest extends ManagementTestBase {
 
       final int MESSAGE_SIZE = 1024 * 3; // 3k
 
-      PagingManagerTestAccessor.resetMaxSize(server.getPagingManager(), 10240, 0);
+      PagingManagerImplAccessor.resetMaxSize(server.getPagingManager(), 10240, 0);
       clearDataRecreateServerDirs();
 
       SimpleString address = RandomUtil.randomUUIDSimpleString();

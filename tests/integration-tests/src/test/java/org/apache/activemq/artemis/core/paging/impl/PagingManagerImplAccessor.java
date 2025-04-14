@@ -16,8 +16,19 @@
  */
 package org.apache.activemq.artemis.core.paging.impl;
 
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.utils.SizeAwareMetric;
+
 public class PagingManagerImplAccessor {
    public static void setDiskFull(PagingManagerImpl pagingManager, boolean diskFull) {
       pagingManager.setDiskFull(diskFull);
+   }
+
+   public static void resetMaxSize(PagingManager pagingManager, long maxSize, long maxElements) {
+      ((PagingManagerImpl)pagingManager).resetMaxSize(maxSize, maxElements);
+   }
+
+   public static SizeAwareMetric globalSizeAwareMetric(PagingManager pagingManager) {
+      return ((PagingManagerImpl)pagingManager).getSizeAwareMetric();
    }
 }

@@ -46,7 +46,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.paging.impl.PagingManagerTestAccessor;
+import org.apache.activemq.artemis.core.paging.impl.PagingManagerImplAccessor;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -150,7 +150,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
       Wait.assertTrue(queue.getPagingStore()::isPaging);
 
-      SizeAwareMetric globalSizeMetric = PagingManagerTestAccessor.globalSizeAwareMetric(server.getPagingManager());
+      SizeAwareMetric globalSizeMetric = PagingManagerImplAccessor.globalSizeAwareMetric(server.getPagingManager());
 
       // this is validating the test is actually validating paging after over elements
       assertTrue(globalSizeMetric.isOverElements());
@@ -213,7 +213,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
          }
       }
 
-      SizeAwareMetric globalSizeMetric = PagingManagerTestAccessor.globalSizeAwareMetric(server.getPagingManager());
+      SizeAwareMetric globalSizeMetric = PagingManagerImplAccessor.globalSizeAwareMetric(server.getPagingManager());
 
       // this is validating the test is actually validating paging after over elements
       assertTrue(globalSizeMetric.isOverElements());

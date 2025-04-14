@@ -97,7 +97,7 @@ public class PagingStoreImpl implements PagingStore {
    private final PagingStoreFactory storeFactory;
 
    // this is used to batch and sync into paging asynchronously
-   private final PageTimedWriter timedWriter;
+   private PageTimedWriter timedWriter;
 
    private long maxSize;
 
@@ -230,6 +230,11 @@ public class PagingStoreImpl implements PagingStore {
       PageTimedWriter localWriter = new PageTimedWriter(pageSize, storageManager, this, scheduledExecutor, executor, syncNonTransactional, syncTimeout);
       localWriter.start();
       return localWriter;
+   }
+
+   // for tests, used through an accessor
+   protected void replacePagedTimedWriter(PageTimedWriter writer) {
+      this.timedWriter = writer;
    }
 
    private void overSized() {
@@ -1383,7 +1388,7 @@ public class PagingStoreImpl implements PagingStore {
       return true;
    }
 
-   void directWritePage(PagedMessage pagedMessage, boolean lineUp, boolean originalReplicated) throws Exception {
+   protected void directWritePage(PagedMessage pagedMessage, boolean lineUp, boolean originalReplicated) throws Exception {
       int bytesToWrite = pagedMessage.getEncodeSize() + PageReadWriter.SIZE_RECORD;
 
       currentPageSize += bytesToWrite;
@@ -1397,6 +1402,10 @@ public class PagingStoreImpl implements PagingStore {
       // especially on the case for non transactional sends and paging
       // doing this will give us a possibility of recovering the page counters
       final Page page = currentPage;
+
+      if (!page.isOpen()) {
+         page.open(false);
+      }
 
       page.write(pagedMessage, lineUp, originalReplicated);
 
