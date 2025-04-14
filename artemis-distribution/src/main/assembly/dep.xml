@@ -76,6 +76,7 @@
               If any of these jars is dropped from the broker distribution they should be added back to the console. -->
          <unpackOptions>
             <excludes>
+               <exclude>**/caffeine*.jar</exclude>
                <exclude>**/guava*.jar</exclude>
                <exclude>**/commons-io*.jar</exclude>
                <exclude>**/commons-logging*.jar</exclude>
