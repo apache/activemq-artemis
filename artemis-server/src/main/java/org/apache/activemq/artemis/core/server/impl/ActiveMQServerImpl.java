@@ -1341,37 +1341,71 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
 
-      if (!criticalIOError && pagingManager != null) {
-         pagingManager.counterSnapshot();
+      final RemotingService remotingService = this.remotingService;
+
+      if (remotingService != null) {
+         // The notification must be sent with the StorageManager still up
+         // this is because NotificationService will use storageManager.generateID
+         remotingService.notifyStop();
+      }
+
+      // We start the preparation for the broker shutdown by first stopping acceptors, and removing connections
+      // this is to avoid Exceptions while the broker is stopping as much as possible
+      // by first stopping any pending connections before stopping the storage.
+      // if we stopped the journal first before remoting we could have more exceptions being sent for the client.
+      try {
+         if (remotingService != null) {
+            // it will close all connections except to the one used by replication
+            remotingService.prepareStop(criticalIOError,  storageManager != null ? storageManager.getUsedConnections() : Collections.emptySet());
+         }
+      } catch (Throwable t) {
+         ActiveMQServerLogger.LOGGER.errorStoppingComponent(remotingService.getClass().getName(), t);
       }
 
       stopComponent(pagingManager);
 
-      if (storageManager != null)
+      if (!criticalIOError && pagingManager != null) {
+         pagingManager.counterSnapshot();
+      }
+
+      final ManagementService managementService = this.managementService;
+
+      // we have to disable management service before stopping the storage
+      // otherwise management would send notifications eventually
+      if (managementService != null) {
+         try {
+            managementService.enableNotifications(false);
+         } catch (Throwable t) {
+            ActiveMQServerLogger.LOGGER.errorStoppingComponent(managementService.getClass().getName(), t);
+         }
+      }
+
+      if (storageManager != null) {
          try {
             storageManager.stop(criticalIOError, failoverOnServerShutdown);
          } catch (Throwable t) {
             ActiveMQServerLogger.LOGGER.errorStoppingComponent(storageManager.getClass().getName(), t);
          }
+      }
 
       // We stop remotingService before otherwise we may lock the system in case of a critical IO
       // error shutdown
-      final RemotingService remotingService = this.remotingService;
-      if (remotingService != null)
+      if (remotingService != null) {
          try {
             remotingService.stop(criticalIOError);
          } catch (Throwable t) {
             ActiveMQServerLogger.LOGGER.errorStoppingComponent(remotingService.getClass().getName(), t);
          }
+      }
 
       // Stop the management service after the remoting service to ensure all acceptors are deregistered with JMX
-      final ManagementService managementService = this.managementService;
-      if (managementService != null)
+      if (managementService != null) {
          try {
             managementService.unregisterServer();
          } catch (Throwable t) {
             ActiveMQServerLogger.LOGGER.errorStoppingComponent(managementService.getClass().getName(), t);
          }
+      }
 
       stopComponent(managementService);
       stopComponent(resourceManager);

@@ -20,8 +20,10 @@ package org.apache.activemq.artemis.core.persistence.impl.journal;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +66,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
@@ -117,6 +120,17 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                                 final ExecutorFactory ioExecutors,
                                 final IOCriticalErrorListener criticalErrorListener) {
       super(config, analyzer, executorFactory, null, ioExecutors, criticalErrorListener);
+   }
+
+   @Override
+   public Set<RemotingConnection> getUsedConnections() {
+      if (replicator == null) {
+         return Collections.emptySet();
+      } else {
+         HashSet<RemotingConnection> usedConnections = new HashSet<>();
+         usedConnections.add(replicator.getBackupTransportConnection());
+         return usedConnections;
+      }
    }
 
    @Override
@@ -271,9 +285,9 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
       if (!ioCriticalError) {
          performCachedLargeMessageDeletes();
-         // Must call close to make sure last id is persisted
+         // Must call stop to make sure last id is persisted
          if (journalLoaded && idGenerator != null)
-            idGenerator.persistCurrentID();
+            idGenerator.stop();
       }
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -637,16 +651,11 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                originalBindingsJournal.replicationSyncPreserveOldFiles();
                originalMessageJournal.replicationSyncPreserveOldFiles();
 
-               pagingManager.lock();
-               try {
-                  pagingManager.disableCleanup();
-                  messageFiles = prepareJournalForCopy(originalMessageJournal, JournalContent.MESSAGES, nodeID, autoFailBack);
-                  bindingsFiles = prepareJournalForCopy(originalBindingsJournal, JournalContent.BINDINGS, nodeID, autoFailBack);
-                  pageFilesToSync = getPageInformationForSync(pagingManager);
-                  pendingLargeMessages = recoverPendingLargeMessages();
-               } finally {
-                  pagingManager.unlock();
-               }
+               pagingManager.disableCleanup();
+               messageFiles = prepareJournalForCopy(originalMessageJournal, JournalContent.MESSAGES, nodeID, autoFailBack);
+               bindingsFiles = prepareJournalForCopy(originalBindingsJournal, JournalContent.BINDINGS, nodeID, autoFailBack);
+               pageFilesToSync = getPageInformationForSync(pagingManager);
+               pendingLargeMessages = recoverPendingLargeMessages();
             } finally {
                originalMessageJournal.synchronizationUnlock();
                originalBindingsJournal.synchronizationUnlock();

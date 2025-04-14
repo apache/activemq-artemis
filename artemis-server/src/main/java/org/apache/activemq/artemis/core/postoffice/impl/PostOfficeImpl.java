@@ -1906,6 +1906,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       // if the message is being sent from the bridge, we just ignore the duplicate id, and use the internal one
       final DuplicateIDCache cacheBridge = getDuplicateIDCache(BRIDGE_CACHE_STR.concat(context.getAddress(message).toString()));
       if (!cacheBridge.atomicVerify(bridgeDupBytes, context.getTransaction())) {
+         logger.trace("Message {} hit a bridge duplicate", message);
          context.getTransaction().rollback();
          message.usageDown(); // this will cause large message delete
          return DuplicateCheckResult.DuplicateNotStartedTX;

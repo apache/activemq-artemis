@@ -456,12 +456,20 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    @Override
+   public void writeLock() {
+      storageManagerLock.writeLock().lock();
+   }
+
+   @Override
+   public void writeUnlock() {
+      storageManagerLock.writeLock().unlock();
+   }
+
+   @Override
    public ArtemisCloseable closeableReadLock(boolean tryLock) {
       if (reentrant.get()) {
          return dummyCloseable;
       }
-
-      reentrant.set(true);
 
       CriticalCloseable measure = measureCritical(CRITICAL_STORE);
 
@@ -472,6 +480,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       } else {
          storageManagerLock.readLock().lock();
       }
+
+      reentrant.set(true);
 
       if (CriticalMeasure.isDummy(measure)) {
          // The next statement could have been called like this:

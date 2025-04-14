@@ -75,6 +75,11 @@ public interface RemotingService {
 
    boolean removeOutgoingInterceptor(BaseInterceptor interceptor);
 
+   void notifyStop();
+
+   /** The Prepare stop will close all the connections however it will use the one used by storage manager */
+   void prepareStop(boolean criticalError, Set<RemotingConnection> ignoreConnections) throws Exception;
+
    void stop(boolean criticalError) throws Exception;
 
    void start() throws Exception;

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.unit.core.persistence.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -67,9 +68,9 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
 
       assertTrue(id4 > id3 && id4 < 2000);
 
-      batch.persistCurrentID();
-
+      batch.stop();
       journal.stop();
+      validateStoppedGenerator(batch);
       batch = new BatchingIDGenerator(0, 1000, getJournalStorageManager(journal));
       loadIDs(journal, batch);
 
@@ -100,8 +101,9 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
          lastId = id;
       }
 
-      batch.persistCurrentID();
+      batch.stop();
       journal.stop();
+      validateStoppedGenerator(batch);
       batch = new BatchingIDGenerator(0, 1000, getJournalStorageManager(journal));
       loadIDs(journal, batch);
 
@@ -115,6 +117,10 @@ public class BatchIDGeneratorUnitTest extends ActiveMQTestBase {
 
       journal.stop();
 
+   }
+
+   private void validateStoppedGenerator(BatchingIDGenerator stoppedGenerator) {
+      assertThrowsExactly(RuntimeException.class, stoppedGenerator::generateID);
    }
 
    protected void loadIDs(final Journal journal, final BatchingIDGenerator batch) throws Exception {

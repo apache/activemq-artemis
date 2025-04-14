@@ -60,6 +60,11 @@ public class FakeAcceptorFactory implements AcceptorFactory {
       }
 
       @Override
+      public void notifyStop() {
+
+      }
+
+      @Override
       public void updateInterceptors(List<BaseInterceptor> incomingInterceptors,
                                      List<BaseInterceptor> outgoingInterceptors) {
       }
