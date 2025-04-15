@@ -395,7 +395,7 @@ PropertiesLogin {
 ----
 
 The `login.config` file is a standard JAAS configuration file.
-You can read more about this file on https://docs.oracle.com/javase/8/docs/technotes/guides/security/jgss/tutorials/LoginConfigFile.html[Oracle's website].
+You can read more about this file on https://docs.oracle.com/en/java/javase/17/security/appendix-b-jaas-login-configuration-file.html[Oracle's website].
 In short, the file defines:
 
 * an alias for an entry (e.g. `PropertiesLogin`)
