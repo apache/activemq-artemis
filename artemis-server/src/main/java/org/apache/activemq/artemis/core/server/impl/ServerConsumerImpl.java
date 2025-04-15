@@ -643,9 +643,10 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
          session = null;
 
-         attachments = null;
+         synchronized (lock) {
+            attachments = null;
+         }
       });
-
    }
 
    private void addLingerRefs() throws Exception {
@@ -1616,33 +1617,41 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public synchronized void addAttachment(String key, Object attachment) {
-      if (attachments == null) {
-         attachments = new HashMap<>();
-      }
+   public void addAttachment(String key, Object attachment) {
+      synchronized (lock) {
+         if (attachments == null) {
+            attachments = new HashMap<>();
+         }
 
-      attachments.put(key, attachment);
-   }
-
-   @Override
-   public synchronized void removeAttachment(String key) {
-      if (attachments != null) {
-         attachments.remove(key);
+         attachments.put(key, attachment);
       }
    }
 
    @Override
-   public synchronized Object getAttachment(String key) {
-      if (attachments != null) {
-         return attachments.get(key);
-      } else {
-         return null;
+   public void removeAttachment(String key) {
+      synchronized (lock) {
+         if (attachments != null) {
+            attachments.remove(key);
+         }
       }
    }
 
    @Override
-   public synchronized Map<String, Object> getAttachments() {
-      return attachments != null ? Collections.unmodifiableMap(attachments) : Collections.emptyMap();
+   public Object getAttachment(String key) {
+      synchronized (lock) {
+         if (attachments != null) {
+            return attachments.get(key);
+         } else {
+            return null;
+         }
+      }
+   }
+
+   @Override
+   public Map<String, Object> getAttachments() {
+      synchronized (lock) {
+         return attachments != null ? Collections.unmodifiableMap(attachments) : Collections.emptyMap();
+      }
    }
 
    static class ServerConsumerMetrics extends TransactionOperationAbstract {
