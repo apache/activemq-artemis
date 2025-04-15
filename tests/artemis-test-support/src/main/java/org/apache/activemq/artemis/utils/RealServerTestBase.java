@@ -88,9 +88,13 @@ public class RealServerTestBase extends ActiveMQTestBase {
    }
 
    public void killServer(Process process) {
+      killServer(process, false);
+   }
+
+   public void killServer(Process process, boolean forcibly) {
       processes.remove(process);
       try {
-         ServerUtil.killServer(process);
+         ServerUtil.killServer(process, forcibly);
       } catch (Throwable e) {
          e.printStackTrace();
       }

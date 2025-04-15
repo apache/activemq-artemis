@@ -176,14 +176,13 @@ public class HorizontalPagingTest extends SoakTestBase {
 
       assertTrue(latchDone.await(TIMEOUT_MINUTES, TimeUnit.MINUTES));
 
-      killServer(serverProcess);
+      killServer(serverProcess, true);
 
       serverProcess = startServer(SERVER_NAME_0, 0, SERVER_START_TIMEOUT);
 
       AtomicInteger completedFine = new AtomicInteger(0);
 
       for (String protocol : protocolList) {
-         latchDone.countUp();
          String protocolUsed = protocol;
 
          ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
@@ -191,6 +190,7 @@ public class HorizontalPagingTest extends SoakTestBase {
          runAfter(connectionConsumer::close);
 
          for (int i = 0; i < DESTINATIONS; i++) {
+            latchDone.countUp();
             int destination = i;
             service.execute(() -> {
                try {
