@@ -13,7 +13,7 @@ In JMS terminology this allows "topic hierarchies" to be created.
 ====
 
 This functionality is enabled by default.
-To turn it off add the following to the `broker.xml` configuration.
+To turn it off add the following to the `<core>` element in `broker.xml`, e.g.:
 
 [,xml]
 ----
