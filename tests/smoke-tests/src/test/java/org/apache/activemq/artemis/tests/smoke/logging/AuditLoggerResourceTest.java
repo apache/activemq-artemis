@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConne
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.junit.jupiter.api.Test;
@@ -125,7 +126,7 @@ public class AuditLoggerResourceTest extends AuditLoggerTestBase {
       assertTrue(findLogRecord(getAuditLog(), "AMQ601767: " + protocol + " connection"));
       s.close();
       connection.close();
-      assertTrue(findLogRecord(getAuditLog(), "AMQ601768: " + protocol + " connection"));
+      Wait.assertTrue(() -> findLogRecord(getAuditLog(), "AMQ601768: " + protocol + " connection"), 5000, 100);
    }
 
    @Test

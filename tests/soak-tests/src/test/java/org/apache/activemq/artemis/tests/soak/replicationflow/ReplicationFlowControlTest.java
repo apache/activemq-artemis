@@ -43,6 +43,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 public class ReplicationFlowControlTest extends SoakTestBase {
 
@@ -100,11 +101,13 @@ public class ReplicationFlowControlTest extends SoakTestBase {
    }
 
    @Test
+   @Timeout(value = 5, unit = TimeUnit.MINUTES, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
    public void testPageWhileSynchronizingReplica() throws Exception {
       internalTest(false);
    }
 
    @Test
+   @Timeout(value = 5, unit = TimeUnit.MINUTES, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
    public void testPageWhileSyncFailover() throws Exception {
       internalTest(true);
    }
