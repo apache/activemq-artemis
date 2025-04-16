@@ -25,7 +25,7 @@ It's a simple 1:1 mapping of the limits to a *user*.
 
 max-sessions::
 How many sessions the matched user can create on the broker.
-The default is -1 which means there is no limit.
+The default is `-1` which means there is no limit.
 +
 .Why _sessions_ and not _connections_?
 ****
@@ -44,4 +44,4 @@ To be clear, the broker _does_ track basic TCP connections, and these too can be
 ****
 max-queues::
 How many queues the matched user can create.
-The default is -1 which means there is no limit.
+The default is `-1` which means there is no limit.
