@@ -75,6 +75,6 @@ public class ActiveMQException extends Exception {
 
    @Override
    public String toString() {
-      return this.getClass().getSimpleName() + "[errorType=" + type + " message=" + getMessage() + "]";
+      return this.getClass().getName() + ": [errorType=" + type + " message=" + getMessage() + "]";
    }
 }
