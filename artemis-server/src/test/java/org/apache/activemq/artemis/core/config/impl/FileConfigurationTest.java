@@ -499,7 +499,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
             assertEquals("dg1", ccc.getDiscoveryGroupName());
             assertEquals(333, ccc.getProducerWindowSize());
             assertFalse(ccc.isAllowDirectConnectionsOnly());
-            assertEquals(30, ccc.getTopologyScannerAttempts());
+            assertEquals(0, ccc.getTopologyScannerAttempts());
          }
       }
 

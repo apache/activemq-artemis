@@ -2630,7 +2630,7 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="topology-scanner-attempts" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+         <xsd:element name="topology-scanner-attempts" type="xsd:int" default="30" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   maximum number of topology scanner attempts, -1 means 'no limits'

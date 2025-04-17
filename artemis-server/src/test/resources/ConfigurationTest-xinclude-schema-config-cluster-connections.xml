@@ -48,7 +48,7 @@
       <producer-window-size>333</producer-window-size>
       <call-failover-timeout>456</call-failover-timeout>
       <discovery-group-ref discovery-group-name="dg1"/>
-      <topology-scanner-attempts>30</topology-scanner-attempts>
+      <topology-scanner-attempts>0</topology-scanner-attempts>
    </cluster-connection>
    <cluster-connection name="cluster-connection3">
       <connector-ref>connector2</connector-ref>
