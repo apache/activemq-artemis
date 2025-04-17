@@ -588,6 +588,13 @@ An optional identifier to use for the cluster connection.
 This can help with identifying the connection on the remote broker (e.g. via the web console).
 Default is empty (i.e. unset).
 
+topology-scanner-attempts::
+The number of times the system tries to scan the cluster connection topology for missing cluster nodes. Those are nodes
+discovered by a discovery group or defined by a static connector that are not present in the cluster connection topology.
+A value of `0` means the system doesn't scan the cluster connection topology for missing cluster nodes.
+A value of `-1` means the system scans the cluster connection topology until there are no more missing cluster nodes.
+Default is 30.
+
 === Cluster User Credentials
 
 When creating connections between nodes of a cluster to form a cluster connection, Apache ActiveMQ Artemis uses a cluster user and cluster password which is defined in `broker.xml`:

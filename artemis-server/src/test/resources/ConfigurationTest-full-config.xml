@@ -453,7 +453,7 @@
             <message-load-balancing>STRICT</message-load-balancing>
             <max-hops>2</max-hops>
             <producer-window-size>333</producer-window-size>
-            <topology-scanner-attempts>30</topology-scanner-attempts>
+            <topology-scanner-attempts>0</topology-scanner-attempts>
          </cluster-connection>
          <cluster-connection name="cluster-connection3">
             <connector-ref>connector2</connector-ref>

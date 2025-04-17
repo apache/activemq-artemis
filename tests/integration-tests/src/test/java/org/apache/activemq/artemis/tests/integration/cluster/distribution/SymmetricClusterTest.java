@@ -1441,10 +1441,6 @@ public class SymmetricClusterTest extends ClusterTestBase {
       if (withPartition) {
          setupProxy();
          enablePartition();
-
-         for (int node = 0; node < 5; node++) {
-            getServer(node).getConfiguration().getClusterConfigurations().get(0).setTopologyScannerAttempts(-1);
-         }
       }
 
       startServers();
