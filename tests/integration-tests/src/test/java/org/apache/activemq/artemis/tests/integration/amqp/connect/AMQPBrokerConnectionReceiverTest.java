@@ -91,9 +91,9 @@ public class AMQPBrokerConnectionReceiverTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
-                                                          .setAddress("test")
-                                                          .setAutoCreated(false));
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
+                                                         .setAddress("test")
+                                                         .setAutoCreated(false));
 
          peer.waitForScriptToComplete();
          peer.expectClose();
@@ -254,9 +254,9 @@ public class AMQPBrokerConnectionReceiverTest extends AmqpClientTestSupport {
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();
-         server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
-                                                          .setAddress("test")
-                                                          .setAutoCreated(false));
+         server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
+                                                         .setAddress("test")
+                                                         .setAutoCreated(false));
 
          peer.waitForScriptToComplete();
          peer.expectClose();
@@ -274,9 +274,9 @@ public class AMQPBrokerConnectionReceiverTest extends AmqpClientTestSupport {
          peer.expectBegin().respond();
          peer.execute(() -> {
             try {
-               server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
-                                                                .setAddress("test")
-                                                                .setAutoCreated(false));
+               server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
+                                                               .setAddress("test")
+                                                               .setAutoCreated(false));
             } catch (Exception e) {
                LOG.warn("Error on creating server address and queue: ", e);
             }
@@ -293,9 +293,9 @@ public class AMQPBrokerConnectionReceiverTest extends AmqpClientTestSupport {
          peer.expectDetach().respond();
          peer.execute(() -> {
             try {
-               server.createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST)
-                                                                .setAddress("test")
-                                                                .setAutoCreated(false));
+               server.createQueue(QueueConfiguration.of("test").setRoutingType(RoutingType.ANYCAST)
+                                                               .setAddress("test")
+                                                               .setAutoCreated(false));
             } catch (Exception e) {
                LOG.warn("Error on creating server address and queue: ", e);
             }

@@ -233,7 +233,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                                                           .setAddress("test")
                                                           .setAutoCreated(false));
 
-         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("test")).isExists());
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("test")).isExists(), 5000, 100);
 
          final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
 
@@ -2987,6 +2987,75 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
    @Test
    @Timeout(20)
+   public void testTunnledCoreMessageOnSenderThatDidNotDesireThatClosesConnection() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respondInKind();
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes(getTestName());
+         receiveFromAddress.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalAddressPolicy(receiveFromAddress);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.addAddressInfo(new AddressInfo(SimpleString.of("test"), RoutingType.MULTICAST));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withOfferedCapability(AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respondInKind(); // Offered capabilities are not reflected as desired here.
+         peer.expectFlow().withLinkCredit(1000);
+         peer.remoteTransfer().withMessageFormat(AMQP_TUNNELED_CORE_MESSAGE_FORMAT)
+                              .withBody().withString("test-message")
+                              .also()
+                              .withDeliveryId(0)
+                              .queue();
+         peer.expectClose().withError(AmqpError.INTERNAL_ERROR.toString()).respond();
+         peer.expectConnectionToDrop();
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            session.createConsumer(session.createTopic(getTestName()));
+
+            connection.start();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         }
+
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
    public void testFederationStartedTriggersRemoteDemandWithExistingAddressBindings() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.start();
@@ -4958,6 +5027,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
             connection.start();
 
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
             peer.expectFlow().withLinkCredit(1000).withDrain(true);  // Don't answer drained
          }
 

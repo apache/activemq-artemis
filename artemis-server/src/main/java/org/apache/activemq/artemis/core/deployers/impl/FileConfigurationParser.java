@@ -56,6 +56,9 @@ import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBridgeAddressPolicyElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBridgeBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBridgeQueuePolicyElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
@@ -106,6 +109,7 @@ import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
+import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
@@ -648,12 +652,20 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          parseDiscoveryGroupConfiguration(dgNode, config);
       }
 
-      NodeList brNodes = e.getElementsByTagName("bridge");
+      // Ensure AMQP bridge configuration isn't picked up here by core bridge
+      // configuration parsing.
+      NodeList bridges = e.getElementsByTagName("bridges");
 
-      for (int i = 0; i < brNodes.getLength(); i++) {
-         Element mfNode = (Element) brNodes.item(i);
+      for (int i = 0; i < bridges.getLength(); i++) {
+         Element bridgesElement = (Element) bridges.item(i);
 
-         parseBridgeConfiguration(mfNode, config);
+         for (int j = 0; j < bridgesElement.getChildNodes().getLength(); ++j) {
+            Node node = bridgesElement.getChildNodes().item(j);
+
+            if (node.getNodeName().equalsIgnoreCase("bridge")) {
+               parseBridgeConfiguration((Element) node, config);
+            }
+         }
       }
 
       NodeList fedNodes = e.getElementsByTagName("federation");
@@ -2205,6 +2217,29 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
                connectionElement = amqpFederationConnectionElement;
                connectionElement.setType(AMQPBrokerConnectionAddressType.FEDERATION);
+            } else if (nodeType == AMQPBrokerConnectionAddressType.BRIDGE) {
+               final NodeList bridgeAttrs = e2.getChildNodes();
+               final String bridgeName = e2.hasAttribute("name") ? e2.getAttribute("name") : name;
+               final AMQPBridgeBrokerConnectionElement amqpBridgeConnectionElement = new AMQPBridgeBrokerConnectionElement(bridgeName);
+
+               for (int j = 0; j < bridgeAttrs.getLength(); j++) {
+                  final Node bridgePolicy = bridgeAttrs.item(j);
+
+                  if (bridgePolicy.getNodeName().equals("bridge-from-address")) {
+                     amqpBridgeConnectionElement.addBridgeFromAddressPolicy(parseAMQPBridgeAddressPolicy((Element) bridgePolicy, mainConfig));
+                  } else if (bridgePolicy.getNodeName().equals("bridge-to-address")) {
+                     amqpBridgeConnectionElement.addBridgeToAddressPolicy(parseAMQPBridgeAddressPolicy((Element)bridgePolicy, mainConfig));
+                  } else if (bridgePolicy.getNodeName().equals("bridge-from-queue")) {
+                     amqpBridgeConnectionElement.addBridgeFromQueuePolicy(parseAMQPBridgeQueuePolicy((Element)bridgePolicy, mainConfig));
+                  } else if (bridgePolicy.getNodeName().equals("bridge-to-queue")) {
+                     amqpBridgeConnectionElement.addBridgeToQueuePolicy(parseAMQPBridgeQueuePolicy((Element)bridgePolicy, mainConfig));
+                  } else if (bridgePolicy.getNodeName().equals("property")) {
+                     amqpBridgeConnectionElement.addProperty(getAttributeValue(bridgePolicy, "key"), getAttributeValue(bridgePolicy, "value"));
+                  }
+               }
+
+               connectionElement = amqpBridgeConnectionElement;
+               connectionElement.setType(AMQPBrokerConnectionAddressType.BRIDGE);
             } else {
                String match = getAttributeValue(e2, "address-match");
                String queue = getAttributeValue(e2, "queue-name");
@@ -2287,6 +2322,126 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       for (int j = 0; j < children.getLength(); j++) {
          Node child = children.item(j);
+
+         if (child.getNodeName().equals("include")) {
+            config.addToIncludes(((Element) child).getAttribute("address-match"), ((Element) child).getAttribute("queue-match"));
+         } else if (child.getNodeName().equals("exclude")) {
+            config.addToExcludes(((Element) child).getAttribute("address-match"), ((Element) child).getAttribute("queue-match"));
+         } else if (child.getNodeName().equals("transformer")) {
+            config.setTransformerConfiguration(getTransformerConfiguration(child));
+         } else if (child.getNodeName().equals("property")) {
+            config.addProperty(getAttributeValue(child, "key"), getAttributeValue(child, "value"));
+         }
+      }
+
+      return config;
+   }
+
+   private AMQPBridgeAddressPolicyElement parseAMQPBridgeAddressPolicy(Element policyNod, final Configuration mainConfig) throws Exception {
+      final AMQPBridgeAddressPolicyElement config = new AMQPBridgeAddressPolicyElement();
+      config.setName(policyNod.getAttribute("name"));
+      final NamedNodeMap attributes = policyNod.getAttributes();
+
+      for (int i = 0; i < attributes.getLength(); i++) {
+         final Node item = attributes.item(i);
+
+         if (item.getNodeName().equals("filter")) {
+            final String filterString = item.getNodeValue();
+            try {
+               SelectorParser.parse(filterString);
+            } catch (Exception ex) {
+               logger.debug("Filter expression in bridge address policy {} has invalid syntax: {}", config.getName(), filterString, ex);
+               throw ex;
+            }
+            config.setFilter(filterString);
+         } else if (item.getNodeName().equals("priority")) {
+            config.setPriority(Integer.parseInt(item.getNodeValue()));
+         } else if (item.getNodeName().equals("enable-divert-bindings")) {
+            config.setIncludeDivertBindings(Boolean.parseBoolean(item.getNodeValue()));
+         } else if (item.getNodeName().equals("remote-address")) {
+            config.setRemoteAddress(item.getNodeValue());
+         } else if (item.getNodeName().equals("remote-address-prefix")) {
+            config.setRemoteAddressPrefix(item.getNodeValue());
+         } else if (item.getNodeName().equals("remote-address-suffix")) {
+            config.setRemoteAddressSuffix(item.getNodeValue());
+         } else if (item.getNodeName().equals("remote-terminus-capabilities")) {
+            final String capabilities = item.getNodeValue();
+            if (capabilities != null && !capabilities.isBlank()) {
+               config.setRemoteTerminusCapabilities(capabilities.split(","));
+            }
+         }
+      }
+
+      final NodeList children = policyNod.getChildNodes();
+
+      @SuppressWarnings("unchecked")
+      final String transformerClassName = getString(policyNod, "transformer-class-name", null, NO_CHECK);
+      if (transformerClassName != null && !transformerClassName.isEmpty()) {
+         config.setTransformerConfiguration(getTransformerConfiguration(transformerClassName));
+      }
+
+      for (int j = 0; j < children.getLength(); j++) {
+         final Node child = children.item(j);
+
+         if (child.getNodeName().equals("include")) {
+            config.addToIncludes(((Element) child).getAttribute("address-match"));
+         } else if (child.getNodeName().equals("exclude")) {
+            config.addToExcludes(((Element) child).getAttribute("address-match"));
+         } else if (child.getNodeName().equals("transformer")) {
+            config.setTransformerConfiguration(getTransformerConfiguration(child));
+         } else if (child.getNodeName().equals("property")) {
+            config.addProperty(getAttributeValue(child, "key"), getAttributeValue(child, "value"));
+         }
+      }
+
+      return config;
+   }
+
+   private AMQPBridgeQueuePolicyElement parseAMQPBridgeQueuePolicy(Element policyNod, final Configuration mainConfig) throws Exception {
+      final AMQPBridgeQueuePolicyElement config = new AMQPBridgeQueuePolicyElement();
+      config.setName(policyNod.getAttribute("name"));
+      final NamedNodeMap attributes = policyNod.getAttributes();
+
+      for (int i = 0; i < attributes.getLength(); i++) {
+         final Node item = attributes.item(i);
+
+         if (item.getNodeName().equals("filter")) {
+            final String filterString = item.getNodeValue();
+            try {
+               SelectorParser.parse(filterString);
+            } catch (Exception ex) {
+               logger.debug("Filter expression in bridge queue policy {} has invalid syntax: {}", config.getName(), filterString, ex);
+               throw ex;
+            }
+            config.setFilter(filterString);
+         } else if (item.getNodeName().equals("priority")) {
+            config.setPriority(Integer.parseInt(item.getNodeValue()));
+         } else if (item.getNodeName().equals("priority-adjustment")) {
+            config.setPriorityAdjustment(Integer.parseInt(item.getNodeValue()));
+         } else if (item.getNodeName().equals("remote-address")) {
+            config.setRemoteAddress(item.getNodeValue());
+         } else if (item.getNodeName().equals("remote-address-prefix")) {
+            config.setRemoteAddressPrefix(item.getNodeValue());
+         } else if (item.getNodeName().equals("remote-address-suffix")) {
+            config.setRemoteAddressSuffix(item.getNodeValue());
+         } else if (item.getNodeName().equals("remote-terminus-capabilities")) {
+            final String capabilities = item.getNodeValue();
+            if (capabilities != null && !capabilities.isBlank()) {
+               config.setRemoteTerminusCapabilities(capabilities.split(","));
+            }
+         }
+      }
+
+      final NodeList children = policyNod.getChildNodes();
+
+      @SuppressWarnings("unchecked")
+      final String transformerClassName = getString(policyNod, "transformer-class-name", null, NO_CHECK);
+      if (transformerClassName != null && !transformerClassName.isEmpty()) {
+         config.setTransformerConfiguration(getTransformerConfiguration(transformerClassName));
+      }
+
+      for (int j = 0; j < children.getLength(); j++) {
+         final Node child = children.item(j);
 
          if (child.getNodeName().equals("include")) {
             config.addToIncludes(((Element) child).getAttribute("address-match"), ((Element) child).getAttribute("queue-match"));

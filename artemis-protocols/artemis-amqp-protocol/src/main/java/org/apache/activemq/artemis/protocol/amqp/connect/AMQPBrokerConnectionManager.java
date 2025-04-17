@@ -102,7 +102,6 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
     *
     * @param configurations A list of broker connection configurations after a broker configuration update.
     */
-   @SuppressWarnings("unchecked")
    public void updateConfiguration(List<AMQPBrokerConnectConfiguration> configurations) throws Exception {
       final List<AMQPBrokerConnectConfiguration> updatedConfigurations =
          configurations != null ? configurations : Collections.emptyList();

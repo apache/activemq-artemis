@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.protocol.amqp.connect.mirror;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
@@ -51,12 +52,11 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPExceptio
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
-import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreLargeMessageReader;
-import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreMessageReader;
-import org.apache.activemq.artemis.protocol.amqp.proton.MessageReader;
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonAbstractReceiver;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.pools.MpscPool;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
@@ -83,8 +83,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirro
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.QUEUE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_ID_EXTRA_PROPERTY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.TARGET_QUEUES;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyDesiredCapability;
 
 public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implements MirrorController {
 
@@ -195,10 +194,6 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    private final ReferenceIDSupplier referenceNodeStore;
 
    OperationContext mirrorContext;
-
-   private MessageReader coreMessageReader;
-
-   private MessageReader coreLargeMessageReader;
 
    private AckManager ackManager;
 
@@ -378,20 +373,21 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       // We don't currently support SECOND so enforce that the answer is always FIRST
       receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
 
-      topUpCreditIfNeeded();
-   }
+      final HashMap<Symbol, Object> brokerIDProperties = new HashMap<>();
+      brokerIDProperties.put(AMQPMirrorControllerSource.BROKER_ID, server.getNodeID().toString());
+      receiver.setProperties(brokerIDProperties);
 
-   @Override
-   protected MessageReader trySelectMessageReader(Receiver receiver, Delivery delivery) {
-      if (delivery.getMessageFormat() == AMQP_TUNNELED_CORE_MESSAGE_FORMAT) {
-         return coreMessageReader != null ?
-            coreMessageReader : (coreMessageReader = new AMQPTunneledCoreMessageReader(this));
-      } else if (delivery.getMessageFormat() == AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT) {
-         return coreLargeMessageReader != null ?
-            coreLargeMessageReader : (coreLargeMessageReader = new AMQPTunneledCoreLargeMessageReader(this));
+      // We need to check if the remote desires to send us tunneled core messages or not, and if
+      // we support that we need to offer that back so it knows it can actually do core tunneling.
+      if (verifyDesiredCapability(receiver, AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT)) {
+         receiver.setOfferedCapabilities(new Symbol[] {AMQPMirrorControllerSource.MIRROR_CAPABILITY,
+                                                       AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT});
+         enableCoreTunneling(); // Sender requested so enable receipt here.
       } else {
-         return super.trySelectMessageReader(receiver, delivery);
+         receiver.setOfferedCapabilities(new Symbol[]{AMQPMirrorControllerSource.MIRROR_CAPABILITY});
       }
+
+      topUpCreditIfNeeded();
    }
 
    private QueueConfiguration parseQueue(AMQPMessage message) {

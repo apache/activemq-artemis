@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.COPY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.GLOBAL;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.QUEUE_CAPABILITY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SHARED;
@@ -25,6 +26,7 @@ import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TOPIC
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.createQueueName;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.getReceiverPriority;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyDesiredCapability;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyOfferedCapabilities;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifySourceCapability;
 
 import java.lang.invoke.MethodHandles;
@@ -39,6 +41,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.ParameterisedAddress;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -47,7 +50,7 @@ import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
-import org.apache.activemq.artemis.protocol.amqp.broker.AMQPLargeMessage;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
@@ -78,7 +81,7 @@ import org.slf4j.LoggerFactory;
  * This controller is extensible so that specialized sender controllers can be created from it.
  * <p>
  * The default controller works best with incoming AMQP clients and JMS over AMQP clients. For intra-broker connections
- * it is likely that a custom sender controller would be a more flexible option that using the default controller.
+ * it is likely that a custom sender controller would be a more appropriate option than using the default controller.
  */
 public class DefaultSenderController implements SenderController {
 
@@ -89,9 +92,14 @@ public class DefaultSenderController implements SenderController {
    private final Sender protonSender;
    private final String clientId;
 
-   // A cached AMQP standard message writers married to the server sender instance on initialization
+   // A cached AMQP message writers married to the server sender instance on initialization
    private AMQPMessageWriter standardMessageWriter;
    private AMQPLargeMessageWriter largeMessageWriter;
+
+   // A cached Core message writers married to the server sender instance on initialization
+   private AMQPTunneledCoreMessageWriter coreMessageWriter;
+   private AMQPTunneledCoreLargeMessageWriter coreLargeMessageWriter;
+   private boolean coreTunnelingEnabled;
 
    private boolean shared;
    private boolean global;
@@ -126,6 +134,14 @@ public class DefaultSenderController implements SenderController {
 
       // We don't currently support SECOND so enforce that the answer is always FIRST
       protonSender.setReceiverSettleMode(ReceiverSettleMode.FIRST);
+
+      // If the remote receiver says it can accept tunneled core then that's what we will send them
+      if (verifyOfferedCapabilities(protonSender, CORE_MESSAGE_TUNNELING_SUPPORT)) {
+         protonSender.setDesiredCapabilities(new Symbol[] {CORE_MESSAGE_TUNNELING_SUPPORT});
+         coreTunnelingEnabled = true;
+         coreMessageWriter = new AMQPTunneledCoreMessageWriter(senderContext);
+         coreLargeMessageWriter = new AMQPTunneledCoreLargeMessageWriter(senderContext);
+      }
 
       if (source != null) {
          // We look for message selectors on every receiver, while in other cases we might only
@@ -485,9 +501,13 @@ public class DefaultSenderController implements SenderController {
    @Override
    public MessageWriter selectOutgoingMessageWriter(ProtonServerSenderContext sender, MessageReference reference) {
       final MessageWriter selected;
+      final Message message = reference.getMessage();
+      final boolean isLarge = message.isLargeMessage();
 
-      if (reference.getMessage() instanceof AMQPLargeMessage) {
-         selected = largeMessageWriter;
+      if (message instanceof AMQPMessage) {
+         selected = isLarge ? largeMessageWriter : standardMessageWriter;
+      } else if (coreTunnelingEnabled) {
+         selected = isLarge ? coreLargeMessageWriter : coreMessageWriter;
       } else {
          selected = standardMessageWriter;
       }
