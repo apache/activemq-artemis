@@ -2040,6 +2040,7 @@
          <xsd:enumeration value="SNI_HOST"/>
          <xsd:enumeration value="SOURCE_IP"/>
          <xsd:enumeration value="USER_NAME"/>
+         <xsd:enumeration value="ROLE_NAME"/>
       </xsd:restriction>
    </xsd:simpleType>
 
