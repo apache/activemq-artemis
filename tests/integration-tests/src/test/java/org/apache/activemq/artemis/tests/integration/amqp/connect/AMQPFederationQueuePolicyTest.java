@@ -1372,6 +1372,8 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
       }
    }
 
+   // TODO: Decide how to handle priority on queue consumers and then maybe port these tests to the bridge
+
    @Test
    @Timeout(20)
    public void testFederationCreatesQueueReceiverLinkWithDefaultPrioirty() throws Exception {
@@ -1538,6 +1540,8 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          }
       }
    }
+
+   // TODO: See above
 
    @Test
    @Timeout(20)
@@ -3180,6 +3184,74 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
          peer.close();
 
          server.stop();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testTunnledCoreMessageOnSenderThatDidNotDesireThatClosesConnection() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respondInKind();
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue.setName("queue-policy");
+         receiveFromQueue.addToIncludes("#", getTestName());
+         receiveFromQueue.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 0);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalQueuePolicy(receiveFromQueue);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withOfferedCapability(AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("queue-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respondInKind(); // Offered capabilities are not reflected as desired here.
+         peer.expectFlow().withLinkCredit(1000);
+         peer.remoteTransfer().withMessageFormat(AMQP_TUNNELED_CORE_MESSAGE_FORMAT)
+                              .withBody().withString("test-message")
+                              .also()
+                              .withDeliveryId(0)
+                              .queue();
+         peer.expectClose().withError(AmqpError.INTERNAL_ERROR.toString()).respond();
+         peer.expectConnectionToDrop();
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            session.createConsumer(session.createQueue(getTestName()));
+
+            connection.start();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         }
+
+         peer.close();
       }
    }
 

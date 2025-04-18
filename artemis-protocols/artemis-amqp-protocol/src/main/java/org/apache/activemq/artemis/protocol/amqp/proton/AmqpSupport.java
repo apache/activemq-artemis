@@ -108,9 +108,10 @@ public class AmqpSupport {
    public static final Symbol CORE_MESSAGE_TUNNELING_SUPPORT = Symbol.getSymbol("AMQ_CORE_MESSAGE_TUNNELING");
 
    /**
-    * Property value that can be applied to federation configuration that controls if the federation receivers will
-    * request that the sender peer tunnel core messages inside an AMQP message as a binary blob to be unwrapped on the
-    * other side. The sending peer would still need to support this feature for message tunneling to occur.
+    * Property value that can be applied to federation and bridge configurations that controls if the various links
+    * will request that the opposing peers link tunnel core messages inside an AMQP message as a binary blob to be
+    * unwrapped on the other side. The sending peer would still need to support this feature for message tunneling to
+    * occur.
     */
    public static final String TUNNEL_CORE_MESSAGES = "tunnel-core-messages";
 

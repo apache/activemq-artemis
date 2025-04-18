@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
@@ -71,6 +74,11 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    protected volatile ReceiverState state = ReceiverState.STARTED;
    protected BiConsumer<ProtonAbstractReceiver, Boolean> pendingStop;
    protected ScheduledFuture<?> pendingStopTimeout;
+
+   // Not always used so left unallocated until needed, on attach the capabilities drive if supported
+   protected MessageReader coreMessageReader;
+   protected MessageReader coreLargeMessageReader;
+   protected boolean coreTunnelingEnabled;
 
    public ProtonAbstractReceiver(AMQPSessionCallback sessionSPI,
                                  AMQPConnectionContext connection,
@@ -372,7 +380,13 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    }
 
    protected MessageReader trySelectMessageReader(Receiver receiver, Delivery delivery) {
-      if (sessionSPI.getStorageManager() instanceof NullStorageManager) {
+      if (delivery.getMessageFormat() == AMQP_TUNNELED_CORE_MESSAGE_FORMAT) {
+         failIfCoreTunnelNotEnabled();
+         return coreMessageReader;
+      } else if (delivery.getMessageFormat() == AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT) {
+         failIfCoreTunnelNotEnabled();
+         return coreLargeMessageReader;
+      } else if (sessionSPI.getStorageManager() instanceof NullStorageManager) {
          // if we are dealing with the NullStorageManager we should just make it a regular message anyways
          return standardMessageReader;
       } else if (delivery.isPartial()) {
@@ -522,6 +536,23 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       if (isStarted()) {
          // Use the SessionSPI to allocate producer credits, or default, always allocate credit.
          sessionSPI.flow(getAddressInUse(), creditRunnable);
+      }
+   }
+
+   protected void enableCoreTunneling() {
+      coreTunnelingEnabled = true;
+
+      if (coreLargeMessageReader == null || coreMessageReader == null) {
+         coreLargeMessageReader = new AMQPTunneledCoreLargeMessageReader(this);
+      }
+      if (coreMessageReader == null) {
+         coreMessageReader = new AMQPTunneledCoreMessageReader(this);
+      }
+   }
+
+   protected void failIfCoreTunnelNotEnabled() {
+      if (!coreTunnelingEnabled) {
+         throw new UnsupportedOperationException("Core tunnel not enabled for this link");
       }
    }
 

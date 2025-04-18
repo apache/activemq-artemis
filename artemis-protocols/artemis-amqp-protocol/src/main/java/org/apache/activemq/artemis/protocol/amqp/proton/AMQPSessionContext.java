@@ -21,7 +21,6 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_POLICY_NAME;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +40,6 @@ import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederati
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationRemoteAddressPolicyManager;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationRemoteQueuePolicyManager;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationTarget;
-import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.client.ProtonClientSenderContext;
@@ -391,10 +389,6 @@ public class AMQPSessionContext extends ProtonInitializable {
       addReceiver(receiver, (r, s) -> {
          final AMQPMirrorControllerTarget protonReceiver =
             new AMQPMirrorControllerTarget(sessionSPI, connection, this, receiver, server);
-
-         final HashMap<Symbol, Object> brokerIDProperties = new HashMap<>();
-         brokerIDProperties.put(AMQPMirrorControllerSource.BROKER_ID, server.getNodeID().toString());
-         receiver.setProperties(brokerIDProperties);
 
          return protonReceiver;
       });

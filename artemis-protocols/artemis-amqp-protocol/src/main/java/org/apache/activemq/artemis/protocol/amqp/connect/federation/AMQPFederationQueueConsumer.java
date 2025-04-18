@@ -20,9 +20,9 @@ package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_POLICY_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_QUEUE_RECEIVER;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_RECEIVER_PRIORITY;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LINK_INITIALIZER_KEY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyDesiredCapability;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,9 +47,6 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpJmsSelectorFilter;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
-import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreLargeMessageReader;
-import org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledCoreMessageReader;
-import org.apache.activemq.artemis.protocol.amqp.proton.MessageReader;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
@@ -237,8 +234,6 @@ public final class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
       private final SimpleString cachedFqqn;
       private final Queue localQueue;
 
-      private MessageReader coreMessageReader;
-      private MessageReader coreLargeMessageReader;
       private boolean closed;
 
       /**
@@ -258,10 +253,10 @@ public final class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
 
       @Override
       public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
+         super.close(remoteLinkClose);
+
          if (!closed) {
             closed = true;
-
-            super.close(remoteLinkClose);
 
             try {
                federation.unregisterFederationConsumerManagement(AMQPFederationQueueConsumer.this);
@@ -317,6 +312,14 @@ public final class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
             throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
          }
 
+         if (configuration.isCoreMessageTunnelingEnabled()) {
+            // We will have offered it if the option is enabled, but the remote needs to indicate it desires it
+            // otherwise we want to fail on any tunneled core messages that arrives which is the default.
+            if (verifyDesiredCapability(protonReceiver, AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT)) {
+               enableCoreTunneling();
+            }
+         }
+
          try {
             federation.registerFederationConsumerManagement(AMQPFederationQueueConsumer.this);
          } catch (Exception e) {
@@ -324,19 +327,6 @@ public final class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
          }
 
          topUpCreditIfNeeded();
-      }
-
-      @Override
-      protected MessageReader trySelectMessageReader(Receiver receiver, Delivery delivery) {
-         if (delivery.getMessageFormat() == AMQP_TUNNELED_CORE_MESSAGE_FORMAT) {
-            return coreMessageReader != null ?
-               coreMessageReader : (coreMessageReader = new AMQPTunneledCoreMessageReader(this));
-         } else if (delivery.getMessageFormat() == AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT) {
-            return coreLargeMessageReader != null ?
-               coreLargeMessageReader : (coreLargeMessageReader = new AMQPTunneledCoreLargeMessageReader(this));
-         } else {
-            return super.trySelectMessageReader(receiver, delivery);
-         }
       }
 
       @Override
