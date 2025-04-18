@@ -873,7 +873,7 @@ public class LVQTest extends ActiveMQTestBase {
       assertTrue(queue.changeReferencePriority(messageId, (byte) 1));
       // Wait for message delivered to queue
       Wait.assertEquals(oldSize, () -> queue.getPersistentSize(), 10_000, 2);
-      assertEquals(0, queue.getDeliveringSize());
+      Wait.assertEquals(0L, () -> queue.getDeliveringSize(), 10_000, 2);
    }
 
    @Test
