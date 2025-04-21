@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.journal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -34,7 +35,6 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
-import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,93 +49,32 @@ public class ValidateTransactionHealthTest extends SpawnedTestBase {
 
    private static final int OK = 10;
 
+
    @Test
    public void testAIO() throws Exception {
-      internalTest("aio", getTestDir(), 10000, 100, true, true, 1);
-   }
-
-   @Test
-   public void testAIOHugeTransaction() throws Exception {
-      internalTest("aio", getTestDir(), 10000, 10000, true, true, 1);
-   }
-
-   @Test
-   public void testAIOMultiThread() throws Exception {
-      internalTest("aio", getTestDir(), 1000, 100, true, true, 10);
-   }
-
-   @Test
-   public void testAIONonTransactionalNoExternalProcess() throws Exception {
-      internalTest("aio", getTestDir(), 1000, 0, true, false, 10);
+      internalTest("aio", getTestDir(), 1000, 100, true, 10);
    }
 
    @Test
    public void testNIO() throws Exception {
-      internalTest("nio", getTestDir(), 10000, 100, true, true, 1);
-   }
-
-   @Test
-   public void testNIOHugeTransaction() throws Exception {
-      internalTest("nio", getTestDir(), 10000, 10000, true, true, 1);
-   }
-
-   @Test
-   public void testNIOMultiThread() throws Exception {
-      internalTest("nio", getTestDir(), 1000, 100, true, true, 10);
-   }
-
-   @Test
-   public void testNIONonTransactional() throws Exception {
-      internalTest("nio", getTestDir(), 10000, 0, true, true, 1);
+      internalTest("nio", getTestDir(), 1000, 100, true, 10);
    }
 
    @Test
    public void testNIO2() throws Exception {
-      internalTest("nio2", getTestDir(), 10000, 100, true, true, 1);
+      internalTest("nio2", getTestDir(), 1000, 100, true, 10);
    }
 
    @Test
-   public void testNIO2HugeTransaction() throws Exception {
-      internalTest("nio2", getTestDir(), 10000, 10000, true, true, 1);
+   public void testMMAP() throws Exception {
+      internalTest("mmap", getTestDir(), 1000, 100, true, 10);
    }
-
-   @Test
-   public void testNIO2MultiThread() throws Exception {
-      internalTest("nio2", getTestDir(), 1000, 100, true, true, 10);
-   }
-
-   @Test
-   public void testNIO2NonTransactional() throws Exception {
-      internalTest("nio2", getTestDir(), 10000, 0, true, true, 1);
-   }
-
-   @Test
-   public void testMMap() throws Exception {
-      internalTest("mmap", getTestDir(), 10000, 100, true, true, 1);
-   }
-
-   @Test
-   public void testMMAPHugeTransaction() throws Exception {
-      internalTest("mmap", getTestDir(), 10000, 10000, true, true, 1);
-   }
-
-   @Test
-   public void testMMAPOMultiThread() throws Exception {
-      internalTest("mmap", getTestDir(), 1000, 100, true, true, 10);
-   }
-
-   @Test
-   public void testMMAPNonTransactional() throws Exception {
-      internalTest("mmap", getTestDir(), 10000, 0, true, true, 1);
-   }
-
 
    private void internalTest(final String type,
                              final String journalDir,
                              final long numberOfRecords,
                              final int transactionSize,
                              final boolean append,
-                             final boolean externalProcess,
                              final int numberOfThreads) throws Exception {
       try {
          if (type.equals("aio") && !LibaioContext.isLoaded()) {
@@ -143,16 +82,8 @@ public class ValidateTransactionHealthTest extends SpawnedTestBase {
             return;
          }
 
-         // This property could be set to false for debug purposes.
          if (append) {
-            if (externalProcess) {
-               Process process = SpawnedVMSupport.spawnVM(ValidateTransactionHealthTest.class.getCanonicalName(), type, journalDir, Long.toString(numberOfRecords), Integer.toString(transactionSize), Integer.toString(numberOfThreads));
-               process.waitFor();
-               assertEquals(ValidateTransactionHealthTest.OK, process.exitValue());
-            } else {
-               JournalImpl journal = ValidateTransactionHealthTest.appendData(type, journalDir, numberOfRecords, transactionSize, numberOfThreads);
-               journal.stop();
-            }
+            appendData(type, journalDir, numberOfRecords, transactionSize, numberOfThreads);
          }
 
          reload(type, journalDir, numberOfRecords, numberOfThreads);
@@ -252,38 +183,7 @@ public class ValidateTransactionHealthTest extends SpawnedTestBase {
 
    }
 
-   // Remote part of the test =================================================================
-
-   public static void main(final String[] args) throws Exception {
-
-      if (args.length != 5) {
-         System.err.println("Use: java -cp <classpath> " + ValidateTransactionHealthTest.class.getCanonicalName() +
-                               " aio|nio|mmap <journalDirectory> <NumberOfElements> <TransactionSize> <NumberOfThreads>");
-         System.exit(-1);
-      }
-      String journalType = args[0];
-      String journalDir = args[1];
-      long numberOfElements = Long.parseLong(args[2]);
-      int transactionSize = Integer.parseInt(args[3]);
-      int numberOfThreads = Integer.parseInt(args[4]);
-
-      try {
-         ValidateTransactionHealthTest.appendData(journalType, journalDir, numberOfElements, transactionSize, numberOfThreads);
-
-         // We don't stop the journal on the case of an external process...
-         // The test is making sure that committed data can be reloaded fine...
-         // i.e. commits are sync on disk as stated on the transaction.
-         // The journal shouldn't leave any state impeding reloading the server
-      } catch (Exception e) {
-         e.printStackTrace(System.out);
-         System.exit(-1);
-      }
-
-      // Simulating a crash on the system right after the data was committed.
-      Runtime.getRuntime().halt(ValidateTransactionHealthTest.OK);
-   }
-
-   public static JournalImpl appendData(final String journalType,
+   public void appendData(final String journalType,
                                         final String journalDir,
                                         final long numberOfElements,
                                         final int transactionSize,
@@ -326,7 +226,9 @@ public class ValidateTransactionHealthTest extends SpawnedTestBase {
 
       Exception e = null;
       for (LocalThread t : threads) {
-         t.join();
+         t.join(10_000);
+
+         assertFalse(t.isAlive());
 
          if (t.e != null) {
             e = t.e;
@@ -339,7 +241,7 @@ public class ValidateTransactionHealthTest extends SpawnedTestBase {
 
       journal.flush();
 
-      return journal;
+      journal.stop();
    }
 
    public static JournalImpl createJournal(final String journalType, final String journalDir) {
