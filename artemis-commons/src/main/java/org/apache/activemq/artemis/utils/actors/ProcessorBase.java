@@ -97,6 +97,12 @@ public abstract class ProcessorBase<T> extends HandlerBase {
       shutdown(30, TimeUnit.SECONDS);
    }
 
+   public void flush() {
+      if (!inHandler()) {
+         flush(30, TimeUnit.SECONDS);
+      }
+   }
+
    public void shutdown(long timeout, TimeUnit unit) {
       requestedShutdown = true;
 

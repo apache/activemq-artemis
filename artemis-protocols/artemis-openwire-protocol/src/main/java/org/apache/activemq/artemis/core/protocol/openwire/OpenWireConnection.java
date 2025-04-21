@@ -692,7 +692,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    private void disconnect(ActiveMQException me, String reason, boolean fail) {
       ThresholdActor<Command> localActor = openWireActor;
       if (localActor != null) {
-         localActor.shutdown();
+         localActor.flush();
       }
 
       if (context == null || destroyed) {
