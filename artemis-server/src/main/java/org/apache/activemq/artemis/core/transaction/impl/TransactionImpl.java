@@ -506,7 +506,7 @@ public class TransactionImpl implements Transaction {
                throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
             }
          } else {
-            if (state != State.ACTIVE && state != State.ROLLBACK_ONLY) {
+            if (delayed == 0 && state != State.ACTIVE && state != State.ROLLBACK_ONLY) {
                throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
             }
          }

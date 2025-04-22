@@ -463,11 +463,12 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean page(Message message,
+      public int page(Message message,
                           Transaction tx,
                           RouteContextList listCtx,
-                          Function<Message, Message> pageDecorator) throws Exception {
-         return false;
+                          Function<Message, Message> pageDecorator,
+                          boolean useFlowControl) throws Exception {
+         return -1;
       }
 
       @Override

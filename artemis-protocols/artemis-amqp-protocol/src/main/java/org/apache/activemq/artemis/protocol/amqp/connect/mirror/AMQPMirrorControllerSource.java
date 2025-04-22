@@ -374,8 +374,11 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
             return;
          }
 
+         int creditsWrite = snfQueue.getPagingStore().page(message, tx, pagedRouteContext, this::copyMessageForPaging, true);
+
          // This will store the message on paging, and the message will be copied into paging.
-         if (snfQueue.getPagingStore().page(message, tx, pagedRouteContext, this::copyMessageForPaging)) {
+         if (creditsWrite >= 0) {
+            snfQueue.getPagingStore().writeFlowControl(creditsWrite);
             if (tx == null) {
                snfQueue.deliverAsync();
             } else {

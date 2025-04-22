@@ -67,13 +67,14 @@ public class PageTimedWriter extends ActiveMQScheduledComponent {
 
    public static class PageEvent {
 
-      PageEvent(OperationContext context, PagedMessage message, Transaction tx, RouteContextList listCtx, int credits, boolean replicated) {
+      PageEvent(OperationContext context, PagedMessage message, Transaction tx, RouteContextList listCtx, int credits, boolean replicated, boolean useFlowControl) {
          this.context = context;
          this.message = message;
          this.listCtx = listCtx;
          this.replicated = replicated;
          this.credits = credits;
          this.tx = tx;
+         this.useFlowControl = useFlowControl;
       }
 
       final boolean replicated;
@@ -82,6 +83,7 @@ public class PageTimedWriter extends ActiveMQScheduledComponent {
       final RouteContextList listCtx;
       final Transaction tx;
       final int credits;
+      final boolean useFlowControl;
    }
 
    public PageTimedWriter(int writeCredits, StorageManager storageManager, PagingStoreImpl pagingStore, ScheduledExecutorService scheduledExecutor, Executor executor, boolean syncNonTX, long timeSync) {
@@ -118,18 +120,20 @@ public class PageTimedWriter extends ActiveMQScheduledComponent {
       pendingTasksUpdater.incrementAndGet(this);
    }
 
-   public void addTask(OperationContext context,
+   public int addTask(OperationContext context,
                                     PagedMessage message,
                                     Transaction tx,
-                                    RouteContextList listCtx) {
+                                    RouteContextList listCtx, boolean useFlowControl) {
 
       logger.trace("Adding paged message {} to paged writer", message);
 
+      // the module using the page operation should later call flowControl from this class.
+      // the only exception to this would be from tests where we don't really care about flow control on the TimedExecutor
+      // also: the credits is based on the page size, and we use the encodeSize to flow it.
       int credits = Math.min(message.getEncodeSize() + PageReadWriter.SIZE_RECORD, maxCredits);
-      writeCredits.acquireUninterruptibly(credits);
+
       synchronized (this) {
          if (!isStarted()) {
-            writeCredits.release(credits);
             throw new IllegalStateException("PageWriter Service is stopped");
          }
 
@@ -139,13 +143,21 @@ public class PageTimedWriter extends ActiveMQScheduledComponent {
          }
 
          final boolean replicated = storageManager.isReplicated();
-         PageEvent event = new PageEvent(context, message, tx, listCtx, credits, replicated);
+         PageEvent event = new PageEvent(context, message, tx, listCtx, credits, replicated, useFlowControl);
          context.storeLineUp();
          if (replicated) {
             context.replicationLineUp();
          }
          this.pageEvents.add(event);
          delay();
+      }
+
+      return credits;
+   }
+
+   public void flowControl(int credits) {
+      if (credits > 0) {
+         writeCredits.acquireUninterruptibly(credits);
       }
    }
 
@@ -257,7 +269,9 @@ public class PageTimedWriter extends ActiveMQScheduledComponent {
          try {
             for (PageEvent event : pendingEvents) {
                pendingTasksUpdater.decrementAndGet(this);
-               writeCredits.release(event.credits);
+               if (event.useFlowControl) {
+                  writeCredits.release(event.credits);
+               }
             }
             OperationContextImpl.setContext(beforeContext);
          } catch (Throwable t) {
@@ -269,5 +283,9 @@ public class PageTimedWriter extends ActiveMQScheduledComponent {
 
    protected void performSync() throws Exception {
       pagingStore.ioSync();
+   }
+
+   public int getAvailablePermits() {
+      return writeCredits.availablePermits();
    }
 }

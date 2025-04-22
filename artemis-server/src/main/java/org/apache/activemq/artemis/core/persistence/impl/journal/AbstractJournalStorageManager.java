@@ -2280,9 +2280,18 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    @Override
    public boolean addToPage(PagingStore store, Message msg, Transaction tx, RouteContextList listCtx) throws Exception {
+      int credits;
       try (ArtemisCloseable closeable = closeableReadLock()) {
-         return store.page(msg, tx, listCtx);
+         credits = store.page(msg, tx, listCtx, null, true);
       }
+
+      // flow control on the TimedWriter needs to be done outside of locking
+      // it is ok to do it after the write
+      if (credits > 0) {
+         store.writeFlowControl(credits);
+      }
+
+      return credits >= 0;
    }
 
    private void installLargeMessageConfirmationOnTX(Transaction tx, long recordID) {
