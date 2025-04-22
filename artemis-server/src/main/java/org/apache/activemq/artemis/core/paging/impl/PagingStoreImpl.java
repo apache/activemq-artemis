@@ -1273,17 +1273,18 @@ public class PagingStoreImpl implements PagingStore {
    public boolean page(Message message,
                        final Transaction tx,
                        RouteContextList listCtx) throws Exception {
-      return page(message, tx, listCtx, null);
+      return page(message, tx, listCtx, null, false) >= 0;
    }
 
    @Override
-   public boolean page(Message message,
+   public int page(Message message,
                        final Transaction tx,
                        RouteContextList listCtx,
-                       Function<Message, Message> pageDecorator) throws Exception {
+                       Function<Message, Message> pageDecorator,
+                       boolean useFlowControl) throws Exception {
 
       if (!running) {
-         return false;
+         return -1;
       }
 
       boolean full = isFull();
@@ -1303,12 +1304,12 @@ public class PagingStoreImpl implements PagingStore {
                printedDropMessagesWarning = true;
                ActiveMQServerLogger.LOGGER.pageStoreDropMessages(storeName, getPageInfo());
             }
-            return true;
+            return 0;
          } else {
-            return false;
+            return -1;
          }
       } else if (addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK) {
-         return false;
+         return -1;
       }
 
       if (pageFull) {
@@ -1326,24 +1327,28 @@ public class PagingStoreImpl implements PagingStore {
          }
 
          // we are in page mode, if we got to this point, we are dropping the message while still paging
-         // this needs to return true as it is paging
-         return true;
+         // we return 0 as in the storage is in "page mode" however no credits are being taken.
+         return 0;
       }
 
-      return writePage(message, tx, listCtx, pageDecorator);
+      int creditsUsed = writePage(message, tx, listCtx, pageDecorator, useFlowControl);
+
+      return creditsUsed;
    }
 
-   private boolean writePage(Message message,
+   private int writePage(Message message,
                              Transaction tx,
                              RouteContextList listCtx,
-                             Function<Message, Message> pageDecorator) throws Exception {
+                             Function<Message, Message> pageDecorator,
+                             boolean useFlowControl) throws Exception {
       // We need to use a readLock as we need to keep paging until we scheduled a task
       // notice that to leave paging you need pending tasks done
       readLock();
       PagedMessage pagedMessage;
       try {
          if (!paging) {
-            return false;
+            // no paging was used
+            return -1;
          }
 
          final long transactionID = (tx != null && tx.isAllowPageTransaction()) ? tx.getID() : -1L;
@@ -1383,9 +1388,18 @@ public class PagingStoreImpl implements PagingStore {
       // timedWriter.hasPendingIO would return pending based on incrementTask, and for that reason we can still call the addTask away from the readLock.
       //
       // This scenario was found when running FloodServerWithAsyncSendTest smoke test.
-      timedWriter.addTask(storageManager.getContext(), pagedMessage, tx, listCtx);
+      int credits = timedWriter.addTask(storageManager.getContext(), pagedMessage, tx, listCtx, useFlowControl);
 
-      return true;
+      assert credits >= 0;
+
+      return credits;
+   }
+
+   @Override
+   public void writeFlowControl(int credits) {
+      if (timedWriter != null) {
+         timedWriter.flowControl(credits);
+      }
    }
 
    protected void directWritePage(PagedMessage pagedMessage, boolean lineUp, boolean originalReplicated) throws Exception {

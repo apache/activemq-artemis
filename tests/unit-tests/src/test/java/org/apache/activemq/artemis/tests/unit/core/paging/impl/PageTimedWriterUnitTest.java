@@ -33,6 +33,7 @@ import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
@@ -73,6 +74,7 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -195,7 +197,6 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
       executorService = Executors.newFixedThreadPool(10);
       runAfter(scheduledExecutorService::shutdownNow);
       runAfter(executorService::shutdownNow);
-      runAfter(() -> OperationContextImpl.clearContext());
       executorFactory = new OrderedExecutorFactory(executorService);
       context = OperationContextImpl.getContext(executorFactory);
       assertNotNull(context);
@@ -311,6 +312,11 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
       runAfter(OperationContextImpl::clearContext);
    }
 
+   @AfterEach
+   public void clearContext() {
+      OperationContextImpl.clearContext();
+   }
+
    // a test to validate if the Mocks are correctly setup
    @Test
    public void testValidateMocks() throws Exception {
@@ -356,7 +362,6 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
       long id = realJournalStorageManager.generateID();
       long newID = realJournalStorageManager.generateID();
       assertEquals(1L, newID - id);
-
    }
 
    PagedMessage createPagedMessage() {
@@ -367,7 +372,8 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
    public void testIOCompletion() throws Exception {
       CountDownLatch latch = new CountDownLatch(1);
 
-      timer.addTask(context, createPagedMessage(), null, Mockito.mock(RouteContextList.class));
+      OperationContextImpl.setContext(context);
+      assertTrue(realJournalStorageManager.addToPage(pageStore, createMessage(), null, Mockito.mock(RouteContextList.class)));
 
       context.executeOnCompletion(new IOCallback() {
          @Override
@@ -383,7 +389,6 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
       assertFalse(latch.await(10, TimeUnit.MILLISECONDS));
       allowRunning.countDown();
       assertTrue(latch.await(10, TimeUnit.SECONDS));
-
    }
 
    @Test
@@ -392,7 +397,8 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
 
       useReplication.set(true);
 
-      timer.addTask(context, createPagedMessage(), null, Mockito.mock(RouteContextList.class));
+      OperationContextImpl.setContext(context);
+      assertTrue(realJournalStorageManager.addToPage(pageStore, createMessage(), null, Mockito.mock(RouteContextList.class)));
 
       context.executeOnCompletion(new IOCallback() {
          @Override
@@ -426,7 +432,8 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
          }
       });
 
-      timer.addTask(context, createPagedMessage(), transaction, Mockito.mock(RouteContextList.class));
+      OperationContextImpl.setContext(context);
+      assertTrue(realJournalStorageManager.addToPage(pageStore, createMessage(), transaction, Mockito.mock(RouteContextList.class)));
 
       transaction.commit();
 
@@ -497,7 +504,8 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
          }
       });
 
-      timer.addTask(context, createPagedMessage(), transaction, Mockito.mock(RouteContextList.class));
+      OperationContextImpl.setContext(context);
+      assertTrue(realJournalStorageManager.addToPage(pageStore, createMessage(), transaction, Mockito.mock(RouteContextList.class)));
 
       numberOfCommitsMessageJournal.set(0); // it should been 0 before anyway but since I have no real reason to require it to be zero before, I'm doing this just in case it ever changes
       transaction.commit();
@@ -525,7 +533,8 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
          }
       });
 
-      timer.addTask(context, createPagedMessage(), transaction, Mockito.mock(RouteContextList.class));
+      OperationContextImpl.setContext(context);
+      assertTrue(realJournalStorageManager.addToPage(pageStore, createMessage(), transaction, Mockito.mock(RouteContextList.class)));
 
       numberOfCommitsMessageJournal.set(0); // it should been 0 before anyway but since I have no real reason to require it to be zero before, I'm doing this just in case it ever changes
       numberOfPreparesMessageJournal.set(0);
@@ -546,7 +555,8 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
 
       useReplication.set(true);
 
-      timer.addTask(context, createPagedMessage(), null, Mockito.mock(RouteContextList.class));
+      OperationContextImpl.setContext(context);
+      assertTrue(realJournalStorageManager.addToPage(pageStore, createMessage(), null, Mockito.mock(RouteContextList.class)));
 
       context.executeOnCompletion(new IOCallback() {
          @Override
@@ -573,7 +583,8 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
 
       useReplication.set(false);
 
-      timer.addTask(context, createPagedMessage(), null, Mockito.mock(RouteContextList.class));
+      OperationContextImpl.setContext(context);
+      assertTrue(realJournalStorageManager.addToPage(pageStore, createMessage(), null, Mockito.mock(RouteContextList.class)));
 
       context.executeOnCompletion(new IOCallback() {
          @Override
@@ -603,7 +614,8 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
       Transaction tx = new TransactionImpl(realJournalStorageManager, Integer.MAX_VALUE);
       tx.setContainsPersistent();
 
-      timer.addTask(context, createPagedMessage(), tx, Mockito.mock(RouteContextList.class));
+      OperationContextImpl.setContext(context);
+      assertTrue(realJournalStorageManager.addToPage(pageStore, createMessage(), tx, Mockito.mock(RouteContextList.class)));
       tx.addOperation(new TransactionOperationAbstract() {
          @Override
          public void afterCommit(Transaction tx) {
@@ -617,7 +629,6 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
       allowRunning.countDown();
 
       assertTrue(latch.await(10, TimeUnit.SECONDS));
-
    }
 
    @Test
@@ -693,7 +704,7 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
 
    @Test
    public void testMarkRollbackCancelDelay() throws Exception {
-      testRollback(true);
+      testRollback(false);
    }
 
    private void testRollback(boolean rollback) throws Exception {
@@ -866,9 +877,10 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
       int sentNumber = 0;
       while (timeout > System.currentTimeMillis()) {
          try {
-            PagedMessage message = createPagedMessage();
-            message.getMessage().putStringProperty("testId", String.valueOf(sentNumber));
-            timer.addTask(context, message, tx, routeContextListMocked);
+            Message message = createMessage();
+            message.putStringProperty("testId", String.valueOf(sentNumber));
+            OperationContextImpl.setContext(context);
+            assertTrue(realJournalStorageManager.addToPage(pageStore, message, tx, routeContextListMocked));
             sentWrite.add(String.valueOf(sentNumber));
             sentNumber++;
             if (sentNumber % 1000 == 0) {
@@ -884,12 +896,15 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
       assertTrue(runLatch.await(10, TimeUnit.SECONDS));
       assertTrue(timer.isStarted());
       timer.delay(); // calling one more delay as the last one done could still be missing
+
       assertEquals(0, errors.get());
 
-      // not supposed to throw any exception
       Wait.assertEquals(0, tx::getPendingDelay, 5000, 100);
+      // not supposed to throw any exceptions
       tx.commit();
       assertTrue(committed.await(10, TimeUnit.SECONDS));
+
+      Wait.assertTrue(() -> interceptedWrite.size() == sentWrite.size(), 5000, 100);
 
       int interceptorOriginalSize = interceptedWrite.size();
       int sentOriginalSize = sentWrite.size();
@@ -907,7 +922,104 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
 
       assertEquals(interceptorOriginalSize, sentOriginalSize);
       assertEquals(sentNumber, interceptorOriginalSize);
-
    }
 
+   @Test
+   public void testLockWhileFlowControlled() throws Exception {
+      AtomicBoolean notSupposedToWrite = new AtomicBoolean(false);
+
+      AtomicInteger errors = new AtomicInteger(0);
+
+      LinkedHashSet<String> interceptedWrite = new LinkedHashSet<>();
+      LinkedHashSet<String> sentWrite = new LinkedHashSet<>();
+
+      directWriteInterceptor = m -> {
+         String messageID = m.getMessage().getStringProperty("testId");
+         if (messageID == null) {
+            logger.warn("no messageID defined on message");
+            errors.incrementAndGet();
+         }
+         if (notSupposedToWrite.get()) {
+            logger.warn("Not supposed to write message {}", m.getMessage().getStringProperty("testId"));
+            errors.incrementAndGet();
+         }
+         interceptedWrite.add(m.getMessage().getStringProperty("testId"));
+      };
+
+      // I don't want to mess with the Executor simulating to be on the
+      ExecutorService testExecutor = Executors.newFixedThreadPool(1);
+
+      AtomicBoolean running = new AtomicBoolean(true);
+      runAfter(() -> running.set(false));
+      runAfter(testExecutor::shutdownNow);
+
+      CountDownLatch runLatch = new CountDownLatch(1);
+      CyclicBarrier flagStart = new CyclicBarrier(2);
+
+      AtomicInteger sentNumber = new AtomicInteger(0);
+
+      // sending messages
+      testExecutor.execute(() -> {
+         try {
+            flagStart.await(10, TimeUnit.SECONDS);
+
+            RouteContextList routeContextListMocked = Mockito.mock(RouteContextList.class);
+
+            while (running.get()) {
+               Message message = createMessage();
+               message.putStringProperty("testId", String.valueOf(sentNumber));
+               OperationContextImpl.setContext(context);
+               assertTrue(realJournalStorageManager.addToPage(pageStore, message, null, routeContextListMocked));
+               sentWrite.add(String.valueOf(sentNumber.get()));
+               sentNumber.incrementAndGet();
+               if (sentNumber.get() % 1000 == 0) {
+                  logger.info("Sent {}", sentNumber);
+               }
+            }
+         } catch (Throwable e) {
+            logger.warn(e.getMessage(), e);
+            errors.incrementAndGet();
+         } finally {
+            runLatch.countDown();
+         }
+      });
+
+      flagStart.await(10, TimeUnit.SECONDS);
+
+      // getting a base credit for most messages
+      int baseCreditSize = createMessage().putStringProperty("testID", "00000").getEncodeSize();
+
+      // Waiting messages to stop flowing
+      Wait.assertTrue(() -> timer.getAvailablePermits() < baseCreditSize, 5_000, 10);
+
+      // this is simulating certain operations that will need to get a writeLock (example replication start)
+      // we still must be able to get a writeLock while paging is flow controller
+      // otherwise we could starve or deadlock in some scenarios
+      realJournalStorageManager.writeLock();
+      realJournalStorageManager.writeUnlock();
+
+      allowRunning.countDown(); // allowing messages to flow again
+      running.set(false);
+      assertTrue(runLatch.await(10, TimeUnit.SECONDS));
+      assertTrue(timer.isStarted());
+      timer.delay(); // calling one more delay as the last one done could still be missing
+      assertEquals(0, errors.get());
+      Wait.assertTrue(() -> interceptedWrite.size() == sentWrite.size(), 5000, 100);
+      int interceptorOriginalSize = interceptedWrite.size();
+      int sentOriginalSize = sentWrite.size();
+
+      interceptedWrite.forEach(s -> {
+         sentWrite.remove(s);
+      });
+      sentWrite.forEach(m -> {
+         logger.warn("message {} missed", m);
+      });
+
+      assertEquals(interceptorOriginalSize, sentOriginalSize);
+
+      assertEquals(0, sentWrite.size());
+
+      assertEquals(interceptorOriginalSize, sentOriginalSize);
+      assertEquals(sentNumber.get(), interceptorOriginalSize);
+   }
 }

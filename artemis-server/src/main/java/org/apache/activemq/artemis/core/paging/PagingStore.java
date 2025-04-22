@@ -129,7 +129,7 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
     */
    boolean page(Message message, Transaction tx, RouteContextList listCtx) throws Exception;
 
-   boolean page(Message message, Transaction tx, RouteContextList listCtx, Function<Message, Message> pageDecorator) throws Exception;
+   int page(Message message, Transaction tx, RouteContextList listCtx, Function<Message, Message> pageDecorator, boolean useFlowControl) throws Exception;
 
    Page usePage(long page);
 
@@ -277,5 +277,8 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    default StorageManager getStorageManager() {
       return null;
+   }
+
+   default void writeFlowControl(int credits) {
    }
 }
