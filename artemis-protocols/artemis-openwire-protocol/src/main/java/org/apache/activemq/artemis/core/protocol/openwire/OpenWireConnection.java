@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.apache.activemq.advisory.AdvisorySupport;
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -68,7 +69,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
-import org.apache.activemq.artemis.core.server.TempQueueObserver;
+import org.apache.activemq.artemis.core.server.TempResourceObserver;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
@@ -85,6 +86,7 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTempQueue;
+import org.apache.activemq.command.ActiveMQTempTopic;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.BrokerInfo;
 import org.apache.activemq.command.BrokerSubscriptionInfo;
@@ -134,7 +136,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Represents an activemq connection.
  */
-public class OpenWireConnection extends AbstractRemotingConnection implements SecurityAuth, TempQueueObserver {
+public class OpenWireConnection extends AbstractRemotingConnection implements SecurityAuth, TempResourceObserver {
 
 
    private final Object lockSend = new Object();
@@ -1037,11 +1039,19 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    @Override
-   public void tempQueueDeleted(SimpleString bindingName) {
-      ActiveMQDestination dest = new ActiveMQTempQueue(bindingName.toString());
+   public void tempQueueDeleted(SimpleString queueName) {
+      tempDestinationDeleted(queueName, new ActiveMQTempQueue(queueName.toString()));
+   }
+
+   @Override
+   public void tempAddressDeleted(SimpleString addressName) {
+      tempDestinationDeleted(addressName, new ActiveMQTempTopic(addressName.toString()));
+   }
+
+   private void tempDestinationDeleted(SimpleString name, ActiveMQDestination dest) {
       state.removeTempDestination(dest);
       if (logger.isDebugEnabled()) {
-         logger.debug("{} removed temp destination from state: {} ; {}", this, bindingName, state.getTempDestinations().size());
+         logger.debug("{} removed temp destination from state: {} ; {}", this, name, state.getTempDestinations().size());
       }
 
       if (!AdvisorySupport.isAdvisoryTopic(dest)) {
@@ -1139,18 +1149,22 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    public void removeDestination(ActiveMQDestination dest) throws Exception {
+      if (!dest.isTemporary()) {
+         // this should not really happen so I'm not creating a Logger for this
+         logger.warn("OpenWire client sending a queue remove towards {}", dest.getPhysicalName());
+      }
       if (dest.isQueue()) {
-
-         if (!dest.isTemporary()) {
-            // this should not really happen,
-            // so I'm not creating a Logger for this
-            logger.warn("OpenWire client sending a queue remove towards {}", dest.getPhysicalName());
-         }
          try {
             server.destroyQueue(SimpleString.of(dest.getPhysicalName()), getRemotingConnection());
          } catch (ActiveMQNonExistentQueueException neq) {
             //this is ok, ActiveMQ 5 allows this and will actually do it quite often
             logger.debug("queue never existed");
+         }
+      } else {
+         try {
+            server.removeAddressInfo(SimpleString.of(dest.getPhysicalName()), getRemotingConnection(), true);
+         } catch (ActiveMQAddressDoesNotExistException neq) {
+            logger.debug("address never existed");
          }
       }
 

@@ -652,7 +652,10 @@ public final class ActiveMQDefaultConfiguration {
    // Whether or not to report JVM thread metrics
    private static final boolean DEFAULT_JVM_THREAD_METRICS = false;
 
-   public static final String DEFAULT_TEMPORARY_QUEUE_NAMESPACE = "";
+   public static final String DEFAULT_UUID_NAMESPACE = "";
+
+   @Deprecated(forRemoval = true)
+   public static final String DEFAULT_TEMPORARY_QUEUE_NAMESPACE = DEFAULT_UUID_NAMESPACE;
 
    private static final String DEFAULT_DISTRIBUTED_PRIMITIVE_MANAGER_CLASS_NAME = "org.apache.activemq.artemis.lockmanager.zookeeper.CuratorDistributedLockManager";
 
@@ -1873,8 +1876,13 @@ public final class ActiveMQDefaultConfiguration {
       return DEFAULT_JVM_THREAD_METRICS;
    }
 
+   public static String getDefaultUuidNamespace() {
+      return DEFAULT_UUID_NAMESPACE;
+   }
+
+   @Deprecated(forRemoval = true)
    public static String getDefaultTemporaryQueueNamespace() {
-      return DEFAULT_TEMPORARY_QUEUE_NAMESPACE;
+      return DEFAULT_UUID_NAMESPACE;
    }
 
    public static String getDefaultDistributedLockManagerClassName() {

@@ -36,7 +36,7 @@ package org.apache.activemq.artemis.utils;
  */
 public final class UUID {
 
-   private static final String kHexChars = "0123456789abcdefABCDEF";
+   private static final String kHexChars = "0123456789abcdef";
 
    public static final byte INDEX_CLOCK_HI = 6;
 
@@ -60,6 +60,8 @@ public final class UUID {
    public static final byte TYPE_NAME_BASED = 3;
 
    public static final byte TYPE_RANDOM_BASED = 4;
+
+   public static final char HYPHEN = '-';
 
    // 'Standard' namespaces defined (suggested) by UUID specs:
    public static final String NAMESPACE_DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
@@ -241,5 +243,46 @@ public final class UUID {
          }
       }
       return true;
+   }
+
+   /**
+    * Validates whether the input is a 36-character string that follows the pattern
+    * {@code X-X-X-X-X} where:
+    * <ul>
+    * <li>The first group consists of 8 hex characters.
+    * <li>The second, third, and fourth groups consist of 4 hex characters each.
+    * <li>The fifth group consists of 12 hex characters.
+    * <li>A hyphen separates each group of hex characters.
+    * <li>A "hex character" is one of the following: {@code abcdef0123456789}.
+    * </ul>
+    * e.g.: {@code c7ef2580-210f-11f0-bef5-3ce1a1d12939}
+    *
+    * @param str the {@code CharSequence} to be validated as a UUID; {@code CharSequence} is used here so that
+    *            both {@code String} and {@code SimpleString} are supported
+    * @return {@code true} if the string is a valid UUID format; {@code false} otherwise
+    */
+   public static boolean isUUID(CharSequence str) {
+      if (str == null || str.length() != 36) {
+         return false;
+      }
+
+      if (str.charAt(8) != HYPHEN || str.charAt(13) != HYPHEN || str.charAt(18) != HYPHEN || str.charAt(23) != HYPHEN) {
+         return false;
+      }
+
+      for (int i = 0; i < str.length(); i++) {
+         if (i == 8 || i == 13 || i == 18 || i == 23) {
+            continue;
+         }
+         if (!isHex(str.charAt(i))) {
+            return false;
+         }
+      }
+
+      return true;
+   }
+
+   private static boolean isHex(char c) {
+      return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
    }
 }

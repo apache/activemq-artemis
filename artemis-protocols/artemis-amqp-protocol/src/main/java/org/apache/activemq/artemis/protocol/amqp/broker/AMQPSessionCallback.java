@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.getReceiverPriority;
-
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.Executor;
 
@@ -81,6 +79,8 @@ import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.getReceiverPriority;
 
 public class AMQPSessionCallback implements SessionCallback {
 
@@ -326,6 +326,14 @@ public class AMQPSessionCallback implements SessionCallback {
                                                                    .setDurable(false)
                                                                    .setMaxConsumers(maxConsumers)
                                                                    .setInternal(internal));
+      } catch (ActiveMQSecurityException se) {
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingTempDestination(se.getMessage());
+      }
+   }
+
+   public void createTemporaryAddress(SimpleString address) throws Exception {
+      try {
+         serverSession.createAddress(new AddressInfo(address, RoutingType.MULTICAST).setTemporary(true), false);
       } catch (ActiveMQSecurityException se) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingTempDestination(se.getMessage());
       }
@@ -838,6 +846,10 @@ public class AMQPSessionCallback implements SessionCallback {
 
    public void removeTemporaryQueue(SimpleString address) throws Exception {
       serverSession.deleteQueue(address);
+   }
+
+   public void removeTemporaryAddress(SimpleString address) throws Exception {
+      serverSession.deleteAddress(address);
    }
 
    public RoutingType getDefaultRoutingType(SimpleString address) {

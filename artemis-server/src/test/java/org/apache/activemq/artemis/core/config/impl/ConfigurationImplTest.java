@@ -180,6 +180,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals(ActiveMQDefaultConfiguration.isDefaultReadWholePage(), conf.isReadWholePage());
       assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio(), conf.getPageSyncTimeout());
       assertEquals(ActiveMQDefaultConfiguration.getDefaultTemporaryQueueNamespace(), conf.getTemporaryQueueNamespace());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultUuidNamespace(), conf.getUuidNamespace());
    }
 
    @Test

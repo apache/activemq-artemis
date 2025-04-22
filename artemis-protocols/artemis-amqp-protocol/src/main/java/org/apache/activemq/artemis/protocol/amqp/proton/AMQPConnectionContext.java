@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
@@ -74,11 +75,10 @@ import org.apache.qpid.proton.engine.Session;
 import org.apache.qpid.proton.engine.Transport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_ADDRESS_RECEIVER;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_BASE_VALIDATION_ADDRESS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_QUEUE_RECEIVER;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LINK_INITIALIZER_KEY;
@@ -87,7 +87,7 @@ import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.HOSTN
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.NETWORK_HOST;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PORT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SCHEME;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyDesiredCapability;;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyDesiredCapability;
 
 public class AMQPConnectionContext extends ProtonInitializable implements EventHandler {
 
@@ -854,6 +854,8 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       if (linkContext != null) {
          try {
             linkContext.close(true);
+         } catch (ActiveMQAMQPSecurityException e) {
+            throw e;
          } catch (Exception e) {
             logger.error(e.getMessage(), e);
          }

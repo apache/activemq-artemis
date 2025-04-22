@@ -32,6 +32,7 @@ import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -125,13 +126,13 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
          assertNotNull(topic);
          assertInstanceOf(TemporaryTopic.class, topic);
 
-         Queue queueView = getProxyToQueue(topic.getTopicName());
-         assertNotNull(queueView);
+         AddressInfo addressView = getProxyToAddress(topic.getTopicName());
+         assertNotNull(addressView);
 
          TemporaryTopic tempTopic = (TemporaryTopic) topic;
          tempTopic.delete();
 
-         assertTrue(Wait.waitFor(() -> getProxyToQueue(topic.getTopicName()) == null, TimeUnit.SECONDS.toMillis(30), TimeUnit.MILLISECONDS.toMillis(50)), "Temp Queue should be deleted.");
+         Wait.assertNull(() -> getProxyToAddress(topic.getTopicName()), TimeUnit.SECONDS.toMillis(30), TimeUnit.MILLISECONDS.toMillis(50));
       } finally {
          connection.close();
       }

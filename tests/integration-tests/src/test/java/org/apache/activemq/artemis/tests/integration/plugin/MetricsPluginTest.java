@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlug
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -63,11 +64,11 @@ public class MetricsPluginTest extends ActiveMQTestBase {
    protected ClientSession session;
    protected ClientSessionFactory sf;
    protected ServerLocator locator;
-   private static final String TEMP_QUEUE_NAMESPACE = "temp";
+   private static final String UUID_NAMESPACE = "uuid";
 
    protected void configureServer(ActiveMQServer server) {
       server.getConfiguration()
-         .setTemporaryQueueNamespace(TEMP_QUEUE_NAMESPACE)
+         .setUuidNamespace(UUID_NAMESPACE)
          .setMetricsConfiguration(new MetricsConfiguration().setPlugin(new SimpleMetricsPlugin().init(null)));
    }
 
@@ -193,23 +194,23 @@ public class MetricsPluginTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testForBasicTempQueueMetricsPresenceAndValue() throws Exception {
+   public void testForBasicUuidQueueMetricsPresenceAndValue() throws Exception {
       internalTestForBasicQueueMetrics(true, true);
    }
 
    @Test
-   public void testDisablingTempQueueMetrics() throws Exception {
+   public void testDisablingUuidQueueMetrics() throws Exception {
       internalTestForBasicQueueMetrics(false, true);
    }
 
-   private void internalTestForBasicQueueMetrics(boolean enabled, boolean temp) throws Exception {
+   private void internalTestForBasicQueueMetrics(boolean enabled, boolean uuid) throws Exception {
       final String data = "Simple Text " + UUID.randomUUID().toString();
       final String queueName = "simpleQueue";
-      final String addressName = "simpleAddress";
+      final String addressName = uuid ? RandomUtil.randomUUIDString() : "simpleAddress";
 
-      server.getAddressSettingsRepository().getMatch(temp ? TEMP_QUEUE_NAMESPACE + "." + addressName : addressName).setEnableMetrics(enabled);
+      server.getAddressSettingsRepository().getMatch(uuid ? UUID_NAMESPACE + "." + addressName : addressName).setEnableMetrics(enabled);
 
-      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setTemporary(temp).setDurable(!temp));
+      session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST).setDurable(!uuid));
       ClientProducer producer = session.createProducer(addressName);
       ClientMessage message = session.createMessage(true);
       message.getBodyBuffer().writeString(data);
@@ -224,7 +225,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       checkMetric(metrics, "artemis.message.count", "queue", queueName, 1.0, enabled);
       checkMetric(metrics, "artemis.messages.added", "queue", queueName, 1.0, enabled);
       checkMetric(metrics, "artemis.messages.acknowledged", "queue", queueName, 0.0, enabled);
-      if (!temp) {
+      if (!uuid) {
          checkMetric(metrics, "artemis.durable.message.count", "queue", queueName, 1.0, enabled);
       }
       checkMetric(metrics, "artemis.delivering.message.count", "queue", queueName, 0.0, enabled);

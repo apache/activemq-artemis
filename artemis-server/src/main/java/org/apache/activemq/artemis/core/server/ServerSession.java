@@ -302,6 +302,8 @@ public interface ServerSession extends SecurityAuth {
 
    void deleteQueue(SimpleString name, boolean enforceSecurity) throws Exception;
 
+   void deleteAddress(SimpleString name) throws Exception;
+
    ServerConsumer createConsumer(long consumerID,
                                  SimpleString queueName,
                                  SimpleString filterString,

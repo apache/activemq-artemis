@@ -16,11 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.QUEUE_CAPABILITY;
-import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.TOPIC_CAPABILITY;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,11 +24,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
@@ -51,6 +45,11 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.QUEUE_CAPABILITY;
+import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.TOPIC_CAPABILITY;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport {
@@ -111,7 +110,7 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
 
       AmqpSender sender = session.createSender(addressName);
 
-      AddressQueryResult address = getProxyToAddress(addressName);
+      AddressInfo address = getProxyToAddress(addressName);
 
       assertNotNull(address);
       assertEquals(Set.of(routingType), address.getRoutingTypes());
@@ -144,7 +143,7 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
       final AmqpReceiver receiver = session.createReceiver(addressName);
       receiver.flow(1);
 
-      AddressQueryResult address = getProxyToAddress(addressName);
+      AddressInfo address = getProxyToAddress(addressName);
 
       assertNotNull(address);
       assertEquals(Set.of(routingType), address.getRoutingTypes());
@@ -193,7 +192,7 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
 
       AmqpSender sender = session.createSender(target);
 
-      AddressQueryResult address = getProxyToAddress(addressName);
+      AddressInfo address = getProxyToAddress(addressName);
 
       assertNotNull(address);
       assertEquals(Set.of(routingType), address.getRoutingTypes());
@@ -244,7 +243,7 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
       final AmqpReceiver receiver = session.createReceiver(source);
       receiver.flow(1);
 
-      AddressQueryResult address = getProxyToAddress(addressName);
+      AddressInfo address = getProxyToAddress(addressName);
 
       assertNotNull(address);
       assertEquals(Set.of(routingType), address.getRoutingTypes());
@@ -292,7 +291,7 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
 
       AmqpSender sender = session.createSender(prefixedName);
 
-      AddressQueryResult address = getProxyToAddress(addressName);
+      AddressInfo address = getProxyToAddress(addressName);
 
       assertNotNull(address);
       assertEquals(Set.of(routingType), address.getRoutingTypes());
@@ -343,7 +342,7 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
       final AmqpReceiver receiver = session.createReceiver(prefixedName);
       receiver.flow(1);
 
-      AddressQueryResult address = getProxyToAddress(addressName);
+      AddressInfo address = getProxyToAddress(addressName);
 
       assertNotNull(address);
       assertEquals(Set.of(routingType), address.getRoutingTypes());
@@ -361,9 +360,5 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
       sender.close();
       receiver.close();
       connection.close();
-   }
-
-   public AddressQueryResult getProxyToAddress(String addressName) throws Exception {
-      return server.addressQuery(SimpleString.of(addressName));
    }
 }

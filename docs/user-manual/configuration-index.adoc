@@ -652,8 +652,8 @@ in your security-settings.
 | parameter to configure the prefix for security-settings match addresses to control RBAC on xref:management.adoc#jmx-authorization-in-broker-xml[JMX MBean operations] and optionally on xref:management.adoc#fine-grained-rbac-on-management-messages[management messages]
 | mops (shorthand for management operations)
 
-| xref:address-model.adoc#temporary-queues[temporary-queue-namespace]
-| the namespace to use for looking up address settings for temporary queues
+| xref:address-model.adoc#uuid-resources[uuid-namespace]
+| the namespace to use for looking up address & security settings for resources named with a UUID
 | n/a
 
 | xref:mqtt.adoc#automatic-subscription-clean-up[mqtt-session-scan-interval]

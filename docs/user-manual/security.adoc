@@ -1467,3 +1467,25 @@ Simply use the `securityDomain` parameter and indicate which domain from your `l
 ----
 
 Any client connecting to this acceptor will be have security enforced using `mySecurityDomain`.
+
+== UUID Resources
+
+The `uuid-namespace` value can be used with a `security-setting` match just as it can with an xref:address-model.adoc#uuid-resources[`address-setting`].
+For example:
+
+[,xml]
+----
+<uuid-namespace>uuid</uuid-namespace>
+
+<security-settings>
+   <security-setting match="uuid.#">
+      <permission type="createAddress" roles="myRole"/>
+      <permission type="createNonDurableQueue" roles="myRole"/>
+      <permission type="deleteAddress" roles="myRole"/>
+      <permission type="deleteNonDurableQueue" roles="myRole"/>
+   </security-setting>
+</security-settings>
+----
+
+Using this configuration any user in `myRole` can create and delete all the resources necessary to deal with, for example, temporary JMS queues or topics.
+However, users without `myRole` will not be able to create or delete those resources.

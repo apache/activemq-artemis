@@ -62,6 +62,7 @@
       <connection-ttl-check-interval>98765</connection-ttl-check-interval>
       <configuration-file-refresh-period>1234567</configuration-file-refresh-period>
       <temporary-queue-namespace>TEMP</temporary-queue-namespace>
+      <uuid-namespace>UUID</uuid-namespace>
       <global-max-size>1234567</global-max-size>
       <global-max-size-percent-of-jvm-max-memory>30</global-max-size-percent-of-jvm-max-memory>
       <max-disk-usage>37</max-disk-usage>

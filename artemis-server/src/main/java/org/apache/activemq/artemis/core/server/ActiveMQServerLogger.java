@@ -1215,8 +1215,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224047, value = "Failed to delete large message file", level = LogMessage.Level.ERROR)
    void errorDeletingLargeMessageFile(Throwable e);
 
-   @LogMessage(id = 224048, value = "Failed to remove temporary queue {}", level = LogMessage.Level.ERROR)
-   void errorRemovingTempQueue(SimpleString bindingName, Exception e);
+   @LogMessage(id = 224048, value = "Failed to remove temporary resource {}", level = LogMessage.Level.ERROR)
+   void errorRemovingTempResource(SimpleString resourceName, Exception e);
 
    @LogMessage(id = 224049, value = "Cannot find consumer with id {}", level = LogMessage.Level.ERROR)
    void cannotFindConsumer(long consumerID);

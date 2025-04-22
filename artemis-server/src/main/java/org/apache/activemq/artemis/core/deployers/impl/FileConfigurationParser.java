@@ -507,6 +507,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setTemporaryQueueNamespace(getString(e, "temporary-queue-namespace", config.getTemporaryQueueNamespace(), NOT_NULL_OR_EMPTY));
 
+      config.setUuidNamespace(getString(e, "uuid-namespace", config.getUuidNamespace(), NOT_NULL_OR_EMPTY));
+
       config.setMqttSessionScanInterval(getLong(e, "mqtt-session-scan-interval", config.getMqttSessionScanInterval(), GT_ZERO));
 
       config.setMqttSessionStatePersistenceTimeout(getLong(e, "mqtt-session-state-persistence-timeout", config.getMqttSessionStatePersistenceTimeout(), GT_ZERO));

@@ -604,6 +604,4 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       t.join();
 
    }
-
-
 }

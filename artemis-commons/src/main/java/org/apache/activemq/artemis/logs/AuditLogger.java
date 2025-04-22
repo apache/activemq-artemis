@@ -2880,4 +2880,11 @@ public interface AuditLogger {
 
    @LogMessage(id = 601800, value = "User {} is getting persisted pause property on target resource: {}", level = LogMessage.Level.INFO)
    void isPersistedPause(String user, Object source);
+
+   static void destroyAddress(Object source, Subject user, String remoteAddress, Object... args) {
+      BASE_LOGGER.destroyAddress(getCaller(user, remoteAddress), source, parametersList(args));
+   }
+
+   @LogMessage(id = 601801, value = "User {} is deleting a address on target resource: {} {}", level = LogMessage.Level.INFO)
+   void destroyAddress(String user, Object source, Object... args);
 }

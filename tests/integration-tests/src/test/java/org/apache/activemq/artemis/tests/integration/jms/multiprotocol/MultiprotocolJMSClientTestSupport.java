@@ -21,11 +21,13 @@ import javax.jms.JMSException;
 import javax.management.MBeanServer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -34,6 +36,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -76,6 +79,10 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
    protected ConnectionSupplier AMQPConnection = () -> createConnection();
    protected ConnectionSupplier CoreConnection = () -> createCoreConnection();
    protected ConnectionSupplier OpenWireConnection = () -> createOpenWireConnection();
+
+   enum Protocol {
+      AMQP, CORE, OPENWIRE
+   }
 
    @BeforeEach
    @Override
@@ -179,12 +186,13 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
       params.put(TransportConstants.PORT_PROP_NAME, String.valueOf(port));
       params.put(TransportConstants.PROTOCOLS_PROP_NAME, getConfiguredProtocols());
       Map<String, Object> amqpParams = new HashMap<>();
+      configureAMQPAcceptorParameters(amqpParams);
       TransportConfiguration tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, NETTY_ACCEPTOR, amqpParams);
       return tc;
    }
 
    protected String getConfiguredProtocols() {
-      return "AMQP,OPENWIRE,CORE";
+      return Arrays.stream(Protocol.values()).map(Enum::name).collect(Collectors.joining(","));
    }
 
    protected void configureAddressPolicy(ActiveMQServer server) {
@@ -217,7 +225,7 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
 
    protected void configureBrokerSecurity(ActiveMQServer server) {
       if (isSecurityEnabled()) {
-         enableSecurity(server);
+         enableSecurity(server, "#");
       } else {
          server.getConfiguration().setSecurityEnabled(false);
       }
@@ -243,13 +251,20 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
       value.add(new Role("browser", false, false, false, false, false, false, false, true, false, false, false, false));
       value.add(new Role("guest", false, true, false, false, false, false, false, true, false, false, false, false));
       value.add(new Role("full", true, true, true, true, true, true, true, true, true, true, false, false));
-      securityRepository.addMatch("#", value);
 
       for (String match : securityMatches) {
          securityRepository.addMatch(match, value);
       }
 
       server.getConfiguration().setSecurityEnabled(true);
+   }
+
+   protected void configureAMQPAcceptorParameters(Map<String, Object> params) {
+      // None by default
+   }
+
+   public AddressInfo getProxyToAddress(String addressName) {
+      return server.getAddressInfo(SimpleString.of(addressName));
    }
 
    public String getTopicName() {
@@ -320,6 +335,10 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
       return createConnection(getBrokerQpidJMSConnectionURI(), null, null, clientId, true);
    }
 
+   protected Connection createConnection(String username, String password) throws JMSException {
+      return createConnection(getBrokerQpidJMSConnectionURI(), username, password, null, true);
+   }
+
    protected Connection createConnection(URI remoteURI,
                                                 String username,
                                                 String password,
@@ -363,9 +382,12 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
    protected Connection createCoreConnection(boolean start) throws JMSException {
       return createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, null, start);
    }
-
    protected Connection createCoreConnection(String clientId) throws JMSException {
       return createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, clientId, true);
+   }
+
+   protected Connection createCoreConnection(String username, String password) throws JMSException {
+      return createCoreConnection(getBrokerCoreJMSConnectionString(), username, password, null, true);
    }
 
    protected Connection createCoreConnection(String connectionString,
@@ -418,6 +440,10 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
       return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, clientId, true);
    }
 
+   protected Connection createOpenWireConnection(String username, String password) throws JMSException {
+      return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), username, password, null, true);
+   }
+
    protected Connection createOpenWireConnection(String connectionString,
                                                  String username,
                                                  String password,
@@ -442,5 +468,9 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
 
    interface ConnectionSupplier {
       Connection createConnection() throws JMSException;
+   }
+
+   interface SecureConnectionSupplier {
+      Connection createConnection(String username, String Password) throws JMSException;
    }
 }

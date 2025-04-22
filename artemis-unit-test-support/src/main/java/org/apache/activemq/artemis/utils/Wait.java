@@ -206,6 +206,14 @@ public class Wait {
       return supplier.get();
    }
 
+   public static void assertNull(ObjectCondition condition, final long duration, final long sleep) throws Exception {
+      boolean result = waitFor(() -> (condition.getObject() == null), duration, sleep);
+
+      if (!result) {
+         Assertions.assertNull(condition.getObject());
+      }
+   }
+
    public static void assertTrue(Condition condition, final long duration, final long sleep) {
       assertTrue(DEFAULT_FAILURE_MESSAGE, condition, duration, sleep);
    }

@@ -1396,9 +1396,15 @@ public interface Configuration {
 
    List<ActiveMQServerResourcePlugin> getBrokerResourcePlugins();
 
+   @Deprecated(forRemoval = true)
    String getTemporaryQueueNamespace();
 
+   @Deprecated(forRemoval = true)
    Configuration setTemporaryQueueNamespace(String temporaryQueueNamespace);
+
+   String getUuidNamespace();
+
+   Configuration setUuidNamespace(String uuidNamespace);
 
    /**
     * This is necessary because the MQTT session scan interval is a broker-wide setting and can't be set on a

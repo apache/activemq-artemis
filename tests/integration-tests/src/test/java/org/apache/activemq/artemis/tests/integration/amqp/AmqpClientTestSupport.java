@@ -235,6 +235,10 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       return server.locateQueue(SimpleString.of(queueName));
    }
 
+   public AddressInfo getProxyToAddress(String addressName) {
+      return server.getAddressInfo(SimpleString.of(addressName));
+   }
+
    public String getTestName() {
       return getName();
    }

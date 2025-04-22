@@ -113,6 +113,10 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       this(wildcardConfiguration, new MatchModifier() { }, null);
    }
 
+   public HierarchicalObjectRepository(final WildcardConfiguration wildcardConfiguration, final MatchModifier matchModifier) {
+      this(wildcardConfiguration, matchModifier, null);
+   }
+
    public HierarchicalObjectRepository(final WildcardConfiguration wildcardConfiguration, final MatchModifier matchModifier, final String literalMatchMarkers) {
       this.wildcardConfiguration = wildcardConfiguration == null ? DEFAULT_WILDCARD_CONFIGURATION : wildcardConfiguration;
       this.matchComparator = new MatchComparator(this.wildcardConfiguration);

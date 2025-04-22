@@ -16,12 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.apache.activemq.transport.amqp.AmqpSupport.LIFETIME_POLICY;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +37,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.apache.activemq.transport.amqp.AmqpSupport.LIFETIME_POLICY;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for temporary destination handling over AMQP
@@ -84,8 +84,10 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       assertTrue(dynamicNodeProperties.containsKey(LIFETIME_POLICY));
       assertEquals(DeleteOnClose.getInstance(), dynamicNodeProperties.get(LIFETIME_POLICY));
 
-      Queue queueView = getProxyToQueue(remoteTarget.getAddress());
-      assertNotNull(queueView);
+      assertNotNull(getProxyToAddress(remoteTarget.getAddress()));
+      if (!topic) {
+         assertNotNull(getProxyToQueue(remoteTarget.getAddress()));
+      }
 
       connection.close();
    }
@@ -113,13 +115,17 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       assertNotNull(sender);
 
       Target remoteTarget = (Target) sender.getEndpoint().getRemoteTarget();
-      Queue queueView = getProxyToQueue(remoteTarget.getAddress());
-      assertNotNull(queueView);
+      assertNotNull(getProxyToAddress(remoteTarget.getAddress()));
+      if (!topic) {
+         assertNotNull(getProxyToQueue(remoteTarget.getAddress()));
+      }
 
       sender.close();
 
-      queueView = getProxyToQueue(remoteTarget.getAddress());
-      assertNull(queueView);
+      assertNull(getProxyToAddress(remoteTarget.getAddress()));
+      if (!topic) {
+         assertNull(getProxyToQueue(remoteTarget.getAddress()));
+      }
 
       connection.close();
    }
@@ -220,8 +226,10 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
       assertNotNull(sender);
 
       Target remoteTarget = (Target) sender.getEndpoint().getRemoteTarget();
-      Queue queueView = getProxyToQueue(remoteTarget.getAddress());
-      assertNotNull(queueView);
+      assertNotNull(getProxyToAddress(remoteTarget.getAddress()));
+      if (!topic) {
+         assertNotNull(getProxyToQueue(remoteTarget.getAddress()));
+      }
 
       // Get the new address
       String address = sender.getSender().getRemoteTarget().getAddress();
