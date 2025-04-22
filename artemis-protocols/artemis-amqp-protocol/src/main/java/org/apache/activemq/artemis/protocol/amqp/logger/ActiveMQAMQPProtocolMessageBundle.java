@@ -110,7 +110,8 @@ public interface ActiveMQAMQPProtocolMessageBundle {
    @Message(id = 119029, value =  "Receiver link refused for address {}")
    ActiveMQAMQPIllegalStateException receiverLinkRefused(String address);
 
-   // IDs 119030-119299 are reserved due to historic use by ActiveMQClientMessageBundle and ActiveMQMessageBundle
+   @Message(id = 119300, value = "not authorized to delete temporary destination, {}")
+   ActiveMQAMQPSecurityException securityErrorDeletingTempDestination(String message);
 
-   // The next ID used needs to be 119300.
+   // IDs 119030-119299 are reserved due to historic use by ActiveMQClientMessageBundle and ActiveMQMessageBundle
 }

@@ -217,6 +217,20 @@ public class FileConfigurationParserTest extends ServerTestBase {
    }
 
    @Test
+   public void testLegacyTemporaryQueueNamespace() throws Exception {
+      final String TEMP_Q_NAMESPACE = "TEMP";
+      FileConfigurationParser parser = new FileConfigurationParser();
+
+      String configStr = FIRST_PART + "<temporary-queue-namespace>" + TEMP_Q_NAMESPACE + "</temporary-queue-namespace>" + LAST_PART;
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration config = parser.parseMainConfig(input);
+
+      assertEquals(TEMP_Q_NAMESPACE, config.getTemporaryQueueNamespace());
+      assertEquals(TEMP_Q_NAMESPACE, config.getUuidNamespace());
+   }
+
+   @Test
    public void testWildcardConfiguration() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
       String middlePart = """

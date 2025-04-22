@@ -74,6 +74,7 @@ import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -554,7 +555,16 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerAuthorizationNegative() throws Exception {
-      final SimpleString ADDRESS = SimpleString.of("address");
+      internalTestJAASSecurityManagerAuthorizationNegative(false);
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthorizationNegativeWithUuidNamespace() throws Exception {
+      internalTestJAASSecurityManagerAuthorizationNegative(true);
+   }
+
+   private void internalTestJAASSecurityManagerAuthorizationNegative(boolean useUuidNamespace) throws Exception {
+      final SimpleString ADDRESS = useUuidNamespace ? SimpleString.of(RandomUtil.randomUUIDString()) : SimpleString.of("address");
       final SimpleString DURABLE_QUEUE = SimpleString.of("durableQueue");
       final SimpleString NON_DURABLE_QUEUE = SimpleString.of("nonDurableQueue");
 
@@ -562,7 +572,13 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false, false, false));
-      server.getConfiguration().putSecurityRoles("#", roles);
+      String match = "#";
+      if (useUuidNamespace) {
+         final SimpleString UUID_NAMESPACE = RandomUtil.randomUUIDSimpleString();
+         server.getConfiguration().setUuidNamespace(UUID_NAMESPACE.toString());
+         match = UUID_NAMESPACE + ".#";
+      }
+      server.getConfiguration().putSecurityRoles(match, roles);
       server.start();
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       server.createQueue(QueueConfiguration.of(DURABLE_QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
@@ -572,12 +588,13 @@ public class SecurityTest extends ActiveMQTestBase {
       ClientSession session = addClientSession(cf.createSession("first", "secret", false, true, true, false, 0));
 
       // CREATE_DURABLE_QUEUE
-      try {
-         session.createQueue(QueueConfiguration.of(DURABLE_QUEUE).setAddress(ADDRESS));
-         fail("should throw exception here");
-      } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first"));
-         assertTrue(e.getMessage().contains("does not have permission='CREATE_DURABLE_QUEUE' for queue durableQueue on address address"));
+      if (!useUuidNamespace) {
+         try {
+            session.createQueue(QueueConfiguration.of(DURABLE_QUEUE).setAddress(ADDRESS));
+            fail("should throw exception here");
+         } catch (ActiveMQException e) {
+            assertTrue(e.getMessage().contains("User: first does not have permission='CREATE_DURABLE_QUEUE' for queue durableQueue on address " + ADDRESS));
+         }
       }
 
       // DELETE_DURABLE_QUEUE
@@ -585,8 +602,7 @@ public class SecurityTest extends ActiveMQTestBase {
          session.deleteQueue(DURABLE_QUEUE);
          fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first"));
-         assertTrue(e.getMessage().contains("does not have permission='DELETE_DURABLE_QUEUE' for queue durableQueue on address address"));
+         assertTrue(e.getMessage().contains("User: first does not have permission='DELETE_DURABLE_QUEUE' for queue durableQueue on address " + ADDRESS));
       }
 
       // CREATE_NON_DURABLE_QUEUE
@@ -594,8 +610,7 @@ public class SecurityTest extends ActiveMQTestBase {
          session.createQueue(QueueConfiguration.of(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
          fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first"));
-         assertTrue(e.getMessage().contains("does not have permission='CREATE_NON_DURABLE_QUEUE' for queue nonDurableQueue on address address"));
+         assertTrue(e.getMessage().contains("User: first does not have permission='CREATE_NON_DURABLE_QUEUE' for queue nonDurableQueue on address " + ADDRESS));
       }
 
       // DELETE_NON_DURABLE_QUEUE
@@ -603,8 +618,7 @@ public class SecurityTest extends ActiveMQTestBase {
          session.deleteQueue(NON_DURABLE_QUEUE);
          fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first"));
-         assertTrue(e.getMessage().contains("does not have permission='DELETE_NON_DURABLE_QUEUE' for queue nonDurableQueue on address address"));
+         assertTrue(e.getMessage().contains("User: first does not have permission='DELETE_NON_DURABLE_QUEUE' for queue nonDurableQueue on address " + ADDRESS));
       }
 
       // PRODUCE
@@ -613,8 +627,7 @@ public class SecurityTest extends ActiveMQTestBase {
          producer.send(session.createMessage(true));
          fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first"));
-         assertTrue(e.getMessage().contains("does not have permission='SEND' on address address"));
+         assertTrue(e.getMessage().contains("User: first does not have permission='SEND' on address " + ADDRESS));
       }
 
       // CONSUME
@@ -622,8 +635,7 @@ public class SecurityTest extends ActiveMQTestBase {
          ClientConsumer consumer = session.createConsumer(DURABLE_QUEUE);
          fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first"));
-         assertTrue(e.getMessage().contains("does not have permission='CONSUME' for queue durableQueue on address address"));
+         assertTrue(e.getMessage().contains("User: first does not have permission='CONSUME' for queue durableQueue on address " + ADDRESS));
       }
 
       // MANAGE
@@ -632,8 +644,7 @@ public class SecurityTest extends ActiveMQTestBase {
          producer.send(session.createMessage(true));
          fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first"));
-         assertTrue(e.getMessage().contains("does not have permission='MANAGE' on address activemq.management"));
+         assertTrue(e.getMessage().contains("User: first does not have permission='MANAGE' on address activemq.management"));
       }
 
       // BROWSE
@@ -641,8 +652,7 @@ public class SecurityTest extends ActiveMQTestBase {
          ClientConsumer browser = session.createConsumer(DURABLE_QUEUE, true);
          fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first"));
-         assertTrue(e.getMessage().contains("does not have permission='BROWSE' for queue durableQueue on address address"));
+         assertTrue(e.getMessage().contains("User: first does not have permission='BROWSE' for queue durableQueue on address " + ADDRESS));
       }
    }
 
@@ -1041,7 +1051,16 @@ public class SecurityTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerAuthorizationPositive() throws Exception {
-      final SimpleString ADDRESS = SimpleString.of("address");
+      internalTestJAASSecurityManagerAuthorizationPositive(false);
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthorizationPositiveWithUuidNamespace() throws Exception {
+      internalTestJAASSecurityManagerAuthorizationPositive(true);
+   }
+
+   private void internalTestJAASSecurityManagerAuthorizationPositive(boolean useUuidNamespace) throws Exception {
+      final SimpleString ADDRESS = useUuidNamespace ? SimpleString.of(RandomUtil.randomUUIDString()) : SimpleString.of("address");
       final SimpleString DURABLE_QUEUE = SimpleString.of("durableQueue");
       final SimpleString NON_DURABLE_QUEUE = SimpleString.of("nonDurableQueue");
 
@@ -1049,24 +1068,34 @@ public class SecurityTest extends ActiveMQTestBase {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", true, true, true, true, true, true, true, true, true, true, false, false));
-      server.getConfiguration().putSecurityRoles("#", roles);
+      String match = "#";
+      if (useUuidNamespace) {
+         final SimpleString UUID_NAMESPACE = RandomUtil.randomUUIDSimpleString();
+         server.getConfiguration().setUuidNamespace(UUID_NAMESPACE.toString());
+         match = UUID_NAMESPACE + ".#";
+      }
+      server.getConfiguration().putSecurityRoles(match, roles);
       server.start();
 
       ClientSessionFactory cf = createSessionFactory(locator);
       ClientSession session = addClientSession(cf.createSession("first", "secret", false, true, true, false, 0));
 
       // CREATE_DURABLE_QUEUE
-      try {
-         session.createQueue(QueueConfiguration.of(DURABLE_QUEUE).setAddress(ADDRESS));
-      } catch (ActiveMQException e) {
-         fail("should not throw exception here");
+      if (!useUuidNamespace) {
+         try {
+            session.createQueue(QueueConfiguration.of(DURABLE_QUEUE).setAddress(ADDRESS));
+         } catch (ActiveMQException e) {
+            fail("should not throw exception here");
+         }
       }
 
       // DELETE_DURABLE_QUEUE
-      try {
-         session.deleteQueue(DURABLE_QUEUE);
-      } catch (ActiveMQException e) {
-         fail("should not throw exception here");
+      if (!useUuidNamespace) {
+         try {
+            session.deleteQueue(DURABLE_QUEUE);
+         } catch (ActiveMQException e) {
+            fail("should not throw exception here");
+         }
       }
 
       // CREATE_NON_DURABLE_QUEUE
@@ -1101,11 +1130,13 @@ public class SecurityTest extends ActiveMQTestBase {
       }
 
       // MANAGE
-      try {
-         ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
-         producer.send(session.createMessage(true));
-      } catch (ActiveMQException e) {
-         fail("should not throw exception here");
+      if (!useUuidNamespace) {
+         try {
+            ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
+            producer.send(session.createMessage(true));
+         } catch (ActiveMQException e) {
+            fail("should not throw exception here");
+         }
       }
 
       // BROWSE
@@ -1455,7 +1486,7 @@ public class SecurityTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testCreateTempQueueWithRole() throws Exception {
+   public void testCreateUuidWithRole() throws Exception {
       ActiveMQServer server = createServer();
 
       server.start();
@@ -1474,7 +1505,7 @@ public class SecurityTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testCreateTempQueueWithoutRole() throws Exception {
+   public void testCreateUuidWithoutRole() throws Exception {
       ActiveMQServer server = createServer();
 
       server.start();
@@ -1500,7 +1531,7 @@ public class SecurityTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testDeleteTempQueueWithRole() throws Exception {
+   public void testDeleteUuidWithRole() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
@@ -1519,7 +1550,7 @@ public class SecurityTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testDeleteTempQueueWithoutRole() throws Exception {
+   public void testDeleteUuidWithoutRole() throws Exception {
       ActiveMQServer server = createServer();
       server.start();
       HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();

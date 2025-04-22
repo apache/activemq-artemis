@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,9 +29,9 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
@@ -50,6 +47,9 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(ParameterizedTestExtension.class)
 public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClientTestSupport {
@@ -116,7 +116,7 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
 
       receiver.detach();
 
-      AddressQueryResult address = getProxyToAddress(addressName);
+      AddressInfo address = getProxyToAddress(addressName);
 
       assertNotNull(address);
       assertEquals(Set.of(RoutingType.MULTICAST), address.getRoutingTypes());
@@ -165,7 +165,7 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
 
       receiver.detach();
 
-      AddressQueryResult address = getProxyToAddress(addressName);
+      AddressInfo address = getProxyToAddress(addressName);
 
       assertNotNull(address);
       assertEquals(Set.of(RoutingType.MULTICAST), address.getRoutingTypes());
@@ -210,9 +210,5 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
       }
 
       throw new AssertionError("Should have found an existing queue binding for the durable subscription");
-   }
-
-   private AddressQueryResult getProxyToAddress(String addressName) throws Exception {
-      return server.addressQuery(SimpleString.of(addressName));
    }
 }

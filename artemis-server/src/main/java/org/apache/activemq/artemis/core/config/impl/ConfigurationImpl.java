@@ -440,7 +440,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private int pageSyncTimeout = ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio();
 
-   private String temporaryQueueNamespace = ActiveMQDefaultConfiguration.getDefaultTemporaryQueueNamespace();
+   private String uuidNamespace = ActiveMQDefaultConfiguration.getDefaultUuidNamespace();
 
    private long mqttSessionScanInterval = ActiveMQDefaultConfiguration.getMqttSessionScanInterval();
 
@@ -3452,12 +3452,22 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public String getTemporaryQueueNamespace() {
-      return temporaryQueueNamespace;
+      return getUuidNamespace();
    }
 
    @Override
    public ConfigurationImpl setTemporaryQueueNamespace(final String temporaryQueueNamespace) {
-      this.temporaryQueueNamespace = temporaryQueueNamespace;
+      return setUuidNamespace(temporaryQueueNamespace);
+   }
+
+   @Override
+   public String getUuidNamespace() {
+      return uuidNamespace;
+   }
+
+   @Override
+   public ConfigurationImpl setUuidNamespace(final String uuidNamespace) {
+      this.uuidNamespace = uuidNamespace;
       return this;
    }
 

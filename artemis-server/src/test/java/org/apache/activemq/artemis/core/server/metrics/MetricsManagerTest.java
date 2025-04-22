@@ -42,38 +42,15 @@ public class MetricsManagerTest {
    }
 
    public void testQueueMetrics(boolean enableMetrics) throws Exception {
-      final String tempQueueNamespace = "temp.";
-      final long latchTimeout = 100;
-
       HierarchicalRepository<AddressSettings> addressSettingsRepository = new HierarchicalObjectRepository<>(new WildcardConfiguration());
-
-      // configure metrics for temp queues
-      addressSettingsRepository.addMatch(tempQueueNamespace + "#", new AddressSettings().setEnableMetrics(enableMetrics));
-
-      // configure metrics for normal queues
       addressSettingsRepository.addMatch("#", new AddressSettings().setEnableMetrics(enableMetrics));
 
       MetricsConfiguration metricsConfiguration = new MetricsConfiguration();
       metricsConfiguration.setPlugin(new SimpleMetricsPlugin().init(null));
-      MetricsManager metricsManager = new MetricsManager(RandomUtil.randomUUIDString(), metricsConfiguration, addressSettingsRepository, null, temp -> {
-         // this is a simplified version of org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl.getRuntimeTempQueueNamespace
-         if (temp) {
-            return tempQueueNamespace;
-         } else {
-            return "";
-         }
-      });
+      MetricsManager metricsManager = new MetricsManager(RandomUtil.randomUUIDString(), metricsConfiguration, addressSettingsRepository, null);
 
-      // test temp queue
-      AtomicBoolean tempTest = new AtomicBoolean(false);
-      metricsManager.registerQueueGauge(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), true, (builder) -> {
-         tempTest.set(true);
-      });
-      assertEquals(enableMetrics, tempTest.get());
-
-      // test normal queue
       AtomicBoolean test = new AtomicBoolean(false);
-      metricsManager.registerQueueGauge(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), false, (builder) -> {
+      metricsManager.registerQueueGauge(RandomUtil.randomAlphaNumericString(4), RandomUtil.randomAlphaNumericString(4), (builder) -> {
          test.set(true);
       });
       assertEquals(enableMetrics, test.get());

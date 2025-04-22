@@ -314,6 +314,7 @@ public class AddressInfo {
       builder.append(", bindingRemovedTimestamp=").append(bindingRemovedTimestamp);
       builder.append(", swept=").append(swept);
       builder.append(", createdTimestamp=").append(createdTimestamp);
+      builder.append(", temporary=").append(temporary);
       builder.append("]");
       return builder.toString();
    }

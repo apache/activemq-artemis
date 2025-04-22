@@ -422,13 +422,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          addressSettingsRepositoryListener = new NamedHierarchicalRepositoryChangeListener(queueConfiguration.getName()) {
             @Override
             public void onChange() {
-               cachedAddressSettings = QueueImpl.this.addressSettingsRepository.getMatch(getAddressSettingsMatch());
+               cachedAddressSettings = QueueImpl.this.addressSettingsRepository.getMatch(queueConfiguration.getAddress().toString());
                checkDeadLetterAddressAndExpiryAddress();
                configureSlowConsumerReaper();
             }
          };
          this.addressSettingsRepository.registerListener(addressSettingsRepositoryListener);
-         this.cachedAddressSettings = addressSettingsRepository.getMatch(getAddressSettingsMatch());
+         this.cachedAddressSettings = addressSettingsRepository.getMatch(queueConfiguration.getAddress().toString());
       } else {
          this.cachedAddressSettings = new AddressSettings();
       }
@@ -4493,10 +4493,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
          }
       }
-   }
-
-   private String getAddressSettingsMatch() {
-      return ((ActiveMQServerImpl)server).getRuntimeTempQueueNamespace(queueConfiguration.isTemporary()) + queueConfiguration.getAddress().toString();
    }
 
    private void checkDeadLetterAddressAndExpiryAddress() {

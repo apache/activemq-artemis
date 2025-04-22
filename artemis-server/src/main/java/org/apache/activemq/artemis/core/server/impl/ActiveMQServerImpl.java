@@ -211,11 +211,13 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.activemq.artemis.utils.OpenWireUUIDUtil;
 import org.apache.activemq.artemis.utils.PemConfigUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.TimeUtils;
+import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
@@ -502,16 +504,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       this.securityManager = securityManager;
 
-      addressSettingsRepository = new HierarchicalObjectRepository<>(configuration.getWildcardConfiguration(), new HierarchicalObjectRepository.MatchModifier() {
-         @Override
-         public String modify(String input) {
-            return CompositeAddress.extractAddressName(input);
-         }
-      }, this.configuration.getLiteralMatchMarkers());
+      addressSettingsRepository = new HierarchicalObjectRepository<>(configuration.getWildcardConfiguration(), new AddressSettingsMatchModifier(), this.configuration.getLiteralMatchMarkers());
 
       addressSettingsRepository.setDefault(new AddressSettings());
 
-      securityRepository = new HierarchicalObjectRepository<>(configuration.getWildcardConfiguration());
+      securityRepository = new HierarchicalObjectRepository<>(configuration.getWildcardConfiguration(), new SecuritySettingsMatchModifier());
 
       securityRepository.setDefault(new HashSet<>());
 
@@ -520,6 +517,27 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       this.serviceRegistry = serviceRegistry == null ? new ServiceRegistryImpl() : serviceRegistry;
 
       this.serverStatus = ServerStatus.getInstanceFor(this);
+   }
+
+   public class AddressSettingsMatchModifier implements HierarchicalObjectRepository.MatchModifier {
+      @Override
+      public String modify(String input) {
+         return modifyMatchForUUID(CompositeAddress.extractAddressName(input));
+      }
+   }
+
+   public class SecuritySettingsMatchModifier implements HierarchicalObjectRepository.MatchModifier {
+      @Override
+      public String modify(String input) {
+         return modifyMatchForUUID(input);
+      }
+   }
+
+   private String modifyMatchForUUID(String result) {
+      if (configuration.getUuidNamespace() != null && !configuration.getUuidNamespace().isEmpty() && (UUID.isUUID(result) || OpenWireUUIDUtil.isUUID(result))) {
+         result = new StringBuilder().append(configuration.getUuidNamespace()).append(configuration.getWildcardConfiguration().getDelimiterString()).append(result).toString();
+      }
+      return result;
    }
 
    @Override
@@ -3321,7 +3339,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
        * are not required to be included in the OSGi bundle and the Micrometer jars apparently don't support OSGi.
        */
       if (configuration.getMetricsConfiguration() != null && configuration.getMetricsConfiguration().getPlugin() != null) {
-         metricsManager = new MetricsManager(configuration.getName(), configuration.getMetricsConfiguration(), addressSettingsRepository, securityStore, temp -> getRuntimeTempQueueNamespace(temp));
+         metricsManager = new MetricsManager(configuration.getName(), configuration.getMetricsConfiguration(), addressSettingsRepository, securityStore);
       }
 
       postOffice = new PostOfficeImpl(this, storageManager, pagingManager, queueFactory, managementService, configuration.getMessageExpiryScanPeriod(), configuration.getAddressQueueScanPeriod(), configuration.getWildcardConfiguration(), configuration.getIDCacheSize(), configuration.isPersistIDCache(), addressSettingsRepository);
@@ -4014,8 +4032,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       try {
-         AddressInfo addressInfo = getAddressInfo(address);
-         if (postOffice.removeAddressInfo(address, force) == null) {
+         AddressInfo addressInfo = postOffice.removeAddressInfo(address, force);
+         if (addressInfo == null) {
             throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
          }
 
@@ -4131,7 +4149,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             }
          }
 
-         QueueConfigurationUtils.applyDynamicDefaults(queueConfiguration, addressSettingsRepository.getMatch(getRuntimeTempQueueNamespace(queueConfiguration.isTemporary()) + queueConfiguration.getAddress().toString()));
+         QueueConfigurationUtils.applyDynamicDefaults(queueConfiguration, addressSettingsRepository.getMatch(queueConfiguration.getAddress().toString()));
 
          AddressInfo info = postOfficeInUse.getAddressInfo(queueConfiguration.getAddress());
          if (queueConfiguration.isAutoCreateAddress() || queueConfiguration.isTemporary()) {
@@ -4206,14 +4224,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          return queue;
       }
-   }
-
-   public String getRuntimeTempQueueNamespace(boolean temporary) {
-      StringBuilder runtimeTempQueueNamespace = new StringBuilder();
-      if (temporary && configuration.getTemporaryQueueNamespace() != null && !configuration.getTemporaryQueueNamespace().isEmpty()) {
-         runtimeTempQueueNamespace.append(configuration.getTemporaryQueueNamespace()).append(configuration.getWildcardConfiguration().getDelimiterString());
-      }
-      return runtimeTempQueueNamespace.toString();
    }
 
    private void copyRetroactiveMessages(Queue targetQueue) throws Exception {

@@ -17,10 +17,13 @@
 package org.apache.activemq.artemis.tests.unit.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -59,5 +62,43 @@ public class UUIDTest extends ActiveMQTestBase {
          assertEquals(uuid, uuid2, uuidString);
          assertEquals(uuidString, uuid2.toString(), uuidString);
       }
+   }
+
+   @Test
+   public void testIsUUID() {
+      String id;
+      for (int i = 0; i < 10000; i++) {
+         id = UUIDGenerator.getInstance().generateStringUUID();
+         assertTrue(UUID.isUUID(id), "Invalid id: " + id);
+         id = java.util.UUID.randomUUID().toString();
+         assertTrue(UUID.isUUID(id), "Invalid id: " + id);
+      }
+
+      // contains special character
+      assertFalse(UUID.isUUID(SimpleString.of("35a8cb5e-1baa-11f0-b57f-3ce1a1d1293!")));
+
+      // contains upper-case hex character
+      assertFalse(UUID.isUUID(SimpleString.of("35a8cb5e-1bAa-11f0-b57f-3ce1a1d12934")));
+
+      // correct length but missing first hyphen
+      assertFalse(UUID.isUUID(SimpleString.of("35a8cb5e1baa-11f0-b57f-3ce1a1d12934a")));
+
+      // correct length but missing second hyphen
+      assertFalse(UUID.isUUID(SimpleString.of("35a8cb5e-1baa11f0-b57f-3ce1a1d12934a")));
+
+      // correct length but missing third hyphen
+      assertFalse(UUID.isUUID(SimpleString.of("35a8cb5e-1baa-11f0b57f-3ce1a1d12934a")));
+
+      // correct length but missing fourth hyphen
+      assertFalse(UUID.isUUID(SimpleString.of("35a8cb5e-1baa-11f0-b57f3ce1a1d12934a")));
+
+      // too long
+      assertFalse(UUID.isUUID(SimpleString.of("35a8cb5e-1baa-11f0-b57f-3ce1a1d12934a")));
+
+      // too short
+      assertFalse(UUID.isUUID(SimpleString.of("35a8cb5e-1baa-11f0-b57f-3ce1a1d1293")));
+
+      // null
+      assertFalse(UUID.isUUID(null));
    }
 }

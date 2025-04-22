@@ -18,7 +18,9 @@ package org.apache.activemq.artemis.core.server;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 
-public interface TempQueueObserver {
+public interface TempResourceObserver {
 
-   void tempQueueDeleted(SimpleString bindingName);
+   void tempQueueDeleted(SimpleString queueName);
+
+   void tempAddressDeleted(SimpleString addressName);
 }

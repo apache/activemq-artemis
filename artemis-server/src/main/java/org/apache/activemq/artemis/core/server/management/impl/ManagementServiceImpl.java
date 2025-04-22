@@ -330,7 +330,7 @@ public class ManagementServiceImpl implements ManagementService {
       if (messagingServer != null) { // messagingServer could be null on certain unit tests where metrics are not relevant
          MetricsManager metricsManager = messagingServer.getMetricsManager();
          if (metricsManager != null) {
-            metricsManager.registerQueueGauge(queue.getAddress().toString(), queue.getName().toString(), queue.isTemporary(), (builder) -> {
+            metricsManager.registerQueueGauge(queue.getAddress().toString(), queue.getName().toString(), (builder) -> {
                builder.build(QueueMetricNames.MESSAGE_COUNT, queue, metrics -> (double) queue.getMessageCount(), QueueControl.MESSAGE_COUNT_DESCRIPTION, Collections.emptyList());
                builder.build(QueueMetricNames.DURABLE_MESSAGE_COUNT, queue, metrics -> (double) queue.getDurableMessageCount(), QueueControl.DURABLE_MESSAGE_COUNT_DESCRIPTION, Collections.emptyList());
                builder.build(QueueMetricNames.PERSISTENT_SIZE, queue, metrics -> (double) queue.getPersistentSize(), QueueControl.PERSISTENT_SIZE_DESCRIPTION, Collections.emptyList());

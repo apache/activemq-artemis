@@ -321,7 +321,15 @@
          <xsd:element name="temporary-queue-namespace" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  the namespace to use for looking up address settings for temporary queues
+                  DEPRECATED: use uuid-namespace instead
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="uuid-namespace" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the namespace to use for looking up address and security settings for resources named with a UUID
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

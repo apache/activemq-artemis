@@ -160,7 +160,7 @@ These queues are often referred to as _subscription queues_ for obvious reasons.
 
 These subscription queues are typically named based on the semantics of the protocol used to create them.
 For example, JMS supports durable and non-durable subscriptions.
-The queue for a non-durable subscription is named with a UUID, but the queue used for a durable subscription is named according to the JMS "client ID" and "subscription name." Similar conventions are used for AMQP, MQTT, STOMP, etc.
+The queue for a non-durable subscription is named with a xref:#uuid-formats[UUID], but the queue used for a durable subscription is named according to the JMS "client ID" and "subscription name." Similar conventions are used for AMQP, MQTT, STOMP, etc.
 
 == Advanced Manual Configuration
 
@@ -291,31 +291,58 @@ Open the file `etc/broker.xml` for editing.
 Disabling all the queues on an address means that any message sent to that address will be silently dropped.
 ====
 
-=== Temporary Queues
+=== UUID Resources
 
-For some protocols and APIs which only support monolithic "destinations" without the address/queue separation (e.g. AMQP, JMS, etc.) temporary queues are created by the broker using a UUID (i.e universally unique identifier) as the name for both the address and the queue.
-Because the name is a UUID it is impossible to create an `address-setting` for it whose `match` is anything but `#`.
+Some protocols and APIs support creating anonymous (i.e. unnamed) resources (e.g. a JMS queue created via https://docs.oracle.com/javaee/7/api/javax/jms/Session.html#createTemporaryQueue--[`createTemporaryQueue`] or a JMS topic created via https://docs.oracle.com/javaee/7/api/javax/jms/Session.html#createTemporaryTopic--[`createTemporaryTopic`]).
+These resources are ultimately created using a UUID (i.e universally unique identifier) as the name for both the address and the queue (as necessary).
+However, since the name is a UUID it is impossible to create an `address-setting` or `security-setting` for it whose `match` is anything but `#`.
 
-To solve this problem one can specify the `temporary-queue-namespace` in `broker.xml` and then create an `address-setting` whose `match` value corresponds to the configured `temporary-queue-namespace`.
-When the `temporary-queue-namespace` is set and a temporary queue is created then the broker will prepend the `temporary-queue-namespace` value along with the `delimiter` value configured in `wildcard-addresses` (defaults to `.`) to the address name and use that to lookup the associated `address-setting` values.
-
-Here's a simple example configuration:
+To enable more specific configurations one can specify the `uuid-namespace` in `broker.xml` and then create an `address-setting` or `security-setting` whose `match` value corresponds to the configured `uuid-namespace`, e.g.:
 
 [,xml]
 ----
-<temporary-queue-namespace>temp</temporary-queue-namespace>
+<uuid-namespace>uuid</uuid-namespace>
 
 <address-settings>
-   <address-setting match="temp.#">
+   <address-setting match="uuid.#">
       <enable-metrics>false</enable-metrics>
    </address-setting>
 </address-settings>
 ----
 
-Using this configuration any temporary queue will have metrics disabled.
+Any resource named using a UUID will have metrics disabled using this configuration. The default `uuid-namespace` is empty.
 
-NOTE: This setting does _not_ change the actual name of the temporary queue.
-It only changes the name used to _lookup_ the address-settings.
+[NOTE]
+====
+This setting does _not_ change the actual name of the resource.
+It only changes the name used to _lookup_ address-settings or security-settings.
+====
+
+==== UUID Formats
+
+The broker supports two different UUID formats - Core and OpenWire
+
+===== Core UUID
+
+A Core UUID is a 36-character string that follows the pattern `X-X-X-X-X` where:
+
+* The first group consists of 8 hex characters.
+* The second, third, and fourth groups consist of 4 hex characters each.
+* The fifth group consists of 12 hex characters.
+* A hyphen separates each group of hex characters.
+* A "hex character" is one of the following: `abcdef0123456789`.
+
+Here's an example: `c7ef2580-210f-11f0-bef5-3ce1a1d12939`.
+
+===== OpenWire UUID
+
+An OpenWire UUID is a variable length string that follows the pattern `X-X-X-X:X:X` where:
+
+* The first group is a prefix of arbitrary content and length. The default prefix is `ID:` plus hostname.
+* The second, third, and fourth groups consist of digits separated from each other by a `-` character.
+* The fifth and sixth group consists of digits separated from each previous group by a `:` character.
+
+Here's an example: `ID:localhost-45187-1745501083698-10000:1:10001`.
 
 === Other Advanced Configurations
 
