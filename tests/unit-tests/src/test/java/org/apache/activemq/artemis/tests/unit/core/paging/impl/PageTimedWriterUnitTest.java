@@ -926,8 +926,6 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
 
    @Test
    public void testLockWhileFlowControlled() throws Exception {
-      AtomicBoolean notSupposedToWrite = new AtomicBoolean(false);
-
       AtomicInteger errors = new AtomicInteger(0);
 
       LinkedHashSet<String> interceptedWrite = new LinkedHashSet<>();
@@ -937,10 +935,6 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
          String messageID = m.getMessage().getStringProperty("testId");
          if (messageID == null) {
             logger.warn("no messageID defined on message");
-            errors.incrementAndGet();
-         }
-         if (notSupposedToWrite.get()) {
-            logger.warn("Not supposed to write message {}", m.getMessage().getStringProperty("testId"));
             errors.incrementAndGet();
          }
          interceptedWrite.add(m.getMessage().getStringProperty("testId"));
