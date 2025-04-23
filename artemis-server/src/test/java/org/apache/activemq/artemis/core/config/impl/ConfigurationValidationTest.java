@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBridgeBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
@@ -71,7 +72,7 @@ public class ConfigurationValidationTest extends ServerTestBase {
       deploymentManager.addDeployable(fc);
       deploymentManager.readConfiguration();
 
-      assertEquals(5, fc.getAMQPConnection().size());
+      assertEquals(6, fc.getAMQPConnection().size());
 
       AMQPBrokerConnectConfiguration amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(0);
       assertEquals("testuser", amqpBrokerConnectConfiguration.getUser());
@@ -105,6 +106,17 @@ public class ConfigurationValidationTest extends ServerTestBase {
       assertEquals(1, federationConnectionElement.getLocalQueuePolicies().size());
       federationConnectionElement.getLocalQueuePolicies().forEach((p) -> {
          assertEquals("composite", p.getName());
+         assertEquals(1, p.getIncludes().size());
+         assertEquals(0, p.getExcludes().size());
+         assertNull(p.getTransformerConfiguration());
+      });
+
+      assertEquals(AMQPBrokerConnectionAddressType.BRIDGE, amqpBrokerConnectConfiguration.getConnectionElements().get(6).getType());
+      AMQPBridgeBrokerConnectionElement bridgeConnectionElement = (AMQPBridgeBrokerConnectionElement) amqpBrokerConnectConfiguration.getConnectionElements().get(6);
+      assertEquals("test-bridge", bridgeConnectionElement.getName());
+      assertEquals(1, bridgeConnectionElement.getBridgeFromQueuePolicies().size());
+      bridgeConnectionElement.getBridgeFromQueuePolicies().forEach((p) -> {
+         assertEquals("bridge-queue-1", p.getName());
          assertEquals(1, p.getIncludes().size());
          assertEquals(0, p.getExcludes().size());
          assertNull(p.getTransformerConfiguration());
@@ -211,6 +223,63 @@ public class ConfigurationValidationTest extends ServerTestBase {
       assertNotNull(mirrorConnectionElement.getProperties());
       assertFalse(mirrorConnectionElement.getProperties().isEmpty());
       assertFalse(Boolean.valueOf((String) mirrorConnectionElement.getProperties().get("tunnel-core-messages")));
+
+      amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(5);
+      assertEquals("test-bridge-configuration", amqpBrokerConnectConfiguration.getName());
+      assertFalse(amqpBrokerConnectConfiguration.isAutostart());
+      assertNotNull(amqpBrokerConnectConfiguration.getConnectionElements().get(0));
+      bridgeConnectionElement = (AMQPBridgeBrokerConnectionElement) amqpBrokerConnectConfiguration.getConnectionElements().get(0);
+      assertNotNull(bridgeConnectionElement.getProperties());
+      assertFalse(bridgeConnectionElement.getProperties().isEmpty());
+      assertEquals(1, bridgeConnectionElement.getBridgeFromQueuePolicies().size());
+      assertEquals(1, bridgeConnectionElement.getBridgeToQueuePolicies().size());
+      assertEquals(1, bridgeConnectionElement.getBridgeFromAddressPolicies().size());
+      assertEquals(1, bridgeConnectionElement.getBridgeToAddressPolicies().size());
+      assertTrue(bridgeConnectionElement.getProperties().containsKey("amqpCredits"));
+      assertEquals("7", bridgeConnectionElement.getProperties().get("amqpCredits"));
+      assertTrue(bridgeConnectionElement.getProperties().containsKey("amqpLowCredits"));
+      assertEquals("1", bridgeConnectionElement.getProperties().get("amqpLowCredits"));
+
+      bridgeConnectionElement.getBridgeFromQueuePolicies().forEach(p -> {
+         assertEquals("bridge-from-queue", p.getName());
+         assertEquals(1, p.getIncludes().size());
+         p.getIncludes().forEach(match -> {
+            assertEquals("#", match.getAddressMatch());
+            assertEquals("tracking", match.getQueueMatch());
+         });
+         assertEquals(0, p.getExcludes().size());
+         p.getExcludes().forEach(match -> assertEquals("all.#", match.getAddressMatch()));
+         assertNotNull(p.getTransformerConfiguration());
+         assertEquals("something", p.getTransformerConfiguration().getClassName());
+      });
+      bridgeConnectionElement.getBridgeToQueuePolicies().forEach(p -> {
+         assertEquals("bridge-to-queue", p.getName());
+         assertEquals(1, p.getIncludes().size());
+         p.getIncludes().forEach(match -> {
+            assertEquals("test-queue", match.getAddressMatch());
+            assertEquals("tracking", match.getQueueMatch());
+         });
+         assertEquals(0, p.getExcludes().size());
+         p.getExcludes().forEach(match -> assertEquals("all.#", match.getAddressMatch()));
+         assertNull(p.getTransformerConfiguration());
+      });
+      bridgeConnectionElement.getBridgeFromAddressPolicies().forEach(p -> {
+         assertEquals("bridge-from-address", p.getName());
+         assertEquals(1, p.getIncludes().size());
+         p.getIncludes().forEach(match -> assertEquals("test-address", match.getAddressMatch()));
+         assertEquals(1, p.getExcludes().size());
+         p.getExcludes().forEach(match -> assertEquals("all.#", match.getAddressMatch()));
+         assertNotNull(p.getTransformerConfiguration());
+         assertEquals("class-name", p.getTransformerConfiguration().getClassName());
+      });
+      bridgeConnectionElement.getBridgeToAddressPolicies().forEach(p -> {
+         assertEquals("bridge-to-address", p.getName());
+         assertEquals(1, p.getIncludes().size());
+         p.getIncludes().forEach(match -> assertEquals("test-address", match.getAddressMatch()));
+         assertEquals(1, p.getExcludes().size());
+         p.getExcludes().forEach(match -> assertEquals("all.#", match.getAddressMatch()));
+         assertNull(p.getTransformerConfiguration());
+      });
    }
 
    @Test

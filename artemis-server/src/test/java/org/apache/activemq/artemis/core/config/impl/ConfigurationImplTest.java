@@ -62,6 +62,9 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBridgeAddressPolicyElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBridgeBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBridgeQueuePolicyElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
@@ -701,6 +704,244 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
    }
 
    @Test
+   public void testAMQPBridgeFromAddressPolicyConfiguration() throws Throwable {
+      doTestAMQPBridgeAddressPolicyConfiguration(true);
+   }
+
+   @Test
+   public void testAMQPBridgeToAddressPolicyConfiguration() throws Throwable {
+      doTestAMQPBridgeAddressPolicyConfiguration(false);
+   }
+
+   public void doTestAMQPBridgeAddressPolicyConfiguration(boolean fromPolicy) throws Throwable {
+      final ConfigurationImpl configuration = new ConfigurationImpl();
+
+      final String policyType = fromPolicy ? "bridgeFromAddressPolicies" : "bridgeToAddressPolicies";
+
+      final Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+      insertionOrderedProperties.put("AMQPConnections.target.uri", "localhost:61617");
+      insertionOrderedProperties.put("AMQPConnections.target.retryInterval", 55);
+      insertionOrderedProperties.put("AMQPConnections.target.reconnectAttempts", -2);
+      insertionOrderedProperties.put("AMQPConnections.target.user", "admin");
+      insertionOrderedProperties.put("AMQPConnections.target.password", "password");
+      insertionOrderedProperties.put("AMQPConnections.target.autostart", "false");
+      // This line is unnecessary but serves as a match to what the mirror connectionElements style
+      // configuration does as a way of explicitly documenting what you are configuring here.
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc.type", "BRIDGE");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy1.priority", "7");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy1.includes.m1.addressMatch", "a");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy1.includes.m2.addressMatch", "b");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy1.includes.m3.addressMatch", "c");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy2.includes.m4.addressMatch", "y");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy2.excludes.m5.addressMatch", "z");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy2.includeDivertBindings", "true");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy2.properties.a", "b");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      assertEquals(1, configuration.getAMQPConnections().size());
+      AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
+      assertEquals("target", connectConfiguration.getName());
+      assertEquals("localhost:61617", connectConfiguration.getUri());
+      assertEquals(55, connectConfiguration.getRetryInterval());
+      assertEquals(-2, connectConfiguration.getReconnectAttempts());
+      assertEquals("admin", connectConfiguration.getUser());
+      assertEquals("password", connectConfiguration.getPassword());
+      assertFalse(connectConfiguration.isAutostart());
+      assertEquals(1, connectConfiguration.getBridges().size());
+
+      AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
+      assertTrue(amqpBrokerConnectionElement instanceof AMQPBridgeBrokerConnectionElement);
+      AMQPBridgeBrokerConnectionElement amqpBridgeBrokerConnectionElement = (AMQPBridgeBrokerConnectionElement) amqpBrokerConnectionElement;
+      assertEquals("abc", amqpBridgeBrokerConnectionElement.getName());
+
+      if (fromPolicy) {
+         assertEquals(0, amqpBridgeBrokerConnectionElement.getBridgeToAddressPolicies().size());
+         assertEquals(2, amqpBridgeBrokerConnectionElement.getBridgeFromAddressPolicies().size());
+      } else {
+         assertEquals(2, amqpBridgeBrokerConnectionElement.getBridgeToAddressPolicies().size());
+         assertEquals(0, amqpBridgeBrokerConnectionElement.getBridgeFromAddressPolicies().size());
+      }
+
+      final Set<AMQPBridgeAddressPolicyElement> addressPolicies = fromPolicy ? amqpBridgeBrokerConnectionElement.getBridgeFromAddressPolicies()
+                                                                             : amqpBridgeBrokerConnectionElement.getBridgeToAddressPolicies();
+
+      AMQPBridgeAddressPolicyElement addressPolicy1 = null;
+      AMQPBridgeAddressPolicyElement addressPolicy2 = null;
+
+      for (AMQPBridgeAddressPolicyElement policy : addressPolicies) {
+         if (policy.getName().equals("policy1")) {
+            addressPolicy1 = policy;
+         } else if (policy.getName().equals("policy2")) {
+            addressPolicy2 = policy;
+         } else {
+            throw new AssertionError("Found bridge queue policy with unexpected name: " + policy.getName());
+         }
+      }
+
+      assertNotNull(addressPolicy1);
+      assertNull(addressPolicy1.getFilter());
+      assertEquals(7, addressPolicy1.getPriority());
+      assertTrue(addressPolicy1.getProperties().isEmpty());
+      assertFalse(addressPolicy1.isIncludeDivertBindings());
+
+      addressPolicy1.getIncludes().forEach(match -> {
+         if (match.getName().equals("m1")) {
+            assertEquals("a", match.getAddressMatch());
+         } else if (match.getName().equals("m2")) {
+            assertEquals("b", match.getAddressMatch());
+         } else if (match.getName().equals("m3")) {
+            assertEquals("c", match.getAddressMatch());
+         } else {
+            throw new AssertionError("Found address match that was not expected: " + match.getName());
+         }
+      });
+
+      assertNotNull(addressPolicy2);
+      assertFalse(addressPolicy2.getProperties().isEmpty());
+      assertTrue(addressPolicy2.isIncludeDivertBindings());
+      assertEquals("b", addressPolicy2.getProperties().get("a"));
+
+      addressPolicy2.getIncludes().forEach(match -> {
+         if (match.getName().equals("m4")) {
+            assertEquals("y", match.getAddressMatch());
+         } else {
+            throw new AssertionError("Found address match that was not expected: " + match.getName());
+         }
+      });
+
+      addressPolicy2.getExcludes().forEach(match -> {
+         if (match.getName().equals("m5")) {
+            assertEquals("z", match.getAddressMatch());
+         } else {
+            throw new AssertionError("Found address match that was not expected: " + match.getName());
+         }
+      });
+
+      assertEquals(0, amqpBridgeBrokerConnectionElement.getBridgeFromQueuePolicies().size());
+      assertEquals(0, amqpBridgeBrokerConnectionElement.getBridgeToQueuePolicies().size());
+   }
+
+   @Test
+   public void testAMQPBridgeFromQueuePolicyConfiguration() throws Throwable {
+      doTestAMQPBridgeAddressPolicyConfiguration(true);
+   }
+
+   @Test
+   public void testAMQPBridgeToQueuePolicyConfiguration() throws Throwable {
+      doTestAMQPBridgeAddressPolicyConfiguration(false);
+   }
+
+   public void doTestAMQPBridgeQueuePolicyConfiguration(boolean fromPolicy) throws Throwable {
+      final ConfigurationImpl configuration = new ConfigurationImpl();
+
+      final String policyType = fromPolicy ? "bridgeFromQueuePolicies" : "bridgeToQueuePolicies";
+
+      final Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+      insertionOrderedProperties.put("AMQPConnections.target.uri", "localhost:61617");
+      insertionOrderedProperties.put("AMQPConnections.target.retryInterval", 55);
+      insertionOrderedProperties.put("AMQPConnections.target.reconnectAttempts", -2);
+      insertionOrderedProperties.put("AMQPConnections.target.user", "admin");
+      insertionOrderedProperties.put("AMQPConnections.target.password", "password");
+      insertionOrderedProperties.put("AMQPConnections.target.autostart", "false");
+      // This line is unnecessary but serves as a match to what the mirror connectionElements style
+      // configuration does as a way of explicitly documenting what you are configuring here.
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc.type", "BRIDGE");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy1.priority", "7");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy1.includes.m1.addressMatch", "a");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy1.includes.m2.addressMatch", "b");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy1.includes.m3.addressMatch", "c");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy2.includes.m4.addressMatch", "y");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy2.excludes.m5.addressMatch", "z");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy2.includeDivertBindings", "true");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy2.properties.a", "b");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      assertEquals(1, configuration.getAMQPConnections().size());
+      AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
+      assertEquals("target", connectConfiguration.getName());
+      assertEquals("localhost:61617", connectConfiguration.getUri());
+      assertEquals(55, connectConfiguration.getRetryInterval());
+      assertEquals(-2, connectConfiguration.getReconnectAttempts());
+      assertEquals("admin", connectConfiguration.getUser());
+      assertEquals("password", connectConfiguration.getPassword());
+      assertFalse(connectConfiguration.isAutostart());
+      assertEquals(1, connectConfiguration.getBridges().size());
+
+      AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
+      assertTrue(amqpBrokerConnectionElement instanceof AMQPBridgeBrokerConnectionElement);
+      AMQPBridgeBrokerConnectionElement amqpBridgeBrokerConnectionElement = (AMQPBridgeBrokerConnectionElement) amqpBrokerConnectionElement;
+      assertEquals("abc", amqpBridgeBrokerConnectionElement.getName());
+
+      if (fromPolicy) {
+         assertEquals(0, amqpBridgeBrokerConnectionElement.getBridgeToAddressPolicies().size());
+         assertEquals(2, amqpBridgeBrokerConnectionElement.getBridgeFromAddressPolicies().size());
+      } else {
+         assertEquals(2, amqpBridgeBrokerConnectionElement.getBridgeToAddressPolicies().size());
+         assertEquals(0, amqpBridgeBrokerConnectionElement.getBridgeFromAddressPolicies().size());
+      }
+
+      final Set<AMQPBridgeQueuePolicyElement> addressPolicies = fromPolicy ? amqpBridgeBrokerConnectionElement.getBridgeFromQueuePolicies()
+                                                                           : amqpBridgeBrokerConnectionElement.getBridgeToQueuePolicies();
+
+      AMQPBridgeQueuePolicyElement queuePolicy1 = null;
+      AMQPBridgeQueuePolicyElement queuePolicy2 = null;
+
+      for (AMQPBridgeQueuePolicyElement policy : addressPolicies) {
+         if (policy.getName().equals("policy1")) {
+            queuePolicy1 = policy;
+         } else if (policy.getName().equals("policy2")) {
+            queuePolicy2 = policy;
+         } else {
+            throw new AssertionError("Found bridge queue policy with unexpected name: " + policy.getName());
+         }
+      }
+
+      assertNotNull(queuePolicy1);
+      assertNull(queuePolicy1.getFilter());
+      assertEquals(7, queuePolicy1.getPriority());
+      assertTrue(queuePolicy1.getProperties().isEmpty());
+
+      queuePolicy1.getIncludes().forEach(match -> {
+         if (match.getName().equals("m1")) {
+            assertEquals("a", match.getAddressMatch());
+         } else if (match.getName().equals("m2")) {
+            assertEquals("b", match.getAddressMatch());
+         } else if (match.getName().equals("m3")) {
+            assertEquals("c", match.getAddressMatch());
+         } else {
+            throw new AssertionError("Found address match that was not expected: " + match.getName());
+         }
+      });
+
+      assertNotNull(queuePolicy2);
+      assertFalse(queuePolicy2.getProperties().isEmpty());
+      assertEquals("b", queuePolicy2.getProperties().get("a"));
+
+      queuePolicy2.getIncludes().forEach(match -> {
+         if (match.getName().equals("m3")) {
+            assertNull(match.getAddressMatch());
+            assertEquals("d", match.getQueueMatch());
+         } else {
+            throw new AssertionError("Found queue match that was not expected: " + match.getName());
+         }
+      });
+
+      queuePolicy2.getExcludes().forEach(match -> {
+         if (match.getName().equals("m3")) {
+            assertEquals("e", match.getAddressMatch());
+            assertEquals("e", match.getQueueMatch());
+         } else {
+            throw new AssertionError("Found queue match that was not expected: " + match.getName());
+         }
+      });
+
+      assertEquals(0, amqpBridgeBrokerConnectionElement.getBridgeFromQueuePolicies().size());
+      assertEquals(0, amqpBridgeBrokerConnectionElement.getBridgeToQueuePolicies().size());
+   }
+
+   @Test
    public void testCoreBridgeConfiguration() throws Throwable {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
@@ -1133,6 +1374,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       properties.put("AMQPConnections.brokerA.peers.c.type", AMQPBrokerConnectionAddressType.PEER.toString());
       properties.put("AMQPConnections.brokerA.senders.d.type", AMQPBrokerConnectionAddressType.SENDER.toString());
       properties.put("AMQPConnections.brokerA.receivers.e.type", AMQPBrokerConnectionAddressType.RECEIVER.toString());
+      properties.put("AMQPConnections.brokerA.bridges.f.type", AMQPBrokerConnectionAddressType.BRIDGE.toString());
 
       configuration.parsePrefixedProperties(properties, null);
 

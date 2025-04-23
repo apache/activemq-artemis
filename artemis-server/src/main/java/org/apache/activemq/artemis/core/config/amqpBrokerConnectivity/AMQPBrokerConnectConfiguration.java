@@ -75,6 +75,17 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
       return connectionElements;
    }
 
+   public AMQPBrokerConnectConfiguration addBridge(AMQPBridgeBrokerConnectionElement amqpBridgeElement) {
+      return addElement(amqpBridgeElement);
+   }
+
+   public List<AMQPBrokerConnectionElement> getBridges() {
+      // This returns all elements not just bridge elements, broker properties relies on being able
+      // to modify the collection from the getter...it does not actually call the add method, it only
+      // uses the method to infer the type.
+      return connectionElements;
+   }
+
    public AMQPBrokerConnectConfiguration addMirror(AMQPMirrorBrokerConnectionElement amqpMirrorBrokerConnectionElement) {
       return addElement(amqpMirrorBrokerConnectionElement);
    }

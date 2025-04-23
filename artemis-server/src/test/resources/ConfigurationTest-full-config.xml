@@ -473,6 +473,11 @@
                   <include address-match="test" queue-match="tracking" />
                </local-queue-policy>
             </federation>
+            <bridge name = "test-bridge">
+               <bridge-from-queue name="bridge-queue-1" priority-adjustment="1">
+                  <include address-match="#" queue-match="tracking" />
+               </bridge-from-queue>
+            </bridge>
          </amqp-connection>
          <amqp-connection uri="tcp://test2:222" name="test2">
             <mirror durable="false"/>
@@ -519,6 +524,34 @@
             <mirror>
               <property key="tunnel-core-messages" value="false"/>
             </mirror>
+         </amqp-connection>
+         <amqp-connection uri="tcp://false" name="test-bridge-configuration" auto-start="false">
+            <bridge>
+               <bridge-from-queue name="bridge-from-queue" priority-adjustment="1">
+                  <property key="amqpCredits" value="2"/>
+                  <property key="amqpLowCredits" value="1"/>
+                  <transformer>
+                     <class-name>something</class-name>
+                     <property key="key1" value="value1"/>
+                     <property key="key2" value="value2"/>
+                  </transformer>
+                  <include address-match="#" queue-match="tracking" />
+               </bridge-from-queue>
+               <bridge-to-queue name="bridge-to-queue" priority-adjustment="2">
+                  <include address-match="test-queue" queue-match="tracking" />
+               </bridge-to-queue>
+               <bridge-from-address name="bridge-from-address">
+                  <transformer-class-name>class-name</transformer-class-name>
+                  <include address-match="test-address" />
+                  <exclude address-match="all.#" />
+               </bridge-from-address>
+               <bridge-to-address name="bridge-to-address">
+                  <include address-match="test-address" />
+                  <exclude address-match="all.#" />
+               </bridge-to-address>
+               <property key="amqpCredits" value="7"/>
+               <property key="amqpLowCredits" value="1"/>
+            </bridge>
          </amqp-connection>
       </broker-connections>
       <grouping-handler name="gh1">
