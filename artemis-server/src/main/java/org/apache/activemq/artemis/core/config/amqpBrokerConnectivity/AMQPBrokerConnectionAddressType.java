@@ -17,5 +17,5 @@
 package org.apache.activemq.artemis.core.config.amqpBrokerConnectivity;
 
 public enum AMQPBrokerConnectionAddressType {
-   SENDER, RECEIVER, PEER, MIRROR, FEDERATION
+   SENDER, RECEIVER, PEER, MIRROR, FEDERATION, BRIDGE
 }

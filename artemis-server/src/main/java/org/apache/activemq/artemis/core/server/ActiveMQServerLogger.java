@@ -1500,4 +1500,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224144, value = "The topology of the cluster connection {} doesn't include all th expected members. "
        + "Check the discovery group or the static connectors of the cluster connection if the topology is correct: {} / {}", level = LogMessage.Level.WARN)
    void incompleteClusterTopology(String clusterConnection, Topology topology, String topologyMembers);
+
+   @LogMessage(id = 224145, value = "Error looking up bindings for address {}.", level = LogMessage.Level.WARN)
+   void bridgeBindingsLookupError(SimpleString address, Throwable e);
+
 }

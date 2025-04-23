@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -138,11 +139,23 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
             }
          }
 
-         Symbol[] remoteDesiredCapabilities = receiver.getRemoteDesiredCapabilities();
+         final Symbol[] remoteDesiredCapabilities = receiver.getRemoteDesiredCapabilities();
+
          if (remoteDesiredCapabilities != null) {
-            List<Symbol> list = Arrays.asList(remoteDesiredCapabilities);
-            if (list.contains(AmqpSupport.DELAYED_DELIVERY)) {
-               receiver.setOfferedCapabilities(new Symbol[]{AmqpSupport.DELAYED_DELIVERY});
+            final List<Symbol> offeredCapabilities = new ArrayList<>();
+
+            final Symbol[] desiredCapabilities = remoteDesiredCapabilities;
+            for (Symbol desired : desiredCapabilities) {
+               if (AmqpSupport.DELAYED_DELIVERY.equals(desired)) {
+                  offeredCapabilities.add(AmqpSupport.DELAYED_DELIVERY);
+               } else if (AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT.equals(desired)) {
+                  offeredCapabilities.add(AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT);
+                  enableCoreTunneling();
+               }
+            }
+
+            if (!offeredCapabilities.isEmpty()) {
+               receiver.setOfferedCapabilities(offeredCapabilities.toArray(new Symbol[0]));
             }
          }
       }

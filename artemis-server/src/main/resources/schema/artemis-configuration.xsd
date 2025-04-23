@@ -2189,6 +2189,7 @@
             <xsd:element name="peer" type="amqp-address-match-type"/>
             <xsd:element name="mirror" type="amqp-mirror-type"/>
             <xsd:element name="federation" type="amqp-federation-type"/>
+            <xsd:element name="bridge" type="amqp-bridge-type"/>
          </xsd:choice>
       </xsd:sequence>
       <xsd:attribute name="uri" type="xsd:string" use="required">
@@ -2419,6 +2420,194 @@
       <xsd:attribute name="name" type="xsd:ID" use="required" />
       <xsd:attribute name="enable-divert-bindings" type="xsd:boolean" use="optional" />
       <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
+
+   <xsd:complexType name="amqp-bridge-type">
+      <xsd:annotation>
+         <xsd:documentation>
+            This creates a bridge between this broker and the remote AMQP peer that is being
+            connected to, bridging can occur from a remote resource to an address or queue on
+            the local broker, or to a remote resource from an address or queue on the local
+            broker depending on the policy assigned to the bridge configuration. The remote
+            need not be an Artemis broker simply any peer that support AMQP 1.0 as the wire
+            protocol.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence minOccurs="1" maxOccurs="unbounded">
+         <xsd:choice maxOccurs="unbounded">
+            <xsd:element name="bridge-from-address" type="amqpBridgeAddressType" />
+            <xsd:element name="bridge-to-address" type="amqpBridgeAddressType" />
+            <xsd:element name="bridge-from-queue" type="amqpBridgeQueueType" />
+            <xsd:element name="bridge-to-queue" type="amqpBridgeQueueType" />
+         </xsd:choice>
+          <xsd:element ref="property" minOccurs="0" maxOccurs="unbounded">
+             <xsd:annotation>
+                <xsd:documentation>
+                   Optional properties that can be applied to the bridging configuration
+                </xsd:documentation>
+             </xsd:annotation>
+          </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="xsd:ID" use="optional" />
+   </xsd:complexType>
+
+   <xsd:complexType name="amqpBridgedResourceType">
+      <xsd:sequence>
+         <xsd:element ref="property" minOccurs="0" maxOccurs="unbounded">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Optional properties that can be applied to the bridging policy
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:choice maxOccurs="1" minOccurs="0">
+            <xsd:element name="transformer-class-name" type="xsd:string" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     an optional class name of a transformer
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="transformer" type="transformerType" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     optional transformer configuration
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+         </xsd:choice>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="xsd:ID" use="required" />
+      <xsd:attribute name="priority" type="xsd:int" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               A configured priority value which if set is applied either to the receiver or sender side of the
+               bridge policy. When bridging from a remote resource this value is added to the receiver link
+               properties and if supported will influence the priority assigned to the receiver on the remote.
+               When bridging to a remote resource this value is assigned to the local server consumer subscribed
+               to the local resource. This value overrides any automatic adjustment of priority and assigns the
+               value as is.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="filter" type="xsd:string" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               Optional filter string that is validated as a JMS selector string.
+
+               A JMS selector string applied either to the local or remote side of the bridged resource
+               depending on whether the policy is bridging to or from the remote peer. When bridging to
+               a remote the filter is assigned to the local subscription and when bridging from a remote
+               peer the filter is assigned in the filters portion of the AMQP receiver link that is
+               attached to the remote resource.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="remote-address" type="xsd:string" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               Optional remote address value applied to the bridge sender or receiver link.
+
+               This value overrides the normal default behaviour of the bridging controller which
+               assigns the name of the resource being bridged to the address field of the remote
+               source or target depending on the bridge action.  When bridging from a remote for an
+               address the default behavior is to assign the receiver source address as that of the
+               bridged address, when bridging to a remote for an address the sender link target address
+               is set to the name of the address being bridged. When bridging from a remote for a queue
+               the default behavior is to assign the receiver source address as that of the bridged
+               queue, when bridging to a remote for a queue the sender link target address is set to
+               the name of the queue being bridged.
+
+               This option allows you to override that and assign a specific source or target address
+               for every bridge link created in response to matches to the configured resource matching
+               settings in this policy.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="remote-address-prefix" type="xsd:string" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               Optional remote address prefix that can be used when creating bridge sender or receiver links.
+
+               This value overrides the normal default behaviour of the bridging controller which
+               assigns the name of the resource being bridged to the address field of the remote
+               source or target depending on the bridge action.
+
+               This option allows you to prefix the assigned address for every bridge link created in
+               response to matches to the configured resource match settings in this policy.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="remote-address-suffix" type="xsd:string" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               Optional remote address suffix that can be used when creating bridge sender or receiver links.
+
+               This value overrides the normal default behaviour of the bridging controller which assigns
+               the name of the address being bridged to the address field of the remote source or target
+               depending on the bridge action.
+
+               This option allows you to suffix the assigned address for every bridge link created in response
+               to matches to the configured resource match settings in this policy.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="remote-terminus-capabilities" type="xsd:string" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               Optional remote terminus capabilities that can be used when creating bridge sender or receiver
+               links (set as a comma delimited string).
+
+               This option sets a collection of source or target capabilities that will be added to the remote
+               source or target depending on the bridging action. When bridging from an resource these capabilities
+               are added to the source capabilities of the receiver link, and when bridging to a resource these
+               capabilities are set on the sender link target capabilities.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
+
+   <xsd:complexType name="amqpBridgeAddressType">
+      <xsd:complexContent>
+         <xsd:extension base="amqpBridgedResourceType">
+            <xsd:sequence>
+               <xsd:element name="include" type="addressMatchType" minOccurs="0" maxOccurs="unbounded"/>
+               <xsd:element name="exclude" type="addressMatchType" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="enable-divert-bindings" type="xsd:boolean" use="optional">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     Should the policy include divert bindings in the checks that control if a remote link
+                     is created to bridge from an address. This option is ignored for bridge to configurations.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:attribute>
+         </xsd:extension>
+      </xsd:complexContent>
+   </xsd:complexType>
+
+   <xsd:complexType name="amqpBridgeQueueType">
+      <xsd:complexContent>
+         <xsd:extension base="amqpBridgedResourceType">
+            <xsd:sequence>
+               <xsd:element name="include" type="queueMatchType" minOccurs="0" maxOccurs="unbounded"/>
+               <xsd:element name="exclude" type="queueMatchType" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="priority-adjustment" type="xsd:int" use="optional">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     A configured priority adjustment value which if set is applied either to the receiver or sender
+                     side of the bridge policy. When bridging from a remote resource this value will be used to compute
+                     a priority value that is added to the receiver link properties and if supported will influence the
+                     priority assigned on the remote. When bridging to a remote resource this value is used to compute
+                     a priority value based on the default server priority which is assigned to the local consumer
+                     subscribed to the local resource.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:attribute>
+         </xsd:extension>
+      </xsd:complexContent>
    </xsd:complexType>
 
    <xsd:complexType name="cluster-connectionUriType">

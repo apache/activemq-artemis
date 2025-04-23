@@ -259,7 +259,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             sender.close();
             controller.close(condition);
             try {
-               sessionSPI.closeSender(brokerConsumer);
+               if (brokerConsumer != null) {
+                  sessionSPI.closeSender(brokerConsumer);
+               }
             } catch (Exception e) {
                logger.warn(e.getMessage(), e);
             } finally {
@@ -282,7 +284,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          connection.runLater(() -> {
             try {
                protonSession.removeSender(sender);
-               sessionSPI.closeSender(brokerConsumer);
+               if (brokerConsumer != null) {
+                  sessionSPI.closeSender(brokerConsumer);
+               }
                // if this is a link close rather than a connection close or detach, we need to delete
                // any durable resources for say pub subs
                controller.close(remoteLinkClose);
