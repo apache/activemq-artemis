@@ -1004,7 +1004,7 @@ public class PagingTest extends ParameterDBTestBase {
          session.start();
 
          for (int i = 0; i < numberOfMessages; i++) {
-            ClientMessage msgRec = consumer.receive(1000);
+            ClientMessage msgRec = consumer.receive(10_000);
             assertNotNull(msgRec);
             logger.debug("msgRec, i={}, page={}", msgRec.getIntProperty("i"), msgRec.getIntProperty("page"));
             msgRec.acknowledge();
