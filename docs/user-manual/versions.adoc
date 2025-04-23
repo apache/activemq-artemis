@@ -19,9 +19,11 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 === Highlights
 
 * xref:amqp-broker-connections.adoc#bridges[AMQP Broker Connections Advanced Bridges]
-* The embedded web server now supports HTTP/2
-* Bug Fixes and Component Upgrades
-** Paging been through an extensive cycle of testing and improvements on this release
+* HTTP/2 support for the embedded web server
+* New data available via management for queues, addresses, and core bridges
+* Performance improvements when removing queues, especially in queue-heavy use-cases
+* A handful of paging improvements including additional tests
+* Several dependency upgrades
 
 == 2.40.0
 
