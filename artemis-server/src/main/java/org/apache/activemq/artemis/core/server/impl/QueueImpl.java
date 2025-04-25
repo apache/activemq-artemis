@@ -141,9 +141,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    protected static final int CRITICAL_CONSUMER = 3;
    protected static final int CRITICAL_CHECK_DEPAGE = 4;
 
-   // The prefix for Mirror SNF Queues
-   public static final String MIRROR_ADDRESS = "$ACTIVEMQ_ARTEMIS_MIRROR";
-
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private static final AtomicIntegerFieldUpdater<QueueImpl> dispatchingUpdater = AtomicIntegerFieldUpdater.newUpdater(QueueImpl.class, "dispatching");
    private static final AtomicLongFieldUpdater<QueueImpl> dispatchStartTimeUpdater = AtomicLongFieldUpdater.newUpdater(QueueImpl.class, "dispatchStartTime");
@@ -389,6 +386,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this.createdTimestamp = System.currentTimeMillis();
 
       this.queueConfiguration = QueueConfiguration.of(queueConfiguration);
+
+      this.mirrorController = queueConfiguration.isMirrorQueue();
+
       QueueConfigurationUtils.applyStaticDefaults(this.queueConfiguration);
 
       this.refCountForConsumers = this.queueConfiguration.isTransient() ? new TransientQueueManagerImpl(server, this.queueConfiguration.getName()) : new QueueManagerImpl(server, this.queueConfiguration.getName());
@@ -747,10 +747,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
       }
       if (pagingStore != null) {
-         if (owner != null && pagingStore != owner) {
-            // If an AMQP message parses its properties, its size might be updated and the address will receive more bytes.
-            // However, in this case, we should always use the original estimate.
-            // Otherwise, we might get incorrect sizes after the update.
+         if (isMirrorController() && owner != null && pagingStore != owner) {
+            // When using mirror in this situation, it means the address belong to another queue
+            // it's acting as if the message is being copied
             pagingStore.addSize(messageReference.getMessage().getOriginalEstimate(), false, false);
          }
 
@@ -766,10 +765,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          owner.addSize(-messageReference.getMessageMemoryEstimate(), false);
       }
       if (pagingStore != null) {
-         if (owner != null && pagingStore != owner) {
-            // If an AMQP message parses its properties, its size might be updated and the address will receive more bytes.
-            // However, in this case, we should always use the original estimate.
-            // Otherwise, we might get incorrect sizes after the update.
+         if (isMirrorController() && owner != null && pagingStore != owner) {
+            // When using mirror in this situation, it means the address belong to another queue
+            // it's acting as if the message is being copied
             pagingStore.addSize(-messageReference.getMessage().getOriginalEstimate(), false, false);
          }
          pagingStore.refDown(messageReference.getMessage(), count);
@@ -2291,7 +2289,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          return true;
       }
 
-      if (isInternalQueue() && queueConfiguration.getName().toString().startsWith(MIRROR_ADDRESS)) {
+      if (isMirrorController()) {
          logger.trace("Mirror SNF queues are not supposed to expire messages. Address={}, Queue={}", queueConfiguration.getAddress(), queueConfiguration.getName());
          return true;
       }
