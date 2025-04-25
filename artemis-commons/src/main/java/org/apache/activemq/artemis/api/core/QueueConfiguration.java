@@ -43,6 +43,9 @@ import org.apache.activemq.artemis.utils.JsonLoader;
  */
 public class QueueConfiguration implements Serializable {
 
+   // The prefix for Mirror SNF Queues
+   public static final String MIRROR_ADDRESS = "$ACTIVEMQ_ARTEMIS_MIRROR";
+
    private static final long serialVersionUID = 2601016432150225938L;
 
    public static final String ID = "id";
@@ -914,6 +917,10 @@ public class QueueConfiguration implements Serializable {
          return false;
 
       return true;
+   }
+
+   public boolean isMirrorQueue() {
+      return isInternal() && name != null && name.toString().startsWith(MIRROR_ADDRESS);
    }
 
    @Override

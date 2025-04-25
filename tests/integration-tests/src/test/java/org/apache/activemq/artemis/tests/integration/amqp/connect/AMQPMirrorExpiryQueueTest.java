@@ -33,7 +33,6 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirror
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
@@ -93,7 +92,7 @@ public class AMQPMirrorExpiryQueueTest extends ActiveMQTestBase {
 
       serverA.createQueue(QueueConfiguration.of(queueName).setName(queueName).setRoutingType(RoutingType.ANYCAST));
       Queue expiryA = serverA.createQueue(QueueConfiguration.of(EXPIRY_QUEUE).setName(EXPIRY_QUEUE).setRoutingType(RoutingType.ANYCAST));
-      Queue snfQueue = serverA.locateQueue(QueueImpl.MIRROR_ADDRESS + "_" + getTestMethodName() + "_willNeverConnect");
+      Queue snfQueue = serverA.locateQueue(QueueConfiguration.MIRROR_ADDRESS + "_" + getTestMethodName() + "_willNeverConnect");
       assertNotNull(snfQueue);
       assertNotNull(expiryA);
 
