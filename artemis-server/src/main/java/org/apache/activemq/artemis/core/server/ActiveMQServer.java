@@ -942,6 +942,8 @@ public interface ActiveMQServer extends ServiceComponent {
     */
    void addExternalComponent(ActiveMQComponent externalComponent, boolean start) throws Exception;
 
+   void removeExternalComponent(ActiveMQComponent externalComponent);
+
    List<ActiveMQComponent> getExternalComponents();
 
    boolean addClientConnection(String clientId, boolean unique);

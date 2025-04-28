@@ -1010,6 +1010,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   public void removeExternalComponent(ActiveMQComponent externalComponent) {
+      synchronized (externalComponents) {
+         externalComponents.remove(externalComponent);
+      }
+   }
+
+   @Override
    public ExecutorService getThreadPool() {
       return threadPool;
    }
