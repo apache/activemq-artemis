@@ -36,9 +36,13 @@ public class AckManagerProvider {
    }
 
    public static void remove(ActiveMQServer server) {
-      logger.debug("Removing {}", server);
+      AckManager ackManager = null;
       synchronized (managerHashMap) {
-         managerHashMap.remove(server);
+         ackManager = managerHashMap.remove(server);
+      }
+      logger.debug("Removed entry for {}: {}", server, ackManager);
+      if (ackManager != null) {
+         server.removeExternalComponent(ackManager);
       }
    }
 
