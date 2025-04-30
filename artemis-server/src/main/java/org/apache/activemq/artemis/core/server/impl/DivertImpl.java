@@ -16,11 +16,14 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.Divert;
@@ -28,7 +31,6 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * A DivertImpl simply diverts a message to a different forwardAddress
@@ -142,7 +144,7 @@ public class DivertImpl implements Divert {
             }
 
             if (transformer != null) {
-               copy = transformer.transform(copy);
+               copy = LargeServerMessageImpl.checkLargeMessage(transformer.transform(copy), this.storageManager);
             }
 
             // We call reencode at the end only, in a single call.
