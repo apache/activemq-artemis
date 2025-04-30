@@ -16,12 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.divert;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -33,6 +27,8 @@ import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -49,28 +45,40 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
+import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.Divert;
+import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.QueueManagerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
+import org.apache.activemq.artemis.core.server.transformer.AddHeadersTransformer;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class DivertTest extends ActiveMQTestBase {
 
@@ -1777,6 +1785,61 @@ public class DivertTest extends ActiveMQTestBase {
       message.acknowledge();
       assertEquals("testAddress" + COUNT, message.getAddress());
       assertEquals("testAddress" + (COUNT - 1), message.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
+   }
+
+   @Test
+   public void testTransformedToLarge() throws Exception {
+      final String address = "address";
+      final SimpleString queue = SimpleString.of("queue");
+      final String forwardingAddress = "forwardingAddress";
+      final SimpleString forwardingQueue = SimpleString.of("forwardingQueue");
+      final int journalBufferSize = 1024;
+      final int headerCount = 5;
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setJournalBufferSize_NIO(journalBufferSize).setJournalType(JournalType.NIO), true));
+      server.start();
+
+      // configure the transformer to add headers to increase the size of the message past the journal buffer size
+      Map<String, String> headers = new HashMap<>();
+      for (int i = 0; i < headerCount; i++) {
+         headers.put(RandomUtil.randomAlphaNumericString(32), RandomUtil.randomAlphaNumericString(32));
+      }
+      TransformerConfiguration transformerConfiguration = new TransformerConfiguration();
+      transformerConfiguration.setClassName(AddHeadersTransformer.class.getName());
+      transformerConfiguration.setProperties(headers);
+
+      server.createQueue(QueueConfiguration.of(queue).setAddress(address).setRoutingType(RoutingType.ANYCAST));
+      server.createQueue(QueueConfiguration.of(forwardingQueue).setAddress(forwardingAddress).setRoutingType(RoutingType.ANYCAST));
+      server.deployDivert(new DivertConfiguration()
+                             .setName("divert")
+                             .setAddress(address)
+                             .setForwardingAddress(forwardingAddress)
+                             .setTransformerConfiguration(transformerConfiguration));
+
+      ServerLocator locator = createInVMNonHALocator();
+      locator.setMinLargeMessageSize(Integer.MAX_VALUE);
+      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(false, true, true);
+      session.start();
+
+      ClientProducer producer = session.createProducer(SimpleString.of(address));
+      ClientConsumer consumer = session.createConsumer(queue);
+      ClientConsumer divertedConsumer = session.createConsumer(forwardingQueue);
+      ClientMessage message = session.createMessage(true);
+      message.getBodyBuffer().writeBytes(RandomUtil.randomBytes(journalBufferSize / 4));
+      producer.send(message);
+
+      // ensure the non-diverted message is not turned into a large message
+      message = consumer.receive(DivertTest.TIMEOUT);
+      assertNotNull(message);
+      message.acknowledge();
+      assertFalse(message instanceof ClientLargeMessageImpl);
+
+      // ensure the diverted message is turned into a large message
+      message = divertedConsumer.receive(DivertTest.TIMEOUT);
+      assertNotNull(message);
+      message.acknowledge();
+      assertTrue(message instanceof ClientLargeMessageImpl);
    }
 
    @Test
