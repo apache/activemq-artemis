@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.tests.leak;
 import io.github.checkleak.core.CheckLeak;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.Test;
@@ -43,5 +45,13 @@ public class AckManagerLeakTest extends ActiveMQTestBase {
       MemoryAssertions.assertMemory(checkLeak, 0, AckManager.class.getName());
       assertEquals(0, server.getExternalComponents().size());
       MemoryAssertions.basicMemoryAsserts();
+
+      server = null;
+
+      clearServers();
+
+      ServerStatus.clear();
+
+      MemoryAssertions.assertMemory(checkLeak, 0, ActiveMQServerImpl.class.getName());
    }
 }
