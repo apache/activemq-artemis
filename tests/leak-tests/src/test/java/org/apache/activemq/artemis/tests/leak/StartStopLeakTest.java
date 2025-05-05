@@ -44,7 +44,7 @@ public class StartStopLeakTest extends ActiveMQTestBase {
    }
 
    // Creating a sub method to facilitate clearing references towards ActiveMQServerImpl
-   private CheckLeak internalTest(CheckLeak checkLeak) throws Exception {
+   private void internalTest(CheckLeak checkLeak) throws Exception {
       assertNull(ServerStatus.getServer(), () -> "A previous test left a server hanging on ServerStatus -> " + ServerStatus.getServer());
 
       ActiveMQServer server = createServer(false, true);
@@ -64,7 +64,5 @@ public class StartStopLeakTest extends ActiveMQTestBase {
       MemoryAssertions.assertMemory(checkLeak, 0, AckManager.class.getName());
       assertEquals(0, server.getExternalComponents().size());
       MemoryAssertions.basicMemoryAsserts();
-
-      return checkLeak;
    }
 }
