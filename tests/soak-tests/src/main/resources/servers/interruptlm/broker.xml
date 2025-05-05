@@ -200,7 +200,7 @@ under the License.
             <max-size-bytes>-1</max-size-bytes>
 
             <!-- limit for the address in messages, -1 means unlimited -->
-            <max-size-messages>300</max-size-messages>
+            <max-size-messages>-1</max-size-messages>
 
             <!-- the size of each file on paging. Notice we keep files in memory while they are in use.
                  Lower this setting if you have too many queues in memory. -->
@@ -219,6 +219,9 @@ under the License.
             <auto-delete-queues>false</auto-delete-queues>
             <auto-delete-addresses>false</auto-delete-addresses>
          </address-setting>
+         <address-setting match="LargeMessageInterruptTestPaged">
+            <max-size-messages>1</max-size-messages>
+         </address-setting>
       </address-settings>
 
       <addresses>
@@ -235,6 +238,11 @@ under the License.
          <address name="LargeMessageInterruptTest">
             <anycast>
                <queue name="LargeMessageInterruptTest" />
+            </anycast>
+         </address>
+         <address name="LargeMessageInterruptTestPaged">
+            <anycast>
+               <queue name="LargeMessageInterruptTestPaged" />
             </anycast>
          </address>
 
