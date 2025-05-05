@@ -516,7 +516,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       this.serviceRegistry = serviceRegistry == null ? new ServiceRegistryImpl() : serviceRegistry;
 
-      this.serverStatus = ServerStatus.getInstanceFor(this);
+      this.serverStatus = ServerStatus.starting(this);
    }
 
    public class AddressSettingsMatchModifier implements HierarchicalObjectRepository.MatchModifier {
@@ -1269,6 +1269,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             return;
          }
          state = SERVER_STATE.STOPPING;
+
+         ServerStatus.stopping(this);
 
          callPreDeActiveCallbacks();
 
@@ -3294,6 +3296,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    synchronized boolean initialisePart1(boolean scalingDown) throws Exception {
       if (state == SERVER_STATE.STOPPED)
          return false;
+
+
+      ServerStatus.starting(this);
 
       if (configuration.getJournalType() == JournalType.ASYNCIO) {
          if (!AIOSequentialFileFactory.isSupported()) {

@@ -39,12 +39,22 @@ public class ServerStatus {
       instance.immutableStateValues.clear();
    }
 
-   public static synchronized ServerStatus getInstanceFor(ActiveMQServerImpl activeMQServer) {
+   public static void stopping(ActiveMQServerImpl serverStopping) {
+      if (instance.server == serverStopping) {
+         clear();
+      }
+   }
+
+   public static synchronized ServerStatus starting(ActiveMQServerImpl activeMQServer) {
       if (instance.server == null) {
          instance.server = activeMQServer;
          instance.immutableStateValues.put("version", instance.server.getVersion().getFullVersion());
       }
       return instance;
+   }
+
+   public static ActiveMQServerImpl getServer() {
+      return instance.server;
    }
 
    public static synchronized ServerStatus getInstance() {

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.security.jaas;
 
 import static org.apache.activemq.artemis.core.server.impl.ServerStatus.JAAS_COMPONENT;
 import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader.LOGIN_CONFIG_SYS_PROP_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.security.auth.Subject;
@@ -39,8 +40,9 @@ public class StatusTest extends ServerTestBase {
    private String existingPath = null;
 
    @BeforeEach
-   public void trackSystemProp() throws Exception {
+   public void prepareTest() throws Exception {
       existingPath = System.getProperty(LOGIN_CONFIG_SYS_PROP_NAME);
+      ServerStatus.clear();
    }
 
    @AfterEach
@@ -93,7 +95,7 @@ public class StatusTest extends ServerTestBase {
       final String BIRD = "later";
 
       ActiveMQServerImpl server = new ActiveMQServerImpl();
-      ServerStatus.getInstanceFor(server);
+      assertEquals(server, ServerStatus.getServer());
 
       ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + EARLY_BIRD,  "{\"reloadTime\":\"2\"}");
       assertTrue(ServerStatus.getInstance().asJson().contains(EARLY_BIRD), "contains");
@@ -115,7 +117,7 @@ public class StatusTest extends ServerTestBase {
       ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + BIRD,  "{\"reloadTime\":\"2\"}");
 
       ActiveMQServerImpl server = new ActiveMQServerImpl();
-      ServerStatus.getInstanceFor(server);
+      assertEquals(server, ServerStatus.getServer());
 
       assertTrue(ServerStatus.getInstance().asJson().contains(EARLY_BIRD), "contains");
       assertTrue(ServerStatus.getInstance().asJson().contains(BIRD), "contains");
