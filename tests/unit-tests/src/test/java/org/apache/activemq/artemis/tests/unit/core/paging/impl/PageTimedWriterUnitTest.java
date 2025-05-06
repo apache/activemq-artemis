@@ -93,6 +93,7 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
 
    private static final SimpleString ADDRESS = SimpleString.of("someAddress");
 
+   AtomicInteger outOfContextWrite = new AtomicInteger(0);
    ScheduledExecutorService scheduledExecutorService;
    ExecutorService executorService;
    OrderedExecutorFactory executorFactory;
@@ -189,8 +190,14 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
       return numberOfPreparesMessageJournal.incrementAndGet();
    }
 
+   @AfterEach
+   public void validateWrites() {
+      assertEquals(0, outOfContextWrite.get(), "Wrong executor in use at page writes");
+   }
+
    @BeforeEach
    public void setupMocks() throws Exception {
+      outOfContextWrite.set(0);
       configuration = new ConfigurationImpl();
       configuration.setJournalType(JournalType.NIO);
       scheduledExecutorService = Executors.newScheduledThreadPool(10);
@@ -284,7 +291,8 @@ public class PageTimedWriterUnitTest extends ArtemisTestCase {
             }
 
             if (!pageStore.getExecutor().inHandler()) {
-               logger.warn("WHAT????", new Exception("trace"));
+               logger.warn("directWritePage is not using the correct executor", new Exception("trace"));
+               outOfContextWrite.incrementAndGet();
             }
             super.directWritePage(pagedMessage, lineUp, originalReplicated);
          }
