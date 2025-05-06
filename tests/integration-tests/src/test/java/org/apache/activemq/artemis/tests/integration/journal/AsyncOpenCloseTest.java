@@ -98,8 +98,8 @@ public class AsyncOpenCloseTest extends ActiveMQTestBase {
                      try {
                         if (!valve.await(1, TimeUnit.MILLISECONDS)) {
                            logger.debug("blocking");
-                           blocked.await();
-                           valve.await(10, TimeUnit.SECONDS);
+                           blocked.await(1, TimeUnit.SECONDS);
+                           valve.await(1, TimeUnit.SECONDS);
                            logger.debug("unblocking");
                         }
                      } catch (Exception e) {
