@@ -47,8 +47,9 @@ public class StartStopLeakTest extends ActiveMQTestBase {
    private void internalTest(CheckLeak checkLeak) throws Exception {
       assertNull(ServerStatus.getServer(), () -> "A previous test left a server hanging on ServerStatus -> " + ServerStatus.getServer());
 
-      ActiveMQServer server = createServer(false, true);
       for (int i = 0; i < 5; i++) {
+         clearServers();
+         ActiveMQServer server = createServer(false, true);
          server.start();
          MemoryAssertions.assertMemory(checkLeak, 1, AckManager.class.getName());
 
@@ -58,11 +59,14 @@ public class StartStopLeakTest extends ActiveMQTestBase {
          assertEquals(0, server.getExternalComponents().size());
 
          assertNull(ServerStatus.getServer());
+         MemoryAssertions.assertMemory(checkLeak, 1, PostOfficeImpl.class.getName());
       }
 
-      MemoryAssertions.assertMemory(checkLeak, 1, PostOfficeImpl.class.getName());
-      MemoryAssertions.assertMemory(checkLeak, 0, AckManager.class.getName());
-      assertEquals(0, server.getExternalComponents().size());
       MemoryAssertions.basicMemoryAsserts();
+
+      clearServers();
+
+      MemoryAssertions.assertMemory(checkLeak, 0, PostOfficeImpl.class.getName());
+      MemoryAssertions.assertMemory(checkLeak, 0, AckManager.class.getName());
    }
 }
