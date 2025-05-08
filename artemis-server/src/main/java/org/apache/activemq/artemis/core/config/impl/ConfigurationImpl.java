@@ -730,10 +730,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
                      try {
                         autoFillCollections.removeByNameProperty(propName, targetCollection);
                      } catch (NoSuchMethodException e) {
-                        throw new InvocationTargetException(e, "Can only remove named entries from collections or maps" + name + ", on: " + target);
+                        throw new InvocationTargetException(e, "Can only remove named entries from collections or maps. property: " + name + ", on: " + target);
                      }
                   } else {
-                     throw new InvocationTargetException(null, "Can only remove entries from collections or maps" + name + ", on: " + target);
+                     throw new InvocationTargetException(null, "Can only remove entries from collections or maps. property: " + name + ", on: " + target);
                   }
 
                   logger.trace("removed from target, bean: {}, name: {}", target.getClass(), name);
