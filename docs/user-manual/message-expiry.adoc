@@ -13,7 +13,7 @@ These _expired_ messages can later be consumed for further inspection.
 
 == Core API
 
-Using Apache ActiveMQ Artemis Core API, you can set an expiration time directly on the message:
+Using the Apache ActiveMQ Artemis Core API you can set an expiration time directly on the message:
 
 [,java]
 ----
@@ -21,7 +21,9 @@ Using Apache ActiveMQ Artemis Core API, you can set an expiration time directly 
 message.setExpiration(System.currentTimeMillis() + 5000);
 ----
 
-JMS MessageProducer allows to set a TimeToLive for the messages it sent:
+== JMS API
+
+JMS `MessageProducer` allows setting a time-to-live for the messages it sends:
 
 [,java]
 ----
@@ -29,10 +31,39 @@ JMS MessageProducer allows to set a TimeToLive for the messages it sent:
 producer.setTimeToLive(5000);
 ----
 
+== Expired Message Properties
+
 Expired messages get xref:copied-message-properties.adoc#properties-for-copied-messages[special properties] plus this additional property:
 
 _AMQ_ACTUAL_EXPIRY::
-a Long property containing the _actual expiration time_ of the expired message
+a `Long` property containing the _actual expiration time_ of the expired message
+
+== Configuring Expiry Addresses
+
+Expiry address are defined in the address-setting configuration:
+
+[,xml]
+----
+<!-- expired messages in exampleQueue will be sent to the expiry address expiryQueue -->
+<address-setting match="exampleQueue">
+   <expiry-address>expiryQueue</expiry-address>
+</address-setting>
+----
+
+If messages are expired and no expiry address is specified or explicitly unset (e.g. using `<expiry-address/>`) then messages are simply removed from the queue and dropped.
+Address xref:wildcard-syntax.adoc#wildcard-syntax[wildcards] can be used to configure expiry address for a set of addresses.
+
+If a wildcard is used to configure the expiry address for a set of addresses and you want to _unset_ the expiry address for a particular addess (or set of addresses) then you can do so, e.g.:
+
+[,xml]
+----
+<address-setting match="#">
+   <expiry-address>expiryQueue</expiry-address>
+</address-setting>
+<address-setting match="exampleQueue">
+   <expiry-address/> <!-- unset expiry-address so messages which expire from queues bound to matching addresses are dropped -->
+</address-setting>
+----
 
 == Configuring Expiry Delay
 
@@ -113,32 +144,24 @@ These values are measured in milliseconds. The default for both is `-1` (i.e. di
 Setting a value of `0` for `max-expiry-delay` will cause messages to expire _immediately_.
 ====
 
-== Configuring Expiry Addresses
+== Expiring Expired Messages
 
-Expiry address are defined in the address-setting configuration:
-
-[,xml]
-----
-<!-- expired messages in exampleQueue will be sent to the expiry address expiryQueue -->
-<address-setting match="exampleQueue">
-   <expiry-address>expiryQueue</expiry-address>
-</address-setting>
-----
-
-If messages are expired and no expiry address is specified, messages are simply removed from the queue and dropped.
-Address xref:wildcard-syntax.adoc#wildcard-syntax[wildcards] can be used to configure expiry address for a set of addresses.
-
-If a wildcard is used to configure the expiry address for a set of addresses and you want to _unset_ the expiry address for a particular addess (or set of addresses) then you can do so, e.g.:
+It may be necessary to expire the expired messages themselves.
+Here's an example of how to do that:
 
 [,xml]
 ----
 <address-setting match="#">
    <expiry-address>expiryQueue</expiry-address>
 </address-setting>
-<address-setting match="exampleQueue">
-   <expiry-address/> <!-- unset expiry-address so messages which expire from queues bound to matching addresses are dropped -->
+<address-setting match="expiryQueue">
+   <expiry-address/>
+   <expiry-delay>600000</expiry-delay>
 </address-setting>
 ----
+
+Using this configuration any message which expires will be sent to `expiryQueue`.
+Any of these expired messages which sit in a queue bound to `expiryQueue` will expire after 5 minutes (i.e. `600000` milliseconds) and be dropped since the `expiry-address` is explicitly unset.
 
 == Configuring Automatic Creation of Expiry Resources
 
