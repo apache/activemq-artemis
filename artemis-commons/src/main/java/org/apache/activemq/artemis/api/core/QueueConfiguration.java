@@ -339,6 +339,10 @@ public class QueueConfiguration implements Serializable {
       return address == null ? getName() : address;
    }
 
+   public boolean isAddressNull() {
+      return address == null;
+   }
+
    /**
     * Set the address. If the fully-qualified queue name is used then it will be parsed and the corresponding values for
     * {@code address} and {@code name} will be set automatically. For example if "myAddress::myQueue" is passed then the

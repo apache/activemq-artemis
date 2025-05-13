@@ -91,6 +91,18 @@ public class ConfigurationTest extends ActiveMQTestBase {
 
       config.put("addressConfigurations.mytopic_3.queueConfigs.\"queue.B3\".address", "mytopic_3");
       config.put("addressConfigurations.mytopic_3.queueConfigs.\"queue.B3\".routingType", "MULTICAST");
+
+      config.put("addressConfigurations.myqueue_1.routingTypes", "ANYCAST");
+      config.put("addressConfigurations.myqueue_1.queueConfigs.\"myqueue_1\".routingType", "ANYCAST");
+
+      config.put("addressConfigurations.myqueue_2.routingTypes", "ANYCAST");
+      config.put("addressConfigurations.myqueue_2.queueConfigs.\"queue.Q1\".routingType", "ANYCAST");
+      config.put("addressConfigurations.myqueue_2.queueConfigs.\"queue.Q2\".routingType", "ANYCAST");
+
+      config.put("addressConfigurations.mytopic_4.routingTypes", "MULTICAST");
+      config.put("addressConfigurations.mytopic_4.queueConfigs.\"queue.A4\".routingType", "MULTICAST");
+      config.put("addressConfigurations.mytopic_4.queueConfigs.\"queue.B4\".routingType", "MULTICAST");
+
       config.put("status", "{\"generation\": \"1\"}");
 
       try (FileOutputStream outStream = new FileOutputStream(propsFile)) {
@@ -112,6 +124,14 @@ public class ConfigurationTest extends ActiveMQTestBase {
          Bindings mytopic_3 = server.getPostOffice().getBindingsForAddress(SimpleString.of("mytopic_3"));
          assertEquals(2, mytopic_3.getBindings().size());
 
+         Bindings myqueue_1 = server.getPostOffice().getBindingsForAddress(SimpleString.of("myqueue_1"));
+         assertEquals(1, myqueue_1.getBindings().size());
+
+         Bindings myqueue_2 = server.getPostOffice().getBindingsForAddress(SimpleString.of("myqueue_2"));
+         assertEquals(2, myqueue_2.getBindings().size());
+
+         Bindings mytopic_4 = server.getPostOffice().getBindingsForAddress(SimpleString.of("mytopic_4"));
+         assertEquals(2, mytopic_4.getBindings().size());
 
          // add new binding from props update
          config.put("addressConfigurations.mytopic_3.queueConfigs.\"queue.C3\".address", "mytopic_3");

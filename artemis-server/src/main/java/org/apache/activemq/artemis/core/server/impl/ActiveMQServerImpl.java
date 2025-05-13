@@ -3822,7 +3822,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             }
             addOrUpdateAddressInfo(merged);
 
-            deployQueuesFromListQueueConfiguration(config.getQueueConfigs());
+            deployQueuesFromListQueueConfiguration(config.getQueueConfigs(), address);
 
             //Now all queues updated we apply the actual address info expected tobe.
             addOrUpdateAddressInfo(tobe);
@@ -3842,8 +3842,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return new AddressInfo(address, mergedRoutingTypes);
    }
 
-   private void deployQueuesFromListQueueConfiguration(List<QueueConfiguration> queues) throws Exception {
+   private void deployQueuesFromListQueueConfiguration(List<QueueConfiguration> queues, SimpleString address) throws Exception {
       for (QueueConfiguration config : queues) {
+         // set the address for queue configs from broker properties
+         if (address != null && config.isAddressNull()) {
+            config.setAddress(address);
+         }
+
          try {
             QueueConfigurationUtils.applyDynamicDefaults(config, addressSettingsRepository.getMatch(config.getAddress().toString()));
 
@@ -3873,7 +3878,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    private void deployQueuesFromConfiguration() throws Exception {
-      deployQueuesFromListQueueConfiguration(configuration.getQueueConfigs());
+      deployQueuesFromListQueueConfiguration(configuration.getQueueConfigs(), null);
    }
 
    private void checkForPotentialOOMEInAddressConfiguration() {
@@ -4790,7 +4795,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("addresses");
          undeployAddressesAndQueueNotInConfiguration(configuration);
          deployAddressesFromConfiguration(configuration);
-         deployQueuesFromListQueueConfiguration(configuration.getQueueConfigs());
+         deployQueuesFromListQueueConfiguration(configuration.getQueueConfigs(), null);
 
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("bridges");
 
