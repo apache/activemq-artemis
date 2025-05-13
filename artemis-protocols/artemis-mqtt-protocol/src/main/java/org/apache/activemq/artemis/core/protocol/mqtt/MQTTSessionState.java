@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,7 +41,6 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.settings.impl.Match;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class MQTTSessionState {
 
@@ -450,7 +450,9 @@ public class MQTTSessionState {
 
       private final Object dataStoreLock = new Object();
 
-      private int currentId = 0;
+      private final int INITIAL_ID = 0;
+
+      private int currentId = INITIAL_ID;
 
       private Pair<Long, Long> generateKey(long messageId, long consumerID) {
          return new Pair<>(messageId, consumerID);
@@ -460,13 +462,22 @@ public class MQTTSessionState {
          synchronized (dataStoreLock) {
             Integer id = artemisToMqttMessageMap.get(generateKey(messageId, consumerId));
             if (id == null) {
+               final int start = currentId;
                do {
-                  if (currentId == MQTTUtil.TWO_BYTE_INT_MAX) {
-                     currentId = 0;
+                  // wrap around to the start if we reach the max
+                  if (++currentId > MQTTUtil.TWO_BYTE_INT_MAX) {
+                     currentId = INITIAL_ID;
                   }
-                  ++currentId;
+                  // check to see if we looped all the way back around to where we started
+                  if (start == currentId) {
+                     // this detects an edge case where the same ID is acked & then generated again
+                     if (currentId != INITIAL_ID && !mqttToServerIds.containsKey(currentId)) {
+                        break;
+                     }
+                     throw MQTTBundle.BUNDLE.unableToGenerateID();
+                  }
                }
-               while (mqttToServerIds.containsKey(currentId));
+               while (mqttToServerIds.containsKey(currentId) || currentId == INITIAL_ID);
                id = currentId;
             }
             return id;
@@ -515,7 +526,7 @@ public class MQTTSessionState {
          synchronized (dataStoreLock) {
             artemisToMqttMessageMap.clear();
             mqttToServerIds.clear();
-            currentId = 0;
+            currentId = INITIAL_ID;
          }
       }
    }
