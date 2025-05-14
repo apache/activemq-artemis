@@ -211,6 +211,7 @@ public class AMQPBridgeSupport {
       final AMQPBridgeAddressPolicy policy = new AMQPBridgeAddressPolicy(
          element.getName(),
          element.isIncludeDivertBindings(),
+         element.isUseDurableSubscriptions(),
          element.getPriority(),
          element.getFilter(),
          element.getRemoteAddress(),

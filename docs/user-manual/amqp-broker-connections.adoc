@@ -582,7 +582,7 @@ An example of AMQP address and queue bridge from configurations are shown below.
 <broker-connections>
   <amqp-connection uri="tcp://HOST:PORT" name="bridge-example">
     <bridge name="example-bridge">
-       <bridge-from-address name="example-bridge-from-address-policy">
+       <bridge-from-address name="example-bridge-from-address-policy" priority="-2">
          <include address-match="local-address.#" />
          <exclude address-match="local-address.excluded" />
        </bridge-from-address>
@@ -594,12 +594,10 @@ An example of AMQP address and queue bridge from configurations are shown below.
 </broker-connections>
 ----
 
+The set of common policy attributes for bridge from address and queue policies:
+
 name::
 The name of the policy. These names should be unique within a broker connection's bridge policy elements.
-include::
-The address-match or queue-match pattern to use to match included addresses and queues. Multiple of these can be set but if none is set then no matches would be made.
-exclude::
-The address-match or queue-match pattern to use to match excluded addresses and queues. Multiple of these can be set, or it can be omitted if no excludes are needed.
 priority::
 A configured priority value which if set is applied remote receiver created by this bridge policy, this value is added to the receiver link properties and if supported will influence the priority assigned on the remote.
 priority-adjustment::
@@ -617,6 +615,20 @@ An optional address suffix that is set on the address in the Source configuratio
 remoteTerminusCapabilities::
 Optional set of remote source capabilities that are set on the receiver when bridging an address or queue from the remote peer. The capabilities are configured as a comma delimited list whose default value is `null`.
 
+Policy attributes that apply to AMQP bridge from address policies only:
+
+enable-divert-bindings::
+Instructs the receive from address policy to look at diverts that matching address would forward to and check for demand on those diverts when processing demand on the matched address. By default this option is `false` and diverts are not checked.
+use-durable-subscriptions::
+Instructs the receive from address policy that it should use an JMS over AMQP mapped durable subscription to create the remote receiver which is meant to result in a durable address subscription being created for receivers on addresses that have local demand. By adding a durable subscription the remote will accumulate messages when the broker connection if down and will recover stored messages if the remote server is shutdown and restarted. By default this option is set to `false` to avoid unwanted accumulation of remote messages and if enabled intervention may be needed from remote management to remove old subscriptions or clear space as needed.
+
+Configuration policy elements of which more than one entry per policy is allowed:
+
+include::
+The address-match or queue-match pattern to use to match included addresses and queues. Multiple of these can be set but if none is set then no matches would be made.
+exclude::
+The address-match or queue-match pattern to use to match excluded addresses and queues. Multiple of these can be set, or it can be omitted if no excludes are needed.
+
 === Bridging to remote addresses and queues
 
 Bridging to a remote address or queue involves monitoring for the existence of a local address or queue amd reacting when one is added or removed. When the target address or queue exists the bridge will create a sender on the matching address or queue on the opposing AMQP peer. Because the senders are created on addresses and queues on the opposing peer, the authentication credentials supplied to the broker connection must have sufficient access to the bridged address or queue on the remote peer in order to produce messages to them.
@@ -631,7 +643,7 @@ An example of AMQP address and queue bridge to configurations are shown below.
        <bridge-to-address name="example-bridge-to-address-policy">
          <include address-match="outgoing-address" />
        </bridge-to-address>
-       <bridge-to-queue name="example-bridge-to-queue-policy">
+       <bridge-to-queue name="example-bridge-to-queue-policy" priority="1">
          <include address-match="#" queue-match="outbound-queue" />
          <exclude address-match="#" queue-match="local-queue-excluded" />
        </bridge-to-queue>
@@ -640,12 +652,10 @@ An example of AMQP address and queue bridge to configurations are shown below.
 </broker-connections>
 ----
 
+The set of common policy attributes for bridge to address and queue policies:
+
 name::
 The name of the policy. These names should be unique within a broker connection's bridge policy elements.
-include::
-The address-match or queue-match pattern to use to match included addresses and queues. Multiple of these can be set but if none is set then no matches would be made.
-exclude::
-The address-match or queue-match pattern to use to match excluded addresses and queues. Multiple of these can be set, or it can be omitted if no excludes are needed.
 priority::
 A configured priority value which if set is applied local receiver created by this bridge policy, this value is added to the receiver link properties and if supported will influence the priority assigned on the local server.
 priority-adjustment::
@@ -660,6 +670,18 @@ remoteAddressSuffix::
 An optional address suffix that is set on the address in the Target configuration of the AMQP sender that is bridging messages to the remote peer. The default value is `null` and no suffix is applied to the target address.
 remoteTerminusCapabilities::
 Optional set of remote target capabilities that are set on the sender when bridging an address or queue to the remote peer. The capabilities are configured as a comma delimited list whose default value is `null`.
+
+Policy attributes that apply to AMQP bridge to address policies only:
+
+use-durable-subscriptions::
+Instructs the send to address policy that bindings created on local addresses that match the configured policy includes should create a durable address binding which will be reloaded on server restart and will store messages that were sent to the address while the broker connection is down. The option is `false` by default and a volatile binding is created on the local address that is deleted whenever the broker connection is down so that messages are not retained.
+
+Configuration policy elements of which more than one entry per policy is allowed:
+
+include::
+The address-match or queue-match pattern to use to match included addresses and queues. Multiple of these can be set but if none is set then no matches would be made.
+exclude::
+The address-match or queue-match pattern to use to match excluded addresses and queues. Multiple of these can be set, or it can be omitted if no excludes are needed.
 
 === Examples
 

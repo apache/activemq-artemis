@@ -736,6 +736,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy2.includes.m4.addressMatch", "y");
       insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy2.excludes.m5.addressMatch", "z");
       insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy2.includeDivertBindings", "true");
+      insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy2.useDurableSubscriptions", "true");
       insertionOrderedProperties.put("AMQPConnections.target.bridges.abc." + policyType + ".policy2.properties.a", "b");
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
@@ -785,6 +786,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals(7, addressPolicy1.getPriority());
       assertTrue(addressPolicy1.getProperties().isEmpty());
       assertFalse(addressPolicy1.isIncludeDivertBindings());
+      assertFalse(addressPolicy1.isUseDurableSubscriptions());
 
       addressPolicy1.getIncludes().forEach(match -> {
          if (match.getName().equals("m1")) {
@@ -801,6 +803,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertNotNull(addressPolicy2);
       assertFalse(addressPolicy2.getProperties().isEmpty());
       assertTrue(addressPolicy2.isIncludeDivertBindings());
+      assertTrue(addressPolicy2.isUseDurableSubscriptions());
       assertEquals("b", addressPolicy2.getProperties().get("a"));
 
       addressPolicy2.getIncludes().forEach(match -> {

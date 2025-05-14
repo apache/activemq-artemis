@@ -71,6 +71,11 @@ public class AMQPBridgeFromAddressReceiver extends AMQPBridgeReceiver {
    }
 
    @Override
+   public final AMQPBridgeAddressPolicy getPolicy() {
+      return (AMQPBridgeAddressPolicy) policy;
+   }
+
+   @Override
    public int getReceiverIdleTimeout() {
       return configuration.getAddressReceiverIdleTimeout();
    }
@@ -78,18 +83,24 @@ public class AMQPBridgeFromAddressReceiver extends AMQPBridgeReceiver {
    @Override
    protected void doCreateReceiver() {
       try {
-         final Receiver protonReceiver = session.getSession().receiver(generateLinkName());
+         final Receiver protonReceiver = session.getSession().receiver(generateLinkName(getPolicy()));
          final Target target = new Target();
          final Source source = new Source();
-         final String address = receiverInfo.getRemoteAddress();
          final String filterString = receiverInfo.getFilterString();
 
+         source.setAddress(receiverInfo.getRemoteAddress());
          source.setOutcomes(Arrays.copyOf(OUTCOMES, OUTCOMES.length));
          source.setDefaultOutcome(DEFAULT_OUTCOME);
-         source.setDurable(TerminusDurability.NONE);
-         source.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
-         source.setAddress(address);
          source.setCapabilities(getRemoteTerminusCapabilities());
+
+         if (getPolicy().isUseDurableSubscriptions()) {
+            source.setDurable(TerminusDurability.UNSETTLED_STATE);
+            source.setExpiryPolicy(TerminusExpiryPolicy.NEVER);
+            source.setDistributionMode(AmqpSupport.COPY);
+         } else {
+            source.setDurable(TerminusDurability.NONE);
+            source.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
+         }
 
          if (filterString != null && !filterString.isBlank()) {
             final AmqpJmsSelectorFilter jmsFilter = new AmqpJmsSelectorFilter(filterString);
@@ -180,12 +191,20 @@ public class AMQPBridgeFromAddressReceiver extends AMQPBridgeReceiver {
       connection.flush();
    }
 
-   private String generateLinkName() {
-      return "amqp-bridge-" + bridgeManager.getName() +
-             "-policy-" + policy.getPolicyName() +
-             "-address-receiver-" + receiverInfo.getRemoteAddress() +
-             "-" + bridgeManager.getServer().getNodeID() +
-             "-" + LINK_SEQUENCE_ID.incrementAndGet();
+   private String generateLinkName(AMQPBridgeAddressPolicy policy) {
+      if (policy.isUseDurableSubscriptions()) {
+         // Omit the sequence ID to create a stable durable subscription name for reconnects.
+         return "amqp-bridge-" + bridgeManager.getName() +
+                "-policy-" + policy.getPolicyName() +
+                "-address-receiver-" + receiverInfo.getRemoteAddress() +
+                "-" + bridgeManager.getServer().getNodeID();
+      } else {
+         return "amqp-bridge-" + bridgeManager.getName() +
+                "-policy-" + policy.getPolicyName() +
+                "-address-receiver-" + receiverInfo.getRemoteAddress() +
+                "-" + bridgeManager.getServer().getNodeID() +
+                "-" + LINK_SEQUENCE_ID.incrementAndGet();
+      }
    }
 
    /**
