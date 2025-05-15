@@ -52,7 +52,7 @@ There must be at least three HA pairs to establish a proper quorum with quorum v
 
 === Voting Mechanics
 
-When the replication connection between a primary and backup is lost the backup and/or the primary may initiate a vote.
+When the replication connection between an active broker and a passive broker is lost the passive and/or the active broker may initiate a vote.
 
 [IMPORTANT]
 ====
@@ -61,18 +61,18 @@ For example, in a 3 node cluster a vote will pass with 2 affirmatives.
 For a 4 node cluster this would be 3 affirmatives and so on.
 ====
 
-==== Backup Voting
+==== Passive Voting
 
-If a backup loses its replication connection to its primary it will initiate a quorum vote in order to decide whether to activate or not.
-It will keep voting until it either receives a vote allowing it to start or it detects that the primary is still active.
-In the latter case it will then restart as a backup.
+If a passive broker loses its replication connection to the active broker it will initiate a quorum vote in order to decide whether to activate or not.
+It will keep voting until it either receives a vote allowing it to start or it detects that the previously connected broker is still active.
+In the latter case it will then restart as passive.
 
 See the section on xref:ha.adoc#replication-configuration[Replication Configuration] for more details on configuration.
 
-==== Primary Voting
+==== Active Voting
 
-By default, if the primary server loses its replication connection to the backup then it will just carry on and wait for a backup to reconnect and start replicating again.
-However, this may mean that the primary remains active even though the backup has activated so this behavior is configurable via the `vote-on-replication-failure` property.
+By default, if the active broker loses its replication connection to the passive broker then it will just carry on and wait for a passive to reconnect and start replicating again.
+However, this may mean that it remains active even though the passive broker has activated so this behavior is configurable via the `vote-on-replication-failure` property.
 
 See the section on xref:ha.adoc#replication-configuration[Replication Configuration] for more details on configuration.
 
