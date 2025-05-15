@@ -107,7 +107,7 @@ public class MQTTSessionCallback implements SessionCallback {
        *
        * Therefore, enforce flow-control based on the number of pending QoS 1 & 2 messages
        */
-      if (ref != null && ref.isDurable() == true && connection.getReceiveMaximum() != -1 && session.getState().getOutboundStore().getPendingMessages() >= connection.getReceiveMaximum()) {
+      if (ref != null && ref.isDurable() == true && connection.getReceiveMaximum() != -1 && session.getState().getOutboundStore().getSendQuota() >= connection.getReceiveMaximum()) {
          return false;
       } else {
          return true;
