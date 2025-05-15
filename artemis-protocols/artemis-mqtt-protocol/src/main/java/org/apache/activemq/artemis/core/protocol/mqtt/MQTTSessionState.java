@@ -454,6 +454,9 @@ public class MQTTSessionState {
 
       private int currentId = INITIAL_ID;
 
+      // track send quota independently because it's reset when the client disconnects, but other state must remain in tact
+      private int sendQuota = 0;
+
       private Pair<Long, Long> generateKey(long messageId, long consumerID) {
          return new Pair<>(messageId, consumerID);
       }
@@ -489,6 +492,7 @@ public class MQTTSessionState {
             Pair<Long, Long> key = generateKey(messageId, consumerId);
             artemisToMqttMessageMap.put(key, mqtt);
             mqttToServerIds.put(mqtt, key);
+            sendQuota++;
          }
       }
 
@@ -496,6 +500,7 @@ public class MQTTSessionState {
          synchronized (dataStoreLock) {
             Pair<Long, Long> p = mqttToServerIds.remove(mqtt);
             if (p != null) {
+               sendQuota--;
                artemisToMqttMessageMap.remove(p);
             }
             return p;
@@ -509,6 +514,7 @@ public class MQTTSessionState {
       public void publishReleasedSent(int mqttId, long serverMessageId) {
          synchronized (dataStoreLock) {
             mqttToServerIds.put(mqttId, new Pair<>(serverMessageId, 0L));
+            sendQuota++;
          }
       }
 
@@ -516,17 +522,24 @@ public class MQTTSessionState {
          return publishAckd(mqtt);
       }
 
-      public int getPendingMessages() {
-         synchronized (dataStoreLock) {
-            return mqttToServerIds.size();
-         }
-      }
-
       public void clear() {
          synchronized (dataStoreLock) {
             artemisToMqttMessageMap.clear();
             mqttToServerIds.clear();
             currentId = INITIAL_ID;
+            sendQuota = 0;
+         }
+      }
+
+      public int getSendQuota() {
+         synchronized (dataStoreLock) {
+            return sendQuota;
+         }
+      }
+
+      public void resetSendQuota() {
+         synchronized (dataStoreLock) {
+            sendQuota = 0;
          }
       }
    }
