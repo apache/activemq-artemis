@@ -22,6 +22,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
@@ -30,6 +31,7 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeMetrics.SenderMetrics;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
@@ -140,7 +142,7 @@ public class AMQPBridgeToAddressSender extends AMQPBridgeSender {
                bridgeManager.addLinkClosedInterceptor(senderInfo.getId(), this::remoteLinkClosedInterceptor);
 
                final AMQPBridgeToAddressSenderController senderController =
-                  new AMQPBridgeToAddressSenderController(senderInfo, getPolicyManager(), session, metrics);
+                  new AMQPBridgeToAddressSenderController(senderInfo, configuration, getPolicyManager(), session, metrics);
 
                senderContext = new AMQPBridgeAddressSenderContext(
                   connection, protonSender, session, session.getSessionSPI(), senderController);
@@ -197,8 +199,8 @@ public class AMQPBridgeToAddressSender extends AMQPBridgeSender {
 
       private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-      public AMQPBridgeToAddressSenderController(AMQPBridgeSenderInfo senderInfo, AMQPBridgeToPolicyManager policyManager, AMQPSessionContext session, SenderMetrics metrics) throws ActiveMQAMQPException {
-         super(senderInfo, policyManager, session, metrics);
+      public AMQPBridgeToAddressSenderController(AMQPBridgeSenderInfo senderInfo, AMQPBridgeSenderConfiguration configuration, AMQPBridgeToPolicyManager policyManager, AMQPSessionContext session, SenderMetrics metrics) throws ActiveMQAMQPException {
+         super(senderInfo, configuration, policyManager, session, metrics);
       }
 
       @Override
@@ -221,6 +223,10 @@ public class AMQPBridgeToAddressSender extends AMQPBridgeSender {
       }
 
       private void tryDeleteTemporarySubscriptionQueue() {
+         if (getPolicy().isUseDurableSubscriptions()) {
+            return;
+         }
+
          final AMQPSessionCallback sessionSPI = session.getSessionSPI();
          final SimpleString queueName = SimpleString.of(senderInfo.getLocalQueue());
 
@@ -240,10 +246,10 @@ public class AMQPBridgeToAddressSender extends AMQPBridgeSender {
          final AMQPSessionCallback sessionSPI = session.getSessionSPI();
          final SimpleString address = SimpleString.of(senderInfo.getLocalAddress());
          final SimpleString queue = SimpleString.of(senderInfo.getLocalQueue());
-         final RoutingType defRoutingType = senderInfo.getRoutingType();
+         final RoutingType routingType = senderInfo.getRoutingType();
 
          try {
-            final AddressQueryResult result = sessionSPI.addressQuery(address, defRoutingType, false);
+            final AddressQueryResult result = sessionSPI.addressQuery(address, routingType, false);
 
             // We initiated this link so the settings should refer to an address that definitely exists
             // however there is a chance the address was removed in the interim.
@@ -257,10 +263,42 @@ public class AMQPBridgeToAddressSender extends AMQPBridgeSender {
             throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
          }
 
-         try {
-            sessionSPI.createTemporaryQueue(address, queue, RoutingType.MULTICAST, SimpleString.of(getPolicy().getFilter()), 1, true);
-         } catch (Exception e) {
-            throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
+         if (getPolicy().isUseDurableSubscriptions()) {
+            // Recover or create the queue we use to reflect the messages sent to the address to the remote
+            QueueQueryResult queueQuery = sessionSPI.queueQuery(queue, routingType, false);
+
+            if (!queueQuery.isExists()) {
+               final QueueConfiguration configuration = QueueConfiguration.of(queue);
+
+               configuration.setAddress(address);
+               configuration.setRoutingType(routingType);
+               configuration.setAutoCreateAddress(false);
+               configuration.setMaxConsumers(1);
+               configuration.setPurgeOnNoConsumers(false);
+               configuration.setFilterString(policy.getFilter());
+               configuration.setDurable(true);
+               configuration.setAutoCreated(false);
+               configuration.setAutoDelete(configuration.isAutoDelete());
+               configuration.setAutoDeleteMessageCount(configuration.getAutoDeleteMessageCount());
+               configuration.setAutoDeleteDelay(configuration.getAutoDeleteDelay());
+
+               // Try and create it and then later we will validate fully that it matches our expectations
+               // since we could lose a race with some other resource creating its own resources, although
+               // we should have created a unique queue name that should prevent any overlaps.
+               queueQuery = sessionSPI.queueQuery(configuration, true);
+            }
+
+            if (!queueQuery.getAddress().equals(address))  {
+               throw new ActiveMQAMQPIllegalStateException(
+                  "Requested queue: " + queue + " for bridge to address: " + address +
+                  ", but it is already mapped to a different address: " + queueQuery.getAddress());
+            }
+         } else {
+            try {
+               sessionSPI.createTemporaryQueue(address, queue, routingType, SimpleString.of(getPolicy().getFilter()), 1, true);
+            } catch (Exception e) {
+               throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorCreatingTemporaryQueue(e.getMessage());
+            }
          }
 
          return sessionSPI.createSender(senderContext, queue, null, false, policy.getPriority());

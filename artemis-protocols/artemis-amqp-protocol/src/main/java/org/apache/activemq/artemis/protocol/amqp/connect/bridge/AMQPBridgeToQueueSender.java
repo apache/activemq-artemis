@@ -136,7 +136,7 @@ public class AMQPBridgeToQueueSender extends AMQPBridgeSender {
                bridgeManager.addLinkClosedInterceptor(senderInfo.getId(), this::remoteLinkClosedInterceptor);
 
                final AMQPBridgeToQueueSenderController senderController =
-                  new AMQPBridgeToQueueSenderController(senderInfo, getPolicyManager(), session, metrics);
+                  new AMQPBridgeToQueueSenderController(senderInfo, configuration, getPolicyManager(), session, metrics);
 
                senderContext = new AMQPBridgeQueueSenderContext(
                   connection, protonSender, session, session.getSessionSPI(), senderController);
@@ -194,8 +194,8 @@ public class AMQPBridgeToQueueSender extends AMQPBridgeSender {
 
       private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-      public AMQPBridgeToQueueSenderController(AMQPBridgeSenderInfo senderInfo, AMQPBridgeToPolicyManager policyManager, AMQPSessionContext session, SenderMetrics metrics) throws ActiveMQAMQPException {
-         super(senderInfo, policyManager, session, metrics);
+      public AMQPBridgeToQueueSenderController(AMQPBridgeSenderInfo senderInfo, AMQPBridgeSenderConfiguration configuration, AMQPBridgeToPolicyManager policyManager, AMQPSessionContext session, SenderMetrics metrics) throws ActiveMQAMQPException {
+         super(senderInfo, configuration, policyManager, session, metrics);
       }
 
       @Override

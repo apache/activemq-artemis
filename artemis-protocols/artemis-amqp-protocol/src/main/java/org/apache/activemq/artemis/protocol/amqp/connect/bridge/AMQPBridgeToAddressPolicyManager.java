@@ -117,16 +117,18 @@ public class AMQPBridgeToAddressPolicyManager extends AMQPBridgeToPolicyManager 
       return new AMQPBridgeToAddressSender(this, configuration, session, senderInfo, metrics.newSenderMetrics());
    }
 
-   // NOTE: We currently create a temporary queue for bridge to address senders, which means that if the broker
-   // is shutdown and later restarted and there were messages in the queue to be sent because the sender was not
-   // connected we would lose those messages. We may want to consider a configuration for durable sender queues
-   // but that raises question of future clean as in some cases such as the bridge configuration being removed
-   // and the server started back up, there is nothing to enforce cleanup of that durable queue.
    private String generateTempQueueName(String remoteAddress) {
       return "amqp-bridge-" + bridge.getName() +
              "-policy-" + policyName +
              "-address-sender-to-" + remoteAddress +
              "-" + UUID.randomUUID().toString();
+   }
+
+   private String generateDurableSubscriptionQueueName(String remoteAddress) {
+      return "amqp-bridge-" + bridge.getName() +
+             "-policy-" + policyName +
+             "-address-sender-to-" + remoteAddress +
+             "-" + server.getNodeID();
    }
 
    private AMQPBridgeSenderInfo createSenderInfo(AddressInfo address) {
@@ -148,10 +150,12 @@ public class AMQPBridgeToAddressPolicyManager extends AMQPBridgeToPolicyManager 
       }
 
       final String remoteAddress = remoteAddressBuilder.toString();
+      final String addressBindingName = policy.isUseDurableSubscriptions() ?
+         generateDurableSubscriptionQueueName(remoteAddress) : generateTempQueueName(remoteAddress);
 
       return new AMQPBridgeSenderInfo(Role.ADDRESS_SENDER,
                                       addressName,
-                                      generateTempQueueName(remoteAddress),
+                                      addressBindingName,
                                       address.getRoutingType(),
                                       remoteAddress);
    }

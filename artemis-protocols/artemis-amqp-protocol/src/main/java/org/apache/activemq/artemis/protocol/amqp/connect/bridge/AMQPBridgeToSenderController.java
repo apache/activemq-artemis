@@ -73,6 +73,7 @@ public abstract class AMQPBridgeToSenderController implements SenderController {
    }
 
    protected final AMQPBridgeToPolicyManager policyManager;
+   protected final AMQPBridgeSenderConfiguration configuration;
    protected final AMQPBridgePolicy policy;
    protected final AMQPBridgeSenderInfo senderInfo;
    protected final AMQPSessionContext session;
@@ -90,9 +91,10 @@ public abstract class AMQPBridgeToSenderController implements SenderController {
 
    protected boolean tunnelCoreMessages; // only enabled if remote offers support.
 
-   public AMQPBridgeToSenderController(AMQPBridgeSenderInfo senderInfo, AMQPBridgeToPolicyManager policyManager, AMQPSessionContext session, SenderMetrics metrics) throws ActiveMQAMQPException {
+   public AMQPBridgeToSenderController(AMQPBridgeSenderInfo senderInfo, AMQPBridgeSenderConfiguration configuration, AMQPBridgeToPolicyManager policyManager, AMQPSessionContext session, SenderMetrics metrics) throws ActiveMQAMQPException {
       this.senderInfo = senderInfo;
       this.policyManager = policyManager;
+      this.configuration = configuration;
       this.policy = policyManager.getPolicy();
       this.bridgeManager = policyManager.getBridgeManager();
       this.metrics = metrics;

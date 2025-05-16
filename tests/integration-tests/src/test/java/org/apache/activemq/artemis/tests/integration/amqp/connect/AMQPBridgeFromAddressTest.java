@@ -44,6 +44,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -76,6 +77,9 @@ import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.LinkError;
 import org.apache.qpid.protonj2.test.driver.ProtonTestServer;
 import org.apache.qpid.protonj2.test.driver.codec.messaging.Modified;
+import org.apache.qpid.protonj2.test.driver.codec.messaging.TerminusDurability;
+import org.apache.qpid.protonj2.test.driver.codec.messaging.TerminusExpiryPolicy;
+import org.apache.qpid.protonj2.test.driver.codec.transport.Attach;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -139,6 +143,8 @@ class AMQPBridgeFromAddressTest extends AmqpClientTestSupport {
          peer.expectAttach().ofReceiver()
                             .withTarget().withAddress(getTestName()).also()
                             .withSource().withAddress(getTestName())
+                                         .withDurable(TerminusDurability.NONE)
+                                         .withExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH)
                                          .withDefaultOutcome(deliveryFailed).also()
                             .withName(allOf(containsString(getTestName()),
                                             containsString("address-receiver"),
@@ -3521,6 +3527,117 @@ class AMQPBridgeFromAddressTest extends AmqpClientTestSupport {
 
          server.addAddressInfo(new AddressInfo(SimpleString.of(getTestName()), RoutingType.MULTICAST));
 
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testBridgeCreateJMSStyleDurableSubscriptionWhenConfiguredTo() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPBridgeAddressPolicyElement receiveFromAddress = new AMQPBridgeAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.setUseDurableSubscriptions(true);
+         receiveFromAddress.addToIncludes(getTestName());
+
+         final AMQPBridgeBrokerConnectionElement element = new AMQPBridgeBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addBridgeFromAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final Modified deliveryFailed = new Modified();
+         deliveryFailed.setDeliveryFailed(true);
+
+         final AtomicReference<Attach> capturedAttach1 = new AtomicReference<>();
+
+         peer.expectAttach().ofReceiver()
+                            .withCapture(attach -> capturedAttach1.set(attach))
+                            .withTarget().withAddress(getTestName()).also()
+                            .withSource().withAddress(getTestName())
+                                         .withDurable(TerminusDurability.UNSETTLED_STATE)
+                                         .withExpiryPolicy(TerminusExpiryPolicy.NEVER)
+                                         .withDistributionMode(AmqpSupport.COPY.toString())
+                                         .withDefaultOutcome(deliveryFailed).also()
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString("amqp-bridge"),
+                                            containsString(server.getNodeID().toString())))
+                            .respond();
+         peer.expectFlow().withLinkCredit(1000);
+
+         server.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.MULTICAST)
+                                                                .setAddress(getTestName())
+                                                                .setAutoCreated(false));
+
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of(getTestName())).isExists());
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                          .respond()
+                          .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+         peer.expectDetach().withClosed(true).respond(); // No demand removes subscription (closed = true)
+
+         // Subscription is the link name which should omit any sequence numbering
+         final String subscriptionName = capturedAttach1.get().getName();
+
+         assertNotNull(subscriptionName);
+         assertTrue(subscriptionName.endsWith(server.getNodeID().toString()));
+
+         logger.info("Removing Queues from bridged address to eliminate demand");
+         server.destroyQueue(SimpleString.of(getTestName()));
+         Wait.assertFalse(() -> server.queueQuery(SimpleString.of(getTestName())).isExists());
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final AtomicReference<Attach> capturedAttach2 = new AtomicReference<>();
+
+         peer.expectAttach().ofReceiver()
+                            .withCapture(attach -> capturedAttach2.set(attach))
+                            .withTarget().withAddress(getTestName()).also()
+                            .withSource().withAddress(getTestName())
+                                         .withDurable(TerminusDurability.UNSETTLED_STATE)
+                                         .withExpiryPolicy(TerminusExpiryPolicy.NEVER)
+                                         .withDistributionMode(AmqpSupport.COPY.toString())
+                                         .withDefaultOutcome(deliveryFailed).also()
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString("amqp-bridge"),
+                                            containsString(server.getNodeID().toString())))
+                            .respond();
+         peer.expectFlow().withLinkCredit(1000);
+
+         server.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.MULTICAST)
+                                                                .setAddress(getTestName())
+                                                                .setAutoCreated(false));
+
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of(getTestName())).isExists());
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         // the subscription name (link name) should remain a stable value
+         assertEquals(capturedAttach1.get().getName(), capturedAttach2.get().getName());
+
+         peer.expectClose();
+         peer.remoteClose().now();
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.close();
       }

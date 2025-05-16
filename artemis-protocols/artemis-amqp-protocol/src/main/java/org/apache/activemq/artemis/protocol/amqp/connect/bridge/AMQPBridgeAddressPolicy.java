@@ -44,8 +44,10 @@ public final class AMQPBridgeAddressPolicy extends AMQPBridgePolicy implements B
    private final Collection<String> excludes;
 
    private final boolean includeDivertBindings;
+   private final boolean useDurableSubscriptions;
 
-   public AMQPBridgeAddressPolicy(String policyName, boolean includeDivertBindings,
+   public AMQPBridgeAddressPolicy(String policyName,
+                                  boolean includeDivertBindings, boolean useDurableSubscriptions,
                                   Integer priority, String filter, String remoteAddress,
                                   String remoteAddressPrefix, String remoteAddressSuffix,
                                   Collection<Symbol> remoteTerminusCapabilities,
@@ -58,6 +60,7 @@ public final class AMQPBridgeAddressPolicy extends AMQPBridgePolicy implements B
             remoteTerminusCapabilities, properties, transformerConfig, wildcardConfig);
 
       this.includeDivertBindings = includeDivertBindings;
+      this.useDurableSubscriptions = useDurableSubscriptions;
 
       this.includes = Collections.unmodifiableCollection(includeAddresses == null ? Collections.emptyList() : includeAddresses);
       this.excludes = Collections.unmodifiableCollection(excludeAddresses == null ? Collections.emptyList() : excludeAddresses);
@@ -69,6 +72,10 @@ public final class AMQPBridgeAddressPolicy extends AMQPBridgePolicy implements B
 
    public boolean isIncludeDivertBindings() {
       return includeDivertBindings;
+   }
+
+   public boolean isUseDurableSubscriptions() {
+      return useDurableSubscriptions;
    }
 
    /**

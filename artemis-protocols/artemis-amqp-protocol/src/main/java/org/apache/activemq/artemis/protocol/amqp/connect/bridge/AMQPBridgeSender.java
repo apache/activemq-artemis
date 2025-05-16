@@ -158,6 +158,13 @@ public abstract class AMQPBridgeSender implements Closeable {
    }
 
    /**
+    * {@return the {@link AMQPBridgeSenderConfiguration} that this sender operates under}
+    */
+   public AMQPBridgeSenderConfiguration getConfiguration() {
+      return configuration;
+   }
+
+   /**
     * {@return an information object that defines the characteristics of the {@link AMQPBridgeSender}}
     */
    public final AMQPBridgeSenderInfo getSenderInfo() {

@@ -40,6 +40,7 @@ public final class AMQPBridgeAddressPolicyElement implements Serializable {
    private String remoteAddressSuffix;
    private String[] remoteTerminusCapabilities;
    private boolean includeDivertBindings;
+   private boolean useDurableSubscriptions;
    private Integer priority;
    private String filter;
    private TransformerConfiguration transformerConfig;
@@ -131,6 +132,15 @@ public final class AMQPBridgeAddressPolicyElement implements Serializable {
       return this;
    }
 
+   public boolean isUseDurableSubscriptions() {
+      return useDurableSubscriptions;
+   }
+
+   public AMQPBridgeAddressPolicyElement setUseDurableSubscriptions(boolean useDurableSubscriptions) {
+      this.useDurableSubscriptions = useDurableSubscriptions;
+      return this;
+   }
+
    public AMQPBridgeAddressPolicyElement setTransformerConfiguration(TransformerConfiguration transformerConfig) {
       this.transformerConfig = transformerConfig;
       return this;
@@ -213,6 +223,8 @@ public final class AMQPBridgeAddressPolicyElement implements Serializable {
              Objects.equals(includes, that.includes) &&
              Objects.equals(excludes, that.excludes) &&
              Objects.equals(priority, that.priority) &&
+             Objects.equals(includeDivertBindings, that.includeDivertBindings) &&
+             Objects.equals(useDurableSubscriptions, that.useDurableSubscriptions) &&
              Objects.equals(filter, that.filter) &&
              Objects.equals(remoteAddress, that.remoteAddress) &&
              Objects.equals(remoteAddressPrefix, that.remoteAddressPrefix) &&
@@ -222,7 +234,7 @@ public final class AMQPBridgeAddressPolicyElement implements Serializable {
 
    @Override
    public int hashCode() {
-      return Objects.hash(name, includes, excludes, filter, priority, remoteAddress, remoteAddressPrefix, remoteAddressSuffix) +
+      return Objects.hash(name, includes, excludes, filter, priority, remoteAddress, remoteAddressPrefix, remoteAddressSuffix, includeDivertBindings, useDurableSubscriptions) +
              Arrays.hashCode(remoteTerminusCapabilities);
    }
 
