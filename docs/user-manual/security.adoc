@@ -159,10 +159,10 @@ For example, consider an address with multiple queues:
 ----
 <addresses>
    <address name="foo">
-      <anycast>
+      <multicast>
          <queue name="q1" />
          <queue name="q2" />
-      </anycast>
+      </multicast>
    </address>
 </addresses>
 ----
@@ -180,8 +180,30 @@ You can do this using the fully qualified queue name (i.e. FQQN) in the `match` 
 </security-setting>
 ----
 
-NOTE: Wildcard matching doesn't work in conjunction with FQQN.
+[NOTE]
+====
+You cannot limit the `send` permission using a `security-setting` on the FQQN in conjuction with another on the address as a whole, e.g.:
+[,xml]
+----
+<security-setting match="foo">
+   <permission type="send" roles="fooRole"/>
+</security-setting>
+<security-setting match="foo::q1">
+   <permission type="send" roles="q1Role"/>
+</security-setting>
+<security-setting match="foo::q2">
+   <permission type="send" roles="q2Role"/>
+</security-setting>
+----
+Messages sent to `foo` by users in `fooRole` will be routed to both `q1` and `q2` regardless of if `fooRole` is also in `q1Role` or `q2Role`.
+The `q1Role` and `q2Role` requirement will only be enforced when a user attempts to send a message to the corresponding specific FQQN.
+====
+
+[NOTE]
+====
+Wildcard matching doesn't work in conjunction with FQQN.
 The explicit goal of using FQQN here is to be _exact_.
+====
 
 === Applying `view` and `edit` permissions to the management api
 The `view` and `edit` permissions are optionally applied to the management apis of the broker.
