@@ -31,7 +31,13 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridg
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.RECEIVER_QUIESCE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.IGNORE_QUEUE_FILTERS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.ADDRESS_RECEIVER_IDLE_TIMEOUT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.AUTO_DELETE_DURABLE_SUBSCRIPTION;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.AUTO_DELETE_DURABLE_SUBSCRIPTION_DELAY;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.AUTO_DELETE_DURABLE_SUBSCRIPTION_MSG_COUNT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.DEFAULT_ADDRESS_RECEIVER_IDLE_TIMEOUT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION_DELAY;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION_MSG_COUNT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.DEFAULT_CORE_MESSAGE_TUNNELING_ENABLED;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.DEFAULT_DISABLE_RECEIVER_DEMAND_TRACKING;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.DEFAULT_IGNNORE_QUEUE_CONSUMER_FILTERS;
@@ -312,6 +318,48 @@ public class AMQPBridgeConfiguration {
          return Integer.parseInt((String) property);
       } else {
          return DEFAULT_LINK_RECOVERY_DELAY;
+      }
+   }
+
+   /**
+    * {@return <code>true</code> if bridge is configured to auto delete address senders using durable subscription bindings}
+    */
+   public boolean isAutoDeleteDurableSubscriptions() {
+      final Object property = properties.get(AUTO_DELETE_DURABLE_SUBSCRIPTION);
+      if (property instanceof Boolean) {
+         return (Boolean) property;
+      } else if (property instanceof String) {
+         return Boolean.parseBoolean((String) property);
+      } else {
+         return DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION;
+      }
+   }
+
+   /**
+    * {@return the auto delete subscription message count for address senders using durable bindings}
+    */
+   public long getAutoDeleteDurableSubscriptionMsgCount() {
+      final Object property = properties.get(AUTO_DELETE_DURABLE_SUBSCRIPTION_MSG_COUNT);
+      if (property instanceof Number) {
+         return ((Number) property).intValue();
+      } else if (property instanceof String) {
+         return Integer.parseInt((String) property);
+      } else {
+         return DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION_MSG_COUNT;
+      }
+   }
+
+   /**
+    * {@return the auto delete subscription delay for address senders using durable bindings}
+    */
+   public long getAutoDeleteDurableSubscriptionDelay() {
+      final Object property = properties.get(AUTO_DELETE_DURABLE_SUBSCRIPTION_DELAY);
+      if (property instanceof Number) {
+         return ((Number) property).intValue();
+      } else if (property instanceof String) {
+         return Integer.parseInt((String) property);
+      } else {
+         return DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION_DELAY;
       }
    }
 }

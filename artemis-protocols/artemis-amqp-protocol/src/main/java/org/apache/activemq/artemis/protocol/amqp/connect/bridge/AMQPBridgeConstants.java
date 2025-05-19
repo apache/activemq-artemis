@@ -250,4 +250,39 @@ public final class AMQPBridgeConstants {
     */
    public static final int DEFAULT_QUEUE_RECEIVER_IDLE_TIMEOUT = 60_000;
 
+   /**
+    * Default value for the auto delete address sender durable subscription binding.
+    */
+   public static boolean DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION = false;
+
+   /**
+    * Encodes a boolean value that indicates if AMQP bridge senders should configure an auto delete option
+    * for the durable subscription binding on the configured send to address. By default this option is
+    * <code>false</code> and the senders durable subscription binding is not auto deleted. This value is
+    * only checked if the bridge address sender is configured to use durable address subscriptions.
+    */
+   public static final String AUTO_DELETE_DURABLE_SUBSCRIPTION = "auto-delete-durable-subscription";
+
+   /**
+    * Default value for the auto delete address sender message count for durable subscription bindings.
+    */
+   public static long DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION_MSG_COUNT = 0;
+
+   /**
+    * Encodes a signed long value that controls the delay before auto deletion if using durable address
+    * subscriptions for bridge to address senders.
+    */
+   public static final String AUTO_DELETE_DURABLE_SUBSCRIPTION_MSG_COUNT = "auto-delete-durable-subscription-message-count";
+
+   /**
+    * Default value for the auto delete address sender message count for durable subscription bindings.
+    */
+   public static long DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION_DELAY = 0;
+
+   /**
+    * Encodes a signed long value that controls the message count value that allows for address auto delete
+    * if using durable address subscriptions for bridge to address senders.
+    */
+   public static final String AUTO_DELETE_DURABLE_SUBSCRIPTION_DELAY = "auto-delete-durable-subscription-delay";
+
 }

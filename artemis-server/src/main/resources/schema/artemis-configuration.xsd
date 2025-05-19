@@ -2591,6 +2591,20 @@
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:attribute>
+            <xsd:attribute name="use-durable-subscriptions" type="xsd:boolean" use="optional">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     Should the bridge senders use durable address bindings locally and bridge receivers use an
+                     JMS over AMQP style durable subscription attach on the remote. Using a durable subscription
+                     allows messages to accumulate on the local or remote side whenever the connection is down and
+                     be sent the next time a connection is re-established between the peers. This option is false by
+                     default and enabling it can result in orphaned durable subscription queues depending on if the
+                     configuration is removed or updated while the broker is offline or the connection is down and
+                     other edge cases. Management intervention may be needed to ensure orphaned subscription queues
+                     are removed in a timely manner.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:attribute>
          </xsd:extension>
       </xsd:complexContent>
    </xsd:complexType>
