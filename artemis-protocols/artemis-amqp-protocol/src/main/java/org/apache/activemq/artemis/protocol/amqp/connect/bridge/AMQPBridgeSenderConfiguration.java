@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.bridge;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.AUTO_DELETE_DURABLE_SUBSCRIPTION;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.AUTO_DELETE_DURABLE_SUBSCRIPTION_DELAY;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.AUTO_DELETE_DURABLE_SUBSCRIPTION_MSG_COUNT;
 import java.util.Map;
 
 /**
@@ -29,5 +32,47 @@ public final class AMQPBridgeSenderConfiguration extends AMQPBridgeLinkConfigura
 
    public AMQPBridgeSenderConfiguration(AMQPBridgeConfiguration configuration, Map<String, ?> properties) {
       super(configuration, properties);
+   }
+
+   /**
+    * {@return <code>true</code> if bridge is configured to auto delete address senders using durable subscription bindings}
+    */
+   public boolean isAutoDeleteDurableSubscriptions() {
+      final Object property = properties.get(AUTO_DELETE_DURABLE_SUBSCRIPTION);
+      if (property instanceof Boolean) {
+         return (Boolean) property;
+      } else if (property instanceof String) {
+         return Boolean.parseBoolean((String) property);
+      } else {
+         return configuration.isAutoDeleteDurableSubscriptions();
+      }
+   }
+
+   /**
+    * {@return the auto delete subscription message count for address senders using durable bindings}
+    */
+   public long getAutoDeleteDurableSubscriptionMsgCount() {
+      final Object property = properties.get(AUTO_DELETE_DURABLE_SUBSCRIPTION_MSG_COUNT);
+      if (property instanceof Number) {
+         return ((Number) property).intValue();
+      } else if (property instanceof String) {
+         return Integer.parseInt((String) property);
+      } else {
+         return configuration.getAutoDeleteDurableSubscriptionMsgCount();
+      }
+   }
+
+   /**
+    * {@return the auto delete subscription delay for address senders using durable bindings}
+    */
+   public long getAutoDeleteDurableSubscriptionDelay() {
+      final Object property = properties.get(AUTO_DELETE_DURABLE_SUBSCRIPTION_DELAY);
+      if (property instanceof Number) {
+         return ((Number) property).intValue();
+      } else if (property instanceof String) {
+         return Integer.parseInt((String) property);
+      } else {
+         return configuration.getAutoDeleteDurableSubscriptionDelay();
+      }
    }
 }

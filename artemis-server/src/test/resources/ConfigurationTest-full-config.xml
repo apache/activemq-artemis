@@ -546,7 +546,7 @@
                   <include address-match="test-address" />
                   <exclude address-match="all.#" />
                </bridge-from-address>
-               <bridge-to-address name="bridge-to-address">
+               <bridge-to-address name="bridge-to-address" use-durable-subscriptions="true">
                   <include address-match="test-address" />
                   <exclude address-match="all.#" />
                </bridge-to-address>

@@ -279,6 +279,7 @@ public class ConfigurationValidationTest extends ServerTestBase {
          assertEquals(1, p.getExcludes().size());
          p.getExcludes().forEach(match -> assertEquals("all.#", match.getAddressMatch()));
          assertNull(p.getTransformerConfiguration());
+         assertTrue(p.isUseDurableSubscriptions());
       });
    }
 

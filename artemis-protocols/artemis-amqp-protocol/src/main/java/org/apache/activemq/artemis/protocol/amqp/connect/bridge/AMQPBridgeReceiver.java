@@ -316,7 +316,7 @@ public abstract class AMQPBridgeReceiver implements Closeable {
    /**
     * (@return the policy that this sender was configured to use)
     */
-   public final AMQPBridgePolicy getPolicy() {
+   public AMQPBridgePolicy getPolicy() {
       return policy;
    }
 

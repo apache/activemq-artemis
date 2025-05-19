@@ -2360,6 +2360,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             config.setPriority(Integer.parseInt(item.getNodeValue()));
          } else if (item.getNodeName().equals("enable-divert-bindings")) {
             config.setIncludeDivertBindings(Boolean.parseBoolean(item.getNodeValue()));
+         } else if (item.getNodeName().equals("use-durable-subscriptions")) {
+            config.setUseDurableSubscriptions(Boolean.parseBoolean(item.getNodeValue()));
          } else if (item.getNodeName().equals("remote-address")) {
             config.setRemoteAddress(item.getNodeValue());
          } else if (item.getNodeName().equals("remote-address-prefix")) {

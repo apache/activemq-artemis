@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.AUTO_DELETE_DURABLE_SUBSCRIPTION;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.AUTO_DELETE_DURABLE_SUBSCRIPTION_DELAY;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.AUTO_DELETE_DURABLE_SUBSCRIPTION_MSG_COUNT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.LINK_ATTACH_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.LINK_RECOVERY_DELAY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.LINK_RECOVERY_INITIAL_DELAY;
@@ -30,8 +33,14 @@ import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TUNNE
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
@@ -46,7 +55,9 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBridge
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBridgeBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
@@ -60,7 +71,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Test the AMQP Bridge to address configuration and protocol behaviors
  */
-class AMQPBridgeToAddressTest  extends AmqpClientTestSupport {
+public class AMQPBridgeToAddressTest  extends AmqpClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -1112,5 +1123,208 @@ class AMQPBridgeToAddressTest  extends AmqpClientTestSupport {
 
          peer.close();
       }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testBridgeToAddressDefaultToTemporaryAddressBinding() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPBridgeAddressPolicyElement sendToAddress = new AMQPBridgeAddressPolicyElement();
+         sendToAddress.setName("address-policy");
+         sendToAddress.addToIncludes(getTestName());
+
+         final AMQPBridgeBrokerConnectionElement element = new AMQPBridgeBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addBridgeToAddressPolicy(sendToAddress);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(1);
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender()
+                            .withTarget().withAddress(getTestName()).also()
+                            .withSource().withAddress(getTestName()).also()
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-sender"),
+                                            containsString("amqp-bridge"),
+                                            containsString(server.getNodeID().toString())))
+                            .respond();
+
+         server.addAddressInfo(new AddressInfo(SimpleString.of(getTestName()), RoutingType.MULTICAST));
+
+         Wait.assertTrue(() -> server.addressQuery(SimpleString.of(getTestName())).isExists());
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of(getTestName())).getQueueNames().size() == 1);
+
+         final SimpleString binding = server.bindingQuery(SimpleString.of(getTestName())).getQueueNames().get(0);
+
+         assertNotNull(binding);
+         assertTrue(binding.startsWith(SimpleString.of("amqp-bridge-")));
+
+         final QueueQueryResult bridgeQueueBinding = server.queueQuery(binding);
+
+         assertTrue(bridgeQueueBinding.isTemporary());
+         assertFalse(bridgeQueueBinding.isDurable());
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+
+      // Once remote peer is offline the address binding should be cleaned up.
+      Wait.assertTrue(() -> server.addressQuery(SimpleString.of(getTestName())).isExists());
+      Wait.assertTrue(() -> server.bindingQuery(SimpleString.of(getTestName())).getQueueNames().size() == 0);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testBridgeCreatesDurableBindingWhenSenderConfiguredToUseDurableSubscriptions() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         server.start();
+
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().withContainerId(server.getNodeID().toString()).respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPBridgeAddressPolicyElement sendToAddress = new AMQPBridgeAddressPolicyElement();
+         sendToAddress.setName("address-policy");
+         sendToAddress.addToIncludes(getTestName());
+         sendToAddress.setUseDurableSubscriptions(true);
+
+         final AMQPBridgeBrokerConnectionElement element = new AMQPBridgeBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addBridgeToAddressPolicy(sendToAddress);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(6);
+         amqpConnection.setRetryInterval(10);
+         amqpConnection.addElement(element);
+
+         final ProtonProtocolManagerFactory protocolFactory = (ProtonProtocolManagerFactory)
+            server.getRemotingService().getProtocolFactoryMap().get("AMQP");
+         assertNotNull(protocolFactory);
+
+         server.getConfiguration().getAMQPConnection().clear();
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+
+         // Forces a reload of services which should start the now added bridge connection
+         protocolFactory.updateProtocolServices(server, new ArrayList<>());
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender()
+                            .withTarget().withAddress(getTestName()).also()
+                            .withSource().withAddress(getTestName()).also()
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-sender"),
+                                            containsString("amqp-bridge"),
+                                            containsString(server.getNodeID().toString())))
+                            .respond();
+
+         server.addAddressInfo(new AddressInfo(SimpleString.of(getTestName()), RoutingType.MULTICAST));
+
+         Wait.assertTrue(() -> server.addressQuery(SimpleString.of(getTestName())).isExists());
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of(getTestName())).getQueueNames().size() == 1);
+
+         final SimpleString binding = server.bindingQuery(SimpleString.of(getTestName())).getQueueNames().get(0);
+
+         assertNotNull(binding);
+         assertTrue(binding.startsWith(SimpleString.of("amqp-bridge-")));
+
+         final QueueQueryResult bridgeQueueBinding = server.queueQuery(binding);
+
+         assertFalse(bridgeQueueBinding.isTemporary());
+         assertTrue(bridgeQueueBinding.isDurable());
+         assertEquals(RoutingType.MULTICAST, bridgeQueueBinding.getRoutingType());
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+
+      // Once remote peer is offline the address binding should not be cleaned up.
+      Wait.assertTrue(() -> server.addressQuery(SimpleString.of(getTestName())).isExists(), 5_000, 25);
+      Wait.assertTrue(() -> server.bindingQuery(SimpleString.of(getTestName())).getQueueNames().size() == 1, 5_000, 25);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testBridgeToAddressCleansUpDurableBindingIfConfiguredTo() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPBridgeAddressPolicyElement sendToAddress = new AMQPBridgeAddressPolicyElement();
+         sendToAddress.setName("address-policy");
+         sendToAddress.addToIncludes(getTestName());
+         sendToAddress.setUseDurableSubscriptions(true);
+         sendToAddress.addProperty(AUTO_DELETE_DURABLE_SUBSCRIPTION, "true");
+         sendToAddress.addProperty(AUTO_DELETE_DURABLE_SUBSCRIPTION_MSG_COUNT, 0);
+         sendToAddress.addProperty(AUTO_DELETE_DURABLE_SUBSCRIPTION_DELAY, 100);
+
+         final AMQPBridgeBrokerConnectionElement element = new AMQPBridgeBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addBridgeToAddressPolicy(sendToAddress);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(1);
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().setAddressQueueScanPeriod(200);
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender()
+                            .withTarget().withAddress(getTestName()).also()
+                            .withSource().withAddress(getTestName()).also()
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-sender"),
+                                            containsString("amqp-bridge"),
+                                            containsString(server.getNodeID().toString())))
+                            .respond();
+
+         server.addAddressInfo(new AddressInfo(SimpleString.of(getTestName()), RoutingType.MULTICAST));
+
+         Wait.assertTrue(() -> server.addressQuery(SimpleString.of(getTestName())).isExists());
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of(getTestName())).getQueueNames().size() == 1);
+
+         final SimpleString binding = server.bindingQuery(SimpleString.of(getTestName())).getQueueNames().get(0);
+
+         assertNotNull(binding);
+         assertTrue(binding.startsWith(SimpleString.of("amqp-bridge-")));
+
+         final QueueQueryResult bridgeQueueBinding = server.queueQuery(binding);
+
+         assertFalse(bridgeQueueBinding.isTemporary());
+         assertTrue(bridgeQueueBinding.isDurable());
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+
+      // Once remote peer is offline the address binding should be cleaned up.
+      Wait.assertTrue(() -> server.addressQuery(SimpleString.of(getTestName())).isExists());
+      Wait.assertTrue(() -> server.bindingQuery(SimpleString.of(getTestName())).getQueueNames().size() == 0);
    }
 }
