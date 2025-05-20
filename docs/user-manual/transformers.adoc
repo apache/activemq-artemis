@@ -1,6 +1,7 @@
 = Transformers
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 A transformer, as the name suggests, is a component which transforms a message.
 For example, a transformer could modify the body of a message or add or remove properties.

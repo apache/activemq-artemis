@@ -1,6 +1,7 @@
 = Artemis on Apache Karaf
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis is OSGi ready.
 Below you can find instruction on how to install and configure broker on Apache Karaf OSGi container.

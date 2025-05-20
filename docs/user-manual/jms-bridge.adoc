@@ -1,6 +1,7 @@
 = The JMS Bridge
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis includes a fully functional JMS message bridge.
 

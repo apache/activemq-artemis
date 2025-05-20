@@ -1,6 +1,7 @@
 = Configuration Reference
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 This section is a quick index for looking up configuration.
 Click on the element name to go to the specific chapter.

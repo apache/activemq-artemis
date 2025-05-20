@@ -1,6 +1,7 @@
 = Connection Routers
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis connection routers allow incoming client connections to be distributed across multiple <<target-broker,target brokers>>.
 The target brokers are grouped in <<pools,pools>> and the connection routers use a <<keys,key>> to select a target broker from a pool of brokers according to a <<policies,policy>>.

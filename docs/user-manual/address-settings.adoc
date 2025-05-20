@@ -1,6 +1,7 @@
 = Address Settings
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 With address settings you can provide a block of settings which will be applied to any addresses that match the string in the `match` attribute.
 In the below example the settings would only be applied to the address `order.foo` address, but it is also possible to use xref:wildcard-syntax.adoc#wildcard-syntax[wildcards] to apply settings.

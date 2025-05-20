@@ -1,6 +1,7 @@
 = Thread management
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 This chapter describes how Apache ActiveMQ Artemis uses and pools threads and how you can manage them.
 

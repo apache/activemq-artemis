@@ -1,6 +1,7 @@
 = Management Console
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis ships by default with a management console.
 It is powered by http://hawt.io[Hawt.io].

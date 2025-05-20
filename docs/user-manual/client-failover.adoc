@@ -1,6 +1,7 @@
 = Core Client Failover
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis clients can be configured to automatically <<reconnect-to-the-same-server,reconnect to the same server>>, <<reconnect-to-the-backup-server,reconnect to the backup server>> or <<reconnect-to-other-active-servers,reconnect to other active servers>> in the event that a failure is detected in the connection between the client and the server.
 The clients detect connection failure when they have not received any packets from the server within the time given by `client-failure-check-period` as explained in section xref:connection-ttl.adoc#detecting-dead-connections[Detecting Dead Connections].

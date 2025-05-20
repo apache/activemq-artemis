@@ -1,6 +1,7 @@
 = High Availability and Failover
 :idprefix:
 :idseparator: -
+:docinfo: shared
 :experimental:
 
 We define high availability (HA) as the _ability for the system to continue functioning after failure of one or more of the servers_.

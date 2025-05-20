@@ -1,6 +1,7 @@
 = Upgrading the Broker
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Classic (and previous versions) is runnable out of the box by executing the command: `./bin/activemq run`.
 The ActiveMQ Artemis broker follows a different paradigm where the project distribution serves as the broker "home" and one or more broker "instances" are created which reference the "home" for resources (e.g. jar files) which can be safely shared between broker instances.

@@ -1,6 +1,7 @@
 = Queue Federation
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 This feature provides a way of balancing the load of a single queue across remote brokers.
 

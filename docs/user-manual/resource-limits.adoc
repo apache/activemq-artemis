@@ -1,6 +1,7 @@
 = Resource Limits
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Sometimes it's helpful to set particular limits on what certain users can do beyond the normal security settings related to authorization and  authentication.
 For example, limiting how many connections a user can create or how many queues a user can create.

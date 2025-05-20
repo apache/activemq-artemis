@@ -1,6 +1,7 @@
 = General Project Information
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 * Apache ActiveMQ Artemis is an open source project to build a multi-protocol, embeddable, very high performance, clustered, asynchronous messaging system.
 * Apache ActiveMQ Artemis is an example of Message Oriented Middleware (MoM).

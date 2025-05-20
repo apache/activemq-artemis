@@ -1,6 +1,7 @@
 = Maven Plugins
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Since Artemis 1.1.0 Artemis provides the possibility of using Maven Plugins to manage the life cycle of servers.
 

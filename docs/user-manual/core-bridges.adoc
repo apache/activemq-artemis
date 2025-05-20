@@ -1,6 +1,7 @@
 = Core Bridges
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 The function of a bridge is to consume messages from a source queue, and forward them to a target address, typically on a different Apache ActiveMQ Artemis server.
 

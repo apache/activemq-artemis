@@ -1,6 +1,7 @@
 = Performance Tuning
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 In this chapter we'll discuss how to tune Apache ActiveMQ Artemis for optimum performance.
 

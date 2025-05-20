@@ -1,6 +1,7 @@
 = Last-Value Queues
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Last-Value queues are special queues which discard any messages when a newer message with the same value for a well-defined Last-Value property is put in the queue.
 In other words, a Last-Value queue only retains the last value.

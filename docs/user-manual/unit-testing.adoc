@@ -1,6 +1,7 @@
 = Unit Testing
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Artemis resources can be run inside JUnit Tests by using provided Rules (for JUnit 4) or Extensions (for JUnit 5).
 This can make it easier to embed messaging functionality in your tests.

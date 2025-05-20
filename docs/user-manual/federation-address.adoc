@@ -1,6 +1,7 @@
 = Address Federation
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Address federation is similar to full multicast over the connected brokers.
 Every message sent to address on `Broker-A` will be delivered to every queue on that broker, but also will be delivered to `Broker-B` and all their attached queues.

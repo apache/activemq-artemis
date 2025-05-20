@@ -1,6 +1,7 @@
 = Ring Queue
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Queues operate with first-in, first-out (FIFO) semantics which means that messages, in general, are added to the "tail" of the queue and removed from the "head." A "ring" queue is a special type of queue with a _fixed_ size.
 The fixed size is maintained by removing the message at the head of the queue when the number of messages on the queue reaches the configured size.

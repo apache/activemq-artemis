@@ -4,6 +4,7 @@ It *links* to all chapters following the same basic pattern as _book.adoc. These
 ////
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 image::images/activemq-logo.png[align="center"]
 

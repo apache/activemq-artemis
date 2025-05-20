@@ -1,6 +1,7 @@
 = Guarantees of Sends and Commits
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 == Transaction Completion
 

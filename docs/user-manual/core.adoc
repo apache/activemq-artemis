@@ -1,6 +1,7 @@
 = Using Core
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis core is a messaging system with its own API.
 We call this the _core API_.

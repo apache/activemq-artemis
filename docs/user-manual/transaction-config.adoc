@@ -1,6 +1,7 @@
 = Resource Manager Configuration
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis has its own Resource Manager for handling the lifespan of JTA transactions.
 When a transaction is started the resource manager is notified and keeps a record of the transaction and its current state.

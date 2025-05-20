@@ -1,6 +1,7 @@
 = Intercepting Operations
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis supports _interceptors_ to intercept packets entering and exiting the server.
 Incoming and outgoing interceptors are be called for any packet entering or exiting the server respectively.

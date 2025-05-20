@@ -1,6 +1,7 @@
 = Metrics
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis can export metrics to a variety of monitoring systems via the https://micrometer.io/[Micrometer] vendor-neutral application metrics facade.
 

@@ -1,6 +1,7 @@
 = Management
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis has an extensive _management API_ that allows a user to modify a server configuration, create new resources (e.g. addresses and queues), inspect these resources (e.g. how many messages are currently held in a queue) and interact with it (e.g. to remove messages from a queue).
 Apache ActiveMQ Artemis also allows clients to subscribe to management notifications.

@@ -1,4 +1,7 @@
 = Command Line Interface
+:idprefix:
+:idseparator: -
+:docinfo: shared
 
 ActiveMQ Artemis has a Command Line Interface (CLI) that can used to manage a few aspects of the broker like instance creation, basic user management, queue & address management, etc.
 This interface is designed for simple use-cases with _humans_ in mind.

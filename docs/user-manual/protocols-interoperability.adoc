@@ -1,6 +1,7 @@
 = Protocols and Interoperability
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis has a powerful & flexible core which provides a foundation upon which other protocols can be implemented.
 Each protocol implementation translates the ideas of its specific protocol onto this core.

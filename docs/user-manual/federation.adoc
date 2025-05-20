@@ -1,6 +1,7 @@
 = Federation
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Federation allows transmission of messages between brokers without requiring clustering.
 

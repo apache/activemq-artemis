@@ -1,6 +1,7 @@
 = Flow Control
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Flow control is used to limit the flow of data between a client and server, or a server and another server in order to prevent the client or server being overwhelmed with data.
 

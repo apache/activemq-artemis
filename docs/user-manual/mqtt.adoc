@@ -1,6 +1,7 @@
 = MQTT
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 MQTT is a light weight, client to server, publish / subscribe messaging protocol.
 MQTT has been specifically designed to reduce transport overhead (and thus network traffic) and code footprint on client devices.

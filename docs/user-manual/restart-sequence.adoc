@@ -1,6 +1,7 @@
 = Restart Sequence
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis ships with 2 architectures for providing HA features.
 The primary and backup brokers can be configured either using network replication or using shared storage.

@@ -1,6 +1,7 @@
 = Messaging Concepts
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis is an asynchronous messaging system, an example of https://en.wikipedia.org/wiki/Message-oriented_middleware[Message Oriented Middleware], we'll just call them messaging systems in the remainder of this book.
 

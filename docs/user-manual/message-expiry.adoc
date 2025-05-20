@@ -1,6 +1,7 @@
 = Message Expiry
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Messages can be set with an optional _time to live_ when sending them.
 

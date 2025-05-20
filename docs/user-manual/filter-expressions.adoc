@@ -1,6 +1,7 @@
 = Filter Expressions
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis provides a powerful filter language based on a subset of the SQL 92 expression syntax.
 
