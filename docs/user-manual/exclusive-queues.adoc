@@ -1,6 +1,7 @@
 = Exclusive Queues
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Exclusive queues are special queues which dispatch all messages to only one  consumer at a time.
 

@@ -1,6 +1,7 @@
 = Message Grouping
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Message groups are sets of messages that have the following characteristics:
 

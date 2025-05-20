@@ -1,6 +1,7 @@
 = Data Tools
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 You can use the Artemis CLI to execute data maintenance tools:
 

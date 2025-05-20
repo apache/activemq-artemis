@@ -1,6 +1,7 @@
 = Apache Tomcat Support
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 == Resource Context Client Configuration
 

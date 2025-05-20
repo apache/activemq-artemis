@@ -1,6 +1,7 @@
 = Docker
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 One of the simplest ways to get started with ActiveMQ Artemis is by using one of our Docker images.
 

@@ -1,6 +1,7 @@
 = Examples
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 The Apache ActiveMQ Artemis Examples repository contains over 90 examples demonstrating many of the client and broker features.
 

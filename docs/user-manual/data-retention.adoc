@@ -1,6 +1,7 @@
 = Data Retention
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 If you enable `journal-retention-directory` on broker.xml, ActiveMQ Artemis will keep copy of every data that has passed through the broker on this folder.
 

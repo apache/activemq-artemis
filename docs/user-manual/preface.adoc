@@ -1,6 +1,7 @@
 = Why use Apache ActiveMQ Artemis?
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Here are just a few reasons:
 

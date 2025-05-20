@@ -1,6 +1,7 @@
 = Activation Sequence Tools
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 You can use the Artemis CLI to execute activation sequence maintenance/recovery tools for xref:ha.adoc#replication[Replication] with Pluggable Lock Manager.
 

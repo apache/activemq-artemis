@@ -1,6 +1,7 @@
 = Authentication & Authorization
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 This chapter describes how security works with Apache ActiveMQ Artemis and how you can configure it.
 

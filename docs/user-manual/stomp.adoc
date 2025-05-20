@@ -1,6 +1,7 @@
 = STOMP
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 https://stomp.github.io/[STOMP] is a text-orientated wire protocol that allows STOMP clients to communicate with STOMP Brokers.
 Apache ActiveMQ Artemis supports STOMP 1.0, 1.1 and 1.2.

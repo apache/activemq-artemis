@@ -1,6 +1,7 @@
 = Message Redelivery and Undelivered Messages
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Messages can be delivered unsuccessfully (e.g. if the transacted session used to consume them is rolled back).
 Such a message goes back to its queue ready to be redelivered.

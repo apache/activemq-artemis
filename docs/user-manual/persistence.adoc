@@ -1,6 +1,7 @@
 = Persistence
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis ships with two persistence options.
 The file journal which is  highly optimized for the messaging use case and gives great performance, and also the JDBC Store, which uses JDBC to connect to a database of your choice.

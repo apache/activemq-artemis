@@ -1,6 +1,7 @@
 = Paging
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis transparently supports huge queues containing millions of messages while the server is running with limited memory.
 

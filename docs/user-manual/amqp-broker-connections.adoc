@@ -1,6 +1,7 @@
 = Broker Connections
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Instead of waiting for clients to connect, a broker can also initiate a connection to another server.
 

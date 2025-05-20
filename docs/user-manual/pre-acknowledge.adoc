@@ -1,6 +1,7 @@
 = Extra Acknowledge Modes
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 JMS specifies 3 acknowledgement modes:
 

@@ -1,6 +1,7 @@
 = Critical Analysis of the broker
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 There are a few things that can go wrong on a production environment:
 

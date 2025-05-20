@@ -1,6 +1,7 @@
 = Duplicate Message Detection
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis includes powerful automatic duplicate message detection, filtering out duplicate messages without you having to code your own fiddly duplicate detection logic at the application level.
 This chapter will explain what duplicate detection is, how Apache ActiveMQ Artemis uses it and how and where to configure it.

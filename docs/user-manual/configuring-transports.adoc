@@ -1,6 +1,7 @@
 = Configuring the Transport
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 In this chapter we'll describe the concepts required for understanding Apache ActiveMQ Artemis transports and where and how they're configured.
 

@@ -1,6 +1,7 @@
 = Libaio Native Libraries
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis distributes a native library, used as a bridge for its fast journal, between Apache ActiveMQ Artemis and Linux libaio.
 

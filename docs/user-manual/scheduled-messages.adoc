@@ -1,6 +1,7 @@
 = Scheduled Messages
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Scheduled messages differ from normal messages in that they won't be delivered until a specified time in the future, at the earliest.
 

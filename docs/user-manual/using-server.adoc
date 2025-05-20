@@ -1,6 +1,7 @@
 = Using the Server
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 This chapter will familiarise you with how to use the Apache ActiveMQ Artemis server.
 

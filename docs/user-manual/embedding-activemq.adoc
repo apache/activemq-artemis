@@ -1,6 +1,7 @@
 = Embedding Apache ActiveMQ Artemis
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis is designed as set of simple Plain Old Java Objects (POJOs).
 This means Apache ActiveMQ Artemis can be instantiated and run in any dependency injection framework such as Spring or Google Guice.

@@ -901,6 +901,7 @@
                      <exclude>**/*.txt</exclude>
                      <exclude>**/*.md</exclude>
                      <exclude>**/*.adoc</exclude>
+                     <exclude>**/docinfo.html</exclude>
                      <exclude>etc/ide-settings/**</exclude>
                      <exclude>**/*.json</exclude>
                      <exclude>docs/resources/font-awesome/**/*</exclude>

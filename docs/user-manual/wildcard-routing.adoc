@@ -1,6 +1,7 @@
 = Routing Messages With Wild Cards
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis allows the routing of messages via wildcard addresses.
 

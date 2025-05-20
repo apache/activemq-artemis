@@ -1,6 +1,7 @@
 = JCA Resource Adapter
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 For using Apache ActiveMQ Artemis in a Java EE or Jakarta EE environment, you can use the JCA Resource Adapter.
 

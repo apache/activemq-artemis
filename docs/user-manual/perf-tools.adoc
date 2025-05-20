@@ -1,6 +1,7 @@
 = Performance Tools
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Artemis provides some built-in performance test tools based on the https://javaee.github.io/jms-spec/pages/JMS20FinalRelease[JMS 2 API] to help users (and developers) to stress test a configured Artemis broker instance in different scenarios.
 

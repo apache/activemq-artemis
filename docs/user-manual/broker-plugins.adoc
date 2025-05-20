@@ -1,6 +1,7 @@
 = Plugin Support
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis is designed to allow extra functionality to be added by creating a plugin.
 Multiple plugins can be registered at the same time and they will be chained together and executed in the order they are registered (i.e. the first plugin registered is always executed first).

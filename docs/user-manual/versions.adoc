@@ -1,6 +1,7 @@
 = Versions
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 This chapter provides the following information for each release:
 

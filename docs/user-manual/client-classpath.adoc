@@ -1,6 +1,7 @@
 = The Client Classpath
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 == Maven dependencies
 

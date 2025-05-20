@@ -1,6 +1,7 @@
 = Large Messages
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis can be configured to give special treatment to messages which are beyond a configured size.
 Instead of keeping the entire contents of these messages _in memory_ the broker will hold just a thin object on the queues with a reference to the content (e.g. in a file or a database table).

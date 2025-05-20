@@ -1,6 +1,7 @@
 = Graceful Server Shutdown
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 In certain circumstances an administrator might not want to disconnect all clients immediately when stopping the broker.
 In this situation the broker can be configured to shutdown _gracefully_ using the `graceful-shutdown-enabled` boolean configuration parameter.

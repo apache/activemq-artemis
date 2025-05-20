@@ -1,6 +1,7 @@
 = Address Model
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Every messaging protocol and API that Apache ActiveMQ Artemis supports defines a different set of messaging resources.
 

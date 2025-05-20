@@ -1,6 +1,7 @@
 = Mapping JMS Concepts to the Core API
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 This chapter describes how JMS destinations are mapped to the Apache ActiveMQ Artemis address model.
 If you haven't already done so, please read about the xref:address-model.adoc[address model] as it introduces concepts which are referenced here.

@@ -1,6 +1,7 @@
 = Detecting Dead Connections
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 In this section we will discuss connection time-to-live (TTL) and explain how Apache ActiveMQ Artemis deals with crashed clients and clients which have exited without cleanly closing their resources.
 

@@ -1,6 +1,7 @@
 = Network Isolation (Split Brain)
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 A _split brain_ is a condition that occurs when two different brokers are serving the same messages at the same time.
 When this happens instead of client applications all sharing the _same_ broker as they ought, they may become divided between the two split brain brokers.

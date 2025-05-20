@@ -1,6 +1,7 @@
 = AMQP
 :idprefix:
 :idseparator: -
+:docinfo: shared
 
 Apache ActiveMQ Artemis supports the https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=amqp[AMQP 1.0] specification.
 By default there are `acceptor` elements configured to accept AMQP connections on ports `61616` and `5672`.
