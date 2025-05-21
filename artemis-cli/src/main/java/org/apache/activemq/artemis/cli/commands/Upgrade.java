@@ -156,8 +156,7 @@ public class Upgrade extends InstallAbstract {
          write(Create.BIN_ARTEMIS_SERVICE_XML, serviceXmlTmp, filters, false, false);
          upgrade(context, serviceXmlTmp, serviceXml, serviceXmlBkp, keepPrefixAlternates,
                  "<env name=\"ARTEMIS_INSTANCE\"", "<env name=\"ARTEMIS_INSTANCE_ETC\"",
-                 "<env name=\"ARTEMIS_INSTANCE_URI\"", "<env name=\"ARTEMIS_INSTANCE_ETC_URI\"",
-                 "<env name=\"ARTEMIS_DATA_DIR\"", "<logpath>", "<startargument>-Xmx", "<stopargument>-Xmx",
+                 "<env name=\"ARTEMIS_DATA_DIR\"", "<logpath>", "<startargument>-Xmx",
                  "<name>", "<id>", "<startargument>-Dhawtio.roles=");
 
          final File artemisProfileCmdTmp = new File(tmp, Create.ETC_ARTEMIS_PROFILE_CMD);
@@ -166,7 +165,7 @@ public class Upgrade extends InstallAbstract {
 
          write("etc/" + Create.ETC_ARTEMIS_PROFILE_CMD, artemisProfileCmdTmp, filters, false, false);
          upgradeJDK(context, JDK_PREFIX_WINDOWS, "", KEEPING_JVM_ARGUMENTS_ALTERNATES, KEEPING_JVM_ARGUMENTS, artemisProfileCmdTmp, artemisProfileCmd, artemisProfileCmdBkp,
-                    Collections.emptyMap(), "set ARTEMIS_INSTANCE=\"", "set ARTEMIS_DATA_DIR=", "set ARTEMIS_ETC_DIR=", "set ARTEMIS_OOME_DUMP=", "set ARTEMIS_INSTANCE_URI=", "set ARTEMIS_INSTANCE_ETC_URI=");
+                    Collections.emptyMap(), "set ARTEMIS_INSTANCE=\"", "set ARTEMIS_DATA_DIR=", "set ARTEMIS_OOME_DUMP=");
 
          File artemisUtilityProfileCmd = new File(etcFolder, Create.ETC_ARTEMIS_UTILITY_PROFILE_CMD);
          File artemisUtilityProfileCmdTmp = new File(tmp, Create.ETC_ARTEMIS_UTILITY_PROFILE_CMD);
@@ -175,7 +174,7 @@ public class Upgrade extends InstallAbstract {
          if (artemisUtilityProfileCmd.exists()) {
             write("etc/" + Create.ETC_ARTEMIS_UTILITY_PROFILE_CMD, artemisUtilityProfileCmdTmp, filters, false, false);
             upgradeJDK(context, JDK_PREFIX_WINDOWS, "", KEEPING_JVM_ARGUMENTS_ALTERNATES, KEEPING_JVM_ARGUMENTS, artemisUtilityProfileCmdTmp, artemisUtilityProfileCmd, artemisUtilityProfileCmdBkp,
-                       Collections.emptyMap(), "set ARTEMIS_INSTANCE=\"", "set ARTEMIS_DATA_DIR=", "set ARTEMIS_ETC_DIR=", "set ARTEMIS_OOME_DUMP=", "set ARTEMIS_INSTANCE_URI=", "set ARTEMIS_INSTANCE_ETC_URI=");
+                       Collections.emptyMap(), "set ARTEMIS_INSTANCE=\"", "set ARTEMIS_DATA_DIR=");
          } else {
             if (data == null || data.equals("data")) {
                dataFolder = getDATA(context, dataFolder, artemisProfileCmd, "set ARTEMIS_DATA_DIR=");
@@ -210,7 +209,7 @@ public class Upgrade extends InstallAbstract {
 
          write("etc/" + Create.ETC_ARTEMIS_PROFILE, artemisProfileTmp, filters, false, false);
          upgradeJDK(context, JDK_PREFIX_LINUX, "\"", KEEPING_JVM_ARGUMENTS_ALTERNATES, KEEPING_JVM_ARGUMENTS, artemisProfileTmp, artemisProfile, artemisProfileBkp,
-               keepPrefixAlternates, "ARTEMIS_INSTANCE=", "ARTEMIS_DATA_DIR=", "ARTEMIS_ETC_DIR=", "ARTEMIS_OOME_DUMP=", "ARTEMIS_INSTANCE_URI=", "ARTEMIS_INSTANCE_ETC_URI=", "HAWTIO_ROLES=");
+               keepPrefixAlternates, "ARTEMIS_INSTANCE=", "ARTEMIS_DATA_DIR=", "ARTEMIS_OOME_DUMP=", "HAWTIO_ROLES=");
 
          File artemisUtilityProfile = new File(etcFolder, Create.ETC_ARTEMIS_UTILITY_PROFILE);
          File artemisUtilityProfileTmp = new File(tmp, Create.ETC_ARTEMIS_UTILITY_PROFILE);
@@ -219,7 +218,7 @@ public class Upgrade extends InstallAbstract {
          if (artemisUtilityProfile.exists()) {
             write("etc/" + Create.ETC_ARTEMIS_UTILITY_PROFILE, artemisUtilityProfileTmp, filters, false, false);
             upgradeJDK(context, JDK_PREFIX_LINUX, "\"", KEEPING_JVM_ARGUMENTS_ALTERNATES, KEEPING_JVM_ARGUMENTS, artemisUtilityProfileTmp, artemisUtilityProfile, artemisUtilityProfileBkp,
-                  keepPrefixAlternates, "ARTEMIS_INSTANCE=", "ARTEMIS_DATA_DIR=", "ARTEMIS_ETC_DIR=", "ARTEMIS_OOME_DUMP=", "ARTEMIS_INSTANCE_URI=", "ARTEMIS_INSTANCE_ETC_URI=", "HAWTIO_ROLES=");
+                  keepPrefixAlternates, "ARTEMIS_INSTANCE=", "ARTEMIS_DATA_DIR=");
          } else {
             if (data == null || data.equals("data")) {
                dataFolder = getDATA(context, dataFolder, artemisProfile, "ARTEMIS_DATA_DIR=");
