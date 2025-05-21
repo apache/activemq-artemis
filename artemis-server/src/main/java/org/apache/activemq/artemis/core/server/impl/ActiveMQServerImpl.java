@@ -76,7 +76,6 @@ import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationBrokerPlugin;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.config.impl.LegacyJMSConfiguration;
@@ -596,7 +595,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private void configureJdbcNetworkTimeout() {
       if (configuration.isPersistenceEnabled()) {
-         if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
+         if (configuration.isUsingDatabasePersistence()) {
             configuration.setMaxDiskUsage(-1); // it does not make sense with JDBC
             DatabaseStorageConfiguration databaseStorageConfiguration = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
             databaseStorageConfiguration.setConnectionProviderNetworkTimeout(threadPool, databaseStorageConfiguration.getJdbcNetworkTimeout());
@@ -606,7 +605,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private void clearJdbcNetworkTimeout() {
       if (configuration.isPersistenceEnabled()) {
-         if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
+         if (configuration.isUsingDatabasePersistence()) {
             DatabaseStorageConfiguration databaseStorageConfiguration = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
             databaseStorageConfiguration.clearConnectionProviderNetworkTimeout();
          }
@@ -618,7 +617,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       NodeManager manager;
       if (!configuration.isPersistenceEnabled()) {
          manager = new InVMNodeManager(replicatingBackup);
-      } else if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
+      } else if (configuration.isUsingDatabasePersistence()) {
          final HAPolicyConfiguration.TYPE haType = configuration.getHAPolicyConfiguration() == null ? null : configuration.getHAPolicyConfiguration().getType();
          if (haType == HAPolicyConfiguration.TYPE.SHARED_STORE_PRIMARY || haType == HAPolicyConfiguration.TYPE.SHARED_STORE_BACKUP) {
             if (replicatingBackup) {
@@ -3137,7 +3136,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    protected PagingStoreFactory getPagingStoreFactory() throws Exception {
-      if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
+      if (configuration.isUsingDatabasePersistence()) {
          DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
          return new PagingStoreFactoryDatabase(dbConf, storageManager, configuration.getPageSyncTimeout(), scheduledPool, pageExecutorFactory, false, ioCriticalErrorListener);
       } else {
@@ -3150,7 +3149,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     */
    protected StorageManager createStorageManager() {
       if (configuration.isPersistenceEnabled()) {
-         if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
+         if (configuration.isUsingDatabasePersistence()) {
             JDBCJournalStorageManager journal = new JDBCJournalStorageManager(configuration, getCriticalAnalyzer(), getScheduledPool(), executorFactory, ioExecutorFactory, ioCriticalErrorListener);
             this.getCriticalAnalyzer().add(journal);
             return journal;
@@ -4510,20 +4509,22 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     * Check if journal directory exists or create it (if configured to do so)
     */
    public void checkJournalDirectory() {
-      File journalDir = configuration.getJournalLocation();
+      if (!configuration.isUsingDatabasePersistence()) {
+         File journalDir = configuration.getJournalLocation();
 
-      if (!journalDir.exists() && configuration.isPersistenceEnabled()) {
-         if (configuration.isCreateJournalDir()) {
-            journalDir.mkdirs();
-         } else {
-            throw ActiveMQMessageBundle.BUNDLE.cannotCreateDir(journalDir.getAbsolutePath());
+         if (!journalDir.exists() && configuration.isPersistenceEnabled()) {
+            if (configuration.isCreateJournalDir()) {
+               journalDir.mkdirs();
+            } else {
+               throw ActiveMQMessageBundle.BUNDLE.cannotCreateDir(journalDir.getAbsolutePath());
+            }
          }
-      }
 
-      File nodeManagerLockDir = configuration.getNodeManagerLockLocation();
-      if (!journalDir.equals(nodeManagerLockDir)) {
-         if (configuration.isPersistenceEnabled() && !nodeManagerLockDir.exists()) {
-            nodeManagerLockDir.mkdirs();
+         File nodeManagerLockDir = configuration.getNodeManagerLockLocation();
+         if (!journalDir.equals(nodeManagerLockDir)) {
+            if (configuration.isPersistenceEnabled() && !nodeManagerLockDir.exists()) {
+               nodeManagerLockDir.mkdirs();
+            }
          }
       }
    }

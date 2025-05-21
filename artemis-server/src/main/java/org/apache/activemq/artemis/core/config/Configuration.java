@@ -1516,4 +1516,8 @@ public interface Configuration {
    boolean isMirrorAckManagerWarnUnacked();
 
    void exportAsProperties(File to) throws Exception;
+
+   default boolean isUsingDatabasePersistence() {
+      return getStoreConfiguration() != null && getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE;
+   }
 }

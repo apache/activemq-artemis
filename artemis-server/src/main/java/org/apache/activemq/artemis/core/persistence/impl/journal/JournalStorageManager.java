@@ -236,9 +236,11 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    }
 
    protected void createDirectories() {
-      checkAndCreateDir(config.getBindingsLocation(), config.isCreateBindingsDir());
-      checkAndCreateDir(config.getJournalLocation(), config.isCreateJournalDir());
-      checkAndCreateDir(config.getLargeMessagesLocation(), config.isCreateJournalDir());
+      if (!config.isUsingDatabasePersistence()) {
+         checkAndCreateDir(config.getBindingsLocation(), config.isCreateBindingsDir());
+         checkAndCreateDir(config.getJournalLocation(), config.isCreateJournalDir());
+         checkAndCreateDir(config.getLargeMessagesLocation(), config.isCreateJournalDir());
+      }
    }
 
    @Override
