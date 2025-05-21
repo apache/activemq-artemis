@@ -72,14 +72,27 @@ public class SimpleManagement implements AutoCloseable {
       return uri;
    }
 
+   /**
+    * it will inject the session used by SimpleManagement.
+    * beware that if you call {@link #close()} the session passed here will be closed as well. */
+   public void setSession(ClientSession session) {
+      this.session = session;
+   }
+
    @Override
    public void close() throws Exception {
       if (session != null) {
          session.close();
-         sessionFactory.close();
-         locator.close();
          session = null;
+      }
+
+      if (sessionFactory != null) {
+         sessionFactory.close();
          sessionFactory = null;
+      }
+
+      if (locator != null) {
+         locator.close();
          locator = null;
       }
    }

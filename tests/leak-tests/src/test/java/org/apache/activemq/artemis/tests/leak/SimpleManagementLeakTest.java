@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.tests.leak;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import java.lang.invoke.MethodHandles;
 
@@ -28,6 +27,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImp
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
+import org.apache.activemq.artemis.core.server.impl.ServerStatus;
+import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -38,8 +39,6 @@ import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemory;
 import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.basicMemoryAsserts;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class SimpleManagementLeakTest extends AbstractLeakTest {
@@ -67,6 +66,8 @@ public class SimpleManagementLeakTest extends AbstractLeakTest {
 
       clearServers();
 
+      ServerStatus.clear();
+
       assertMemory(checkLeak, 0, ActiveMQServerImpl.class.getName());
    }
 
@@ -80,30 +81,35 @@ public class SimpleManagementLeakTest extends AbstractLeakTest {
 
    @Test
    public void testSimpleManagement() throws Exception {
-      internalTest();
+      internalTest(false);
+      basicMemoryAsserts();
+   }
 
+   @Test
+   public void testSimpleManagementInjectedSession() throws Exception {
+      internalTest(true);
       basicMemoryAsserts();
    }
 
    // a method to isolate variables and let them go into GC
-   private void internalTest() throws Exception {
+   private void internalTest(boolean injectSession) throws Exception {
       CheckLeak checkLeak = new CheckLeak();
       String queueName = "myQueue";
       ConnectionFactory connectionFactory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
       try (Connection connection = connectionFactory.createConnection()) {
-         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         MessageConsumer consumer = session.createConsumer(session.createQueue(queueName));
          connection.start();
+
+         ActiveMQSession sessionForManagement = (ActiveMQSession) connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
          for (int i = 0; i < 10; i++) {
             SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", null, null);
-            assertEquals(0, simpleManagement.getMessageCountOnQueue(queueName));
-            assertEquals(1, simpleManagement.getNumberOfConsumersOnQueue(queueName));
-            simpleManagement.close();
+            if (injectSession) {
+               simpleManagement.setSession(sessionForManagement.getCoreSession());
+            }
+            simpleManagement.listNetworkTopology();
          }
+         assertMemory(checkLeak, 5, QueueImpl.class.getName());
 
-         int instancesOfQueues = checkLeak.getAllObjects(QueueImpl.class).length;
-         assertTrue(instancesOfQueues < 5, "There are " + instancesOfQueues + " QueueImpl on the broker");
       }
    }
 }

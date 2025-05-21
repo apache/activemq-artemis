@@ -117,20 +117,21 @@ public final class ManagementHelper {
     */
    public static void doManagement(ClientSession session, MessageAcceptor setup, MessageAcceptor ok, MessageAcceptor failed) throws Exception {
       session.start();
-      ClientRequestor requestor = new ClientRequestor(session, "activemq.management");
-      ClientMessage message = session.createMessage(false);
+      try (ClientRequestor requestor = new ClientRequestor(session, "activemq.management")) {
+         ClientMessage message = session.createMessage(false);
 
-      setup.accept(message);
+         setup.accept(message);
 
-      ClientMessage reply = requestor.request(message);
+         ClientMessage reply = requestor.request(message);
 
-      if (ManagementHelper.hasOperationSucceeded(reply)) {
-         if (ok != null) {
-            ok.accept(reply);
-         }
-      } else {
-         if (failed != null) {
-            failed.accept(reply);
+         if (ManagementHelper.hasOperationSucceeded(reply)) {
+            if (ok != null) {
+               ok.accept(reply);
+            }
+         } else {
+            if (failed != null) {
+               failed.accept(reply);
+            }
          }
       }
    }
