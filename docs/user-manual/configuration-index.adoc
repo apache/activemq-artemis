@@ -122,7 +122,7 @@ The `artemis run` command script supports `--properties <properties file url>`, 
 NOTE: one shortcoming of this method of configuration is that any property that does not match is ignored with no fanfare.
 Enable debug logging for `org.apache.activemq.artemis.core.config.impl.ConfigurationImpl` to get more insight.
 
-There are a growing number of examples of what can be explicitly configured in this way in the https://github.com/apache/activemq-artemis/blob/065bfe14f532858f2c2a20b0afb1a226b08ce013/artemis-server/src/test/java/org/apache/activemq/artemis/core/config/impl/ConfigurationImplTest.java#L675[unit test].
+There is a related xref:management.adoc#server-management[server management operation], `exportConfigAsProperties` that will export the current configuration as broker properties. Use this to get a better understanding of how properties apply to the broker configuration and how they map from xml.
 
 == The core configuration
 
