@@ -1625,6 +1625,8 @@ public class PublishTests extends MQTT5TestSupport {
       server.getRemotingService().addIncomingInterceptor(incomingInterceptor);
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
+      getProtocolManager().setDefaultMaximumInFlightPublishMessages(1); // Receive Maximum from the client must override this
+
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
@@ -1658,6 +1660,66 @@ public class PublishTests extends MQTT5TestSupport {
       consumer.close();
    }
 
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testImplicitReceiveMaximumByDefaultMaximumInFlightPublishMessages() throws Exception {
+      AtomicInteger count = new AtomicInteger(0);
+      AtomicBoolean failed = new AtomicBoolean(false);
+      final int MESSAGE_COUNT = 50;
+      final int RECEIVE_MAXIMUM = 10;
+      MQTTInterceptor incomingInterceptor = (packet, connection) -> {
+         if (packet.fixedHeader().messageType() == MqttMessageType.PUBACK || packet.fixedHeader().messageType() == MqttMessageType.PUBREC) {
+            count.decrementAndGet();
+         }
+         return true;
+      };
+
+      MQTTInterceptor outgoingInterceptor = (packet, connection) -> {
+         if (packet.fixedHeader().messageType() == MqttMessageType.PUBLISH) {
+            if (count.incrementAndGet() > RECEIVE_MAXIMUM) {
+               failed.set(true);
+            }
+         }
+         return true;
+      };
+      server.getRemotingService().addIncomingInterceptor(incomingInterceptor);
+      server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
+
+      getProtocolManager().setDefaultMaximumInFlightPublishMessages(RECEIVE_MAXIMUM); // must be used due to absent Receive Maximum from the client
+
+      final String TOPIC = this.getTopicName();
+
+      final CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
+      final String CONSUMER_ID = "consumer";
+      MqttAsyncClient consumer = createAsyncPahoClient(CONSUMER_ID);
+      MqttConnectionOptions options = new MqttConnectionOptions();
+      consumer.connect(options).waitForCompletion();
+      consumer.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) throws Exception {
+            Thread.sleep(250);
+            latch.countDown();
+         }
+      });
+      consumer.subscribe(TOPIC, 2).waitForCompletion();
+
+      MqttClient producer = createPahoClient("producer");
+      producer.connect();
+      for (int i = 0; i < MESSAGE_COUNT; i++) {
+         producer.publish(TOPIC, "foo".getBytes(StandardCharsets.UTF_8), (RandomUtil.randomPositiveInt() % 2) + 1, false);
+      }
+      Wait.assertEquals((long) MESSAGE_COUNT, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessagesAdded(), 2000, 100);
+      producer.disconnect();
+      producer.close();
+
+      Wait.assertEquals(0L, () -> getSubscriptionQueue(TOPIC, CONSUMER_ID).getMessageCount(), 15000, 100);
+      assertTrue(latch.await(15, TimeUnit.SECONDS));
+      assertFalse(failed.get());
+      consumer.disconnect();
+      consumer.close();
+   }
+
+
    /**
     * [MQTT-3.3.4-9] The Server MUST NOT send more than Receive Maximum QoS 1 and QoS 2 PUBLISH packets for which it has
     * not received PUBACK, PUBCOMP, or PUBREC with a Reason Code of 128 or greater from the Client.
@@ -1690,6 +1752,7 @@ public class PublishTests extends MQTT5TestSupport {
       };
       server.getRemotingService().addIncomingInterceptor(incomingInterceptor);
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
+      getProtocolManager().setDefaultMaximumInFlightPublishMessages(1); // must not be taken into account for QoS 0
 
       final CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
       final String CONSUMER_ID = "consumer";
