@@ -131,7 +131,7 @@
       <asciidoctorj.pdf.version>2.3.19</asciidoctorj.pdf.version>
 
       <!-- this is basically for tests -->
-      <netty-tcnative-version>2.0.71.Final</netty-tcnative-version>
+      <netty-tcnative-version>2.0.72.Final</netty-tcnative-version>
       <proton.version>0.34.1</proton.version>
       <protonj2.version>1.0.0-M23</protonj2.version>
       <slf4j.version>2.0.17</slf4j.version>
