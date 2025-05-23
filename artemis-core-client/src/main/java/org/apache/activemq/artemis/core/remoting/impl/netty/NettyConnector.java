@@ -1180,7 +1180,7 @@ public class NettyConnector extends AbstractConnector {
                }
             }
             FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, url, buf);
-            httpRequest.headers().add(HttpHeaderNames.HOST, NettyConnector.this.host);
+            httpRequest.headers().add(HttpHeaderNames.HOST, String.format("%s:%d", host, port));
             for (Map.Entry<String, String> header : headers.entrySet()) {
                httpRequest.headers().add(header.getKey(), header.getValue());
             }
@@ -1210,7 +1210,7 @@ public class NettyConnector extends AbstractConnector {
 
             if (!waitingGet && System.currentTimeMillis() > lastSendTime + httpMaxClientIdleTime) {
                FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, url);
-               httpRequest.headers().add(HttpHeaderNames.HOST, NettyConnector.this.host);
+               httpRequest.headers().add(HttpHeaderNames.HOST, String.format("%s:%d", host, port));
                for (Map.Entry<String, String> header : headers.entrySet()) {
                   httpRequest.headers().add(header.getKey(), header.getValue());
                }
