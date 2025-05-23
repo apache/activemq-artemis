@@ -108,7 +108,7 @@
       <guava.version>33.4.8-jre</guava.version>
       <jsr305.version>3.0.2</jsr305.version>
       <jetty.version>12.0.19</jetty.version>
-      <jetty-servlet-api.version>5.0.2</jetty-servlet-api.version>
+      <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
       <jgroups.version>5.3.13.Final</jgroups.version>
       <errorprone.version>2.38.0</errorprone.version>
       <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
