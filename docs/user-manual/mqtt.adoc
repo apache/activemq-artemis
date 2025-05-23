@@ -217,10 +217,12 @@ This can be changed using the `mqtt-session-scan-interval` element set in the `c
 
 == Flow Control
 
+MQTT 3.x lacks a flow control mechanism. The sending party determines how many QoS 1 & 2 messages can be published without acknowledgment. On the broker side, this is controlled by the `defaultMaximumInFlightPublishMessages` URL parameter on the MQTT `acceptor` in `broker.xml`, which defaults to `65535`.
+
 MQTT 5 introduced a simple form of https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Flow_Control[flow control].
 In short, a broker can tell a client how many QoS 1 & 2 messages it can receive before being acknowledged and vice versa.
 
-This is controlled on the broker by setting the `receiveMaximum` URL parameter on the MQTT `acceptor` in `broker.xml`.
+This is controlled on the broker by setting the `receiveMaximum` URL parameter on the MQTT `acceptor`.
 
 The default value is `65535` (the maximum value of the 2-byte integer used by  MQTT).
 
@@ -228,6 +230,8 @@ A value of `0` is prohibited by the MQTT 5 specification.
 
 A value of `-1` will prevent the broker from informing the client of any receive maximum which means flow-control will be disabled from clients to the broker.
 This is effectively the same as setting the value to `65535`, but reduces the size of the `CONNACK` packet by a few bytes.
+
+If the MQTT 5 client doesn't send the https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901049[Receive Maximum] property to the broker, the broker uses its `defaultMaximumInFlightPublishMessages` setting to determine the maximum number of QoS 1 & 2 messages it can send without acknowledgment.
 
 == Topic Alias Maximum
 
