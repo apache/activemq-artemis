@@ -89,7 +89,7 @@ public class MQTTSession {
 
       mqttConnectionManager = new MQTTConnectionManager(this);
       mqttPublishManager = new MQTTPublishManager(this, protocolManager.isCloseMqttConnectionOnPublishAuthorizationFailure());
-      sessionCallback = new MQTTSessionCallback(this, connection);
+      sessionCallback = new MQTTSessionCallback(this, connection, protocolManager.getDefaultMaximumInFlightPublishMessages());
       subscriptionManager = new MQTTSubscriptionManager(this, stateManager);
       retainMessageManager = new MQTTRetainMessageManager(this);
 

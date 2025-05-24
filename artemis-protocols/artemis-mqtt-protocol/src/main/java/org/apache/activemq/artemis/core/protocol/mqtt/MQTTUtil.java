@@ -139,6 +139,8 @@ public class MQTTUtil {
 
    public static final int DEFAULT_MAXIMUM_PACKET_SIZE = MAX_PACKET_SIZE;
 
+   public static final int DEFAULT_MAXIMUM_IN_FLIGHT_PUBLISH_MESSAGES = TWO_BYTE_INT_MAX;
+
    public static final WildcardConfiguration MQTT_WILDCARD = new WildcardConfiguration().setDelimiter(SLASH).setAnyWords(HASH).setSingleWord(PLUS);
 
    /**
