@@ -43,17 +43,26 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 === Upgrading from 2.39.0
 
-* Due to EOL components in Hawt.io 2.x used by our web console we've moved to a https://github.com/apache/activemq-artemis-console[new web console] based on Hawt.io 4.
+* Due to EOL components in Hawio 2.x used by our web console we've moved to a https://github.com/apache/activemq-artemis-console[new web console] based on Hawtio 4.
 This move is about security just like the recent move to Java 17.
 +
-From a user's perspective the main change is that the prominently featured "tree" component was relocated to the "Artemis JMX" view available from the menu on the left of the screen.
+--
+Notable differences:
+
+** From a graphical interface perspective the main change is that the prominently featured "tree" component was relocated to the "Artemis JMX" view available from the menu on the left of the screen.
 The categorized resource tabs which were available previously are now the main and recommended way to interact with the broker.
 These tabs offer a paged view which is filterable and sortable and scales well for resource heavy use-cases.
-+
-It's also worth noting that any request with an origin header using the `https` scheme which is ultimately received by Jolokia via HTTP is now discarded by default since it is deemed insecure.
+
+** Any request with an origin header using the `https` scheme which is ultimately received by Jolokia via HTTP is now discarded by default since it is deemed insecure.
 If you use a TLS proxy that transforms secure requests to insecure requests (e.g. in a Kubernetes environment) then consider changing the proxy to preserve HTTPS and switching the xref:embedded-web-server.adoc[embedded web server] to HTTPS.
 If that isn't feasible then you can accept the risk by adding `<ignore-scheme/>` to `etc/jolokia-access.xml`.
 See the https://jolokia.org/reference/html/manual/security.html[Jolokia documentation] for more details.
+
+** The console will now automatically protect itself from brute-force attacks (e.g. i.e. repeated, quick login attempts).
+This behavior is controlled by the `hawtio.authenticationThrottled` system property.
+If you wish to disable this behavior then set this property to `false` (e.g. in `artemis.profile`).
+It is `true` by default. See the https://hawt.io/docs/security.html#_configuration_properties[Hawtio documentation] for more details.
+--
 +
 The behavior and presentation should be more consistent overall, and anything that was possible before should still be possible since the underlying management API has not changed.
 +
