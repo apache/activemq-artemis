@@ -687,17 +687,11 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
          Collections.sort(recoveredACK);
 
-         long txDeleteCursorOnReload = -1;
-
          for (PagePosition pos : recoveredACK) {
             logger.trace("reloading pos {}", pos);
             lastAckedPosition = pos;
             PageCursorInfo pageInfo = getPageInfo(pos);
             pageInfo.loadACK(pos);
-         }
-
-         if (txDeleteCursorOnReload >= 0) {
-            store.commit(txDeleteCursorOnReload);
          }
 
          recoveredACK.clear();
