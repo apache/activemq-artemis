@@ -100,7 +100,7 @@ public class MQTTSessionState {
    }
 
    /**
-    * This constructor deserializes session data from a message. The format is as follows.
+    * This constructor deserializes subscription data from a message. The format is as follows.
     * <ul>
     * <li>byte: version
     * <li>int: subscription count
@@ -118,7 +118,7 @@ public class MQTTSessionState {
     * @param message the message holding the MQTT session data
     */
    public MQTTSessionState(CoreMessage message) {
-      logger.debug("Deserializing MQTT session state from {}", message);
+      logger.debug("Deserializing MQTT subscriptions from {}", message);
       this.clientId = message.getStringProperty(Message.HDR_LAST_VALUE_NAME);
       ActiveMQBuffer buf = message.getDataBuffer();
 

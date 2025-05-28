@@ -689,6 +689,9 @@ public final class ActiveMQDefaultConfiguration {
    // How long (in ms) to wait to persist MQTT session state
    private static long DEFAULT_MQTT_SESSION_STATE_PERSISTENCE_TIMEOUT = 5000;
 
+   // Whether to persist MQTT subscriptions
+   private static boolean DEFAULT_MQTT_SUBSCRIPTION_PERSISTENCE_ENABLED = true;
+
    // If SESSION-notifications should be suppressed or not
    public static boolean DEFAULT_SUPPRESS_SESSION_NOTIFICATIONS = false;
 
@@ -1951,6 +1954,13 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static long getMqttSessionStatePersistenceTimeout() {
       return DEFAULT_MQTT_SESSION_STATE_PERSISTENCE_TIMEOUT;
+   }
+
+   /**
+    * Whether to persist MQTT subscriptions
+    */
+   public static boolean getMqttSubscriptionPersistenceEnabled() {
+      return DEFAULT_MQTT_SUBSCRIPTION_PERSISTENCE_ENABLED;
    }
 
    public static boolean getDefaultSuppressSessionNotifications() {
