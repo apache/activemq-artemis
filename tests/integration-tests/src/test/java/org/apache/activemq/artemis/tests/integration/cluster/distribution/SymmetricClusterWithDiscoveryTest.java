@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import java.io.EOFException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -24,8 +26,11 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.Test;
 
 public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest {
@@ -87,6 +92,49 @@ public class SymmetricClusterWithDiscoveryTest extends SymmetricClusterTest {
    @Test
    public void testStartStopServersWithPauseBeforeRestarting() throws Exception {
       doTestStartStopServers(false);
+   }
+
+   @Test
+   public void testStartStopServersWithWrongConnectorConfigurations() throws Exception {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         setupCluster();
+
+         for (int node = 0; node < 5; node++) {
+            final int serverNode = node;
+
+            // Set wrong connector configurations
+            Map<String, TransportConfiguration> wrongConnectorConfigurations = new HashMap<>();
+            getServer(node).getConfiguration().getConnectorConfigurations().forEach((key, transportConfiguration) -> {
+               TransportConfiguration wrongtransportConfiguration = new TransportConfiguration(
+                       transportConfiguration.getFactoryClassName(),
+                       new HashMap<>(transportConfiguration.getParams()),
+                       transportConfiguration.getName(),
+                       new HashMap<>(transportConfiguration.getExtraParams()));
+               if (isNetty()) {
+                  wrongtransportConfiguration.getParams().put("port", org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_PORT + serverNode + 10);
+               } else {
+                  wrongtransportConfiguration.getParams().put("serverId", String.valueOf(serverNode + 10));
+               }
+               wrongConnectorConfigurations.put(key, wrongtransportConfiguration);
+            });
+            getServer(node).getConfiguration().setConnectorConfigurations(wrongConnectorConfigurations);
+
+            // Reduce the discovery stopping timeout to speed up the test
+            getServer(node).getConfiguration().getDiscoveryGroupConfigurations().forEach((s, discoveryGroupConfiguration) -> discoveryGroupConfiguration.setStoppingTimeout(1));
+
+            // Reduce the topology scanner attempts to speed up the test
+            getServer(node).getConfiguration().getClusterConfigurations().forEach(
+                    clusterConnectionConfiguration -> clusterConnectionConfiguration.setTopologyScannerAttempts(1));
+         }
+
+         startServers();
+
+         validateTopologySize(1, 0, 1, 2, 3, 4);
+
+         Wait.assertTrue(() -> loggerHandler.findText("AMQ224144"));
+
+         stopServers();
+      }
    }
 
    @Override

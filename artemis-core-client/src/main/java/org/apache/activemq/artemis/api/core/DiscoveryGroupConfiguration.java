@@ -43,6 +43,8 @@ public final class DiscoveryGroupConfiguration implements Serializable {
 
    private long discoveryInitialWaitTimeout = ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT;
 
+   private long stoppingTimeout = ActiveMQClient.DEFAULT_DISCOVERY_STOPPING_TIMEOUT;
+
    // This is the actual object used by the class, it has to be transient so we can handle deserialization with a 2.2 client
    private BroadcastEndpointFactory endpointFactory;
 
@@ -74,6 +76,14 @@ public final class DiscoveryGroupConfiguration implements Serializable {
    public DiscoveryGroupConfiguration setDiscoveryInitialWaitTimeout(long discoveryInitialWaitTimeout) {
       this.discoveryInitialWaitTimeout = discoveryInitialWaitTimeout;
       return this;
+   }
+
+   public long getStoppingTimeout() {
+      return stoppingTimeout;
+   }
+
+   public void setStoppingTimeout(long stoppingTimeout) {
+      this.stoppingTimeout = stoppingTimeout;
    }
 
    public BroadcastEndpointFactory getBroadcastEndpointFactory() {

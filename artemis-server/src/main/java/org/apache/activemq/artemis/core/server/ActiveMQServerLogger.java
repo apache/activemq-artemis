@@ -1497,7 +1497,7 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224143, value = "Bridge {} failed to send {}: {} {}", level = LogMessage.Level.WARN)
    void bridgeFailedToSend(String bridgeName, String message, String exceptionName, String exceptionMessage);
 
-   @LogMessage(id = 224144, value = "The topology of the cluster connection {} doesn't include all th expected members. "
+   @LogMessage(id = 224144, value = "The topology of the cluster connection {} doesn't include all the expected members. "
        + "Check the discovery group or the static connectors of the cluster connection if the topology is correct: {} / {}", level = LogMessage.Level.WARN)
    void incompleteClusterTopology(String clusterConnection, Topology topology, String topologyMembers);
 
