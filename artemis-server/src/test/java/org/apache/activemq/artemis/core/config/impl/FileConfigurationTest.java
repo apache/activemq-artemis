@@ -246,6 +246,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertFalse(configInstance.isRejectEmptyValidatedUser());
       assertEquals(123456, configInstance.getMqttSessionScanInterval());
       assertEquals(567890, configInstance.getMqttSessionStatePersistenceTimeout());
+      assertFalse(configInstance.isMqttSubscriptionPersistenceEnabled());
       assertEquals(98765, configInstance.getConnectionTtlCheckInterval());
       assertEquals(1234567, configInstance.getConfigurationFileRefreshPeriod());
       assertEquals("UUID", configInstance.getTemporaryQueueNamespace());

@@ -44,6 +44,7 @@ import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.DisconnectException;
 import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.InvalidClientIdException;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -93,7 +94,8 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    void setConnection(MQTTConnection connection, ConnectionEntry entry) throws Exception {
       this.connectionEntry = entry;
       this.connection = connection;
-      this.session = new MQTTSession(this, connection, protocolManager, server.getConfiguration().getWildcardConfiguration());
+      this.session = new MQTTSession(this, connection, protocolManager, server.getConfiguration().getWildcardConfiguration(), server.newOperationContext());
+      server.getStorageManager().setContext(session.getSessionContext());
    }
 
    void stop() {
@@ -406,7 +408,16 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          return;
       }
       MQTTUtil.logMessage(session.getState(), message, false, session.getVersion());
-      ctx.writeAndFlush(message, ctx.voidPromise());
+      server.getStorageManager().afterCompleteOperations(new IOCallback() {
+         @Override
+         public void done() {
+            ctx.writeAndFlush(message, ctx.voidPromise());
+         }
+
+         @Override
+         public void onError(int errorCode, String errorMessage) {
+         }
+      });
    }
 
    private int getMessageId(MqttMessage message) {

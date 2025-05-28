@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -69,8 +70,19 @@ public class XMLConfigurationUtil {
                                     final String name,
                                     final long def,
                                     final Validator<Number> validator) {
+      return getLong(e, name, def, validator, null);
+   }
+
+   public static final Long getLong(final Element e,
+                                    final String name,
+                                    final long def,
+                                    final Validator<Number> validator,
+                                    final String alternativeForDeprecated) {
       NodeList nl = e.getElementsByTagName(name);
       if (nl.getLength() > 0) {
+         if (alternativeForDeprecated != null) {
+            ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption(name, alternativeForDeprecated);
+         }
          return (Long) validator.validate(name, XMLUtil.parseLong(nl.item(0)));
       } else {
          return def;

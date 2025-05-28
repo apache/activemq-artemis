@@ -92,29 +92,29 @@ Payload logging is limited to avoid filling the logs with potentially hundreds o
 
 == Persistent Subscriptions
 
-The subscription information for MQTT sessions is stored in an internal queue named `$sys.mqtt.sessions` and persisted to storage (assuming persistence is enabled).
-The information is durable so that MQTT subscribers can reconnect and resume their subscriptions seamlessly after a broker restart, failure, etc.
+The subscription information for MQTT sessions is kept in an internal queue named `$sys.mqtt.sessions` and persisted to storage (assuming persistence is enabled).
+The information is durable so that MQTT subscribers can reconnect and resume their subscriptions seamlessly after a broker restart, failure, etc. without having to resend a `SUBSCRIBE` packet.
 When brokers are configured for high availability this information will be available on the backup so even in the case of a broker fail-over subscribers will be able to resume their subscriptions.
 
-While persistent subscriptions can be convenient they impose a performance penalty since data must be written to storage.
-If you don't need the convenience (e.g. you always use clean sessions) and/or you don't want the performance penalty then you can disable it by disabling the `$sys.mqtt.sessions` queue in `broker.xml`, e.g.:
+While persistent subscriptions can be convenient they impose a performance penalty since data must be written to and removed from storage.
+If you don't need the convenience (e.g. you always use clean sessions) and/or you don't want the performance penalty then you can disable it by setting `mqtt-subscription-persistence-enabled` to `false` in `broker.xml`, e.g.:
 
 [,xml]
 ----
-<addresses>
+<core>
    ...
-   <address name="$sys.mqtt.sessions">
-      <anycast>
-         <queue name="$sys.mqtt.sessions" enabled="false"/>
-      </anycast>
-   </address>
+   <mqtt-subscription-persistence-enabled>false</mqtt-subscription-persistence-enabled>
    ...
-</addresses>
+</core>
 ----
 
-The setting `mqtt-session-state-persistence-timeout` controls how long the broker will wait for the data to be written to storage before throwing an error.
-It is measured in milliseconds.
-The default is `5000`.
+The default is `true`.
+
+[NOTE]
+====
+Even if `mqtt-subscription-persistence-enabled` is `false` the broker will still keep track of QoS 1 & 2 messages.
+The _only_ impact of disabling MQTT subscription persistence is that clients will have to resend `SUBSCRIBE` packets as necessary in order to continue receiving messages after reconnecting after the server is restarted.
+====
 
 == Custom Client ID Handling
 

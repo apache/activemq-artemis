@@ -446,6 +446,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private long mqttSessionStatePersistenceTimeout = ActiveMQDefaultConfiguration.getMqttSessionStatePersistenceTimeout();
 
+   private boolean mqttSessionStatePersistenceEnabled = ActiveMQDefaultConfiguration.getMqttSubscriptionPersistenceEnabled();
+
    private boolean suppressSessionNotifications = ActiveMQDefaultConfiguration.getDefaultSuppressSessionNotifications();
 
    private String literalMatchMarkers = ActiveMQDefaultConfiguration.getLiteralMatchMarkers();
@@ -3501,6 +3503,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public Configuration setMqttSessionStatePersistenceTimeout(long mqttSessionStatePersistenceTimeout) {
       this.mqttSessionStatePersistenceTimeout = mqttSessionStatePersistenceTimeout;
+      return this;
+   }
+
+   @Override
+   public boolean isMqttSubscriptionPersistenceEnabled() {
+      return mqttSessionStatePersistenceEnabled;
+   }
+
+   @Override
+   public Configuration setMqttSubscriptionPersistenceEnabled(boolean mqttSubscriptionPersistenceEnabled) {
+      this.mqttSessionStatePersistenceEnabled = mqttSubscriptionPersistenceEnabled;
       return this;
    }
 

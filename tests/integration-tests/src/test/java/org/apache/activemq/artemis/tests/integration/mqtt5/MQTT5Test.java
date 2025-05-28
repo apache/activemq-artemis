@@ -24,6 +24,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -56,6 +58,7 @@ import org.eclipse.paho.mqttv5.client.MqttCallback;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
+import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.MqttSubscription;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
@@ -870,5 +873,45 @@ public class MQTT5Test extends MQTT5TestSupport {
       assertTrue(subscriberLatch.await(500, TimeUnit.MILLISECONDS));
       Wait.assertEquals(1L, () -> subscriptionQueue.getMessagesAcknowledged(), 2000, 50);
       Wait.assertEquals(0L, () -> subscriptionQueue.getMessageCount(), 2000, 50);
+   }
+
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testLoadOnSubscriptionPersistence() throws Exception {
+      String topic = RandomUtil.randomUUIDString();
+      int numberOfThreads = 250;
+      AtomicBoolean failed = new AtomicBoolean(false);
+      ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
+      runAfter(executorService::shutdownNow);
+
+      CountDownLatch latch = new CountDownLatch(numberOfThreads);
+
+      for (int i = 0; i < numberOfThreads; i++) {
+         executorService.submit(() -> {
+            MqttClient subscriber = null;
+            try {
+               subscriber = createPahoClient(RandomUtil.randomUUIDString());
+               subscriber.connect();
+               subscriber.subscribe(topic, AT_LEAST_ONCE);
+               subscriber.unsubscribe(topic);
+            } catch (MqttException e) {
+               logger.error(e.getMessage(), e);
+               failed.set(true);
+            } finally {
+               if (subscriber != null) {
+                  try {
+                     subscriber.disconnect();
+                     subscriber.close();
+                  } catch (MqttException e) {
+                     // ignore
+                  }
+               }
+               latch.countDown();
+            }
+         });
+      }
+
+      assertTrue(latch.await(1, TimeUnit.MINUTES), "not all tasks finished");
+      assertFalse(failed.get());
    }
 }
