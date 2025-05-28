@@ -105,6 +105,8 @@ public final class ActiveMQClient {
 
    public static final long DEFAULT_DISCOVERY_REFRESH_TIMEOUT = 10000;
 
+   public static final long DEFAULT_DISCOVERY_STOPPING_TIMEOUT = 10000;
+
    public static final int DEFAULT_DISCOVERY_PORT = 9876;
 
    public static final long DEFAULT_RETRY_INTERVAL = 2000;

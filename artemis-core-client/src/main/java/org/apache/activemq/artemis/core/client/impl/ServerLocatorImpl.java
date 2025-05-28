@@ -326,7 +326,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private static DiscoveryGroup createDiscoveryGroup(String nodeID,
                                                       DiscoveryGroupConfiguration config) throws Exception {
-      return new DiscoveryGroup(nodeID, config.getName(), config.getRefreshTimeout(), config.getBroadcastEndpointFactory(), null);
+      return new DiscoveryGroup(nodeID, config.getName(), config.getRefreshTimeout(), config.getStoppingTimeout(), config.getBroadcastEndpointFactory(), null);
    }
 
    private ServerLocatorImpl(final Topology topology,

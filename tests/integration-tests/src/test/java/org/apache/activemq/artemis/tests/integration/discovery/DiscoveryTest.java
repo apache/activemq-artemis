@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.core.cluster.DiscoveryEntry;
@@ -134,7 +135,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       bg.addConnector(live1);
 
-      dg = new DiscoveryGroup(nodeID + "1", "broadcast", 5000L, new JGroupsFileBroadcastEndpointFactory().setChannelName("tst").setFile(TEST_JGROUPS_CONF_FILE), null);
+      dg = new DiscoveryGroup(nodeID + "1", "broadcast", 5000L, ActiveMQClient.DEFAULT_DISCOVERY_STOPPING_TIMEOUT, new JGroupsFileBroadcastEndpointFactory().setChannelName("tst").setFile(TEST_JGROUPS_CONF_FILE), null);
 
       dg.start();
 

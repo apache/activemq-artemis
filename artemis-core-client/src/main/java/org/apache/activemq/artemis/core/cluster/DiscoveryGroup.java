@@ -80,17 +80,21 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
    private final NotificationService notificationService;
 
+   private final long stoppingTimeout;
+
    /**
     * This is the main constructor, intended to be used
     */
    public DiscoveryGroup(final String nodeID,
                          final String name,
                          final long timeout,
+                         final long stoppingTimeout,
                          BroadcastEndpointFactory endpointFactory,
                          NotificationService service) throws Exception {
       this.nodeID = nodeID;
       this.name = name;
       this.timeout = timeout;
+      this.stoppingTimeout = stoppingTimeout;
       this.endpoint = endpointFactory.createBroadcastEndpoint();
       this.notificationService = service;
    }
@@ -170,7 +174,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
       try {
          if (thread != null) {
             thread.interrupt();
-            thread.join(10000);
+            thread.join(stoppingTimeout);
             if (thread.isAlive()) {
                ActiveMQClientLogger.LOGGER.timedOutStoppingDiscovery();
             }

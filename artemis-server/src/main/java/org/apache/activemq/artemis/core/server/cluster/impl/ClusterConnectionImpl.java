@@ -625,18 +625,19 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       // localMember.getConnector().a,
       // localMember.getConnector().b);
 
-      if (topologyScanner != null && !stopping) {
-         topologyScanner.start();
-         topologyScanner.resetCounter();
-         topologyScanner.delay();
-      }
+      startTopologyScanner();
    }
 
    @Override
    public void connectorsChanged(List<DiscoveryEntry> newConnectors) {
       discoveryEntries = newConnectors;
 
-      if (topologyScanner != null && !stopping && topologyScanner.isStarted()) {
+      startTopologyScanner();
+   }
+
+   private void startTopologyScanner() {
+      if (topologyScanner != null && !stopping) {
+         topologyScanner.start();
          topologyScanner.resetCounter();
          topologyScanner.delay();
       }
