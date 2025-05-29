@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import io.netty.handler.codec.mqtt.MqttConnectMessage;
 import org.apache.activemq.artemis.core.server.routing.RoutingContext;
 
 public class MQTTRoutingContext extends RoutingContext {
@@ -29,8 +28,8 @@ public class MQTTRoutingContext extends RoutingContext {
    }
 
 
-   public MQTTRoutingContext(MQTTConnection mqttConnection, MQTTSession mqttSession, MqttConnectMessage connect) {
-      super(mqttConnection, mqttConnection.getClientID(), connect.payload().userName());
+   public MQTTRoutingContext(MQTTConnection mqttConnection, MQTTSession mqttSession, String username) {
+      super(mqttConnection, mqttConnection.getClientID(), username);
       this.mqttSession = mqttSession;
    }
 }

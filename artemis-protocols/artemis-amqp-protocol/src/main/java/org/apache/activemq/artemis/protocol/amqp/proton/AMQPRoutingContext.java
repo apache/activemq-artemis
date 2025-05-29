@@ -30,7 +30,7 @@ public class AMQPRoutingContext extends RoutingContext {
 
    public AMQPRoutingContext(AMQPConnectionContext connectionContext, Connection protonConnection) {
       super(connectionContext.getConnectionCallback().getProtonConnectionDelegate(), connectionContext.getRemoteContainer(),
-         connectionContext.getSASLResult() != null ? connectionContext.getSASLResult().getUser() : null);
+              connectionContext.getValidatedUser() != null ? connectionContext.getValidatedUser() : connectionContext.getUser());
       this.protonConnection = protonConnection;
    }
 }
