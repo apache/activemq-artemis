@@ -52,7 +52,7 @@ public class MQTTSessionState {
 
    private final String clientId;
 
-   private final ConcurrentMap<String, Pair<MqttTopicSubscription, Integer>> subscriptions = new ConcurrentHashMap<>();
+   private final ConcurrentMap<String, SubscriptionItem> subscriptions = new ConcurrentHashMap<>();
 
    // Used to store Packet ID of Publish QoS1 and QoS2 message.  See spec: 4.3.3 QoS 2: Exactly once delivery.  Method B.
    private final Map<Integer, MQTTMessageInfo> messageRefStore = new ConcurrentHashMap<>();
@@ -135,7 +135,7 @@ public class MQTTSessionState {
          MqttSubscriptionOption.RetainedHandlingPolicy retainedHandlingPolicy = MqttSubscriptionOption.RetainedHandlingPolicy.valueOf(buf.readInt());
          Integer subscriptionId = buf.readNullableInt();
 
-         subscriptions.put(topicName, new Pair<>(new MqttTopicSubscription(topicName, new MqttSubscriptionOption(qos, nolocal, retainAsPublished, retainedHandlingPolicy)), subscriptionId));
+         subscriptions.put(topicName, new SubscriptionItem(new MqttTopicSubscription(topicName, new MqttSubscriptionOption(qos, nolocal, retainAsPublished, retainedHandlingPolicy)), subscriptionId));
       }
    }
 
@@ -186,35 +186,39 @@ public class MQTTSessionState {
 
    public Collection<MqttTopicSubscription> getSubscriptions() {
       Collection<MqttTopicSubscription> result = new HashSet<>();
-      for (Pair<MqttTopicSubscription, Integer> pair : subscriptions.values()) {
-         result.add(pair.getA());
+      for (SubscriptionItem item : subscriptions.values()) {
+         result.add(item.getSubscription());
       }
       return result;
    }
 
    public Collection<Pair<MqttTopicSubscription, Integer>> getSubscriptionsPlusID() {
-      return subscriptions.values();
+      Collection<Pair<MqttTopicSubscription, Integer>> result = new HashSet<>();
+      for (SubscriptionItem item : subscriptions.values()) {
+         result.add(new Pair<>(item.getSubscription(), item.getId()));
+      }
+      return result;
    }
 
    public boolean addSubscription(MqttTopicSubscription subscription, WildcardConfiguration wildcardConfiguration, Integer subscriptionIdentifier) throws Exception {
       // synchronized to prevent race with removeSubscription
       synchronized (subscriptions) {
-         addressMessageMap.putIfAbsent(MQTTUtil.getCoreAddressFromMqttTopic(subscription.topicName(), wildcardConfiguration), new ConcurrentHashMap<>());
+         addressMessageMap.putIfAbsent(MQTTUtil.getCoreAddressFromMqttTopic(subscription.topicFilter(), wildcardConfiguration), new ConcurrentHashMap<>());
 
-         Pair<MqttTopicSubscription, Integer> existingSubscription = subscriptions.get(subscription.topicName());
+         SubscriptionItem existingSubscription = subscriptions.get(subscription.topicFilter());
          if (existingSubscription != null) {
             boolean updated = false;
-            if (subscription.qualityOfService().value() > existingSubscription.getA().qualityOfService().value()) {
-               existingSubscription.setA(subscription);
+            if (subscription.qualityOfService().value() > existingSubscription.getSubscription().qualityOfService().value()) {
+               existingSubscription.setSubscription(subscription);
                updated = true;
             }
-            if (subscriptionIdentifier != null && !subscriptionIdentifier.equals(existingSubscription.getB())) {
-               existingSubscription.setB(subscriptionIdentifier);
+            if (subscriptionIdentifier != null && !subscriptionIdentifier.equals(existingSubscription.getId())) {
+               existingSubscription.setId(subscriptionIdentifier);
                updated = true;
             }
             return updated;
          } else {
-            subscriptions.put(subscription.topicName(), new Pair<>(subscription, subscriptionIdentifier));
+            subscriptions.put(subscription.topicFilter(), new SubscriptionItem(subscription, subscriptionIdentifier));
             return true;
          }
       }
@@ -229,27 +233,27 @@ public class MQTTSessionState {
    }
 
    public MqttTopicSubscription getSubscription(String address) {
-      return subscriptions.get(address) != null ? subscriptions.get(address).getA() : null;
+      return subscriptions.get(address) != null ? subscriptions.get(address).getSubscription() : null;
    }
 
    public Pair<MqttTopicSubscription, Integer> getSubscriptionPlusID(String address) {
-      return subscriptions.get(address) != null ? subscriptions.get(address) : null;
+      SubscriptionItem item = subscriptions.get(address);
+      return item != null ? new Pair<>(item.getSubscription(), item.getId()) : null;
    }
 
    public List<Integer> getMatchingSubscriptionIdentifiers(String address) {
       address = MQTTUtil.getMqttTopicFromCoreAddress(address, session.getServer().getConfiguration().getWildcardConfiguration());
       List<Integer> result = null;
-      for (Pair<MqttTopicSubscription, Integer> pair : subscriptions.values()) {
-         Pattern pattern = Match.createPattern(pair.getA().topicName(), MQTTUtil.MQTT_WILDCARD, true);
-         boolean matches = pattern.matcher(address).matches();
-         logger.debug("Matching {} with {}: {}", address, pattern, matches);
-         if (matches) {
+      for (SubscriptionItem item : subscriptions.values()) {
+         if (item.getId() == null) {
+            // fast path. we don't need to match address if subscription ID is null
+            continue;
+         }
+         if (item.matches(address)) {
             if (result == null) {
                result = new ArrayList<>();
             }
-            if (pair.getB() != null) {
-               result.add(pair.getB());
-            }
+            result.add(item.getId());
          }
       }
       return result;
@@ -443,14 +447,14 @@ public class MQTTSessionState {
          "]@" + System.identityHashCode(this);
    }
 
-   public class OutboundStore {
-      private Map<Pair<Long, Long>, Integer> artemisToMqttMessageMap = new HashMap<>();
+   public static class OutboundStore {
+      private final Map<Pair<Long, Long>, Integer> artemisToMqttMessageMap = new HashMap<>();
 
-      private Map<Integer, Pair<Long, Long>> mqttToServerIds = new HashMap<>();
+      private final Map<Integer, Pair<Long, Long>> mqttToServerIds = new HashMap<>();
 
       private final Object dataStoreLock = new Object();
 
-      private final int INITIAL_ID = 0;
+      private static final int INITIAL_ID = 0;
 
       private int currentId = INITIAL_ID;
 
@@ -563,6 +567,38 @@ public class MQTTSessionState {
             case 2 -> SENDING;
             default -> null;
          };
+      }
+   }
+
+   private static class SubscriptionItem {
+      private MqttTopicSubscription subscription;
+      private Integer id;
+      private Pattern topicNamePattern;
+
+      public SubscriptionItem(MqttTopicSubscription subscription, Integer id) {
+         setSubscription(subscription);
+         setId(id);
+      }
+
+      public MqttTopicSubscription getSubscription() {
+         return subscription;
+      }
+
+      public void setSubscription(MqttTopicSubscription subscription) {
+         this.subscription = subscription;
+         this.topicNamePattern = Match.createPattern(subscription.topicFilter(), MQTTUtil.MQTT_WILDCARD, true);
+      }
+
+      public Integer getId() {
+         return id;
+      }
+
+      public void setId(Integer id) {
+         this.id = id;
+      }
+
+      public boolean matches(String address) {
+         return topicNamePattern.matcher(address).matches();
       }
    }
 }
