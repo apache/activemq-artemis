@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import io.netty.handler.codec.mqtt.MqttConnectMessage;
 import io.netty.handler.codec.mqtt.MqttProperties;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -31,8 +30,8 @@ public class MQTTRoutingHandler extends RoutingHandler<MQTTRoutingContext> {
       super(server);
    }
 
-   public boolean route(MQTTConnection mqttConnection, MQTTSession mqttSession, MqttConnectMessage connect) throws Exception {
-      return route(new MQTTRoutingContext(mqttConnection, mqttSession, connect));
+   public boolean route(MQTTConnection mqttConnection, MQTTSession mqttSession, String username) throws Exception {
+      return route(new MQTTRoutingContext(mqttConnection, mqttSession, username));
    }
 
    @Override

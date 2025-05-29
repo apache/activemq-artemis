@@ -30,7 +30,8 @@ public class OpenWireRoutingContext extends RoutingContext {
 
 
    public OpenWireRoutingContext(OpenWireConnection openWireConnection, ConnectionInfo connectionInfo) {
-      super(openWireConnection.getRemotingConnection(), connectionInfo.getClientId(), connectionInfo.getUserName());
+      super(openWireConnection.getRemotingConnection(), connectionInfo.getClientId(),
+              openWireConnection.getValidatedUser() != null ? openWireConnection.getValidatedUser() : connectionInfo.getUserName());
       this.openWireConnection = openWireConnection;
    }
 }

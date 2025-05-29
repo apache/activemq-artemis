@@ -39,6 +39,7 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 public class RoutingTestBase extends ClusterTestBase {
    protected static final String AMQP_PROTOCOL = "AMQP";
    protected static final String CORE_PROTOCOL = "CORE";
+   protected static final String MQTT_PROTOCOL = "MQTT";
    protected static final String OPENWIRE_PROTOCOL = "OPENWIRE";
 
    protected static final String CLUSTER_POOL = "CLUSTER";
@@ -160,10 +161,10 @@ public class RoutingTestBase extends ClusterTestBase {
    }
 
    protected ConnectionFactory createFactory(String protocol, boolean sslEnabled, String host, int port, String clientID, String user, String password) throws Exception {
-      return createFactory(protocol, sslEnabled,  host, port, clientID, user, password, -1);
+      return createFactory(protocol, sslEnabled,  host, port, clientID, user, password, false, -1);
    }
 
-   protected ConnectionFactory createFactory(String protocol, boolean sslEnabled, String host, int port, String clientID, String user, String password, int retries) throws Exception {
+   protected ConnectionFactory createFactory(String protocol, boolean sslEnabled, String host, int port, String clientID, String user, String password, boolean needClientAuth, int retries) throws Exception {
       switch (protocol) {
          case CORE_PROTOCOL: {
             StringBuilder urlBuilder = new StringBuilder();
@@ -172,7 +173,7 @@ public class RoutingTestBase extends ClusterTestBase {
             urlBuilder.append(host);
             urlBuilder.append(":");
             urlBuilder.append(port);
-            urlBuilder.append("?ha=true&reconnectAttempts=10&initialConnectAttempts=" + retries);
+            urlBuilder.append("?ha=true&reconnectAttempts=10&retryInterval=250&initialConnectAttempts=" + retries);
 
             urlBuilder.append("&sniHost=");
             urlBuilder.append(host);
@@ -197,6 +198,18 @@ public class RoutingTestBase extends ClusterTestBase {
                urlBuilder.append(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME);
                urlBuilder.append("=");
                urlBuilder.append("securepass");
+
+               if (needClientAuth) {
+                  urlBuilder.append("&");
+                  urlBuilder.append(TransportConstants.KEYSTORE_PATH_PROP_NAME);
+                  urlBuilder.append("=");
+                  urlBuilder.append("client-keystore.jks");
+
+                  urlBuilder.append("&");
+                  urlBuilder.append(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME);
+                  urlBuilder.append("=");
+                  urlBuilder.append("securepass");
+               }
             }
 
             return new ActiveMQConnectionFactory(urlBuilder.toString(), user, password);
@@ -214,7 +227,15 @@ public class RoutingTestBase extends ClusterTestBase {
 
                urlBuilder.append("?transport.trustStoreLocation=");
                urlBuilder.append(getClass().getClassLoader().getResource("server-ca-truststore.jks").getFile());
-               urlBuilder.append("&transport.trustStorePassword=securepass)");
+               urlBuilder.append("&transport.trustStorePassword=securepass");
+
+               if (needClientAuth) {
+                  urlBuilder.append("&transport.keyStoreLocation=");
+                  urlBuilder.append(getClass().getClassLoader().getResource("client-keystore.jks").getFile());
+                  urlBuilder.append("&transport.keyStorePassword=securepass");
+               }
+
+               urlBuilder.append(")");
             } else {
                urlBuilder.append("amqp://");
                urlBuilder.append(host);
@@ -264,6 +285,12 @@ public class RoutingTestBase extends ClusterTestBase {
                sslConnectionFactory.setPassword(password);
                sslConnectionFactory.setTrustStore("server-ca-truststore.jks");
                sslConnectionFactory.setTrustStorePassword("securepass");
+
+               if (needClientAuth) {
+                  sslConnectionFactory.setKeyStore("client-keystore.jks");
+                  sslConnectionFactory.setKeyStorePassword("securepass");
+               }
+
                return sslConnectionFactory;
             } else {
                return new org.apache.activemq.ActiveMQConnectionFactory(user, password, urlBuilder.toString());

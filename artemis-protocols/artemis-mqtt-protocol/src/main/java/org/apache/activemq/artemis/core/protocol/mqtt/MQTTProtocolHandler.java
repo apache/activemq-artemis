@@ -259,7 +259,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          protocolManager.getStateManager().addConnectedClient(session.getConnection().getClientID(), session.getConnection());
       }
 
-      if (connection.getTransportConnection().getRouter() == null || !protocolManager.getRoutingHandler().route(connection, session, connect)) {
+      if (connection.getTransportConnection().getRouter() == null || !protocolManager.getRoutingHandler().route(connection, session, validationData.getB() != null ? validationData.getB() : username)) {
          calculateKeepAlive(connect);
 
          session.getConnectionManager().connect(connect, validationData.getB(), username, password);
