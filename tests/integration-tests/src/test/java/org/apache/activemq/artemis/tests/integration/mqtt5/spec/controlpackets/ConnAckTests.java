@@ -47,6 +47,7 @@ import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.client.MqttDisconnectResponse;
 import org.eclipse.paho.mqttv5.common.MqttException;
+import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.eclipse.paho.mqttv5.common.packet.MqttReturnCode;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -543,6 +544,29 @@ public class ConnAckTests  extends MQTT5TestSupport {
       assertTrue(found);
       client.disconnect();
    }
+
+   /**
+    * [MQTT-3.2.2.3]
+    * Retain Available
+    * Wildcard Subscription Available
+    * Subscription Identifiers Available
+    * Shared Subscription Available
+    */
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testServerFeaturesAvailabilityFlags() throws Exception {
+      MqttClient client = createPahoClient(RandomUtil.randomUUIDString());
+      MqttConnectionOptions options = new MqttConnectionOptions();
+      IMqttToken result = client.connectWithResult(options);
+      MqttProperties responseProps = result.getResponseProperties();
+      assertNotNull(responseProps);
+      assertTrue(responseProps.isRetainAvailable());
+      assertTrue(responseProps.isSharedSubscriptionAvailable());
+      assertTrue(responseProps.isWildcardSubscriptionsAvailable());
+      assertTrue(responseProps.isSubscriptionIdentifiersAvailable());
+      client.disconnect();
+   }
+
 
    private List<Integer> getListOfCodes(int[] codes) {
       return IntStream.of(codes).boxed().collect(Collectors.toList());
