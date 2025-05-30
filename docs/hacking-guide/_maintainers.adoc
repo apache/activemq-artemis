@@ -19,9 +19,9 @@ Having additional eyes looking at significant changes prior to committing to the
 If the build does break then developer is expected to make their best effort to get the builds fixed in a reasonable amount of time.
 If it cannot be fixed in a reasonable amount of time the commit can be reverted and re-reviewed.
 
-== Using the dev profile.
+== Using the `dev` profile.
 
-Developers are encouraged also to use the Dev profile, which will activate checkstyle during the build:
+Developers are encouraged to use the `dev` profile which will activate https://checkstyle.org/[CheckStyle] during the build:
 [,console]
 ----
 $ mvn -Pdev install
