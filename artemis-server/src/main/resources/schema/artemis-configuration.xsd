@@ -466,7 +466,15 @@
          <xsd:element name="mqtt-session-state-persistence-timeout" type="xsd:long" default="5000" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  how long (in ms) to wait to persist MQTT session state
+                  DEPRECATED: how long (in ms) to wait to persist MQTT session state
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="mqtt-subscription-persistence-enabled" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether to persist MQTT subscriptions
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

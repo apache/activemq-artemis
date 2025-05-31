@@ -27,6 +27,7 @@ import io.netty.handler.codec.mqtt.MqttQoS;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
@@ -76,16 +77,19 @@ public class MQTTSession {
 
    private boolean usingServerKeepAlive = false;
 
+   private OperationContext sessionContext;
+
    public MQTTSession(MQTTProtocolHandler protocolHandler,
                       MQTTConnection connection,
                       MQTTProtocolManager protocolManager,
-                      WildcardConfiguration wildcardConfiguration) throws Exception {
+                      WildcardConfiguration wildcardConfiguration,
+                      OperationContext sessionContext) throws Exception {
       this.protocolHandler = protocolHandler;
       this.protocolManager = protocolManager;
       this.stateManager = protocolManager.getStateManager();
       this.wildcardConfiguration = wildcardConfiguration;
-
       this.connection = connection;
+      this.sessionContext = sessionContext;
 
       mqttConnectionManager = new MQTTConnectionManager(this);
       mqttPublishManager = new MQTTPublishManager(this, protocolManager.isCloseMqttConnectionOnPublishAuthorizationFailure());
@@ -249,6 +253,10 @@ public class MQTTSession {
 
    public void setWildcardConfiguration(WildcardConfiguration wildcardConfiguration) {
       this.wildcardConfiguration = wildcardConfiguration;
+   }
+
+   public OperationContext getSessionContext() {
+      return sessionContext;
    }
 
    public CoreMessageObjectPools getCoreMessageObjectPools() {

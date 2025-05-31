@@ -239,6 +239,10 @@ public class MQTTSubscriptionManager {
    }
 
    short[] removeSubscriptions(List<String> topics, boolean enforceSecurity) throws Exception {
+      if (topics == null || topics.size() == 0) {
+         return new short[0];
+      }
+
       short[] reasonCodes;
       MQTTSessionState state = session.getState();
 
@@ -277,8 +281,14 @@ public class MQTTSubscriptionManager {
             reasonCodes[i] =  reasonCode;
          }
 
-         // store state after *all* requested subscriptions have been removed in memory
-         stateManager.storeSessionState(state);
+         // deal with durable state after *all* requested subscriptions have been removed in memory
+         if (state.getSubscriptions().size() > 0) {
+            // if there are some subscriptions left then update the state
+            stateManager.storeDurableSubscriptionState(state);
+         } else {
+            // if there are no subscriptions left then remove the state entirely
+            stateManager.removeDurableSubscriptionState(state.getClientId());
+         }
       }
 
       return reasonCodes;
@@ -327,7 +337,7 @@ public class MQTTSubscriptionManager {
          }
 
          // store state after *all* requested subscriptions have been created in memory
-         stateManager.storeSessionState(state);
+         stateManager.storeDurableSubscriptionState(state);
 
          return qos;
       }

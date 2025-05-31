@@ -400,6 +400,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String INITIAL_QUEUE_BUFFER_SIZE = "initial-queue-buffer-size";
 
+   private static final String MQTT_SUBSCRIPTION_PERSISTENCE_ENABLED = "mqtt-subscription-persistence-enabled";
+
    private boolean validateAIO = false;
 
    private boolean printPageMaxSizeUsed = false;
@@ -511,7 +513,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setMqttSessionScanInterval(getLong(e, "mqtt-session-scan-interval", config.getMqttSessionScanInterval(), GT_ZERO));
 
-      config.setMqttSessionStatePersistenceTimeout(getLong(e, "mqtt-session-state-persistence-timeout", config.getMqttSessionStatePersistenceTimeout(), GT_ZERO));
+      config.setMqttSessionStatePersistenceTimeout(getLong(e, "mqtt-session-state-persistence-timeout", config.getMqttSessionStatePersistenceTimeout(), GT_ZERO, MQTT_SUBSCRIPTION_PERSISTENCE_ENABLED));
+
+      config.setMqttSubscriptionPersistenceEnabled(getBoolean(e, MQTT_SUBSCRIPTION_PERSISTENCE_ENABLED, config.isMqttSubscriptionPersistenceEnabled()));
 
       config.setGlobalMaxSizePercentOfJvmMaxMemory(getInteger(e, GLOBAL_MAX_SIZE_PERCENT_JVM_MAX_MEM, config.getGlobalMaxSizePercentOfJvmMaxMemory(), GT_ZERO));
 
