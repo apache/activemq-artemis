@@ -575,7 +575,7 @@ public class MQTTSessionState {
       private Integer id;
       private Pattern topicNamePattern;
 
-      public SubscriptionItem(MqttTopicSubscription subscription, Integer id) {
+      SubscriptionItem(MqttTopicSubscription subscription, Integer id) {
          setSubscription(subscription);
          setId(id);
       }
