@@ -1602,7 +1602,20 @@ public class PublishTests extends MQTT5TestSupport {
     */
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
-   public void testReceiveMaximum() throws Exception {
+   public void testReceiveMaximumSetByClient() throws Exception {
+      testReceiveMaximum(false);
+   }
+
+   /**
+    * @see PublishTests#testReceiveMaximumSetByClient()
+    */
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testImplicitReceiveMaximumByDefaultMaximumInFlightPublishMessages() throws Exception {
+      testReceiveMaximum(true);
+   }
+
+   private void testReceiveMaximum(boolean useDefault) throws Exception {
       AtomicInteger count = new AtomicInteger(0);
       AtomicBoolean failed = new AtomicBoolean(false);
       final int MESSAGE_COUNT = 50;
@@ -1625,13 +1638,21 @@ public class PublishTests extends MQTT5TestSupport {
       server.getRemotingService().addIncomingInterceptor(incomingInterceptor);
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
+      if (useDefault) {
+         getProtocolManager().setDefaultMaximumInFlightPublishMessages(RECEIVE_MAXIMUM); // must be used when missing Receive Maximum from the client
+      } else {
+         getProtocolManager().setDefaultMaximumInFlightPublishMessages(1); // Receive Maximum from the client must override this
+      }
+
       final String TOPIC = this.getTopicName();
 
       final CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
       final String CONSUMER_ID = "consumer";
       MqttAsyncClient consumer = createAsyncPahoClient(CONSUMER_ID);
       MqttConnectionOptions options = new MqttConnectionOptions();
-      options.setReceiveMaximum(RECEIVE_MAXIMUM);
+      if (!useDefault) {
+         options.setReceiveMaximum(RECEIVE_MAXIMUM);
+      }
       consumer.connect(options).waitForCompletion();
       consumer.setCallback(new DefaultMqttCallback() {
          @Override
@@ -1690,6 +1711,7 @@ public class PublishTests extends MQTT5TestSupport {
       };
       server.getRemotingService().addIncomingInterceptor(incomingInterceptor);
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
+      getProtocolManager().setDefaultMaximumInFlightPublishMessages(1); // must not be taken into account for QoS 0
 
       final CountDownLatch latch = new CountDownLatch(MESSAGE_COUNT);
       final String CONSUMER_ID = "consumer";

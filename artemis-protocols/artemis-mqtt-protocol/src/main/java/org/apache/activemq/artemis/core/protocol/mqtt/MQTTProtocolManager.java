@@ -72,6 +72,8 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
 
    private boolean allowLinkStealing = true;
 
+   private int defaultMaximumInFlightPublishMessages = MQTTUtil.DEFAULT_MAXIMUM_IN_FLIGHT_PUBLISH_MESSAGES;
+
    private final MQTTRoutingHandler routingHandler;
 
    private MQTTStateManager sessionStateManager;
@@ -152,6 +154,14 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
 
    public void setAllowLinkStealing(boolean allowLinkStealing) {
       this.allowLinkStealing = allowLinkStealing;
+   }
+
+   public int getDefaultMaximumInFlightPublishMessages() {
+      return defaultMaximumInFlightPublishMessages;
+   }
+
+   public void setDefaultMaximumInFlightPublishMessages(int defaultMaximumInFlightPublishMessages) {
+      this.defaultMaximumInFlightPublishMessages = defaultMaximumInFlightPublishMessages;
    }
 
    @Override
