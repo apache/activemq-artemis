@@ -401,7 +401,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       }
 
-      logger.info("Sending disconnect on client connections");
+      logger.debug("Sending disconnect on client connections");
 
       Set<ConnectionEntry> connectionEntries = new HashSet<>(connections.values());
 
