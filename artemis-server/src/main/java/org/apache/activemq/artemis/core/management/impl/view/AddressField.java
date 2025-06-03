@@ -32,7 +32,7 @@ public enum AddressField {
    RETROACTIVE_RESOURCE("retroactiveResource"),
    UNROUTED_MESSAGE_COUNT("unroutedMessageCount"),
    ROUTED_MESSAGE_COUNT("routedMessageCount"),
-   MESSAGE_COUNT("MessageCount"),
+   MESSAGE_COUNT("messageCount"),
    NUMBER_OF_BYTES_PER_PAGE("numberOfBytesPerPage"),
    ADDRESS_LIMIT_PERCENT("addressLimitPercent"),
    PAGING("paging"),
