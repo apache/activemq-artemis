@@ -587,11 +587,13 @@ public class MQTTSessionState {
       }
 
       private void update(MqttTopicSubscription newSub, Integer newId) {
-         this.subscription = newSub;
-         if (newId != null && !Objects.equals(this.id, newId)) {
-            this.topicNamePattern = Match.createPattern(newSub.topicFilter(), MQTTUtil.MQTT_WILDCARD, true);
+         if (newId != null && !newId.equals(id)) {
+            if (this.topicNamePattern == null || !subscription.topicFilter().equals(newSub.topicFilter())) {
+               topicNamePattern = Match.createPattern(newSub.topicFilter(), MQTTUtil.MQTT_WILDCARD, true);
+            }
          }
-         this.id = newId;
+         subscription = newSub;
+         id = newId;
       }
    }
 }
