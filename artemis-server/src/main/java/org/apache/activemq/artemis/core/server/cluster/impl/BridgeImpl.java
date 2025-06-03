@@ -27,6 +27,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
@@ -149,6 +151,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    private final BridgeConfiguration configuration;
 
    private final OperationContextImpl bridgeContext;
+
+   private final Lock scaleDownLock = new ReentrantLock();
 
    public BridgeImpl(final ServerLocatorInternal serverLocator,
                      final BridgeConfiguration configuration,
@@ -575,74 +579,82 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          return HandleStatus.NO_MATCH;
       }
 
-      synchronized (this) {
-         if (state != State.STARTED || !session.isWritable(this)) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("{}::Ignoring reference on bridge as it is set to inactive ref {}, active = false", this, ref);
-            }
-            return HandleStatus.BUSY;
-         }
-
-         if (blockedOnFlowControl) {
-            logger.debug("Bridge {} is blocked on flow control, cannot receive {}", configuration.getName(), ref);
-            return HandleStatus.BUSY;
-         }
-
-         if (deliveringLargeMessage) {
-            logger.trace("Bridge {} is busy delivering a large message", configuration.getName());
-            return HandleStatus.BUSY;
-         }
-
-         logger.trace("Bridge {} is handling reference {} ", configuration.getName(), ref);
-
-         ref.handled();
-
-         synchronized (refs) {
-            refs.put(ref.getMessage().getMessageID(), ref);
-         }
-
-         final SimpleString dest;
-
-         if (configuration.getForwardingAddress() != null) {
-            dest = SimpleString.of(configuration.getForwardingAddress());
-         } else {
-            // Preserve the original address
-            dest = ref.getMessage().getAddressSimpleString();
-         }
-
-         final Message message = beforeForward(ref.getMessage(), dest);
-
-         pendingAcks.countUp();
-
+      if (scaleDownLock.tryLock()) {
          try {
-            if (server.hasBrokerBridgePlugins()) {
-               server.callBrokerBridgePlugins(plugin -> plugin.beforeDeliverBridge(this, ref));
-            }
+            synchronized (this) {
+               if (state != State.STARTED || !session.isWritable(this)) {
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("{}::Ignoring reference on bridge as it is set to inactive ref {}, active = false", this, ref);
+                  }
+                  return HandleStatus.BUSY;
+               }
 
-            final HandleStatus status;
-            if (message.isLargeMessage()) {
-               deliveringLargeMessage = true;
-               deliverLargeMessage(dest, ref, (LargeServerMessage) message);
-               status = HandleStatus.HANDLED;
-            } else {
-               status = deliverStandardMessage(dest, ref, message, ref.getMessage());
-            }
+               if (blockedOnFlowControl) {
+                  logger.debug("Bridge {} is blocked on flow control, cannot receive {}", configuration.getName(), ref);
+                  return HandleStatus.BUSY;
+               }
 
-            //Only increment messages pending acknowledgement if handled by bridge
-            if (status == HandleStatus.HANDLED) {
-               metrics.incrementMessagesPendingAcknowledgement();
-            }
+               if (deliveringLargeMessage) {
+                  logger.trace("Bridge {} is busy delivering a large message", configuration.getName());
+                  return HandleStatus.BUSY;
+               }
 
-            if (server.hasBrokerBridgePlugins()) {
-               server.callBrokerBridgePlugins(plugin -> plugin.afterDeliverBridge(this, ref, status));
-            }
+               logger.trace("Bridge {} is handling reference {} ", configuration.getName(), ref);
 
-            return status;
-         } catch (Exception e) {
-            // If an exception happened, we must count down immediately
-            pendingAcks.countDown();
-            throw e;
+               ref.handled();
+
+               synchronized (refs) {
+                  refs.put(ref.getMessage().getMessageID(), ref);
+               }
+
+               final SimpleString dest;
+
+               if (configuration.getForwardingAddress() != null) {
+                  dest = SimpleString.of(configuration.getForwardingAddress());
+               } else {
+                  // Preserve the original address
+                  dest = ref.getMessage().getAddressSimpleString();
+               }
+
+               final Message message = beforeForward(ref.getMessage(), dest);
+
+               pendingAcks.countUp();
+
+               try {
+                  if (server.hasBrokerBridgePlugins()) {
+                     server.callBrokerBridgePlugins(plugin -> plugin.beforeDeliverBridge(this, ref));
+                  }
+
+                  final HandleStatus status;
+                  if (message.isLargeMessage()) {
+                     deliveringLargeMessage = true;
+                     deliverLargeMessage(dest, ref, (LargeServerMessage) message);
+                     status = HandleStatus.HANDLED;
+                  } else {
+                     status = deliverStandardMessage(dest, ref, message, ref.getMessage());
+                  }
+
+                  //Only increment messages pending acknowledgement if handled by bridge
+                  if (status == HandleStatus.HANDLED) {
+                     metrics.incrementMessagesPendingAcknowledgement();
+                  }
+
+                  if (server.hasBrokerBridgePlugins()) {
+                     server.callBrokerBridgePlugins(plugin -> plugin.afterDeliverBridge(this, ref, status));
+                  }
+
+                  return status;
+               } catch (Exception e) {
+                  // If an exception happened, we must count down immediately
+                  pendingAcks.countDown();
+                  throw e;
+               }
+            }
+         } finally {
+            scaleDownLock.unlock();
          }
+      } else {
+         return HandleStatus.BUSY;
       }
    }
 
@@ -701,8 +713,9 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    }
 
    protected void scaleDown(String scaleDownTargetNodeID) {
-      synchronized (this) {
-         try {
+      scaleDownLock.lock();
+      try {
+         synchronized (this) {
             if (logger.isDebugEnabled()) {
                logger.debug("Moving {} messages from {} to {}", queue.getMessageCount(), queue.getName(), scaleDownTargetNodeID);
             }
@@ -710,10 +723,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
             // stop the bridge from trying to reconnect and clean up all the bindings
             fail(true, true);
-
-         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
          }
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+      } finally {
+         scaleDownLock.unlock();
       }
    }
 
