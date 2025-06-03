@@ -52,10 +52,10 @@ public class StateSerDeTest {
          MQTTSessionState deserialized = new MQTTSessionState(serializedState);
 
          assertEquals(unserialized.getClientId(), deserialized.getClientId());
-         for (Pair<MqttTopicSubscription, Integer> unserializedEntry : unserialized.getSubscriptionsPlusID()) {
-            MqttTopicSubscription unserializedSub = unserializedEntry.getA();
-            Integer unserializedSubId = unserializedEntry.getB();
-            Pair<MqttTopicSubscription, Integer> deserializedEntry = deserialized.getSubscriptionPlusID(unserializedSub.topicName());
+         for (MQTTSessionState.SubscriptionItem unserializedItem : unserialized.getSubscriptionsPlusID().values()) {
+            MqttTopicSubscription unserializedSub = unserializedItem.getSubscription();
+            Integer unserializedSubId = unserializedItem.getId();
+            Pair<MqttTopicSubscription, Integer> deserializedEntry = deserialized.getSubscriptionPlusID(unserializedSub.topicFilter());
             MqttTopicSubscription deserializedSub = deserializedEntry.getA();
             Integer deserializedSubId = deserializedEntry.getB();
 
@@ -72,11 +72,11 @@ public class StateSerDeTest {
       if (a == null || b == null) {
          return false;
       }
-      if (a.topicName() == null) {
-         if (b.topicName() != null) {
+      if (a.topicFilter() == null) {
+         if (b.topicFilter() != null) {
             return false;
          }
-      } else if (!a.topicName().equals(b.topicName())) {
+      } else if (!a.topicFilter().equals(b.topicFilter())) {
          return false;
       }
       if (a.option() == null) {

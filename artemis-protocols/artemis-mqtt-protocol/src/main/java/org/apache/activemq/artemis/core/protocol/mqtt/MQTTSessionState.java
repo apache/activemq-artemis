@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -192,12 +193,8 @@ public class MQTTSessionState {
       return result;
    }
 
-   public Collection<Pair<MqttTopicSubscription, Integer>> getSubscriptionsPlusID() {
-      Collection<Pair<MqttTopicSubscription, Integer>> result = new HashSet<>();
-      for (SubscriptionItem item : subscriptions.values()) {
-         result.add(new Pair<>(item.getSubscription(), item.getId()));
-      }
-      return result;
+   public Map<String, SubscriptionItem> getSubscriptionsPlusID() {
+      return subscriptions;
    }
 
    public boolean addSubscription(MqttTopicSubscription subscription, WildcardConfiguration wildcardConfiguration, Integer subscriptionIdentifier) throws Exception {
@@ -207,16 +204,13 @@ public class MQTTSessionState {
 
          SubscriptionItem existingSubscription = subscriptions.get(subscription.topicFilter());
          if (existingSubscription != null) {
-            boolean updated = false;
-            if (subscription.qualityOfService().value() > existingSubscription.getSubscription().qualityOfService().value()) {
-               existingSubscription.setSubscription(subscription);
-               updated = true;
+            if (subscription.qualityOfService().value() > existingSubscription.getSubscription().qualityOfService().value()
+               || !Objects.equals(subscriptionIdentifier, existingSubscription.getId())) {
+               existingSubscription.update(subscription, subscriptionIdentifier);
+               return true;
+            } else {
+               return false;
             }
-            if (subscriptionIdentifier != null && !subscriptionIdentifier.equals(existingSubscription.getId())) {
-               existingSubscription.setId(subscriptionIdentifier);
-               updated = true;
-            }
-            return updated;
          } else {
             subscriptions.put(subscription.topicFilter(), new SubscriptionItem(subscription, subscriptionIdentifier));
             return true;
@@ -242,18 +236,15 @@ public class MQTTSessionState {
    }
 
    public List<Integer> getMatchingSubscriptionIdentifiers(String address) {
-      address = MQTTUtil.getMqttTopicFromCoreAddress(address, session.getServer().getConfiguration().getWildcardConfiguration());
+      String topic = MQTTUtil.getMqttTopicFromCoreAddress(address, session.getServer().getConfiguration().getWildcardConfiguration());
       List<Integer> result = null;
       for (SubscriptionItem item : subscriptions.values()) {
-         if (item.getId() == null) {
-            // fast path. we don't need to match address if subscription ID is null
-            continue;
-         }
-         if (item.matches(address)) {
+         Integer subId = item.getIdIfMatchesTo(topic);
+         if (subId != null) {
             if (result == null) {
                result = new ArrayList<>();
             }
-            result.add(item.getId());
+            result.add(subId);
          }
       }
       return result;
@@ -570,35 +561,37 @@ public class MQTTSessionState {
       }
    }
 
-   private static class SubscriptionItem {
+   public static class SubscriptionItem {
       private MqttTopicSubscription subscription;
       private Integer id;
       private Pattern topicNamePattern;
 
-      SubscriptionItem(MqttTopicSubscription subscription, Integer id) {
-         setSubscription(subscription);
-         setId(id);
+      public SubscriptionItem(MqttTopicSubscription subscription, Integer id) {
+         update(subscription, id);
       }
 
       public MqttTopicSubscription getSubscription() {
          return subscription;
       }
 
-      public void setSubscription(MqttTopicSubscription subscription) {
-         this.subscription = subscription;
-         this.topicNamePattern = Match.createPattern(subscription.topicFilter(), MQTTUtil.MQTT_WILDCARD, true);
-      }
-
       public Integer getId() {
          return id;
       }
 
-      public void setId(Integer id) {
-         this.id = id;
+      public Integer getIdIfMatchesTo(String topic) {
+         if (id != null && topicNamePattern.matcher(topic).matches()) {
+            return id;
+         } else {
+            return null;
+         }
       }
 
-      public boolean matches(String address) {
-         return topicNamePattern.matcher(address).matches();
+      private void update(MqttTopicSubscription newSub, Integer newId) {
+         this.subscription = newSub;
+         if (newId != null && !Objects.equals(this.id, newId)) {
+            this.topicNamePattern = Match.createPattern(newSub.topicFilter(), MQTTUtil.MQTT_WILDCARD, true);
+         }
+         this.id = newId;
       }
    }
 }

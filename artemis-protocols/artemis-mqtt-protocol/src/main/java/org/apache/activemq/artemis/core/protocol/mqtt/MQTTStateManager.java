@@ -20,7 +20,6 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
@@ -50,10 +48,10 @@ import org.slf4j.LoggerFactory;
 public class MQTTStateManager {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-   private ActiveMQServer server;
+   private final ActiveMQServer server;
    private final Map<String, MQTTSessionState> sessionStates = new ConcurrentHashMap<>();
    private final Queue sessionStore;
-   private static Map<Integer, MQTTStateManager> INSTANCES = new HashMap<>();
+   private static final Map<Integer, MQTTStateManager> INSTANCES = new HashMap<>();
    private final Map<String, MQTTConnection> connectedClients  = new ConcurrentHashMap<>();
    private final long timeout;
 
@@ -109,7 +107,7 @@ public class MQTTStateManager {
    }
 
    public void scanSessions() {
-      List<String> toRemove = new ArrayList();
+      List<String> toRemove = new ArrayList<>();
       for (Map.Entry<String, MQTTSessionState> entry : sessionStates.entrySet()) {
          MQTTSessionState state = entry.getValue();
          logger.debug("Inspecting session: {}", state);
@@ -199,7 +197,7 @@ public class MQTTStateManager {
       message.setAddress(MQTTUtil.MQTT_SESSION_STORE);
       message.setDurable(true);
       message.putStringProperty(Message.HDR_LAST_VALUE_NAME, state.getClientId());
-      Collection<Pair<MqttTopicSubscription, Integer>> subscriptions = state.getSubscriptionsPlusID();
+      Map<String, MQTTSessionState.SubscriptionItem> subscriptions = state.getSubscriptionsPlusID();
       ActiveMQBuffer buf = message.getBodyBuffer();
 
       /*
@@ -210,14 +208,14 @@ public class MQTTStateManager {
 
       buf.writeInt(subscriptions.size());
       logger.debug("Serializing {} subscriptions", subscriptions.size());
-      for (Pair<MqttTopicSubscription, Integer> pair : subscriptions) {
-         MqttTopicSubscription sub = pair.getA();
-         buf.writeString(sub.topicName());
+      for (MQTTSessionState.SubscriptionItem item : subscriptions.values()) {
+         MqttTopicSubscription sub = item.getSubscription();
+         buf.writeString(sub.topicFilter());
          buf.writeInt(sub.option().qos().value());
          buf.writeBoolean(sub.option().isNoLocal());
          buf.writeBoolean(sub.option().isRetainAsPublished());
          buf.writeInt(sub.option().retainHandling().value());
-         buf.writeNullableInt(pair.getB());
+         buf.writeNullableInt(item.getId());
       }
 
       return message;

@@ -100,9 +100,9 @@ public class MQTTSubscriptionManager {
    }
 
    private void addSubscription(MqttTopicSubscription subscription, Integer subscriptionIdentifier, boolean initialStart) throws Exception {
-      String rawTopicName = CompositeAddress.extractAddressName(subscription.topicName());
+      String rawTopicName = CompositeAddress.extractAddressName(subscription.topicFilter());
       String parsedTopicName = MQTTUtil.decomposeSharedSubscriptionTopicFilter(rawTopicName).getB();
-      boolean isFullyQualified = CompositeAddress.isFullyQualified(subscription.topicName());
+      boolean isFullyQualified = CompositeAddress.isFullyQualified(subscription.topicFilter());
 
       Queue q = createQueueForSubscription(rawTopicName, parsedTopicName, isFullyQualified);
 
@@ -299,7 +299,7 @@ public class MQTTSubscriptionManager {
                addSubscription(subscriptions.get(i), subscriptionIdentifier, false);
                qos[i] = subscriptions.get(i).qualityOfService().value();
             } catch (ActiveMQSecurityException e) {
-               // user is not authorized to create subsription
+               // user is not authorized to create subscription
                if (session.getVersion() == MQTTVersion.MQTT_5) {
                   qos[i] = MQTTReasonCodes.NOT_AUTHORIZED;
                } else if (session.getVersion() == MQTTVersion.MQTT_3_1_1) {
@@ -340,7 +340,7 @@ public class MQTTSubscriptionManager {
    void clean(boolean enforceSecurity) throws Exception {
       List<String> topics = new ArrayList<>();
       for (MqttTopicSubscription mqttTopicSubscription : session.getState().getSubscriptions()) {
-         topics.add(mqttTopicSubscription.topicName());
+         topics.add(mqttTopicSubscription.topicFilter());
       }
       removeSubscriptions(topics, enforceSecurity);
    }
