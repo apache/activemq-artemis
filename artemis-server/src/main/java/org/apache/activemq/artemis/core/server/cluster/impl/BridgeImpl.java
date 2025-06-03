@@ -27,6 +27,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
@@ -149,6 +150,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    private final BridgeConfiguration configuration;
 
    private final OperationContextImpl bridgeContext;
+
+   private final ReentrantLock bridgeLock = new ReentrantLock();
 
    public BridgeImpl(final ServerLocatorInternal serverLocator,
                      final BridgeConfiguration configuration,
@@ -570,12 +573,17 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       if (RefCountMessage.isRefTraceEnabled() && ref.getMessage() instanceof RefCountMessage) {
          RefCountMessage.deferredDebug(ref.getMessage(), "Going through the bridge");
       }
+
+      Exception exception = null;
+      HandleStatus status = null;
+
       if (filter != null && !filter.match(ref.getMessage())) {
          logger.trace("message reference {} is no match for bridge {}", ref, configuration.getName());
          return HandleStatus.NO_MATCH;
       }
 
-      synchronized (this) {
+      bridgeLock.lock();
+      try {
          if (state != State.STARTED || !session.isWritable(this)) {
             if (logger.isDebugEnabled()) {
                logger.debug("{}::Ignoring reference on bridge as it is set to inactive ref {}, active = false", this, ref);
@@ -619,7 +627,6 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                server.callBrokerBridgePlugins(plugin -> plugin.beforeDeliverBridge(this, ref));
             }
 
-            final HandleStatus status;
             if (message.isLargeMessage()) {
                deliveringLargeMessage = true;
                deliverLargeMessage(dest, ref, (LargeServerMessage) message);
@@ -634,16 +641,26 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             }
 
             if (server.hasBrokerBridgePlugins()) {
-               server.callBrokerBridgePlugins(plugin -> plugin.afterDeliverBridge(this, ref, status));
+               final HandleStatus finalStatus = status;
+               server.callBrokerBridgePlugins(plugin -> plugin.afterDeliverBridge(this, ref, finalStatus));
+               return finalStatus;
             }
 
             return status;
          } catch (Exception e) {
             // If an exception happened, we must count down immediately
             pendingAcks.countDown();
-            throw e;
+            exception = e;
+         }
+
+      } finally {
+         bridgeLock.unlock();
+         if (exception != null) {
+            throw exception;
          }
       }
+
+      return status;
    }
 
    // FailureListener implementation --------------------------------
