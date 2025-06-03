@@ -194,7 +194,7 @@ public class MQTTSessionState {
    }
 
    public Map<String, SubscriptionItem> getSubscriptionsPlusID() {
-      return subscriptions;
+      return new HashMap<>(subscriptions);
    }
 
    public boolean addSubscription(MqttTopicSubscription subscription, WildcardConfiguration wildcardConfiguration, Integer subscriptionIdentifier) throws Exception {
