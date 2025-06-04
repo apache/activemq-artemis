@@ -205,7 +205,7 @@ public class MQTTSessionState {
          SubscriptionItem existingSubscription = subscriptions.get(subscription.topicFilter());
          if (existingSubscription != null) {
             if (subscription.qualityOfService().value() > existingSubscription.getSubscription().qualityOfService().value()
-               || (subscriptionIdentifier != null && !Objects.equals(subscriptionIdentifier, existingSubscription.getId()))) {
+               || !Objects.equals(subscriptionIdentifier, existingSubscription.getId())) {
                existingSubscription.update(subscription, subscriptionIdentifier);
                return true;
             } else {

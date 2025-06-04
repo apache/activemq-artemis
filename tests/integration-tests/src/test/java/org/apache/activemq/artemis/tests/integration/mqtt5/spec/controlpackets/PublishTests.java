@@ -1468,24 +1468,24 @@ public class PublishTests extends MQTT5TestSupport {
          @Override
          public void messageArrived(String topic, MqttMessage message) throws Exception {
             try {
-               List<Integer> subscriptionIdentifers = message.getProperties() != null ? message
+               List<Integer> subscriptionIdentifiers = message.getProperties() != null ? message
                   .getProperties()
                   .getSubscriptionIdentifiers() : null;
-               System.out.println("subscriptionIdentifers: " + subscriptionIdentifers + "; message: " + message);
-               if (Arrays.equals(message.getPayload(), "foo/a".getBytes(StandardCharsets.UTF_8))) {
-                  assertTrue(subscriptionIdentifers.contains(3));
-                  assertEquals(1, subscriptionIdentifers.size());
+               System.out.println("subscriptionIdentifiers: " + subscriptionIdentifiers + "; message: " + message);
+               if (isPayloadEqual(message, "foo/a")) {
+                  assertTrue(subscriptionIdentifiers.contains(3));
+                  assertEquals(1, subscriptionIdentifiers.size());
                } else if (Arrays.equals(message.getPayload(), "foo/a/b".getBytes(StandardCharsets.UTF_8))) {
-                  assertTrue(subscriptionIdentifers.contains(2));
-                  assertTrue(subscriptionIdentifers.contains(3));
-                  assertEquals(2, subscriptionIdentifers.size());
+                  assertTrue(subscriptionIdentifiers.contains(2));
+                  assertTrue(subscriptionIdentifiers.contains(3));
+                  assertEquals(2, subscriptionIdentifiers.size());
                } else if (Arrays.equals(message.getPayload(), "foo/a/b/c".getBytes(StandardCharsets.UTF_8))) {
-                  assertTrue(subscriptionIdentifers.contains(1));
-                  assertTrue(subscriptionIdentifers.contains(2));
-                  assertTrue(subscriptionIdentifers.contains(3));
-                  assertEquals(3, subscriptionIdentifers.size());
+                  assertTrue(subscriptionIdentifiers.contains(1));
+                  assertTrue(subscriptionIdentifiers.contains(2));
+                  assertTrue(subscriptionIdentifiers.contains(3));
+                  assertEquals(3, subscriptionIdentifiers.size());
                } else {
-                  fail("invalid subscription identifer");
+                  fail("invalid subscription identifier");
                }
 
                consumerLatch.countDown();
@@ -1535,7 +1535,7 @@ public class PublishTests extends MQTT5TestSupport {
    @Test
    @Timeout(DEFAULT_TIMEOUT_SEC)
    public void testSubscriptionIdentifierSingleLevel() throws Exception {
-      final CountDownLatch consumerLatch = new CountDownLatch(3);
+      final CountDownLatch consumerLatch = new CountDownLatch(6);
 
       MqttAsyncClient consumer = createAsyncPahoClient(RandomUtil.randomUUIDString());
       consumer.connect().waitForCompletion();
@@ -1543,21 +1543,23 @@ public class PublishTests extends MQTT5TestSupport {
          @Override
          public void messageArrived(String topic, MqttMessage message) throws Exception {
             try {
-               List<Integer> subscriptionIdentifers = message.getProperties() != null ? message
+               List<Integer> subscriptionIdentifiers = message.getProperties() != null ? message
                   .getProperties()
                   .getSubscriptionIdentifiers() : null;
-               System.out.println("subscriptionIdentifers: " + subscriptionIdentifers + "; message: " + message);
-               if (Arrays.equals(message.getPayload(), "foo/a".getBytes(StandardCharsets.UTF_8))) {
-                  assertTrue(subscriptionIdentifers.contains(3));
-                  assertEquals(1, subscriptionIdentifers.size());
-               } else if (Arrays.equals(message.getPayload(), "foo/a/b".getBytes(StandardCharsets.UTF_8))) {
-                  assertTrue(subscriptionIdentifers.contains(2));
-                  assertEquals(1, subscriptionIdentifers.size());
-               } else if (Arrays.equals(message.getPayload(), "foo/a/b/c".getBytes(StandardCharsets.UTF_8))) {
-                  assertTrue(subscriptionIdentifers.contains(1));
-                  assertEquals(1, subscriptionIdentifers.size());
+               System.out.println("subscriptionIdentifiers: " + subscriptionIdentifiers + "; message: " + message);
+               if (isPayloadEqual(message, "foo/a")) {
+                  assertTrue(subscriptionIdentifiers.contains(3));
+                  assertEquals(1, subscriptionIdentifiers.size());
+               } else if (isPayloadEqual(message, "foo/a-reset")) {
+                  assertEquals(0, subscriptionIdentifiers.size());
+               } else if (isPayloadEqual(message, "foo/a/b") || isPayloadEqual(message, "foo/a/b-reset")) {
+                  assertTrue(subscriptionIdentifiers.contains(2));
+                  assertEquals(1, subscriptionIdentifiers.size());
+               } else if (isPayloadEqual(message, "foo/a/b/c") || isPayloadEqual(message, "foo/a/b/c-reset")) {
+                  assertTrue(subscriptionIdentifiers.contains(1));
+                  assertEquals(1, subscriptionIdentifiers.size());
                } else {
-                  fail("invalid subscription identifer");
+                  fail("invalid subscription identifier");
                }
 
                consumerLatch.countDown();
@@ -1584,12 +1586,24 @@ public class PublishTests extends MQTT5TestSupport {
       producer.publish("foo/a", "foo/a".getBytes(StandardCharsets.UTF_8), 2, false);
       producer.publish("foo/a/b", "foo/a/b".getBytes(StandardCharsets.UTF_8), 2, false);
       producer.publish("foo/a/b/c", "foo/a/b/c".getBytes(StandardCharsets.UTF_8), 2, false);
+
+      //remove association with subscription ID from the topic `foo/+`
+      consumer.subscribe(new MqttSubscription[]{new MqttSubscription("foo/+", 2)}, null, null, null).waitForCompletion();
+      producer.publish("foo/a", "foo/a-reset".getBytes(StandardCharsets.UTF_8), 2, false);
+      producer.publish("foo/a/b", "foo/a/b-reset".getBytes(StandardCharsets.UTF_8), 2, false);
+      producer.publish("foo/a/b/c", "foo/a/b/c-reset".getBytes(StandardCharsets.UTF_8), 2, false);
+
+
       producer.disconnect();
       producer.close();
 
       assertTrue(consumerLatch.await(1, TimeUnit.SECONDS));
       consumer.disconnect().waitForCompletion();
       consumer.close();
+   }
+
+   private static boolean isPayloadEqual(MqttMessage message, String compare) {
+      return Arrays.equals(message.getPayload(), compare.getBytes(StandardCharsets.UTF_8));
    }
 
    /**
