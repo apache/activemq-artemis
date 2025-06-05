@@ -2335,7 +2335,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parseProperties(tmpFile.getAbsolutePath());
 
       testSimpleConfig(configuration);
-      assertTrue(configuration.getStatus().contains("\"fileAlder32\":\"2885074053\""));
+      assertTrue(configuration.getStatus().contains("\"fileAlder32\":\"2235122473\""));
    }
 
    @Test
@@ -2352,7 +2352,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       configuration.parseProperties(tmpFile.getAbsolutePath());
 
       testSimpleConfig(configuration);
-      assertTrue(configuration.getStatus().contains("\"fileAlder32\":\"3147794929\""));
+      assertTrue(configuration.getStatus().contains("\"fileAlder32\":\"1145294432\""));
    }
 
    @Test
@@ -2517,6 +2517,30 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
          configObjectBuilder.add("clusterConfigurations", clusterConfigObjectBuilder.build());
 
          configObjectBuilder.add("criticalAnalyzerPolicy", "SHUTDOWN");
+
+         JsonObjectBuilder divertConfigObjectBuilder = JsonLoader.createObjectBuilder();
+         {
+            JsonObjectBuilder divertObjectBuilder = JsonLoader.createObjectBuilder();
+            {
+               divertObjectBuilder.add("address", "testAddress");
+               divertObjectBuilder.add("forwardingAddress", "forwardAddress");
+
+               JsonObjectBuilder transformerConfigObjectBuilder = JsonLoader.createObjectBuilder();
+               {
+                  transformerConfigObjectBuilder.add("className", "s.o.m.e.class");
+
+                  JsonObjectBuilder transformerPropertiesObjectBuilder = JsonLoader.createObjectBuilder();
+                  {
+                     transformerPropertiesObjectBuilder.add("a", "va");
+                     transformerPropertiesObjectBuilder.add("b.c", "vbc");
+                  }
+                  transformerConfigObjectBuilder.add("properties", transformerPropertiesObjectBuilder.build());
+               }
+               divertObjectBuilder.add("transformerConfiguration", transformerConfigObjectBuilder.build());
+            }
+            divertConfigObjectBuilder.add("my-divert", divertObjectBuilder.build());
+         }
+         configObjectBuilder.add("divertConfigurations", divertConfigObjectBuilder.build());
       }
 
       return configObjectBuilder.build();
@@ -2535,6 +2559,11 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       textProperties.add("clusterConfigurations.cc.name=cc");
       textProperties.add("clusterConfigurations.cc.messageLoadBalancingType=OFF_WITH_REDISTRIBUTION");
       textProperties.add("criticalAnalyzerPolicy=SHUTDOWN");
+      textProperties.add("divertConfigurations.my-divert.address=testAddress");
+      textProperties.add("divertConfigurations.my-divert.forwardingAddress=forwardAddress");
+      textProperties.add("divertConfigurations.my-divert.transformerConfiguration.className=s.o.m.e.class");
+      textProperties.add("divertConfigurations.my-divert.transformerConfiguration.properties.a=va");
+      textProperties.add("divertConfigurations.my-divert.transformerConfiguration.properties.\"b.c\"=vbc");
 
       return textProperties;
    }
@@ -2555,6 +2584,13 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals("cc", configuration.getClusterConfigurations().get(0).getName());
       assertEquals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, configuration.getClusterConfigurations().get(0).getMessageLoadBalancingType());
       assertEquals(CriticalAnalyzerPolicy.SHUTDOWN, configuration.getCriticalAnalyzerPolicy());
+
+      assertEquals("my-divert", configuration.getDivertConfigurations().get(0).getName());
+      assertEquals("testAddress", configuration.getDivertConfigurations().get(0).getAddress());
+      assertEquals("forwardAddress", configuration.getDivertConfigurations().get(0).getForwardingAddress());
+      assertEquals("s.o.m.e.class", configuration.getDivertConfigurations().get(0).getTransformerConfiguration().getClassName());
+      assertEquals("va", configuration.getDivertConfigurations().get(0).getTransformerConfiguration().getProperties().get("a"));
+      assertEquals("vbc", configuration.getDivertConfigurations().get(0).getTransformerConfiguration().getProperties().get("b.c"));
 
       assertTrue(configuration.getStatus().contains("\"alder32"));
       assertTrue(configuration.getStatus().contains("\"fileAlder32"));
