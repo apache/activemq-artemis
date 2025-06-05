@@ -132,6 +132,7 @@ import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonString;
 import org.apache.activemq.artemis.json.JsonValue;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
@@ -3671,7 +3672,13 @@ public class ConfigurationImpl implements Configuration, Serializable {
          if (!collections.isEmpty()) {
             Pair<String, Object> collectionInfo = collections.pop();
          }
-         super.setProperty(bean, name, value);
+
+         if (bean instanceof Map) {
+            String property = getResolver().getProperty(name);
+            this.setPropertyOfMapBean((Map)bean, property, value);
+         } else {
+            super.setProperty(bean, name, value);
+         }
       }
 
       // need to track collections such that we can locate or create entries on demand
@@ -3964,7 +3971,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
                   loadJsonObject(keySurroundString, propertyKey + ".", jsonValue.asJsonObject());
                   break;
                case STRING:
-                  put(propertyKey, jsonObject.getString(jsonKey));
+                  put(propertyKey, ((JsonString)jsonValue).getString());
                   break;
                case NUMBER:
                case TRUE:
