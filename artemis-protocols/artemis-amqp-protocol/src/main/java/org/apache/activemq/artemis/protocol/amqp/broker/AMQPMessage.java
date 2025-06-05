@@ -211,6 +211,12 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    protected byte priority = DEFAULT_MESSAGE_PRIORITY;
 
    protected boolean isPaged;
+   protected volatile boolean routed = false;
+
+   @Override
+   public void routed() {
+      this.routed = true;
+   }
 
    // The Proton based AMQP message section that are retained in memory, these are the
    // mutable portions of the Message as the broker sees it, although AMQP defines that
@@ -537,7 +543,8 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       return lazyDecodeApplicationProperties(getData().duplicate().position(0));
    }
 
-   protected ApplicationProperties lazyDecodeApplicationProperties(ReadableBuffer data) {
+   // need to synchronize access to lazyDecodeApplicationProperties to avoid clashes with getMemoryEstimate
+   protected synchronized ApplicationProperties lazyDecodeApplicationProperties(ReadableBuffer data) {
       if (applicationProperties == null && applicationPropertiesPosition != VALUE_NOT_PRESENT) {
          applicationProperties = scanForMessageSection(data, applicationPropertiesPosition, ApplicationProperties.class);
          if (owner != null && memoryEstimate != -1) {
@@ -546,7 +553,9 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
             // it is difficult to track the updates for paged messages
             // for that reason we won't do it if paged
-            if (!isPaged) {
+            // we also only do the update if the message was previously routed
+            // so if a debug method or an interceptor changed the size before routing we would get a different size
+            if (!isPaged && routed) {
                ((PagingStore) owner).addSize(addition, false);
                final int updatedEstimate = memoryEstimate + addition;
                memoryEstimate = updatedEstimate;
