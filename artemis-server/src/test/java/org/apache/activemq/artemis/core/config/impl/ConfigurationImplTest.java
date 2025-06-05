@@ -103,6 +103,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
+import org.apache.activemq.artemis.jdbc.store.drivers.JDBCDataSourceUtils;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
@@ -2207,7 +2208,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       insertionOrderedProperties.put("storeConfiguration.largeMessageTableName", "lmtn");
       insertionOrderedProperties.put("storeConfiguration.messageTableName", "mtn");
       insertionOrderedProperties.put("storeConfiguration.bindingsTableName", "btn");
-      insertionOrderedProperties.put("storeConfiguration.dataSourceClassName", "dscn");
+      insertionOrderedProperties.put("storeConfiguration.dataSourceClassName", ActiveMQDefaultConfiguration.getDefaultDataSourceClassName());
       insertionOrderedProperties.put("storeConfiguration.nodeManagerStoreTableName", "nmtn");
       insertionOrderedProperties.put("storeConfiguration.pageStoreTableName", "pstn");
       insertionOrderedProperties.put("storeConfiguration.jdbcAllowedTimeDiff", 123);
@@ -2219,6 +2220,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       insertionOrderedProperties.put("storeConfiguration.jdbcLockRenewPeriodMillis", 654);
       insertionOrderedProperties.put("storeConfiguration.jdbcNetworkTimeout", 987);
       insertionOrderedProperties.put("storeConfiguration.dataSourceProperties.password", "pass");
+      insertionOrderedProperties.put("storeConfiguration.dataSourceProperties.initialSize", 3); // needs conversion from string to int
       insertionOrderedProperties.put("storeConfiguration.jdbcUser", "user");
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
@@ -2229,7 +2231,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals("lmtn", dsc.getLargeMessageTableName());
       assertEquals("mtn", dsc.getMessageTableName());
       assertEquals("btn", dsc.getBindingsTableName());
-      assertEquals("dscn", dsc.getDataSourceClassName());
+      assertEquals(ActiveMQDefaultConfiguration.getDefaultDataSourceClassName(), dsc.getDataSourceClassName());
       assertEquals(123, dsc.getJdbcAllowedTimeDiff());
       assertEquals("url", dsc.getJdbcConnectionUrl());
       assertEquals("dcn", dsc.getJdbcDriverClassName());
@@ -2242,6 +2244,9 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals("user", dsc.getJdbcUser());
       assertEquals("nmtn", dsc.getNodeManagerStoreTableName());
       assertEquals("pstn", dsc.getPageStoreTableName());
+
+      // force load to verify dataSourceProperties are applied ok
+      JDBCDataSourceUtils.getDataSource(dsc.getDataSourceClassName(), dsc.getDataSourceProperties());
    }
 
    @Test
