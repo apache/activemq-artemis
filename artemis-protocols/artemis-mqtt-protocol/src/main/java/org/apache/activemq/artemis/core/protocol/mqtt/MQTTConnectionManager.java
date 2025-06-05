@@ -95,13 +95,14 @@ public class MQTTConnectionManager {
          session.getState().setWillQoSLevel(connect.variableHeader().willQos());
          session.getState().setWillRetain(connect.variableHeader().isWillRetain());
          session.getState().setWillTopic(connect.payload().willTopic());
+         session.getState().setWillStatus(MQTTSessionState.WillStatus.NOT_SENT);
 
          if (session.getVersion() == MQTTVersion.MQTT_5) {
             MqttProperties willProperties = connect.payload().willProperties();
             if (willProperties != null) {
                MqttProperties.MqttProperty willDelayInterval = willProperties.getProperty(WILL_DELAY_INTERVAL.value());
                if (willDelayInterval != null) {
-                  session.getState().setWillDelayInterval(( int) willDelayInterval.value());
+                  session.getState().setWillDelayInterval((int) willDelayInterval.value());
                }
                List<? extends MqttProperties.MqttProperty> userProperties = willProperties.getProperties(MqttProperties.MqttPropertyType.USER_PROPERTY.value());
                if (userProperties != null) {
