@@ -365,8 +365,6 @@ public class ConnectTests extends MQTT5TestSupport {
 
       // consumer of the will message
       MqttClient willConsumer = createPahoClient(WILL_CONSUMER);
-      CountDownLatch latch = new CountDownLatch(1);
-      willConsumer.setCallback(new LatchedMqttCallback(latch));
       willConsumer.connect();
       willConsumer.subscribe("/topic/foo", 1);
 
@@ -377,16 +375,27 @@ public class ConnectTests extends MQTT5TestSupport {
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
          .sessionExpiryInterval(5L)
          .will("/topic/foo", new MqttMessage(WILL))
+         .cleanStart(false)
          .build();
       options.setWillMessageProperties(willMessageProperties);
-      willSender.connect(options);
-      MQTTSessionState state = getSessionStates().get(WILL_SENDER);
-      assertNotNull(state);
-      assertNotNull(state.getWillMessage());
-      willSender.disconnectForcibly(0, 0, false);
 
-      assertTrue(latch.await(2, TimeUnit.SECONDS));
-      assertNull(state.getWillMessage());
+      // ensure the will message is sent & removed on each disconnect even after reconnection to the same session
+      for (int i = 0; i < 5; i++) {
+         willSender.connect(options);
+         MQTTSessionState state = getSessionStates().get(WILL_SENDER);
+         assertNotNull(state);
+         assertNotNull(state.getWillMessage());
+         CountDownLatch latch = new CountDownLatch(1);
+         willConsumer.setCallback(new LatchedMqttCallback(latch));
+         willSender.disconnectForcibly(0, 0, false);
+
+         assertTrue(latch.await(2, TimeUnit.SECONDS));
+         assertNull(state.getWillMessage());
+      }
+
+      willSender.close();
+      willConsumer.disconnect();
+      willConsumer.close();
    }
 
    /*
