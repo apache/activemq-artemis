@@ -38,8 +38,11 @@ github:
     - java
     - jms
   enabled_merge_buttons:
-    # disable squash button:
-    squash:  false
+    # enable squash button:
+    squash: true
+    # default commit message when merging with a squash commit
+    # can be: DEFAULT | PR_TITLE | PR_TITLE_AND_COMMIT_DETAILS | PR_TITLE_AND_DESC
+    squash_commit_message: PR_TITLE
     # disable merge button:
     merge:   false
     # enable rebase button:
