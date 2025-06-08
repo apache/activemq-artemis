@@ -5,7 +5,7 @@
 
 Apache ActiveMQ Artemis allows the routing of messages via wildcard addresses.
 
-If a queue is created with an address of say `queue.news.#` then it will receive any messages sent to addresses that match this, for instance `queue.news.europe` or `queue.news.usa` or `queue.news.usa.sport`.
+If a queue is created with an address of say `news.#` then it will receive any messages sent to addresses that match this, for instance `queue.news.europe` or `news.usa` or `news.usa.sport`.
 If you create a consumer on this queue, this allows a consumer to consume messages which are sent to a _hierarchy_ of addresses.
 
 [NOTE]
