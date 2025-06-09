@@ -20,12 +20,12 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Address;
 
+import static org.apache.activemq.artemis.core.config.WildcardConfiguration.DEFAULT_WILDCARD_CONFIGURATION;
+
 /**
  * Splits an address string into its hierarchical parts using {@link WildcardConfiguration#getDelimiter()} as delimiter.
  */
 public class AddressImpl implements Address {
-
-   private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
 
    private final SimpleString address;
 

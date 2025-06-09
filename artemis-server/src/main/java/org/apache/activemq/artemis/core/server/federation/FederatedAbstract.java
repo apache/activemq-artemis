@@ -28,9 +28,10 @@ import org.apache.activemq.artemis.core.server.federation.FederatedQueueConsumer
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 
+import static org.apache.activemq.artemis.core.config.WildcardConfiguration.DEFAULT_WILDCARD_CONFIGURATION;
+
 public abstract class FederatedAbstract implements ActiveMQServerBasePlugin {
 
-   private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
    protected final Federation federation;
    protected ActiveMQServer server;
    protected FederationUpstream upstream;

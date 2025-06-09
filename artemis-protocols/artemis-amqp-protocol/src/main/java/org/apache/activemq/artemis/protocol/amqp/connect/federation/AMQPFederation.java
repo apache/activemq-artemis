@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
+import static org.apache.activemq.artemis.core.config.WildcardConfiguration.DEFAULT_WILDCARD_CONFIGURATION;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_BASE_VALIDATION_ADDRESS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENTS_LINK_PREFIX;
@@ -64,8 +65,6 @@ public abstract class AMQPFederation implements Federation {
     * will be checked.
     */
    public static final String FEDERATION_INSTANCE_RECORD = "FEDERATION_INSTANCE_RECORD";
-
-   private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
 
    // Local policies that should be matched against demand on local addresses and queues.
    protected final Map<String, AMQPFederationQueuePolicyManager> localQueuePolicyManagers = new ConcurrentHashMap<>();
