@@ -1472,20 +1472,30 @@ public class PublishTests extends MQTT5TestSupport {
                   .getProperties()
                   .getSubscriptionIdentifiers() : null;
                System.out.println("subscriptionIdentifiers: " + subscriptionIdentifiers + "; message: " + message);
-               if (isPayloadEqual(message, "foo/a")) {
-                  assertTrue(subscriptionIdentifiers.contains(3));
-                  assertEquals(1, subscriptionIdentifiers.size());
-               } else if (Arrays.equals(message.getPayload(), "foo/a/b".getBytes(StandardCharsets.UTF_8))) {
-                  assertTrue(subscriptionIdentifiers.contains(2));
-                  assertTrue(subscriptionIdentifiers.contains(3));
-                  assertEquals(2, subscriptionIdentifiers.size());
-               } else if (Arrays.equals(message.getPayload(), "foo/a/b/c".getBytes(StandardCharsets.UTF_8))) {
-                  assertTrue(subscriptionIdentifiers.contains(1));
-                  assertTrue(subscriptionIdentifiers.contains(2));
-                  assertTrue(subscriptionIdentifiers.contains(3));
-                  assertEquals(3, subscriptionIdentifiers.size());
-               } else {
-                  fail("invalid subscription identifier");
+               switch (new String(message.getPayload(), StandardCharsets.UTF_8)) {
+                  case "foo" -> {
+                     assertTrue(subscriptionIdentifiers.contains(1));
+                     assertEquals(1, subscriptionIdentifiers.size());
+                  }
+                  case "foo/a" -> {
+                     assertTrue(subscriptionIdentifiers.contains(1));
+                     assertTrue(subscriptionIdentifiers.contains(2));
+                     assertEquals(2, subscriptionIdentifiers.size());
+                  }
+                  case "foo/a/b" -> {
+                     assertTrue(subscriptionIdentifiers.contains(1));
+                     assertTrue(subscriptionIdentifiers.contains(2));
+                     assertTrue(subscriptionIdentifiers.contains(3));
+                     assertEquals(3, subscriptionIdentifiers.size());
+                  }
+                  case "foo/a/b/c" -> {
+                     assertTrue(subscriptionIdentifiers.contains(1));
+                     assertTrue(subscriptionIdentifiers.contains(2));
+                     assertTrue(subscriptionIdentifiers.contains(3));
+                     assertTrue(subscriptionIdentifiers.contains(4));
+                     assertEquals(4, subscriptionIdentifiers.size());
+                  }
+                  default -> fail("invalid subscription identifier");
                }
 
                consumerLatch.countDown();
@@ -1497,7 +1507,7 @@ public class PublishTests extends MQTT5TestSupport {
 
       MqttProperties subscription1Properties = new MqttProperties();
       subscription1Properties.setSubscriptionIdentifier(1);
-      consumer.subscribe(new MqttSubscription[]{new MqttSubscription("foo/a/b/#", 2)}, null, null, subscription1Properties).waitForCompletion();
+      consumer.subscribe(new MqttSubscription[]{new MqttSubscription("foo/#", 2)}, null, null, subscription1Properties).waitForCompletion();
 
       MqttProperties subscription2Properties = new MqttProperties();
       subscription2Properties.setSubscriptionIdentifier(2);
@@ -1505,10 +1515,15 @@ public class PublishTests extends MQTT5TestSupport {
 
       MqttProperties subscription3Properties = new MqttProperties();
       subscription3Properties.setSubscriptionIdentifier(3);
-      consumer.subscribe(new MqttSubscription[]{new MqttSubscription("foo/#", 2)}, null, null, subscription3Properties).waitForCompletion();
+      consumer.subscribe(new MqttSubscription[]{new MqttSubscription("foo/a/b/#", 2)}, null, null, subscription3Properties).waitForCompletion();
+
+      MqttProperties subscription4Properties = new MqttProperties();
+      subscription4Properties.setSubscriptionIdentifier(4);
+      consumer.subscribe(new MqttSubscription[]{new MqttSubscription("foo/a/b/c/#", 2)}, null, null, subscription4Properties).waitForCompletion();
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
+      producer.publish("foo", "foo".getBytes(StandardCharsets.UTF_8), 2, false);
       producer.publish("foo/a", "foo/a".getBytes(StandardCharsets.UTF_8), 2, false);
       producer.publish("foo/a/b", "foo/a/b".getBytes(StandardCharsets.UTF_8), 2, false);
       producer.publish("foo/a/b/c", "foo/a/b/c".getBytes(StandardCharsets.UTF_8), 2, false);
