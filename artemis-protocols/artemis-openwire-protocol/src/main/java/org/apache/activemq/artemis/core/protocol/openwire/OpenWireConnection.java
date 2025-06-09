@@ -208,6 +208,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    private String validatedUser = null;
 
+   public void block() {
+      openWireActor.pauseProcessing();
+   }
+
+   public void unblock() {
+      openWireActor.resumeProcessing();
+   }
+
    public OpenWireConnection(Connection connection,
                              ActiveMQServer server,
                              OpenWireProtocolManager openWireProtocolManager,

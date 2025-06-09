@@ -103,7 +103,7 @@ public class ValidateAddressSizeTest extends BasicOpenWireTest {
       String messageBody = "a".repeat(messageBodySize);
       String largeMessageBody = "a".repeat(largeMessageSize);
 
-      int consumers = 10;
+      int consumers = 200;
       int numberOfMessages = 10;
       int numberOfLargeMessages = 5;
 

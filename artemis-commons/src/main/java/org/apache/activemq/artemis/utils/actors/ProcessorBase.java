@@ -33,6 +33,7 @@ public abstract class ProcessorBase<T> extends HandlerBase {
    public static final int STATE_NOT_RUNNING = 0;
    public static final int STATE_RUNNING = 1;
    public static final int STATE_FORCED_SHUTDOWN = 2;
+   public static final int STATE_PAUSED = 3;
 
    protected final Queue<T> tasks = new ConcurrentLinkedQueue<>();
 
@@ -47,7 +48,7 @@ public abstract class ProcessorBase<T> extends HandlerBase {
    @SuppressWarnings("unused")
    private volatile int state = STATE_NOT_RUNNING;
    // Request of forced shutdown
-   private volatile boolean requestedForcedShutdown = false;
+   private volatile boolean pausedProcessing = false;
    // Request of educated shutdown:
    protected volatile boolean requestedShutdown = false;
    // Request to yield to another thread
@@ -63,8 +64,8 @@ public abstract class ProcessorBase<T> extends HandlerBase {
             try {
                T task;
                //while the queue is not empty we process in order:
-               //if requestedForcedShutdown==true than no new tasks will be drained from the tasks q.
-               while (!yielded && !requestedForcedShutdown && (task = tasks.poll()) != null) {
+               //if pausedProcessing==true than no new tasks will be drained from the tasks q.
+               while (!yielded && !pausedProcessing && (task = tasks.poll()) != null) {
                   doTask(task);
                }
             } finally {
@@ -82,10 +83,22 @@ public abstract class ProcessorBase<T> extends HandlerBase {
          //but poll() has returned null, so a submitting thread will believe that it does not need re-execute.
          //this check fixes the issue
       }
-      while (!tasks.isEmpty() && !requestedShutdown && !yielded);
+      while (!tasks.isEmpty() && !requestedShutdown && !yielded && !pausedProcessing);
 
       if (yielded) {
          yielded = false;
+         delegate.execute(task);
+      }
+   }
+
+   public void pauseProcessing() {
+      pausedProcessing = true;
+      stateUpdater.set(this, STATE_PAUSED);
+   }
+
+   public void resumeProcessing() {
+      pausedProcessing = false;
+      if (stateUpdater.compareAndSet(this, STATE_PAUSED, STATE_NOT_RUNNING)) {
          delegate.execute(task);
       }
    }
@@ -121,7 +134,7 @@ public abstract class ProcessorBase<T> extends HandlerBase {
     */
    public int shutdownNow(Consumer<? super T> onPendingItem, int timeout, TimeUnit unit) {
       //alert anyone that has been requested (at least) an immediate shutdown
-      requestedForcedShutdown = true;
+      pausedProcessing = true;
       requestedShutdown = true;
       yielded = false;
 
