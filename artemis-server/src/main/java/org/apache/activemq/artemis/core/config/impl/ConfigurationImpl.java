@@ -974,7 +974,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    private void writeProperties(FileWriter writer) throws Exception {
-      final BeanUtilsBean beanUtilsBean = BeanUtilsBean.getInstance();
+      final BeanUtilsBean beanUtilsBean = new BeanUtilsBean();
       beanUtilsBean.getPropertyUtils().addBeanIntrospector(new FluentPropertyBeanIntrospectorWithIgnores());
 
       try (BufferedWriter bufferedWriter = new BufferedWriter(writer)) {
