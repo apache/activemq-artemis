@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Pattern;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.mqtt.MqttProperties;
@@ -37,9 +36,11 @@ import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
-import org.apache.activemq.artemis.core.settings.impl.Match;
+import org.apache.activemq.artemis.core.postoffice.Address;
+import org.apache.activemq.artemis.core.postoffice.impl.AddressImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -563,7 +564,7 @@ public class MQTTSessionState {
    public static class SubscriptionItem {
       private MqttTopicSubscription subscription;
       private Integer id;
-      private Pattern topicFilterPattern;
+      private Address address;
 
       public SubscriptionItem(MqttTopicSubscription subscription, Integer id) {
          update(subscription, id);
@@ -578,7 +579,7 @@ public class MQTTSessionState {
       }
 
       public Integer getMatchingId(String topic) {
-         if (id != null && topicFilterPattern.matcher(topic).matches()) {
+         if (id != null && new AddressImpl(SimpleString.of(topic), MQTTUtil.MQTT_WILDCARD).matches(address)) {
             return id;
          } else {
             return null;
@@ -587,8 +588,8 @@ public class MQTTSessionState {
 
       private void update(MqttTopicSubscription newSub, Integer newId) {
          if (newId != null && !newId.equals(id)) {
-            if (this.topicFilterPattern == null || !subscription.topicFilter().equals(newSub.topicFilter())) {
-               topicFilterPattern = Match.createPattern(newSub.topicFilter(), MQTTUtil.MQTT_WILDCARD, true);
+            if (this.address == null || !subscription.topicFilter().equals(newSub.topicFilter())) {
+               address = new AddressImpl(SimpleString.of(newSub.topicFilter()), MQTTUtil.MQTT_WILDCARD);
             }
          }
          subscription = newSub;
