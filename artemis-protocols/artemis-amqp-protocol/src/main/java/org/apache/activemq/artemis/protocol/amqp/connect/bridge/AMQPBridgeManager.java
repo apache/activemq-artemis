@@ -42,6 +42,8 @@ import org.apache.qpid.proton.engine.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.activemq.artemis.core.config.WildcardConfiguration.DEFAULT_WILDCARD_CONFIGURATION;
+
 /**
  * AMQP Bridge manager object that handles starting and stopping bridge
  * operations as needed for the parent broker connection.
@@ -49,8 +51,6 @@ import org.slf4j.LoggerFactory;
 public class AMQPBridgeManager {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
 
    private enum State {
       UNINITIALIZED,

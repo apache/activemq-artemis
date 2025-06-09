@@ -20,6 +20,8 @@ import java.io.Serializable;
 
 public class WildcardConfiguration implements Serializable {
 
+   public static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
+
    private static final long serialVersionUID = 1L;
 
    static final char SINGLE_WORD = '*';

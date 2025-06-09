@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.bridge;
 
+import static org.apache.activemq.artemis.core.config.WildcardConfiguration.DEFAULT_WILDCARD_CONFIGURATION;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.DEFAULT_PRIORITY_ADJUSTMENT_VALUE;
 
 import java.lang.invoke.MethodHandles;
@@ -42,8 +43,6 @@ import org.slf4j.LoggerFactory;
 public class AMQPBridgeSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
 
    /**
     * Create a new AMQPBridgeManager from the bridge configuration element.

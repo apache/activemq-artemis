@@ -40,6 +40,8 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.activemq.artemis.core.config.WildcardConfiguration.DEFAULT_WILDCARD_CONFIGURATION;
+
 /**
  * allows objects to be mapped against a regex pattern and held in order in a list
  */
@@ -47,7 +49,6 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
    private boolean listenersEnabled = true;
    /**
     * The default Match to fall back to
