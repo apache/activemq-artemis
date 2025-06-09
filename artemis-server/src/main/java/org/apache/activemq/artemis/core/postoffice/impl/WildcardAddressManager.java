@@ -49,7 +49,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
    // won't contain a wildcard because we don't ever route to a wildcards at this time
    @Override
    public Bindings getBindingsForRoutingAddress(final SimpleString address) throws Exception {
-      assert !isAWildcardAddress(address);
+      assert !wildcardConfiguration.isWild(address);
 
       Bindings bindings = super.getBindingsForRoutingAddress(address);
 
@@ -96,7 +96,7 @@ public class WildcardAddressManager extends SimpleAddressManager {
       final SimpleString address = binding.getAddress();
       final Bindings bindingsForRoutingAddress = mappings.get(binding.getAddress());
 
-      if (isAWildcardAddress(address)) {
+      if (wildcardConfiguration.isWild(address)) {
 
          addressMap.visitMatching(address, bindings -> {
             // this wildcard binding needs to be added to matching addresses
@@ -124,17 +124,13 @@ public class WildcardAddressManager extends SimpleAddressManager {
       Binding binding = super.removeBinding(uniqueName, tx);
       if (binding != null) {
          SimpleString address = binding.getAddress();
-         if (isAWildcardAddress(address)) {
+         if (wildcardConfiguration.isWild(address)) {
 
             addressMap.visitMatching(address, bindings -> removeBindingInternal(bindings.getName(), uniqueName));
 
          }
       }
       return binding;
-   }
-
-   private boolean isAWildcardAddress(SimpleString address) {
-      return address.containsEitherOf(wildcardConfiguration.getAnyWords(), wildcardConfiguration.getSingleWord());
    }
 
    @Override

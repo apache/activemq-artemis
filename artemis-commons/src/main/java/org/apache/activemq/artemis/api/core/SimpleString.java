@@ -550,25 +550,6 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       return false;
    }
 
-   public boolean containsEitherOf(final char c, final char d) {
-      if (this.str != null) {
-         return this.str.indexOf(c) != -1 || this.str.indexOf(d) != -1;
-      }
-      final byte lowc = (byte) (c & 0xFF); // low byte
-      final byte highc = (byte) (c >> 8 & 0xFF); // high byte
-
-      final byte lowd = (byte) (d & 0xFF); // low byte
-      final byte highd = (byte) (d >> 8 & 0xFF); // high byte
-
-      for (int i = 0; i + 1 < data.length; i += 2) {
-         if (data[i] == lowc && data[i + 1] == highc ||
-            data[i] == lowd && data[i + 1] == highd) {
-            return true;
-         }
-      }
-      return false;
-   }
-
    /**
     * Concatenates a SimpleString and a String
     *

@@ -43,7 +43,7 @@ public class AddressImpl implements Address {
       this.address = address;
       this.wildcardConfiguration = wildcardConfiguration;
       addressParts = address.split(wildcardConfiguration.getDelimiter());
-      containsWildCard = address.containsEitherOf(wildcardConfiguration.getSingleWord(), wildcardConfiguration.getAnyWords());
+      containsWildCard = wildcardConfiguration.isWild(address);
    }
 
    @Override
