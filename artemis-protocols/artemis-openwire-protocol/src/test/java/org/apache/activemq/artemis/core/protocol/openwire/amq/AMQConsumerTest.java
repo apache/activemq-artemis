@@ -121,7 +121,7 @@ public class AMQConsumerTest {
 
       assertFalse(consumer.hasCredits());
 
-      consumer.acquireCredit(1, true);
+      consumer.replenishCredit(1, true);
 
       assertTrue(consumer.hasCredits());
    }

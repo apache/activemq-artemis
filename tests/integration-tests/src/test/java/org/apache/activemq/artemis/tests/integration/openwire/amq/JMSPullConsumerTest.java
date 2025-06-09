@@ -61,19 +61,19 @@ public class JMSPullConsumerTest extends BasicOpenWireTest {
       destination = createDestination(session, destinationType);
       ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session.createConsumer(destination);
 
-      assertNull(consumer.receive(100));
-      assertNull(consumer.receive(100));
-      assertNull(consumer.receive(100));
+      assertNull(consumer.receive(10));
+      assertNull(consumer.receive(10));
+      assertNull(consumer.receive(10));
 
       sendMessages(session, destination, 3);
 
-      assertNotNull(consumer.receive(100));
+      assertNotNull(consumer.receive(10));
 
       ActiveMQMessageConsumer consumer2 = (ActiveMQMessageConsumer) session.createConsumer(destination);
       ActiveMQMessageConsumer consumer3 = (ActiveMQMessageConsumer) session.createConsumer(destination);
 
-      assertNotNull(consumer2.receive(100));
-      assertNotNull(consumer3.receive(100));
+      assertNotNull(consumer2.receive(10));
+      assertNotNull(consumer3.receive(10));
    }
 
    @TestTemplate
@@ -86,17 +86,17 @@ public class JMSPullConsumerTest extends BasicOpenWireTest {
       destination = createDestination(session, destinationType);
       ActiveMQMessageConsumer consumer = (ActiveMQMessageConsumer) session.createConsumer(destination);
 
-      assertNull(consumer.receive(100));
-      assertNull(consumer.receive(100));
-      assertNull(consumer.receive(100));
+      assertNull(consumer.receive(10));
+      assertNull(consumer.receive(10));
+      assertNull(consumer.receive(10));
 
       sendMessages(session, destination, 3);
 
       ActiveMQMessageConsumer consumer2 = (ActiveMQMessageConsumer) session.createConsumer(destination);
 
-      assertNotNull(consumer2.receive(100));
-      assertNotNull(consumer2.receive(100));
-      assertNotNull(consumer2.receive(100));
+      assertNotNull(consumer2.receive(1000));
+      assertNotNull(consumer2.receive(1000));
+      assertNotNull(consumer2.receive(1000));
 
       assertNull(consumer.receiveNoWait());
    }
