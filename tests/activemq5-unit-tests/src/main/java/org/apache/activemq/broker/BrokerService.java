@@ -36,6 +36,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Objects;
 
 import org.apache.activemq.ActiveMQConnectionMetaData;
 import org.apache.activemq.Service;
@@ -217,9 +218,7 @@ public class BrokerService implements Service {
    }
 
    public void setBrokerName(String brokerName) {
-      if (brokerName == null) {
-         throw new NullPointerException("The broker name cannot be null");
-      }
+      Objects.requireNonNull(brokerName, "The broker name cannot be null");
       String str = brokerName.replaceAll("[^a-zA-Z0-9\\.\\_\\-\\:]", "_");
       if (!str.equals(brokerName)) {
          LOG.error("Broker Name: {} contained illegal characters - replaced with {}", brokerName, str);

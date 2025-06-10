@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.io.mapped;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -150,10 +151,7 @@ final class MappedSequentialFile implements SequentialFile {
 
    @Override
    public void write(ActiveMQBuffer bytes, boolean sync, IOCallback callback) throws IOException {
-      if (callback == null) {
-         throw new NullPointerException("callback parameter need to be set");
-      }
-      checkIsOpen(callback);
+      checkIsOpen(Objects.requireNonNull(callback, "callback parameter need to be set"));
       try {
          final ByteBuf byteBuf = bytes.byteBuf();
          final int writerIndex = byteBuf.writerIndex();
@@ -192,10 +190,7 @@ final class MappedSequentialFile implements SequentialFile {
 
    @Override
    public void write(EncodingSupport bytes, boolean sync, IOCallback callback) throws IOException {
-      if (callback == null) {
-         throw new NullPointerException("callback parameter need to be set");
-      }
-      checkIsOpen(callback);
+      checkIsOpen(Objects.requireNonNull(callback, "callback parameter need to be set"));
       try {
          this.mappedFile.write(bytes);
          if (factory.isDatasync() && sync) {
@@ -223,10 +218,7 @@ final class MappedSequentialFile implements SequentialFile {
    @Override
    public void writeDirect(ByteBuffer bytes, boolean sync, IOCallback callback) {
       try {
-         if (callback == null) {
-            throw new NullPointerException("callback parameter need to be set");
-         }
-         checkIsOpen(callback);
+         checkIsOpen(Objects.requireNonNull(callback, "callback parameter need to be set"));
          final int position = bytes.position();
          final int limit = bytes.limit();
          final int remaining = limit - position;
@@ -294,10 +286,7 @@ final class MappedSequentialFile implements SequentialFile {
 
    @Override
    public int read(ByteBuffer bytes, IOCallback callback) throws IOException {
-      if (callback == null) {
-         throw new NullPointerException("callback parameter need to be set");
-      }
-      checkIsOpen(callback);
+      checkIsOpen(Objects.requireNonNull(callback, "callback parameter need to be set"));
       try {
          final int position = bytes.position();
          final int limit = bytes.limit();

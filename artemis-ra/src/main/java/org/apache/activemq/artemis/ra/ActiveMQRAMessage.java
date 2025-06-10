@@ -19,14 +19,13 @@ package org.apache.activemq.artemis.ra;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 /**
  * A wrapper for a {@link Message}.
@@ -40,13 +39,9 @@ public class ActiveMQRAMessage implements Message {
    protected ActiveMQRASession session;
 
    public ActiveMQRAMessage(final Message message, final ActiveMQRASession session) {
-      checkNotNull(message);
-      checkNotNull(session);
-
+      this.message = Objects.requireNonNull(message);
+      this.session = Objects.requireNonNull(session);
       logger.trace("constructor({}, {})", message, session);
-
-      this.message = message;
-      this.session = session;
    }
 
    /**

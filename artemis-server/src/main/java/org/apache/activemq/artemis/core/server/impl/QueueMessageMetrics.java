@@ -16,17 +16,16 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.lang.invoke.MethodHandles;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
-
-import org.apache.activemq.artemis.utils.Preconditions;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class QueueMessageMetrics {
 
@@ -77,8 +76,7 @@ public class QueueMessageMetrics {
    private final String name;
 
    public QueueMessageMetrics(final Queue queue, final String name) {
-      Preconditions.checkNotNull(queue);
-      this.queue = queue;
+      this.queue = Objects.requireNonNull(queue);
       this.name = name;
    }
 

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.transport.amqp.client;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.qpid.proton.engine.Connection;
@@ -97,9 +98,7 @@ public class AmqpValidator {
    }
 
    protected final boolean markAsInvalid(String message) {
-      if (message == null) {
-         throw new NullPointerException("Provided error message cannot be null!");
-      }
+      Objects.requireNonNull(message, "Provided error message cannot be null!");
 
       return errorMessage.compareAndSet(null, message);
    }

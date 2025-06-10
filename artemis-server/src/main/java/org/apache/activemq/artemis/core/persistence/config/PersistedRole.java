@@ -18,13 +18,12 @@ package org.apache.activemq.artemis.core.persistence.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.utils.BufferHelper;
 import org.apache.activemq.artemis.utils.DataConstants;
-
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 public class PersistedRole implements EncodingSupport {
 
@@ -38,11 +37,8 @@ public class PersistedRole implements EncodingSupport {
    }
 
    public PersistedRole(String username, List<String> roles) {
-      checkNotNull(username);
-      checkNotNull(roles);
-
-      this.username = username;
-      this.roles = roles;
+      this.username = Objects.requireNonNull(username);
+      this.roles = Objects.requireNonNull(roles);
    }
 
    public void setStoreId(long id) {

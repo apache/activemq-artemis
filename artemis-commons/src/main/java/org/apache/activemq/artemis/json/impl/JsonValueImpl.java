@@ -16,14 +16,13 @@
  */
 package org.apache.activemq.artemis.json.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.json.JsonValue;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 public class JsonValueImpl implements JsonValue {
 
@@ -78,8 +77,7 @@ public class JsonValueImpl implements JsonValue {
    }
 
    public JsonValueImpl(javax.json.JsonValue rawValue) {
-      checkNotNull(rawValue);
-      this.rawValue = rawValue;
+      this.rawValue = Objects.requireNonNull(rawValue);
    }
 
 

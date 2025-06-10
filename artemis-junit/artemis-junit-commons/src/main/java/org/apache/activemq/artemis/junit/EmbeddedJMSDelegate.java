@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -565,9 +566,7 @@ public class EmbeddedJMSDelegate implements EmbeddedJMSOperations<EmbeddedJMSDel
 
    @Override
    public Message peekMessage(String destinationName) {
-      if (null == jmsServer) {
-         throw new NullPointerException("peekMessage failure  - BrokerService is null");
-      }
+      Objects.requireNonNull(jmsServer, "peekMessage failure  - BrokerService is null");
 
       if (destinationName == null) {
          throw new IllegalArgumentException("peekMessage failure - destination name is required");

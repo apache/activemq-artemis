@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -227,7 +228,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    }
 
    public synchronized ActiveMQScheduledComponent setPeriod(long period, TimeUnit unit) {
-      if (unit == null) throw new NullPointerException("unit is required");
+      Objects.requireNonNull(unit, "unit is required");
       if (this.period != period || this.timeUnit != unit) {
          this.period = period;
          this.timeUnit = unit;

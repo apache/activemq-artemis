@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.spi.core.protocol;
 
+import java.util.Objects;
 import java.util.ServiceLoader;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -119,9 +120,7 @@ public class MessagePersister implements Persister<Message> {
    public Message decode(ActiveMQBuffer buffer, Message record, CoreMessageObjectPools pools, StorageManager storageManager) {
       byte protocol = buffer.readByte();
       Persister<Message> persister = getPersister(protocol);
-      if (persister == null) {
-         throw new NullPointerException("couldn't find factory for type=" + protocol);
-      }
+      Objects.requireNonNull(persister, "couldn't find factory for type=" + protocol);
       Message message = persister.decode(buffer, record, pools);
       if (message instanceof LargeServerMessage largeServerMessage) {
          largeServerMessage.setStorageManager(storageManager);

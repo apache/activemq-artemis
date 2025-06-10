@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage {
 
@@ -260,14 +261,7 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    @Override
    public char getChar(final String name) throws JMSException {
-      Object value;
-
-      value = content.get(name);
-
-      if (value == null) {
-         throw new NullPointerException("Invalid conversion");
-      }
-
+      Object value = Objects.requireNonNull(content.get(name), "Invalid conversion");
       if (value instanceof Character character) {
          return character.charValue();
       } else {

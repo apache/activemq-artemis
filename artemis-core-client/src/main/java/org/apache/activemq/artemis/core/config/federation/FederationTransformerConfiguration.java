@@ -22,7 +22,6 @@ import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
-import org.apache.activemq.artemis.utils.Preconditions;
 
 public class FederationTransformerConfiguration implements Serializable {
 
@@ -65,8 +64,8 @@ public class FederationTransformerConfiguration implements Serializable {
 
 
    public void encode(ActiveMQBuffer buffer) {
-      Preconditions.checkArgument(name != null, "name can not be null");
-      Preconditions.checkArgument(transformerConfiguration != null, "transformerConfiguration can not be null");
+      Objects.requireNonNull(name, "name can not be null");
+      Objects.requireNonNull(transformerConfiguration, "transformerConfiguration can not be null");
       buffer.writeString(name);
 
       buffer.writeString(transformerConfiguration.getClassName());

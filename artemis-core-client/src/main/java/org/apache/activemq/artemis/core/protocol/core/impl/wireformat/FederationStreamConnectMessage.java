@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.config.FederationConfiguration.Credentials;
@@ -26,7 +27,6 @@ import org.apache.activemq.artemis.core.config.federation.FederationStreamConfig
 import org.apache.activemq.artemis.core.config.federation.FederationTransformerConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
-import org.apache.activemq.artemis.utils.Preconditions;
 
 public abstract class FederationStreamConnectMessage <T extends FederationStreamConfiguration> extends PacketImpl {
 
@@ -85,7 +85,7 @@ public abstract class FederationStreamConnectMessage <T extends FederationStream
 
    @Override
    public void encodeRest(ActiveMQBuffer buffer) {
-      Preconditions.checkNotNull(streamConfiguration);
+      Objects.requireNonNull(streamConfiguration);
 
       super.encodeRest(buffer);
       buffer.writeString(name);

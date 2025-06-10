@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.reader;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
 public class BytesMessageUtil extends MessageUtil {
@@ -131,9 +133,7 @@ public class BytesMessageUtil extends MessageUtil {
     * {@return {@code true} if it could send the Object to any known format}
     */
    public static boolean bytesWriteObject(ActiveMQBuffer message, Object value) {
-      if (value == null) {
-         throw new NullPointerException("Attempt to write a null value");
-      }
+      Objects.requireNonNull(value, "Attempt to write a null value");
       if (value instanceof String string) {
          bytesWriteUTF(message, string);
       } else if (value instanceof Boolean booleanValue) {

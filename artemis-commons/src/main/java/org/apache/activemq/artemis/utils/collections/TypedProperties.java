@@ -216,10 +216,7 @@ public class TypedProperties {
    }
 
    public Character getCharProperty(final SimpleString key) throws ActiveMQPropertyConversionException {
-      Object value = doGetProperty(key);
-      if (value == null) {
-         throw new NullPointerException("Invalid conversion: " + key);
-      }
+      Object value = Objects.requireNonNull(doGetProperty(key), "Invalid conversion: " + key);
 
       if (value instanceof Character character) {
          return character;

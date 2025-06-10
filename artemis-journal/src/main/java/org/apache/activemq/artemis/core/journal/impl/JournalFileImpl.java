@@ -16,18 +16,17 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import org.apache.activemq.artemis.core.io.SequentialFile;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
-
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
+import org.slf4j.LoggerFactory;
 
 public class JournalFileImpl implements JournalFile {
 
@@ -69,9 +68,7 @@ public class JournalFileImpl implements JournalFile {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public JournalFileImpl(final SequentialFile file, final long fileID, final int version) {
-      checkNotNull(file);
-
-      this.file = file;
+      this.file = Objects.requireNonNull(file);
 
       this.fileID = fileID;
 

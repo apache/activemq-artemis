@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.protocol.amqp.connect.mirror;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.slf4j.Logger;
@@ -53,9 +54,8 @@ public class AckManagerProvider {
    }
 
    public static AckManager getManager(ActiveMQServer server) {
-      if (server == null) {
-         throw new NullPointerException("server is null");
-      }
+      Objects.requireNonNull(server, "server is null");
+
       synchronized (managerHashMap) {
          AckManager ackManager = managerHashMap.get(server);
          if (ackManager != null) {
