@@ -24,6 +24,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -37,9 +38,11 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -645,6 +648,65 @@ public class FederatedAddressTest extends FederatedTestBase {
          producer2.send(session2.createTextMessage("hello"));
          assertNotNull(consumer0.receive(1000));
       }
+   }
+
+   @Test
+   public void testUpstreamFederatedAddressWithCompressedMessage() throws Exception {
+      final String DATA_REGULAR = RandomUtil.randomAlphaNumericString(10);
+      final String DATA_COMPRESSED_REGULAR = "Compresses easily".repeat(500 * 1024);
+      final String DATA_COMPRESSED_LARGE = RandomUtil.randomAlphaNumericString(1024 * 1024);
+      final String address = getName();
+
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server1", address);
+      getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
+      getServer(0).getFederationManager().deploy();
+
+      FederationConfiguration federationConfiguration2 = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server0", address);
+      getServer(1).getConfiguration().getFederationConfigurations().add(federationConfiguration2);
+      getServer(1).getFederationManager().deploy();
+
+      ActiveMQConnectionFactory cf0 = new ActiveMQConnectionFactory("vm://" + 0);
+      ActiveMQConnectionFactory cf1 = new ActiveMQConnectionFactory("vm://" + 1);
+      cf0.setCompressLargeMessage(true);
+      cf1.setCompressLargeMessage(true);
+
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
+         connection1.start();
+         connection0.start();
+
+         Session session0 = connection0.createSession();
+         Session session1 = connection1.createSession();
+         Topic topic0 = session0.createTopic(address);
+         Topic topic1 = session1.createTopic(address);
+         MessageConsumer consumer0 = session0.createConsumer(topic0);
+         MessageConsumer consumer1 = session1.createConsumer(topic1);
+
+         MessageProducer producer = session0.createProducer(topic0);
+
+         sendAndConsume(producer, session0, DATA_REGULAR, "regular", consumer0, consumer1);
+         sendAndConsume(producer, session0, DATA_COMPRESSED_LARGE, "compressedLarge", consumer0, consumer1);
+         sendAndConsume(producer, session0, DATA_COMPRESSED_REGULAR, "compressedRegular", consumer0, consumer1);
+      }
+   }
+
+   private void sendAndConsume(MessageProducer producer,
+                          Session session0,
+                          String data,
+                          String identification,
+                          MessageConsumer consumer0,
+                          MessageConsumer consumer1) throws Exception {
+      {
+         TextMessage message = session0.createTextMessage(data);
+         message.setStringProperty("identification", identification);
+         producer.send(message);
+      }
+      TextMessage message0 = (TextMessage) consumer0.receive(1000);
+      TextMessage message1 = (TextMessage) consumer1.receive(1000);
+      assertNotNull(message0);
+      assertNotNull(message1);
+      assertEquals(data, message0.getText());
+      assertEquals(data, message1.getText());
    }
 
    private Message createTextMessage(Session session1, String group) throws JMSException {

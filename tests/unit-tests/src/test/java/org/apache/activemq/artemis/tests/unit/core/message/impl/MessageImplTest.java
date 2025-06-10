@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -251,6 +252,13 @@ public class MessageImplTest extends ActiveMQTestBase {
             logger.debug("#test {}", i);
          internalMessageCopy();
       }
+   }
+
+   @Test
+   public void testCopyAndGetBuffer() throws Exception {
+      ClientMessageImpl messageImpl = new ClientMessageImpl((byte)0, true, 0L, 0L, (byte)0, 100, new CoreMessageObjectPools());
+      ICoreMessage copy = messageImpl.copy();
+      copy.getBodyBuffer();
    }
 
    @Test

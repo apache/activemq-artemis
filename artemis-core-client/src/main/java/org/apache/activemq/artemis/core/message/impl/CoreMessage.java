@@ -486,6 +486,10 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          }
          if (other.buffer != null) {
             this.buffer = other.buffer.copy();
+            if (this.buffer.capacity() == 0) {
+               // we are copying an empty buffer probably, we need to set the proper capacity
+               this.buffer.capacity(other.buffer.capacity());
+            }
          }
       }
    }
@@ -515,7 +519,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    @Override
-   public Message copy() {
+   public ICoreMessage copy() {
       getProperties();
       checkEncode();
       return new CoreMessage(this);

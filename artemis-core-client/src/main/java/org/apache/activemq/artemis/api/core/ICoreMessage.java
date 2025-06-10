@@ -29,6 +29,8 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
  */
 public interface ICoreMessage extends Message {
 
+   @Override
+   ICoreMessage copy();
    /**
     * The buffer will belong to this message, until release is called.
     */

@@ -396,7 +396,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
    }
 
    private void largeMessageSendStreamed(final boolean sendBlocking,
-                                         final ICoreMessage msgI,
+                                         ICoreMessage msgI,
                                          final InputStream inputStreamParameter,
                                          final ClientProducerCredits credits,
                                          SendAcknowledgementHandler handler) throws ActiveMQException {
@@ -411,6 +411,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
       DeflaterReader deflaterReader = null;
 
       if (session.isCompressLargeMessages()) {
+         // We need to change properties the compressed message as we send it
+         msgI = msgI.copy();
          msgI.putBooleanProperty(Message.HDR_LARGE_COMPRESSED, true);
          deflaterReader = new DeflaterReader(inputStreamParameter, messageSize);
          deflaterReader.setLevel(session.getCompressionLevel());

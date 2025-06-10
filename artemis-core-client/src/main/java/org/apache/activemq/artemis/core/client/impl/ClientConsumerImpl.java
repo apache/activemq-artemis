@@ -643,9 +643,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       largeMessage.setLargeMessageController(new CompressedLargeMessageControllerImpl(currentLargeMessageController));
       // this is refeeding the packet after decompressed, hence the flow control must be 0
       currentLargeMessageController.addPacket(body, 0, false);
-      largeMessage.putBooleanProperty(Message.HDR_LARGE_COMPRESSED, false);
-      //make sure the message is decompressed before it is handled
-      largeMessage.checkCompletion();
       currentLargeMessageController = null;
 
       handleRegularMessage(largeMessage);
@@ -685,7 +682,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
       if (clientLargeMessage.isCompressed()) {
          clientLargeMessage.setLargeMessageController(new CompressedLargeMessageControllerImpl(currentLargeMessageController));
-         clientLargeMessage.putBooleanProperty(Message.HDR_LARGE_COMPRESSED, false);
       } else {
          clientLargeMessage.setLargeMessageController(currentLargeMessageController);
       }
