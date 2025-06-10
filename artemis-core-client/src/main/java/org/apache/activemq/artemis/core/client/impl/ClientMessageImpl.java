@@ -24,6 +24,7 @@ import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
@@ -396,7 +397,7 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
    }
 
    @Override
-   public Message copy() {
+   public ICoreMessage copy() {
       return new ClientMessageImpl(this);
    }
 

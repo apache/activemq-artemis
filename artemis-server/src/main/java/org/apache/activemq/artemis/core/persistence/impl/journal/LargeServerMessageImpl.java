@@ -324,7 +324,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
    }
 
    @Override
-   public Message copy() {
+   public ICoreMessage copy() {
       SequentialFile newfile = storageManager.createFileForLargeMessage(messageID, durable);
       LargeServerMessageImpl newMessage = new LargeServerMessageImpl(this, properties, newfile, messageID);
       newMessage.setParentRef(this);

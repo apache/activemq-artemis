@@ -570,7 +570,67 @@ public class LargeMessageCompressTest extends LargeMessageTestBase {
    }
 
    @TestTemplate
+   public void testCompressedMessageRouting() throws Exception {
+      SimpleString DATA = SimpleString.of(RandomUtil.randomAlphaNumericString(110 * 1024));
+
+      ActiveMQServer server = createServer(true, isNetty());
+      server.start();
+
+      server.createQueue(QueueConfiguration.of(ADDRESS).setRoutingType(RoutingType.ANYCAST));
+
+      locator.setAckBatchSize(0);
+
+      try (ServerLocator locator2 = createFactory(isNetty()); ServerLocator locator3 = createFactory(isNetty())) {
+         locator2.setMinLargeMessageSize(10240);
+         //Any sufficiently large value here causes a "java.lang.NegativeArraySizeException"
+         locator3.setMinLargeMessageSize(1024000);
+
+         ClientSessionFactory sf = locator.createSessionFactory();
+         ClientSession session = sf.createSession(true, true);
+         ClientProducer producer = session.createProducer(ADDRESS);
+         ClientConsumer consumer = session.createConsumer(ADDRESS);
+
+         ClientMessage message = session.createMessage(true);
+         message.getBodyBuffer().writeNullableSimpleString(DATA);
+         producer.send(message);
+
+         session.start();
+         message = consumer.receive(2000);
+         assertNotNull(message);
+         assertTrue(message.getBooleanProperty(Message.HDR_LARGE_COMPRESSED));
+         message.checkCompletion();
+         message.acknowledge();
+
+         ClientSessionFactory sf2 = locator2.createSessionFactory();
+         ClientSessionFactory sf3 = locator3.createSessionFactory();
+         ClientSession session2 = sf2.createSession(true, true);
+         ClientSession session3 = sf3.createSession(true, true);
+         ClientProducer producer2 = session2.createProducer(ADDRESS);
+         ClientProducer producer3 = session3.createProducer(ADDRESS);
+         ClientMessage receivedMessage;
+
+         //Notice the _AMQ_LARGE_SIZE value changing part way through
+         for (int i = 0; i < 3; i++) {
+            producer.send(message);
+            producer2.send(message);
+            producer3.send(message);
+         }
+
+         for (int i = 0; i < 9; i++) {
+            receivedMessage = consumer.receive(2000);
+            assertNotNull(receivedMessage);
+            assertEquals(DATA, receivedMessage.getBodyBuffer().readNullableSimpleString());
+            receivedMessage.acknowledge();
+         }
+
+         consumer.close();
+      }
+
+   }
+
+   @TestTemplate
    public void testLargeMessageCompressionLevel() throws Exception {
+      SimpleString DATA = SimpleString.of(RandomUtil.randomAlphaNumericString(1024 * 1024));
 
       SimpleString address1 = SimpleString.of("address1");
       SimpleString address2 = SimpleString.of("address2");
@@ -602,16 +662,16 @@ public class LargeMessageCompressTest extends LargeMessageTestBase {
       session2.createQueue(QueueConfiguration.of(address2));
       session3.createQueue(QueueConfiguration.of(address3));
 
-      String inputString = "blahblahblah??blahblahblahblahblah??blablahblah??blablahblah??bla";
-      for (int i = 0; i < 20; i++) {
-         inputString = inputString + inputString;
-      }
+      ClientMessage message1 = session1.createMessage(true);
+      ClientMessage message2 = session2.createMessage(true);
+      ClientMessage message3 = session3.createMessage(true);
+      message1.getBodyBuffer().writeNullableSimpleString(DATA);
+      message2.getBodyBuffer().writeNullableSimpleString(DATA);
+      message3.getBodyBuffer().writeNullableSimpleString(DATA);
 
-      ClientMessage message = session1.createMessage(true);
-      message.getBodyBuffer().writeString(inputString);
-      producer1.send(message);
-      producer2.send(message);
-      producer3.send(message);
+      producer1.send(message1);
+      producer2.send(message2);
+      producer3.send(message3);
 
       QueueControl queueControl1 = (QueueControl)server.getManagementService().
          getResource(ResourceNames.QUEUE + address1);
@@ -623,9 +683,33 @@ public class LargeMessageCompressTest extends LargeMessageTestBase {
       assertEquals(1, queueControl1.getMessageCount());
       assertEquals(1, queueControl2.getMessageCount());
       assertEquals(1, queueControl3.getMessageCount());
-      assertTrue(message.getPersistentSize() > queueControl1.getPersistentSize());
+
+      assertTrue(message1.getPersistentSize() > queueControl1.getPersistentSize());
       assertTrue(queueControl1.getPersistentSize() > queueControl2.getPersistentSize());
       assertTrue(queueControl2.getPersistentSize() > queueControl3.getPersistentSize());
+
+      ClientConsumer consumer1 = session1.createConsumer(address1);
+      ClientConsumer consumer2 = session2.createConsumer(address2);
+      ClientConsumer consumer3 = session3.createConsumer(address3);
+      session1.start();
+      session2.start();
+      session3.start();
+
+      ClientMessage message;
+      message = consumer1.receive(2000);
+      assertNotNull(message);
+      assertEquals(DATA, message.getBodyBuffer().readNullableSimpleString());
+      message.acknowledge();
+
+      message = consumer2.receive(2000);
+      assertNotNull(message);
+      assertEquals(DATA, message.getBodyBuffer().readNullableSimpleString());
+      message.acknowledge();
+
+      message = consumer3.receive(2000);
+      assertNotNull(message);
+      assertEquals(DATA, message.getBodyBuffer().readNullableSimpleString());
+      message.acknowledge();
 
       sf1.close();
       sf2.close();

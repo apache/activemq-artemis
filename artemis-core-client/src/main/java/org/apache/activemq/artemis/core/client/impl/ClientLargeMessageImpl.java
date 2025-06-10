@@ -149,6 +149,14 @@ public final class ClientLargeMessageImpl extends ClientMessageImpl implements C
          writableBuffer = new ResetLimitWrappedActiveMQBuffer(BODY_OFFSET, buffer.duplicate(), this);
 
          largeMessageController.saveBuffer(new ActiveMQOutputStream(writableBuffer));
+
+         unsetCompressionPropertyIfNeeded();
+      }
+   }
+
+   private void unsetCompressionPropertyIfNeeded() {
+      if (largeMessageController instanceof CompressedLargeMessageControllerImpl) {
+         putBooleanProperty(Message.HDR_LARGE_COMPRESSED, false);
       }
    }
 
