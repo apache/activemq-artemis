@@ -469,58 +469,50 @@ public class MQTTUtil {
     * https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901027
     */
    private static int calculatePublishPropertiesSize(MqttProperties properties) {
-      int size = 0;
-      try {
-         try {
-            for (MqttProperties.MqttProperty property : properties.listAll()) {
-               MqttPropertyType propertyType = MqttPropertyType.valueOf(property.propertyId());
-               switch (propertyType) {
-                  case PAYLOAD_FORMAT_INDICATOR:
-                     size += calculateVariableByteIntegerSize(property.propertyId());
-                     size += 1;
-                     break;
-                  case TOPIC_ALIAS:
-                     size += calculateVariableByteIntegerSize(property.propertyId());
-                     size += 2;
-                     break;
-                  case PUBLICATION_EXPIRY_INTERVAL: // AKA "Message Expiry Interval"
-                     size += calculateVariableByteIntegerSize(property.propertyId());
-                     size += 4;
-                     break;
-                  case SUBSCRIPTION_IDENTIFIER:
-                     size += calculateVariableByteIntegerSize(property.propertyId());
-                     size += calculateVariableByteIntegerSize(((MqttProperties.IntegerProperty) property).value());
-                     break;
-                  case CONTENT_TYPE:
-                  case RESPONSE_TOPIC:
-                     size += calculateVariableByteIntegerSize(property.propertyId());
-                     size += ByteBufUtil.utf8Bytes(((MqttProperties.StringProperty) property).value());
-                     break;
-                  case USER_PROPERTY:
-                     for (MqttProperties.StringPair pair : ((MqttProperties.UserProperties) property).value()) {
-                        size += calculateVariableByteIntegerSize(property.propertyId());
-                        size += ByteBufUtil.utf8Bytes(pair.key);
-                        size += ByteBufUtil.utf8Bytes(pair.value);
-                     }
-                     break;
-                  case CORRELATION_DATA:
-                     size += calculateVariableByteIntegerSize(property.propertyId());
-                     size += 2;
-                     size += ((MqttProperties.BinaryProperty) property).value().length;
-                     break;
-                  default:
-                     //shouldn't reach here
-                     throw new EncoderException("Unknown property type: " + propertyType);
-               }
-            }
-            size += calculateVariableByteIntegerSize(size);
-
-            return size;
-         } finally {
-         }
-      } catch (RuntimeException e) {
-         throw e;
+      if (properties == null) {
+         return 0;
       }
+      int size = 0;
+      for (MqttProperties.MqttProperty property : properties.listAll()) {
+         MqttPropertyType propertyType = MqttPropertyType.valueOf(property.propertyId());
+         size += switch (propertyType) {
+            case PAYLOAD_FORMAT_INDICATOR -> {
+               yield calculateVariableByteIntegerSize(property.propertyId()) + 1;
+            }
+            case TOPIC_ALIAS -> {
+               yield calculateVariableByteIntegerSize(property.propertyId()) + 2;
+            }
+            case PUBLICATION_EXPIRY_INTERVAL -> { // AKA "Message Expiry Interval"
+               yield calculateVariableByteIntegerSize(property.propertyId()) + 4;
+            }
+            case SUBSCRIPTION_IDENTIFIER -> {
+               yield calculateVariableByteIntegerSize(property.propertyId()) +
+                  calculateVariableByteIntegerSize(((MqttProperties.IntegerProperty) property).value());
+            }
+            case CONTENT_TYPE, RESPONSE_TOPIC -> {
+               yield calculateVariableByteIntegerSize(property.propertyId()) +
+                  ByteBufUtil.utf8Bytes(((MqttProperties.StringProperty) property).value());
+            }
+            case USER_PROPERTY -> {
+               int userPropertySize = 0;
+               for (MqttProperties.StringPair pair : ((MqttProperties.UserProperties) property).value()) {
+                  userPropertySize += calculateVariableByteIntegerSize(property.propertyId());
+                  userPropertySize += ByteBufUtil.utf8Bytes(pair.key);
+                  userPropertySize += ByteBufUtil.utf8Bytes(pair.value);
+               }
+               yield userPropertySize;
+            }
+            case CORRELATION_DATA -> {
+               yield calculateVariableByteIntegerSize(property.propertyId()) + 2 +
+                  ((MqttProperties.BinaryProperty) property).value().length;
+            }
+            default -> throw new EncoderException("Unknown property type: " + propertyType);
+         };
+
+      }
+      size += calculateVariableByteIntegerSize(size);
+
+      return size;
    }
 
    /**
