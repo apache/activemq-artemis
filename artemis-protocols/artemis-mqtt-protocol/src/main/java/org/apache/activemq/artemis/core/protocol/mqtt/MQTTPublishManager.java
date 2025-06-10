@@ -411,9 +411,10 @@ public class MQTTPublishManager {
       boolean redelivery = qos == 0 ? false : (deliveryCount > 1);
 
       boolean isRetain = message.containsProperty(MQTT_MESSAGE_RETAIN_INITIAL_DISTRIBUTION_KEY);
-      MqttProperties mqttProperties = getPublishProperties(message);
+      MqttProperties mqttProperties = null;
 
       if (session.getVersion() == MQTTVersion.MQTT_5) {
+         mqttProperties = getPublishProperties(message);
          if (!isRetain && message.getBooleanProperty(MQTT_MESSAGE_RETAIN_KEY)) {
             MqttTopicSubscription sub = session.getState().getSubscription(topic);
             if (sub != null && sub.option().isRetainAsPublished()) {
