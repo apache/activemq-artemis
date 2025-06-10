@@ -1190,12 +1190,9 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
          return properties.containsProperty(key);
       }
       synchronized (this) {
-         final ByteBuf buffer = this.buffer;
+         final ByteBuf buffer = Objects.requireNonNull(this.buffer, "buffer cannot be null");
          // acquiring the lock here, although heavy-weight, is the safer way to do this,
          // because we cannot trust that a racing thread won't modify buffer
-         if (buffer == null) {
-            throw new NullPointerException("buffer cannot be null");
-         }
          final int propertiesLocation = this.propertiesLocation;
          if (propertiesLocation < 0) {
             throw new IllegalStateException("propertiesLocation = " + propertiesLocation);

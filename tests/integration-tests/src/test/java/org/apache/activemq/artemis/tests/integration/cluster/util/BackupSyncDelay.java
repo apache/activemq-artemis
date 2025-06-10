@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.util;
 
+import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -98,9 +99,7 @@ public class BackupSyncDelay implements Interceptor {
             } else if (backupActivation instanceof ReplicationBackupActivation activation) {
                repEnd = activation.getReplicationEndpoint();
             }
-            if (repEnd == null) {
-               throw new NullPointerException("replication endpoint isn't supposed to be null");
-            }
+            Objects.requireNonNull(repEnd, "replication endpoint isn't supposed to be null");
             handler.addSubHandler(repEnd);
             Channel repChannel = repEnd.getChannel();
             repChannel.setHandler(handler);
@@ -139,9 +138,7 @@ public class BackupSyncDelay implements Interceptor {
          if (delivered)
             return;
 
-         if (onHold == null) {
-            throw new NullPointerException("Don't have the 'sync is done' packet to deliver");
-         }
+         Objects.requireNonNull(onHold, "Don't have the 'sync is done' packet to deliver");
          // Use wrapper to avoid sending a response
          ChannelWrapper wrapper = new ChannelWrapper(channel);
          handler.setChannel(wrapper);

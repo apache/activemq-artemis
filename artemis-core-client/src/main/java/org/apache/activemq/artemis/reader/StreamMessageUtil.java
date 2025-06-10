@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.reader;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -73,20 +75,14 @@ public class StreamMessageUtil extends MessageUtil {
    }
 
    public static char streamReadChar(ActiveMQBuffer buff) {
-      byte type = buff.readByte();
-      switch (type) {
-         case DataConstants.CHAR:
-            return (char) buff.readShort();
-         case DataConstants.STRING:
-            String str = buff.readNullableString();
-            if (str == null) {
-               throw new NullPointerException("Invalid conversion");
-            } else {
-               throw new IllegalStateException("Invalid conversion");
-            }
-         default:
+      return switch (buff.readByte()) {
+         case DataConstants.CHAR -> (char) buff.readShort();
+         case DataConstants.STRING -> {
+            Objects.requireNonNull(buff.readNullableString(), "Invalid conversion");
             throw new IllegalStateException("Invalid conversion");
-      }
+         }
+         default -> throw new IllegalStateException("Invalid conversion");
+      };
 
    }
 

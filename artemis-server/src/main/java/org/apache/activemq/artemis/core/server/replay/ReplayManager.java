@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -71,9 +72,7 @@ public class ReplayManager {
    public void replay(Date start, Date end, String sourceAddress, String targetAddressParameter, String filterStr) throws Exception {
       logger.debug("Replay start::sourceAddress={}", sourceAddress);
 
-      if (sourceAddress == null) {
-         throw new NullPointerException("sourceAddress");
-      }
+      Objects.requireNonNull(sourceAddress, "sourceAddress");
 
       if (targetAddressParameter == null || targetAddressParameter.trim().isEmpty()) {
          targetAddressParameter = sourceAddress;

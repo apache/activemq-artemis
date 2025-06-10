@@ -72,19 +72,9 @@ public class ScramClientFunctionalityImpl implements ScramClientFunctionality {
     * @param clientNonce Client nonce to be used
     */
    public ScramClientFunctionalityImpl(String digestName, String hmacName, String clientNonce) {
-      if (ScramUtils.isNullOrEmpty(digestName)) {
-         throw new NullPointerException("digestName cannot be null or empty");
-      }
-      if (ScramUtils.isNullOrEmpty(hmacName)) {
-         throw new NullPointerException("hmacName cannot be null or empty");
-      }
-      if (ScramUtils.isNullOrEmpty(clientNonce)) {
-         throw new NullPointerException("clientNonce cannot be null or empty");
-      }
-
-      mDigestName = digestName;
-      mHmacName = hmacName;
-      mClientNonce = clientNonce;
+      mDigestName = ScramUtils.requireNonNullAndNotEmpty(digestName, "digestName");
+      mHmacName = ScramUtils.requireNonNullAndNotEmpty(hmacName, "hmacName");
+      mClientNonce = ScramUtils.requireNonNullAndNotEmpty(clientNonce, "clientNonce");
    }
 
    /**

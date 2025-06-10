@@ -181,12 +181,9 @@ public class PagingStoreImpl implements PagingStore {
                           final AddressSettings addressSettings,
                           final ArtemisExecutor executor,
                           final boolean syncNonTransactional) {
-      if (scheduledExecutor == null) {
-         throw new NullPointerException("scheduledExecutor = null");
-      }
-      if (pagingManager == null) {
-         throw new IllegalStateException("Paging Manager can't be null");
-      }
+      Objects.requireNonNull(scheduledExecutor, "scheduledExecutor = null");
+
+      Objects.requireNonNull(pagingManager, "Paging Manager can't be null");
 
       this.address = address;
 
@@ -219,12 +216,8 @@ public class PagingStoreImpl implements PagingStore {
 
    // This is an extension point for unit tests to replace the creation of the PagedTimeWriter
    protected PageTimedWriter createPageTimedWriter(ScheduledExecutorService scheduledExecutor, long syncTimeout) {
-      if (scheduledExecutor == null) {
-         throw new NullPointerException("scheduledExecutor");
-      }
-      if (executor == null) {
-         throw new NullPointerException("executor");
-      }
+      Objects.requireNonNull(scheduledExecutor, "scheduledExecutor");
+      Objects.requireNonNull(executor, "executor");
       // Notice that any calls on the PageTimedWriter are going to use the paging store's executor.
       // The scheduledExecutor will transfer the call to the paging store executor.
       PageTimedWriter localWriter = new PageTimedWriter(pageSize, storageManager, this, scheduledExecutor, executor, syncNonTransactional, syncTimeout);

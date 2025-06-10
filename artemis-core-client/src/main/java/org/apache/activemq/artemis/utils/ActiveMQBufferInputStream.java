@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
@@ -60,9 +61,8 @@ public class ActiveMQBufferInputStream extends InputStream {
          throw new IOException("read on a closed InputStream");
       }
 
-      if (byteArray == null) {
-         throw new NullPointerException();
-      }
+      Objects.requireNonNull(byteArray);
+
       if (off < 0 || off > byteArray.length || len < 0 || off + len > byteArray.length || off + len < 0) {
          throw new IndexOutOfBoundsException();
       }

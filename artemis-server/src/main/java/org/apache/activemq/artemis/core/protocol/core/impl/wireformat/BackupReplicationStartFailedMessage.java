@@ -20,11 +20,10 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
-
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 /**
  * Informs the Backup trying to start replicating of an error.
@@ -59,10 +58,7 @@ public final class BackupReplicationStartFailedMessage extends PacketImpl {
 
    public BackupReplicationStartFailedMessage(BackupRegistrationProblem registrationProblem) {
       super(BACKUP_REGISTRATION_FAILED);
-
-      checkNotNull(registrationProblem);
-
-      problem = registrationProblem;
+      problem = Objects.requireNonNull(registrationProblem);
    }
 
    public BackupReplicationStartFailedMessage() {

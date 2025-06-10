@@ -28,6 +28,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.Objects;
 
 public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMessage {
 
@@ -342,9 +343,7 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
          throw new MessageNotWriteableException("the message body is read-only");
       }
       try {
-         if (value == null) {
-            throw new NullPointerException("Attempt to write a new value");
-         }
+         Objects.requireNonNull(value, "Attempt to write a null value");
          if (value instanceof String string) {
             p.writeUTF(string);
          } else if (value instanceof Boolean booleanValue) {

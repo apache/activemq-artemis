@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.utils.uri;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class URIFactory<T, P> {
@@ -50,23 +51,11 @@ public class URIFactory<T, P> {
    }
 
    public T newObject(URI uri, P param) throws Exception {
-      URISchema<T, P> schemaFactory = schemas.get(uri.getScheme());
-
-      if (schemaFactory == null) {
-         throw new NullPointerException("Schema " + uri.getScheme() + " not found");
-      }
-
-      return schemaFactory.newObject(uri, param);
+      return Objects.requireNonNull(schemas.get(uri.getScheme()), "Schema " + uri.getScheme() + " not found").newObject(uri, param);
    }
 
    public T newObject(URI uri, Map<String, String> overrides, P param) throws Exception {
-      URISchema<T, P> schemaFactory = schemas.get(uri.getScheme());
-
-      if (schemaFactory == null) {
-         throw new NullPointerException("Schema " + uri.getScheme() + " not found");
-      }
-
-      return schemaFactory.newObject(uri, overrides, param);
+      return Objects.requireNonNull(schemas.get(uri.getScheme()), "Schema " + uri.getScheme() + " not found").newObject(uri, overrides, param);
    }
 
    public T newObject(String uri, P param) throws Exception {
@@ -74,13 +63,7 @@ public class URIFactory<T, P> {
    }
 
    public void populateObject(URI uri, T bean) throws Exception {
-      URISchema<T, P> schemaFactory = schemas.get(uri.getScheme());
-
-      if (schemaFactory == null) {
-         throw new NullPointerException("Schema " + uri.getScheme() + " not found");
-      }
-
-      schemaFactory.populateObject(uri, bean);
+      Objects.requireNonNull(schemas.get(uri.getScheme()), "Schema " + uri.getScheme() + " not found").populateObject(uri, bean);
    }
 
    public void populateObject(String uri, T bean) throws Exception {
@@ -88,12 +71,7 @@ public class URIFactory<T, P> {
    }
 
    public URI createSchema(String scheme, T bean) throws Exception {
-      URISchema<T, P> schemaFactory = schemas.get(scheme);
-
-      if (schemaFactory == null) {
-         throw new NullPointerException("Schema " + scheme + " not found");
-      }
-      return schemaFactory.newURI(bean);
+      return Objects.requireNonNull(schemas.get(scheme), "Schema " + scheme + " not found").newURI(bean);
    }
 
    /**

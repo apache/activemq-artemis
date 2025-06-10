@@ -21,6 +21,7 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.Objects;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -119,10 +120,10 @@ public class ScramUtils {
     * Checks if string is null or empty
     *
     * @param string String to be tested
-    * @return true if the string is null or empty, false otherwise
+    * @param name name of String to be tested and reported if null or empty
     */
-   public static boolean isNullOrEmpty(String string) {
-      return string == null || string.isEmpty();
+   public static <T> String requireNonNullAndNotEmpty(String string, String name) {
+      return Objects.requireNonNull(string == null ? null : (string.isEmpty() ? null : string), name + " is null or empty");
    }
 
    /**

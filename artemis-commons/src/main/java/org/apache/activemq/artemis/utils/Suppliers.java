@@ -20,9 +20,8 @@
 package org.apache.activemq.artemis.utils;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.function.Supplier;
-
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 public class Suppliers {
 
@@ -40,7 +39,7 @@ public class Suppliers {
    public static <T> Supplier<T> memoize(Supplier<T> delegate) {
       return (delegate instanceof MemoizingSupplier)
             ? delegate
-            : new MemoizingSupplier<T>(checkNotNull(delegate));
+            : new MemoizingSupplier<T>(Objects.requireNonNull(delegate));
    }
 
    private static class MemoizingSupplier<T> implements Supplier<T>, Serializable {

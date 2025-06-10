@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.utils.Preconditions;
 
 public class FederationQueuePolicyConfiguration implements FederationPolicy<FederationQueuePolicyConfiguration>, Serializable {
 
@@ -91,7 +90,7 @@ public class FederationQueuePolicyConfiguration implements FederationPolicy<Fede
 
    @Override
    public void encode(ActiveMQBuffer buffer) {
-      Preconditions.checkArgument(name != null, "name can not be null");
+      Objects.requireNonNull(name, "name can not be null");
       buffer.writeString(name);
       buffer.writeBoolean(includeFederated);
       buffer.writeNullableInt(priorityAdjustment);

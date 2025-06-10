@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
@@ -223,10 +224,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                              final Integer credits,
                              final ActiveMQServer server) throws Exception {
 
-
-      if (session == null || session.getRemotingConnection() == null) {
-         throw new NullPointerException("session = " + session);
-      }
+      Objects.requireNonNull(session, "session = null");
+      Objects.requireNonNull(session.getRemotingConnection(), "session = " + session);
 
       if (session != null && session.getRemotingConnection() != null && session.getRemotingConnection().isDestroyed()) {
          throw ActiveMQMessageBundle.BUNDLE.connectionDestroyed(session.getRemotingConnection().getRemoteAddress());

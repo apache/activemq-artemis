@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.utils.Preconditions;
 
 public class FederationAddressPolicyConfiguration implements FederationPolicy<FederationAddressPolicyConfiguration>, Serializable {
 
@@ -121,7 +120,7 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
 
    @Override
    public void encode(ActiveMQBuffer buffer) {
-      Preconditions.checkArgument(name != null, "name can not be null");
+      Objects.requireNonNull(name, "name can not be null");
       buffer.writeString(name);
       buffer.writeNullableBoolean(autoDelete);
       buffer.writeNullableLong(autoDeleteDelay);
@@ -209,7 +208,7 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
       }
 
       public void encode(ActiveMQBuffer buffer) {
-         Preconditions.checkArgument(addressMatch != null, "addressMatch can not be null");
+         Objects.requireNonNull(addressMatch, "addressMatch can not be null");
          buffer.writeString(addressMatch);
       }
 

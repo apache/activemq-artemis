@@ -204,9 +204,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
       logger.trace("**** addSorted element {}", e);
 
-      if (comparator == null) {
-         throw new NullPointerException("comparator=null");
-      }
+      Objects.requireNonNull(comparator, "comparator=null");
 
       if (size == 0) {
          logger.trace("adding head as there are no elements {}", e);

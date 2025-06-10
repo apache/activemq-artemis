@@ -20,13 +20,11 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
-
-import org.apache.qpid.proton.codec.ReadableBuffer;
-import org.apache.qpid.proton.codec.WritableBuffer;
+import java.util.Objects;
 
 import io.netty.buffer.ByteBuf;
-
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
+import org.apache.qpid.proton.codec.ReadableBuffer;
+import org.apache.qpid.proton.codec.WritableBuffer;
 
 /**
  * {@link ReadableBuffer} implementation that wraps a Netty {@link ByteBuf} to allow use of Netty buffers to be used
@@ -37,9 +35,7 @@ public class NettyReadable implements ReadableBuffer {
    private final ByteBuf buffer;
 
    public NettyReadable(ByteBuf buffer) {
-      checkNotNull(buffer);
-
-      this.buffer = buffer;
+      this.buffer = Objects.requireNonNull(buffer);
    }
 
    public ByteBuf getByteBuf() {

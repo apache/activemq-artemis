@@ -45,8 +45,6 @@ import org.apache.activemq.artemis.core.server.cluster.ClusterController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
-
 /**
  * A QourumManager can be used to register a {@link org.apache.activemq.artemis.core.server.cluster.quorum.Quorum} to
  * receive notifications about changes to the cluster. A
@@ -94,11 +92,8 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
    private int maxClusterSize = 0;
 
    public QuorumManager(ExecutorService threadPool, ClusterController clusterController) {
-      checkNotNull(threadPool);
-      checkNotNull(clusterController);
-
-      this.clusterController = clusterController;
-      this.executor = threadPool;
+      this.clusterController = Objects.requireNonNull(clusterController);
+      this.executor = Objects.requireNonNull(threadPool);
    }
 
    /**

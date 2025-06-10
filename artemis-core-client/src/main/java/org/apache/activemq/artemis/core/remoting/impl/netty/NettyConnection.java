@@ -16,10 +16,12 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
+import java.lang.invoke.MethodHandles;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
@@ -46,9 +48,6 @@ import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.IPV6Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 public class NettyConnection implements Connection {
 
@@ -79,11 +78,9 @@ public class NettyConnection implements Connection {
                           final BaseConnectionLifeCycleListener<?> listener,
                           boolean batchingEnabled,
                           boolean directDeliver) {
-      checkNotNull(channel);
-
       this.configuration = configuration;
 
-      this.channel = channel;
+      this.channel = Objects.requireNonNull(channel);
 
       this.listener = listener;
 

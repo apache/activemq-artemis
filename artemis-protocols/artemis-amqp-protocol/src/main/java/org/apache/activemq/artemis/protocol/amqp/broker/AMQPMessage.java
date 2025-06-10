@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import io.netty.buffer.ByteBuf;
@@ -335,9 +336,8 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
     */
    public final MessageImpl getProtonMessage() {
 
-      if (getData() == null) {
-         throw new NullPointerException("Data is not initialized");
-      }
+      Objects.requireNonNull(getData(), "Data is not initialized");
+
       ensureScanning();
 
       MessageImpl protonMessage = null;

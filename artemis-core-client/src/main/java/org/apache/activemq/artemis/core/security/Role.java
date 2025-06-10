@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.security;
 
 import org.apache.activemq.artemis.json.JsonObject;
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.utils.JsonLoader;
 
@@ -123,10 +124,7 @@ public class Role implements Serializable {
                final boolean deleteAddress,
                final boolean view,
                final boolean edit) {
-      if (name == null) {
-         throw new NullPointerException("name is null");
-      }
-      this.name = name;
+      this.name = Objects.requireNonNull(name, "name is null");
       this.send = send;
       this.consume = consume;
       this.createAddress = createAddress;

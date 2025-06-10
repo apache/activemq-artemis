@@ -24,6 +24,7 @@ import javax.jms.MessageNotWriteableException;
 import javax.jms.StreamMessage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMessage {
 
@@ -61,9 +62,8 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
          Object value = content.get(position);
          offset = 0;
 
-         if (value == null) {
-            throw new NullPointerException("Value is null");
-         } else if (value instanceof Boolean booleanValue) {
+         Objects.requireNonNull(value, "Value is null");
+         if (value instanceof Boolean booleanValue) {
             position++;
             return booleanValue.booleanValue();
          } else if (value instanceof String string) {
@@ -88,9 +88,8 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       try {
          Object value = content.get(position);
          offset = 0;
-         if (value == null) {
-            throw new NullPointerException("Value is null");
-         } else if (value instanceof Byte byteValue) {
+         Objects.requireNonNull(value, "Value is null");
+         if (value instanceof Byte byteValue) {
             position++;
             return byteValue.byteValue();
          } else if (value instanceof String string) {
@@ -114,9 +113,8 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
          Object value = content.get(position);
          offset = 0;
 
-         if (value == null) {
-            throw new NullPointerException("Value is null");
-         } else if (value instanceof Byte byteValue) {
+         Objects.requireNonNull(value, "Value is null");
+         if (value instanceof Byte byteValue) {
             position++;
             return byteValue.shortValue();
          } else if (value instanceof Short shortValue) {
@@ -143,9 +141,8 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
          Object value = content.get(position);
          offset = 0;
 
-         if (value == null) {
-            throw new NullPointerException("Value is null");
-         } else if (value instanceof Character character) {
+         Objects.requireNonNull(value, "Value is null");
+         if (value instanceof Character character) {
             position++;
             return character.charValue();
          } else {
@@ -165,9 +162,8 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
          Object value = content.get(position);
          offset = 0;
 
-         if (value == null) {
-            throw new NullPointerException("Value is null");
-         } else if (value instanceof Byte byteValue) {
+         Objects.requireNonNull(value, "Value is null");
+         if (value instanceof Byte byteValue) {
             position++;
             return byteValue.intValue();
          } else if (value instanceof Short shortValue) {
@@ -197,9 +193,8 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
          Object value = content.get(position);
          offset = 0;
 
-         if (value == null) {
-            throw new NullPointerException("Value is null");
-         } else if (value instanceof Byte byteValue) {
+         Objects.requireNonNull(value, "Value is null");
+         if (value instanceof Byte byteValue) {
             position++;
             return byteValue.longValue();
          } else if (value instanceof Short shortValue) {
@@ -232,9 +227,8 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
          Object value = content.get(position);
          offset = 0;
 
-         if (value == null) {
-            throw new NullPointerException("Value is null");
-         } else if (value instanceof Float floatValue) {
+         Objects.requireNonNull(value, "Value is null");
+         if (value instanceof Float floatValue) {
             position++;
             return floatValue.floatValue();
          } else if (value instanceof String string) {
@@ -258,9 +252,8 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
          Object value = content.get(position);
          offset = 0;
 
-         if (value == null) {
-            throw new NullPointerException("Value is null");
-         } else if (value instanceof Float floatValue) {
+         Objects.requireNonNull(value, "Value is null");
+         if (value instanceof Float floatValue) {
             position++;
             return floatValue.doubleValue();
          } else if (value instanceof Double doubleValue) {
@@ -332,9 +325,8 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       }
       try {
          Object myObj = content.get(position);
-         if (myObj == null) {
-            throw new NullPointerException("Value is null");
-         } else if (!(myObj instanceof byte[])) {
+         Objects.requireNonNull(myObj, "Value is null");
+         if (!(myObj instanceof byte[])) {
             throw new MessageFormatException("Invalid conversion");
          }
          byte[] obj = (byte[]) myObj;
