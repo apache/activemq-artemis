@@ -415,7 +415,7 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       System.out.println("vm uri: " + vmBrokerUri);
       if (vmBrokerUri != null)
          return vmBrokerUri.toString();
-      return brokerURL == null ? null : brokerURL.toString();
+      return Objects.toString(brokerURL, null);
    }
 
    public void setBrokerURL(String brokerURL) {

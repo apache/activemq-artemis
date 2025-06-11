@@ -204,7 +204,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       clearIO();
       try {
          SimpleString user = queue.getUser();
-         return user == null ? null : user.toString();
+         return Objects.toString(user, null);
       } finally {
          blockOnIO();
       }
@@ -552,7 +552,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         return queue.getDeadLetterAddress() == null ? null : queue.getDeadLetterAddress().toString();
+         return Objects.toString(queue.getDeadLetterAddress(), null);
       } finally {
          blockOnIO();
       }
@@ -567,7 +567,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         return queue.getExpiryAddress() == null ? null : queue.getExpiryAddress().toString();
+         return Objects.toString(queue.getExpiryAddress(), null);
       } finally {
          blockOnIO();
       }
@@ -1158,9 +1158,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          if (groupByProperty == null) {
             result.compute(null, (k, v) -> v == null ? 1 : ++v);
          } else {
-            Object value = message.getObjectPropertyForFilter(groupByProperty);
-            String valueStr = value == null ? null : value.toString();
-            result.compute(valueStr, (k, v) -> v == null ? 1 : ++v);
+            result.compute(Objects.toString(message.getObjectPropertyForFilter(groupByProperty), null), (k, v) -> v == null ? 1 : ++v);
          }
       }
    }
@@ -2132,7 +2130,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       try {
          SimpleString groupFirstKey = queue.getGroupFirstKey();
 
-         return groupFirstKey != null ? groupFirstKey.toString() : null;
+         return Objects.toString(groupFirstKey, null);
       } finally {
          blockOnIO();
       }

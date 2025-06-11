@@ -498,7 +498,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          props.putSimpleStringProperty(SimpleString.of("name"), name);
          //nodeID can be null if there's only a backup
          SimpleString nodeId = nodeManager.getNodeId();
-         Notification notification = new Notification(nodeId == null ? null : nodeId.toString(), CoreNotificationType.CLUSTER_CONNECTION_STOPPED, props);
+         Notification notification = new Notification(Objects.toString(nodeId, null), CoreNotificationType.CLUSTER_CONNECTION_STOPPED, props);
          managementService.sendNotification(notification);
       }
       executor.execute(() -> {
@@ -797,7 +797,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    @Override
    public String getNodeID() {
-      return nodeManager == null ? null : (nodeManager.getNodeId() == null ? null : nodeManager.getNodeId().toString());
+      return nodeManager == null ? null : (Objects.toString(nodeManager.getNodeId(), null));
    }
 
    @Override

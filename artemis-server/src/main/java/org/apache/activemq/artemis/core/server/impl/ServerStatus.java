@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -76,7 +77,7 @@ public class ServerStatus {
          snapshotOfServerStatusAttributes.putAll(immutableStateValues);
          snapshotOfServerStatusAttributes.put("identity", server.getIdentity());
          SimpleString nodeId = server.getNodeID();
-         snapshotOfServerStatusAttributes.put("nodeId", nodeId == null ? null : nodeId.toString());
+         snapshotOfServerStatusAttributes.put("nodeId", Objects.toString(nodeId, null));
          snapshotOfServerStatusAttributes.put("uptime", server.getUptime());
          snapshotOfServerStatusAttributes.put("state", server.getState().toString());
 

@@ -56,7 +56,7 @@ public class AMQPBridgeSenderControlType extends AbstractControl implements AMQP
       this.routingType = consumer.getQueueType();
       this.fqqn = CompositeAddress.toFullyQualified(address, queue);
       this.priority = consumer.getPriority();
-      this.filterString = consumer.getFilterString() == null ? null : consumer.getFilterString().toString();
+      this.filterString = Objects.toString(consumer.getFilterString(), null);
    }
 
    @Override
