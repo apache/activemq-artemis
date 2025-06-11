@@ -665,7 +665,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                      // this is used to create/destroy the producer so needs to be unique
                      String senderName = PRODUCER_ID_PREFIX + UUIDGenerator.getInstance().generateUUID();
                      producers.put(message.getId(), senderName);
-                     session.addProducer(senderName, ActiveMQClient.DEFAULT_CORE_PROTOCOL, message.getAddress() != null ? message.getAddress().toString() : null);
+                     session.addProducer(senderName, ActiveMQClient.DEFAULT_CORE_PROTOCOL, Objects.toString(message.getAddress(), null));
                   } else {
                      ActiveMQServerLogger.LOGGER.producerAlreadyExists(message.getId(), session.getName(), remotingConnection.getRemoteAddress());
                   }

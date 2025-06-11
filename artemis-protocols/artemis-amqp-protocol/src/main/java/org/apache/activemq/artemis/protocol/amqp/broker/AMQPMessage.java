@@ -1242,8 +1242,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final String getAddress() {
-      SimpleString addressSimpleString = getAddressSimpleString();
-      return addressSimpleString == null ? null : addressSimpleString.toString();
+      return Objects.toString(getAddressSimpleString(), null);
    }
 
    @Override
@@ -1344,7 +1343,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
          properties = new Properties();
       }
 
-      properties.setReplyTo(address != null ? address.toString() : null);
+      properties.setReplyTo(Objects.toString(address, null));
       return this;
    }
 

@@ -20,6 +20,7 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -352,7 +353,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
 
       this.name = name;
 
-      this.address = simpleAddress != null ? simpleAddress.toString() : null;
+      this.address = Objects.toString(simpleAddress, null);
    }
 
    public void setAddress(String address) {
@@ -427,7 +428,7 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
 
 
    public String getAddress() {
-      return simpleAddress != null ? simpleAddress.toString() : null;
+      return Objects.toString(simpleAddress, null);
    }
 
    public SimpleString getSimpleAddress() {

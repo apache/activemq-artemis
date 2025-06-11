@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -499,8 +500,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
 
       private void handleDisconnect(SimpleString nodeID, DisconnectReason reason, SimpleString targetNodeID, TransportConfiguration tagetConnector) {
          if (topologyResponseHandler != null) {
-            topologyResponseHandler.nodeDisconnected(conn, nodeID == null ? null : nodeID.toString(), reason,
-                    targetNodeID == null ? null : targetNodeID.toString(), tagetConnector);
+            topologyResponseHandler.nodeDisconnected(conn, Objects.toString(nodeID, null), reason, Objects.toString(targetNodeID, null), tagetConnector);
          }
       }
 

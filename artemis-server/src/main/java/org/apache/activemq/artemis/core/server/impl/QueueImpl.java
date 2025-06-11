@@ -1738,7 +1738,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private void auditLogAck(Subject subject, String remoteAddress, MessageReference ref, Transaction tx) {
-      AuditLogger.coreAcknowledgeMessage(subject, remoteAddress, getName().toString(), ref.getMessage().toString(), tx == null ? null : tx.toString());
+      AuditLogger.coreAcknowledgeMessage(subject, remoteAddress, getName().toString(), ref.getMessage().toString(), Objects.toString(tx, null));
    }
 
    @Override

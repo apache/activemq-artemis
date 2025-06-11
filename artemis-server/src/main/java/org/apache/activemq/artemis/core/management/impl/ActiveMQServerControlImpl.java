@@ -1100,7 +1100,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
               addressSettings.isDefaultGroupRebalance(),
               addressSettings.getDefaultGroupBuckets(),
               addressSettings.isDefaultLastValueQueue(),
-              addressSettings.getDefaultLastValueKey() == null ? null : addressSettings.getDefaultLastValueKey().toString(),
+              Objects.toString(addressSettings.getDefaultLastValueKey(), null),
               addressSettings.isDefaultNonDestructive(),
               addressSettings.getDefaultConsumersBeforeDispatch(),
               addressSettings.getDefaultDelayBeforeDispatch(),
@@ -1183,7 +1183,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             exclusive,
             groupRebalance,
             groupBuckets,
-            addressSettings.getDefaultGroupFirstKey() == null ? null : addressSettings.getDefaultGroupFirstKey().toString(),
+            Objects.toString(addressSettings.getDefaultGroupFirstKey(), null),
             lastValue,
             lastValueKey,
             nonDestructive,
@@ -3172,12 +3172,12 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                          AddressSettings.DEFAULT_CONFIG_DELETE_QUEUES.toString(),
                          AddressSettings.DEFAULT_CONFIG_DELETE_ADDRESSES.toString(),
                          AddressSettings.DEFAULT_ADDRESS_REJECT_THRESHOLD,
-                         ActiveMQDefaultConfiguration.getDefaultLastValueKey() == null ? null : ActiveMQDefaultConfiguration.getDefaultLastValueKey().toString(),
+                         Objects.toString(ActiveMQDefaultConfiguration.getDefaultLastValueKey(), null),
                          ActiveMQDefaultConfiguration.getDefaultNonDestructive(),
                          ActiveMQDefaultConfiguration.getDefaultExclusive(),
                          ActiveMQDefaultConfiguration.getDefaultGroupRebalance(),
                          ActiveMQDefaultConfiguration.getDefaultGroupBuckets(),
-                         ActiveMQDefaultConfiguration.getDefaultGroupFirstKey() == null ? null : ActiveMQDefaultConfiguration.getDefaultGroupFirstKey().toString(),
+                         Objects.toString(ActiveMQDefaultConfiguration.getDefaultGroupFirstKey(), null),
                          ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers(),
                          ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(),
                          ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch(),
@@ -4373,7 +4373,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getNodeID(this.server);
       }
-      return server.getNodeID() == null ? null : server.getNodeID().toString();
+      return Objects.toString(server.getNodeID(), null);
    }
 
    @Override
