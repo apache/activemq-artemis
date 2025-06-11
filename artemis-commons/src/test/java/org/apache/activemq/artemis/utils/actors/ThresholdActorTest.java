@@ -83,8 +83,6 @@ public class ThresholdActorTest {
 
          actor.flush();
 
-         open.set(false);
-
          // measuring after forced flush
          Wait.assertEquals(2, timesOpen::get, 5000, 1);
          Wait.assertTrue(open::get);
