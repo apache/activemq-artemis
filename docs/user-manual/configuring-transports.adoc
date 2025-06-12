@@ -244,14 +244,14 @@ These Native transports add features specific to a particular platform, generate
 
 Both Clients and Server can benefit from this.
 
-Current Supported Platforms.
+Currently supported platforms:
 
 * Linux running 64bit JVM
 * MacOS running 64bit JVM
 
-Apache ActiveMQ Artemis will by default enable the corresponding native transport if a supported platform is detected.
+Apache ActiveMQ Artemis will enable the corresponding native transport by default if a supported platform is detected.
 
-If running on an unsupported platform or any issues loading native libs, Apache ActiveMQ Artemis will fallback onto Java NIO.
+If running on an unsupported platform, or if any issues occur while loading the native libs, Apache ActiveMQ Artemis will fallback onto Java NIO.
 
 ==== Linux Native Transport
 
@@ -263,6 +263,22 @@ useEpoll::
 enables the use of epoll if a supported linux platform is running a 64bit JVM is detected.
 Setting this to `false` will force the use of Java NIO instead of epoll.
 Default is `true`
+
+Additionally, Apache ActiveMQ Artemis offers support for using IO_URING, @see https://en.wikipedia.org/wiki/Io_uring.
+
+The following properties are specific to this native transport:
+
+useIoUring::
+enables the use of IO_URING if a supported linux platform running a 64bit JVM is detected.
+Setting this to `false` will attempt the use of `epoll`, then finally falling back to using Java NIO.
+Default is `false`
+
+[WARNING]
+====
+[#io_uring-warning]
+IO_URING support is a recent addition to the broker and should be considered `experimental` at this stage.
+Using it _could_ introduce unwanted side effects. As such, thourough testing and verification is advised before use in any production or otherwise critical environment.
+====
 
 ==== MacOS Native Transport
 
