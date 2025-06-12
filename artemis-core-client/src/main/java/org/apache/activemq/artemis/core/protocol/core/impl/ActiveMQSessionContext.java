@@ -25,6 +25,7 @@ import java.security.PrivilegedAction;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -999,8 +1000,7 @@ public class ActiveMQSessionContext extends SessionContext {
    @Override
    public int getDefaultConsumerWindowSize(SessionQueueQueryResponseMessage response) throws ActiveMQException {
       if (response instanceof SessionQueueQueryResponseMessage_V3 v3) {
-         final Integer defaultConsumerWindowSize = v3.getDefaultConsumerWindowSize();
-         return defaultConsumerWindowSize != null ? defaultConsumerWindowSize : ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE;
+         return Objects.requireNonNullElse(v3.getDefaultConsumerWindowSize(), ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE);
       } else {
          return ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE;
       }

@@ -336,7 +336,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                              final TransportConfiguration[] transportConfigs) {
       traceException.fillInStackTrace();
 
-      this.topology = topology == null ? new Topology(this) : topology;
+      this.topology = Objects.requireNonNullElseGet(topology, () -> new Topology(this));
 
       this.ha = useHA;
 
@@ -1585,12 +1585,12 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       if (identity != null) {
          return "ServerLocatorImpl (identity=" + identity +
             ") [initialConnectors=" +
-            Arrays.toString(initialConnectors == null ? new TransportConfiguration[0] : initialConnectors) +
+            Arrays.toString(Objects.requireNonNullElseGet(initialConnectors, () -> new TransportConfiguration[0])) +
             ", discoveryGroupConfiguration=" +
             discoveryGroupConfiguration +
             "]";
       }
-      return "ServerLocatorImpl [initialConnectors=" + Arrays.toString(initialConnectors == null ? new TransportConfiguration[0] : initialConnectors) +
+      return "ServerLocatorImpl [initialConnectors=" + Arrays.toString(Objects.requireNonNullElseGet(initialConnectors, () -> new TransportConfiguration[0])) +
          ", discoveryGroupConfiguration=" +
          discoveryGroupConfiguration +
          "]";

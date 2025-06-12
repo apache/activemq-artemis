@@ -54,6 +54,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
@@ -2804,7 +2805,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
          TransportConfiguration connector = getConnectorConfigurations().get(connectorName);
 
          if (connector == null) {
-            ActiveMQServerLogger.LOGGER.connectionConfigurationIsNull(connectorName == null ? "null" : connectorName);
+            ActiveMQServerLogger.LOGGER.connectionConfigurationIsNull(Objects.requireNonNullElse(connectorName, "null"));
             return null;
          }
 

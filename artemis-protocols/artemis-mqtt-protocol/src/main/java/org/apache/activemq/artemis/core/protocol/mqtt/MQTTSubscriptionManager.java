@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -222,7 +223,7 @@ public class MQTTSubscriptionManager {
    }
 
    private void createConsumerForSubscriptionQueue(Queue queue, String topicFilter, int qos, boolean noLocal, Long existingConsumerId) throws Exception {
-      long cid = existingConsumerId != null ? existingConsumerId : session.getServer().getStorageManager().generateID();
+      long cid = Objects.requireNonNullElseGet(existingConsumerId, () -> session.getServer().getStorageManager().generateID());
 
       // for noLocal support we use the MQTT *client id* rather than the connection ID, but we still use the existing property name
       ServerConsumer consumer = session.getServerSession().createConsumer(cid, queue.getName(), noLocal ? SimpleString.of(CONNECTION_ID_PROPERTY_NAME_STRING + " <> '" + session.getState().getClientId() + "'") : null, false, false, -1);

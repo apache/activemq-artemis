@@ -285,13 +285,10 @@ public class AmqpSupport {
     * @return {@code true} if the desired capabilities were found in the offered set
     */
    public static boolean verifyCapabilities(final Symbol[] offered, final Symbol... desired) {
-      final Symbol[] desiredCapabilites = desired == null ? EMPTY_CAPABILITIES : desired;
-      final Symbol[] offeredCapabilites = offered == null ? EMPTY_CAPABILITIES : offered;
-
-      for (Symbol desiredCapability : desiredCapabilites) {
+      for (Symbol desiredCapability : Objects.requireNonNullElse(desired, EMPTY_CAPABILITIES)) {
          boolean foundCurrent = false;
 
-         for (Symbol offeredCapability : offeredCapabilites) {
+         for (Symbol offeredCapability : Objects.requireNonNullElse(offered, EMPTY_CAPABILITIES)) {
             if (desiredCapability.equals(offeredCapability)) {
                foundCurrent = true;
                break;

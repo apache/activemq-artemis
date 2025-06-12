@@ -59,7 +59,7 @@ public class ScramUtils {
 
       byte[] previous = null;
       for (int i = 1; i < iterationsCount; i++) {
-         mac.update(previous != null ? previous : result);
+         mac.update(Objects.requireNonNullElse(previous, result));
          previous = mac.doFinal();
          for (int x = 0; x < result.length; x++) {
             result[x] ^= previous[x];

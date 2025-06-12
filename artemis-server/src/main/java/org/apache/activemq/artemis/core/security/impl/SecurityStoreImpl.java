@@ -23,6 +23,7 @@ import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
@@ -395,7 +396,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             set = new ConcurrentHashSet<>();
             putAuthorizationCacheEntry(set, key);
          }
-         set.add(fqqn != null ? fqqn : bareAddress);
+         set.add(Objects.requireNonNullElse(fqqn, bareAddress));
       }
    }
 

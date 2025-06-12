@@ -20,6 +20,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -262,8 +263,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
    }
 
    private static RoutingType getDefaultRoutingType(AMQPSessionCallback sessionSPI, SimpleString address) {
-      RoutingType defaultRoutingType = sessionSPI.getRoutingTypeFromPrefix(address, sessionSPI.getDefaultRoutingType(address));
-      return defaultRoutingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : defaultRoutingType;
+      return Objects.requireNonNullElse(sessionSPI.getRoutingTypeFromPrefix(address, sessionSPI.getDefaultRoutingType(address)), ActiveMQDefaultConfiguration.getDefaultRoutingType());
    }
 
    private static DeliveryState determineDeliveryState(final Source source, final boolean useModified, final Exception e) {

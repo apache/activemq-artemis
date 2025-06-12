@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class ConnectionRouter implements ActiveMQComponent {
@@ -230,6 +231,6 @@ public class ConnectionRouter implements ActiveMQComponent {
          }
       }
 
-      return result != null ? result : TargetResult.REFUSED_UNAVAILABLE_RESULT;
+      return Objects.requireNonNullElse(result, TargetResult.REFUSED_UNAVAILABLE_RESULT);
    }
 }

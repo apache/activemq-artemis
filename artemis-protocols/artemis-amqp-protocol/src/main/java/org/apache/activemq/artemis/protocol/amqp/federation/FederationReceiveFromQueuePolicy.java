@@ -61,8 +61,8 @@ public class FederationReceiveFromQueuePolicy implements FederationReceiveFromRe
       this.includeFederated = includeFederated;
       this.priorityAdjustment = priorotyAdjustment;
       this.transformerConfig = transformerConfig;
-      this.includes = Collections.unmodifiableCollection(includeQueues == null ? Collections.emptyList() : includeQueues);
-      this.excludes = Collections.unmodifiableCollection(excludeQueues == null ? Collections.emptyList() : excludeQueues);
+      this.includes = Collections.unmodifiableCollection(Objects.requireNonNullElse(includeQueues, Collections.emptyList()));
+      this.excludes = Collections.unmodifiableCollection(Objects.requireNonNullElse(excludeQueues, Collections.emptyList()));
 
       if (properties == null || properties.isEmpty()) {
          this.properties = Collections.emptyMap();

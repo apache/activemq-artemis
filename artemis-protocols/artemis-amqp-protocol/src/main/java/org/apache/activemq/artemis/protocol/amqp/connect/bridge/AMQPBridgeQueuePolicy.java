@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
@@ -52,8 +53,8 @@ public final class AMQPBridgeQueuePolicy extends AMQPBridgePolicy implements BiP
 
       this.priorityAdjustment = priorityAdjustment;
 
-      this.includes = Collections.unmodifiableCollection(includeQueues == null ? Collections.emptyList() : includeQueues);
-      this.excludes = Collections.unmodifiableCollection(excludeQueues == null ? Collections.emptyList() : excludeQueues);
+      this.includes = Collections.unmodifiableCollection(Objects.requireNonNullElse(includeQueues, Collections.emptyList()));
+      this.excludes = Collections.unmodifiableCollection(Objects.requireNonNullElse(excludeQueues, Collections.emptyList()));
 
       // Create Matchers from configured includes and excludes for use when matching broker resources
       includes.forEach((entry) -> includeMatchers.add(new QueueMatcher(entry.getKey(), entry.getValue(), wildcardConfig)));

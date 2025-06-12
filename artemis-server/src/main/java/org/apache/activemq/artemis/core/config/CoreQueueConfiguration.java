@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -159,7 +160,7 @@ public class CoreQueueConfiguration implements Serializable {
          .setAddress(queueConfiguration.getAddress() != null ? queueConfiguration.getAddress().toString() : null)
          .setName(queueConfiguration.getName() != null ? queueConfiguration.getName().toString() : null)
          .setFilterString(queueConfiguration.getFilterString() != null ? queueConfiguration.getFilterString().toString() : null)
-         .setDurable(queueConfiguration.isDurable() != null ? queueConfiguration.isDurable() : true)
+         .setDurable(Objects.requireNonNullElse(queueConfiguration.isDurable(), true))
          .setUser(queueConfiguration.getUser() != null ? queueConfiguration.getUser().toString() : null)
          .setExclusive(queueConfiguration.isExclusive())
          .setGroupRebalance(queueConfiguration.isGroupRebalance())
@@ -171,10 +172,10 @@ public class CoreQueueConfiguration implements Serializable {
          .setMaxConsumers(queueConfiguration.getMaxConsumers())
          .setConsumersBeforeDispatch(queueConfiguration.getConsumersBeforeDispatch())
          .setDelayBeforeDispatch(queueConfiguration.getDelayBeforeDispatch())
-         .setRingSize(queueConfiguration.getRingSize() != null ? queueConfiguration.getRingSize() : ActiveMQDefaultConfiguration.getDefaultRingSize())
-         .setEnabled(queueConfiguration.isEnabled() != null ? queueConfiguration.isEnabled() : ActiveMQDefaultConfiguration.getDefaultEnabled())
-         .setPurgeOnNoConsumers(queueConfiguration.isPurgeOnNoConsumers() != null ? queueConfiguration.isPurgeOnNoConsumers() : ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers())
-         .setRoutingType(queueConfiguration.getRoutingType() != null ? queueConfiguration.getRoutingType() : ActiveMQDefaultConfiguration.getDefaultRoutingType());
+         .setRingSize(Objects.requireNonNullElse(queueConfiguration.getRingSize(), ActiveMQDefaultConfiguration.getDefaultRingSize()))
+         .setEnabled(Objects.requireNonNullElse(queueConfiguration.isEnabled(), ActiveMQDefaultConfiguration.getDefaultEnabled()))
+         .setPurgeOnNoConsumers(Objects.requireNonNullElse(queueConfiguration.isPurgeOnNoConsumers(), ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers()))
+         .setRoutingType(Objects.requireNonNullElse(queueConfiguration.getRoutingType(), ActiveMQDefaultConfiguration.getDefaultRoutingType()));
    }
 
    public CoreQueueConfiguration setAddress(final String address) {

@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -474,11 +475,11 @@ public final class AMQPFederationPolicySupport {
 
       final FederationReceiveFromAddressPolicy policy = new FederationReceiveFromAddressPolicy(
          element.getName(),
-         element.getAutoDelete() == null ? false : element.getAutoDelete(),
-         element.getAutoDeleteDelay() == null ? 0 : element.getAutoDeleteDelay(),
-         element.getAutoDeleteMessageCount() == null ? 0 : element.getAutoDeleteMessageCount(),
+         Objects.requireNonNullElse(element.getAutoDelete(), false),
+         Objects.requireNonNullElse(element.getAutoDeleteDelay(), 0L),
+         Objects.requireNonNullElse(element.getAutoDeleteMessageCount(), 0L),
          element.getMaxHops(),
-         element.isEnableDivertBindings() == null ? false : element.isEnableDivertBindings(),
+         Objects.requireNonNullElse(element.isEnableDivertBindings(), false),
          includes,
          excludes,
          element.getProperties(),
@@ -526,7 +527,7 @@ public final class AMQPFederationPolicySupport {
       final FederationReceiveFromQueuePolicy policy = new FederationReceiveFromQueuePolicy(
          element.getName(),
          element.isIncludeFederated(),
-         element.getPriorityAdjustment() == null ? DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT : element.getPriorityAdjustment(),
+         Objects.requireNonNullElse(element.getPriorityAdjustment(), DEFAULT_QUEUE_RECEIVER_PRIORITY_ADJUSTMENT),
          includes,
          excludes,
          element.getProperties(),

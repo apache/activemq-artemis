@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.Objects;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CONTENT_TYPE;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CORRELATION_DATA;
@@ -389,7 +390,7 @@ public class MQTTPublishManager {
    }
 
    private boolean publishToClient(int messageId, ICoreMessage message, int deliveryCount, int qos, long consumerId) throws Exception {
-      String topic = MQTTUtil.getMqttTopicFromCoreAddress(message.getAddress() == null ? "" : message.getAddress(), session.getWildcardConfiguration());
+      String topic = MQTTUtil.getMqttTopicFromCoreAddress(Objects.requireNonNullElse(message.getAddress(), ""), session.getWildcardConfiguration());
 
       ByteBuf payload;
       switch (message.getType()) {

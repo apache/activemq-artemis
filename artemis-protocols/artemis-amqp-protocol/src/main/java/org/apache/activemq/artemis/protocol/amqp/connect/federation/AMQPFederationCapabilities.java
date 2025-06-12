@@ -21,6 +21,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.engine.Link;
@@ -50,8 +51,8 @@ public final class AMQPFederationCapabilities {
       if (!initialized) {
          initialized = true;
 
-         final Map<Symbol, Object> localProperties = controlLink.getProperties() != null ? controlLink.getProperties() : Collections.emptyMap();
-         final Map<Symbol, Object> remoteProperties = controlLink.getRemoteProperties() != null ? controlLink.getRemoteProperties() : Collections.emptyMap();
+         final Map<Symbol, Object> localProperties = Objects.requireNonNullElseGet(controlLink.getProperties(), () -> Collections.emptyMap());
+         final Map<Symbol, Object> remoteProperties = Objects.requireNonNullElseGet(controlLink.getRemoteProperties(), () -> Collections.emptyMap());
 
          final Object local = localProperties.getOrDefault(FEDERATION_VERSION, FEDERATION_V1);
          final Object remote = remoteProperties.getOrDefault(FEDERATION_VERSION, FEDERATION_V1);

@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -101,7 +102,7 @@ public class SimpleAddressManager implements AddressManager {
          throw ActiveMQMessageBundle.BUNDLE.bindingAlreadyExists(binding);
       }
       directBindingMap.compute(binding.getAddress(), (key, value) -> {
-         Collection<Binding> bindingList = value == null ? new ArrayList<>() : value;
+         Collection<Binding> bindingList = Objects.requireNonNullElseGet(value, () -> new ArrayList<>());
          bindingList.add(binding);
          return bindingList;
       });

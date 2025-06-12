@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -915,20 +916,20 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       if (exclusive == null || groupRebalance == null || groupBuckets == null || groupFirstKey == null || lastValue == null || lastValueKey == null || nonDestructive == null || consumersBeforeDispatch == null || delayBeforeDispatch == null || autoDelete == null || autoDeleteDelay == null || autoDeleteMessageCount == null || ringSize == null) {
          AddressSettings as = server.getAddressSettingsRepository().getMatch(address.toString());
          return createQueue(new AddressInfo(address, routingType), name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers,
-                 exclusive == null ? as.isDefaultExclusiveQueue() : exclusive,
-                 groupRebalance == null ? as.isDefaultGroupRebalance() : groupRebalance,
-                 groupBuckets == null ? as.getDefaultGroupBuckets() : groupBuckets,
-                 groupFirstKey == null ? as.getDefaultGroupFirstKey() : groupFirstKey,
-                 lastValue == null ? as.isDefaultLastValueQueue() : lastValue,
-                 lastValueKey == null ? as.getDefaultLastValueKey() : lastValueKey,
-                 nonDestructive == null ? as.isDefaultNonDestructive() : nonDestructive,
-                 consumersBeforeDispatch == null ? as.getDefaultConsumersBeforeDispatch() : consumersBeforeDispatch,
-                 delayBeforeDispatch == null ? as.getDefaultDelayBeforeDispatch() : delayBeforeDispatch,
-                 autoDelete == null ? ActiveMQServerImpl.isAutoDelete(autoCreated, as) : autoDelete,
-                 autoDeleteDelay == null ? as.getAutoDeleteQueuesDelay() : autoDeleteDelay,
-                 autoDeleteMessageCount == null ? as.getAutoDeleteQueuesMessageCount() : autoDeleteMessageCount,
+                 Objects.requireNonNullElse(exclusive, as.isDefaultExclusiveQueue()),
+                 Objects.requireNonNullElse(groupRebalance, as.isDefaultGroupRebalance()),
+                 Objects.requireNonNullElse(groupBuckets, as.getDefaultGroupBuckets()),
+                 Objects.requireNonNullElse(groupFirstKey, as.getDefaultGroupFirstKey()),
+                 Objects.requireNonNullElse(lastValue, as.isDefaultLastValueQueue()),
+                 Objects.requireNonNullElse(lastValueKey, as.getDefaultLastValueKey()),
+                 Objects.requireNonNullElse(nonDestructive, as.isDefaultNonDestructive()),
+                 Objects.requireNonNullElse(consumersBeforeDispatch, as.getDefaultConsumersBeforeDispatch()),
+                 Objects.requireNonNullElse(delayBeforeDispatch, as.getDefaultDelayBeforeDispatch()),
+                 Objects.requireNonNullElse(autoDelete, ActiveMQServerImpl.isAutoDelete(autoCreated, as)),
+                 Objects.requireNonNullElse(autoDeleteDelay, as.getAutoDeleteQueuesDelay()),
+                 Objects.requireNonNullElse(autoDeleteMessageCount, as.getAutoDeleteQueuesMessageCount()),
                  autoCreated,
-                 ringSize == null ? as.getDefaultRingSize() : ringSize);
+                 Objects.requireNonNullElse(ringSize, as.getDefaultRingSize()));
       } else {
          return createQueue(new AddressInfo(address, routingType), name, filterString, temporary, durable, maxConsumers, purgeOnNoConsumers,
                  exclusive, groupRebalance, groupBuckets, groupFirstKey, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreated, ringSize);
@@ -2517,7 +2518,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void addProducer(String name, String protocol, String address) {
-      ServerProducer producer = new ServerProducerImpl(name, protocol, address != null ? address : ServerProducer.ANONYMOUS);
+      ServerProducer producer = new ServerProducerImpl(name, protocol, Objects.requireNonNullElse(address, ServerProducer.ANONYMOUS));
       producer.setSessionID(getName());
       producer.setConnectionID(getConnectionID() != null ? getConnectionID().toString() : null);
       serverProducers.put(name, producer);

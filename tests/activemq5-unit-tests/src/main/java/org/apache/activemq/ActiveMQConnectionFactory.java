@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.Objects;
 
 import org.apache.activemq.blob.BlobTransferPolicy;
 import org.apache.activemq.broker.region.policy.RedeliveryPolicyMap;
@@ -243,7 +244,7 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
             if (params == Collections.EMPTY_MAP) {
                params = new HashMap<>();
             }
-            params.put("invmBrokerId", uri.getHost() == null ? "localhost" : uri.getHost());
+            params.put("invmBrokerId", Objects.requireNonNullElse(uri.getHost(), "localhost"));
             defaultTcpUri = URISupport.createRemainingURI(defaultTcpUri, params);
             return defaultTcpUri;
          }

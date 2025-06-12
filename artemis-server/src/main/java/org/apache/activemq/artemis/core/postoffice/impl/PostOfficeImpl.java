@@ -797,7 +797,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             }
             final SimpleString empty = SimpleString.of("");
             Filter oldFilter = FilterImpl.createFilter(queue.getFilter() == null ? empty : queue.getFilter().getFilterString());
-            Filter newFilter = FilterImpl.createFilter(queueConfiguration.getFilterString() == null ? empty : queueConfiguration.getFilterString());
+            Filter newFilter = FilterImpl.createFilter(Objects.requireNonNullElse(queueConfiguration.getFilterString(), empty));
             if ((forceUpdate || newFilter != oldFilter) && !Objects.equals(oldFilter, newFilter)) {
                changed = true;
                queue.setFilter(newFilter);
@@ -1455,8 +1455,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    private int resolveIdCacheSize(SimpleString address) {
-      final AddressSettings addressSettings = addressSettingsRepository.getMatch(address.toString());
-      return addressSettings.getIDCacheSize() == null ? idCacheSize : addressSettings.getIDCacheSize();
+      return Objects.requireNonNullElse(addressSettingsRepository.getMatch(address.toString()).getIDCacheSize(), idCacheSize);
    }
 
    @Override

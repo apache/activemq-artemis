@@ -39,6 +39,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -513,7 +514,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       this.parentServer = parentServer;
 
-      this.serviceRegistry = serviceRegistry == null ? new ServiceRegistryImpl() : serviceRegistry;
+      this.serviceRegistry = Objects.requireNonNullElseGet(serviceRegistry, () -> new ServiceRegistryImpl());
 
       this.serverStatus = ServerStatus.starting(this);
    }
@@ -789,7 +790,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             activationThread = new ActivationThread(activation, ActiveMQMessageBundle.BUNDLE.activationForServer(this));
             activationThread.start();
          } else {
-            ActiveMQServerLogger.LOGGER.serverStarted(getVersion().getFullVersion(), configuration.getName(), nodeManager.getNodeId(), identity != null ? identity : "");
+            ActiveMQServerLogger.LOGGER.serverStarted(getVersion().getFullVersion(), configuration.getName(), nodeManager.getNodeId(), Objects.requireNonNullElse(identity, ""));
          }
          // start connector service
          connectorsService = new ConnectorsService(configuration, storageManager, scheduledPool, postOffice, serviceRegistry);

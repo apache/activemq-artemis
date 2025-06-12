@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -672,7 +673,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          } catch (ActiveMQSecurityException e) {
             ErrorCondition error = new ErrorCondition();
             error.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
-            error.setDescription(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
+            error.setDescription(Objects.requireNonNullElse(e.getMessage(), e.getClass().getSimpleName()));
             connection.setCondition(error);
             connection.setProperties(Collections.singletonMap(AmqpSupport.CONNECTION_OPEN_FAILED, true));
 

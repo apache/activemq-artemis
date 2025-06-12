@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -60,7 +61,7 @@ public class ConnectionFilterPredicate extends ActiveMQFilterPredicate<RemotingC
       Set<String> sessionAttributes = new HashSet<>();
       for (ServerSession session : sessions) {
          String value = getter.apply(session);
-         String string = value == null ? "" : value;
+         String string = Objects.requireNonNullElse(value, "");
          sessionAttributes.add(string);
       }
       return sessionAttributes;
