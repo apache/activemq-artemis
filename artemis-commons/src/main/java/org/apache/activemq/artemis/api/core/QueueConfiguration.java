@@ -336,7 +336,7 @@ public class QueueConfiguration implements Serializable {
     * {@return the name of the address; if the address is {@code null} then return the value of {@link #getName()}}
     */
    public SimpleString getAddress() {
-      return address == null ? getName() : address;
+      return Objects.requireNonNullElse(address, getName());
    }
 
    public boolean isAddressNull() {
@@ -445,7 +445,7 @@ public class QueueConfiguration implements Serializable {
     * defaults to {@code true}
     */
    public Boolean isDurable() {
-      return durable == null ? true : durable;
+      return Objects.requireNonNullElse(durable, true);
    }
 
    public QueueConfiguration setDurable(Boolean durable) {
@@ -641,7 +641,7 @@ public class QueueConfiguration implements Serializable {
     * defaults to {@code false}
     */
    public Boolean isConfigurationManaged() {
-      return configurationManaged == null ? false : configurationManaged;
+      return Objects.requireNonNullElse(configurationManaged, false);
    }
 
    public QueueConfiguration setConfigurationManaged(Boolean configurationManaged) {
@@ -653,7 +653,7 @@ public class QueueConfiguration implements Serializable {
     * defaults to {@code false}
     */
    public Boolean isTemporary() {
-      return temporary == null ? false : temporary;
+      return Objects.requireNonNullElse(temporary, false);
    }
 
    public QueueConfiguration setTemporary(Boolean temporary) {
@@ -674,7 +674,7 @@ public class QueueConfiguration implements Serializable {
     * defaults to {@code false}
     */
    public Boolean isInternal() {
-      return internal == null ? false : internal;
+      return Objects.requireNonNullElse(internal, false);
    }
 
    public QueueConfiguration setInternal(Boolean internal) {
@@ -686,7 +686,7 @@ public class QueueConfiguration implements Serializable {
     * defaults to {@code false}
     */
    public Boolean isTransient() {
-      return _transient == null ? false : _transient;
+      return Objects.requireNonNullElse(_transient, false);
    }
 
    public QueueConfiguration setTransient(Boolean _transient) {
@@ -698,7 +698,7 @@ public class QueueConfiguration implements Serializable {
     * defaults to {@code false}
     */
    public Boolean isAutoCreated() {
-      return autoCreated == null ? false : autoCreated;
+      return Objects.requireNonNullElse(autoCreated, false);
    }
 
    public QueueConfiguration setAutoCreated(Boolean autoCreated) {
@@ -712,7 +712,7 @@ public class QueueConfiguration implements Serializable {
     * defaults to {@code false}
     */
    public Boolean isFqqn() {
-      return fqqn == null ? Boolean.FALSE : fqqn;
+      return Objects.requireNonNullElse(fqqn, Boolean.FALSE);
    }
 
    /**

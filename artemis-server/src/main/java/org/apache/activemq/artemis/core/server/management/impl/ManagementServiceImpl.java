@@ -961,8 +961,7 @@ public class ManagementServiceImpl implements ManagementService {
          // CoreMessage#getUserId returns UUID, so to implement this part a alternative API that returned object. This part of the
          // change is a nice to have for my point of view. I suggested it for completeness.  The application could
          // always supply unique correl ids on the request and achieve the same effect.  I'd be happy to drop this part.
-         Object underlying = request.getStringProperty(NATIVE_MESSAGE_ID) != null ? request.getStringProperty(NATIVE_MESSAGE_ID) : request.getUserID();
-         correlationId = underlying == null ? null : String.valueOf(underlying);
+         correlationId = String.valueOf(request.getStringProperty(NATIVE_MESSAGE_ID) != null ? request.getStringProperty(NATIVE_MESSAGE_ID) : request.getUserID());
       }
 
       return correlationId;

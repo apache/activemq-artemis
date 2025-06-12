@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.core.settings.impl;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -62,11 +63,11 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
    }
 
    public int getMaxSessions() {
-      return maxSessions != null ? maxSessions : DEFAULT_MAX_SESSIONS;
+      return Objects.requireNonNullElse(maxSessions, DEFAULT_MAX_SESSIONS);
    }
 
    public int getMaxQueues() {
-      return maxQueues != null ? maxQueues : DEFAULT_MAX_QUEUES;
+      return Objects.requireNonNullElse(maxQueues, DEFAULT_MAX_QUEUES);
    }
 
    //   public long getMaxQueueSizeBytes()

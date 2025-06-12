@@ -34,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
@@ -542,9 +543,9 @@ class AMQPBridgeToQueueTest  extends AmqpClientTestSupport {
          amqpConnection.setReconnectAttempts(0);// No reconnects
          amqpConnection.addElement(element);
 
-         final String expectedTargetAddress = (prefix != null ? prefix : "") +
-                                              (address != null ? address : getTestName()) +
-                                              (suffix != null ? suffix : "");
+         final String expectedTargetAddress = Objects.requireNonNullElse(prefix, "") +
+                                              Objects.requireNonNullElse(address, getTestName()) +
+                                              Objects.requireNonNullElse(suffix, "");
 
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();

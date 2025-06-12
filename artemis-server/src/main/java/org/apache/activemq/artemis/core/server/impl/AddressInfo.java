@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.json.JsonValue;
 import java.io.StringReader;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -152,7 +153,7 @@ public class AddressInfo {
    }
 
    public EnumSet<RoutingType> getRoutingTypes() {
-      return routingTypes == null ? createEmptySet() : routingTypes;
+      return Objects.requireNonNullElseGet(routingTypes, () -> createEmptySet());
    }
 
    public AddressInfo setRoutingTypes(final EnumSet<RoutingType> routingTypes) {

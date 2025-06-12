@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -1935,7 +1936,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             message.append("OUT >> ");
          }
 
-         message.append((command == null ? "NULL" : command));
+         message.append((Objects.requireNonNullElse(command, "NULL")));
 
          logger.trace(message.toString());
       }

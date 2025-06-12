@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -119,9 +120,7 @@ public class CoreClientTest extends ActiveMQTestBase {
 
       server.start();
 
-      ServerLocator locator = serverLocator == null ? createNonHALocator(netty) : serverLocator;
-
-      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSessionFactory sf = createSessionFactory(Objects.requireNonNullElseGet(serverLocator, () -> createNonHALocator(netty)));
 
       ClientSession session = sf.createSession(false, true, true);
 

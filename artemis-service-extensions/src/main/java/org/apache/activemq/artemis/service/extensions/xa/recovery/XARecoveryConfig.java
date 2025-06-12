@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ServerLocatorConfig;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -84,7 +85,7 @@ public class XARecoveryConfig {
       this.username = username;
       this.password = password;
       this.ha = ha;
-      this.properties = properties == null ? new HashMap<>() : properties;
+      this.properties = Objects.requireNonNullElseGet(properties, () -> new HashMap<>());
       this.clientProtocolManager = clientProtocolManager;
       this.locatorConfig = locatorConfig;
    }

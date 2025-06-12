@@ -50,7 +50,7 @@ public abstract class AbstractFederationStream implements FederationStream {
       Objects.requireNonNull(config.getName());
       this.name = SimpleString.of(config.getName());
       this.config = config;
-      this.connection = connection != null ? connection : new FederationConnection(server.getConfiguration(), name, config.getConnectionConfiguration());
+      this.connection = Objects.requireNonNullElseGet(connection, () -> new FederationConnection(server.getConfiguration(), name, config.getConnectionConfiguration()));
    }
 
    @Override

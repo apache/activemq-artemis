@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -117,7 +118,7 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
    }
 
    private void parseURI(URI uri) {
-      scheme = uri.getScheme() == null ? "tcp" : uri.getScheme();
+      scheme = Objects.requireNonNullElse(uri.getScheme(), "tcp");
       host = uri.getHost();
       port = uri.getPort();
       this.version = StompClientConnectionFactory.getStompVersionFromURI(uri);

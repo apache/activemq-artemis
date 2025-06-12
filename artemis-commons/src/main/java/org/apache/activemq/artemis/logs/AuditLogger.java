@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -86,7 +87,7 @@ public interface AuditLogger {
       String user = "anonymous";
       String roles = "";
       List<String> principalRoles = new ArrayList<>();
-      String url = remoteAddress == null ? (AuditLogger.remoteAddress.get() == null ? "@unknown" : AuditLogger.remoteAddress.get()) : formatRemoteAddress(remoteAddress);
+      String url = remoteAddress == null ? Objects.requireNonNullElse(AuditLogger.remoteAddress.get(), "@unknown") : formatRemoteAddress(remoteAddress);
       if (subject != null) {
          Set<Principal> principals = subject.getPrincipals();
          for (Principal principal : principals) {

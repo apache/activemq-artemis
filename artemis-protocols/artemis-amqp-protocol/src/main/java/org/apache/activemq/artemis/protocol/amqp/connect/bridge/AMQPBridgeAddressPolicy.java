@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
@@ -62,8 +63,8 @@ public final class AMQPBridgeAddressPolicy extends AMQPBridgePolicy implements B
       this.includeDivertBindings = includeDivertBindings;
       this.useDurableSubscriptions = useDurableSubscriptions;
 
-      this.includes = Collections.unmodifiableCollection(includeAddresses == null ? Collections.emptyList() : includeAddresses);
-      this.excludes = Collections.unmodifiableCollection(excludeAddresses == null ? Collections.emptyList() : excludeAddresses);
+      this.includes = Collections.unmodifiableCollection(Objects.requireNonNullElse(includeAddresses, Collections.emptyList()));
+      this.excludes = Collections.unmodifiableCollection(Objects.requireNonNullElse(excludeAddresses, Collections.emptyList()));
 
       // Create Matchers from configured includes and excludes for use when matching broker resources
       includes.forEach((address) -> includesMatchers.add(new AddressMatcher(address, wildcardConfig)));

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ProducerFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerProducer;
@@ -57,7 +59,7 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
          .add(ProducerField.USER.getName(), toString(session.getUsername()))
          .add(ProducerField.VALIDATED_USER.getName(), toString(session.getValidatedUser()))
          .add(ProducerField.PROTOCOL.getName(), toString(session.getRemotingConnection().getProtocolName()))
-         .add(ProducerField.ADDRESS.getName(), toString(producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress()))
+         .add(ProducerField.ADDRESS.getName(), toString(Objects.requireNonNullElse(producer.getAddress(), session.getDefaultAddress())))
          .add(ProducerField.LOCAL_ADDRESS.getName(), toString(session.getRemotingConnection().getTransportConnection().getLocalAddress()))
          .add(ProducerField.REMOTE_ADDRESS.getName(), toString(session.getRemotingConnection().getTransportConnection().getRemoteAddress()))
          .add(ProducerField.CREATION_TIME.getName(), toString(producer.getCreationTime()))
@@ -85,7 +87,7 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
          case VALIDATED_USER -> session.getValidatedUser();
          case CLIENT_ID -> session.getRemotingConnection().getClientID();
          case PROTOCOL -> session.getRemotingConnection().getProtocolName();
-         case ADDRESS -> producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress();
+         case ADDRESS -> Objects.requireNonNullElse(producer.getAddress(), session.getDefaultAddress());
          case LOCAL_ADDRESS -> session.getRemotingConnection().getTransportConnection().getLocalAddress();
          case REMOTE_ADDRESS -> session.getRemotingConnection().getTransportConnection().getRemoteAddress();
          case CREATION_TIME -> producer.getCreationTime();

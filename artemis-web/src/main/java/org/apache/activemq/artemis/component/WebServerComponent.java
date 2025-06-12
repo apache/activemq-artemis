@@ -32,6 +32,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import jakarta.servlet.DispatcherType;
@@ -123,7 +124,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          scanPeriod = DEFAULT_SCAN_PERIOD_VALUE;
       }
 
-      temporaryWarDir = Paths.get(artemisInstance != null ? artemisInstance : ".").resolve("tmp").resolve("webapps").toAbsolutePath();
+      temporaryWarDir = Paths.get(Objects.requireNonNullElse(artemisInstance, ".")).resolve("tmp").resolve("webapps").toAbsolutePath();
       if (!Files.exists(temporaryWarDir)) {
          Files.createDirectories(temporaryWarDir);
       }
@@ -161,9 +162,9 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       connectors = new ServerConnector[bindings.size()];
       String[] virtualHosts = new String[bindings.size()];
 
-      this.artemisHomePath = Paths.get(artemisHome != null ? artemisHome : ".");
+      this.artemisHomePath = Paths.get(Objects.requireNonNullElse(artemisHome, "."));
       Path homeWarDir = artemisHomePath.resolve(this.webServerConfig.path).toAbsolutePath();
-      Path instanceWarDir = Paths.get(artemisInstance != null ? artemisInstance : ".").resolve(this.webServerConfig.path).toAbsolutePath();
+      Path instanceWarDir = Paths.get(Objects.requireNonNullElse(artemisInstance, ".")).resolve(this.webServerConfig.path).toAbsolutePath();
 
       for (int i = 0; i < bindings.size(); i++) {
          BindingDTO binding = bindings.get(i);
@@ -277,12 +278,12 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
 
       if ("https".equals(scheme)) {
          SslContextFactory.Server sslFactory = new SslContextFactory.Server();
-         sslFactory.setKeyStorePath(binding.keyStorePath == null ? artemisInstance + "/etc/keystore.jks" : binding.keyStorePath);
+         sslFactory.setKeyStorePath(Objects.requireNonNullElse(binding.keyStorePath, artemisInstance + "/etc/keystore.jks"));
          if (binding.keyStoreType != null) {
             sslFactory.setKeyStoreType(binding.keyStoreType);
             checkPemProviderLoaded(binding.keyStoreType);
          }
-         sslFactory.setKeyStorePassword(binding.getKeyStorePassword() == null ? "password" : binding.getKeyStorePassword());
+         sslFactory.setKeyStorePassword(Objects.requireNonNullElse(binding.getKeyStorePassword(), "password"));
 
          if (binding.getIncludedTLSProtocols() != null) {
             sslFactory.setIncludeProtocols(binding.getIncludedTLSProtocols());
@@ -313,8 +314,8 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          }
 
          SecureRequestCustomizer secureRequestCustomizer = new SecureRequestCustomizer();
-         secureRequestCustomizer.setSniHostCheck(binding.getSniHostCheck() != null ? binding.getSniHostCheck() : DEFAULT_SNI_HOST_CHECK_VALUE);
-         secureRequestCustomizer.setSniRequired(binding.getSniRequired() != null ? binding.getSniRequired() : DEFAULT_SNI_REQUIRED_VALUE);
+         secureRequestCustomizer.setSniHostCheck(Objects.requireNonNullElse(binding.getSniHostCheck(), DEFAULT_SNI_HOST_CHECK_VALUE));
+         secureRequestCustomizer.setSniRequired(Objects.requireNonNullElse(binding.getSniRequired(), DEFAULT_SNI_REQUIRED_VALUE));
          httpConfiguration.addCustomizer(secureRequestCustomizer);
          httpConfiguration.setSendServerVersion(false);
          HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfiguration);
