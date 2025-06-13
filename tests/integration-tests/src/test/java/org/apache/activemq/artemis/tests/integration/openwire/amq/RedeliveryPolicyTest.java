@@ -506,8 +506,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       Wait.assertEquals(0, () -> queueControl.getMessageCount());
       session.close();
 
-      assertEquals(0L, queueControl.getPersistentSize());
-
+      Wait.assertEquals(0L, queueControl::getPersistentSize, 5000, 100);
    }
 
    @Test
