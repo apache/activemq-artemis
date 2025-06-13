@@ -21,6 +21,7 @@ import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -93,7 +94,7 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
 
    @Override
    public String getMessageSelector() throws JMSException {
-      return filterString == null ? null : filterString.toString();
+      return Objects.toString(filterString, null);
    }
 
    @Override

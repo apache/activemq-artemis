@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server.cluster.impl;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -123,15 +124,15 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                   final StorageManager storageManager,
                                   final String clientId) throws ActiveMQException {
       super(targetLocator, new BridgeConfiguration()
-         .setName(name == null ? null : name.toString())
+         .setName(Objects.toString(name, null))
          .setInitialConnectAttempts(initialConnectAttempts)
          .setReconnectAttempts(reconnectAttempts)
          .setReconnectAttemptsOnSameNode(0) // reconnectAttemptsOnSameNode means nothing on the clustering bridge since we always try the same
          .setRetryInterval(retryInterval)
          .setRetryIntervalMultiplier(retryMultiplier)
          .setMaxRetryInterval(maxRetryInterval)
-         .setFilterString(filterString == null ? null : filterString.toString())
-         .setForwardingAddress(forwardingAddress == null ? null : forwardingAddress.toString())
+         .setFilterString(Objects.toString(filterString, null))
+         .setForwardingAddress(Objects.toString(forwardingAddress, null))
          .setUseDuplicateDetection(useDuplicateDetection)
          .setUser(user)
          .setPassword(password)

@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.Objects;
 
 import org.apache.activemq.blob.BlobTransferPolicy;
 import org.apache.activemq.broker.region.policy.RedeliveryPolicyMap;
@@ -414,7 +415,7 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       System.out.println("vm uri: " + vmBrokerUri);
       if (vmBrokerUri != null)
          return vmBrokerUri.toString();
-      return brokerURL == null ? null : brokerURL.toString();
+      return Objects.toString(brokerURL, null);
    }
 
    public void setBrokerURL(String brokerURL) {

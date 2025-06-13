@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.stomp;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -307,8 +308,7 @@ public abstract class VersionedStompFrameHandler {
       if (destination == null) {
          return null;
       }
-      SimpleString prefix = connection.getSession().getCoreSession().getPrefix(SimpleString.of(destination));
-      return prefix == null ? null : prefix.toString();
+      return Objects.toString(connection.getSession().getCoreSession().getPrefix(SimpleString.of(destination)), null);
    }
 
    public StompFrame postprocess(StompFrame request) {

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.persistence.config;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
@@ -100,55 +102,51 @@ public class PersistedSecuritySetting implements EncodingSupport {
    }
 
    public String getSendRoles() {
-      return stringFrom(sendRoles);
+      return Objects.toString(sendRoles, null);
    }
 
    public String getConsumeRoles() {
-      return stringFrom(consumeRoles);
+      return Objects.toString(consumeRoles, null);
    }
 
    public String getCreateDurableQueueRoles() {
-      return stringFrom(createDurableQueueRoles);
+      return Objects.toString(createDurableQueueRoles, null);
    }
 
    public String getDeleteDurableQueueRoles() {
-      return stringFrom(deleteDurableQueueRoles);
+      return Objects.toString(deleteDurableQueueRoles, null);
    }
 
    public String getCreateNonDurableQueueRoles() {
-      return stringFrom(createNonDurableQueueRoles);
+      return Objects.toString(createNonDurableQueueRoles, null);
    }
 
    public String getDeleteNonDurableQueueRoles() {
-      return stringFrom(deleteNonDurableQueueRoles);
+      return Objects.toString(deleteNonDurableQueueRoles, null);
    }
 
    public String getManageRoles() {
-      return stringFrom(manageRoles);
+      return Objects.toString(manageRoles, null);
    }
 
    public String getBrowseRoles() {
-      return stringFrom(browseRoles);
+      return Objects.toString(browseRoles, null);
    }
 
    public String getCreateAddressRoles() {
-      return stringFrom(createAddressRoles);
+      return Objects.toString(createAddressRoles, null);
    }
 
    public String getDeleteAddressRoles() {
-      return stringFrom(deleteAddressRoles);
+      return Objects.toString(deleteAddressRoles, null);
    }
 
    public String getViewRoles() {
-      return stringFrom(viewRoles);
+      return Objects.toString(viewRoles, null);
    }
 
    public String getEditRoles() {
-      return stringFrom(editRoles);
-   }
-
-   private String stringFrom(SimpleString possiblyNullSimpleString) {
-      return possiblyNullSimpleString != null ? possiblyNullSimpleString.toString() : null;
+      return Objects.toString(editRoles, null);
    }
 
    @Override

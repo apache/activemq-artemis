@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -2035,7 +2036,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    private void auditLogSend(Message message, Transaction tx) {
-      AuditLogger.coreSendMessage(remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), message.toString(), routingContext, tx == null ? null : tx.toString());
+      AuditLogger.coreSendMessage(remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), message.toString(), routingContext, Objects.toString(tx, null));
    }
 
    @Override
@@ -2519,7 +2520,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public void addProducer(String name, String protocol, String address) {
       ServerProducer producer = new ServerProducerImpl(name, protocol, address != null ? address : ServerProducer.ANONYMOUS);
       producer.setSessionID(getName());
-      producer.setConnectionID(getConnectionID() != null ? getConnectionID().toString() : null);
+      producer.setConnectionID(Objects.toString(getConnectionID(), null));
       serverProducers.put(name, producer);
    }
 
@@ -2535,7 +2536,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public String getDefaultAddress() {
-      return defaultAddress != null ? defaultAddress.toString() : null;
+      return Objects.toString(defaultAddress, null);
    }
 
    @Override

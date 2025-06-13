@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -240,7 +241,7 @@ public class ProtocolHandler {
 
          ProtocolManager protocolManagerToUse = protocolMap.get(protocolToUse);
          if (protocolManagerToUse == null) {
-            ActiveMQServerLogger.LOGGER.failedToFindProtocolManager(ctx.channel() == null ? null : ctx.channel().remoteAddress() == null ? null : ctx.channel().remoteAddress().toString(), ctx.channel() == null ? null : ctx.channel().localAddress() == null ? null : ctx.channel().localAddress().toString(), protocolToUse, protocolMap.keySet().toString());
+            ActiveMQServerLogger.LOGGER.failedToFindProtocolManager(ctx.channel() == null ? null : Objects.toString(ctx.channel().remoteAddress()), ctx.channel() == null ? null : Objects.toString(ctx.channel().localAddress(), null), protocolToUse, protocolMap.keySet().toString());
             return;
          }
          ConnectionCreator channelHandler = nettyAcceptor.createConnectionCreator();

@@ -63,8 +63,8 @@ public final class ActivationSequenceStateMachine {
       Objects.requireNonNull(nodeManager);
       Objects.requireNonNull(distributedManager);
       Objects.requireNonNull(logger);
-      final String nodeId = nodeManager.getNodeId() == null ? null : nodeManager.getNodeId().toString();
-      Objects.requireNonNull(nodeId);
+      Objects.requireNonNull(nodeManager.getNodeId());
+      final String nodeId = nodeManager.getNodeId().toString();
       final long nodeActivationSequence = nodeManager.getNodeActivationSequence();
       if (nodeActivationSequence < 0) {
          throw new IllegalArgumentException("nodeActivationSequence must be > 0");
@@ -267,7 +267,7 @@ public final class ActivationSequenceStateMachine {
       Objects.requireNonNull(nodeManager);
       Objects.requireNonNull(distributedManager);
       Objects.requireNonNull(logger);
-      final String lockAndLongId = nodeManager.getNodeId() == null ? null : nodeManager.getNodeId().toString();
+      final String lockAndLongId = Objects.toString(nodeManager.getNodeId(), null);
       Objects.requireNonNull(lockAndLongId);
       final long nodeActivationSequence = nodeManager.getNodeActivationSequence();
       if (nodeActivationSequence < 0) {

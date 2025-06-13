@@ -260,11 +260,11 @@ public class MessageUtil {
 
    public static void setObjectProperty(final Message message,  final String name, final Object value) {
       if (MessageUtil.JMSXGROUPID.equals(name)) {
-         message.setGroupID(value == null ? null : value.toString());
+         message.setGroupID(Objects.toString(value, null));
       } else if (MessageUtil.JMSXGROUPSEQ.equals(name)) {
          message.setGroupSequence(getInteger(value));
       } else if (MessageUtil.JMSXUSERID.equals(name)) {
-         message.setValidatedUserID(value == null ? null : value.toString());
+         message.setValidatedUserID(Objects.toString(value, null));
       } else {
          message.putObjectProperty(name, value);
       }

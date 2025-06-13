@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidBufferException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -49,8 +51,7 @@ public class BufferHelper {
    }
 
    public static String readNullableSimpleStringAsString(ActiveMQBuffer buffer) {
-      SimpleString str = buffer.readNullableSimpleString();
-      return str != null ? str.toString() : null;
+      return Objects.toString(buffer.readNullableSimpleString(), null);
    }
 
    public static void writeAsSimpleString(ActiveMQBuffer buffer, String str) {

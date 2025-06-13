@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -312,7 +313,7 @@ public class PropertySQLProvider implements SQLProvider {
       }
       String result = sql.getProperty(key);
       if (checkNull && result == null) {
-         throw ActiveMQJournalBundle.BUNDLE.propertyNotFound(key, dialect != null ? dialect.toString() : null);
+         throw ActiveMQJournalBundle.BUNDLE.propertyNotFound(key, Objects.toString(dialect, null));
       }
       return result;
    }

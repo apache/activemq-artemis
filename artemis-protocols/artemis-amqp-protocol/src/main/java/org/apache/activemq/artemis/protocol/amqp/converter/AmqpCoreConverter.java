@@ -57,6 +57,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -116,7 +117,7 @@ public class AmqpCoreConverter {
    public static ICoreMessage toCore(AMQPMessage message, CoreMessageObjectPools coreMessageObjectPools, Header header, MessageAnnotations annotations, Properties properties, ApplicationProperties applicationProperties, Section body, Footer footer) throws ConversionException {
       final long messageId = message.getMessageID();
       final Symbol contentType = properties != null ? properties.getContentType() : null;
-      final String contentTypeString = contentType != null ? contentType.toString() : null;
+      final String contentTypeString = Objects.toString(contentType, null);
 
       CoreMessageWrapper result;
 
