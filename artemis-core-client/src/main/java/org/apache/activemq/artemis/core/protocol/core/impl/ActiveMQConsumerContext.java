@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 
 public class ActiveMQConsumerContext extends ConsumerContext {
@@ -52,6 +54,6 @@ public class ActiveMQConsumerContext extends ConsumerContext {
 
    @Override
    public int hashCode() {
-      return (int) (id ^ (id >>> 32));
+      return Objects.hashCode(id);
    }
 }

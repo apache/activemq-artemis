@@ -134,15 +134,7 @@ public class SessionCreateConsumerMessage extends QueueAbstractPacket {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (browseOnly ? 1231 : 1237);
-      result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
-      result = prime * result + (int) (id ^ (id >>> 32));
-      result = prime * result + priority;
-      result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
-      result = prime * result + (requiresResponse ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), browseOnly, filterString, id, priority, queueName, requiresResponse);
    }
 
    @Override

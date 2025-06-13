@@ -63,10 +63,7 @@ public class DisconnectMessage_V2 extends DisconnectMessage {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((scaleDownNodeID == null) ? 0 : scaleDownNodeID.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(scaleDownNodeID);
    }
 
    @Override

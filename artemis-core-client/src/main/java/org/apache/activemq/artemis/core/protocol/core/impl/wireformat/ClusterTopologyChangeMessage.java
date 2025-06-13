@@ -129,13 +129,7 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (exit ? 1231 : 1237);
-      result = prime * result + (last ? 1231 : 1237);
-      result = prime * result + ((nodeID == null) ? 0 : nodeID.hashCode());
-      result = prime * result + ((pair == null) ? 0 : pair.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), exit, last, nodeID, pair);
    }
 
    @Override

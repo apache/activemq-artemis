@@ -210,23 +210,9 @@ public class PersistedSecuritySetting implements EncodingSupport {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((addressMatch == null) ? 0 : addressMatch.hashCode());
-      result = prime * result + ((consumeRoles == null) ? 0 : consumeRoles.hashCode());
-      result = prime * result + ((createDurableQueueRoles == null) ? 0 : createDurableQueueRoles.hashCode());
-      result = prime * result + ((createNonDurableQueueRoles == null) ? 0 : createNonDurableQueueRoles.hashCode());
-      result = prime * result + ((deleteDurableQueueRoles == null) ? 0 : deleteDurableQueueRoles.hashCode());
-      result = prime * result + ((deleteNonDurableQueueRoles == null) ? 0 : deleteNonDurableQueueRoles.hashCode());
-      result = prime * result + ((manageRoles == null) ? 0 : manageRoles.hashCode());
-      result = prime * result + ((browseRoles == null) ? 0 : browseRoles.hashCode());
-      result = prime * result + ((createAddressRoles == null) ? 0 : createAddressRoles.hashCode());
-      result = prime * result + ((deleteAddressRoles == null) ? 0 : deleteAddressRoles.hashCode());
-      result = prime * result + ((sendRoles == null) ? 0 : sendRoles.hashCode());
-      result = prime * result + ((viewRoles == null) ? 0 : viewRoles.hashCode());
-      result = prime * result + ((editRoles == null) ? 0 : editRoles.hashCode());
-      result = prime * result + (int) (storeId ^ (storeId >>> 32));
-      return result;
+      return Objects.hash(addressMatch, consumeRoles, createDurableQueueRoles, createNonDurableQueueRoles,
+                          deleteDurableQueueRoles, deleteNonDurableQueueRoles, manageRoles, browseRoles,
+                          createAddressRoles, deleteAddressRoles, sendRoles, viewRoles, editRoles, storeId);
    }
 
    @Override

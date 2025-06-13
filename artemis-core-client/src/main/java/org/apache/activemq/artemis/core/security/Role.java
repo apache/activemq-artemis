@@ -298,21 +298,8 @@ public class Role implements Serializable {
 
    @Override
    public int hashCode() {
-      int result;
-      result = name.hashCode();
-      result = 31 * result + (send ? 1 : 0);
-      result = 31 * result + (consume ? 1 : 0);
-      result = 31 * result + (createAddress ? 1 : 0);
-      result = 31 * result + (deleteAddress ? 1 : 0);
-      result = 31 * result + (createDurableQueue ? 1 : 0);
-      result = 31 * result + (deleteDurableQueue ? 1 : 0);
-      result = 31 * result + (createNonDurableQueue ? 1 : 0);
-      result = 31 * result + (deleteNonDurableQueue ? 1 : 0);
-      result = 31 * result + (manage ? 1 : 0);
-      result = 31 * result + (browse ? 1 : 0);
-      result = 31 * result + (view ? 1 : 0);
-      result = 31 * result + (edit ? 1 : 0);
-      return result;
+      return Objects.hash(name, send, consume, createAddress, deleteAddress, createDurableQueue, deleteDurableQueue,
+                          createNonDurableQueue, deleteNonDurableQueue, manage, browse, view, edit);
    }
 
    public void merge(Role other) {

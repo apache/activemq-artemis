@@ -96,9 +96,7 @@ public final class BackupReplicationStartFailedMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      int result = super.hashCode();
-      result = 31 * result + (problem != null ? problem.hashCode() : 0);
-      return result;
+      return super.hashCode() + Objects.hashCode(problem);
    }
 
    @Override

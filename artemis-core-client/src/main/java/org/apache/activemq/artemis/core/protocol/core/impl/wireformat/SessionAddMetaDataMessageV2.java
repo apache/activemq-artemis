@@ -88,15 +88,9 @@ public class SessionAddMetaDataMessageV2 extends PacketImpl {
    public String getData() {
       return data;
    }
-
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((data == null) ? 0 : data.hashCode());
-      result = prime * result + ((key == null) ? 0 : key.hashCode());
-      result = prime * result + (requiresConfirmation ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), data, key, requiresConfirmation);
    }
 
    @Override

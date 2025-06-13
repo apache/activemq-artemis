@@ -109,13 +109,7 @@ public class CreateAddressMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((address == null) ? 0 : address.hashCode());
-      result = prime * result + (routingTypes.hashCode());
-      result = prime * result + (autoCreated ? 1231 : 1237);
-      result = prime * result + (requiresResponse ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), address, routingTypes, autoCreated, requiresResponse);
    }
 
    @Override

@@ -98,11 +98,7 @@ public class JournalHashMap<K, V, C> implements Map<K, V> {
 
       @Override
       public int hashCode() {
-         int result = (int) (collectionID ^ (collectionID >>> 32));
-         result = 31 * result + (int) (id ^ (id >>> 32));
-         result = 31 * result + (key != null ? key.hashCode() : 0);
-         result = 31 * result + (value != null ? value.hashCode() : 0);
-         return result;
+         return Objects.hash(collectionID, id, key, value);
       }
    }
 

@@ -52,7 +52,7 @@ public class ObjLongPair<A> implements Serializable {
          return super.hashCode();
       }
       // it's ok to use b to compute hashCode although NIL
-      return (a == null ? 0 : a.hashCode()) + 37 * Long.hashCode(b);
+      return Objects.hash(a, b);
    }
 
    @Override

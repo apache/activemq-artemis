@@ -46,10 +46,7 @@ public abstract class BinaryExpression implements Expression {
 
    @Override
    public int hashCode() {
-      int result = left.hashCode();
-      result = 31 * result + right.hashCode();
-      result = 31 * result + getExpressionSymbol().hashCode();
-      return result;
+      return Objects.hash(left, right, getExpressionSymbol());
    }
 
    @Override

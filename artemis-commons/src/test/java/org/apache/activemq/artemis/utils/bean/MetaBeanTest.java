@@ -290,19 +290,8 @@ public class MetaBeanTest {
 
       @Override
       public int hashCode() {
-         int result = a != null ? a.hashCode() : 0;
-         result = 31 * result + b;
-         result = 31 * result + (c != null ? c.hashCode() : 0);
-         result = 31 * result + (d != null ? d.hashCode() : 0);
-         result = 31 * result + (idCacheSize != null ? idCacheSize.hashCode() : 0);
-         result = 31 * result + (simpleString != null ? simpleString.hashCode() : 0);
-         result = 31 * result + (gated != null ? gated.hashCode() : 0);
-         result = 31 * result + (longValue != null ? longValue.hashCode() : 0);
-         result = 31 * result + (doubleValue != null ? doubleValue.hashCode() : 0);
-         result = 31 * result + (floatValue != null ? floatValue.hashCode() : 0);
-         result = 31 * result + (boolValue ? 1 : 0);
-         result = 31 * result + (myEnum != null ? myEnum.hashCode() : 0);
-         return result;
+         return Objects.hash(a, b, c, d, idCacheSize, simpleString, gated, longValue, doubleValue, floatValue,
+                             boolValue, myEnum);
       }
 
       @Override

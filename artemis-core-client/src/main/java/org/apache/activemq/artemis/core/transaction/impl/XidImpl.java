@@ -99,7 +99,8 @@ public class XidImpl implements Xid, Serializable {
    @Override
    public int hashCode() {
       if (!hashCalculated) {
-         calcHash();
+         hash = Arrays.hashCode(XidImpl.toByteArray(this));
+         hashCalculated = true;
       }
       return hash;
    }
@@ -144,12 +145,6 @@ public class XidImpl implements Xid, Serializable {
       }
 
       return builder.toString();
-   }
-
-   private void calcHash() {
-      byte[] hashBytes = XidImpl.toByteArray(this);
-      hash = Arrays.hashCode(hashBytes);
-      hashCalculated = true;
    }
 
    private byte[] copyBytes(final byte[] other) {

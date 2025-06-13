@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.journal;
 
+import java.util.Objects;
+
 import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
@@ -67,7 +69,7 @@ public class RecordInfo {
 
    @Override
    public int hashCode() {
-      return (int) (id >>> 32 ^ id);
+      return Objects.hashCode(id);
    }
 
    @Override

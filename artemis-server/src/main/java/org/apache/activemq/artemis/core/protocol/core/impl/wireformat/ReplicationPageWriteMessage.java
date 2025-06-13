@@ -113,11 +113,7 @@ public class ReplicationPageWriteMessage extends PacketImpl implements MessagePa
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int)pageNumber;
-      result = prime * result + ((pagedMessage == null) ? 0 : pagedMessage.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), pageNumber, pagedMessage);
    }
 
    @Override

@@ -128,11 +128,7 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((backupGroupName == null) ? 0 : backupGroupName.hashCode());
-      result = prime * result + (int) (uniqueEventID ^ (uniqueEventID >>> 32));
-      return result;
+      return Objects.hash(super.hashCode(), backupGroupName, uniqueEventID);
    }
 
    @Override

@@ -107,12 +107,7 @@ public class ReplicationPageEventMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (isDelete ? 1231 : 1237);
-      result = prime * result + (int)pageNumber;
-      result = prime * result + ((storeName == null) ? 0 : storeName.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), isDelete, pageNumber, storeName);
    }
 
    @Override

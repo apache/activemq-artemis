@@ -74,10 +74,7 @@ public class CreateSessionMessage_V2 extends CreateSessionMessage {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((clientID == null) ? 0 : clientID.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(clientID);
    }
 
    @Override

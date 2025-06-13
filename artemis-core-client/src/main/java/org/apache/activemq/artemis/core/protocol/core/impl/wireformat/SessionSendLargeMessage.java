@@ -64,10 +64,7 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((largeMessage == null) ? 0 : largeMessage.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(largeMessage);
    }
 
    @Override

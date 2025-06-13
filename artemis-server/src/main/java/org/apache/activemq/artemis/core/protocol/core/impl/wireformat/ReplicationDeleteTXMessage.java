@@ -101,14 +101,7 @@ public class ReplicationDeleteTXMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((encodingData == null) ? 0 : encodingData.hashCode());
-      result = prime * result + (int) (id ^ (id >>> 32));
-      result = prime * result + journalID;
-      result = prime * result + Arrays.hashCode(recordData);
-      result = prime * result + (int) (txId ^ (txId >>> 32));
-      return result;
+      return Objects.hash(super.hashCode(), encodingData, id, journalID, Arrays.hashCode(recordData), txId);
    }
 
    @Override

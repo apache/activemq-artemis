@@ -219,16 +219,8 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + Arrays.hashCode(byteArray);
-      result = prime * result + ((byteBuffer == null) ? 0 : byteBuffer.hashCode());
-      result = prime * result + dataSize;
-      result = prime * result + (int) (fileId ^ (fileId >>> 32));
-      result = prime * result + ((fileType == null) ? 0 : fileType.hashCode());
-      result = prime * result + ((journalType == null) ? 0 : journalType.hashCode());
-      result = prime * result + ((pageStoreName == null) ? 0 : pageStoreName.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), Arrays.hashCode(byteArray), byteBuffer, dataSize, fileId, fileType,
+                          journalType, pageStoreName);
    }
 
    @Override

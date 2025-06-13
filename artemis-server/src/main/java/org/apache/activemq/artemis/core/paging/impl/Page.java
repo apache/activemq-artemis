@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.paging.impl;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -364,7 +365,7 @@ public final class Page  {
 
    @Override
    public int hashCode() {
-      return (int) (pageId ^ (pageId >>> 32));
+      return Objects.hashCode(pageId);
    }
 
    private void markFileAsSuspect(final String fileName, final int position, final int msgNumber) {

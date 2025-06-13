@@ -56,10 +56,7 @@ public class SessionXAStartMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((xid == null) ? 0 : xid.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(xid);
    }
 
    @Override

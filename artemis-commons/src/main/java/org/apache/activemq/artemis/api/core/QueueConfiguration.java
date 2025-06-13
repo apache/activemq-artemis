@@ -895,39 +895,12 @@ public class QueueConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      int result = Objects.hashCode(id);
-      result = 31 * result + Objects.hashCode(name);
-      result = 31 * result + Objects.hashCode(address);
-      result = 31 * result + Objects.hashCode(routingType);
-      result = 31 * result + Objects.hashCode(filterString);
-      result = 31 * result + Objects.hashCode(durable);
-      result = 31 * result + Objects.hashCode(user);
-      result = 31 * result + Objects.hashCode(maxConsumers);
-      result = 31 * result + Objects.hashCode(exclusive);
-      result = 31 * result + Objects.hashCode(groupRebalance);
-      result = 31 * result + Objects.hashCode(groupRebalancePauseDispatch);
-      result = 31 * result + Objects.hashCode(groupBuckets);
-      result = 31 * result + Objects.hashCode(groupFirstKey);
-      result = 31 * result + Objects.hashCode(lastValue);
-      result = 31 * result + Objects.hashCode(lastValueKey);
-      result = 31 * result + Objects.hashCode(nonDestructive);
-      result = 31 * result + Objects.hashCode(purgeOnNoConsumers);
-      result = 31 * result + Objects.hashCode(enabled);
-      result = 31 * result + Objects.hashCode(consumersBeforeDispatch);
-      result = 31 * result + Objects.hashCode(delayBeforeDispatch);
-      result = 31 * result + Objects.hashCode(consumerPriority);
-      result = 31 * result + Objects.hashCode(autoDelete);
-      result = 31 * result + Objects.hashCode(autoDeleteDelay);
-      result = 31 * result + Objects.hashCode(autoDeleteMessageCount);
-      result = 31 * result + Objects.hashCode(ringSize);
-      result = 31 * result + Objects.hashCode(configurationManaged);
-      result = 31 * result + Objects.hashCode(temporary);
-      result = 31 * result + Objects.hashCode(autoCreateAddress);
-      result = 31 * result + Objects.hashCode(internal);
-      result = 31 * result + Objects.hashCode(_transient);
-      result = 31 * result + Objects.hashCode(autoCreated);
-      result = 31 * result + Objects.hashCode(fqqn);
-      return result;
+      return Objects.hash(id, name, address, routingType, filterString, durable, user, maxConsumers, exclusive,
+                          groupRebalance, groupRebalancePauseDispatch, groupBuckets, groupFirstKey, lastValue,
+                          lastValueKey, nonDestructive, purgeOnNoConsumers, enabled, consumersBeforeDispatch,
+                          delayBeforeDispatch, consumerPriority, autoDelete, autoDeleteDelay, autoDeleteMessageCount,
+                          ringSize, configurationManaged, temporary, autoCreateAddress, internal, _transient,
+                          autoCreated, fqqn);
    }
 
    @Override

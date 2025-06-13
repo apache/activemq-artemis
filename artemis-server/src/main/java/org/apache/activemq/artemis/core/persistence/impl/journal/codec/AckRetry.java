@@ -119,11 +119,8 @@ public final class AckRetry {
 
    @Override
    public int hashCode() {
-      int result = nodeID != null ? nodeID.hashCode() : 0;
-      result = 31 * result + (int) (messageID ^ (messageID >>> 32));
-      return result;
+      return Objects.hash(nodeID, messageID);
    }
-
 
    public static class Persister extends AbstractHashMapPersister<AckRetry, AckRetry> {
 

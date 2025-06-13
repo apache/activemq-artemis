@@ -551,33 +551,11 @@ public final class QueueConfig {
 
    @Override
    public int hashCode() {
-      int result = (int) (id ^ (id >>> 32));
-      result = 31 * result + (address != null ? address.hashCode() : 0);
-      result = 31 * result + (name != null ? name.hashCode() : 0);
-      result = 31 * result + (filter != null ? filter.hashCode() : 0);
-      result = 31 * result + (pageSubscription != null ? pageSubscription.hashCode() : 0);
-      result = 31 * result + (user != null ? user.hashCode() : 0);
-      result = 31 * result + (durable ? 1 : 0);
-      result = 31 * result + (temporary ? 1 : 0);
-      result = 31 * result + (autoCreated ? 1 : 0);
-      result = 31 * result + routingType.getType();
-      result = 31 * result + maxConsumers;
-      result = 31 * result + (exclusive ? 1 : 0);
-      result = 31 * result + (lastValue ? 1 : 0);
-      result = 31 * result + (lastValueKey != null ? lastValueKey.hashCode() : 0);
-      result = 31 * result + (nonDestructive ? 1 : 0);
-      result = 31 * result + consumersBeforeDispatch;
-      result = 31 * result + Long.hashCode(delayBeforeDispatch);
-      result = 31 * result + (purgeOnNoConsumers ? 1 : 0);
-      result = 31 * result + (groupRebalance ? 1 : 0);
-      result = 31 * result + groupBuckets;
-      result = 31 * result + (groupFirstKey != null ? groupFirstKey.hashCode() : 0);
-      result = 31 * result + (autoDelete ? 1 : 0);
-      result = 31 * result + Long.hashCode(autoDeleteDelay);
-      result = 31 * result + Long.hashCode(autoDeleteMessageCount);
-      result = 31 * result + Long.hashCode(ringSize);
-      result = 31 * result + (configurationManaged ? 1 : 0);
-      return result;
+      return Objects.hash(id, address, name, filter, pageSubscription, user, durable, temporary, autoCreated,
+                          routingType, maxConsumers, exclusive, lastValue, lastValueKey, nonDestructive,
+                          consumersBeforeDispatch, delayBeforeDispatch, purgeOnNoConsumers, groupRebalance,
+                          groupBuckets, groupFirstKey, autoDelete, autoDeleteDelay, autoDeleteMessageCount, ringSize,
+                          configurationManaged);
    }
 
    @Override

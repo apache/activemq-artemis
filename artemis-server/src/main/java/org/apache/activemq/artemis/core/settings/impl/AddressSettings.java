@@ -1713,86 +1713,28 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    @Override
    public int hashCode() {
-      int result = addressFullMessagePolicy != null ? addressFullMessagePolicy.hashCode() : 0;
-      result = 31 * result + (maxSizeBytes != null ? maxSizeBytes.hashCode() : 0);
-      result = 31 * result + (maxReadPageBytes != null ? maxReadPageBytes.hashCode() : 0);
-      result = 31 * result + (maxReadPageMessages != null ? maxReadPageMessages.hashCode() : 0);
-      result = 31 * result + (prefetchPageBytes != null ? prefetchPageBytes.hashCode() : 0);
-      result = 31 * result + (prefetchPageMessages != null ? prefetchPageMessages.hashCode() : 0);
-      result = 31 * result + (pageLimitBytes != null ? pageLimitBytes.hashCode() : 0);
-      result = 31 * result + (pageLimitMessages != null ? pageLimitMessages.hashCode() : 0);
-      result = 31 * result + (pageFullMessagePolicy != null ? pageFullMessagePolicy.hashCode() : 0);
-      result = 31 * result + (maxSizeMessages != null ? maxSizeMessages.hashCode() : 0);
-      result = 31 * result + (pageSizeBytes != null ? pageSizeBytes.hashCode() : 0);
-      result = 31 * result + (pageCacheMaxSize != null ? pageCacheMaxSize.hashCode() : 0);
-      result = 31 * result + (dropMessagesWhenFull != null ? dropMessagesWhenFull.hashCode() : 0);
-      result = 31 * result + (maxDeliveryAttempts != null ? maxDeliveryAttempts.hashCode() : 0);
-      result = 31 * result + (messageCounterHistoryDayLimit != null ? messageCounterHistoryDayLimit.hashCode() : 0);
-      result = 31 * result + (redeliveryDelay != null ? redeliveryDelay.hashCode() : 0);
-      result = 31 * result + (redeliveryMultiplier != null ? redeliveryMultiplier.hashCode() : 0);
-      result = 31 * result + (redeliveryCollisionAvoidanceFactor != null ? redeliveryCollisionAvoidanceFactor.hashCode() : 0);
-      result = 31 * result + (maxRedeliveryDelay != null ? maxRedeliveryDelay.hashCode() : 0);
-      result = 31 * result + (deadLetterAddress != null ? deadLetterAddress.hashCode() : 0);
-      result = 31 * result + (expiryAddress != null ? expiryAddress.hashCode() : 0);
-      result = 31 * result + (expiryDelay != null ? expiryDelay.hashCode() : 0);
-      result = 31 * result + (minExpiryDelay != null ? minExpiryDelay.hashCode() : 0);
-      result = 31 * result + (maxExpiryDelay != null ? maxExpiryDelay.hashCode() : 0);
-      result = 31 * result + (noExpiry != null ? noExpiry.hashCode() : 0);
-      result = 31 * result + (defaultLastValueQueue != null ? defaultLastValueQueue.hashCode() : 0);
-      result = 31 * result + (defaultLastValueKey != null ? defaultLastValueKey.hashCode() : 0);
-      result = 31 * result + (defaultNonDestructive != null ? defaultNonDestructive.hashCode() : 0);
-      result = 31 * result + (defaultExclusiveQueue != null ? defaultExclusiveQueue.hashCode() : 0);
-      result = 31 * result + (defaultGroupRebalance != null ? defaultGroupRebalance.hashCode() : 0);
-      result = 31 * result + (defaultGroupRebalancePauseDispatch != null ? defaultGroupRebalancePauseDispatch.hashCode() : 0);
-      result = 31 * result + (defaultGroupBuckets != null ? defaultGroupBuckets.hashCode() : 0);
-      result = 31 * result + (defaultGroupFirstKey != null ? defaultGroupFirstKey.hashCode() : 0);
-      result = 31 * result + (redistributionDelay != null ? redistributionDelay.hashCode() : 0);
-      result = 31 * result + (sendToDLAOnNoRoute != null ? sendToDLAOnNoRoute.hashCode() : 0);
-      result = 31 * result + (slowConsumerThreshold != null ? slowConsumerThreshold.hashCode() : 0);
-      result = 31 * result + (slowConsumerThresholdMeasurementUnit != null ? slowConsumerThresholdMeasurementUnit.hashCode() : 0);
-      result = 31 * result + (slowConsumerCheckPeriod != null ? slowConsumerCheckPeriod.hashCode() : 0);
-      result = 31 * result + (slowConsumerPolicy != null ? slowConsumerPolicy.hashCode() : 0);
-      result = 31 * result + (autoCreateJmsQueues != null ? autoCreateJmsQueues.hashCode() : 0);
-      result = 31 * result + (autoDeleteJmsQueues != null ? autoDeleteJmsQueues.hashCode() : 0);
-      result = 31 * result + (autoCreateJmsTopics != null ? autoCreateJmsTopics.hashCode() : 0);
-      result = 31 * result + (autoDeleteJmsTopics != null ? autoDeleteJmsTopics.hashCode() : 0);
-      result = 31 * result + (autoCreateQueues != null ? autoCreateQueues.hashCode() : 0);
-      result = 31 * result + (autoDeleteQueues != null ? autoDeleteQueues.hashCode() : 0);
-      result = 31 * result + (autoDeleteCreatedQueues != null ? autoDeleteCreatedQueues.hashCode() : 0);
-      result = 31 * result + (autoDeleteQueuesDelay != null ? autoDeleteQueuesDelay.hashCode() : 0);
-      result = 31 * result + (autoDeleteQueuesSkipUsageCheck != null ? autoDeleteQueuesSkipUsageCheck.hashCode() : 0);
-      result = 31 * result + (autoDeleteQueuesMessageCount != null ? autoDeleteQueuesMessageCount.hashCode() : 0);
-      result = 31 * result + (defaultRingSize != null ? defaultRingSize.hashCode() : 0);
-      result = 31 * result + (retroactiveMessageCount != null ? retroactiveMessageCount.hashCode() : 0);
-      result = 31 * result + (configDeleteQueues != null ? configDeleteQueues.hashCode() : 0);
-      result = 31 * result + (autoCreateAddresses != null ? autoCreateAddresses.hashCode() : 0);
-      result = 31 * result + (autoDeleteAddresses != null ? autoDeleteAddresses.hashCode() : 0);
-      result = 31 * result + (autoDeleteAddressesDelay != null ? autoDeleteAddressesDelay.hashCode() : 0);
-      result = 31 * result + (autoDeleteAddressesSkipUsageCheck != null ? autoDeleteAddressesSkipUsageCheck.hashCode() : 0);
-      result = 31 * result + (configDeleteAddresses != null ? configDeleteAddresses.hashCode() : 0);
-      result = 31 * result + (configDeleteDiverts != null ? configDeleteDiverts.hashCode() : 0);
-      result = 31 * result + (managementBrowsePageSize != null ? managementBrowsePageSize.hashCode() : 0);
-      result = 31 * result + (maxSizeBytesRejectThreshold != null ? maxSizeBytesRejectThreshold.hashCode() : 0);
-      result = 31 * result + (defaultMaxConsumers != null ? defaultMaxConsumers.hashCode() : 0);
-      result = 31 * result + (defaultPurgeOnNoConsumers != null ? defaultPurgeOnNoConsumers.hashCode() : 0);
-      result = 31 * result + (defaultConsumersBeforeDispatch != null ? defaultConsumersBeforeDispatch.hashCode() : 0);
-      result = 31 * result + (defaultDelayBeforeDispatch != null ? defaultDelayBeforeDispatch.hashCode() : 0);
-      result = 31 * result + (defaultQueueRoutingType != null ? defaultQueueRoutingType.hashCode() : 0);
-      result = 31 * result + (defaultAddressRoutingType != null ? defaultAddressRoutingType.hashCode() : 0);
-      result = 31 * result + (defaultConsumerWindowSize != null ? defaultConsumerWindowSize.hashCode() : 0);
-      result = 31 * result + (autoCreateDeadLetterResources != null ? autoCreateDeadLetterResources.hashCode() : 0);
-      result = 31 * result + (deadLetterQueuePrefix != null ? deadLetterQueuePrefix.hashCode() : 0);
-      result = 31 * result + (deadLetterQueueSuffix != null ? deadLetterQueueSuffix.hashCode() : 0);
-      result = 31 * result + (autoCreateExpiryResources != null ? autoCreateExpiryResources.hashCode() : 0);
-      result = 31 * result + (expiryQueuePrefix != null ? expiryQueuePrefix.hashCode() : 0);
-      result = 31 * result + (expiryQueueSuffix != null ? expiryQueueSuffix.hashCode() : 0);
-      result = 31 * result + (enableMetrics != null ? enableMetrics.hashCode() : 0);
-      result = 31 * result + (managementMessageAttributeSizeLimit != null ? managementMessageAttributeSizeLimit.hashCode() : 0);
-      result = 31 * result + (enableIngressTimestamp != null ? enableIngressTimestamp.hashCode() : 0);
-      result = 31 * result + (idCacheSize != null ? idCacheSize.hashCode() : 0);
-      result = 31 * result + (queuePrefetch != null ? queuePrefetch.hashCode() : 0);
-      result = 31 * result + (initialQueueBufferSize != null ? initialQueueBufferSize.hashCode() : 0);
-      return result;
+      return Objects.hash(addressFullMessagePolicy, maxSizeBytes, maxReadPageBytes, maxReadPageMessages,
+                          prefetchPageBytes, prefetchPageMessages, pageLimitBytes, pageLimitMessages,
+                          pageFullMessagePolicy, maxSizeMessages, pageSizeBytes, pageCacheMaxSize, dropMessagesWhenFull,
+                          maxDeliveryAttempts, messageCounterHistoryDayLimit, redeliveryDelay, redeliveryMultiplier,
+                          redeliveryCollisionAvoidanceFactor, maxRedeliveryDelay, deadLetterAddress, expiryAddress,
+                          expiryDelay, minExpiryDelay, maxExpiryDelay, noExpiry, defaultLastValueQueue,
+                          defaultLastValueKey, defaultNonDestructive, defaultExclusiveQueue, defaultGroupRebalance,
+                          defaultGroupRebalancePauseDispatch, defaultGroupBuckets, defaultGroupFirstKey,
+                          redistributionDelay, sendToDLAOnNoRoute, slowConsumerThreshold,
+                          slowConsumerThresholdMeasurementUnit, slowConsumerCheckPeriod, slowConsumerPolicy,
+                          autoCreateJmsQueues, autoDeleteJmsQueues, autoCreateJmsTopics, autoDeleteJmsTopics,
+                          autoCreateQueues, autoDeleteQueues, autoDeleteCreatedQueues, autoDeleteQueuesDelay,
+                          autoDeleteQueuesSkipUsageCheck, autoDeleteQueuesMessageCount, defaultRingSize,
+                          retroactiveMessageCount, configDeleteQueues, autoCreateAddresses, autoDeleteAddresses,
+                          autoDeleteAddressesDelay, autoDeleteAddressesSkipUsageCheck, configDeleteAddresses,
+                          configDeleteDiverts, managementBrowsePageSize, maxSizeBytesRejectThreshold,
+                          defaultMaxConsumers, defaultPurgeOnNoConsumers, defaultConsumersBeforeDispatch,
+                          defaultDelayBeforeDispatch, defaultQueueRoutingType, defaultAddressRoutingType,
+                          defaultConsumerWindowSize, autoCreateDeadLetterResources, deadLetterQueuePrefix,
+                          deadLetterQueueSuffix, autoCreateExpiryResources, expiryQueuePrefix, expiryQueueSuffix,
+                          enableMetrics, managementMessageAttributeSizeLimit, enableIngressTimestamp, idCacheSize,
+                          queuePrefetch, initialQueueBufferSize);
    }
 
    @Override

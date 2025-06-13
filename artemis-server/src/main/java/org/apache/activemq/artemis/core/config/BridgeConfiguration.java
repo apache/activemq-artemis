@@ -670,37 +670,11 @@ public final class BridgeConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + (int) (callTimeout ^ (callTimeout >>> 32));
-      result = prime * result + (int) (clientFailureCheckPeriod ^ (clientFailureCheckPeriod >>> 32));
-      result = prime * result + confirmationWindowSize;
-      result = prime * result + producerWindowSize;
-      result = prime * result + (int) (connectionTTL ^ (connectionTTL >>> 32));
-      result = prime * result + ((discoveryGroupName == null) ? 0 : discoveryGroupName.hashCode());
-      result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
-      result = prime * result + ((forwardingAddress == null) ? 0 : forwardingAddress.hashCode());
-      result = prime * result + (ha ? 1231 : 1237);
-      result = prime * result + (int) (maxRetryInterval ^ (maxRetryInterval >>> 32));
-      result = prime * result + minLargeMessageSize;
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + ((password == null) ? 0 : password.hashCode());
-      result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
-      result = prime * result + initialConnectAttempts;
-      result = prime * result + reconnectAttempts;
-      result = prime * result + (int) (retryInterval ^ (retryInterval >>> 32));
-      long temp;
-      temp = Double.doubleToLongBits(retryIntervalMultiplier);
-      result = prime * result + (int) (temp ^ (temp >>> 32));
-      result = prime * result + ((staticConnectors == null) ? 0 : staticConnectors.hashCode());
-      result = prime * result + ((transformerConfiguration == null) ? 0 : transformerConfiguration.hashCode());
-      result = prime * result + (useDuplicateDetection ? 1231 : 1237);
-      result = prime * result + ((user == null) ? 0 : user.hashCode());
-      result = prime * result + concurrency;
-      result = prime * result + (int) (pendingAckTimeout ^ (pendingAckTimeout >>> 32));
-      result = prime * result + (configurationManaged ? 1231 : 1237);
-      result = prime * result + ((clientId == null) ? 0 : clientId.hashCode());
-      return result;
+      return Objects.hash(callTimeout, clientFailureCheckPeriod, confirmationWindowSize, producerWindowSize,
+                          connectionTTL, discoveryGroupName, filterString, forwardingAddress, ha, maxRetryInterval,
+                          minLargeMessageSize, name, password, queueName, initialConnectAttempts, reconnectAttempts,
+                          retryInterval, retryIntervalMultiplier, staticConnectors, transformerConfiguration,
+                          useDuplicateDetection, user, concurrency, pendingAckTimeout, configurationManaged, clientId);
    }
 
    @Override

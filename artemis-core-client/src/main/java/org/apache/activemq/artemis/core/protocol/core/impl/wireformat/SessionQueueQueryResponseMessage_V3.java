@@ -398,30 +398,11 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (autoCreated ? 1231 : 1237);
-      result = prime * result + (purgeOnNoConsumers ? 1231 : 1237);
-      result = prime * result + routingType.hashCode();
-      result = prime * result + maxConsumers;
-      result = prime * result + (exclusive == null ? 0 : exclusive ? 1231 : 1237);
-      result = prime * result + (groupRebalance == null ? 0 : groupRebalance ? 1231 : 1237);
-      result = prime * result + (groupRebalancePauseDispatch == null ? 0 : groupRebalancePauseDispatch ? 1231 : 1237);
-      result = prime * result + (groupBuckets == null ? 0 : groupBuckets.hashCode());
-      result = prime * result + (groupFirstKey == null ? 0 : groupFirstKey.hashCode());
-      result = prime * result + (lastValue == null ? 0 : lastValue ? 1231 : 1237);
-      result = prime * result + (lastValueKey == null ? 0 : lastValueKey.hashCode());
-      result = prime * result + (nonDestructive == null ? 0 : nonDestructive ? 1231 : 1237);
-      result = prime * result + (consumersBeforeDispatch == null ? 0 : consumersBeforeDispatch.hashCode());
-      result = prime * result + (delayBeforeDispatch == null ? 0 : delayBeforeDispatch.hashCode());
-      result = prime * result + (autoDelete == null ? 0 : autoDelete.hashCode());
-      result = prime * result + (autoDeleteDelay == null ? 0 : autoDeleteDelay.hashCode());
-      result = prime * result + (autoDeleteMessageCount == null ? 0 : autoDeleteMessageCount.hashCode());
-      result = prime * result + ((defaultConsumerWindowSize == null) ? 0 : defaultConsumerWindowSize.hashCode());
-      result = prime * result + (ringSize == null ? 0 : ringSize.hashCode());
-      result = prime * result + (enabled == null ? 0 : enabled ? 1231 : 1237);
-      result = prime * result + (configurationManaged == null ? 0 : configurationManaged ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), autoCreated, purgeOnNoConsumers, routingType, maxConsumers, exclusive,
+                          groupRebalance, groupRebalancePauseDispatch, groupBuckets, groupFirstKey, lastValue,
+                          lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete,
+                          autoDeleteDelay, autoDeleteMessageCount, defaultConsumerWindowSize, ringSize, enabled,
+                          configurationManaged);
    }
 
    @Override

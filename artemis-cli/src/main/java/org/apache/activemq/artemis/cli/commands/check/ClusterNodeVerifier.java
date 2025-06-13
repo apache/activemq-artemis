@@ -309,10 +309,7 @@ public class ClusterNodeVerifier implements AutoCloseable {
 
       @Override
       public int hashCode() {
-         int result = nodeID != null ? nodeID.hashCode() : 0;
-         result = 31 * result + (primary != null ? primary.hashCode() : 0);
-         result = 31 * result + (backup != null ? backup.hashCode() : 0);
-         return result;
+         return Objects.hash(nodeID, primary, backup);
       }
 
       @Override

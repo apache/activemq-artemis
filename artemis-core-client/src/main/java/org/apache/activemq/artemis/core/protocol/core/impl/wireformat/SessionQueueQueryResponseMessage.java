@@ -145,17 +145,8 @@ public class SessionQueueQueryResponseMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((address == null) ? 0 : address.hashCode());
-      result = prime * result + consumerCount;
-      result = prime * result + (durable ? 1231 : 1237);
-      result = prime * result + (exists ? 1231 : 1237);
-      result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
-      result = prime * result + (int) (messageCount ^ (messageCount >>> 32));
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + (temporary ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), address, consumerCount, durable, exists, filterString, messageCount, name,
+                          temporary);
    }
 
    @Override

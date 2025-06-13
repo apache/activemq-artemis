@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.jms.tests.message;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * ObjectMessageTest needed a simple class to test ClassLoadingIsolations
@@ -49,9 +50,6 @@ public class SomeObject implements Serializable {
 
    @Override
    public int hashCode() {
-      int result;
-      result = i;
-      result = 31 * result + j;
-      return result;
+      return Objects.hash(i, j);
    }
 }

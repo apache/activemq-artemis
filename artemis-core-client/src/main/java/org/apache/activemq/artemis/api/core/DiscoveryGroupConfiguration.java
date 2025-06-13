@@ -112,10 +112,7 @@ public final class DiscoveryGroupConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      int result = name != null ? name.hashCode() : 0;
-      result = 31 * result + (int) (refreshTimeout ^ (refreshTimeout >>> 32));
-      result = 31 * result + (int) (discoveryInitialWaitTimeout ^ (discoveryInitialWaitTimeout >>> 32));
-      return result;
+      return Objects.hash(name, refreshTimeout, discoveryInitialWaitTimeout);
    }
 
    @Override

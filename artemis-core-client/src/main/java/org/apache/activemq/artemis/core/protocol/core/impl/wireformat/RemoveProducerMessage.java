@@ -69,6 +69,6 @@ public class RemoveProducerMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      return Objects.hash(super.hashCode(), id);
+      return super.hashCode() + Objects.hashCode(id);
    }
 }

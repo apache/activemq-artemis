@@ -1041,7 +1041,7 @@ public final class PriorityLinkedListTest {
 
       @Override
       public int hashCode() {
-         return Objects.hash(s1);
+         return Objects.hashCode(s1);
       }
    }
 

@@ -387,35 +387,12 @@ public final class ClusterConnectionConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((address == null) ? 0 : address.hashCode());
-      result = prime * result + (allowDirectConnectionsOnly ? 1231 : 1237);
-      result = prime * result + (int) (callFailoverTimeout ^ (callFailoverTimeout >>> 32));
-      result = prime * result + (int) (callTimeout ^ (callTimeout >>> 32));
-      result = prime * result + (int) (clientFailureCheckPeriod ^ (clientFailureCheckPeriod >>> 32));
-      result = prime * result + clusterNotificationAttempts;
-      result = prime * result + (int) (clusterNotificationInterval ^ (clusterNotificationInterval >>> 32));
-      result = prime * result + confirmationWindowSize;
-      result = prime * result + (int) (connectionTTL ^ (connectionTTL >>> 32));
-      result = prime * result + ((connectorName == null) ? 0 : connectorName.hashCode());
-      result = prime * result + ((discoveryGroupName == null) ? 0 : discoveryGroupName.hashCode());
-      result = prime * result + (duplicateDetection ? 1231 : 1237);
-      result = prime * result + (messageLoadBalancingType == null ? 0 : messageLoadBalancingType.hashCode());
-      result = prime * result + maxHops;
-      result = prime * result + (int) (maxRetryInterval ^ (maxRetryInterval >>> 32));
-      result = prime * result + minLargeMessageSize;
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + initialConnectAttempts;
-      result = prime * result + reconnectAttempts;
-      result = prime * result + (int) (retryInterval ^ (retryInterval >>> 32));
-      long temp;
-      temp = Double.doubleToLongBits(retryIntervalMultiplier);
-      result = prime * result + (int) (temp ^ (temp >>> 32));
-      result = prime * result + ((staticConnectors == null) ? 0 : staticConnectors.hashCode());
-      result = prime * result + ((clientId == null) ? 0 : clientId.hashCode());
-      result = prime * result + topologyScannerAttempts;
-      return result;
+      return Objects.hash(address, allowDirectConnectionsOnly, callFailoverTimeout, callTimeout,
+                          clientFailureCheckPeriod, clusterNotificationAttempts, clusterNotificationInterval,
+                          confirmationWindowSize, connectionTTL, connectorName, discoveryGroupName, duplicateDetection,
+                          messageLoadBalancingType, maxHops, maxRetryInterval, minLargeMessageSize, name,
+                          initialConnectAttempts, reconnectAttempts, retryInterval, retryIntervalMultiplier,
+                          staticConnectors, clientId, topologyScannerAttempts);
    }
 
    @Override

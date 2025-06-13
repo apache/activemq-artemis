@@ -281,11 +281,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((groupAddress == null) ? 0 : groupAddress.hashCode());
-      result = prime * result + groupPort;
-      return result;
+      return Objects.hash(groupAddress, groupPort);
    }
 
    @Override

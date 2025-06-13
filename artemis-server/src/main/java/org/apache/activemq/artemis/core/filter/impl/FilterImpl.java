@@ -127,10 +127,7 @@ public class FilterImpl implements Filter {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((sfilterString == null) ? 0 : sfilterString.hashCode());
-      return result;
+      return Objects.hashCode(sfilterString);
    }
 
    @Override

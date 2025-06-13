@@ -287,27 +287,9 @@ public class CoreQueueConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((address == null) ? 0 : address.hashCode());
-      result = prime * result + (durable ? 1231 : 1237);
-      result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + ((maxConsumers == null) ? 0 : maxConsumers.hashCode());
-      result = prime * result + ((purgeOnNoConsumers == null) ? 0 : purgeOnNoConsumers.hashCode());
-      result = prime * result + ((exclusive == null) ? 0 : exclusive.hashCode());
-      result = prime * result + ((groupRebalance == null) ? 0 : groupRebalance.hashCode());
-      result = prime * result + ((groupBuckets == null) ? 0 : groupBuckets.hashCode());
-      result = prime * result + ((groupFirstKey == null) ? 0 : groupFirstKey.hashCode());
-      result = prime * result + ((lastValue == null) ? 0 : lastValue.hashCode());
-      result = prime * result + ((lastValueKey == null) ? 0 : lastValueKey.hashCode());
-      result = prime * result + ((nonDestructive == null) ? 0 : nonDestructive.hashCode());
-      result = prime * result + ((consumersBeforeDispatch == null) ? 0 : consumersBeforeDispatch.hashCode());
-      result = prime * result + ((delayBeforeDispatch == null) ? 0 : delayBeforeDispatch.hashCode());
-      result = prime * result + ((routingType == null) ? 0 : routingType.hashCode());
-      result = prime * result + ((ringSize == null) ? 0 : ringSize.hashCode());
-      result = prime * result + ((enabled == null) ? 0 : enabled.hashCode());
-      return result;
+      return Objects.hash(address, durable, filterString, name, maxConsumers, purgeOnNoConsumers, exclusive,
+                          groupRebalance, groupBuckets, groupFirstKey, lastValue, lastValueKey, nonDestructive,
+                          consumersBeforeDispatch, delayBeforeDispatch, routingType, ringSize, enabled);
    }
 
    @Override

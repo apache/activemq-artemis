@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -63,10 +64,7 @@ public class SessionBindingQueryResponseMessage_V2 extends SessionBindingQueryRe
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (autoCreateQueues ? 1231 : 1237);
-      return result;
+      return super.hashCode() + Objects.hashCode(autoCreateQueues);
    }
 
    @Override

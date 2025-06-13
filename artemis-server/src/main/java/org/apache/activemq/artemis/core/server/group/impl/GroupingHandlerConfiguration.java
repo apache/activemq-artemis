@@ -125,13 +125,7 @@ public final class GroupingHandlerConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((address == null) ? 0 : address.hashCode());
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + (int) (timeout ^ (timeout >>> 32));
-      result = prime * result + ((type == null) ? 0 : type.hashCode());
-      return result;
+      return Objects.hash(address, name, timeout, type);
    }
 
    @Override

@@ -234,9 +234,7 @@ public abstract class UnaryExpression implements Expression {
 
    @Override
    public int hashCode() {
-      int result = right.hashCode();
-      result = 31 * result + getExpressionSymbol().hashCode();
-      return result;
+      return Objects.hash(right, getExpressionSymbol());
    }
 
    @Override
