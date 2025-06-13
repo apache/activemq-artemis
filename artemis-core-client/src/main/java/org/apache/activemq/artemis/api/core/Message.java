@@ -21,6 +21,7 @@ import javax.management.openmbean.OpenDataException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -824,7 +825,7 @@ public interface Message {
          map.put("userID", "ID:" + userID.toString());
       }
 
-      map.put("address", getAddress() == null ? "" : getAddress());
+      map.put("address", Objects.requireNonNullElse(getAddress(), ""));
       map.put("durable", isDurable());
       map.put("expiration", getExpiration());
       map.put("timestamp", getTimestamp());

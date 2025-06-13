@@ -43,6 +43,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -2097,9 +2098,9 @@ class AMQPBridgeFromAddressTest extends AmqpClientTestSupport {
          server.start();
          server.addAddressInfo(new AddressInfo(SimpleString.of(getTestName()), RoutingType.MULTICAST));
 
-         final String expectedSourceAddress = (prefix != null ? prefix : "") +
-                                              (address != null ? address : getTestName()) +
-                                              (suffix != null ? suffix : "");
+         final String expectedSourceAddress = Objects.requireNonNullElse(prefix, "") +
+                                              Objects.requireNonNullElse(address, getTestName()) +
+                                              Objects.requireNonNullElse(suffix, "");
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.expectAttach().ofReceiver()

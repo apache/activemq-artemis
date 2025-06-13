@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.Objects;
 
 public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
 
@@ -731,7 +732,7 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
    }
 
    public boolean isEnableSharedClientID() {
-      return enableSharedClientID != null ? enableSharedClientID : false;
+      return Objects.requireNonNullElse(enableSharedClientID, false);
    }
 
    @Override

@@ -105,7 +105,7 @@ public class Jmx {
          final JsonObject nodePair = nodeIDs.getJsonObject(i);
          try {
             final String nodeID = nodePair.getString("nodeID");
-            final String primary = nodePair.getString("primary") == null ? nodePair.getString("live") : nodePair.getString("primary");
+            final String primary = Objects.requireNonNullElse(nodePair.getString("primary"), nodePair.getString("live"));
             final String backup = nodePair.getString("backup", null);
             networkTopology.put(nodeID, new Pair<>(primary, backup));
          } catch (Exception e) {

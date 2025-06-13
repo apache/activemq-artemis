@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.cli.commands.messages.perf;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedTransferQueue;
@@ -95,8 +96,8 @@ public class PerfClientCommand extends PerfCommand {
 
    @Override
    protected void onExecuteBenchmark(final ConnectionFactory producerConnectionFactory, final Destination[] jmsDestinations, final ActionContext context) throws Exception {
-      final ConnectionProtocol listenerProtocol = this.consumerProtocol != null ? this.consumerProtocol : protocol;
-      final String listenerUrl = this.consumerUrl != null ? this.consumerUrl : brokerURL;
+      final ConnectionProtocol listenerProtocol = Objects.requireNonNullElse(this.consumerProtocol, protocol);
+      final String listenerUrl = Objects.requireNonNullElse(this.consumerUrl, brokerURL);
       final ConnectionFactory consumerConnectionFactory = createConnectionFactory(listenerUrl, user, password, null, listenerProtocol);
       if (consumerConnections == 0) {
          if (sharedSubscription > 0) {

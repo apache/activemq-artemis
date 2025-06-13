@@ -20,6 +20,7 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.Map;
+import java.util.Objects;
 
 public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper {
 
@@ -49,7 +50,7 @@ public class ActiveMQXAResourceWrapperImpl implements ActiveMQXAResourceWrapper 
       String jndiName = (String) properties.get(ACTIVEMQ_JNDI_NAME);
       String nodeId = "NodeId:" + properties.get(ACTIVEMQ_NODE_ID);
 
-      this.jndiNameNodeId = jndiName == null ? nodeId : jndiName + " " + nodeId;
+      this.jndiNameNodeId = Objects.requireNonNullElse(jndiName, nodeId) + " " + nodeId;
    }
 
    public XAResource getResource() {

@@ -23,6 +23,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
@@ -436,8 +437,7 @@ public class AMQPSessionContext extends ProtonInitializable {
                   "Unexpected federation instance found on connection when creating control link processor");
             }
 
-            final Map<Symbol, Object> receiverProperties =
-               receiver.getRemoteProperties() != null ? receiver.getRemoteProperties() : Collections.emptyMap();
+            final Map<Symbol, Object> receiverProperties = Objects.requireNonNullElseGet(receiver.getRemoteProperties(), () -> Collections.emptyMap());
             final Map<String, Object> federationConfigurationMap =
                (Map<String, Object>) receiverProperties.getOrDefault(FEDERATION_CONFIGURATION, Collections.emptyMap());
 

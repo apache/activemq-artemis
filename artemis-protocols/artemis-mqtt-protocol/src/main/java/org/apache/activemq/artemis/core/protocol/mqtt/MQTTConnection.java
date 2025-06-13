@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
@@ -113,7 +114,7 @@ public class MQTTConnection extends AbstractRemotingConnection {
 
    @Override
    public String getProtocolName() {
-      return MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME + (protocolVersion != null ? protocolVersion : "");
+      return MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME + Objects.requireNonNullElse(protocolVersion, "");
    }
 
    public int getReceiveMaximum() {

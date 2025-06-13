@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -1768,7 +1769,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          ConcurrentMap<String, PersistedKeyValuePair> newMap = new ConcurrentHashMap<>();
          Map<String, PersistedKeyValuePair> existingMap = mapPersistedKeyValuePairs.putIfAbsent(keyValuePair.getMapId(), newMap);
 
-         persistedKeyValuePairs = existingMap == null ? newMap : existingMap;
+         persistedKeyValuePairs = Objects.requireNonNullElse(existingMap, newMap);
       }
 
       persistedKeyValuePairs.put(keyValuePair.getKey(), keyValuePair);

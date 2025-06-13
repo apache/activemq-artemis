@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.Future;
@@ -176,7 +177,7 @@ public final class StompConnection extends AbstractRemotingConnection {
          SimpleString simpleDestination = SimpleString.of(destination);
          AddressInfo addressInfo = manager.getServer().getAddressInfo(simpleDestination);
          AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(destination);
-         RoutingType effectiveAddressRoutingType = routingType == null ? addressSettings.getDefaultAddressRoutingType() : routingType;
+         RoutingType effectiveAddressRoutingType = Objects.requireNonNullElse(routingType, addressSettings.getDefaultAddressRoutingType());
          ServerSession session = getSession().getCoreSession();
          /*
           * If the address doesn't exist then it is created if possible.

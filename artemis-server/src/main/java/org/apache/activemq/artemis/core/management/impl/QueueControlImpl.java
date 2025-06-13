@@ -67,6 +67,7 @@ import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.Objects;
 
 public class QueueControlImpl extends AbstractControl implements QueueControl {
 
@@ -1049,8 +1050,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          AuditLogger.countMessages(queue, filterStr);
       }
 
-      Long value = internalCountMessages(filterStr, null).get(null);
-      return value == null ? 0 : value;
+      return Objects.requireNonNullElse(internalCountMessages(filterStr, null).get(null), 0L);
    }
 
    @Override
@@ -1117,8 +1117,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          AuditLogger.countDeliveringMessages(queue, filterStr);
       }
 
-      Long value = internalCountDeliveryMessages(filterStr, null).get(null);
-      return value == null ? 0 : value;
+      return Objects.requireNonNullElse(internalCountDeliveryMessages(filterStr, null).get(null), 0L);
    }
 
    @Override

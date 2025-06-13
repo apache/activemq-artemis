@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.management.impl.view;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -52,8 +53,7 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
       List<ServerSession> sessions = server.getSessions(connection.getID().toString());
       Set<String> users = new TreeSet<>();
       for (ServerSession session : sessions) {
-         String username = session.getUsername() == null ? "" : session.getUsername();
-         users.add(username);
+         users.add(Objects.requireNonNullElse(session.getUsername(), ""));
       }
 
       return JsonLoader.createObjectBuilder()
@@ -81,8 +81,7 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
             Set<String> users = new TreeSet<>();
             List<ServerSession> sessions = server.getSessions(connection.getID().toString());
             for (ServerSession session : sessions) {
-               String username = session.getUsername() == null ? "" : session.getUsername();
-               users.add(username);
+               users.add(Objects.requireNonNullElse(session.getUsername(), ""));
             }
             return StringUtil.joinStringList(users, ",");
          case CREATION_TIME:

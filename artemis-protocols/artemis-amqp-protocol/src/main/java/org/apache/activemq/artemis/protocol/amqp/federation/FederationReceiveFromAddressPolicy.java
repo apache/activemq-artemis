@@ -70,8 +70,8 @@ public class FederationReceiveFromAddressPolicy implements FederationReceiveFrom
       this.maxHops = maxHops;
       this.enableDivertBindings = enableDivertBindings;
       this.transformerConfig = transformerConfig;
-      this.includes = Collections.unmodifiableCollection(includeAddresses == null ? Collections.emptyList() : includeAddresses);
-      this.excludes = Collections.unmodifiableCollection(excludeAddresses == null ? Collections.emptyList() : excludeAddresses);
+      this.includes = Collections.unmodifiableCollection(Objects.requireNonNullElse(includeAddresses, Collections.emptyList()));
+      this.excludes = Collections.unmodifiableCollection(Objects.requireNonNullElse(excludeAddresses, Collections.emptyList()));
 
       if (properties == null || properties.isEmpty()) {
          this.properties = Collections.emptyMap();

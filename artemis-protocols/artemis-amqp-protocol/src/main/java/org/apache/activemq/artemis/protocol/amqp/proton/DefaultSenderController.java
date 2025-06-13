@@ -284,8 +284,7 @@ public class DefaultSenderController implements SenderController {
             // Set this to the broker configured default for the address prior to the lookup so that
             // an auto create will actually use the configured defaults.  The actual query result will
             // contain the true answer on what routing type the address actually has though.
-            final RoutingType routingType = sessionSPI.getDefaultRoutingType(addressToUse);
-            routingTypeToUse = routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType;
+            routingTypeToUse = Objects.requireNonNullElse(sessionSPI.getDefaultRoutingType(addressToUse), ActiveMQDefaultConfiguration.getDefaultRoutingType());
 
             try {
                addressQueryResult = sessionSPI.addressQuery(addressToUse, routingTypeToUse, true);

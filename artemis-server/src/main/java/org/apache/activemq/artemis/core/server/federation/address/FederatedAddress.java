@@ -295,9 +295,9 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
                                       .setRoutingType(key.getRoutingType())
                                       .setFilterString(key.getQueueFilterString())
                                       .setDurable(true)
-                                      .setAutoDelete(config.getAutoDelete() == null ? true : config.getAutoDelete())
-                                      .setAutoDeleteDelay(config.getAutoDeleteDelay() == null ? TimeUnit.HOURS.toMillis(1) : config.getAutoDeleteDelay())
-                                      .setAutoDeleteMessageCount(config.getAutoDeleteMessageCount() == null ? -1 : config.getAutoDeleteMessageCount())
+                                      .setAutoDelete(Objects.requireNonNullElse(config.getAutoDelete(), true))
+                                      .setAutoDeleteDelay(Objects.requireNonNullElse(config.getAutoDeleteDelay(), TimeUnit.HOURS.toMillis(1)))
+                                      .setAutoDeleteMessageCount(Objects.requireNonNullElse(config.getAutoDeleteMessageCount(), -1L))
                                       .setMaxConsumers(-1)
                                       .setPurgeOnNoConsumers(false)
                                       .setAutoCreated(false));

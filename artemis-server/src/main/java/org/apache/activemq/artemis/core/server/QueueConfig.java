@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -373,7 +375,7 @@ public final class QueueConfig {
    }
 
    public static QueueConfig fromQueueConfiguration(QueueConfiguration queueConfiguration) throws ActiveMQException {
-      return new QueueConfig(queueConfiguration.getId() == null ? 0 : queueConfiguration.getId(),
+      return new QueueConfig(Objects.requireNonNullElse(queueConfiguration.getId(), 0L),
                              queueConfiguration.getAddress(),
                              queueConfiguration.getName(),
                              queueConfiguration.getFilterString() == null ? null : FilterImpl.createFilter(queueConfiguration.getFilterString()),

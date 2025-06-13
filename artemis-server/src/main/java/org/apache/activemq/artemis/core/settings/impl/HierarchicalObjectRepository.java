@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -119,7 +120,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
    }
 
    public HierarchicalObjectRepository(final WildcardConfiguration wildcardConfiguration, final MatchModifier matchModifier, final String literalMatchMarkers) {
-      this.wildcardConfiguration = wildcardConfiguration == null ? DEFAULT_WILDCARD_CONFIGURATION : wildcardConfiguration;
+      this.wildcardConfiguration = Objects.requireNonNullElse(wildcardConfiguration, DEFAULT_WILDCARD_CONFIGURATION);
       this.matchComparator = new MatchComparator(this.wildcardConfiguration);
       this.matchModifier = matchModifier;
       if (literalMatchMarkers != null) {

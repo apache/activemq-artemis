@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
@@ -363,7 +364,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          return configuration.getBrokerPlugins().stream()
-            .map(brokerPlugin -> brokerPlugin.getClass().getCanonicalName() != null ? brokerPlugin.getClass().getCanonicalName() : brokerPlugin.getClass().getName())
+            .map(brokerPlugin -> Objects.requireNonNullElse(brokerPlugin.getClass().getCanonicalName(), brokerPlugin.getClass().getName()))
             .toArray(String[]::new);
       } finally {
          blockOnIO();
@@ -3504,8 +3505,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
 
       AddressSettings addressSettings = new AddressSettings();
-      addressSettings.setDeadLetterAddress(DLA == null ? null : SimpleString.of(DLA));
-      addressSettings.setExpiryAddress(expiryAddress == null ? null : SimpleString.of(expiryAddress));
+      addressSettings.setDeadLetterAddress(SimpleString.of(DLA));
+      addressSettings.setExpiryAddress(SimpleString.of(expiryAddress));
       addressSettings.setExpiryDelay(expiryDelay);
       addressSettings.setMinExpiryDelay(minExpiryDelay);
       addressSettings.setMaxExpiryDelay(maxExpiryDelay);
@@ -3617,7 +3618,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         postOffice.sendQueueInfoToQueue(SimpleString.of(queueName), SimpleString.of(address == null ? "" : address));
+         postOffice.sendQueueInfoToQueue(SimpleString.of(queueName), SimpleString.of(Objects.requireNonNullElse(address, "")));
 
          GroupingHandler handler = server.getGroupingHandler();
          if (handler != null) {

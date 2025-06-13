@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -62,7 +63,7 @@ public class RoutingTestBase extends ClusterTestBase {
    protected TransportConfiguration getDefaultServerConnector(final int node) {
       Map<String, TransportConfiguration> connectorConfigurations = getServer(node).getConfiguration().getConnectorConfigurations();
       TransportConfiguration connector = connectorConfigurations.get(DEFAULT_CONNECTOR_NAME);
-      return connector != null ? connector : connectorConfigurations.values().stream().findFirst().get();
+      return Objects.requireNonNullElseGet(connector, () -> connectorConfigurations.values().stream().findFirst().get());
    }
 
    protected TransportConfiguration setupDefaultServerConnector(final int node) {

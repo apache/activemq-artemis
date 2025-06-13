@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -584,14 +585,14 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
                   logger.warn(e.getMessage(), e);
                   ErrorCondition error = new ErrorCondition();
                   error.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
-                  error.setDescription(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
+                  error.setDescription(Objects.requireNonNullElse(e.getMessage(), e.getClass().getSimpleName()));
                   connection.setCondition(error);
                   connection.close();
                } catch (Exception e) {
                   logger.warn(e.getMessage(), e);
                   ErrorCondition error = new ErrorCondition();
                   error.setCondition(AmqpError.INTERNAL_ERROR);
-                  error.setDescription("Unrecoverable error: " + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
+                  error.setDescription("Unrecoverable error: " + (Objects.requireNonNullElse(e.getMessage(), e.getClass().getSimpleName())));
                   connection.setCondition(error);
                   connection.close();
                }
@@ -622,7 +623,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       logger.warn(e.getMessage(), e);
       ErrorCondition error = new ErrorCondition();
       error.setCondition(AmqpError.INTERNAL_ERROR);
-      error.setDescription("Unrecoverable error: " + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
+      error.setDescription("Unrecoverable error: " + (Objects.requireNonNullElse(e.getMessage(), e.getClass().getSimpleName())));
       connection.setCondition(error);
       connection.close();
       flush();

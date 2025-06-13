@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.Objects;
 
 public class MessageOpenTypeFactory<M extends Message> {
 
@@ -132,7 +133,7 @@ public class MessageOpenTypeFactory<M extends Message> {
       } else {
          rc.put(CompositeDataConstants.USER_ID, "");
       }
-      rc.put(CompositeDataConstants.ADDRESS, m.getAddress() == null ? "" : m.getAddress());
+      rc.put(CompositeDataConstants.ADDRESS, Objects.requireNonNullElse(m.getAddress(), ""));
       rc.put(CompositeDataConstants.DURABLE, m.isDurable());
       rc.put(CompositeDataConstants.EXPIRATION, m.getExpiration());
       rc.put(CompositeDataConstants.TIMESTAMP, m.getTimestamp());

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.api.core;
 
 import java.io.InputStream;
 import java.util.Map;
+import java.util.Objects;
 
 import io.netty.buffer.ByteBuf;
 import org.apache.activemq.artemis.core.message.LargeBodyReader;
@@ -106,7 +107,7 @@ public interface ICoreMessage extends Message {
          map.put("userID", "ID:" + userID.toString());
       }
 
-      map.put("address", getAddress() == null ? "" : getAddress());
+      map.put("address", Objects.requireNonNullElse(getAddress(), ""));
       map.put("type", getType());
       map.put("durable", isDurable());
       map.put("expiration", getExpiration());

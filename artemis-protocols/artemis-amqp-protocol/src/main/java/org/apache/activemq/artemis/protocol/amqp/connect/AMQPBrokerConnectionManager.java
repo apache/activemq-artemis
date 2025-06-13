@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
@@ -103,8 +104,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
     * @param configurations A list of broker connection configurations after a broker configuration update.
     */
    public void updateConfiguration(List<AMQPBrokerConnectConfiguration> configurations) throws Exception {
-      final List<AMQPBrokerConnectConfiguration> updatedConfigurations =
-         configurations != null ? configurations : Collections.emptyList();
+      final List<AMQPBrokerConnectConfiguration> updatedConfigurations = Objects.requireNonNullElse(configurations, Collections.emptyList());
 
       // We want to shutdown all broker connections before starting any new ones just to ensure
       // we do not have any overlapping connections to the same broker from old to new configurations.

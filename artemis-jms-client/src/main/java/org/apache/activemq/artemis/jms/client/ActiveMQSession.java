@@ -1055,8 +1055,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    }
 
    private ClientConsumer createClientConsumer(ActiveMQDestination destination, SimpleString queueName, SimpleString coreFilterString) throws ActiveMQException {
-      QueueAttributes queueAttributes = destination.getQueueAttributes() == null ? new QueueAttributes() : destination.getQueueAttributes();
-      int priority = queueAttributes.getConsumerPriority() == null ? ActiveMQDefaultConfiguration.getDefaultConsumerPriority() : queueAttributes.getConsumerPriority();
+      QueueAttributes queueAttributes = Objects.requireNonNullElseGet(destination.getQueueAttributes(), () -> new QueueAttributes());
+      int priority = Objects.requireNonNullElse(queueAttributes.getConsumerPriority(), ActiveMQDefaultConfiguration.getDefaultConsumerPriority());
       return session.createConsumer(queueName == null ? destination.getSimpleAddress() : queueName, coreFilterString, priority, false);
    }
 
@@ -1418,19 +1418,19 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    }
 
    void createTemporaryQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, ClientSession.AddressQuery addressQuery) throws ActiveMQException {
-      QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? QueueConfiguration.of(queueName) : destination.getQueueConfiguration();
+      QueueConfiguration queueConfiguration = Objects.requireNonNullElse(destination.getQueueConfiguration(), QueueConfiguration.of(queueName));
       AutoCreateUtil.setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, false);
       session.createQueue(queueConfiguration.setName(queueName).setAddress(destination.getAddress()).setDurable(false).setTemporary(true));
    }
 
    void createSharedQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable, ClientSession.AddressQuery addressQuery) throws ActiveMQException {
-      QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? QueueConfiguration.of(queueName) : destination.getQueueConfiguration();
+      QueueConfiguration queueConfiguration = Objects.requireNonNullElseGet(destination.getQueueConfiguration(), () -> QueueConfiguration.of(queueName));
       AutoCreateUtil.setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, durable);
       session.createSharedQueue(queueConfiguration.setName(queueName).setAddress(destination.getAddress()).setDurable(durable));
    }
 
    void createQueue(ActiveMQDestination destination, RoutingType routingType, SimpleString queueName, SimpleString filter, boolean durable, boolean autoCreated, ClientSession.AddressQuery addressQuery) throws ActiveMQException {
-      QueueConfiguration queueConfiguration = destination.getQueueConfiguration() == null ? QueueConfiguration.of(queueName) : destination.getQueueConfiguration();
+      QueueConfiguration queueConfiguration = Objects.requireNonNullElseGet(destination.getQueueConfiguration(), () -> QueueConfiguration.of(queueName));
       AutoCreateUtil.setRequiredQueueConfigurationIfNotSet(queueConfiguration, addressQuery, routingType, filter, durable);
       session.createQueue(queueConfiguration.setName(queueName).setAddress(destination.getAddress()).setAutoCreated(autoCreated).setDurable(durable));
    }

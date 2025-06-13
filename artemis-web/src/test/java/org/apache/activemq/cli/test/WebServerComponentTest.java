@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -635,7 +636,7 @@ public class WebServerComponentTest extends ArtemisTestCase {
    }
 
    private int testSimpleSecureServer(String webServerHostname, int webServerPort, String requestHostname, String sniHostname, HostnameVerifier hostnameVerifier) throws Exception {
-      HttpGet request = new HttpGet("https://" + (requestHostname != null ? requestHostname : webServerHostname) + ":" + webServerPort + "/WebServerComponentTest.txt");
+      HttpGet request = new HttpGet("https://" + (Objects.requireNonNullElse(requestHostname, webServerHostname)) + ":" + webServerPort + "/WebServerComponentTest.txt");
 
       HttpHost webServerHost = HttpHost.create("https://" + webServerHostname + ":" + webServerPort);
       SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, (certificate, authType) -> true).build();

@@ -21,6 +21,7 @@ import static org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVER
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -105,7 +106,7 @@ public class StompUtils {
                                                             StompFrame command,
                                                             int deliveryCount) {
       SimpleString prefix = message.getSimpleStringProperty(Message.HDR_PREFIX);
-      command.addHeader(Stomp.Headers.Message.DESTINATION,  (prefix == null ? "" : prefix) + message.getAddress());
+      command.addHeader(Stomp.Headers.Message.DESTINATION, Objects.requireNonNullElse(prefix, "") + message.getAddress());
 
       if (message.getObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME) != null) {
          command.addHeader(Stomp.Headers.Message.CORRELATION_ID, message.getObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME).toString());

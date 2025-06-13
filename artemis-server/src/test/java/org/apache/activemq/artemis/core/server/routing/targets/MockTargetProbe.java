@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server.routing.targets;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MockTargetProbe extends TargetProbe {
@@ -39,8 +40,7 @@ public class MockTargetProbe extends TargetProbe {
    }
 
    public int getTargetExecutions(Target target) {
-      Integer executions = targetExecutions.get(target);
-      return executions != null ? executions : 0;
+      return Objects.requireNonNullElse(targetExecutions.get(target), 0);
    }
 
    public int setTargetExecutions(Target target, int executions) {

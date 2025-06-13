@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server.plugin.impl;
 
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -44,7 +45,6 @@ import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * plugin to log various events within the broker, configured with the following booleans:
@@ -536,7 +536,7 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
          Queue queue = (ref == null ? null : ref.getQueue());
 
          LoggingActiveMQServerPluginLogger.LOGGER.messageAcknowledgedDetails((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
-                                                                             (consumer == null ? UNAVAILABLE : consumer.getSessionID() != null ? consumer.getSessionID() : null),
+                                                                             (consumer == null ? UNAVAILABLE : consumer.getSessionID()),
                                                                              (consumer == null ? UNAVAILABLE : Long.toString(consumer.getID())),
                                                                              (queue == null ? UNAVAILABLE : queue.getName().toString()),
                                                                              (tx == null ? UNAVAILABLE : tx.toString()),
