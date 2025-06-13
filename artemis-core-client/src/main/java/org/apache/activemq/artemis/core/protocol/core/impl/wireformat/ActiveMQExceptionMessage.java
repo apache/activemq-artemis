@@ -68,10 +68,7 @@ public class ActiveMQExceptionMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((exception == null) ? 0 : exception.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(exception);
    }
 
    @Override

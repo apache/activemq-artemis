@@ -633,32 +633,10 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
    @Override
    public int hashCode() {
-      int result = super.hashCode();
-      result = 31 * result + (strConnectorClassName != null ? strConnectorClassName.hashCode() : 0);
-      result = 31 * result + (strConnectionParameters != null ? strConnectionParameters.hashCode() : 0);
-      result = 31 * result + (ra != null ? ra.hashCode() : 0);
-      result = 31 * result + (connectionFactoryLookup != null ? connectionFactoryLookup.hashCode() : 0);
-      result = 31 * result + (destination != null ? destination.hashCode() : 0);
-      result = 31 * result + (destinationType != null ? destinationType.hashCode() : 0);
-      result = 31 * result + (messageSelector != null ? messageSelector.hashCode() : 0);
-      result = 31 * result + acknowledgeMode;
-      result = 31 * result + (subscriptionDurability ? 1 : 0);
-      result = 31 * result + (subscriptionName != null ? subscriptionName.hashCode() : 0);
-      result = 31 * result + (shareSubscriptions != null && shareSubscriptions ? 1 : 0);
-      result = 31 * result + (user != null ? user.hashCode() : 0);
-      result = 31 * result + (password != null ? password.hashCode() : 0);
-      result = 31 * result + (maxSession != null ? maxSession.hashCode() : 0);
-      result = 31 * result + (singleConnection != null ? singleConnection.hashCode() : 0);
-      result = 31 * result + (transactionTimeout != null ? transactionTimeout.hashCode() : 0);
-      result = 31 * result + (useJNDI != null ? useJNDI.hashCode() : 0);
-      result = 31 * result + (jndiParams != null ? jndiParams.hashCode() : 0);
-      result = 31 * result + (parsedJndiParams != null ? parsedJndiParams.hashCode() : 0);
-      result = 31 * result + (localTx != null ? localTx.hashCode() : 0);
-      result = 31 * result + (rebalanceConnections != null ? rebalanceConnections.hashCode() : 0);
-      result = 31 * result + (setupAttempts != null ? setupAttempts.hashCode() : 0);
-      result = 31 * result + (setupInterval != null ? setupInterval.hashCode() : 0);
-      result = 31 * result + (queuePrefix != null ? queuePrefix.hashCode() : 0);
-      result = 31 * result + (topicPrefix != null ? topicPrefix.hashCode() : 0);
-      return result;
+      return Objects.hash(super.hashCode(), strConnectorClassName, strConnectionParameters, ra, connectionFactoryLookup,
+                          destination, destinationType, messageSelector, acknowledgeMode, subscriptionDurability,
+                          subscriptionName, shareSubscriptions, user, password, maxSession, singleConnection,
+                          transactionTimeout, useJNDI, jndiParams, parsedJndiParams, localTx, rebalanceConnections,
+                          setupAttempts, setupInterval, queuePrefix, topicPrefix);
    }
 }

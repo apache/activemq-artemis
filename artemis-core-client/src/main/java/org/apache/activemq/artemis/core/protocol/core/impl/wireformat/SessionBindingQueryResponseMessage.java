@@ -80,11 +80,7 @@ public class SessionBindingQueryResponseMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (exists ? 1231 : 1237);
-      result = prime * result + ((queueNames == null) ? 0 : queueNames.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), exists, queueNames);
    }
 
    @Override

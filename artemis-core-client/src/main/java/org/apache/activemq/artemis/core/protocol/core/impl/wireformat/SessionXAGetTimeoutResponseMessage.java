@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -54,10 +56,7 @@ public class SessionXAGetTimeoutResponseMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + timeoutSeconds;
-      return result;
+      return super.hashCode() + Objects.hashCode(timeoutSeconds);
    }
 
    @Override

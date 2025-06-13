@@ -2880,79 +2880,25 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((acceptorConfigs == null) ? 0 : acceptorConfigs.hashCode());
-      result = prime * result + ((addressSettings == null) ? 0 : addressSettings.hashCode());
-      result = prime * result + (asyncConnectionExecutionEnabled ? 1231 : 1237);
-      result = prime * result + ((bindingsDirectory == null) ? 0 : bindingsDirectory.hashCode());
-      result = prime * result + ((bridgeConfigurations == null) ? 0 : bridgeConfigurations.hashCode());
-      result = prime * result + ((broadcastGroupConfigurations == null) ? 0 : broadcastGroupConfigurations.hashCode());
-      result = prime * result + ((clusterConfigurations == null) ? 0 : clusterConfigurations.hashCode());
-      result = prime * result + ((clusterPassword == null) ? 0 : clusterPassword.hashCode());
-      result = prime * result + ((clusterUser == null) ? 0 : clusterUser.hashCode());
-      result = prime * result + (int) (connectionTTLOverride ^ (connectionTTLOverride >>> 32));
-      result = prime * result + ((connectorConfigs == null) ? 0 : connectorConfigs.hashCode());
-      result = prime * result + ((connectorServiceConfigurations == null) ? 0 : connectorServiceConfigurations.hashCode());
-      result = prime * result + (createBindingsDir ? 1231 : 1237);
-      result = prime * result + (createJournalDir ? 1231 : 1237);
-      result = prime * result + ((discoveryGroupConfigurations == null) ? 0 : discoveryGroupConfigurations.hashCode());
-      result = prime * result + ((divertConfigurations == null) ? 0 : divertConfigurations.hashCode());
-      result = prime * result + (failoverOnServerShutdown ? 1231 : 1237);
-      result = prime * result + (int) (fileDeploymentScanPeriod ^ (fileDeploymentScanPeriod >>> 32));
-      result = prime * result + ((groupingHandlerConfiguration == null) ? 0 : groupingHandlerConfiguration.hashCode());
-      result = prime * result + idCacheSize;
-      result = prime * result + ((incomingInterceptorClassNames == null) ? 0 : incomingInterceptorClassNames.hashCode());
-      result = prime * result + ((jmxDomain == null) ? 0 : jmxDomain.hashCode());
-      result = prime * result + (jmxManagementEnabled ? 1231 : 1237);
-      result = prime * result + journalBufferSize_AIO;
-      result = prime * result + journalBufferSize_NIO;
-      result = prime * result + journalBufferTimeout_AIO;
-      result = prime * result + journalBufferTimeout_NIO;
-      result = prime * result + journalCompactMinFiles;
-      result = prime * result + journalCompactPercentage;
-      result = prime * result + ((journalDirectory == null) ? 0 : journalDirectory.hashCode());
-      result = prime * result + journalFileSize;
-      result = prime * result + journalMaxIO_AIO;
-      result = prime * result + journalMaxIO_NIO;
-      result = prime * result + journalMinFiles;
-      result = prime * result + (journalSyncNonTransactional ? 1231 : 1237);
-      result = prime * result + (journalSyncTransactional ? 1231 : 1237);
-      result = prime * result + ((journalType == null) ? 0 : journalType.hashCode());
-      result = prime * result + ((largeMessagesDirectory == null) ? 0 : largeMessagesDirectory.hashCode());
-      result = prime * result + (logJournalWriteRate ? 1231 : 1237);
-      result = prime * result + ((managementAddress == null) ? 0 : managementAddress.hashCode());
-      result = prime * result + ((managementNotificationAddress == null) ? 0 : managementNotificationAddress.hashCode());
-      result = prime * result + (maskPassword == null ? 0 : maskPassword.hashCode());
-      result = prime * result + maxConcurrentPageIO;
-      result = prime * result + (int) (memoryMeasureInterval ^ (memoryMeasureInterval >>> 32));
-      result = prime * result + memoryWarningThreshold;
-      result = prime * result + (messageCounterEnabled ? 1231 : 1237);
-      result = prime * result + messageCounterMaxDayHistory;
-      result = prime * result + (int) (messageCounterSamplePeriod ^ (messageCounterSamplePeriod >>> 32));
-      result = prime * result + (int) (messageExpiryScanPeriod ^ (messageExpiryScanPeriod >>> 32));
-      result = prime * result + messageExpiryThreadPriority;
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + ((outgoingInterceptorClassNames == null) ? 0 : outgoingInterceptorClassNames.hashCode());
-      result = prime * result + ((pagingDirectory == null) ? 0 : pagingDirectory.hashCode());
-      result = prime * result + (persistDeliveryCountBeforeDelivery ? 1231 : 1237);
-      result = prime * result + (persistIDCache ? 1231 : 1237);
-      result = prime * result + (persistenceEnabled ? 1231 : 1237);
-//      result = prime * result + ((queueConfigurations == null) ? 0 : queueConfigurations.hashCode());
-      result = prime * result + scheduledThreadPoolMaxSize;
-      result = prime * result + (securityEnabled ? 1231 : 1237);
-      result = prime * result + (populateValidatedUser ? 1231 : 1237);
-      result = prime * result + (int) (securityInvalidationInterval ^ (securityInvalidationInterval >>> 32));
-      result = prime * result + ((securitySettings == null) ? 0 : securitySettings.hashCode());
-      result = prime * result + (int) (serverDumpInterval ^ (serverDumpInterval >>> 32));
-      result = prime * result + threadPoolMaxSize;
-      result = prime * result + (int) (transactionTimeout ^ (transactionTimeout >>> 32));
-      result = prime * result + (int) (transactionTimeoutScanPeriod ^ (transactionTimeoutScanPeriod >>> 32));
-      result = prime * result + ((wildcardConfiguration == null) ? 0 : wildcardConfiguration.hashCode());
-      result = prime * result + (resolveProtocols ? 1231 : 1237);
-      result = prime * result + (int) (journalLockAcquisitionTimeout ^ (journalLockAcquisitionTimeout >>> 32));
-      result = prime * result + (int) (connectionTtlCheckInterval ^ (connectionTtlCheckInterval >>> 32));
-      return result;
+      return Objects.hash(acceptorConfigs, addressSettings, asyncConnectionExecutionEnabled, bindingsDirectory,
+                          bridgeConfigurations, broadcastGroupConfigurations, clusterConfigurations, clusterPassword,
+                          clusterUser, connectionTTLOverride, connectorConfigs, connectorServiceConfigurations,
+                          createBindingsDir, createJournalDir, discoveryGroupConfigurations, divertConfigurations,
+                          failoverOnServerShutdown, fileDeploymentScanPeriod, groupingHandlerConfiguration, idCacheSize,
+                          incomingInterceptorClassNames, jmxDomain, jmxManagementEnabled, journalBufferSize_AIO,
+                          journalBufferSize_NIO, journalBufferTimeout_AIO, journalBufferTimeout_NIO,
+                          journalCompactMinFiles, journalCompactPercentage, journalDirectory, journalFileSize,
+                          journalMaxIO_AIO, journalMaxIO_NIO, journalMinFiles, journalSyncNonTransactional,
+                          journalSyncTransactional, journalType, largeMessagesDirectory, logJournalWriteRate,
+                          managementAddress, managementNotificationAddress, maskPassword, maxConcurrentPageIO,
+                          memoryMeasureInterval, memoryWarningThreshold, messageCounterEnabled,
+                          messageCounterMaxDayHistory, messageCounterSamplePeriod, messageExpiryScanPeriod,
+                          messageExpiryThreadPriority, name, outgoingInterceptorClassNames, pagingDirectory,
+                          persistDeliveryCountBeforeDelivery, persistIDCache, persistenceEnabled,
+                          scheduledThreadPoolMaxSize, securityEnabled, populateValidatedUser,
+                          securityInvalidationInterval, securitySettings, serverDumpInterval, threadPoolMaxSize,
+                          transactionTimeout, transactionTimeoutScanPeriod, wildcardConfiguration, resolveProtocols,
+                          journalLockAcquisitionTimeout, connectionTtlCheckInterval);
    }
 
    @Override

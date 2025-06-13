@@ -78,10 +78,7 @@ public class SessionXAGetInDoubtXidsResponseMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((xids == null) ? 0 : xids.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(xids);
    }
 
    @Override

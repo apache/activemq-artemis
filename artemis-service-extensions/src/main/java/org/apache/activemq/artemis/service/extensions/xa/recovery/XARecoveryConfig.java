@@ -205,11 +205,7 @@ public class XARecoveryConfig {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((discoveryConfiguration == null) ? 0 : discoveryConfiguration.hashCode());
-      result = prime * result + Arrays.hashCode(transportConfiguration);
-      return result;
+      return Objects.hash(discoveryConfiguration, Arrays.hashCode(transportConfiguration));
    }
 
    /*

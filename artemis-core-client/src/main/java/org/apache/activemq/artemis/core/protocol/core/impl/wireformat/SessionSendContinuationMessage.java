@@ -123,12 +123,7 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((message == null) ? 0 : message.hashCode());
-      result = prime * result + (int) (messageBodySize ^ (messageBodySize >>> 32));
-      result = prime * result + (requiresResponse ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), message, messageBodySize, requiresResponse);
    }
 
    @Override

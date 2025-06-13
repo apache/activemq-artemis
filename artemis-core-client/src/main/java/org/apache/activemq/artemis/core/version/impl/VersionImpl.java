@@ -103,15 +103,8 @@ public class VersionImpl implements Version, Serializable {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + Arrays.hashCode(compatibleVersionList);
-      result = prime * result + incrementingVersion;
-      result = prime * result + majorVersion;
-      result = prime * result + microVersion;
-      result = prime * result + minorVersion;
-      result = prime * result + ((versionName == null) ? 0 : versionName.hashCode());
-      return result;
+      return Objects.hash(Arrays.hashCode(compatibleVersionList), incrementingVersion, majorVersion, microVersion,
+                          minorVersion, versionName);
    }
 
    @Override

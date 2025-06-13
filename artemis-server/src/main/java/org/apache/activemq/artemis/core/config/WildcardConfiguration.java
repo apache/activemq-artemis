@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class WildcardConfiguration implements Serializable {
 
@@ -65,11 +66,7 @@ public class WildcardConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      int result = (routingEnabled ? 1 : 0);
-      result = 31 * result + singleWord;
-      result = 31 * result + anyWords;
-      result = 31 * result + delimiter;
-      return result;
+      return Objects.hash(routingEnabled, singleWord, anyWords, delimiter);
    }
 
    @Override

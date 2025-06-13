@@ -232,8 +232,9 @@ public final class AMQPBridgeAddressPolicyElement implements Serializable {
 
    @Override
    public int hashCode() {
-      return Objects.hash(name, includes, excludes, filter, priority, remoteAddress, remoteAddressPrefix, remoteAddressSuffix, includeDivertBindings, useDurableSubscriptions) +
-             Arrays.hashCode(remoteTerminusCapabilities);
+      return Objects.hash(name, includes, excludes, filter, priority, remoteAddress, remoteAddressPrefix,
+                          remoteAddressSuffix, includeDivertBindings, useDurableSubscriptions,
+                          Arrays.hashCode(remoteTerminusCapabilities));
    }
 
    // We are required to implement a named match type so that we can perform this configuration
@@ -281,7 +282,7 @@ public final class AMQPBridgeAddressPolicyElement implements Serializable {
 
       @Override
       public int hashCode() {
-         return Objects.hash(addressMatch, addressMatch);
+         return Objects.hashCode(addressMatch);
       }
    }
 }

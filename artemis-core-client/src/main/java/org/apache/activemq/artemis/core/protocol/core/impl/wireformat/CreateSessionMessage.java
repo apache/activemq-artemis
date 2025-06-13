@@ -197,21 +197,8 @@ public class CreateSessionMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (autoCommitAcks ? 1231 : 1237);
-      result = prime * result + (autoCommitSends ? 1231 : 1237);
-      result = prime * result + ((defaultAddress == null) ? 0 : defaultAddress.hashCode());
-      result = prime * result + minLargeMessageSize;
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + ((password == null) ? 0 : password.hashCode());
-      result = prime * result + (preAcknowledge ? 1231 : 1237);
-      result = prime * result + (int) (sessionChannelID ^ (sessionChannelID >>> 32));
-      result = prime * result + ((username == null) ? 0 : username.hashCode());
-      result = prime * result + version;
-      result = prime * result + windowSize;
-      result = prime * result + (xa ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), autoCommitAcks, autoCommitSends, defaultAddress, minLargeMessageSize, name,
+                          password, preAcknowledge, sessionChannelID, username, version, windowSize, xa);
    }
 
    @Override

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
 public class SubscribeClusterTopologyUpdatesMessageV2 extends SubscribeClusterTopologyUpdatesMessage {
@@ -50,10 +52,7 @@ public class SubscribeClusterTopologyUpdatesMessageV2 extends SubscribeClusterTo
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + clientVersion;
-      return result;
+      return super.hashCode() + Objects.hashCode(clientVersion);
    }
 
    @Override

@@ -69,11 +69,7 @@ public class SessionXAEndMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (failed ? 1231 : 1237);
-      result = prime * result + ((xid == null) ? 0 : xid.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), failed, xid);
    }
 
    @Override

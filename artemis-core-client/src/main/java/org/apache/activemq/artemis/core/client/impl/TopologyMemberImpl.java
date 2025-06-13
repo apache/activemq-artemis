@@ -176,11 +176,6 @@ public final class TopologyMemberImpl implements TopologyMember {
 
    @Override
    public int hashCode() {
-      // note the uniqueEventId is not park of the equals and hashmap key
-      int result = connector != null ? connector.hashCode() : 0;
-      result = 31 * result + (backupGroupName != null ? backupGroupName.hashCode() : 0);
-      result = 31 * result + (scaleDownGroupName != null ? scaleDownGroupName.hashCode() : 0);
-      result = 31 * result + (nodeId != null ? nodeId.hashCode() : 0);
-      return result;
+      return Objects.hash(connector, backupGroupName, scaleDownGroupName, nodeId);
    }
 }

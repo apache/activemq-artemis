@@ -45,10 +45,7 @@ public class SessionBindingQueryMessage extends QueueAbstractPacket {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((address == null) ? 0 : address.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(address);
    }
 
    @Override

@@ -214,10 +214,7 @@ public class LastValueQueue extends QueueImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((map == null) ? 0 : map.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(map);
    }
 
    @Override

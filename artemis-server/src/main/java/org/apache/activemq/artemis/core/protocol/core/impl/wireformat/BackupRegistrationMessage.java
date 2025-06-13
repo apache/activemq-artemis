@@ -87,13 +87,7 @@ public final class BackupRegistrationMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (backupWantsFailBack ? 1231 : 1237);
-      result = prime * result + ((clusterPassword == null) ? 0 : clusterPassword.hashCode());
-      result = prime * result + ((clusterUser == null) ? 0 : clusterUser.hashCode());
-      result = prime * result + ((connector == null) ? 0 : connector.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), backupWantsFailBack, clusterPassword, clusterUser, connector);
    }
 
    @Override

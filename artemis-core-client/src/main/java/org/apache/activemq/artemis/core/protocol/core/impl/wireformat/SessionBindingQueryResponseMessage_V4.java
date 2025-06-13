@@ -152,17 +152,9 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (defaultPurgeOnNoConsumers ? 1231 : 1237);
-      result = prime * result + defaultMaxConsumers;
-      result = prime * result + (defaultExclusive == null ? 0 : defaultExclusive ? 1231 : 1237);
-      result = prime * result + (defaultLastValue == null ? 0 : defaultLastValue ? 1231 : 1237);
-      result = prime * result + (defaultLastValueKey == null ? 0 : defaultLastValueKey.hashCode());
-      result = prime * result + (defaultNonDestructive == null ? 0 : defaultNonDestructive ? 1231 : 1237);
-      result = prime * result + (defaultConsumersBeforeDispatch == null ? 0 : defaultConsumersBeforeDispatch.hashCode());
-      result = prime * result + (defaultDelayBeforeDispatch == null ? 0 : defaultDelayBeforeDispatch.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), defaultPurgeOnNoConsumers, defaultMaxConsumers, defaultExclusive,
+                          defaultLastValue, defaultLastValueKey, defaultNonDestructive, defaultConsumersBeforeDispatch,
+                          defaultDelayBeforeDispatch);
    }
 
    @Override

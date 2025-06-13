@@ -160,16 +160,7 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
    @Override
    public int hashCode() {
       logger.trace("hashCode()");
-
-      int hash = 7;
-
-      hash += 31 * hash + (userName != null ? userName.hashCode() : 0);
-      hash += 31 * hash + (password != null ? password.hashCode() : 0);
-      hash += 31 * hash + Integer.valueOf(type).hashCode();
-      hash += 31 * hash + (transacted ? 1 : 0);
-      hash += 31 * hash + Integer.valueOf(acknowledgeMode).hashCode();
-
-      return hash;
+      return Objects.hash(userName, password, type, transacted, acknowledgeMode);
    }
 
    @Override

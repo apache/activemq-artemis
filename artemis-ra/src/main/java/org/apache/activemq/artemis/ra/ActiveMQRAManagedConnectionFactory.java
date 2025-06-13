@@ -228,11 +228,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    @Override
    public int hashCode() {
       logger.trace("hashCode()");
-
-      int hash = mcfProperties.hashCode();
-      hash += 31 * (ra != null ? ra.hashCode() : 0);
-
-      return hash;
+      return Objects.hash(mcfProperties, ra);
    }
 
    public String getSessionDefaultType() {

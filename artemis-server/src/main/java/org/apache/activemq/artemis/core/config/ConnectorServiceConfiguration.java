@@ -80,9 +80,6 @@ public class ConnectorServiceConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      int result = getConnectorName() != null ? getConnectorName().hashCode() : 0;
-      result = 31 * result + (getFactoryClassName() != null ? getFactoryClassName().hashCode() : 0);
-      result = 31 * result + (getParams() != null ? getParams().hashCode() : 0);
-      return result;
+      return Objects.hash(getConnectorName(), getFactoryClassName(), getParams());
    }
 }

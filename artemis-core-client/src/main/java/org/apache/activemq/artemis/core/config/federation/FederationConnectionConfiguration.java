@@ -230,8 +230,7 @@ public class FederationConnectionConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      return Objects
-          .hash(clientFailureCheckPeriod, connectionTTL, retryInterval, retryIntervalMultiplier,
+      return Objects.hash(clientFailureCheckPeriod, connectionTTL, retryInterval, retryIntervalMultiplier,
               maxRetryInterval, initialConnectAttempts, reconnectAttempts, callTimeout,
               callFailoverTimeout, isHA, discoveryGroupName, staticConnectors, priorityAdjustment,
               circuitBreakerTimeout, username, password, shareConnection);

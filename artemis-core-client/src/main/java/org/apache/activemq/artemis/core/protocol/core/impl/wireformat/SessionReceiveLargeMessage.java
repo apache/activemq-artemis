@@ -104,13 +104,7 @@ public class SessionReceiveLargeMessage extends PacketImpl implements MessagePac
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (int) (consumerID ^ (consumerID >>> 32));
-      result = prime * result + deliveryCount;
-      result = prime * result + (int) (largeMessageSize ^ (largeMessageSize >>> 32));
-      result = prime * result + ((message == null) ? 0 : message.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), consumerID, deliveryCount, largeMessageSize, message);
    }
 
    @Override

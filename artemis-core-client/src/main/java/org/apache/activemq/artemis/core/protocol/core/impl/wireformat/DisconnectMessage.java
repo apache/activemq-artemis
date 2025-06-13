@@ -70,10 +70,7 @@ public class DisconnectMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((nodeID == null) ? 0 : nodeID.hashCode());
-      return result;
+      return super.hashCode() + Objects.hashCode(nodeID);
    }
 
    @Override

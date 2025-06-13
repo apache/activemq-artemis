@@ -261,17 +261,8 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((address == null) ? 0 : address.hashCode());
-      result = prime * result + (exclusive ? 1231 : 1237);
-      result = prime * result + ((filterString == null) ? 0 : filterString.hashCode());
-      result = prime * result + ((forwardingAddress == null) ? 0 : forwardingAddress.hashCode());
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      result = prime * result + ((routingName == null) ? 0 : routingName.hashCode());
-      result = prime * result + ((transformerConfiguration == null) ? 0 : transformerConfiguration.hashCode());
-      result = prime * result + ((routingType == null) ? 0 : routingType.hashCode());
-      return result;
+      return Objects.hash(address, exclusive, filterString, forwardingAddress, name, routingName,
+                          transformerConfiguration, routingType);
    }
 
    @Override

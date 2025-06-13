@@ -166,11 +166,8 @@ public class AMQPBridgeBrokerConnectionElement extends AMQPBrokerConnectionEleme
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + Objects.hash(bridgeFromAddressPolicies, bridgeFromQueuePolicies, properties, bridgeToAddressPolicies, bridgeToQueuePolicies);
-
-      return result;
+      return Objects.hash(super.hashCode(), bridgeFromAddressPolicies, bridgeFromQueuePolicies, properties,
+                          bridgeToAddressPolicies, bridgeToQueuePolicies);
    }
 
    @Override

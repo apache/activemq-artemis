@@ -177,11 +177,7 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + Objects.hash(connectionElements, transportConfigurations);
-
-      return result;
+      return Objects.hash(super.hashCode(), connectionElements, transportConfigurations);
    }
 
    @Override

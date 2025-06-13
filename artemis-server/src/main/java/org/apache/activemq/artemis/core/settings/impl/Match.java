@@ -107,7 +107,7 @@ public class Match<T> {
 
    @Override
    public int hashCode() {
-      return match != null ? match.hashCode() : 0;
+      return Objects.hashCode(match);
    }
 
    /**

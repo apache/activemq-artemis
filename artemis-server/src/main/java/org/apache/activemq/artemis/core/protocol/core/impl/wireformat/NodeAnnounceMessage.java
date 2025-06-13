@@ -152,15 +152,8 @@ public class NodeAnnounceMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (backup ? 1231 : 1237);
-      result = prime * result + ((backupConnector == null) ? 0 : backupConnector.hashCode());
-      result = prime * result + ((connector == null) ? 0 : connector.hashCode());
-      result = prime * result + (int) (currentEventID ^ (currentEventID >>> 32));
-      result = prime * result + ((nodeID == null) ? 0 : nodeID.hashCode());
-      result = prime * result + ((scaleDownGroupName == null) ? 0 : scaleDownGroupName.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), backup, backupConnector, connector, currentEventID, nodeID,
+                          scaleDownGroupName);
    }
 
    @Override

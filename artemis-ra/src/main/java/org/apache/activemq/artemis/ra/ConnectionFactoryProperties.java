@@ -794,54 +794,17 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((ha == null) ? 0 : ha.hashCode());
-      result = prime * result + ((connectionLoadBalancingPolicyClassName == null) ? 0 : connectionLoadBalancingPolicyClassName.hashCode());
-      result = prime * result + ((jgroupsFile == null) ? 0 : jgroupsFile.hashCode());
-      result = prime * result + ((jgroupsChannelName == null) ? 0 : jgroupsChannelName.hashCode());
-      result = prime * result + ((discoveryAddress == null) ? 0 : discoveryAddress.hashCode());
-      result = prime * result + ((discoveryPort == null) ? 0 : discoveryPort.hashCode());
-      result = prime * result + ((discoveryLocalBindAddress == null) ? 0 : discoveryLocalBindAddress.hashCode());
-      result = prime * result + ((discoveryRefreshTimeout == null) ? 0 : discoveryRefreshTimeout.hashCode());
-      result = prime * result + ((discoveryInitialWaitTimeout == null) ? 0 : discoveryInitialWaitTimeout.hashCode());
-      result = prime * result + ((clientID == null) ? 0 : clientID.hashCode());
-      result = prime * result + ((dupsOKBatchSize == null) ? 0 : dupsOKBatchSize.hashCode());
-      result = prime * result + ((transactionBatchSize == null) ? 0 : transactionBatchSize.hashCode());
-      result = prime * result + ((clientFailureCheckPeriod == null) ? 0 : clientFailureCheckPeriod.hashCode());
-      result = prime * result + ((connectionTTL == null) ? 0 : connectionTTL.hashCode());
-      result = prime * result + ((cacheLargeMessagesClient == null) ? 0 : cacheLargeMessagesClient.hashCode());
-      result = prime * result + ((callTimeout == null) ? 0 : callTimeout.hashCode());
-      result = prime * result + ((callFailoverTimeout == null) ? 0 : callFailoverTimeout.hashCode());
-      result = prime * result + ((compressLargeMessage == null) ? 0 : compressLargeMessage.hashCode());
-      result = prime * result + ((consumerWindowSize == null) ? 0 : consumerWindowSize.hashCode());
-      result = prime * result + ((producerWindowSize == null) ? 0 : producerWindowSize.hashCode());
-      result = prime * result + ((protocolManagerFactoryStr == null) ? 0 : protocolManagerFactoryStr.hashCode());
-      result = prime * result + ((consumerMaxRate == null) ? 0 : consumerMaxRate.hashCode());
-      result = prime * result + ((confirmationWindowSize == null) ? 0 : confirmationWindowSize.hashCode());
-      result = prime * result + ((producerMaxRate == null) ? 0 : producerMaxRate.hashCode());
-      result = prime * result + ((minLargeMessageSize == null) ? 0 : minLargeMessageSize.hashCode());
-      result = prime * result + ((blockOnAcknowledge == null) ? 0 : blockOnAcknowledge.hashCode());
-      result = prime * result + ((blockOnNonDurableSend == null) ? 0 : blockOnNonDurableSend.hashCode());
-      result = prime * result + ((blockOnDurableSend == null) ? 0 : blockOnDurableSend.hashCode());
-      result = prime * result + ((autoGroup == null) ? 0 : autoGroup.hashCode());
-      result = prime * result + ((preAcknowledge == null) ? 0 : preAcknowledge.hashCode());
-      result = prime * result + ((initialConnectAttempts == null) ? 0 : initialConnectAttempts.hashCode());
-      result = prime * result + ((retryInterval == null) ? 0 : retryInterval.hashCode());
-      result = prime * result + ((retryIntervalMultiplier == null) ? 0 : retryIntervalMultiplier.hashCode());
-      result = prime * result + ((maxRetryInterval == null) ? 0 : maxRetryInterval.hashCode());
-      result = prime * result + ((reconnectAttempts == null) ? 0 : reconnectAttempts.hashCode());
-      result = prime * result + ((useGlobalPools == null) ? 0 : useGlobalPools.hashCode());
-      result = prime * result + ((initialMessagePacketSize == null) ? 0 : initialMessagePacketSize.hashCode());
-      result = prime * result + ((scheduledThreadPoolMaxSize == null) ? 0 : scheduledThreadPoolMaxSize.hashCode());
-      result = prime * result + ((threadPoolMaxSize == null) ? 0 : threadPoolMaxSize.hashCode());
-      result = prime * result + ((groupID == null) ? 0 : groupID.hashCode());
-      result = prime * result + ((connectorClassName == null) ? 0 : connectorClassName.hashCode());
-      result = prime * result + ((connectionParameters == null) ? 0 : connectionParameters.hashCode());
-      result = prime * result + ((deserializationDenyList == null) ? 0 : deserializationDenyList.hashCode());
-      result = prime * result + ((deserializationAllowList == null) ? 0 : deserializationAllowList.hashCode());
-      result = prime * result + ((enable1xPrefixes == null) ? 0 : enable1xPrefixes.hashCode());
-      result = prime * result + ((enableSharedClientID == null) ? 0 : enableSharedClientID.hashCode());
-      return result;
+      return Objects.hash(ha, connectionLoadBalancingPolicyClassName, jgroupsFile, jgroupsChannelName, discoveryAddress,
+                          discoveryPort, discoveryLocalBindAddress, discoveryRefreshTimeout,
+                          discoveryInitialWaitTimeout, clientID, dupsOKBatchSize, transactionBatchSize,
+                          clientFailureCheckPeriod, connectionTTL, cacheLargeMessagesClient, callTimeout,
+                          callFailoverTimeout, compressLargeMessage, consumerWindowSize, producerWindowSize,
+                          protocolManagerFactoryStr, consumerMaxRate, confirmationWindowSize, producerMaxRate,
+                          minLargeMessageSize, blockOnAcknowledge, blockOnNonDurableSend, blockOnDurableSend, autoGroup,
+                          preAcknowledge, initialConnectAttempts, retryInterval, retryIntervalMultiplier,
+                          maxRetryInterval, reconnectAttempts, useGlobalPools, initialMessagePacketSize,
+                          scheduledThreadPoolMaxSize, threadPoolMaxSize, groupID, connectorClassName,
+                          connectionParameters, deserializationDenyList, deserializationAllowList, enable1xPrefixes,
+                          enableSharedClientID);
    }
 }

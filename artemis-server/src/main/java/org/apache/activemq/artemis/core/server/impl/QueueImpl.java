@@ -4116,7 +4116,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       @Override
       public int hashCode() {
-         return Objects.hash(consumer);
+         return Objects.hashCode(consumer);
       }
 
       @Override

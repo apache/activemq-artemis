@@ -99,12 +99,7 @@ public class DisconnectMessage_V3 extends DisconnectMessage {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (reason.getType());
-      result = prime * result + ((targetNodeID == null) ? 0 : targetNodeID.hashCode());
-      result = prime * result + ((targetConnector == null) ? 0 : targetConnector.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), reason.getType(), targetNodeID, targetConnector);
    }
 
    @Override
