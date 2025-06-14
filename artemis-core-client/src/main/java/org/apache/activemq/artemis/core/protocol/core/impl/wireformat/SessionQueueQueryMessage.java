@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 
@@ -43,10 +45,7 @@ public class SessionQueueQueryMessage extends QueueAbstractPacket {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((queueName == null) ? 0 : queueName.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), queueName);
    }
 
    @Override

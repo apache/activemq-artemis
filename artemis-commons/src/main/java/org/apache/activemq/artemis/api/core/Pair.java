@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.api.core;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * A Pair is a holder for 2 objects.
@@ -45,10 +46,9 @@ public final class Pair<A, B> implements Serializable {
          if (a == null && b == null) {
             return super.hashCode();
          } else {
-            hash = (a == null ? 0 : a.hashCode()) + 37 * (b == null ? 0 : b.hashCode());
+            hash = Objects.hash(a, b);
          }
       }
-
       return hash;
    }
 

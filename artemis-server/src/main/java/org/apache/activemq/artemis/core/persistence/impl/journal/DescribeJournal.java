@@ -70,6 +70,8 @@ import org.apache.activemq.artemis.utils.XidCodecSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.Objects;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -813,10 +815,7 @@ public final class DescribeJournal {
 
       @Override
       public int hashCode() {
-         final int prime = 31;
-         int result = 1;
-         result = prime * result + ((refEncoding == null) ? 0 : refEncoding.hashCode());
-         return result;
+         return Objects.hash(refEncoding);
       }
 
       @Override

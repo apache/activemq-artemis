@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -213,10 +214,7 @@ public class LastValueQueue extends QueueImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((map == null) ? 0 : map.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), map);
    }
 
    @Override

@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 public class ConnectorServiceConfiguration implements Serializable {
 
@@ -84,9 +85,6 @@ public class ConnectorServiceConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      int result = getConnectorName() != null ? getConnectorName().hashCode() : 0;
-      result = 31 * result + (getFactoryClassName() != null ? getFactoryClassName().hashCode() : 0);
-      result = 31 * result + (getParams() != null ? getParams().hashCode() : 0);
-      return result;
+      return Objects.hash(getConnectorName(), getFactoryClassName(), getParams());
    }
 }

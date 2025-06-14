@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -78,12 +80,7 @@ public final class ReplicationCommitMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + journalID;
-      result = prime * result + (rollback ? 1231 : 1237);
-      result = prime * result + (int) (txId ^ (txId >>> 32));
-      return result;
+      return Objects.hash(super.hashCode(), journalID, rollback, txId);
    }
 
    @Override

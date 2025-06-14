@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor.impl;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 
 public class PagePositionImpl implements PagePosition {
@@ -86,11 +88,7 @@ public class PagePositionImpl implements PagePosition {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + messageNr;
-      result = prime * result + (int) (pageNr ^ (pageNr >>> 32));
-      return result;
+      return Objects.hash(messageNr, pageNr);
    }
 
    @Override

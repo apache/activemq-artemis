@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
@@ -76,11 +78,7 @@ public class ReplicationLargeMessageEndMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (isDelete ? 1231 : 1237);
-      result = prime * result + (int) (messageId ^ (messageId >>> 32));
-      return result;
+      return Objects.hash(super.hashCode(), isDelete, messageId);
    }
 
    @Override

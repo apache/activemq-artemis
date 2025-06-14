@@ -233,6 +233,7 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
 
    @Override
    public int hashCode() {
-      return Objects.hash(name, includes, excludes, autoDelete, autoDeleteDelay, autoDeleteMessageCount, maxHops, transformerRef);
+      return Objects.hash(name, includes, excludes, autoDelete, autoDeleteDelay, autoDeleteMessageCount, maxHops,
+                          transformerRef);
    }
 }

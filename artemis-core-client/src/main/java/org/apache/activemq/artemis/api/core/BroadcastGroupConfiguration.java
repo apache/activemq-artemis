@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.api.core;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 
@@ -78,13 +79,7 @@ public final class BroadcastGroupConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + (int) (broadcastPeriod ^ (broadcastPeriod >>> 32));
-      result = prime * result + ((connectorInfos == null) ? 0 : connectorInfos.hashCode());
-      result = prime * result + ((endpointFactory == null) ? 0 : endpointFactory.hashCode());
-      result = prime * result + ((name == null) ? 0 : name.hashCode());
-      return result;
+      return Objects.hash(broadcastPeriod, connectorInfos, endpointFactory, name);
    }
 
    @Override

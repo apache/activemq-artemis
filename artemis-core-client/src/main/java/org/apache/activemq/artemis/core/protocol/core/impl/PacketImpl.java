@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
+import java.util.Objects;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -449,14 +451,8 @@ public class PacketImpl implements Packet {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + (int) (channelID ^ (channelID >>> 32));
-      result = prime * result + size;
-      result = prime * result + type;
-      return result;
+      return Objects.hash(channelID, size, type);
    }
-
 
    @Override
    public boolean equals(Object obj) {

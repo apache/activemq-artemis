@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
@@ -62,10 +64,7 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((largeMessage == null) ? 0 : largeMessage.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), largeMessage);
    }
 
    @Override

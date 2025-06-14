@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import javax.transaction.xa.Xid;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
@@ -52,10 +54,7 @@ public class SessionXARollbackMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((xid == null) ? 0 : xid.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), xid);
    }
 
    @Override

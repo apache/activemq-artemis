@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.core.settings.impl;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -143,14 +144,7 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((match == null) ? 0 : match.hashCode());
-      result = prime * result + ((maxSessions == null) ? 0 : maxSessions.hashCode());
-      result = prime * result + ((maxQueues == null) ? 0 : maxQueues.hashCode());
-      //      result = prime * result + ((maxQueueSizeBytes == null) ? 0 : maxQueueSizeBytes.hashCode());
-      //      result = prime * result + ((queueNameRegex == null) ? 0 : queueNameRegex.hashCode());
-      return result;
+      return Objects.hash(match, maxSessions, maxQueues);
    }
 
    @Override

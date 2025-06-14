@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.settings.impl;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
@@ -109,7 +110,7 @@ public class Match<T> {
 
    @Override
    public int hashCode() {
-      return match != null ? match.hashCode() : 0;
+      return Objects.hash(match);
    }
 
    /**

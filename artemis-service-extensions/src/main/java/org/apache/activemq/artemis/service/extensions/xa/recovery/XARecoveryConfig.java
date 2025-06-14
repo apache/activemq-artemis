@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ServerLocatorConfig;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -204,11 +205,7 @@ public class XARecoveryConfig {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((discoveryConfiguration == null) ? 0 : discoveryConfiguration.hashCode());
-      result = prime * result + Arrays.hashCode(transportConfiguration);
-      return result;
+      return Objects.hash(discoveryConfiguration, Arrays.hashCode(transportConfiguration));
    }
 
    /*

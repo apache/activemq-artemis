@@ -245,7 +245,7 @@ public final class AMQPFederationAddressPolicyElement implements Serializable {
 
       @Override
       public int hashCode() {
-         return Objects.hash(addressMatch, addressMatch);
+         return Objects.hash(addressMatch);
       }
    }
 }

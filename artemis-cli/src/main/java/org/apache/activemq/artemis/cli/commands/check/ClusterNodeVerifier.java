@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -310,10 +311,7 @@ public class ClusterNodeVerifier implements AutoCloseable {
 
       @Override
       public int hashCode() {
-         int result = nodeID != null ? nodeID.hashCode() : 0;
-         result = 31 * result + (primary != null ? primary.hashCode() : 0);
-         result = 31 * result + (backup != null ? backup.hashCode() : 0);
-         return result;
+         return Objects.hash(nodeID, primary, backup);
       }
 
       @Override

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.transport.amqp.client;
 
+import java.util.Objects;
+
 import org.apache.qpid.proton.amqp.Binary;
 
 /**
@@ -65,10 +67,7 @@ public class AmqpTransactionId {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((txId == null) ? 0 : txId.hashCode());
-      return result;
+      return Objects.hash(txId);
    }
 
    @Override

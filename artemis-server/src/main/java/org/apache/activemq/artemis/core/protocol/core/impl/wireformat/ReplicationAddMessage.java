@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.persistence.Persister;
@@ -135,15 +136,8 @@ public final class ReplicationAddMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((encodingData == null) ? 0 : encodingData.hashCode());
-      result = prime * result + (int) (id ^ (id >>> 32));
-      result = prime * result + journalID;
-      result = prime * result + journalRecordType;
-      result = prime * result + ((operation == null) ? 0 : operation.hashCode());
-      result = prime * result + Arrays.hashCode(recordData);
-      return result;
+      return Objects.hash(super.hashCode(), encodingData, id, journalID, journalRecordType, operation,
+                          Arrays.hashCode(recordData));
    }
 
    @Override

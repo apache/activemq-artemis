@@ -152,12 +152,8 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result +
-         Objects.hash(addressFilter, durable, messageAcknowledgements, mirrorSNF, queueCreation, queueRemoval, sync);
-
-      return result;
+      return Objects.hash(super.hashCode(), addressFilter, durable, messageAcknowledgements, mirrorSNF, queueCreation,
+                          queueRemoval, sync);
    }
 
    @Override

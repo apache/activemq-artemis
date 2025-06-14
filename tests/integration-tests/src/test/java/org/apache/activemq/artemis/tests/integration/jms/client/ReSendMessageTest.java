@@ -33,6 +33,7 @@ import javax.jms.TextMessage;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -185,10 +186,7 @@ public class ReSendMessageTest extends JMSTestBase {
 
       @Override
       public int hashCode() {
-         final int prime = 31;
-         int result = 1;
-         result = prime * result + (txt == null ? 0 : txt.hashCode());
-         return result;
+         return Objects.hash(txt);
       }
 
       @Override

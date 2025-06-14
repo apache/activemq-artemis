@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
 public class CreateSessionMessage_V2 extends CreateSessionMessage {
@@ -72,10 +74,7 @@ public class CreateSessionMessage_V2 extends CreateSessionMessage {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((clientID == null) ? 0 : clientID.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), clientID);
    }
 
    @Override
