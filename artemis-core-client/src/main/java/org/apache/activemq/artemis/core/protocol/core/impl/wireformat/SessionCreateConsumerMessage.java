@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -145,30 +147,21 @@ public class SessionCreateConsumerMessage extends QueueAbstractPacket {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionCreateConsumerMessage other))
+      }
+      if (!(obj instanceof SessionCreateConsumerMessage other)) {
          return false;
-      if (browseOnly != other.browseOnly)
-         return false;
-      if (filterString == null) {
-         if (other.filterString != null)
-            return false;
-      } else if (!filterString.equals(other.filterString))
-         return false;
-      if (priority != other.priority)
-         return false;
-      if (id != other.id)
-         return false;
-      if (queueName == null) {
-         if (other.queueName != null)
-            return false;
-      } else if (!queueName.equals(other.queueName))
-         return false;
-      if (requiresResponse != other.requiresResponse)
-         return false;
-      return true;
+      }
+
+      return browseOnly == other.browseOnly &&
+             Objects.equals(filterString, other.filterString) &&
+             priority == other.priority &&
+             id == other.id &&
+             Objects.equals(queueName, other.queueName) &&
+             requiresResponse == other.requiresResponse;
    }
 }

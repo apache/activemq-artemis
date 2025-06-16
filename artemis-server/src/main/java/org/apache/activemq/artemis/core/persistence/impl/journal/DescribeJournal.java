@@ -70,6 +70,8 @@ import org.apache.activemq.artemis.utils.XidCodecSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.Objects;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -364,13 +366,15 @@ public final class DescribeJournal {
          }
 
          @Override
-         public boolean equals(Object o) {
-            if (this == o)
+         public boolean equals(Object obj) {
+            if (this == obj) {
                return true;
-            if (o == null || getClass() != o.getClass())
+            }
+            if (!(obj instanceof Count other)) {
                return false;
-            Count count = (Count) o;
-            return value == count.value;
+            }
+
+            return value == other.value;
          }
 
          @Override
@@ -821,18 +825,17 @@ public final class DescribeJournal {
 
       @Override
       public boolean equals(Object obj) {
-         if (this == obj)
+         if (this == obj) {
             return true;
-         if (obj == null)
+         }
+         if (obj == null) {
             return false;
-         if (!(obj instanceof ReferenceDescribe other))
+         }
+         if (!(obj instanceof ReferenceDescribe other)) {
             return false;
-         if (refEncoding == null) {
-            if (other.refEncoding != null)
-               return false;
-         } else if (!refEncoding.equals(other.refEncoding))
-            return false;
-         return true;
+         }
+
+         return Objects.equals(refEncoding, other.refEncoding);
       }
    }
 

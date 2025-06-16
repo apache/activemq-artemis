@@ -69,14 +69,16 @@ public class SessionXAGetTimeoutResponseMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionXAGetTimeoutResponseMessage other))
+      }
+      if (!(obj instanceof SessionXAGetTimeoutResponseMessage other)) {
          return false;
-      if (timeoutSeconds != other.timeoutSeconds)
-         return false;
-      return true;
+      }
+
+      return timeoutSeconds == other.timeoutSeconds;
    }
 }

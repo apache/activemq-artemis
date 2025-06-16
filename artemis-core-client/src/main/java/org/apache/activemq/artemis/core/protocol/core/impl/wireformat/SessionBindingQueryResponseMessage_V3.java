@@ -81,14 +81,16 @@ public class SessionBindingQueryResponseMessage_V3 extends SessionBindingQueryRe
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionBindingQueryResponseMessage_V3 other))
+      }
+      if (!(obj instanceof SessionBindingQueryResponseMessage_V3 other)) {
          return false;
-      if (autoCreateAddresses != other.autoCreateAddresses)
-         return false;
-      return true;
+      }
+
+      return autoCreateAddresses == other.autoCreateAddresses;
    }
 }

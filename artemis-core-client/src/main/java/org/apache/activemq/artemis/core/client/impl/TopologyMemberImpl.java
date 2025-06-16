@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.client.impl;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -157,25 +158,20 @@ public final class TopologyMemberImpl implements TopologyMember {
       return "TopologyMember[id=" + nodeId + ", connector=" + connector + ", backupGroupName=" + backupGroupName + ", scaleDownGroupName=" + scaleDownGroupName + "]";
    }
 
-
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof TopologyMemberImpl other)) {
          return false;
+      }
 
-      TopologyMemberImpl that = (TopologyMemberImpl) o;
-
-      // note the uniqueEventId is not park of the equals and hashmap key
-
-      if (connector != null ? !connector.equals(that.connector) : that.connector != null)
-         return false;
-      if (backupGroupName != null ? !backupGroupName.equals(that.backupGroupName) : that.backupGroupName != null)
-         return false;
-      if (scaleDownGroupName != null ? !scaleDownGroupName.equals(that.scaleDownGroupName) : that.scaleDownGroupName != null)
-         return false;
-      return nodeId != null ? nodeId.equals(that.nodeId) : that.nodeId == null;
+      // note the uniqueEventId is not part of the equals and hashmap key
+      return Objects.equals(connector, other.connector) &&
+             Objects.equals(backupGroupName, other.backupGroupName) &&
+             Objects.equals(scaleDownGroupName, other.scaleDownGroupName) &&
+             Objects.equals(nodeId, other.nodeId);
    }
 
    @Override

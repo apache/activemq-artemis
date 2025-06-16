@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -96,29 +98,18 @@ public final class BackupRegistrationMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof BackupRegistrationMessage other))
+      }
+      if (!(obj instanceof BackupRegistrationMessage other)) {
          return false;
-      if (backupWantsFailBack != other.backupWantsFailBack)
-         return false;
-      if (clusterPassword == null) {
-         if (other.clusterPassword != null)
-            return false;
-      } else if (!clusterPassword.equals(other.clusterPassword))
-         return false;
-      if (clusterUser == null) {
-         if (other.clusterUser != null)
-            return false;
-      } else if (!clusterUser.equals(other.clusterUser))
-         return false;
-      if (connector == null) {
-         if (other.connector != null)
-            return false;
-      } else if (!connector.equals(other.connector))
-         return false;
-      return true;
+      }
+      return backupWantsFailBack == other.backupWantsFailBack &&
+             Objects.equals(clusterPassword, other.clusterPassword) &&
+             Objects.equals(clusterUser, other.clusterUser) &&
+             Objects.equals(connector, other.connector);
    }
 }

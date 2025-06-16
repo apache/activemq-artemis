@@ -466,7 +466,10 @@ public class PacketImpl implements Packet {
       if (!(obj instanceof PacketImpl other)) {
          return false;
       }
-      return (channelID == other.channelID) && (size == other.size) && (type != other.type);
+
+      return channelID == other.channelID &&
+             size == other.size &&
+             type != other.type;
    }
 
    private int stringEncodeSize(final String str) {

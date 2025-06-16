@@ -74,17 +74,18 @@ public class SessionForceConsumerDelivery extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionForceConsumerDelivery other))
+      }
+      if (!(obj instanceof SessionForceConsumerDelivery other)) {
          return false;
-      if (consumerID != other.consumerID)
-         return false;
-      if (sequence != other.sequence)
-         return false;
-      return true;
+      }
+
+      return consumerID == other.consumerID &&
+             sequence == other.sequence;
    }
 
 }

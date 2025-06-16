@@ -89,8 +89,8 @@ public class NoOpMap<K, V> extends AbstractMap<K, V> {
    }
 
    @Override
-   public boolean equals(Object o) {
-      return (o instanceof Map m) && m.isEmpty();
+   public boolean equals(Object obj) {
+      return (obj instanceof Map other) && other.isEmpty();
    }
 
    @Override

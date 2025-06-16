@@ -312,118 +312,31 @@ public class CoreQueueConfiguration implements Serializable {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
-         return false;
-      if (getClass() != obj.getClass())
-         return false;
-      CoreQueueConfiguration other = (CoreQueueConfiguration) obj;
-      if (address == null) {
-         if (other.address != null)
-            return false;
-      } else if (!address.equals(other.address))
-         return false;
-      if (durable != other.durable)
-         return false;
-      if (filterString == null) {
-         if (other.filterString != null)
-            return false;
-      } else if (!filterString.equals(other.filterString))
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!name.equals(other.name))
-         return false;
-      if (maxConsumers == null) {
-         if (other.maxConsumers != null)
-            return false;
-      } else if (!maxConsumers.equals(other.maxConsumers))
-         return false;
-      if (purgeOnNoConsumers == null) {
-         if (other.purgeOnNoConsumers != null)
-            return false;
-      } else if (!purgeOnNoConsumers.equals(other.purgeOnNoConsumers)) {
-         return false;
       }
-      if (ringSize == null) {
-         if (other.ringSize != null)
-            return false;
-      } else if (!ringSize.equals(other.ringSize)) {
-         return false;
-      }
-      if (enabled == null) {
-         if (other.enabled != null)
-            return false;
-      } else if (!enabled.equals(other.enabled)) {
-         return false;
-      }
-      if (exclusive == null) {
-         if (other.exclusive != null)
-            return false;
-      } else if (!exclusive.equals(other.exclusive)) {
+      if (!(obj instanceof CoreQueueConfiguration other)) {
          return false;
       }
 
-      if (groupRebalance == null) {
-         if (other.groupRebalance != null)
-            return false;
-      } else if (!groupRebalance.equals(other.groupRebalance)) {
-         return false;
-      }
-
-      if (groupBuckets == null) {
-         if (other.groupBuckets != null)
-            return false;
-      } else if (!groupBuckets.equals(other.groupBuckets)) {
-         return false;
-      }
-
-      if (groupFirstKey == null) {
-         if (other.groupFirstKey != null)
-            return false;
-      } else if (!groupFirstKey.equals(other.groupFirstKey)) {
-         return false;
-      }
-
-      if (lastValue == null) {
-         if (other.lastValue != null)
-            return false;
-      } else if (!lastValue.equals(other.lastValue)) {
-         return false;
-      }
-      if (lastValueKey == null) {
-         if (other.lastValueKey != null)
-            return false;
-      } else if (!lastValueKey.equals(other.lastValueKey)) {
-         return false;
-      }
-      if (nonDestructive == null) {
-         if (other.nonDestructive != null)
-            return false;
-      } else if (!nonDestructive.equals(other.nonDestructive)) {
-         return false;
-      }
-      if (consumersBeforeDispatch == null) {
-         if (other.consumersBeforeDispatch != null)
-            return false;
-      } else if (!consumersBeforeDispatch.equals(other.consumersBeforeDispatch)) {
-         return false;
-      }
-      if (delayBeforeDispatch == null) {
-         if (other.delayBeforeDispatch != null)
-            return false;
-      } else if (!delayBeforeDispatch.equals(other.delayBeforeDispatch)) {
-         return false;
-      }
-      if (routingType == null) {
-         if (other.routingType != null)
-            return false;
-      } else if (!routingType.equals(other.routingType)) {
-         return false;
-      }
-      return true;
+      return Objects.equals(address, other.address) &&
+             durable == other.durable &&
+             Objects.equals(filterString, other.filterString) &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(maxConsumers, other.maxConsumers) &&
+             Objects.equals(purgeOnNoConsumers, other.purgeOnNoConsumers) &&
+             Objects.equals(ringSize, other.ringSize) &&
+             Objects.equals(enabled, other.enabled) &&
+             Objects.equals(exclusive, other.exclusive) &&
+             Objects.equals(groupRebalance, other.groupRebalance) &&
+             Objects.equals(groupBuckets, other.groupBuckets) &&
+             Objects.equals(groupFirstKey, other.groupFirstKey) &&
+             Objects.equals(lastValue, other.lastValue) &&
+             Objects.equals(lastValueKey, other.lastValueKey) &&
+             Objects.equals(nonDestructive, other.nonDestructive) &&
+             Objects.equals(consumersBeforeDispatch, other.consumersBeforeDispatch) &&
+             Objects.equals(delayBeforeDispatch, other.delayBeforeDispatch) &&
+             Objects.equals(routingType, other.routingType);
    }
 
    @Override

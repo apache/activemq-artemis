@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.version.impl;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.core.version.Version;
 
@@ -118,34 +119,15 @@ public class VersionImpl implements Version, Serializable {
       if (this == obj) {
          return true;
       }
-      if (obj == null) {
-         return false;
-      }
       if (!(obj instanceof VersionImpl other)) {
          return false;
       }
-      if (!Arrays.equals(compatibleVersionList, other.compatibleVersionList)) {
-         return false;
-      }
-      if (incrementingVersion != other.incrementingVersion) {
-         return false;
-      }
-      if (majorVersion != other.majorVersion) {
-         return false;
-      }
-      if (microVersion != other.microVersion) {
-         return false;
-      }
-      if (minorVersion != other.minorVersion) {
-         return false;
-      }
-      if (versionName == null) {
-         if (other.versionName != null) {
-            return false;
-         }
-      } else if (!versionName.equals(other.versionName)) {
-         return false;
-      }
-      return true;
+
+      return Arrays.equals(compatibleVersionList, other.compatibleVersionList) &&
+             incrementingVersion == other.incrementingVersion &&
+             majorVersion == other.majorVersion &&
+             microVersion == other.microVersion &&
+             minorVersion == other.minorVersion &&
+             Objects.equals(versionName, other.versionName);
    }
 }

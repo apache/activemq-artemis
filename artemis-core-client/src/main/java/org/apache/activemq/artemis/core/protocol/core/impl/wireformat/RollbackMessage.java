@@ -68,14 +68,16 @@ public class RollbackMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof RollbackMessage other))
+      }
+      if (!(obj instanceof RollbackMessage other)) {
          return false;
-      if (considerLastMessageAsDelivered != other.considerLastMessageAsDelivered)
-         return false;
-      return true;
+      }
+
+      return considerLastMessageAsDelivered == other.considerLastMessageAsDelivered;
    }
 }

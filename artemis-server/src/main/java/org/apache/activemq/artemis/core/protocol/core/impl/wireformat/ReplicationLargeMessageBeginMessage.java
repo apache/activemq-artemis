@@ -71,15 +71,16 @@ public class ReplicationLargeMessageBeginMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (getClass() != obj.getClass())
+      }
+      if (!(obj instanceof ReplicationLargeMessageBeginMessage other)) {
          return false;
-      ReplicationLargeMessageBeginMessage other = (ReplicationLargeMessageBeginMessage) obj;
-      if (messageId != other.messageId)
-         return false;
-      return true;
+      }
+
+      return messageId == other.messageId;
    }
 }

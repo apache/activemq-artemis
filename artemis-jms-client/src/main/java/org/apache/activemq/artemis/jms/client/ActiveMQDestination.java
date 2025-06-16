@@ -488,16 +488,15 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    }
 
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (!(o instanceof ActiveMQDestination that)) {
+      if (!(obj instanceof ActiveMQDestination other)) {
          return false;
       }
 
-      return simpleAddress.equals(that.simpleAddress);
+      return Objects.equals(simpleAddress, other.simpleAddress);
    }
 
    @Override

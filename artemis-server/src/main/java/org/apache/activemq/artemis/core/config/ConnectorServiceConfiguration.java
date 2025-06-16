@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.config;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 public class ConnectorServiceConfiguration implements Serializable {
 
@@ -64,22 +65,17 @@ public class ConnectorServiceConfiguration implements Serializable {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof ConnectorServiceConfiguration other)) {
          return false;
+      }
 
-      ConnectorServiceConfiguration that = (ConnectorServiceConfiguration) o;
-
-      if (getFactoryClassName() != null ? !getFactoryClassName().equals(that.getFactoryClassName()) : that.getFactoryClassName() != null)
-         return false;
-      if (getConnectorName() != null ? !getConnectorName().equals(that.getConnectorName()) : that.getConnectorName() != null)
-         return false;
-      if (getParams() != null ? !getParams().equals(that.getParams()) : that.getParams() != null)
-         return false;
-
-      return true;
+      return Objects.equals(getFactoryClassName(), other.getFactoryClassName()) &&
+             Objects.equals(getConnectorName(), other.getConnectorName()) &&
+             Objects.equals(getParams(), other.getParams());
    }
 
    @Override

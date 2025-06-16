@@ -76,9 +76,7 @@ public class PacketsConfirmedMessage extends PacketImpl {
       if (!(obj instanceof PacketsConfirmedMessage other)) {
          return false;
       }
-      if (commandID != other.commandID) {
-         return false;
-      }
-      return true;
+
+      return commandID == other.commandID;
    }
 }

@@ -218,21 +218,15 @@ public class XARecoveryConfig {
     */
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof XARecoveryConfig other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      XARecoveryConfig other = (XARecoveryConfig) obj;
-      if (discoveryConfiguration == null) {
-         if (other.discoveryConfiguration != null)
-            return false;
-      } else if (!discoveryConfiguration.equals(other.discoveryConfiguration))
-         return false;
-      if (!Arrays.equals(transportConfiguration, other.transportConfiguration))
-         return false;
-      return true;
+      }
+
+      return Objects.equals(discoveryConfiguration, other.discoveryConfiguration) &&
+             Arrays.equals(transportConfiguration, other.transportConfiguration);
    }
 
    @Override

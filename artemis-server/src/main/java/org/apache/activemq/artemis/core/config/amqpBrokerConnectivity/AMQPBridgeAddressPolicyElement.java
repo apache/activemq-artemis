@@ -209,27 +209,25 @@ public final class AMQPBridgeAddressPolicyElement implements Serializable {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!(o instanceof AMQPBridgeAddressPolicyElement)) {
+      if (!(obj instanceof AMQPBridgeAddressPolicyElement other)) {
          return false;
       }
 
-      final AMQPBridgeAddressPolicyElement that = (AMQPBridgeAddressPolicyElement) o;
-
-      return Objects.equals(name, that.name) &&
-             Objects.equals(includes, that.includes) &&
-             Objects.equals(excludes, that.excludes) &&
-             Objects.equals(priority, that.priority) &&
-             Objects.equals(includeDivertBindings, that.includeDivertBindings) &&
-             Objects.equals(useDurableSubscriptions, that.useDurableSubscriptions) &&
-             Objects.equals(filter, that.filter) &&
-             Objects.equals(remoteAddress, that.remoteAddress) &&
-             Objects.equals(remoteAddressPrefix, that.remoteAddressPrefix) &&
-             Objects.equals(remoteAddressSuffix, that.remoteAddressSuffix) &&
-             Arrays.equals(remoteTerminusCapabilities, that.remoteTerminusCapabilities);
+      return Objects.equals(name, other.name) &&
+             Objects.equals(includes, other.includes) &&
+             Objects.equals(excludes, other.excludes) &&
+             Objects.equals(priority, other.priority) &&
+             Objects.equals(includeDivertBindings, other.includeDivertBindings) &&
+             Objects.equals(useDurableSubscriptions, other.useDurableSubscriptions) &&
+             Objects.equals(filter, other.filter) &&
+             Objects.equals(remoteAddress, other.remoteAddress) &&
+             Objects.equals(remoteAddressPrefix, other.remoteAddressPrefix) &&
+             Objects.equals(remoteAddressSuffix, other.remoteAddressSuffix) &&
+             Arrays.equals(remoteTerminusCapabilities, other.remoteTerminusCapabilities);
    }
 
    @Override
@@ -270,18 +268,15 @@ public final class AMQPBridgeAddressPolicyElement implements Serializable {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) {
+      public boolean equals(Object obj) {
+         if (this == obj) {
             return true;
          }
-
-         if (!(o instanceof AddressMatch)) {
+         if (!(obj instanceof AddressMatch other)) {
             return false;
          }
 
-         final AddressMatch matcher = (AddressMatch) o;
-
-         return Objects.equals(addressMatch, matcher.addressMatch);
+         return Objects.equals(addressMatch, other.addressMatch);
       }
 
       @Override

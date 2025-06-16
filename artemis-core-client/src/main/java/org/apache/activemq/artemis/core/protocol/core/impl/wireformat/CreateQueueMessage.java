@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -154,33 +156,21 @@ public class CreateQueueMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof CreateQueueMessage other))
+      }
+      if (!(obj instanceof CreateQueueMessage other)) {
          return false;
-      if (address == null) {
-         if (other.address != null)
-            return false;
-      } else if (!address.equals(other.address))
-         return false;
-      if (durable != other.durable)
-         return false;
-      if (filterString == null) {
-         if (other.filterString != null)
-            return false;
-      } else if (!filterString.equals(other.filterString))
-         return false;
-      if (queueName == null) {
-         if (other.queueName != null)
-            return false;
-      } else if (!queueName.equals(other.queueName))
-         return false;
-      if (requiresResponse != other.requiresResponse)
-         return false;
-      if (temporary != other.temporary)
-         return false;
-      return true;
+      }
+
+      return Objects.equals(address, other.address) &&
+             durable == other.durable &&
+             Objects.equals(filterString, other.filterString) &&
+             Objects.equals(queueName, other.queueName) &&
+             requiresResponse == other.requiresResponse &&
+             temporary == other.temporary;
    }
 }

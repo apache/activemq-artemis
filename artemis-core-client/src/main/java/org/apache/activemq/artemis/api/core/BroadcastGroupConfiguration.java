@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.api.core;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 
@@ -89,30 +90,15 @@ public final class BroadcastGroupConfiguration implements Serializable {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof BroadcastGroupConfiguration other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      BroadcastGroupConfiguration other = (BroadcastGroupConfiguration) obj;
-      if (broadcastPeriod != other.broadcastPeriod)
-         return false;
-      if (connectorInfos == null) {
-         if (other.connectorInfos != null)
-            return false;
-      } else if (!connectorInfos.equals(other.connectorInfos))
-         return false;
-      if (endpointFactory == null) {
-         if (other.endpointFactory != null)
-            return false;
-      } else if (!endpointFactory.equals(other.endpointFactory))
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!name.equals(other.name))
-         return false;
-      return true;
+      }
+      return broadcastPeriod == other.broadcastPeriod &&
+             Objects.equals(connectorInfos, other.connectorInfos) &&
+             Objects.equals(endpointFactory, other.endpointFactory) &&
+             Objects.equals(name, other.name);
    }
 }

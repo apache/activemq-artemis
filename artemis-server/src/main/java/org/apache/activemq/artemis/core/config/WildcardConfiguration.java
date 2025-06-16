@@ -48,29 +48,19 @@ public class WildcardConfiguration implements Serializable {
 
    String escapeString = String.valueOf(ESCAPE);
 
-
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!(o instanceof WildcardConfiguration that)) {
+      if (!(obj instanceof WildcardConfiguration other)) {
          return false;
       }
 
-      if (routingEnabled != that.routingEnabled) {
-         return false;
-      }
-      if (singleWord != that.singleWord) {
-         return false;
-      }
-      if (anyWords != that.anyWords) {
-         return false;
-      }
-      if (delimiter != that.delimiter) {
-         return false;
-      }
-      return true;
+      return routingEnabled == other.routingEnabled &&
+             singleWord == other.singleWord &&
+             anyWords == other.anyWords &&
+             delimiter == other.delimiter;
    }
 
    @Override

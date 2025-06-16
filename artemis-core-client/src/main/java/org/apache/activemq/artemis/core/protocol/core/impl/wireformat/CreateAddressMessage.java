@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.EnumSet;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -119,26 +120,19 @@ public class CreateAddressMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof CreateAddressMessage other))
+      }
+      if (!(obj instanceof CreateAddressMessage other)) {
          return false;
-      if (address == null) {
-         if (other.address != null)
-            return false;
-      } else if (!address.equals(other.address))
-         return false;
-      if (routingTypes == null) {
-         if (other.routingTypes != null)
-            return false;
-      } else if (!routingTypes.equals(other.routingTypes))
-         return false;
-      if (autoCreated != other.autoCreated)
-         return false;
-      if (requiresResponse != other.requiresResponse)
-         return false;
-      return true;
+      }
+
+      return Objects.equals(address, other.address) &&
+             Objects.equals(routingTypes, other.routingTypes) &&
+             autoCreated == other.autoCreated &&
+             requiresResponse == other.requiresResponse;
    }
 }

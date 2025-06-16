@@ -2738,16 +2738,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    // Public
    // -----------------------------------------------------------------------------
-
    @Override
-   public boolean equals(final Object other) {
-      if (this == other) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!(other instanceof QueueImpl qother))
+      if (!(obj instanceof QueueImpl other)) {
          return false;
+      }
 
-      return queueConfiguration.getName().equals(qother.queueConfiguration.getName());
+      return Objects.equals(queueConfiguration.getName(), other.queueConfiguration.getName());
    }
 
    @Override
@@ -4103,11 +4103,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) return true;
-         if (o == null || getClass() != o.getClass()) return false;
-         ConsumerHolder<?> that = (ConsumerHolder<?>) o;
-         return Objects.equals(consumer, that.consumer);
+      public boolean equals(Object obj) {
+         if (this == obj) {
+            return true;
+         }
+         if (!(obj instanceof ConsumerHolder<?> other)) {
+            return false;
+         }
+
+         return Objects.equals(consumer, other.consumer);
       }
 
       @Override

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -172,35 +174,12 @@ public class NodeAnnounceMessage extends PacketImpl {
       if (!(obj instanceof NodeAnnounceMessage other)) {
          return false;
       }
-      if (backup != other.backup) {
-         return false;
-      }
-      if (backupConnector == null) {
-         if (other.backupConnector != null) {
-            return false;
-         }
-      } else if (!backupConnector.equals(other.backupConnector)) {
-         return false;
-      }
-      if (connector == null) {
-         if (other.connector != null) {
-            return false;
-         }
-      } else if (!connector.equals(other.connector)) {
-         return false;
-      }
-      if (currentEventID != other.currentEventID) {
-         return false;
-      }
-      if (nodeID == null) {
-         if (other.nodeID != null) {
-            return false;
-         }
-      } else if (!nodeID.equals(other.nodeID)) {
-         return false;
-      } else if (!scaleDownGroupName.equals(other.scaleDownGroupName)) {
-         return false;
-      }
-      return true;
+
+      return backup == other.backup &&
+             Objects.equals(backupConnector, other.backupConnector) &&
+             Objects.equals(connector, other.connector) &&
+             currentEventID == other.currentEventID &&
+             Objects.equals(nodeID, other.nodeID) &&
+             Objects.equals(scaleDownGroupName, other.scaleDownGroupName);
    }
 }

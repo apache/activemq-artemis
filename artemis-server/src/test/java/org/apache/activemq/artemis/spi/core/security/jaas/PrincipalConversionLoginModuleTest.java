@@ -95,8 +95,8 @@ public class PrincipalConversionLoginModuleTest {
    static final class TestPrincipal implements Principal {
 
       @Override
-      public boolean equals(Object another) {
-         return this == another;
+      public boolean equals(Object obj) {
+         return this == obj;
       }
 
       @Override

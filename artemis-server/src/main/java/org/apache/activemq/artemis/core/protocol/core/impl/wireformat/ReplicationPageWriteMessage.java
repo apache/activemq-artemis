@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -131,21 +133,18 @@ public class ReplicationPageWriteMessage extends PacketImpl implements MessagePa
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (getClass() != obj.getClass())
+      }
+      if (!(obj instanceof ReplicationPageWriteMessage other)) {
          return false;
-      ReplicationPageWriteMessage other = (ReplicationPageWriteMessage) obj;
-      if (pageNumber != other.pageNumber)
-         return false;
-      if (pagedMessage == null) {
-         if (other.pagedMessage != null)
-            return false;
-      } else if (!pagedMessage.equals(other.pagedMessage))
-         return false;
-      return true;
+      }
+
+      return pageNumber == other.pageNumber &&
+             Objects.equals(pagedMessage, other.pagedMessage);
    }
 
 }

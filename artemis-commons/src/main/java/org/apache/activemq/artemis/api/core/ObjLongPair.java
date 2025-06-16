@@ -56,18 +56,16 @@ public class ObjLongPair<A> implements Serializable {
    }
 
    @Override
-   public boolean equals(final Object other) {
-      if (other == this) {
+   public boolean equals(final Object obj) {
+      if (obj == this) {
          return true;
       }
-
-      if (other instanceof ObjLongPair == false) {
+      if (!(obj instanceof ObjLongPair other)) {
          return false;
       }
 
-      ObjLongPair<A> pother = (ObjLongPair<A>) other;
-
-      return (Objects.equals(pother.a, a)) && (pother.b == b);
+      return Objects.equals(other.a, a) &&
+             other.b == b;
    }
 
    @Override

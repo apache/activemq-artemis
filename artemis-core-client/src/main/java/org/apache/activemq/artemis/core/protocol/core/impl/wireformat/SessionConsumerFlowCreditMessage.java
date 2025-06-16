@@ -70,16 +70,17 @@ public class SessionConsumerFlowCreditMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionConsumerFlowCreditMessage other))
+      }
+      if (!(obj instanceof SessionConsumerFlowCreditMessage other)) {
          return false;
-      if (consumerID != other.consumerID)
-         return false;
-      if (credits != other.credits)
-         return false;
-      return true;
+      }
+
+      return consumerID == other.consumerID &&
+             credits == other.credits;
    }
 }

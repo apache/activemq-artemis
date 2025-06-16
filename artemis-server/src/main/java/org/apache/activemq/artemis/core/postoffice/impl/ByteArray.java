@@ -31,7 +31,6 @@ final class ByteArray {
    @Override
    public boolean equals(final Object other) {
       if (other instanceof ByteArray byteArray) {
-
          return ByteUtil.equals(bytes, byteArray.bytes);
       } else {
          return false;

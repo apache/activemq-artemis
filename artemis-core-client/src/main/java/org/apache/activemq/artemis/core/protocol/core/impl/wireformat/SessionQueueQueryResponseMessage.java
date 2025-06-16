@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -176,38 +178,24 @@ public class SessionQueueQueryResponseMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionQueueQueryResponseMessage other))
+      }
+      if (!(obj instanceof SessionQueueQueryResponseMessage other)) {
          return false;
-      if (address == null) {
-         if (other.address != null)
-            return false;
-      } else if (!address.equals(other.address))
-         return false;
-      if (consumerCount != other.consumerCount)
-         return false;
-      if (durable != other.durable)
-         return false;
-      if (exists != other.exists)
-         return false;
-      if (filterString == null) {
-         if (other.filterString != null)
-            return false;
-      } else if (!filterString.equals(other.filterString))
-         return false;
-      if (messageCount != other.messageCount)
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!name.equals(other.name))
-         return false;
-      if (temporary != other.temporary)
-         return false;
-      return true;
+      }
+
+      return Objects.equals(address, other.address) &&
+             consumerCount == other.consumerCount &&
+             durable == other.durable &&
+             exists == other.exists &&
+             Objects.equals(filterString, other.filterString) &&
+             messageCount == other.messageCount &&
+             Objects.equals(name, other.name) &&
+             temporary == other.temporary;
    }
 
 }

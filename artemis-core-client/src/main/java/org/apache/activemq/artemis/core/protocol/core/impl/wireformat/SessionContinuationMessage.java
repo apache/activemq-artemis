@@ -100,17 +100,17 @@ public abstract class SessionContinuationMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionContinuationMessage other))
+      }
+      if (!(obj instanceof SessionContinuationMessage other)) {
          return false;
-      if (!Arrays.equals(body, other.body))
-         return false;
-      if (continues != other.continues)
-         return false;
-      return true;
-   }
+      }
 
+      return Arrays.equals(body, other.body) &&
+             continues == other.continues;
+   }
 }

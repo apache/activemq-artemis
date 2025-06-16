@@ -39,18 +39,14 @@ public abstract class NamedHierarchicalRepositoryChangeListener implements Hiera
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
-         return true;
-      if (o == null || getClass() != o.getClass())
-         return false;
-
-      NamedHierarchicalRepositoryChangeListener that = (NamedHierarchicalRepositoryChangeListener) o;
-
-      if (!Objects.equals(name, that.name)) {
-         return false;
-      } else {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
+      if (!(obj instanceof NamedHierarchicalRepositoryChangeListener other)) {
+         return false;
+      }
+
+      return Objects.equals(name, other.name);
    }
 }

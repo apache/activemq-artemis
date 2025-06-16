@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 
 public class CreateSessionMessage_V2 extends CreateSessionMessage {
@@ -89,11 +91,7 @@ public class CreateSessionMessage_V2 extends CreateSessionMessage {
       if (!(obj instanceof CreateSessionMessage_V2 other)) {
          return false;
       }
-      if (clientID == null) {
-         if (other.clientID != null)
-            return false;
-      } else if (!clientID.equals(other.clientID))
-         return false;
-      return true;
+
+      return Objects.equals(clientID, other.clientID);
    }
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
@@ -53,12 +55,15 @@ public class PropertyExpression implements Expression {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (o == null || !this.getClass().equals(o.getClass())) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof PropertyExpression other)) {
          return false;
       }
-      return name.equals(((PropertyExpression) o).name);
 
+      return Objects.equals(name, other.name);
    }
 
 }

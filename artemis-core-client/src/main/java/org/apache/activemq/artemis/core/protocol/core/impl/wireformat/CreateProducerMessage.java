@@ -68,12 +68,19 @@ public class CreateProducerMessage  extends PacketImpl {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-      if (!super.equals(o)) return false;
-      CreateProducerMessage that = (CreateProducerMessage) o;
-      return Objects.equals(id, that.id) && Objects.equals(address, that.address);
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof CreateProducerMessage other)) {
+         return false;
+      }
+      if (!super.equals(obj)) {
+         return false;
+      }
+
+      return Objects.equals(id, other.id) &&
+             Objects.equals(address, other.address);
    }
 
    @Override

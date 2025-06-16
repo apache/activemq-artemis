@@ -464,17 +464,18 @@ public class LongHashSet extends AbstractSet<Long> implements Serializable {
     * {@inheritDoc}
     */
    @Override
-   public boolean equals(final Object other) {
-      if (other == this) {
+   public boolean equals(final Object obj) {
+      if (obj == this) {
          return true;
       }
 
-      if (other instanceof LongHashSet otherSet) {
-
-         return otherSet.containsMissingValue == containsMissingValue && otherSet.sizeOfArrayValues == sizeOfArrayValues && containsAll(otherSet);
+      if (obj instanceof LongHashSet other) {
+         return other.containsMissingValue == containsMissingValue &&
+                other.sizeOfArrayValues == sizeOfArrayValues &&
+                containsAll(other);
       }
 
-      if (!(other instanceof Set<?> c)) {
+      if (!(obj instanceof Set<?> c)) {
          return false;
       }
 

@@ -273,57 +273,27 @@ public class Role implements Serializable {
    }
 
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof Role other)) {
          return false;
       }
 
-      Role role = (Role) o;
-
-      if (consume != role.consume) {
-         return false;
-      }
-      if (createAddress != role.createAddress) {
-         return false;
-      }
-      if (deleteAddress != role.deleteAddress) {
-         return false;
-      }
-      if (createDurableQueue != role.createDurableQueue) {
-         return false;
-      }
-      if (createNonDurableQueue != role.createNonDurableQueue) {
-         return false;
-      }
-      if (deleteDurableQueue != role.deleteDurableQueue) {
-         return false;
-      }
-      if (deleteNonDurableQueue != role.deleteNonDurableQueue) {
-         return false;
-      }
-      if (send != role.send) {
-         return false;
-      }
-      if (manage != role.manage) {
-         return false;
-      }
-      if (browse != role.browse) {
-         return false;
-      }
-      if (!name.equals(role.name)) {
-         return false;
-      }
-      if (view != role.view) {
-         return false;
-      }
-      if (edit != role.edit) {
-         return false;
-      }
-
-      return true;
+      return Objects.equals(name, other.name) &&
+             send == other.send &&
+             consume == other.consume &&
+             createAddress == other.createAddress &&
+             deleteAddress == other.deleteAddress &&
+             createDurableQueue == other.createDurableQueue &&
+             createNonDurableQueue == other.createNonDurableQueue &&
+             deleteDurableQueue == other.deleteDurableQueue &&
+             deleteNonDurableQueue == other.deleteNonDurableQueue &&
+             manage == other.manage &&
+             browse == other.browse &&
+             view == other.view &&
+             edit == other.edit;
    }
 
    @Override

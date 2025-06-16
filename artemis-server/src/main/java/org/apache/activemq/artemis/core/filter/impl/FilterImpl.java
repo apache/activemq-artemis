@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.Objects;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
 
@@ -134,19 +135,14 @@ public class FilterImpl implements Filter {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof FilterImpl other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      FilterImpl other = (FilterImpl) obj;
-      if (sfilterString == null) {
-         if (other.sfilterString != null)
-            return false;
-      } else if (!sfilterString.equals(other.sfilterString))
-         return false;
-      return true;
+      }
+
+      return Objects.equals(sfilterString, other.sfilterString);
    }
 
    @Override

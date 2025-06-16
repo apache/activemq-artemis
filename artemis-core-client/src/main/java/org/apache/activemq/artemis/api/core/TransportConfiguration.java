@@ -206,28 +206,21 @@ public class TransportConfiguration implements Serializable {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
-         return false;
-
-      TransportConfiguration that = (TransportConfiguration) o;
-
-      if (!isSameParams(that)) {
+      }
+      if (!(obj instanceof TransportConfiguration other)) {
          return false;
       }
 
-      if (!Objects.equals(name, that.name)) {
-         return false;
-      }
-
-      // Empty and null extraProps maps are equivalent so the condition to check if two extraProps maps are not equal is:
-      if ((extraProps != that.extraProps) && (extraProps != null || !that.extraProps.isEmpty()) && (that.extraProps != null || !extraProps.isEmpty()) && (extraProps == null || that.extraProps == null || !extraProps.equals(that.extraProps))) {
-         return false;
-      }
-
-      return true;
+      return isSameParams(other) &&
+             Objects.equals(name, other.name) &&
+             // Empty and null extraProps maps are equivalent so the condition to check if two extraProps maps are not equal is:
+             !((extraProps != other.extraProps) &&
+               (extraProps != null || !other.extraProps.isEmpty()) &&
+               (other.extraProps != null || !extraProps.isEmpty()) &&
+               (extraProps == null || other.extraProps == null || !extraProps.equals(other.extraProps)));
    }
 
    public boolean isSameParams(TransportConfiguration that) {
