@@ -13,6 +13,22 @@ NOTE: If the upgrade spans multiple versions then the steps from *each* version 
 
 NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#upgrading-the-broker[Upgrading the Broker]  chapter in addition to any version-specific upgrade instructions outlined here.
 
+== 2.42.0
+
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12355900[Full release notes]
+
+=== Highlights
+
+* Example highlight 1
+* Example highlight 2
+
+=== Upgrading from 2.41.0
+
+* The broker was always meant to scan MQTT sessions every `5000` milliseconds, but due to a bug it was doing so every `500` milliseconds instead.
+This has been fixed via https://issues.apache.org/jira/browse/ARTEMIS-5202[ARTEMIS-5202].
+Since this is technically changing the default behavior of the broker it is being enumerated here for clarity.
+Keep in mind that this is configurable via the xref:mqtt.adoc#automatic-subscription-clean-up[`mqtt-session-scan-interval`] parameter in `broker.xml`.
+
 == 2.41.0
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12355793[Full release notes]
