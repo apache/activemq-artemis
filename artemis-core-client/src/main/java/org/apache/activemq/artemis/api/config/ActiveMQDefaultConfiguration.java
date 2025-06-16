@@ -684,7 +684,7 @@ public final class ActiveMQDefaultConfiguration {
    private static final boolean DEFAULT_SECURITY_CACHE_METRICS = false;
 
    // How often (in ms) to scan for expired MQTT sessions
-   private static long DEFAULT_MQTT_SESSION_SCAN_INTERVAL = 500;
+   private static long DEFAULT_MQTT_SESSION_SCAN_INTERVAL = 5000;
 
    // How long (in ms) to wait to persist MQTT session state
    private static long DEFAULT_MQTT_SESSION_STATE_PERSISTENCE_TIMEOUT = 5000;
