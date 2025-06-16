@@ -123,11 +123,9 @@ public class AMQPBridgeSenderInfo {
       if (this == obj) {
          return true;
       }
-      if (!(obj instanceof AMQPBridgeSenderInfo)) {
+      if (!(obj instanceof AMQPBridgeSenderInfo other)) {
          return false;
       }
-
-      final AMQPBridgeSenderInfo other = (AMQPBridgeSenderInfo) obj;
 
       return Objects.equals(localAddress, other.localAddress) &&
              Objects.equals(localFqqn, other.localFqqn) &&

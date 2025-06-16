@@ -32,18 +32,15 @@ public class ActiveMQConsumerContext extends ConsumerContext {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof ActiveMQConsumerContext other)) {
          return false;
+      }
 
-      ActiveMQConsumerContext that = (ActiveMQConsumerContext) o;
-
-      if (id != that.id)
-         return false;
-
-      return true;
+      return id == other.id;
    }
 
    @Override

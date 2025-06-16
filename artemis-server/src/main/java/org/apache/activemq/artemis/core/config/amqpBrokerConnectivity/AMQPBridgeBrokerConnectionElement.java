@@ -178,16 +178,12 @@ public class AMQPBridgeBrokerConnectionElement extends AMQPBrokerConnectionEleme
       if (this == obj) {
          return true;
       }
-
       if (!super.equals(obj)) {
          return false;
       }
-
-      if (getClass() != obj.getClass()) {
+      if (!(obj instanceof AMQPBridgeBrokerConnectionElement other)) {
          return false;
       }
-
-      final AMQPBridgeBrokerConnectionElement other = (AMQPBridgeBrokerConnectionElement) obj;
 
       return Objects.equals(bridgeFromAddressPolicies, other.bridgeFromAddressPolicies) &&
              Objects.equals(bridgeFromQueuePolicies, other.bridgeFromQueuePolicies) &&

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
+import java.util.Objects;
+
 /**
  * An expression which performs an operation on two expression values.
  */
@@ -51,30 +53,17 @@ public abstract class BinaryExpression implements Expression {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof BinaryExpression other)) {
          return false;
       }
 
-      final BinaryExpression that = (BinaryExpression) o;
-
-      if (!this.getExpressionSymbol().equals(that.getExpressionSymbol())) {
-         return false;
-      }
-
-      if (left != null && !left.equals(that.left)) {
-         return false;
-      }
-
-      if (right != null && !right.equals(that.right)) {
-         return false;
-      }
-
-      return true;
+      return Objects.equals(this.getExpressionSymbol(), other.getExpressionSymbol()) &&
+             Objects.equals(left, other.left) &&
+             Objects.equals(right, other.right);
    }
 
    /**

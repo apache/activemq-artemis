@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
@@ -141,22 +143,19 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionSendContinuationMessage other))
+      }
+      if (!(obj instanceof SessionSendContinuationMessage other)) {
          return false;
-      if (message == null) {
-         if (other.message != null)
-            return false;
-      } else if (!message.equals(other.message))
-         return false;
-      if (messageBodySize != other.messageBodySize)
-         return false;
-      if (requiresResponse != other.requiresResponse)
-         return false;
-      return true;
+      }
+
+      return Objects.equals(message, other.message) &&
+             messageBodySize == other.messageBodySize &&
+             requiresResponse == other.requiresResponse;
    }
 
    public SendAcknowledgementHandler getHandler() {

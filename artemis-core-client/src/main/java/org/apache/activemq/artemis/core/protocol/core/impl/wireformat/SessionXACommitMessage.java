@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import javax.transaction.xa.Xid;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
@@ -75,19 +77,17 @@ public class SessionXACommitMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionXACommitMessage other))
+      }
+      if (!(obj instanceof SessionXACommitMessage other)) {
          return false;
-      if (onePhase != other.onePhase)
-         return false;
-      if (xid == null) {
-         if (other.xid != null)
-            return false;
-      } else if (!xid.equals(other.xid))
-         return false;
-      return true;
+      }
+
+      return onePhase == other.onePhase &&
+             Objects.equals(xid, other.xid);
    }
 }

@@ -25,12 +25,15 @@ public class SessionCloseMessage extends PacketImpl {
    }
 
    @Override
-   public boolean equals(final Object other) {
-      if (other instanceof SessionCloseMessage == false) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof SessionCloseMessage)) {
          return false;
       }
 
-      return super.equals(other);
+      return super.equals(obj);
    }
 
    @Override

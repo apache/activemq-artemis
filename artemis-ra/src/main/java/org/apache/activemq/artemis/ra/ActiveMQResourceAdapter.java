@@ -36,6 +36,7 @@ import java.util.Hashtable;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -987,11 +988,11 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       if (obj == null) {
          return false;
       }
-
-      if (obj instanceof ActiveMQResourceAdapter adapter) {
-         return raProperties.equals(adapter.getProperties());
+      if (!(obj instanceof ActiveMQResourceAdapter adapter)) {
+         return false;
       }
-      return false;
+
+      return Objects.equals(raProperties, adapter.getProperties());
    }
 
    @Override

@@ -67,15 +67,17 @@ public class CreateSessionResponseMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof CreateSessionResponseMessage other))
+      }
+      if (!(obj instanceof CreateSessionResponseMessage other)) {
          return false;
-      if (serverVersion != other.serverVersion)
-         return false;
-      return true;
+      }
+
+      return serverVersion == other.serverVersion;
    }
 
    @Override

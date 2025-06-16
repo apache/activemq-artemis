@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.settings.impl;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
@@ -92,18 +93,15 @@ public class Match<T> {
    }
 
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof Match other)) {
          return false;
       }
 
-      @SuppressWarnings("rawtypes")
-      Match that = (Match) o;
-
-      return !(match != null ? !match.equals(that.match) : that.match != null);
+      return Objects.equals(match, other.match);
 
    }
 

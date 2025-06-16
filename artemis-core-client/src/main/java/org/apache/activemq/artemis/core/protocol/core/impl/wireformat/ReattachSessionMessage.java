@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -81,19 +83,17 @@ public class ReattachSessionMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof ReattachSessionMessage other))
+      }
+      if (!(obj instanceof ReattachSessionMessage other)) {
          return false;
-      if (lastConfirmedCommandID != other.lastConfirmedCommandID)
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!name.equals(other.name))
-         return false;
-      return true;
+      }
+
+      return lastConfirmedCommandID == other.lastConfirmedCommandID &&
+             Objects.equals(name, other.name);
    }
 }

@@ -103,14 +103,18 @@ public class JsonValueImpl implements JsonValue {
 
    @Override
    public boolean equals(Object obj) {
-      if (obj instanceof JsonValueImpl jsonValue) {
-         return rawValue.equals(jsonValue.getRawValue());
+      if (this == obj) {
+         return true;
       }
-      return super.equals(obj);
+      if (!(obj instanceof JsonValueImpl other)) {
+         return false;
+      }
+
+      return Objects.equals(rawValue, other.getRawValue());
    }
 
    @Override
    public int hashCode() {
-      return rawValue.hashCode();
+      return Objects.hashCode(rawValue);
    }
 }

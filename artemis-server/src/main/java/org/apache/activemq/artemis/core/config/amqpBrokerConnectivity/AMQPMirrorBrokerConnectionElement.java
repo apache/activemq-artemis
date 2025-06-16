@@ -165,23 +165,19 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
       if (this == obj) {
          return true;
       }
-
       if (!super.equals(obj)) {
          return false;
       }
-
-      if (getClass() != obj.getClass()) {
+      if (!(obj instanceof AMQPMirrorBrokerConnectionElement other)) {
          return false;
       }
 
-      final AMQPMirrorBrokerConnectionElement other = (AMQPMirrorBrokerConnectionElement) obj;
-
       return Objects.equals(addressFilter, other.addressFilter) &&
-             durable == other.durable &&
-             messageAcknowledgements == other.messageAcknowledgements &&
+             Objects.equals(durable, other.durable) &&
+             Objects.equals(messageAcknowledgements, other.messageAcknowledgements) &&
              Objects.equals(mirrorSNF, other.mirrorSNF) &&
-             queueCreation == other.queueCreation &&
-             queueRemoval == other.queueRemoval &&
-             sync == other.sync;
+             Objects.equals(queueCreation, other.queueCreation) &&
+             Objects.equals(queueRemoval, other.queueRemoval) &&
+             Objects.equals(sync, other.sync);
    }
 }

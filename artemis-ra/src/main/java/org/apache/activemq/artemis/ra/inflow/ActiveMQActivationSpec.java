@@ -24,6 +24,7 @@ import javax.resource.spi.ResourceAdapter;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.Hashtable;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.ra.ActiveMQRALogger;
 import org.apache.activemq.artemis.ra.ActiveMQRaUtils;
@@ -592,66 +593,42 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof ActiveMQActivationSpec that)) {
          return false;
-      if (!super.equals(o))
+      }
+      if (!super.equals(obj)) {
          return false;
+      }
 
-      ActiveMQActivationSpec that = (ActiveMQActivationSpec) o;
-
-      if (acknowledgeMode != null ? !acknowledgeMode.equals(that.acknowledgeMode) : that.acknowledgeMode != null)
-         return false;
-      if (subscriptionDurability != null ? !subscriptionDurability.equals(that.subscriptionDurability) : that.subscriptionDurability != null)
-         return false;
-      if (shareSubscriptions != null ? !shareSubscriptions.equals(that.shareSubscriptions) : that.shareSubscriptions != null)
-         return false;
-      if (strConnectorClassName != null ? !strConnectorClassName.equals(that.strConnectorClassName) : that.strConnectorClassName != null)
-         return false;
-      if (strConnectionParameters != null ? !strConnectionParameters.equals(that.strConnectionParameters) : that.strConnectionParameters != null)
-         return false;
-      if (ra != null ? !ra.equals(that.ra) : that.ra != null)
-         return false;
-      if (connectionFactoryLookup != null ? !connectionFactoryLookup.equals(that.connectionFactoryLookup) : that.connectionFactoryLookup != null)
-         return false;
-      if (destination != null ? !destination.equals(that.destination) : that.destination != null)
-         return false;
-      if (destinationType != null ? !destinationType.equals(that.destinationType) : that.destinationType != null)
-         return false;
-      if (messageSelector != null ? !messageSelector.equals(that.messageSelector) : that.messageSelector != null)
-         return false;
-      if (subscriptionName != null ? !subscriptionName.equals(that.subscriptionName) : that.subscriptionName != null)
-         return false;
-      if (user != null ? !user.equals(that.user) : that.user != null)
-         return false;
-      if (password != null ? !password.equals(that.password) : that.password != null)
-         return false;
-      if (maxSession != null ? !maxSession.equals(that.maxSession) : that.maxSession != null)
-         return false;
-      if (useJNDI != null ? !useJNDI.equals(that.useJNDI) : that.useJNDI != null)
-         return false;
-      if (transactionTimeout != null ? !transactionTimeout.equals(that.transactionTimeout) : that.transactionTimeout != null)
-         return false;
-      if (singleConnection != null ? !singleConnection.equals(that.singleConnection) : that.singleConnection != null)
-         return false;
-      if (jndiParams != null ? !jndiParams.equals(that.jndiParams) : that.jndiParams != null)
-         return false;
-      if (parsedJndiParams != null ? !parsedJndiParams.equals(that.parsedJndiParams) : that.parsedJndiParams != null)
-         return false;
-      if (localTx != null ? !localTx.equals(that.localTx) : that.localTx != null)
-         return false;
-      if (rebalanceConnections != null ? !rebalanceConnections.equals(that.rebalanceConnections) : that.rebalanceConnections != null)
-         return false;
-      if (setupAttempts != null ? !setupAttempts.equals(that.setupAttempts) : that.setupAttempts != null)
-         return false;
-      if (queuePrefix != null ? !queuePrefix.equals(that.queuePrefix) : that.queuePrefix != null)
-         return false;
-      if (topicPrefix != null ? !topicPrefix.equals(that.topicPrefix) : that.topicPrefix != null)
-         return false;
-      return !(setupInterval != null ? !setupInterval.equals(that.setupInterval) : that.setupInterval != null);
-
+      return Objects.equals(acknowledgeMode, that.acknowledgeMode) &&
+             Objects.equals(subscriptionDurability, that.subscriptionDurability) &&
+             Objects.equals(shareSubscriptions, that.shareSubscriptions) &&
+             Objects.equals(strConnectorClassName, that.strConnectorClassName) &&
+             Objects.equals(strConnectionParameters, that.strConnectionParameters) &&
+             Objects.equals(ra, that.ra) &&
+             Objects.equals(connectionFactoryLookup, that.connectionFactoryLookup) &&
+             Objects.equals(destination, that.destination) &&
+             Objects.equals(destinationType, that.destinationType) &&
+             Objects.equals(messageSelector, that.messageSelector) &&
+             Objects.equals(subscriptionName, that.subscriptionName) &&
+             Objects.equals(user, that.user) &&
+             Objects.equals(password, that.password) &&
+             Objects.equals(maxSession, that.maxSession) &&
+             Objects.equals(useJNDI, that.useJNDI) &&
+             Objects.equals(transactionTimeout, that.transactionTimeout) &&
+             Objects.equals(singleConnection, that.singleConnection) &&
+             Objects.equals(jndiParams, that.jndiParams) &&
+             Objects.equals(parsedJndiParams, that.parsedJndiParams) &&
+             Objects.equals(localTx, that.localTx) &&
+             Objects.equals(rebalanceConnections, that.rebalanceConnections) &&
+             Objects.equals(setupAttempts, that.setupAttempts) &&
+             Objects.equals(queuePrefix, that.queuePrefix) &&
+             Objects.equals(topicPrefix, that.topicPrefix) &&
+             Objects.equals(setupInterval, that.setupInterval);
    }
 
    @Override

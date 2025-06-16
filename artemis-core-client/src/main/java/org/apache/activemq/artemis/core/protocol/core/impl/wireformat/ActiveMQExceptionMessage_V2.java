@@ -83,9 +83,6 @@ public class ActiveMQExceptionMessage_V2 extends ActiveMQExceptionMessage {
       if (!(obj instanceof ActiveMQExceptionMessage_V2 other)) {
          return false;
       }
-      if (correlationID != other.correlationID) {
-         return false;
-      }
-      return true;
+      return correlationID == other.correlationID;
    }
 }

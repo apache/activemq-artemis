@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.Queue;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
@@ -70,16 +72,15 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
    }
 
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (!(o instanceof ActiveMQQueue that)) {
+      if (!(obj instanceof ActiveMQQueue other)) {
          return false;
       }
 
-      return super.getAddress().equals(that.getAddress());
+      return Objects.equals(super.getAddress(), other.getAddress());
    }
 
    @Override

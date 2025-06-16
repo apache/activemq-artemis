@@ -387,16 +387,15 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
    }
 
    @Override
-   public boolean equals(final Object other) {
-      if (this == other) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (other instanceof SimpleString simpleString) {
-         return ByteUtil.equals(data, simpleString.data);
-      } else {
+      if (!(obj instanceof SimpleString other)) {
          return false;
       }
+
+      return ByteUtil.equals(data, other.data);
    }
 
    /**

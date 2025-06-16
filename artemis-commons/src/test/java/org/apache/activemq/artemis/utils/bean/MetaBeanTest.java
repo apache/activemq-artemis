@@ -266,37 +266,26 @@ public class MetaBeanTest {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o)
+      public boolean equals(Object obj) {
+         if (this == obj) {
             return true;
-         if (o == null || getClass() != o.getClass())
+         }
+         if (!(obj instanceof MYClass other)) {
             return false;
+         }
 
-         MYClass myClass = (MYClass) o;
-
-         if (b != myClass.b)
-            return false;
-         if (boolValue != myClass.boolValue)
-            return false;
-         if (!Objects.equals(a, myClass.a))
-            return false;
-         if (!Objects.equals(c, myClass.c))
-            return false;
-         if (!Objects.equals(d, myClass.d))
-            return false;
-         if (!Objects.equals(idCacheSize, myClass.idCacheSize))
-            return false;
-         if (!Objects.equals(simpleString, myClass.simpleString))
-            return false;
-         if (!Objects.equals(gated, myClass.gated))
-            return false;
-         if (!Objects.equals(longValue, myClass.longValue))
-            return false;
-         if (!Objects.equals(doubleValue, myClass.doubleValue))
-            return false;
-         if (!Objects.equals(floatValue, myClass.floatValue))
-            return false;
-         return myEnum == myClass.myEnum;
+         return Objects.equals(a, other.a) &&
+                b == other.b &&
+                boolValue == other.boolValue &&
+                Objects.equals(c, other.c) &&
+                Objects.equals(d, other.d) &&
+                Objects.equals(idCacheSize, other.idCacheSize) &&
+                Objects.equals(simpleString, other.simpleString) &&
+                Objects.equals(gated, other.gated) &&
+                Objects.equals(longValue, other.longValue) &&
+                Objects.equals(doubleValue, other.doubleValue) &&
+                Objects.equals(floatValue, other.floatValue) &&
+                myEnum == other.myEnum;
       }
 
       @Override

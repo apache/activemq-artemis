@@ -65,20 +65,12 @@ public class JournalLoadInformation {
       if (this == obj) {
          return true;
       }
-      if (obj == null) {
+      if (!(obj instanceof JournalLoadInformation other)) {
          return false;
       }
-      if (getClass() != obj.getClass()) {
-         return false;
-      }
-      JournalLoadInformation other = (JournalLoadInformation) obj;
-      if (maxID != other.maxID) {
-         return false;
-      }
-      if (numberOfRecords != other.numberOfRecords) {
-         return false;
-      }
-      return true;
+
+      return maxID == other.maxID &&
+             numberOfRecords == other.numberOfRecords;
    }
 
    @Override

@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -85,17 +86,16 @@ public class SessionXAGetInDoubtXidsResponseMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionXAGetInDoubtXidsResponseMessage other))
+      }
+      if (!(obj instanceof SessionXAGetInDoubtXidsResponseMessage other)) {
          return false;
-      if (xids == null) {
-         if (other.xids != null)
-            return false;
-      } else if (!xids.equals(other.xids))
-         return false;
-      return true;
+      }
+
+      return Objects.equals(xids, other.xids);
    }
 }

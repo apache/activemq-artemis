@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -85,13 +87,7 @@ public class DisconnectMessage extends PacketImpl {
       if (!(obj instanceof DisconnectMessage other)) {
          return false;
       }
-      if (nodeID == null) {
-         if (other.nodeID != null) {
-            return false;
-         }
-      } else if (!nodeID.equals(other.nodeID)) {
-         return false;
-      }
-      return true;
+
+      return Objects.equals(nodeID, other.nodeID);
    }
 }

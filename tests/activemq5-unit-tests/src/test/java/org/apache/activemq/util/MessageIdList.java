@@ -21,6 +21,7 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Assert;
@@ -58,12 +59,15 @@ public class MessageIdList extends Assert implements MessageListener {
    }
 
    @Override
-   public boolean equals(Object that) {
-      if (that instanceof MessageIdList) {
-         MessageIdList thatList = (MessageIdList) that;
-         return getMessageIds().equals(thatList.getMessageIds());
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
       }
-      return false;
+      if (!(obj instanceof MessageIdList other)) {
+         return false;
+      }
+
+      return Objects.equals(getMessageIds(), other.getMessageIds());
    }
 
    @Override

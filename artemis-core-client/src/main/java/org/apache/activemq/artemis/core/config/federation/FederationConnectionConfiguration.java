@@ -201,31 +201,31 @@ public class FederationConnectionConfiguration implements Serializable {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof FederationConnectionConfiguration other)) {
          return false;
       }
-      FederationConnectionConfiguration that = (FederationConnectionConfiguration) o;
-      return clientFailureCheckPeriod == that.clientFailureCheckPeriod &&
-          connectionTTL == that.connectionTTL &&
-          retryInterval == that.retryInterval &&
-          Double.compare(that.retryIntervalMultiplier, retryIntervalMultiplier) == 0 &&
-          maxRetryInterval == that.maxRetryInterval &&
-          initialConnectAttempts == that.initialConnectAttempts &&
-          reconnectAttempts == that.reconnectAttempts &&
-          callTimeout == that.callTimeout &&
-          callFailoverTimeout == that.callFailoverTimeout &&
-          isHA == that.isHA &&
-          priorityAdjustment == that.priorityAdjustment &&
-          circuitBreakerTimeout == that.circuitBreakerTimeout &&
-          shareConnection == that.shareConnection &&
-          Objects.equals(discoveryGroupName, that.discoveryGroupName) &&
-          Objects.equals(staticConnectors, that.staticConnectors) &&
-          Objects.equals(username, that.username) &&
-          Objects.equals(password, that.password);
+
+      return clientFailureCheckPeriod == other.clientFailureCheckPeriod &&
+             connectionTTL == other.connectionTTL &&
+             retryInterval == other.retryInterval &&
+             Double.compare(other.retryIntervalMultiplier, retryIntervalMultiplier) == 0 &&
+             maxRetryInterval == other.maxRetryInterval &&
+             initialConnectAttempts == other.initialConnectAttempts &&
+             reconnectAttempts == other.reconnectAttempts &&
+             callTimeout == other.callTimeout &&
+             callFailoverTimeout == other.callFailoverTimeout &&
+             isHA == other.isHA &&
+             priorityAdjustment == other.priorityAdjustment &&
+             circuitBreakerTimeout == other.circuitBreakerTimeout &&
+             shareConnection == other.shareConnection &&
+             Objects.equals(discoveryGroupName, other.discoveryGroupName) &&
+             Objects.equals(staticConnectors, other.staticConnectors) &&
+             Objects.equals(username, other.username) &&
+             Objects.equals(password, other.password);
    }
 
    @Override

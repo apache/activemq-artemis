@@ -174,21 +174,21 @@ public final class AMQPFederationAddressPolicyElement implements Serializable {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!(o instanceof AMQPFederationAddressPolicyElement that)) {
+      if (!(obj instanceof AMQPFederationAddressPolicyElement other)) {
          return false;
       }
 
-      return maxHops == that.maxHops &&
-             Objects.equals(name, that.name) &&
-             Objects.equals(includes, that.includes) &&
-             Objects.equals(excludes, that.excludes) &&
-             Objects.equals(autoDelete, that.autoDelete) &&
-             Objects.equals(autoDeleteDelay, that.autoDeleteDelay) &&
-             Objects.equals(autoDeleteMessageCount, that.autoDeleteMessageCount);
+      return Objects.equals(name, other.name) &&
+             Objects.equals(includes, other.includes) &&
+             Objects.equals(excludes, other.excludes) &&
+             Objects.equals(autoDelete, other.autoDelete) &&
+             Objects.equals(autoDeleteDelay, other.autoDeleteDelay) &&
+             Objects.equals(autoDeleteMessageCount, other.autoDeleteMessageCount) &&
+             maxHops == other.maxHops;
    }
 
    @Override
@@ -231,16 +231,15 @@ public final class AMQPFederationAddressPolicyElement implements Serializable {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) {
+      public boolean equals(Object obj) {
+         if (this == obj) {
             return true;
          }
-
-         if (!(o instanceof AddressMatch matcher)) {
+         if (!(obj instanceof AddressMatch other)) {
             return false;
          }
 
-         return Objects.equals(addressMatch, matcher.addressMatch);
+         return Objects.equals(addressMatch, other.addressMatch);
       }
 
       @Override

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.Consumer;
 
@@ -324,18 +325,15 @@ public class MessageReferenceImpl extends AbstractProtocolReference implements M
    }
 
    @Override
-   public boolean equals(Object other) {
-      if (this == other) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (other instanceof MessageReferenceImpl otherRef) {
-
-         if (this.getMessage().equals(otherRef.getMessage()))
-            return true;
+      if (!(obj instanceof MessageReferenceImpl other)) {
+         return false;
       }
 
-      return false;
+      return Objects.equals(this.getMessage(), other.getMessage());
    }
 
    @Override

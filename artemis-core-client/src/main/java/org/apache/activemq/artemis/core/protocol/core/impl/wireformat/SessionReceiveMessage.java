@@ -96,17 +96,17 @@ public class SessionReceiveMessage extends MessagePacket {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionReceiveMessage other))
+      }
+      if (!(obj instanceof SessionReceiveMessage other)) {
          return false;
-      if (consumerID != other.consumerID)
-         return false;
-      if (deliveryCount != other.deliveryCount)
-         return false;
-      return true;
-   }
+      }
 
+      return consumerID == other.consumerID &&
+             deliveryCount == other.deliveryCount;
+   }
 }

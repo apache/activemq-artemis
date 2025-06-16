@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -83,13 +85,6 @@ public class ActiveMQExceptionMessage extends PacketImpl {
       if (!(obj instanceof ActiveMQExceptionMessage other)) {
          return false;
       }
-      if (exception == null) {
-         if (other.exception != null) {
-            return false;
-         }
-      } else if (!exception.equals(other.exception)) {
-         return false;
-      }
-      return true;
+      return Objects.equals(exception, other.exception);
    }
 }

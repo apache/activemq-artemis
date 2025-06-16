@@ -35,24 +35,16 @@ public class SomeObject implements Serializable {
    }
 
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof SomeObject other)) {
          return false;
       }
 
-      SomeObject that = (SomeObject) o;
-
-      if (i != that.i) {
-         return false;
-      }
-      if (j != that.j) {
-         return false;
-      }
-
-      return true;
+      return i == other.i &&
+             j == other.j;
    }
 
    @Override

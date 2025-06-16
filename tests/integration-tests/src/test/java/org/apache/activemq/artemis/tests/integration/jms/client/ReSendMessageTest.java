@@ -33,6 +33,7 @@ import javax.jms.TextMessage;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -196,21 +197,11 @@ public class ReSendMessageTest extends JMSTestBase {
          if (this == obj) {
             return true;
          }
-         if (obj == null) {
+         if (!(obj instanceof SomeSerializable other)) {
             return false;
          }
-         if (getClass() != obj.getClass()) {
-            return false;
-         }
-         SomeSerializable other = (SomeSerializable) obj;
-         if (txt == null) {
-            if (other.txt != null) {
-               return false;
-            }
-         } else if (!txt.equals(other.txt)) {
-            return false;
-         }
-         return true;
+
+         return Objects.equals(txt, other.txt);
       }
 
       SomeSerializable(final String txt) {

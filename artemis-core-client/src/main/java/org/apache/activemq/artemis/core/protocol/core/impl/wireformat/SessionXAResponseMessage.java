@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -94,21 +96,18 @@ public class SessionXAResponseMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionXAResponseMessage other))
+      }
+      if (!(obj instanceof SessionXAResponseMessage other)) {
          return false;
-      if (error != other.error)
-         return false;
-      if (message == null) {
-         if (other.message != null)
-            return false;
-      } else if (!message.equals(other.message))
-         return false;
-      if (responseCode != other.responseCode)
-         return false;
-      return true;
+      }
+
+      return error == other.error &&
+             Objects.equals(message, other.message) &&
+             responseCode == other.responseCode;
    }
 }

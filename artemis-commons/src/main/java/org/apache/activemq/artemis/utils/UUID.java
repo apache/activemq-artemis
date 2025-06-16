@@ -231,11 +231,11 @@ public final class UUID {
     * Checking equality of UUIDs is easy; just compare the 128-bit number.
     */
    @Override
-   public boolean equals(final Object o) {
-      if (!(o instanceof UUID)) {
+   public boolean equals(final Object obj) {
+      if (!(obj instanceof UUID)) {
          return false;
       }
-      byte[] otherId = ((UUID) o).mId;
+      byte[] otherId = ((UUID) obj).mId;
       byte[] thisId = mId;
       for (int i = 0; i < 16; ++i) {
          if (otherId[i] != thisId[i]) {

@@ -1622,172 +1622,93 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
-         return false;
-
-      AddressSettings that = (AddressSettings) o;
-
-      if (addressFullMessagePolicy != that.addressFullMessagePolicy)
-         return false;
-      if (!Objects.equals(maxSizeBytes, that.maxSizeBytes))
-         return false;
-      if (!Objects.equals(maxReadPageBytes, that.maxReadPageBytes))
-         return false;
-      if (!Objects.equals(maxReadPageMessages, that.maxReadPageMessages))
-         return false;
-      if (!Objects.equals(prefetchPageBytes, that.prefetchPageBytes))
-         return false;
-      if (!Objects.equals(prefetchPageMessages, that.prefetchPageMessages))
-         return false;
-      if (!Objects.equals(pageLimitBytes, that.pageLimitBytes))
-         return false;
-      if (!Objects.equals(pageLimitMessages, that.pageLimitMessages))
-         return false;
-      if (pageFullMessagePolicy != that.pageFullMessagePolicy)
-         return false;
-      if (!Objects.equals(maxSizeMessages, that.maxSizeMessages))
-         return false;
-      if (!Objects.equals(pageSizeBytes, that.pageSizeBytes))
-         return false;
-      if (!Objects.equals(pageCacheMaxSize, that.pageCacheMaxSize))
-         return false;
-      if (!Objects.equals(dropMessagesWhenFull, that.dropMessagesWhenFull))
-         return false;
-      if (!Objects.equals(maxDeliveryAttempts, that.maxDeliveryAttempts))
-         return false;
-      if (!Objects.equals(messageCounterHistoryDayLimit, that.messageCounterHistoryDayLimit))
-         return false;
-      if (!Objects.equals(redeliveryDelay, that.redeliveryDelay))
-         return false;
-      if (!Objects.equals(redeliveryMultiplier, that.redeliveryMultiplier))
-         return false;
-      if (!Objects.equals(redeliveryCollisionAvoidanceFactor, that.redeliveryCollisionAvoidanceFactor))
-         return false;
-      if (!Objects.equals(maxRedeliveryDelay, that.maxRedeliveryDelay))
-         return false;
-      if (!Objects.equals(deadLetterAddress, that.deadLetterAddress))
-         return false;
-      if (!Objects.equals(expiryAddress, that.expiryAddress))
-         return false;
-      if (!Objects.equals(expiryDelay, that.expiryDelay))
-         return false;
-      if (!Objects.equals(minExpiryDelay, that.minExpiryDelay))
-         return false;
-      if (!Objects.equals(maxExpiryDelay, that.maxExpiryDelay))
-         return false;
-      if (!Objects.equals(noExpiry, that.noExpiry))
-         return false;
-      if (!Objects.equals(defaultLastValueQueue, that.defaultLastValueQueue))
-         return false;
-      if (!Objects.equals(defaultLastValueKey, that.defaultLastValueKey))
-         return false;
-      if (!Objects.equals(defaultNonDestructive, that.defaultNonDestructive))
-         return false;
-      if (!Objects.equals(defaultExclusiveQueue, that.defaultExclusiveQueue))
-         return false;
-      if (!Objects.equals(defaultGroupRebalance, that.defaultGroupRebalance))
-         return false;
-      if (!Objects.equals(defaultGroupRebalancePauseDispatch, that.defaultGroupRebalancePauseDispatch))
-         return false;
-      if (!Objects.equals(defaultGroupBuckets, that.defaultGroupBuckets))
-         return false;
-      if (!Objects.equals(defaultGroupFirstKey, that.defaultGroupFirstKey))
-         return false;
-      if (!Objects.equals(redistributionDelay, that.redistributionDelay))
-         return false;
-      if (!Objects.equals(sendToDLAOnNoRoute, that.sendToDLAOnNoRoute))
-         return false;
-      if (!Objects.equals(slowConsumerThreshold, that.slowConsumerThreshold))
-         return false;
-      if (slowConsumerThresholdMeasurementUnit != that.slowConsumerThresholdMeasurementUnit)
-         return false;
-      if (!Objects.equals(slowConsumerCheckPeriod, that.slowConsumerCheckPeriod))
-         return false;
-      if (slowConsumerPolicy != that.slowConsumerPolicy)
-         return false;
-      if (!Objects.equals(autoCreateJmsQueues, that.autoCreateJmsQueues))
-         return false;
-      if (!Objects.equals(autoDeleteJmsQueues, that.autoDeleteJmsQueues))
-         return false;
-      if (!Objects.equals(autoCreateJmsTopics, that.autoCreateJmsTopics))
-         return false;
-      if (!Objects.equals(autoDeleteJmsTopics, that.autoDeleteJmsTopics))
-         return false;
-      if (!Objects.equals(autoCreateQueues, that.autoCreateQueues))
-         return false;
-      if (!Objects.equals(autoDeleteQueues, that.autoDeleteQueues))
-         return false;
-      if (!Objects.equals(autoDeleteCreatedQueues, that.autoDeleteCreatedQueues))
-         return false;
-      if (!Objects.equals(autoDeleteQueuesDelay, that.autoDeleteQueuesDelay))
-         return false;
-      if (!Objects.equals(autoDeleteQueuesSkipUsageCheck, that.autoDeleteQueuesSkipUsageCheck))
-         return false;
-      if (!Objects.equals(autoDeleteQueuesMessageCount, that.autoDeleteQueuesMessageCount))
-         return false;
-      if (!Objects.equals(defaultRingSize, that.defaultRingSize))
-         return false;
-      if (!Objects.equals(retroactiveMessageCount, that.retroactiveMessageCount))
-         return false;
-      if (configDeleteQueues != that.configDeleteQueues)
-         return false;
-      if (!Objects.equals(autoCreateAddresses, that.autoCreateAddresses))
-         return false;
-      if (!Objects.equals(autoDeleteAddresses, that.autoDeleteAddresses))
-         return false;
-      if (!Objects.equals(autoDeleteAddressesDelay, that.autoDeleteAddressesDelay))
-         return false;
-      if (!Objects.equals(autoDeleteAddressesSkipUsageCheck, that.autoDeleteAddressesSkipUsageCheck))
-         return false;
-      if (configDeleteAddresses != that.configDeleteAddresses)
-         return false;
-      if (configDeleteDiverts != that.configDeleteDiverts)
-         return false;
-      if (!Objects.equals(managementBrowsePageSize, that.managementBrowsePageSize))
-         return false;
-      if (!Objects.equals(maxSizeBytesRejectThreshold, that.maxSizeBytesRejectThreshold))
-         return false;
-      if (!Objects.equals(defaultMaxConsumers, that.defaultMaxConsumers))
-         return false;
-      if (!Objects.equals(defaultPurgeOnNoConsumers, that.defaultPurgeOnNoConsumers))
-         return false;
-      if (!Objects.equals(defaultConsumersBeforeDispatch, that.defaultConsumersBeforeDispatch))
-         return false;
-      if (!Objects.equals(defaultDelayBeforeDispatch, that.defaultDelayBeforeDispatch))
-         return false;
-      if (defaultQueueRoutingType != that.defaultQueueRoutingType)
-         return false;
-      if (defaultAddressRoutingType != that.defaultAddressRoutingType)
-         return false;
-      if (!Objects.equals(defaultConsumerWindowSize, that.defaultConsumerWindowSize))
-         return false;
-      if (!Objects.equals(autoCreateDeadLetterResources, that.autoCreateDeadLetterResources))
-         return false;
-      if (!Objects.equals(deadLetterQueuePrefix, that.deadLetterQueuePrefix))
-         return false;
-      if (!Objects.equals(deadLetterQueueSuffix, that.deadLetterQueueSuffix))
-         return false;
-      if (!Objects.equals(autoCreateExpiryResources, that.autoCreateExpiryResources))
-         return false;
-      if (!Objects.equals(expiryQueuePrefix, that.expiryQueuePrefix))
-         return false;
-      if (!Objects.equals(expiryQueueSuffix, that.expiryQueueSuffix))
-         return false;
-      if (!Objects.equals(enableMetrics, that.enableMetrics))
-         return false;
-      if (!Objects.equals(managementMessageAttributeSizeLimit, that.managementMessageAttributeSizeLimit))
-         return false;
-      if (!Objects.equals(enableIngressTimestamp, that.enableIngressTimestamp))
-         return false;
-      if (!Objects.equals(idCacheSize, that.idCacheSize))
-         return false;
-      if (!Objects.equals(initialQueueBufferSize, that.initialQueueBufferSize)) {
+      }
+      if (!(obj instanceof AddressSettings other)) {
          return false;
       }
-      return Objects.equals(queuePrefetch, that.queuePrefetch);
+
+      return Objects.equals(addressFullMessagePolicy, other.addressFullMessagePolicy) &&
+             Objects.equals(maxSizeBytes, other.maxSizeBytes) &&
+             Objects.equals(maxReadPageBytes, other.maxReadPageBytes) &&
+             Objects.equals(maxReadPageMessages, other.maxReadPageMessages) &&
+             Objects.equals(prefetchPageBytes, other.prefetchPageBytes) &&
+             Objects.equals(prefetchPageMessages, other.prefetchPageMessages) &&
+             Objects.equals(pageLimitBytes, other.pageLimitBytes) &&
+             Objects.equals(pageLimitMessages, other.pageLimitMessages) &&
+             Objects.equals(pageFullMessagePolicy, other.pageFullMessagePolicy) &&
+             Objects.equals(maxSizeMessages, other.maxSizeMessages) &&
+             Objects.equals(pageSizeBytes, other.pageSizeBytes) &&
+             Objects.equals(pageCacheMaxSize, other.pageCacheMaxSize) &&
+             Objects.equals(dropMessagesWhenFull, other.dropMessagesWhenFull) &&
+             Objects.equals(maxDeliveryAttempts, other.maxDeliveryAttempts) &&
+             Objects.equals(messageCounterHistoryDayLimit, other.messageCounterHistoryDayLimit) &&
+             Objects.equals(redeliveryDelay, other.redeliveryDelay) &&
+             Objects.equals(redeliveryMultiplier, other.redeliveryMultiplier) &&
+             Objects.equals(redeliveryCollisionAvoidanceFactor, other.redeliveryCollisionAvoidanceFactor) &&
+             Objects.equals(maxRedeliveryDelay, other.maxRedeliveryDelay) &&
+             Objects.equals(deadLetterAddress, other.deadLetterAddress) &&
+             Objects.equals(expiryAddress, other.expiryAddress) &&
+             Objects.equals(expiryDelay, other.expiryDelay) &&
+             Objects.equals(minExpiryDelay, other.minExpiryDelay) &&
+             Objects.equals(maxExpiryDelay, other.maxExpiryDelay) &&
+             Objects.equals(noExpiry, other.noExpiry) &&
+             Objects.equals(defaultLastValueQueue, other.defaultLastValueQueue) &&
+             Objects.equals(defaultLastValueKey, other.defaultLastValueKey) &&
+             Objects.equals(defaultNonDestructive, other.defaultNonDestructive) &&
+             Objects.equals(defaultExclusiveQueue, other.defaultExclusiveQueue) &&
+             Objects.equals(defaultGroupRebalance, other.defaultGroupRebalance) &&
+             Objects.equals(defaultGroupRebalancePauseDispatch, other.defaultGroupRebalancePauseDispatch) &&
+             Objects.equals(defaultGroupBuckets, other.defaultGroupBuckets) &&
+             Objects.equals(defaultGroupFirstKey, other.defaultGroupFirstKey) &&
+             Objects.equals(redistributionDelay, other.redistributionDelay) &&
+             Objects.equals(sendToDLAOnNoRoute, other.sendToDLAOnNoRoute) &&
+             Objects.equals(slowConsumerThreshold, other.slowConsumerThreshold) &&
+             Objects.equals(slowConsumerThresholdMeasurementUnit, other.slowConsumerThresholdMeasurementUnit) &&
+             Objects.equals(slowConsumerCheckPeriod, other.slowConsumerCheckPeriod) &&
+             Objects.equals(slowConsumerPolicy, other.slowConsumerPolicy) &&
+             Objects.equals(autoCreateJmsQueues, other.autoCreateJmsQueues) &&
+             Objects.equals(autoDeleteJmsQueues, other.autoDeleteJmsQueues) &&
+             Objects.equals(autoCreateJmsTopics, other.autoCreateJmsTopics) &&
+             Objects.equals(autoDeleteJmsTopics, other.autoDeleteJmsTopics) &&
+             Objects.equals(autoCreateQueues, other.autoCreateQueues) &&
+             Objects.equals(autoDeleteQueues, other.autoDeleteQueues) &&
+             Objects.equals(autoDeleteCreatedQueues, other.autoDeleteCreatedQueues) &&
+             Objects.equals(autoDeleteQueuesDelay, other.autoDeleteQueuesDelay) &&
+             Objects.equals(autoDeleteQueuesSkipUsageCheck, other.autoDeleteQueuesSkipUsageCheck) &&
+             Objects.equals(autoDeleteQueuesMessageCount, other.autoDeleteQueuesMessageCount) &&
+             Objects.equals(defaultRingSize, other.defaultRingSize) &&
+             Objects.equals(retroactiveMessageCount, other.retroactiveMessageCount) &&
+             Objects.equals(configDeleteQueues, other.configDeleteQueues) &&
+             Objects.equals(autoCreateAddresses, other.autoCreateAddresses) &&
+             Objects.equals(autoDeleteAddresses, other.autoDeleteAddresses) &&
+             Objects.equals(autoDeleteAddressesDelay, other.autoDeleteAddressesDelay) &&
+             Objects.equals(autoDeleteAddressesSkipUsageCheck, other.autoDeleteAddressesSkipUsageCheck) &&
+             Objects.equals(configDeleteAddresses, other.configDeleteAddresses) &&
+             Objects.equals(configDeleteDiverts, other.configDeleteDiverts) &&
+             Objects.equals(managementBrowsePageSize, other.managementBrowsePageSize) &&
+             Objects.equals(maxSizeBytesRejectThreshold, other.maxSizeBytesRejectThreshold) &&
+             Objects.equals(defaultMaxConsumers, other.defaultMaxConsumers) &&
+             Objects.equals(defaultPurgeOnNoConsumers, other.defaultPurgeOnNoConsumers) &&
+             Objects.equals(defaultConsumersBeforeDispatch, other.defaultConsumersBeforeDispatch) &&
+             Objects.equals(defaultDelayBeforeDispatch, other.defaultDelayBeforeDispatch) &&
+             Objects.equals(defaultQueueRoutingType, other.defaultQueueRoutingType) &&
+             Objects.equals(defaultAddressRoutingType, other.defaultAddressRoutingType) &&
+             Objects.equals(defaultConsumerWindowSize, other.defaultConsumerWindowSize) &&
+             Objects.equals(autoCreateDeadLetterResources, other.autoCreateDeadLetterResources) &&
+             Objects.equals(deadLetterQueuePrefix, other.deadLetterQueuePrefix) &&
+             Objects.equals(deadLetterQueueSuffix, other.deadLetterQueueSuffix) &&
+             Objects.equals(autoCreateExpiryResources, other.autoCreateExpiryResources) &&
+             Objects.equals(expiryQueuePrefix, other.expiryQueuePrefix) &&
+             Objects.equals(expiryQueueSuffix, other.expiryQueueSuffix) &&
+             Objects.equals(enableMetrics, other.enableMetrics) &&
+             Objects.equals(managementMessageAttributeSizeLimit, other.managementMessageAttributeSizeLimit) &&
+             Objects.equals(enableIngressTimestamp, other.enableIngressTimestamp) &&
+             Objects.equals(idCacheSize, other.idCacheSize) &&
+             Objects.equals(initialQueueBufferSize, other.initialQueueBufferSize) &&
+             Objects.equals(queuePrefetch, other.queuePrefetch);
    }
 
    @Override

@@ -1026,13 +1026,17 @@ public final class PriorityLinkedListTest {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o)
+      public boolean equals(Object obj) {
+         if (this == obj) {
             return true;
-         if (o == null || getClass() != o.getClass())
+         }
+         if (!(obj instanceof Wibble other)) {
             return false;
-         Wibble wibble = (Wibble) o;
-         return Objects.equals(s1, wibble.s1);
+         }
+
+         return Objects.equals(s1, other.s1) &&
+                Objects.equals(id, other.id) &&
+                Objects.equals(level, other.level);
       }
 
       @Override

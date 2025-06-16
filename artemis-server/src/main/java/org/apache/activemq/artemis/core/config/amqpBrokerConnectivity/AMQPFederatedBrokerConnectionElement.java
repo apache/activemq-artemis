@@ -165,16 +165,12 @@ public class AMQPFederatedBrokerConnectionElement extends AMQPBrokerConnectionEl
       if (this == obj) {
          return true;
       }
-
       if (!super.equals(obj)) {
          return false;
       }
-
-      if (getClass() != obj.getClass()) {
+      if (!(obj instanceof AMQPFederatedBrokerConnectionElement other)) {
          return false;
       }
-
-      final AMQPFederatedBrokerConnectionElement other = (AMQPFederatedBrokerConnectionElement) obj;
 
       return Objects.equals(localAddressPolicies, other.localAddressPolicies) &&
              Objects.equals(localQueuePolicies, other.localQueuePolicies) &&

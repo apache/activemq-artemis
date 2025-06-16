@@ -242,11 +242,15 @@ public class PriorityCollectionTest {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) return true;
-         if (o == null || getClass() != o.getClass()) return false;
-         TestPriorityAware that = (TestPriorityAware) o;
-         return value == that.value;
+      public boolean equals(Object obj) {
+         if (this == obj) {
+            return true;
+         }
+         if (!(obj instanceof TestPriorityAware other)) {
+            return false;
+         }
+
+         return value == other.value;
       }
 
       @Override
@@ -275,12 +279,16 @@ public class PriorityCollectionTest {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) return true;
-         if (o == null || getClass() != o.getClass()) return false;
-         TestPriority that = (TestPriority) o;
-         return priority == that.priority &&
-                 Objects.equals(name, that.name);
+      public boolean equals(Object obj) {
+         if (this == obj) {
+            return true;
+         }
+         if (!(obj instanceof TestPriority other)) {
+            return false;
+         }
+
+         return priority == other.priority &&
+                Objects.equals(name, other.name);
       }
 
       @Override
