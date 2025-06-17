@@ -94,9 +94,7 @@ public class CuratorDistributedLockManager implements DistributedLockManager, Co
 
       @Override
       public int hashCode() {
-         int result = id != null ? id.hashCode() : 0;
-         result = 31 * result + (type != null ? type.hashCode() : 0);
-         return result;
+         return Objects.hash(id, type);
       }
    }
 

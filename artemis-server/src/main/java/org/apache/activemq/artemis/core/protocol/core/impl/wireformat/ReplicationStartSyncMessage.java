@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.utils.DataConstants;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This message may signal start or end of the replication synchronization.
@@ -192,14 +193,8 @@ public class ReplicationStartSyncMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + (allowsAutoFailBack ? 1231 : 1237);
-      result = prime * result + ((dataType == null) ? 0 : dataType.hashCode());
-      result = prime * result + Arrays.hashCode(ids);
-      result = prime * result + ((nodeID == null) ? 0 : nodeID.hashCode());
-      result = prime * result + (synchronizationIsFinished ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), allowsAutoFailBack, dataType, Arrays.hashCode(ids), nodeID,
+                          synchronizationIsFinished);
    }
 
    @Override

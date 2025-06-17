@@ -199,10 +199,7 @@ public class TransportConfiguration implements Serializable {
 
    @Override
    public int hashCode() {
-      int result = name != null ? name.hashCode() : 0;
-      result = 31 * result + factoryClassName.hashCode();
-      result = 31 * result + (params != null ? params.hashCode() : 0);
-      return result;
+      return Objects.hash(name, factoryClassName, params);
    }
 
    @Override

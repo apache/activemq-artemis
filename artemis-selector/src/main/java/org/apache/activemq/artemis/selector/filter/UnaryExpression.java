@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * An expression which performs an operation on two expression values
@@ -233,9 +234,7 @@ public abstract class UnaryExpression implements Expression {
 
    @Override
    public int hashCode() {
-      int result = right.hashCode();
-      result = 31 * result + getExpressionSymbol().hashCode();
-      return result;
+      return Objects.hash(right, getExpressionSymbol());
    }
 
    @Override

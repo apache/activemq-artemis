@@ -24,6 +24,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
@@ -280,11 +281,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((groupAddress == null) ? 0 : groupAddress.hashCode());
-      result = prime * result + groupPort;
-      return result;
+      return Objects.hash(groupAddress, groupPort);
    }
 
    @Override

@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.Objects;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
 
@@ -126,10 +127,7 @@ public class FilterImpl implements Filter {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((sfilterString == null) ? 0 : sfilterString.hashCode());
-      return result;
+      return Objects.hash(sfilterString);
    }
 
    @Override

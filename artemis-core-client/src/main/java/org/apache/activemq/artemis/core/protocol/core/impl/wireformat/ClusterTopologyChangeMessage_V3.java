@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -83,10 +85,7 @@ public class ClusterTopologyChangeMessage_V3 extends ClusterTopologyChangeMessag
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((scaleDownGroupName == null) ? 0 : scaleDownGroupName.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), scaleDownGroupName);
    }
 
    @Override

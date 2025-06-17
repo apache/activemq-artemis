@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -77,10 +78,7 @@ public class SessionXAGetInDoubtXidsResponseMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((xids == null) ? 0 : xids.hashCode());
-      return result;
+      return Objects.hash(super.hashCode(), xids);
    }
 
    @Override

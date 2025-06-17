@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -69,11 +71,7 @@ public class ReattachSessionResponseMessage extends PacketImpl {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + lastConfirmedCommandID;
-      result = prime * result + (reattached ? 1231 : 1237);
-      return result;
+      return Objects.hash(super.hashCode(), lastConfirmedCommandID, reattached);
    }
 
    @Override

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.journal;
 
+import java.util.Objects;
+
 /**
  * This is a POJO containing information about the journal during load time.
  */
@@ -53,11 +55,7 @@ public class JournalLoadInformation {
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + (int) (maxID ^ maxID >>> 32);
-      result = prime * result + numberOfRecords;
-      return result;
+      return Objects.hash(maxID, numberOfRecords);
    }
 
    @Override

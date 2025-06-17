@@ -21,6 +21,7 @@ package org.apache.activemq.artemis.tests.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -86,6 +87,10 @@ public class SimpleTest extends ActiveMQTestBase {
 
    @Test
    public void simpleTest() throws Exception {
+      Integer x = Integer.valueOf(5);
+      System.out.println(x.hashCode());
+      System.out.println(Objects.hash(x));
+      System.out.println(Objects.hashCode(x));
       final String data = "Simple Text " + UUID.randomUUID().toString();
       final String queueName = "simpleQueue";
       final String addressName = "simpleAddress";

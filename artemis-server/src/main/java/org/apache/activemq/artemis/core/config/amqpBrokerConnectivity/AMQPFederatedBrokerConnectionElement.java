@@ -153,11 +153,8 @@ public class AMQPFederatedBrokerConnectionElement extends AMQPBrokerConnectionEl
 
    @Override
    public int hashCode() {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + Objects.hash(localAddressPolicies, localQueuePolicies, properties, remoteAddressPolicies, remoteQueuePolicies);
-
-      return result;
+      return Objects.hash(super.hashCode(), localAddressPolicies, localQueuePolicies, properties, remoteAddressPolicies,
+                          remoteQueuePolicies);
    }
 
    @Override

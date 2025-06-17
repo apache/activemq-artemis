@@ -28,6 +28,7 @@ import javax.security.auth.Subject;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -228,11 +229,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    @Override
    public int hashCode() {
       logger.trace("hashCode()");
-
-      int hash = mcfProperties.hashCode();
-      hash += 31 * (ra != null ? ra.hashCode() : 0);
-
-      return hash;
+      return Objects.hash(mcfProperties, ra);
    }
 
    public String getSessionDefaultType() {
