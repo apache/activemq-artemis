@@ -344,12 +344,36 @@
             <groupId>info.picocli</groupId>
             <artifactId>picocli-shell-jline3</artifactId>
             <version>${picocli.version}</version>
+            <exclusions>
+               <exclusion>
+                  <groupId>org.jline</groupId>
+                  <artifactId>jline</artifactId>
+               </exclusion>
+            </exclusions>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>org.jline</groupId>
-            <artifactId>jline</artifactId>
+            <artifactId>jline-console</artifactId>
             <version>${jline.version}</version>
+            <!-- License: BSD 3-Clause -->
+         </dependency>
+         <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-reader</artifactId>
+            <version>${jline.version}</version>
+            <!-- License: BSD 3-Clause -->
+         </dependency>
+         <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal</artifactId>
+            <version>${jline.version}</version>
+            <exclusions>
+               <exclusion>
+                  <groupId>org.jline</groupId>
+                  <artifactId>jline-native</artifactId>
+               </exclusion>
+            </exclusions>
             <!-- License: BSD 3-Clause -->
          </dependency>
          <!--needed to compile transport jar-->
