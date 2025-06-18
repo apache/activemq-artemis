@@ -80,6 +80,7 @@ set JVM_ARGS=%JVM_ARGS% -Dartemis.home=%ARTEMIS_HOME%
 set JVM_ARGS=%JVM_ARGS% -Dartemis.instance=%ARTEMIS_INSTANCE%
 set JVM_ARGS=%JVM_ARGS% -Ddata.dir=%ARTEMIS_DATA_DIR%
 set JVM_ARGS=%JVM_ARGS% -Dartemis.instance.etc=%ARTEMIS_INSTANCE_ETC%
+set JVM_ARGS=%JVM_ARGS% -Djava.security.auth.login.config=%ARTEMIS_INSTANCE_ETC%\login.config
 
 if not "%DEBUG_ARGS%"=="" set JVM_ARGS=%JVM_ARGS% %DEBUG_ARGS%
 if not "%$JAVA_ARGS_APPEND%"=="" set JVM_ARGS=%JVM_ARGS% %$JAVA_ARGS_APPEND%
