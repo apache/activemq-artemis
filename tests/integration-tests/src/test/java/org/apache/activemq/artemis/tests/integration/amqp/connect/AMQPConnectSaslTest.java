@@ -117,6 +117,31 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
 
    @Test
    @Timeout(20)
+   public void testConnectsWithXOauth2() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSaslXOauth2Connect(USER, PASSWD);
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+             new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + remoteURI.getPort() + "?saslMechanisms=XOAUTH2");
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.setUser(USER);
+         amqpConnection.setPassword(PASSWD);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
+
+   @Test
+   @Timeout(20)
    public void testAnonymousSelectedWhenNoCredentialsSupplied() throws Exception {
       doMechanismSelectedTestImpl(null, null, ANONYMOUS, new String[]{SCRAM_SHA_512, PLAIN, ANONYMOUS});
    }
