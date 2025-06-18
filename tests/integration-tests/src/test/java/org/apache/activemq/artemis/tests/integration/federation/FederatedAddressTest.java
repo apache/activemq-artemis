@@ -24,6 +24,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -37,9 +38,11 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -644,6 +647,50 @@ public class FederatedAddressTest extends FederatedTestBase {
          //Test producers being on broker 2 and consumer on broker 0, with broker 2 being in the middle of the chain.
          producer2.send(session2.createTextMessage("hello"));
          assertNotNull(consumer0.receive(1000));
+      }
+   }
+
+   @Test
+   public void testUpstreamFederatedAddressWithCompressedMessage() throws Exception {
+      final String DATA = RandomUtil.randomAlphaNumericString(1024 * 1024);
+      final String address = getName();
+
+      FederationConfiguration federationConfiguration = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server1", address);
+      getServer(0).getConfiguration().getFederationConfigurations().add(federationConfiguration);
+      getServer(0).getFederationManager().deploy();
+
+      FederationConfiguration federationConfiguration2 = FederatedTestUtil.createAddressUpstreamFederationConfiguration("server0", address);
+      getServer(1).getConfiguration().getFederationConfigurations().add(federationConfiguration2);
+      getServer(1).getFederationManager().deploy();
+
+      ActiveMQConnectionFactory cf0 = new ActiveMQConnectionFactory("vm://" + 0);
+      ActiveMQConnectionFactory cf1 = new ActiveMQConnectionFactory("vm://" + 1);
+      cf0.setCompressLargeMessage(true);
+      cf1.setCompressLargeMessage(true);
+
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
+         connection1.start();
+         connection0.start();
+
+         Session session0 = connection0.createSession();
+         Session session1 = connection1.createSession();
+         Topic topic0 = session0.createTopic(address);
+         Topic topic1 = session1.createTopic(address);
+         MessageConsumer consumer0 = session0.createConsumer(topic0);
+         MessageConsumer consumer1 = session1.createConsumer(topic1);
+
+         MessageProducer producer = session0.createProducer(topic0);
+         producer.send(session0.createTextMessage(DATA));
+
+         TextMessage message0 = (TextMessage) consumer0.receive(1000);
+         assertNotNull(message0);
+         assertEquals(DATA, message0.getText());
+
+         TextMessage message1 = (TextMessage) consumer1.receive(1000);
+         assertNotNull(message1);
+         assertEquals(DATA, message1.getText());
+
       }
    }
 
