@@ -21,8 +21,16 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 * Apply `security-setting` configuration according to xref:address-model.adoc#uuid-resources[`uuid-namespace`].
 * Control the maximum number of in-flight MQTT messages for both 3.x and 5.0 clients via xref:mqtt.adoc#flow-control[`defaultMaximumInFlightPublishMessages`].
+* Performance for persisting MQTT subscriptions is much improved.
 
 === Upgrading from 2.41.0
+
+* Due to https://issues.apache.org/jira/browse/ARTEMIS-5499[ARTEMIS-5499] the `mqtt-session-state-persistence-timeout` configuration parameter has been deprecated.
+Timeouts are no longer possible due to an adjustment of how the broker manages MQTT subscription persistence.
+You can continue to define `mqtt-session-state-persistence-timeout` in `broker.xml` without error, but it won't actually do anything.
++
+Furthermore, it is no longer recommended to disable MQTT subscription persistence by modifying the configuration of the `$sys.mqtt.sessions` queue. This method still works, but the `mqtt-subscription-persistence-enabled` configuration parameter was added for convenience & clarity.
+Performance will also be _slightly_ better with this new parameter.
 
 * Due to https://issues.apache.org/jira/browse/ARTEMIS-5444[ARTEMIS-5444] the `temporary-queue-namespace` configuration parameter has been renamed to xref:address-model.adoc#uuid-resources[`uuid-namespace`].
 Address-settings configured according to the `uuid-namespace` will be applied based on the name following a supported xref:address-model.adoc#uuid-formats[UUID format] rather than simply if the resource is _temporary_ as it was previously.
