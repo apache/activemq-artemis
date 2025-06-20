@@ -167,11 +167,16 @@ public class FederationQueuePolicyConfiguration implements FederationPolicy<Fede
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) return true;
-         if (!(o instanceof Matcher matcher)) return false;
-         return Objects.equals(queueMatch, matcher.queueMatch) &&
-               Objects.equals(addressMatch, matcher.addressMatch);
+      public boolean equals(Object obj) {
+         if (this == obj) {
+            return true;
+         }
+         if (!(obj instanceof Matcher other)) {
+            return false;
+         }
+
+         return Objects.equals(queueMatch, other.queueMatch) &&
+                Objects.equals(addressMatch, other.addressMatch);
       }
 
       @Override
@@ -191,15 +196,20 @@ public class FederationQueuePolicyConfiguration implements FederationPolicy<Fede
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof FederationQueuePolicyConfiguration that)) return false;
-      return includeFederated == that.includeFederated &&
-            Objects.equals(name, that.name) &&
-            Objects.equals(includes, that.includes) &&
-            Objects.equals(excludes, that.excludes) &&
-            Objects.equals(priorityAdjustment, that.priorityAdjustment) &&
-            Objects.equals(transformerRef, that.transformerRef);
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof FederationQueuePolicyConfiguration other)) {
+         return false;
+      }
+
+      return includeFederated == other.includeFederated &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(includes, other.includes) &&
+             Objects.equals(excludes, other.excludes) &&
+             Objects.equals(priorityAdjustment, other.priorityAdjustment) &&
+             Objects.equals(transformerRef, other.transformerRef);
    }
 
    @Override

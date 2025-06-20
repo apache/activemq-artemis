@@ -105,14 +105,16 @@ public class SessionQueueQueryResponseMessage_V2 extends SessionQueueQueryRespon
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionQueueQueryResponseMessage_V2 other))
+      }
+      if (!(obj instanceof SessionQueueQueryResponseMessage_V2 other)) {
          return false;
-      if (autoCreateQueues != other.autoCreateQueues)
-         return false;
-      return true;
+      }
+
+      return autoCreateQueues == other.autoCreateQueues;
    }
 }

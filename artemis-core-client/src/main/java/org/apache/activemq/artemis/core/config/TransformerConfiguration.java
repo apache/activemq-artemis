@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class TransformerConfiguration implements Serializable {
 
@@ -126,24 +127,15 @@ public final class TransformerConfiguration implements Serializable {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof TransformerConfiguration other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      TransformerConfiguration other = (TransformerConfiguration) obj;
-      if (className == null) {
-         if (other.className != null)
-            return false;
-      } else if (!className.equals(other.className))
-         return false;
-      if (properties == null) {
-         if (other.properties != null)
-            return false;
-      } else if (!properties.equals(other.properties))
-         return false;
-      return true;
+      }
+
+      return Objects.equals(className, other.className) &&
+             Objects.equals(properties, other.properties);
    }
 
    @Override

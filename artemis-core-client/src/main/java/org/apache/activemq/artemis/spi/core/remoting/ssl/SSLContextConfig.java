@@ -183,21 +183,23 @@ public final class SSLContextConfig {
 
    @Override
    public boolean equals(final Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null || getClass() != obj.getClass())
+      }
+      if (!(obj instanceof SSLContextConfig other)) {
          return false;
-      final SSLContextConfig other = (SSLContextConfig) obj;
-      return Objects.equals(keystorePath, other.keystorePath)
-         && Objects.equals(keystoreType, other.keystoreType)
-         && Objects.equals(keystoreProvider, other.keystoreProvider)
-         && Objects.equals(truststorePath, other.truststorePath)
-         && Objects.equals(truststoreType, other.truststoreType)
-         && Objects.equals(truststoreProvider, other.truststoreProvider)
-         && Objects.equals(crlPath, other.crlPath)
-         && Objects.equals(trustManagerFactoryPlugin, other.trustManagerFactoryPlugin)
-         && trustAll == other.trustAll
-         && Objects.equals(keystoreAlias, other.keystoreAlias);
+      }
+
+      return Objects.equals(keystorePath, other.keystorePath) &&
+             Objects.equals(keystoreType, other.keystoreType) &&
+             Objects.equals(keystoreProvider, other.keystoreProvider) &&
+             Objects.equals(truststorePath, other.truststorePath) &&
+             Objects.equals(truststoreType, other.truststoreType) &&
+             Objects.equals(truststoreProvider, other.truststoreProvider) &&
+             Objects.equals(crlPath, other.crlPath) &&
+             Objects.equals(trustManagerFactoryPlugin, other.trustManagerFactoryPlugin) &&
+             trustAll == other.trustAll &&
+             Objects.equals(keystoreAlias, other.keystoreAlias);
    }
 
    public String getCrlPath() {

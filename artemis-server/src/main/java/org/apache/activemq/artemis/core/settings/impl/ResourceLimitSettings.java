@@ -155,23 +155,17 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof ResourceLimitSettings other)) {
          return false;
       }
 
-      ResourceLimitSettings that = (ResourceLimitSettings) o;
-
-      if (match != null ? !match.equals(that.match) : that.match != null) {
-         return false;
-      }
-      if (maxSessions != null ? !maxSessions.equals(that.maxSessions) : that.maxSessions != null) {
-         return false;
-      }
-      return maxQueues != null ? maxQueues.equals(that.maxQueues) : that.maxQueues == null;
+      return Objects.equals(match, other.match) &&
+             Objects.equals(maxSessions, other.maxSessions) &&
+             Objects.equals(maxQueues, other.maxQueues);
    }
 
    @Override

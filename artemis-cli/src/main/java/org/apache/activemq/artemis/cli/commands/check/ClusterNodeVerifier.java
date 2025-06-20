@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -293,19 +294,17 @@ public class ClusterNodeVerifier implements AutoCloseable {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o)
+      public boolean equals(Object obj) {
+         if (this == obj) {
             return true;
-         if (o == null || getClass() != o.getClass())
+         }
+         if (!(obj instanceof TopologyItem other)) {
             return false;
+         }
 
-         TopologyItem item = (TopologyItem) o;
-
-         if (nodeID != null ? !nodeID.equals(item.nodeID) : item.nodeID != null)
-            return false;
-         if (primary != null ? !primary.equals(item.primary) : item.primary != null)
-            return false;
-         return backup != null ? backup.equals(item.backup) : item.backup == null;
+         return Objects.equals(nodeID, other.nodeID) &&
+                Objects.equals(primary, other.primary) &&
+                Objects.equals(backup, other.backup);
       }
 
       @Override

@@ -95,18 +95,15 @@ public class PagePositionImpl implements PagePosition {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof PagePositionImpl other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      PagePositionImpl other = (PagePositionImpl) obj;
-      if (messageNr != other.messageNr)
-         return false;
-      if (pageNr != other.pageNr)
-         return false;
-      return true;
+      }
+
+      return messageNr == other.messageNr &&
+             pageNr == other.pageNr;
    }
 
    @Override

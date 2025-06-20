@@ -78,16 +78,17 @@ public final class ReplicationDeleteMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof ReplicationDeleteMessage other))
+      }
+      if (!(obj instanceof ReplicationDeleteMessage other)) {
          return false;
-      if (id != other.id)
-         return false;
-      if (journalID != other.journalID)
-         return false;
-      return true;
+      }
+
+      return id == other.id &&
+             journalID == other.journalID;
    }
 }

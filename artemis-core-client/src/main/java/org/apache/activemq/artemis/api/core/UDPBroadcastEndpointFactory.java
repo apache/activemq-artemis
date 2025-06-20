@@ -24,6 +24,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
@@ -289,20 +290,14 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof UDPBroadcastEndpointFactory other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      UDPBroadcastEndpointFactory other = (UDPBroadcastEndpointFactory) obj;
-      if (groupAddress == null) {
-         if (other.groupAddress != null)
-            return false;
-      } else if (!groupAddress.equals(other.groupAddress))
-         return false;
-      if (groupPort != other.groupPort)
-         return false;
-      return true;
+      }
+
+      return Objects.equals(groupAddress, other.groupAddress) &&
+             groupPort == other.groupPort;
    }
 }

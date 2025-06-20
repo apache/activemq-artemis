@@ -107,13 +107,17 @@ public class MetricsPluginTest extends ActiveMQTestBase {
          }
 
          @Override
-         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Metric metric = (Metric) o;
-            return Objects.equals(name, metric.name) &&
-               Objects.equals(value, metric.value) &&
-               Objects.equals(tags, metric.tags);
+         public boolean equals(Object obj) {
+            if (this == obj) {
+               return true;
+            }
+            if (!(obj instanceof Metric other)) {
+               return false;
+            }
+
+            return Objects.equals(name, other.name) &&
+                   Objects.equals(value, other.value) &&
+                   Objects.equals(tags, other.tags);
          }
 
          @Override

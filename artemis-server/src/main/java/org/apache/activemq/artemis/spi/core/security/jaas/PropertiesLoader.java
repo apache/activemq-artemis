@@ -95,8 +95,8 @@ public class PropertiesLoader {
       }
 
       @Override
-      public boolean equals(Object other) {
-         return other instanceof FileNameKey fnk && this.absPath.equals(fnk.absPath);
+      public boolean equals(Object obj) {
+         return obj instanceof FileNameKey other && this.absPath.equals(other.absPath);
       }
 
       @Override

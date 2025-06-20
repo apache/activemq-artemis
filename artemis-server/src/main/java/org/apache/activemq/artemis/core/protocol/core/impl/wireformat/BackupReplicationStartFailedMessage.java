@@ -80,20 +80,18 @@ public final class BackupReplicationStartFailedMessage extends PacketImpl {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!super.equals(o))
+      }
+      if (!(obj instanceof BackupReplicationStartFailedMessage other)) {
          return false;
+      }
 
-      BackupReplicationStartFailedMessage that = (BackupReplicationStartFailedMessage) o;
-
-      if (problem != that.problem)
-         return false;
-
-      return true;
+      return Objects.equals(problem, other.problem);
    }
 
    @Override

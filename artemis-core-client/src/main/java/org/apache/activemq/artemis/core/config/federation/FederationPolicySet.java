@@ -62,11 +62,16 @@ public class FederationPolicySet implements FederationPolicy<FederationPolicySet
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof FederationPolicySet that)) return false;
-      return Objects.equals(name, that.name) &&
-            Objects.equals(policyRefs, that.policyRefs);
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof FederationPolicySet other)) {
+         return false;
+      }
+
+      return Objects.equals(name, other.name) &&
+             Objects.equals(policyRefs, other.policyRefs);
    }
 
    @Override

@@ -67,12 +67,17 @@ public abstract class FederationStreamConfiguration <T extends FederationStreamC
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (!(o instanceof FederationStreamConfiguration that))
+      }
+      if (!(obj instanceof FederationStreamConfiguration other)) {
          return false;
-      return Objects.equals(name, that.name) && Objects.equals(connectionConfiguration, that.connectionConfiguration) && Objects.equals(policyRefs, that.policyRefs);
+      }
+
+      return Objects.equals(name, other.name) &&
+             Objects.equals(connectionConfiguration, other.connectionConfiguration) &&
+             Objects.equals(policyRefs, other.policyRefs);
    }
 
    @Override

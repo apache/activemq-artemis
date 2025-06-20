@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -180,46 +181,22 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionBindingQueryResponseMessage_V4 other))
+      }
+      if (!(obj instanceof SessionBindingQueryResponseMessage_V4 other)) {
          return false;
-      if (defaultPurgeOnNoConsumers != other.defaultPurgeOnNoConsumers)
-         return false;
-      if (defaultMaxConsumers != other.defaultMaxConsumers)
-         return false;
-      if (defaultExclusive == null) {
-         if (other.defaultExclusive != null)
-            return false;
-      } else if (!defaultExclusive.equals(other.defaultExclusive))
-         return false;
-      if (defaultLastValue == null) {
-         if (other.defaultLastValue != null)
-            return false;
-      } else if (!defaultLastValue.equals(other.defaultLastValue))
-         return false;
-      if (defaultLastValueKey == null) {
-         if (other.defaultLastValueKey != null)
-            return false;
-      } else if (!defaultLastValueKey.equals(other.defaultLastValueKey))
-         return false;
-      if (defaultNonDestructive == null) {
-         if (other.defaultNonDestructive != null)
-            return false;
-      } else if (!defaultNonDestructive.equals(other.defaultNonDestructive))
-         return false;
-      if (defaultConsumersBeforeDispatch == null) {
-         if (other.defaultConsumersBeforeDispatch != null)
-            return false;
-      } else if (!defaultConsumersBeforeDispatch.equals(other.defaultConsumersBeforeDispatch))
-         return false;
-      if (defaultDelayBeforeDispatch == null) {
-         if (other.defaultDelayBeforeDispatch != null)
-            return false;
-      } else if (!defaultDelayBeforeDispatch.equals(other.defaultDelayBeforeDispatch))
-         return false;
-      return true;
+      }
+      return defaultPurgeOnNoConsumers == other.defaultPurgeOnNoConsumers &&
+             defaultMaxConsumers == other.defaultMaxConsumers &&
+             Objects.equals(defaultExclusive, other.defaultExclusive) &&
+             Objects.equals(defaultLastValue, other.defaultLastValue) &&
+             Objects.equals(defaultLastValueKey, other.defaultLastValueKey) &&
+             Objects.equals(defaultNonDestructive, other.defaultNonDestructive) &&
+             Objects.equals(defaultConsumersBeforeDispatch, other.defaultConsumersBeforeDispatch) &&
+             Objects.equals(defaultDelayBeforeDispatch, other.defaultDelayBeforeDispatch);
    }
 }

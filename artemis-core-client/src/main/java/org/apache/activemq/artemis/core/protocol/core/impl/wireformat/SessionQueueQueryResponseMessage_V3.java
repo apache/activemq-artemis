@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -456,108 +458,36 @@ public class SessionQueueQueryResponseMessage_V3 extends SessionQueueQueryRespon
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionQueueQueryResponseMessage_V3 other))
+      }
+      if (!(obj instanceof SessionQueueQueryResponseMessage_V3 other)) {
          return false;
-      if (autoCreated != other.autoCreated)
-         return false;
-      if (purgeOnNoConsumers != other.purgeOnNoConsumers)
-         return false;
-      if (exclusive == null) {
-         if (other.exclusive != null)
-            return false;
-      } else if (!exclusive.equals(other.exclusive))
-         return false;
-      if (groupRebalance == null) {
-         if (other.groupRebalance != null)
-            return false;
-      } else if (!groupRebalance.equals(other.groupRebalance))
-         return false;
-      if (groupRebalancePauseDispatch == null) {
-         if (other.groupRebalancePauseDispatch != null)
-            return false;
-      } else if (!groupRebalancePauseDispatch.equals(other.groupRebalancePauseDispatch))
-         return false;
-      if (groupBuckets == null) {
-         if (other.groupBuckets != null)
-            return false;
-      } else if (!groupBuckets.equals(other.groupBuckets))
-         return false;
-      if (groupFirstKey == null) {
-         if (other.groupFirstKey != null)
-            return false;
-      } else if (!groupFirstKey.equals(other.groupFirstKey))
-         return false;
-      if (lastValue == null) {
-         if (other.lastValue != null)
-            return false;
-      } else if (!lastValue.equals(other.lastValue))
-         return false;
-      if (lastValueKey == null) {
-         if (other.lastValueKey != null)
-            return false;
-      } else if (!lastValueKey.equals(other.lastValueKey))
-         return false;
-      if (nonDestructive == null) {
-         if (other.nonDestructive != null)
-            return false;
-      } else if (!nonDestructive.equals(other.nonDestructive))
-         return false;
-      if (consumersBeforeDispatch == null) {
-         if (other.consumersBeforeDispatch != null)
-            return false;
-      } else if (!consumersBeforeDispatch.equals(other.consumersBeforeDispatch))
-         return false;
-      if (delayBeforeDispatch == null) {
-         if (other.delayBeforeDispatch != null)
-            return false;
-      } else if (!delayBeforeDispatch.equals(other.delayBeforeDispatch))
-         return false;
-      if (autoDelete == null) {
-         if (other.autoDelete != null)
-            return false;
-      } else if (!autoDelete.equals(other.autoDelete))
-         return false;
-      if (autoDeleteDelay == null) {
-         if (other.autoDeleteDelay != null)
-            return false;
-      } else if (!autoDeleteDelay.equals(other.autoDeleteDelay))
-         return false;
-      if (autoDeleteMessageCount == null) {
-         if (other.autoDeleteMessageCount != null)
-            return false;
-      } else if (!autoDeleteMessageCount.equals(other.autoDeleteMessageCount))
-         return false;
-      if (ringSize == null) {
-         if (other.ringSize != null)
-            return false;
-      } else if (!ringSize.equals(other.ringSize))
-         return false;
-      if (enabled == null) {
-         if (other.enabled != null)
-            return false;
-      } else if (!enabled.equals(other.enabled))
-         return false;
-      if (defaultConsumerWindowSize == null) {
-         if (other.defaultConsumerWindowSize != null)
-            return false;
-      } else if (!defaultConsumerWindowSize.equals(other.defaultConsumerWindowSize))
-         return false;
-      if (routingType == null) {
-         if (other.routingType != null)
-            return false;
-      } else if (!routingType.equals(other.routingType))
-         return false;
-      if (maxConsumers != other.maxConsumers)
-         return false;
-      if (configurationManaged == null) {
-         if (other.configurationManaged != null)
-            return false;
-      } else if (!configurationManaged.equals(other.configurationManaged))
-         return false;
-      return true;
+      }
+
+      return autoCreated == other.autoCreated &&
+             purgeOnNoConsumers == other.purgeOnNoConsumers &&
+             maxConsumers == other.maxConsumers &&
+             Objects.equals(exclusive, other.exclusive) &&
+             Objects.equals(groupRebalance, other.groupRebalance) &&
+             Objects.equals(groupRebalancePauseDispatch, other.groupRebalancePauseDispatch) &&
+             Objects.equals(groupBuckets, other.groupBuckets) &&
+             Objects.equals(groupFirstKey, other.groupFirstKey) &&
+             Objects.equals(lastValue, other.lastValue) &&
+             Objects.equals(lastValueKey, other.lastValueKey) &&
+             Objects.equals(nonDestructive, other.nonDestructive) &&
+             Objects.equals(consumersBeforeDispatch, other.consumersBeforeDispatch) &&
+             Objects.equals(delayBeforeDispatch, other.delayBeforeDispatch) &&
+             Objects.equals(autoDelete, other.autoDelete) &&
+             Objects.equals(autoDeleteDelay, other.autoDeleteDelay) &&
+             Objects.equals(autoDeleteMessageCount, other.autoDeleteMessageCount) &&
+             Objects.equals(ringSize, other.ringSize) &&
+             Objects.equals(enabled, other.enabled) &&
+             Objects.equals(defaultConsumerWindowSize, other.defaultConsumerWindowSize) &&
+             Objects.equals(routingType, other.routingType) &&
+             Objects.equals(configurationManaged, other.configurationManaged);
    }
 }

@@ -19,6 +19,7 @@ package org.apache.activemq.transport.amqp.client.util;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class TypeConversionSupport {
 
@@ -35,17 +36,16 @@ public final class TypeConversionSupport {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) {
+      public boolean equals(Object obj) {
+         if (this == obj) {
             return true;
          }
-
-         if (o == null || o.getClass() != this.getClass()) {
+         if (!(obj instanceof ConversionKey other)) {
             return false;
          }
 
-         ConversionKey x = (ConversionKey) o;
-         return x.from == from && x.to == to;
+         return Objects.equals(from, other.from) &&
+                Objects.equals(to, other.to);
       }
 
       @Override

@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.Topic;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 
 /**
@@ -69,16 +71,15 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
    }
 
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (!(o instanceof ActiveMQTopic that)) {
+      if (!(obj instanceof ActiveMQTopic other)) {
          return false;
       }
 
-      return super.getAddress().equals(that.getAddress());
+      return Objects.equals(super.getAddress(), other.getAddress());
    }
 
    @Override

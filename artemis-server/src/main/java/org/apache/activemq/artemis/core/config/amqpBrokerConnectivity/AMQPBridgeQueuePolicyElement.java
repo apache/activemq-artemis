@@ -199,25 +199,23 @@ public final class AMQPBridgeQueuePolicyElement implements Serializable {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!(o instanceof AMQPBridgeQueuePolicyElement)) {
+      if (!(obj instanceof AMQPBridgeQueuePolicyElement other)) {
          return false;
       }
 
-      final AMQPBridgeQueuePolicyElement that = (AMQPBridgeQueuePolicyElement) o;
-
-      return Objects.equals(name, that.name) &&
-             Objects.equals(includes, that.includes) &&
-             Objects.equals(excludes, that.excludes) &&
-             Objects.equals(priority, that.priority) &&
-             Objects.equals(priorityAdjustment, that.priorityAdjustment) &&
-             Objects.equals(filter, that.filter) &&
-             Objects.equals(remoteAddress, that.remoteAddress) &&
-             Objects.equals(remoteAddressPrefix, that.remoteAddressPrefix) &&
-             Arrays.equals(remoteTerminusCapabilities, that.remoteTerminusCapabilities);
+      return Objects.equals(name, other.name) &&
+             Objects.equals(includes, other.includes) &&
+             Objects.equals(excludes, other.excludes) &&
+             Objects.equals(priority, other.priority) &&
+             Objects.equals(priorityAdjustment, other.priorityAdjustment) &&
+             Objects.equals(filter, other.filter) &&
+             Objects.equals(remoteAddress, other.remoteAddress) &&
+             Objects.equals(remoteAddressPrefix, other.remoteAddressPrefix) &&
+             Arrays.equals(remoteTerminusCapabilities, other.remoteTerminusCapabilities);
    }
 
    @Override
@@ -268,19 +266,16 @@ public final class AMQPBridgeQueuePolicyElement implements Serializable {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) {
+      public boolean equals(Object obj) {
+         if (this == obj) {
             return true;
          }
-
-         if (!(o instanceof QueueMatch)) {
+         if (!(obj instanceof QueueMatch other)) {
             return false;
          }
 
-         final QueueMatch matcher = (QueueMatch) o;
-
-         return Objects.equals(queueMatch, matcher.queueMatch) &&
-                Objects.equals(addressMatch, matcher.addressMatch);
+         return Objects.equals(queueMatch, other.queueMatch) &&
+                Objects.equals(addressMatch, other.addressMatch);
       }
 
       @Override

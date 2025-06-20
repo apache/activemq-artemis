@@ -231,81 +231,27 @@ public class PersistedSecuritySetting implements EncodingSupport {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof PersistedSecuritySetting other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      PersistedSecuritySetting other = (PersistedSecuritySetting) obj;
-      if (addressMatch == null) {
-         if (other.addressMatch != null)
-            return false;
-      } else if (!addressMatch.equals(other.addressMatch))
-         return false;
-      if (consumeRoles == null) {
-         if (other.consumeRoles != null)
-            return false;
-      } else if (!consumeRoles.equals(other.consumeRoles))
-         return false;
-      if (createDurableQueueRoles == null) {
-         if (other.createDurableQueueRoles != null)
-            return false;
-      } else if (!createDurableQueueRoles.equals(other.createDurableQueueRoles))
-         return false;
-      if (createNonDurableQueueRoles == null) {
-         if (other.createNonDurableQueueRoles != null)
-            return false;
-      } else if (!createNonDurableQueueRoles.equals(other.createNonDurableQueueRoles))
-         return false;
-      if (deleteDurableQueueRoles == null) {
-         if (other.deleteDurableQueueRoles != null)
-            return false;
-      } else if (!deleteDurableQueueRoles.equals(other.deleteDurableQueueRoles))
-         return false;
-      if (deleteNonDurableQueueRoles == null) {
-         if (other.deleteNonDurableQueueRoles != null)
-            return false;
-      } else if (!deleteNonDurableQueueRoles.equals(other.deleteNonDurableQueueRoles))
-         return false;
-      if (manageRoles == null) {
-         if (other.manageRoles != null)
-            return false;
-      } else if (!manageRoles.equals(other.manageRoles))
-         return false;
-      if (browseRoles == null) {
-         if (other.browseRoles != null)
-            return false;
-      } else if (!browseRoles.equals(other.browseRoles))
-         return false;
-      if (createAddressRoles == null) {
-         if (other.createAddressRoles != null)
-            return false;
-      } else if (!createAddressRoles.equals(other.createAddressRoles))
-         return false;
-      if (deleteAddressRoles == null) {
-         if (other.deleteAddressRoles != null)
-            return false;
-      } else if (!deleteAddressRoles.equals(other.deleteAddressRoles))
-         return false;
-      if (sendRoles == null) {
-         if (other.sendRoles != null)
-            return false;
-      } else if (!sendRoles.equals(other.sendRoles))
-         return false;
-      if (viewRoles == null) {
-         if (other.viewRoles != null)
-            return false;
-      } else if (!viewRoles.equals(other.viewRoles))
-         return false;
-      if (editRoles == null) {
-         if (other.editRoles != null)
-            return false;
-      } else if (!editRoles.equals(other.editRoles))
-         return false;
-      if (storeId != other.storeId)
-         return false;
-      return true;
+      }
+
+      return Objects.equals(addressMatch, other.addressMatch) &&
+             Objects.equals(consumeRoles, other.consumeRoles) &&
+             Objects.equals(createDurableQueueRoles, other.createDurableQueueRoles) &&
+             Objects.equals(createNonDurableQueueRoles, other.createNonDurableQueueRoles) &&
+             Objects.equals(deleteDurableQueueRoles, other.deleteDurableQueueRoles) &&
+             Objects.equals(deleteNonDurableQueueRoles, other.deleteNonDurableQueueRoles) &&
+             Objects.equals(manageRoles, other.manageRoles) &&
+             Objects.equals(browseRoles, other.browseRoles) &&
+             Objects.equals(createAddressRoles, other.createAddressRoles) &&
+             Objects.equals(deleteAddressRoles, other.deleteAddressRoles) &&
+             Objects.equals(sendRoles, other.sendRoles) &&
+             Objects.equals(viewRoles, other.viewRoles) &&
+             Objects.equals(editRoles, other.editRoles) &&
+             storeId == other.storeId;
    }
 
    @Override

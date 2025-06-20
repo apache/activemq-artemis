@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
@@ -65,17 +67,16 @@ public class SessionDeleteQueueMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionDeleteQueueMessage other))
+      }
+      if (!(obj instanceof SessionDeleteQueueMessage other)) {
          return false;
-      if (queueName == null) {
-         if (other.queueName != null)
-            return false;
-      } else if (!queueName.equals(other.queueName))
-         return false;
-      return true;
+      }
+
+      return Objects.equals(queueName, other.queueName);
    }
 }

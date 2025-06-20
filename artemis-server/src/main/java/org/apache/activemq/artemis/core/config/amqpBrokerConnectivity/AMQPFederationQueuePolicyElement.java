@@ -144,19 +144,19 @@ public final class AMQPFederationQueuePolicyElement implements Serializable {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (!(o instanceof AMQPFederationQueuePolicyElement that)) {
+      if (!(obj instanceof AMQPFederationQueuePolicyElement other)) {
          return false;
       }
 
-      return includeFederated == that.includeFederated &&
-             Objects.equals(name, that.name) &&
-             Objects.equals(includes, that.includes) &&
-             Objects.equals(excludes, that.excludes) &&
-             Objects.equals(priorityAdjustment, that.priorityAdjustment);
+      return includeFederated == other.includeFederated &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(includes, other.includes) &&
+             Objects.equals(excludes, other.excludes) &&
+             Objects.equals(priorityAdjustment, other.priorityAdjustment);
    }
 
    @Override
@@ -209,17 +209,16 @@ public final class AMQPFederationQueuePolicyElement implements Serializable {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) {
+      public boolean equals(Object obj) {
+         if (this == obj) {
             return true;
          }
-
-         if (!(o instanceof QueueMatch matcher)) {
+         if (!(obj instanceof QueueMatch other)) {
             return false;
          }
 
-         return Objects.equals(queueMatch, matcher.queueMatch) &&
-                Objects.equals(addressMatch, matcher.addressMatch);
+         return Objects.equals(queueMatch, other.queueMatch) &&
+                Objects.equals(addressMatch, other.addressMatch);
       }
 
       @Override

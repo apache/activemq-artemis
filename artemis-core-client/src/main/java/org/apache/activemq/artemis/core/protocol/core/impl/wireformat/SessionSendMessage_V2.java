@@ -90,15 +90,16 @@ public class SessionSendMessage_V2 extends SessionSendMessage {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionSendMessage_V2 other))
+      }
+      if (!(obj instanceof SessionSendMessage_V2 other)) {
          return false;
-      if (correlationID != other.correlationID)
-         return false;
-      return true;
-   }
+      }
 
+      return correlationID == other.correlationID;
+   }
 }

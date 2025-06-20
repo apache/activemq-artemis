@@ -847,80 +847,46 @@ public class QueueConfiguration implements Serializable {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof QueueConfiguration other)) {
          return false;
+      }
 
-      QueueConfiguration that = (QueueConfiguration) o;
-
-      if (!Objects.equals(id, that.id))
-         return false;
-      if (!Objects.equals(name, that.name))
-         return false;
-      if (!Objects.equals(address, that.address))
-         return false;
-      if (!Objects.equals(routingType, that.routingType))
-         return false;
-      if (!Objects.equals(filterString, that.filterString))
-         return false;
-      if (!Objects.equals(durable, that.durable))
-         return false;
-      if (!Objects.equals(user, that.user))
-         return false;
-      if (!Objects.equals(maxConsumers, that.maxConsumers))
-         return false;
-      if (!Objects.equals(exclusive, that.exclusive))
-         return false;
-      if (!Objects.equals(groupRebalance, that.groupRebalance))
-         return false;
-      if (!Objects.equals(groupRebalancePauseDispatch, that.groupRebalancePauseDispatch))
-         return false;
-      if (!Objects.equals(groupBuckets, that.groupBuckets))
-         return false;
-      if (!Objects.equals(groupFirstKey, that.groupFirstKey))
-         return false;
-      if (!Objects.equals(lastValue, that.lastValue))
-         return false;
-      if (!Objects.equals(lastValueKey, that.lastValueKey))
-         return false;
-      if (!Objects.equals(nonDestructive, that.nonDestructive))
-         return false;
-      if (!Objects.equals(purgeOnNoConsumers, that.purgeOnNoConsumers))
-         return false;
-      if (!Objects.equals(enabled, that.enabled))
-         return false;
-      if (!Objects.equals(consumersBeforeDispatch, that.consumersBeforeDispatch))
-         return false;
-      if (!Objects.equals(delayBeforeDispatch, that.delayBeforeDispatch))
-         return false;
-      if (!Objects.equals(consumerPriority, that.consumerPriority))
-         return false;
-      if (!Objects.equals(autoDelete, that.autoDelete))
-         return false;
-      if (!Objects.equals(autoDeleteDelay, that.autoDeleteDelay))
-         return false;
-      if (!Objects.equals(autoDeleteMessageCount, that.autoDeleteMessageCount))
-         return false;
-      if (!Objects.equals(ringSize, that.ringSize))
-         return false;
-      if (!Objects.equals(configurationManaged, that.configurationManaged))
-         return false;
-      if (!Objects.equals(temporary, that.temporary))
-         return false;
-      if (!Objects.equals(autoCreateAddress, that.autoCreateAddress))
-         return false;
-      if (!Objects.equals(internal, that.internal))
-         return false;
-      if (!Objects.equals(_transient, that._transient))
-         return false;
-      if (!Objects.equals(autoCreated, that.autoCreated))
-         return false;
-      if (!Objects.equals(fqqn, that.fqqn))
-         return false;
-
-      return true;
+      return Objects.equals(id, other.id) &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(address, other.address) &&
+             Objects.equals(routingType, other.routingType) &&
+             Objects.equals(filterString, other.filterString) &&
+             Objects.equals(durable, other.durable) &&
+             Objects.equals(user, other.user) &&
+             Objects.equals(maxConsumers, other.maxConsumers) &&
+             Objects.equals(exclusive, other.exclusive) &&
+             Objects.equals(groupRebalance, other.groupRebalance) &&
+             Objects.equals(groupRebalancePauseDispatch, other.groupRebalancePauseDispatch) &&
+             Objects.equals(groupBuckets, other.groupBuckets) &&
+             Objects.equals(groupFirstKey, other.groupFirstKey) &&
+             Objects.equals(lastValue, other.lastValue) &&
+             Objects.equals(lastValueKey, other.lastValueKey) &&
+             Objects.equals(nonDestructive, other.nonDestructive) &&
+             Objects.equals(purgeOnNoConsumers, other.purgeOnNoConsumers) &&
+             Objects.equals(enabled, other.enabled) &&
+             Objects.equals(consumersBeforeDispatch, other.consumersBeforeDispatch) &&
+             Objects.equals(delayBeforeDispatch, other.delayBeforeDispatch) &&
+             Objects.equals(consumerPriority, other.consumerPriority) &&
+             Objects.equals(autoDelete, other.autoDelete) &&
+             Objects.equals(autoDeleteDelay, other.autoDeleteDelay) &&
+             Objects.equals(autoDeleteMessageCount, other.autoDeleteMessageCount) &&
+             Objects.equals(ringSize, other.ringSize) &&
+             Objects.equals(configurationManaged, other.configurationManaged) &&
+             Objects.equals(temporary, other.temporary) &&
+             Objects.equals(autoCreateAddress, other.autoCreateAddress) &&
+             Objects.equals(internal, other.internal) &&
+             Objects.equals(_transient, other._transient) &&
+             Objects.equals(autoCreated, other.autoCreated) &&
+             Objects.equals(fqqn, other.fqqn);
    }
 
    public boolean isMirrorQueue() {

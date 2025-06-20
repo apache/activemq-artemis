@@ -22,6 +22,7 @@ import javax.resource.spi.ConnectionRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.Objects;
 
 /**
  * {@inheritDoc}
@@ -141,20 +142,19 @@ public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
    @Override
    public boolean equals(final Object obj) {
       logger.trace("equals({})", obj);
-
-      if (obj == null) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof ActiveMQRAConnectionRequestInfo requestInfo)) {
          return false;
       }
 
-      if (obj instanceof ActiveMQRAConnectionRequestInfo requestInfo) {
-         return ActiveMQRaUtils.compare(userName, requestInfo.getUserName()) && ActiveMQRaUtils.compare(password, requestInfo.getPassword()) &&
-            ActiveMQRaUtils.compare(clientID, requestInfo.getClientID()) &&
-            type == requestInfo.getType() &&
-            transacted == requestInfo.isTransacted() &&
-            acknowledgeMode == requestInfo.getAcknowledgeMode();
-      } else {
-         return false;
-      }
+      return Objects.equals(userName, requestInfo.getUserName()) &&
+             Objects.equals(password, requestInfo.getPassword()) &&
+             Objects.equals(clientID, requestInfo.getClientID()) &&
+             type == requestInfo.getType() &&
+             transacted == requestInfo.isTransacted() &&
+             acknowledgeMode == requestInfo.getAcknowledgeMode();
    }
 
    @Override

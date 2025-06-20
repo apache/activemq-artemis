@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.persistence.Persister;
@@ -148,27 +149,21 @@ public final class ReplicationAddMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof ReplicationAddMessage other))
+      }
+      if (!(obj instanceof ReplicationAddMessage other)) {
          return false;
-      if (encodingData == null) {
-         if (other.encodingData != null)
-            return false;
-      } else if (!encodingData.equals(other.encodingData))
-         return false;
-      if (id != other.id)
-         return false;
-      if (journalID != other.journalID)
-         return false;
-      if (journalRecordType != other.journalRecordType)
-         return false;
-      if (operation != other.operation)
-         return false;
-      if (!Arrays.equals(recordData, other.recordData))
-         return false;
-      return true;
+      }
+
+      return Objects.equals(encodingData, other.encodingData) &&
+             id == other.id &&
+             journalID == other.journalID &&
+             journalRecordType == other.journalRecordType &&
+             operation == other.operation &&
+             Arrays.equals(recordData, other.recordData);
    }
 }

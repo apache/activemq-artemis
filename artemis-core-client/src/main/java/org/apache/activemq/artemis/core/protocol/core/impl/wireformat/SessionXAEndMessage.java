@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import javax.transaction.xa.Xid;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
@@ -76,19 +78,17 @@ public class SessionXAEndMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionXAEndMessage other))
+      }
+      if (!(obj instanceof SessionXAEndMessage other)) {
          return false;
-      if (failed != other.failed)
-         return false;
-      if (xid == null) {
-         if (other.xid != null)
-            return false;
-      } else if (!xid.equals(other.xid))
-         return false;
-      return true;
+      }
+
+      return failed == other.failed &&
+             Objects.equals(xid, other.xid);
    }
 }

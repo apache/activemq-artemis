@@ -128,12 +128,8 @@ public class SessionBindingQueryResponseMessage_V5 extends SessionBindingQueryRe
       if (!(obj instanceof SessionBindingQueryResponseMessage_V5 other)) {
          return false;
       }
-      if (supportsMulticast != other.supportsMulticast) {
-         return false;
-      }
-      if (supportsAnycast != other.supportsAnycast) {
-         return false;
-      }
-      return true;
+
+      return supportsMulticast == other.supportsMulticast &&
+             supportsAnycast == other.supportsAnycast;
    }
 }

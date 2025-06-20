@@ -92,10 +92,8 @@ public class NullResponseMessage_V2 extends NullResponseMessage {
       if (!(obj instanceof NullResponseMessage_V2 other)) {
          return false;
       }
-      if (correlationID != other.correlationID) {
-         return false;
-      }
-      return true;
+
+      return correlationID == other.correlationID;
    }
 
    @Override

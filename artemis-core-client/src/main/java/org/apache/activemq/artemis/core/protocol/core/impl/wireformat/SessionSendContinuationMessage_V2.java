@@ -98,14 +98,16 @@ public class SessionSendContinuationMessage_V2 extends SessionSendContinuationMe
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionSendContinuationMessage_V2 other))
+      }
+      if (!(obj instanceof SessionSendContinuationMessage_V2 other)) {
          return false;
-      if (correlationID != other.correlationID)
-         return false;
-      return true;
+      }
+
+      return correlationID == other.correlationID;
    }
 }

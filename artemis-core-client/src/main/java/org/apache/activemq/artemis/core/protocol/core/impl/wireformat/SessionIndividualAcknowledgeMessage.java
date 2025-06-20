@@ -97,18 +97,18 @@ public class SessionIndividualAcknowledgeMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionIndividualAcknowledgeMessage other))
+      }
+      if (!(obj instanceof SessionIndividualAcknowledgeMessage other)) {
          return false;
-      if (consumerID != other.consumerID)
-         return false;
-      if (messageID != other.messageID)
-         return false;
-      if (requiresResponse != other.requiresResponse)
-         return false;
-      return true;
+      }
+
+      return consumerID == other.consumerID &&
+             messageID == other.messageID &&
+             requiresResponse == other.requiresResponse;
    }
 }

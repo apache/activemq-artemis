@@ -53,12 +53,18 @@ public class RemoveProducerMessage extends PacketImpl {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-      if (!super.equals(o)) return false;
-      RemoveProducerMessage that = (RemoveProducerMessage) o;
-      return Objects.equals(id, that.id);
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!super.equals(obj)) {
+         return false;
+      }
+      if (!(obj instanceof RemoveProducerMessage other)) {
+         return false;
+      }
+
+      return Objects.equals(id, other.id);
    }
 
    @Override

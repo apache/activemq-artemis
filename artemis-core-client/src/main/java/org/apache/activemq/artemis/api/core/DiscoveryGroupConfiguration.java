@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.api.core;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -96,22 +97,17 @@ public final class DiscoveryGroupConfiguration implements Serializable {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof DiscoveryGroupConfiguration other)) {
          return false;
+      }
 
-      DiscoveryGroupConfiguration that = (DiscoveryGroupConfiguration) o;
-
-      if (discoveryInitialWaitTimeout != that.discoveryInitialWaitTimeout)
-         return false;
-      if (refreshTimeout != that.refreshTimeout)
-         return false;
-      if (name != null ? !name.equals(that.name) : that.name != null)
-         return false;
-
-      return true;
+      return discoveryInitialWaitTimeout == other.discoveryInitialWaitTimeout &&
+             refreshTimeout == other.refreshTimeout &&
+             Objects.equals(name, other.name);
    }
 
    @Override

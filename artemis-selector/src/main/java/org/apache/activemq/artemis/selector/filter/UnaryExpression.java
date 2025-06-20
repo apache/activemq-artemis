@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * An expression which performs an operation on two expression values
@@ -239,26 +240,16 @@ public abstract class UnaryExpression implements Expression {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof UnaryExpression other)) {
          return false;
       }
 
-      final UnaryExpression that = (UnaryExpression) o;
-
-      if (!this.getExpressionSymbol().equals(that.getExpressionSymbol())) {
-         return false;
-      }
-
-      if (right != null && !right.equals(that.right)) {
-         return false;
-      }
-
-      return true;
+      return Objects.equals(this.getExpressionSymbol(), other.getExpressionSymbol()) &&
+             Objects.equals(this.right, other.right);
    }
 
    /**

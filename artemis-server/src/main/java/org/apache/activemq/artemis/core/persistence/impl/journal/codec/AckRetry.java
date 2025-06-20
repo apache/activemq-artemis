@@ -105,17 +105,16 @@ public final class AckRetry {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof AckRetry other)) {
          return false;
+      }
 
-      AckRetry retry = (AckRetry) o;
-
-      if (messageID != retry.messageID)
-         return false;
-      return Objects.equals(nodeID, retry.nodeID);
+      return messageID == other.messageID &&
+             Objects.equals(nodeID, other.nodeID);
    }
 
    @Override

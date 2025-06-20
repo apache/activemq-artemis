@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -83,23 +85,17 @@ public class SessionAddMetaDataMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionAddMetaDataMessage other))
+      }
+      if (!(obj instanceof SessionAddMetaDataMessage other)) {
          return false;
-      if (data == null) {
-         if (other.data != null)
-            return false;
-      } else if (!data.equals(other.data))
-         return false;
-      if (key == null) {
-         if (other.key != null)
-            return false;
-      } else if (!key.equals(other.key))
-         return false;
-      return true;
-   }
+      }
 
+      return Objects.equals(data, other.data) &&
+             Objects.equals(key, other.key);
+   }
 }

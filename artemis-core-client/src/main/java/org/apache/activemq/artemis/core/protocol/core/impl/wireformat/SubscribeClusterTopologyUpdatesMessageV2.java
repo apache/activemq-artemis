@@ -65,14 +65,16 @@ public class SubscribeClusterTopologyUpdatesMessageV2 extends SubscribeClusterTo
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SubscribeClusterTopologyUpdatesMessageV2 other))
+      }
+      if (!(obj instanceof SubscribeClusterTopologyUpdatesMessageV2 other)) {
          return false;
-      if (clientVersion != other.clientVersion)
-         return false;
-      return true;
+      }
+
+      return clientVersion == other.clientVersion;
    }
 }

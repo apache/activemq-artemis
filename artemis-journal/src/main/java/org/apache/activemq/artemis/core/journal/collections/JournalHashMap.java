@@ -82,21 +82,18 @@ public class JournalHashMap<K, V, C> implements Map<K, V> {
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o)
+      public boolean equals(Object obj) {
+         if (this == obj) {
             return true;
-         if (o == null || getClass() != o.getClass())
+         }
+         if (!(obj instanceof MapRecord<?, ?> other)) {
             return false;
+         }
 
-         MapRecord<?, ?> mapRecord = (MapRecord<?, ?>) o;
-
-         if (collectionID != mapRecord.collectionID)
-            return false;
-         if (id != mapRecord.id)
-            return false;
-         if (!Objects.equals(key, mapRecord.key))
-            return false;
-         return Objects.equals(value, mapRecord.value);
+         return collectionID == other.collectionID &&
+                id == other.id &&
+                Objects.equals(key, other.key) &&
+                Objects.equals(value, other.value);
       }
 
       @Override

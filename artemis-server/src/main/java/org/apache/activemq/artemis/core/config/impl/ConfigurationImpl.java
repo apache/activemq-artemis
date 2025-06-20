@@ -2957,255 +2957,88 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
-         return false;
-      if (!(obj instanceof ConfigurationImpl other))
-         return false;
-      if (acceptorConfigs == null) {
-         if (other.acceptorConfigs != null)
-            return false;
-      } else if (!acceptorConfigs.equals(other.acceptorConfigs))
-         return false;
-      if (addressSettings == null) {
-         if (other.addressSettings != null)
-            return false;
-      } else if (!addressSettings.equals(other.addressSettings))
-         return false;
-      if (asyncConnectionExecutionEnabled != other.asyncConnectionExecutionEnabled)
-         return false;
-      if (bindingsDirectory == null) {
-         if (other.bindingsDirectory != null)
-            return false;
-      } else if (!bindingsDirectory.equals(other.bindingsDirectory))
-         return false;
-      if (bridgeConfigurations == null) {
-         if (other.bridgeConfigurations != null)
-            return false;
-      } else if (!bridgeConfigurations.equals(other.bridgeConfigurations))
-         return false;
-      if (broadcastGroupConfigurations == null) {
-         if (other.broadcastGroupConfigurations != null)
-            return false;
-      } else if (!broadcastGroupConfigurations.equals(other.broadcastGroupConfigurations))
-         return false;
-
-      if (clusterConfigurations == null) {
-         if (other.clusterConfigurations != null)
-            return false;
-      } else if (!clusterConfigurations.equals(other.clusterConfigurations))
-         return false;
-
-      if (clusterPassword == null) {
-         if (other.clusterPassword != null)
-            return false;
-      } else if (!clusterPassword.equals(other.clusterPassword))
-         return false;
-      if (clusterUser == null) {
-         if (other.clusterUser != null)
-            return false;
-      } else if (!clusterUser.equals(other.clusterUser))
-         return false;
-      if (connectionTTLOverride != other.connectionTTLOverride)
-         return false;
-      if (connectorConfigs == null) {
-         if (other.connectorConfigs != null)
-            return false;
-      } else if (!connectorConfigs.equals(other.connectorConfigs))
-         return false;
-      if (connectorServiceConfigurations == null) {
-         if (other.connectorServiceConfigurations != null)
-            return false;
-      } else if (!connectorServiceConfigurations.equals(other.connectorServiceConfigurations))
-         return false;
-      if (createBindingsDir != other.createBindingsDir)
-         return false;
-      if (createJournalDir != other.createJournalDir)
-         return false;
-
-      if (discoveryGroupConfigurations == null) {
-         if (other.discoveryGroupConfigurations != null)
-            return false;
-      } else if (!discoveryGroupConfigurations.equals(other.discoveryGroupConfigurations))
-         return false;
-      if (divertConfigurations == null) {
-         if (other.divertConfigurations != null)
-            return false;
-      } else if (!divertConfigurations.equals(other.divertConfigurations))
-         return false;
-      if (failoverOnServerShutdown != other.failoverOnServerShutdown)
-         return false;
-      if (fileDeploymentScanPeriod != other.fileDeploymentScanPeriod)
-         return false;
-      if (groupingHandlerConfiguration == null) {
-         if (other.groupingHandlerConfiguration != null)
-            return false;
-      } else if (!groupingHandlerConfiguration.equals(other.groupingHandlerConfiguration))
-         return false;
-      if (idCacheSize != other.idCacheSize)
-         return false;
-      if (incomingInterceptorClassNames == null) {
-         if (other.incomingInterceptorClassNames != null)
-            return false;
-      } else if (!incomingInterceptorClassNames.equals(other.incomingInterceptorClassNames))
-         return false;
-      if (jmxDomain == null) {
-         if (other.jmxDomain != null)
-            return false;
-      } else if (!jmxDomain.equals(other.jmxDomain))
-         return false;
-      if (jmxManagementEnabled != other.jmxManagementEnabled)
-         return false;
-      if (journalBufferSize_AIO != other.journalBufferSize_AIO)
-         return false;
-      if (journalBufferSize_NIO != other.journalBufferSize_NIO)
-         return false;
-      if (journalBufferTimeout_AIO != other.journalBufferTimeout_AIO)
-         return false;
-      if (journalBufferTimeout_NIO != other.journalBufferTimeout_NIO)
-         return false;
-      if (journalCompactMinFiles != other.journalCompactMinFiles)
-         return false;
-      if (journalCompactPercentage != other.journalCompactPercentage)
-         return false;
-      if (journalDirectory == null) {
-         if (other.journalDirectory != null)
-            return false;
-      } else if (!journalDirectory.equals(other.journalDirectory))
-         return false;
-      if (journalFileSize != other.journalFileSize)
-         return false;
-      if (journalMaxIO_AIO != other.journalMaxIO_AIO)
-         return false;
-      if (journalMaxIO_NIO != other.journalMaxIO_NIO)
-         return false;
-      if (journalMinFiles != other.journalMinFiles)
-         return false;
-      if (journalSyncNonTransactional != other.journalSyncNonTransactional)
-         return false;
-      if (journalSyncTransactional != other.journalSyncTransactional)
-         return false;
-      if (journalType != other.journalType)
-         return false;
-      if (largeMessagesDirectory == null) {
-         if (other.largeMessagesDirectory != null)
-            return false;
-      } else if (!largeMessagesDirectory.equals(other.largeMessagesDirectory))
-         return false;
-      if (logJournalWriteRate != other.logJournalWriteRate)
-         return false;
-      if (managementAddress == null) {
-         if (other.managementAddress != null)
-            return false;
-      } else if (!managementAddress.equals(other.managementAddress))
-         return false;
-      if (managementNotificationAddress == null) {
-         if (other.managementNotificationAddress != null)
-            return false;
-      } else if (!managementNotificationAddress.equals(other.managementNotificationAddress))
-         return false;
-
-      if (this.maskPassword == null) {
-         if (other.maskPassword != null)
-            return false;
-      } else {
-         if (!this.maskPassword.equals(other.maskPassword))
-            return false;
       }
-
-      if (maxConcurrentPageIO != other.maxConcurrentPageIO)
-         return false;
-      if (memoryMeasureInterval != other.memoryMeasureInterval)
-         return false;
-      if (memoryWarningThreshold != other.memoryWarningThreshold)
-         return false;
-      if (messageCounterEnabled != other.messageCounterEnabled)
-         return false;
-      if (messageCounterMaxDayHistory != other.messageCounterMaxDayHistory)
-         return false;
-      if (messageCounterSamplePeriod != other.messageCounterSamplePeriod)
-         return false;
-      if (messageExpiryScanPeriod != other.messageExpiryScanPeriod)
-         return false;
-      if (messageExpiryThreadPriority != other.messageExpiryThreadPriority)
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!name.equals(other.name))
-         return false;
-      if (outgoingInterceptorClassNames == null) {
-         if (other.outgoingInterceptorClassNames != null)
-            return false;
-      } else if (!outgoingInterceptorClassNames.equals(other.outgoingInterceptorClassNames))
-         return false;
-      if (pagingDirectory == null) {
-         if (other.pagingDirectory != null)
-            return false;
-      } else if (!pagingDirectory.equals(other.pagingDirectory))
-         return false;
-      if (persistDeliveryCountBeforeDelivery != other.persistDeliveryCountBeforeDelivery)
-         return false;
-      if (persistIDCache != other.persistIDCache)
-         return false;
-      if (persistenceEnabled != other.persistenceEnabled)
-         return false;
-//      if (queueConfigurations == null) {
-//         if (other.queueConfigurations != null)
-//            return false;
-//      } else if (!queueConfigurations.equals(other.queueConfigurations))
-//         return false;
-      if (scheduledThreadPoolMaxSize != other.scheduledThreadPoolMaxSize)
-         return false;
-      if (securityEnabled != other.securityEnabled)
-         return false;
-      if (populateValidatedUser != other.populateValidatedUser)
-         return false;
-      if (securityInvalidationInterval != other.securityInvalidationInterval)
-         return false;
-      if (securitySettings == null) {
-         if (other.securitySettings != null)
-            return false;
-      } else if (!securitySettings.equals(other.securitySettings))
-         return false;
-      if (serverDumpInterval != other.serverDumpInterval)
-         return false;
-      if (threadPoolMaxSize != other.threadPoolMaxSize)
-         return false;
-      if (transactionTimeout != other.transactionTimeout)
-         return false;
-      if (transactionTimeoutScanPeriod != other.transactionTimeoutScanPeriod)
-         return false;
-      if (wildcardConfiguration == null) {
-         if (other.wildcardConfiguration != null)
-            return false;
-      } else if (!wildcardConfiguration.equals(other.wildcardConfiguration))
-         return false;
-      if (resolveProtocols != other.resolveProtocols)
-         return false;
-      if (journalLockAcquisitionTimeout != other.journalLockAcquisitionTimeout)
-         return false;
-      if (connectionTtlCheckInterval != other.connectionTtlCheckInterval)
-         return false;
-      if (journalDatasync != other.journalDatasync) {
+      if (!(obj instanceof ConfigurationImpl other)) {
          return false;
       }
 
-      if (globalMaxSize != null && !globalMaxSize.equals(other.globalMaxSize)) {
-         return false;
-      }
-      if (maxDiskUsage != other.maxDiskUsage) {
-         return false;
-      }
-      if (minDiskFree != other.minDiskFree) {
-         return false;
-      }
-      if (diskScanPeriod != other.diskScanPeriod) {
-         return false;
-      }
-
-      return true;
+      return Objects.equals(acceptorConfigs, other.acceptorConfigs) &&
+             Objects.equals(addressSettings, other.addressSettings) &&
+             asyncConnectionExecutionEnabled == other.asyncConnectionExecutionEnabled &&
+             Objects.equals(bindingsDirectory, other.bindingsDirectory) &&
+             Objects.equals(bridgeConfigurations, other.bridgeConfigurations) &&
+             Objects.equals(broadcastGroupConfigurations, other.broadcastGroupConfigurations) &&
+             Objects.equals(clusterConfigurations, other.clusterConfigurations) &&
+             Objects.equals(clusterPassword, other.clusterPassword) &&
+             Objects.equals(clusterUser, other.clusterUser) &&
+             connectionTTLOverride == other.connectionTTLOverride &&
+             Objects.equals(connectorConfigs, other.connectorConfigs) &&
+             Objects.equals(connectorServiceConfigurations, other.connectorServiceConfigurations) &&
+             createBindingsDir == other.createBindingsDir &&
+             createJournalDir == other.createJournalDir &&
+             Objects.equals(discoveryGroupConfigurations, other.discoveryGroupConfigurations) &&
+             Objects.equals(divertConfigurations, other.divertConfigurations) &&
+             failoverOnServerShutdown == other.failoverOnServerShutdown &&
+             fileDeploymentScanPeriod == other.fileDeploymentScanPeriod &&
+             Objects.equals(groupingHandlerConfiguration, other.groupingHandlerConfiguration) &&
+             idCacheSize == other.idCacheSize &&
+             Objects.equals(incomingInterceptorClassNames, other.incomingInterceptorClassNames) &&
+             Objects.equals(jmxDomain, other.jmxDomain) &&
+             jmxManagementEnabled == other.jmxManagementEnabled &&
+             journalBufferSize_AIO == other.journalBufferSize_AIO &&
+             journalBufferSize_NIO == other.journalBufferSize_NIO &&
+             journalBufferTimeout_AIO == other.journalBufferTimeout_AIO &&
+             journalBufferTimeout_NIO == other.journalBufferTimeout_NIO &&
+             journalCompactMinFiles == other.journalCompactMinFiles &&
+             journalCompactPercentage == other.journalCompactPercentage &&
+             Objects.equals(journalDirectory, other.journalDirectory) &&
+             journalFileSize == other.journalFileSize &&
+             journalMaxIO_AIO == other.journalMaxIO_AIO &&
+             journalMaxIO_NIO == other.journalMaxIO_NIO &&
+             journalMinFiles == other.journalMinFiles &&
+             journalSyncNonTransactional == other.journalSyncNonTransactional &&
+             journalSyncTransactional == other.journalSyncTransactional &&
+             journalType == other.journalType &&
+             Objects.equals(largeMessagesDirectory, other.largeMessagesDirectory) &&
+             logJournalWriteRate == other.logJournalWriteRate &&
+             Objects.equals(managementAddress, other.managementAddress) &&
+             Objects.equals(managementNotificationAddress, other.managementNotificationAddress) &&
+             Objects.equals(maskPassword, other.maskPassword) &&
+             maxConcurrentPageIO == other.maxConcurrentPageIO &&
+             memoryMeasureInterval == other.memoryMeasureInterval &&
+             memoryWarningThreshold == other.memoryWarningThreshold &&
+             messageCounterEnabled == other.messageCounterEnabled &&
+             messageCounterMaxDayHistory == other.messageCounterMaxDayHistory &&
+             messageCounterSamplePeriod == other.messageCounterSamplePeriod &&
+             messageExpiryScanPeriod == other.messageExpiryScanPeriod &&
+             messageExpiryThreadPriority == other.messageExpiryThreadPriority &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(outgoingInterceptorClassNames, other.outgoingInterceptorClassNames) &&
+             Objects.equals(pagingDirectory, other.pagingDirectory) &&
+             persistDeliveryCountBeforeDelivery ==
+             other.persistDeliveryCountBeforeDelivery &&
+             persistIDCache == other.persistIDCache &&
+             persistenceEnabled == other.persistenceEnabled &&
+             scheduledThreadPoolMaxSize == other.scheduledThreadPoolMaxSize &&
+             securityEnabled == other.securityEnabled &&
+             populateValidatedUser == other.populateValidatedUser &&
+             securityInvalidationInterval == other.securityInvalidationInterval &&
+             Objects.equals(securitySettings, other.securitySettings) &&
+             serverDumpInterval == other.serverDumpInterval &&
+             threadPoolMaxSize == other.threadPoolMaxSize &&
+             transactionTimeout == other.transactionTimeout &&
+             transactionTimeoutScanPeriod == other.transactionTimeoutScanPeriod &&
+             Objects.equals(wildcardConfiguration, other.wildcardConfiguration) &&
+             resolveProtocols == other.resolveProtocols &&
+             journalLockAcquisitionTimeout == other.journalLockAcquisitionTimeout &&
+             connectionTtlCheckInterval == other.connectionTtlCheckInterval &&
+             journalDatasync == other.journalDatasync &&
+             Objects.equals(globalMaxSize, other.globalMaxSize) &&
+             maxDiskUsage == other.maxDiskUsage &&
+             minDiskFree == other.minDiskFree &&
+             diskScanPeriod == other.diskScanPeriod;
    }
 
    @Override

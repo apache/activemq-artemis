@@ -74,14 +74,16 @@ public class SubscribeClusterTopologyUpdatesMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SubscribeClusterTopologyUpdatesMessage other))
+      }
+      if (!(obj instanceof SubscribeClusterTopologyUpdatesMessage other)) {
          return false;
-      if (clusterConnection != other.clusterConnection)
-         return false;
-      return true;
+      }
+
+      return clusterConnection == other.clusterConnection;
    }
 }

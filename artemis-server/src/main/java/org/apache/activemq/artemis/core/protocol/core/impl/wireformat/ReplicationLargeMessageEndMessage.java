@@ -91,18 +91,18 @@ public class ReplicationLargeMessageEndMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (getClass() != obj.getClass())
+      }
+      if (!(obj instanceof ReplicationLargeMessageEndMessage other)) {
          return false;
-      ReplicationLargeMessageEndMessage other = (ReplicationLargeMessageEndMessage) obj;
-      if (messageId != other.messageId)
-         return false;
-      if (isDelete != other.isDelete)
-         return false;
-      return true;
+      }
+
+      return messageId == other.messageId &&
+             isDelete == other.isDelete;
    }
 
    public long getPendingRecordId() {

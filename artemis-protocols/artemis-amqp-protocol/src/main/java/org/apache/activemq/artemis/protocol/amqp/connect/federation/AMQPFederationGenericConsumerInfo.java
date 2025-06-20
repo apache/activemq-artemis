@@ -120,22 +120,21 @@ public class AMQPFederationGenericConsumerInfo implements FederationConsumerInfo
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) {
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (!(o instanceof AMQPFederationGenericConsumerInfo that)) {
+      if (!(obj instanceof AMQPFederationGenericConsumerInfo other)) {
          return false;
       }
 
-      return role == that.role &&
-             priority == that.priority &&
-             Objects.equals(address, that.address) &&
-             Objects.equals(queueName, that.queueName) &&
-             routingType == that.routingType &&
-             Objects.equals(filterString, that.filterString) &&
-             Objects.equals(fqqn, that.fqqn);
+      return role == other.role &&
+             priority == other.priority &&
+             Objects.equals(address, other.address) &&
+             Objects.equals(queueName, other.queueName) &&
+             routingType == other.routingType &&
+             Objects.equals(filterString, other.filterString) &&
+             Objects.equals(fqqn, other.fqqn);
    }
 
    @Override

@@ -28,6 +28,7 @@ import javax.security.auth.Subject;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -212,17 +213,16 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    @Override
    public boolean equals(final Object obj) {
       logger.trace("equals({})", obj);
+      if (this == obj) {
+         return true;
+      }
 
-      if (obj == null) {
+      if (!(obj instanceof ActiveMQRAManagedConnectionFactory other)) {
          return false;
       }
 
-      if (obj instanceof ActiveMQRAManagedConnectionFactory other) {
-
-         return mcfProperties.equals(other.getProperties()) && ra.equals(other.getResourceAdapter());
-      } else {
-         return false;
-      }
+      return Objects.equals(mcfProperties, other.getProperties()) &&
+             Objects.equals(ra, other.getResourceAdapter());
    }
 
    @Override

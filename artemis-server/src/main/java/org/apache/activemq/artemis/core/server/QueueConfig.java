@@ -513,66 +513,40 @@ public final class QueueConfig {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof QueueConfig other)) {
          return false;
+      }
 
-      QueueConfig that = (QueueConfig) o;
-
-      if (id != that.id)
-         return false;
-      if (durable != that.durable)
-         return false;
-      if (temporary != that.temporary)
-         return false;
-      if (autoCreated != that.autoCreated)
-         return false;
-      if (address != null ? !address.equals(that.address) : that.address != null)
-         return false;
-      if (name != null ? !name.equals(that.name) : that.name != null)
-         return false;
-      if (filter != null ? !filter.equals(that.filter) : that.filter != null)
-         return false;
-      if (pageSubscription != null ? !pageSubscription.equals(that.pageSubscription) : that.pageSubscription != null)
-         return false;
-      if (routingType != that.routingType)
-         return false;
-      if (maxConsumers != that.maxConsumers)
-         return false;
-      if (exclusive != that.exclusive)
-         return false;
-      if (lastValue != that.lastValue)
-         return false;
-      if (lastValueKey != null ? !lastValueKey.equals(that.lastValueKey) : that.lastValueKey != null)
-         return false;
-      if (nonDestructive != that.nonDestructive)
-         return false;
-      if (purgeOnNoConsumers != that.purgeOnNoConsumers)
-         return false;
-      if (consumersBeforeDispatch != that.consumersBeforeDispatch)
-         return false;
-      if (delayBeforeDispatch != that.delayBeforeDispatch)
-         return false;
-      if (groupRebalance != that.groupRebalance)
-         return false;
-      if (groupBuckets != that.groupBuckets)
-         return false;
-      if (groupFirstKey != null ? !groupFirstKey.equals(that.groupFirstKey) : that.groupFirstKey != null)
-         return false;
-      if (autoDelete != that.autoDelete)
-         return false;
-      if (autoDeleteDelay != that.autoDeleteDelay)
-         return false;
-      if (autoDeleteMessageCount != that.autoDeleteMessageCount)
-         return false;
-      if (ringSize != that.ringSize)
-         return false;
-      if (configurationManaged != that.configurationManaged)
-         return false;
-      return user != null ? user.equals(that.user) : that.user == null;
-
+      return id == other.id &&
+             durable == other.durable &&
+             temporary == other.temporary &&
+             autoCreated == other.autoCreated &&
+             Objects.equals(address, other.address) &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(filter, other.filter) &&
+             Objects.equals(pageSubscription, other.pageSubscription) &&
+             routingType == other.routingType &&
+             maxConsumers == other.maxConsumers &&
+             exclusive == other.exclusive &&
+             lastValue == other.lastValue &&
+             Objects.equals(lastValueKey, other.lastValueKey) &&
+             nonDestructive == other.nonDestructive &&
+             purgeOnNoConsumers == other.purgeOnNoConsumers &&
+             consumersBeforeDispatch == other.consumersBeforeDispatch &&
+             delayBeforeDispatch == other.delayBeforeDispatch &&
+             groupRebalance == other.groupRebalance &&
+             groupBuckets == other.groupBuckets &&
+             Objects.equals(groupFirstKey, other.groupFirstKey) &&
+             autoDelete == other.autoDelete &&
+             autoDeleteDelay == other.autoDeleteDelay &&
+             autoDeleteMessageCount == other.autoDeleteMessageCount &&
+             ringSize == other.ringSize &&
+             configurationManaged == other.configurationManaged &&
+             Objects.equals(user, other.user);
    }
 
    @Override

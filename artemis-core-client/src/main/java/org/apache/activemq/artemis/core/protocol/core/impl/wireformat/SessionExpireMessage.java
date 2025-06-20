@@ -80,16 +80,17 @@ public class SessionExpireMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionExpireMessage other))
+      }
+      if (!(obj instanceof SessionExpireMessage other)) {
          return false;
-      if (consumerID != other.consumerID)
-         return false;
-      if (messageID != other.messageID)
-         return false;
-      return true;
+      }
+
+      return consumerID == other.consumerID &&
+             messageID == other.messageID;
    }
 }

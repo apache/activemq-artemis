@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -96,19 +97,16 @@ public class SessionBindingQueryResponseMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionBindingQueryResponseMessage other))
+      }
+      if (!(obj instanceof SessionBindingQueryResponseMessage other)) {
          return false;
-      if (exists != other.exists)
-         return false;
-      if (queueNames == null) {
-         if (other.queueNames != null)
-            return false;
-      } else if (!queueNames.equals(other.queueNames))
-         return false;
-      return true;
+      }
+      return exists == other.exists &&
+             Objects.equals(queueNames, other.queueNames);
    }
 }

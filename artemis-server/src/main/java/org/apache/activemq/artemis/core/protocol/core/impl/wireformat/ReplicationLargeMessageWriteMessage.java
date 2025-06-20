@@ -89,16 +89,17 @@ public final class ReplicationLargeMessageWriteMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof ReplicationLargeMessageWriteMessage other))
+      }
+      if (!(obj instanceof ReplicationLargeMessageWriteMessage other)) {
          return false;
-      if (!Arrays.equals(body, other.body))
-         return false;
-      if (messageId != other.messageId)
-         return false;
-      return true;
+      }
+
+      return Arrays.equals(body, other.body) &&
+             messageId == other.messageId;
    }
 }

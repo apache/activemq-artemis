@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
@@ -232,48 +234,27 @@ public class CreateSessionMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof CreateSessionMessage other))
+      }
+      if (!(obj instanceof CreateSessionMessage other)) {
          return false;
-      if (autoCommitAcks != other.autoCommitAcks)
-         return false;
-      if (autoCommitSends != other.autoCommitSends)
-         return false;
-      if (defaultAddress == null) {
-         if (other.defaultAddress != null)
-            return false;
-      } else if (!defaultAddress.equals(other.defaultAddress))
-         return false;
-      if (minLargeMessageSize != other.minLargeMessageSize)
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!name.equals(other.name))
-         return false;
-      if (password == null) {
-         if (other.password != null)
-            return false;
-      } else if (!password.equals(other.password))
-         return false;
-      if (preAcknowledge != other.preAcknowledge)
-         return false;
-      if (sessionChannelID != other.sessionChannelID)
-         return false;
-      if (username == null) {
-         if (other.username != null)
-            return false;
-      } else if (!username.equals(other.username))
-         return false;
-      if (version != other.version)
-         return false;
-      if (windowSize != other.windowSize)
-         return false;
-      if (xa != other.xa)
-         return false;
-      return true;
+      }
+
+      return autoCommitAcks == other.autoCommitAcks &&
+             autoCommitSends == other.autoCommitSends &&
+             Objects.equals(defaultAddress, other.defaultAddress) &&
+             minLargeMessageSize == other.minLargeMessageSize &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(password, other.password) &&
+             preAcknowledge == other.preAcknowledge &&
+             sessionChannelID == other.sessionChannelID &&
+             Objects.equals(username, other.username) &&
+             version == other.version &&
+             windowSize == other.windowSize &&
+             xa == other.xa;
    }
 }

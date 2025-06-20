@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
@@ -108,22 +109,10 @@ public final class ReplicationPrepareMessage extends PacketImpl {
       if (!(obj instanceof ReplicationPrepareMessage other)) {
          return false;
       }
-      if (encodingData == null) {
-         if (other.encodingData != null) {
-            return false;
-         }
-      } else if (!encodingData.equals(other.encodingData)) {
-         return false;
-      }
-      if (journalID != other.journalID) {
-         return false;
-      }
-      if (!Arrays.equals(recordData, other.recordData)) {
-         return false;
-      }
-      if (txId != other.txId) {
-         return false;
-      }
-      return true;
+
+      return Objects.equals(encodingData, other.encodingData) &&
+             journalID == other.journalID &&
+             Arrays.equals(recordData, other.recordData) &&
+             txId == other.txId;
    }
 }

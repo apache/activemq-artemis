@@ -105,35 +105,17 @@ public class XidImpl implements Xid, Serializable {
    }
 
    @Override
-   public boolean equals(final Object other) {
+   public boolean equals(Object other) {
       if (this == other) {
          return true;
       }
       if (!(other instanceof Xid xother)) {
          return false;
       }
-      if (xother.getFormatId() != formatId) {
-         return false;
-      }
-      if (xother.getBranchQualifier().length != branchQualifier.length) {
-         return false;
-      }
-      if (xother.getGlobalTransactionId().length != globalTransactionId.length) {
-         return false;
-      }
-      for (int i = 0; i < branchQualifier.length; i++) {
-         byte[] otherBQ = xother.getBranchQualifier();
-         if (branchQualifier[i] != otherBQ[i]) {
-            return false;
-         }
-      }
-      for (int i = 0; i < globalTransactionId.length; i++) {
-         byte[] otherGtx = xother.getGlobalTransactionId();
-         if (globalTransactionId[i] != otherGtx[i]) {
-            return false;
-         }
-      }
-      return true;
+
+      return formatId == xother.getFormatId() &&
+             Arrays.equals(branchQualifier, xother.getBranchQualifier()) &&
+             Arrays.equals(globalTransactionId, xother.getGlobalTransactionId());
    }
 
    @Override

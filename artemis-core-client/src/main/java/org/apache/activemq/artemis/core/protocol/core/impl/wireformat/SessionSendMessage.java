@@ -130,15 +130,17 @@ public class SessionSendMessage extends MessagePacket {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionSendMessage other))
+      }
+      if (!(obj instanceof SessionSendMessage other)) {
          return false;
-      if (requiresResponse != other.requiresResponse)
-         return false;
-      return true;
+      }
+
+      return requiresResponse == other.requiresResponse;
    }
 
    public int getSenderID() {

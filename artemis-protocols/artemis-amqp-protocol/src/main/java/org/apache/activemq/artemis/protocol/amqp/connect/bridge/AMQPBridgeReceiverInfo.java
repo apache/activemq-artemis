@@ -141,11 +141,9 @@ public class AMQPBridgeReceiverInfo {
       if (this == obj) {
          return true;
       }
-      if (!(obj instanceof AMQPBridgeReceiverInfo)) {
+      if (!(obj instanceof AMQPBridgeReceiverInfo other)) {
          return false;
       }
-
-      final AMQPBridgeReceiverInfo other = (AMQPBridgeReceiverInfo) obj;
 
       return Objects.equals(filterString, other.filterString) &&
              Objects.equals(localAddress, other.localAddress) &&

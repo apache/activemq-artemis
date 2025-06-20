@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 
 import io.netty.buffer.ByteBuf;
@@ -241,36 +242,14 @@ public final class ReplicationSyncFileMessage extends PacketImpl {
       if (!(obj instanceof ReplicationSyncFileMessage other)) {
          return false;
       }
-      if (!Arrays.equals(byteArray, other.byteArray)) {
-         return false;
-      }
-      if (byteBuffer == null) {
-         if (other.byteBuffer != null) {
-            return false;
-         }
-      } else if (!byteBuffer.equals(other.byteBuffer)) {
-         return false;
-      }
-      if (dataSize != other.dataSize) {
-         return false;
-      }
-      if (fileId != other.fileId) {
-         return false;
-      }
-      if (fileType != other.fileType) {
-         return false;
-      }
-      if (journalType != other.journalType) {
-         return false;
-      }
-      if (pageStoreName == null) {
-         if (other.pageStoreName != null) {
-            return false;
-         }
-      } else if (!pageStoreName.equals(other.pageStoreName)) {
-         return false;
-      }
-      return true;
+
+      return Arrays.equals(byteArray, other.byteArray) &&
+             Objects.equals(byteBuffer, other.byteBuffer) &&
+             dataSize == other.dataSize &&
+             fileId == other.fileId &&
+             fileType == other.fileType &&
+             journalType == other.journalType &&
+             Objects.equals(pageStoreName, other.pageStoreName);
    }
 
    @Override

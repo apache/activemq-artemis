@@ -92,9 +92,7 @@ public class SessionXAResponseMessage_V2 extends SessionXAResponseMessage {
       if (!(obj instanceof SessionXAResponseMessage_V2 other)) {
          return false;
       }
-      if (correlationID != other.correlationID) {
-         return false;
-      }
-      return true;
+
+      return correlationID == other.correlationID;
    }
 }

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.selector.filter;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * Represents a constant expression
@@ -120,18 +121,15 @@ public class ConstantExpression implements Expression {
    }
 
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (!(obj instanceof ConstantExpression other)) {
          return false;
       }
-      final ConstantExpression that = (ConstantExpression) o;
-      if (value != null && !value.equals(that.value)) {
-         return false;
-      }
-      return true;
+
+      return Objects.equals(value, other.value);
    }
 
    /**

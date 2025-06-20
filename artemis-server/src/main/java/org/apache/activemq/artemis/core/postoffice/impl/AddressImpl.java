@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.postoffice.impl;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Address;
@@ -157,17 +159,15 @@ public class AddressImpl implements Address {
    }
 
    @Override
-   public boolean equals(final Object o) {
-      if (this == o)
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
-
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof AddressImpl other)) {
          return false;
+      }
 
-      if (address.equals(((AddressImpl) o).address))
-         return true;
-
-      return false;
+      return Objects.equals(address, other.address);
    }
 
    @Override

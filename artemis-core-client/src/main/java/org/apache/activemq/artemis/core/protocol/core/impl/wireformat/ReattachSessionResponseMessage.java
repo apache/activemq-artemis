@@ -86,16 +86,17 @@ public class ReattachSessionResponseMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof ReattachSessionResponseMessage other))
+      }
+      if (!(obj instanceof ReattachSessionResponseMessage other)) {
          return false;
-      if (lastConfirmedCommandID != other.lastConfirmedCommandID)
-         return false;
-      if (reattached != other.reattached)
-         return false;
-      return true;
+      }
+
+      return lastConfirmedCommandID == other.lastConfirmedCommandID &&
+             reattached == other.reattached;
    }
 }

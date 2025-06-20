@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.config;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -275,53 +276,22 @@ public class DivertConfiguration implements Serializable, EncodingSupport {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof DivertConfiguration other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      DivertConfiguration other = (DivertConfiguration) obj;
-      if (address == null) {
-         if (other.address != null)
-            return false;
-      } else if (!address.equals(other.address))
-         return false;
-      if (exclusive != other.exclusive)
-         return false;
-      if (filterString == null) {
-         if (other.filterString != null)
-            return false;
-      } else if (!filterString.equals(other.filterString))
-         return false;
-      if (forwardingAddress == null) {
-         if (other.forwardingAddress != null)
-            return false;
-      } else if (!forwardingAddress.equals(other.forwardingAddress))
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!name.equals(other.name))
-         return false;
-      if (routingName == null) {
-         if (other.routingName != null)
-            return false;
-      } else if (!routingName.equals(other.routingName))
-         return false;
-      if (transformerConfiguration == null) {
-         if (other.transformerConfiguration != null)
-            return false;
-      } else if (!transformerConfiguration.equals(other.transformerConfiguration))
-         return false;
-      if (routingType == null) {
-         if (other.routingType != null)
-            return false;
-      } else if (!routingType.equals(other.routingType))
-         return false;
-      return true;
-   }
+      }
 
+      return Objects.equals(address, other.address) &&
+             exclusive == other.exclusive &&
+             Objects.equals(filterString, other.filterString) &&
+             Objects.equals(forwardingAddress, other.forwardingAddress) &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(routingName, other.routingName) &&
+             Objects.equals(transformerConfiguration, other.transformerConfiguration) &&
+             Objects.equals(routingType, other.routingType);
+   }
 
    @Override
    public int getEncodeSize() {

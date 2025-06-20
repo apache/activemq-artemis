@@ -88,19 +88,19 @@ public final class ReplicationCommitMessage extends PacketImpl {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof ReplicationCommitMessage other))
+      }
+      if (!(obj instanceof ReplicationCommitMessage other)) {
          return false;
-      if (journalID != other.journalID)
-         return false;
-      if (rollback != other.rollback)
-         return false;
-      if (txId != other.txId)
-         return false;
-      return true;
+      }
+
+      return journalID == other.journalID &&
+             rollback == other.rollback &&
+             txId == other.txId;
    }
 
    @Override

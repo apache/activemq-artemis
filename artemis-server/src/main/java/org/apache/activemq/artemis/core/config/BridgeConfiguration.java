@@ -28,6 +28,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -704,96 +705,39 @@ public final class BridgeConfiguration implements Serializable {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof BridgeConfiguration other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      BridgeConfiguration other = (BridgeConfiguration) obj;
-      if (callTimeout != other.callTimeout)
-         return false;
-      if (clientFailureCheckPeriod != other.clientFailureCheckPeriod)
-         return false;
-      if (confirmationWindowSize != other.confirmationWindowSize)
-         return false;
-      if (producerWindowSize != other.producerWindowSize)
-         return false;
-      if (connectionTTL != other.connectionTTL)
-         return false;
-      if (discoveryGroupName == null) {
-         if (other.discoveryGroupName != null)
-            return false;
-      } else if (!discoveryGroupName.equals(other.discoveryGroupName))
-         return false;
-      if (filterString == null) {
-         if (other.filterString != null)
-            return false;
-      } else if (!filterString.equals(other.filterString))
-         return false;
-      if (forwardingAddress == null) {
-         if (other.forwardingAddress != null)
-            return false;
-      } else if (!forwardingAddress.equals(other.forwardingAddress))
-         return false;
-      if (ha != other.ha)
-         return false;
-      if (maxRetryInterval != other.maxRetryInterval)
-         return false;
-      if (minLargeMessageSize != other.minLargeMessageSize)
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!parentName.equals(other.parentName))
-         return false;
-      if (password == null) {
-         if (other.password != null)
-            return false;
-      } else if (!password.equals(other.password))
-         return false;
-      if (queueName == null) {
-         if (other.queueName != null)
-            return false;
-      } else if (!queueName.equals(other.queueName))
-         return false;
-      if (initialConnectAttempts != other.initialConnectAttempts)
-         return false;
-      if (reconnectAttempts != other.reconnectAttempts)
-         return false;
-      if (retryInterval != other.retryInterval)
-         return false;
-      if (Double.doubleToLongBits(retryIntervalMultiplier) != Double.doubleToLongBits(other.retryIntervalMultiplier))
-         return false;
-      if (staticConnectors == null) {
-         if (other.staticConnectors != null)
-            return false;
-      } else if (!staticConnectors.equals(other.staticConnectors))
-         return false;
-      if (transformerConfiguration == null) {
-         if (other.transformerConfiguration != null)
-            return false;
-      } else if (!transformerConfiguration.equals(other.transformerConfiguration))
-         return false;
-      if (useDuplicateDetection != other.useDuplicateDetection)
-         return false;
-      if (user == null) {
-         if (other.user != null)
-            return false;
-      } else if (!user.equals(other.user))
-         return false;
-      if (concurrency != other.concurrency)
-         return false;
-      if (pendingAckTimeout != other.pendingAckTimeout)
-         return false;
-      if (configurationManaged != other.configurationManaged)
-         return false;
-      if (clientId == null) {
-         if (other.clientId != null)
-            return false;
-      } else if (!clientId.equals(other.clientId))
-         return false;
-      return true;
+      }
+      return callTimeout == other.callTimeout &&
+             clientFailureCheckPeriod == other.clientFailureCheckPeriod &&
+             confirmationWindowSize == other.confirmationWindowSize &&
+             producerWindowSize == other.producerWindowSize &&
+             connectionTTL == other.connectionTTL &&
+             ha == other.ha &&
+             maxRetryInterval == other.maxRetryInterval &&
+             minLargeMessageSize == other.minLargeMessageSize &&
+             initialConnectAttempts == other.initialConnectAttempts &&
+             reconnectAttempts == other.reconnectAttempts &&
+             retryInterval == other.retryInterval &&
+             Double.doubleToLongBits(retryIntervalMultiplier) == Double.doubleToLongBits(other.retryIntervalMultiplier) &&
+             useDuplicateDetection == other.useDuplicateDetection &&
+             concurrency == other.concurrency &&
+             pendingAckTimeout == other.pendingAckTimeout &&
+             configurationManaged == other.configurationManaged &&
+             Objects.equals(discoveryGroupName, other.discoveryGroupName) &&
+             Objects.equals(filterString, other.filterString) &&
+             Objects.equals(forwardingAddress, other.forwardingAddress) &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(parentName, other.parentName) &&
+             Objects.equals(password, other.password) &&
+             Objects.equals(queueName, other.queueName) &&
+             Objects.equals(staticConnectors, other.staticConnectors) &&
+             Objects.equals(transformerConfiguration, other.transformerConfiguration) &&
+             Objects.equals(user, other.user) &&
+             Objects.equals(clientId, other.clientId);
    }
 
    public int getEncodeSize() {

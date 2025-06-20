@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
@@ -77,18 +79,16 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (!super.equals(obj))
+      }
+      if (!super.equals(obj)) {
          return false;
-      if (!(obj instanceof SessionSendLargeMessage other))
+      }
+      if (!(obj instanceof SessionSendLargeMessage other)) {
          return false;
-      if (largeMessage == null) {
-         if (other.largeMessage != null)
-            return false;
-      } else if (!largeMessage.equals(other.largeMessage))
-         return false;
-      return true;
-   }
+      }
 
+      return Objects.equals(largeMessage, other.largeMessage);
+   }
 }

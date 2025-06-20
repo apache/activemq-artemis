@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -227,17 +228,10 @@ public class LastValueQueue extends QueueImpl {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof LastValueQueue)) {
+      if (!(obj instanceof LastValueQueue other)) {
          return false;
       }
-      LastValueQueue other = (LastValueQueue) obj;
-      if (map == null) {
-         if (other.map != null) {
-            return false;
-         }
-      } else if (!map.equals(other.map)) {
-         return false;
-      }
-      return true;
+
+      return Objects.equals(map, other.map);
    }
 }

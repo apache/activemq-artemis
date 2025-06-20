@@ -196,10 +196,15 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o) return true;
-         if (!(o instanceof Matcher matcher)) return false;
-         return Objects.equals(addressMatch, matcher.addressMatch);
+      public boolean equals(Object obj) {
+         if (this == obj) {
+            return true;
+         }
+         if (!(obj instanceof Matcher other)) {
+            return false;
+         }
+
+         return Objects.equals(addressMatch, other.addressMatch);
       }
 
       @Override
@@ -218,17 +223,22 @@ public class FederationAddressPolicyConfiguration implements FederationPolicy<Fe
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof FederationAddressPolicyConfiguration that)) return false;
-      return maxHops == that.maxHops &&
-            Objects.equals(name, that.name) &&
-            Objects.equals(includes, that.includes) &&
-            Objects.equals(excludes, that.excludes) &&
-            Objects.equals(autoDelete, that.autoDelete) &&
-            Objects.equals(autoDeleteDelay, that.autoDeleteDelay) &&
-            Objects.equals(autoDeleteMessageCount, that.autoDeleteMessageCount) &&
-            Objects.equals(transformerRef, that.transformerRef);
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (!(obj instanceof FederationAddressPolicyConfiguration other)) {
+         return false;
+      }
+
+      return maxHops == other.maxHops &&
+             Objects.equals(name, other.name) &&
+             Objects.equals(includes, other.includes) &&
+             Objects.equals(excludes, other.excludes) &&
+             Objects.equals(autoDelete, other.autoDelete) &&
+             Objects.equals(autoDeleteDelay, other.autoDeleteDelay) &&
+             Objects.equals(autoDeleteMessageCount, other.autoDeleteMessageCount) &&
+             Objects.equals(transformerRef, other.transformerRef);
    }
 
    @Override

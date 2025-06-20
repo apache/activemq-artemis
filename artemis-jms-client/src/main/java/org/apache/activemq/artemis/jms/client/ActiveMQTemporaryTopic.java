@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.jms.client;
 
 import javax.jms.TemporaryTopic;
+import java.util.Objects;
 
 public class ActiveMQTemporaryTopic extends ActiveMQTopic implements TemporaryTopic {
 
@@ -32,18 +33,16 @@ public class ActiveMQTemporaryTopic extends ActiveMQTopic implements TemporaryTo
       super(address, true, session);
    }
 
-
    @Override
-   public boolean equals(final Object o) {
-      if (this == o) {
+   public boolean equals(final Object obj) {
+      if (this == obj) {
          return true;
       }
-
-      if (!(o instanceof ActiveMQTemporaryTopic that)) {
+      if (!(obj instanceof ActiveMQTemporaryTopic other)) {
          return false;
       }
 
-      return super.getAddress().equals(that.getAddress());
+      return Objects.equals(super.getAddress(), other.getAddress());
    }
 
    @Override

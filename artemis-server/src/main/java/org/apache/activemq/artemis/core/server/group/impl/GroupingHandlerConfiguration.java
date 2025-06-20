@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server.group.impl;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -135,27 +136,16 @@ public final class GroupingHandlerConfiguration implements Serializable {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
          return true;
-      if (obj == null)
+      }
+      if (!(obj instanceof GroupingHandlerConfiguration other)) {
          return false;
-      if (getClass() != obj.getClass())
-         return false;
-      GroupingHandlerConfiguration other = (GroupingHandlerConfiguration) obj;
-      if (address == null) {
-         if (other.address != null)
-            return false;
-      } else if (!address.equals(other.address))
-         return false;
-      if (name == null) {
-         if (other.name != null)
-            return false;
-      } else if (!name.equals(other.name))
-         return false;
-      if (timeout != other.timeout)
-         return false;
-      if (type != other.type)
-         return false;
-      return true;
+      }
+
+      return Objects.equals(address, other.address) &&
+             Objects.equals(name, other.name) &&
+             timeout == other.timeout &&
+             type == other.type;
    }
 }

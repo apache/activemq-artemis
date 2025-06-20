@@ -351,15 +351,15 @@ public final class Page  {
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o)
+   public boolean equals(Object obj) {
+      if (this == obj) {
          return true;
-      if (o == null || getClass() != o.getClass())
+      }
+      if (!(obj instanceof Page other)) {
          return false;
+      }
 
-      Page page = (Page) o;
-
-      return pageId == page.pageId;
+      return pageId == other.pageId;
    }
 
    @Override

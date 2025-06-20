@@ -117,22 +117,15 @@ public abstract class BrokerConnectConfiguration implements Serializable {
       if (this == obj) {
          return true;
       }
-
-      if (obj == null) {
+      if (!(obj instanceof BrokerConnectConfiguration other)) {
          return false;
       }
-
-      if (getClass() != obj.getClass()) {
-         return false;
-      }
-
-      final BrokerConnectConfiguration other = (BrokerConnectConfiguration) obj;
 
       return Objects.equals(name, other.name) &&
-             autostart == other.autostart &&
+             Objects.equals(autostart, other.autostart) &&
              Objects.equals(password, other.password) &&
-             reconnectAttempts == other.reconnectAttempts &&
-             retryInterval == other.retryInterval &&
+             Objects.equals(reconnectAttempts, other.reconnectAttempts) &&
+             Objects.equals(retryInterval, other.retryInterval) &&
              Objects.equals(uri, other.uri) &&
              Objects.equals(user, other.user);
    }

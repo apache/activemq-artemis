@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -157,26 +159,10 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
       if (!(obj instanceof ClusterTopologyChangeMessage other)) {
          return false;
       }
-      if (exit != other.exit) {
-         return false;
-      }
-      if (last != other.last) {
-         return false;
-      }
-      if (nodeID == null) {
-         if (other.nodeID != null) {
-            return false;
-         }
-      } else if (!nodeID.equals(other.nodeID)) {
-         return false;
-      }
-      if (pair == null) {
-         if (other.pair != null) {
-            return false;
-         }
-      } else if (!pair.equals(other.pair)) {
-         return false;
-      }
-      return true;
+
+      return exit == other.exit &&
+             last == other.last &&
+             Objects.equals(nodeID, other.nodeID) &&
+             Objects.equals(pair, other.pair);
    }
 }

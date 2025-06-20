@@ -79,17 +79,16 @@ public class CuratorDistributedLockManager implements DistributedLockManager, Co
       }
 
       @Override
-      public boolean equals(Object o) {
-         if (this == o)
+      public boolean equals(Object obj) {
+         if (this == obj) {
             return true;
-         if (o == null || getClass() != o.getClass())
+         }
+         if (!(obj instanceof PrimitiveId other)) {
             return false;
+         }
 
-         PrimitiveId that = (PrimitiveId) o;
-
-         if (!Objects.equals(id, that.id))
-            return false;
-         return type == that.type;
+         return Objects.equals(id, other.id) &&
+                type == other.type;
       }
 
       @Override

@@ -189,16 +189,12 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
       if (this == obj) {
          return true;
       }
-
       if (!super.equals(obj)) {
          return false;
       }
-
-      if (getClass() != obj.getClass()) {
+      if (!(obj instanceof AMQPBrokerConnectConfiguration other)) {
          return false;
       }
-
-      final AMQPBrokerConnectConfiguration other = (AMQPBrokerConnectConfiguration) obj;
 
       return Objects.equals(connectionElements, other.connectionElements) &&
              Objects.equals(transportConfigurations, other.transportConfigurations);

@@ -109,18 +109,11 @@ public class AMQPBrokerConnectionElement implements Serializable {
       if (this == obj) {
          return true;
       }
-
-      if (obj == null) {
+      if (!(obj instanceof AMQPBrokerConnectionElement other)) {
          return false;
       }
 
-      if (getClass() != obj.getClass()) {
-         return false;
-      }
-
-      final AMQPBrokerConnectionElement other = (AMQPBrokerConnectionElement) obj;
-
-      return type == other.type &&
+      return Objects.equals(type, other.type) &&
              Objects.equals(name, other.name) &&
              Objects.equals(matchAddress, other.matchAddress) &&
              Objects.equals(queueName, other.queueName);
