@@ -19,10 +19,16 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 === Highlights
 
-* Example highlight 1
-* Example highlight 2
+* Apply `security-setting` configuration according to xref:address-model.adoc#uuid-resources[`uuid-namespace`].
 
 === Upgrading from 2.41.0
+
+* Due to https://issues.apache.org/jira/browse/ARTEMIS-5444[ARTEMIS-5444] the `temporary-queue-namespace` configuration parameter has been renamed to xref:address-model.adoc#uuid-resources[`uuid-namespace`].
+Address-settings configured according to the `uuid-namespace` will be applied based on the name following a supported xref:address-model.adoc#uuid-formats[UUID format] rather than simply if the resource is _temporary_ as it was previously.
++
+The `temporary-queue-namespace` configuration parameter will still be supported for now although it will follow the new semantics.
++
+Further technical details are available on https://issues.apache.org/jira/browse/ARTEMIS-5444[the Jira].
 
 * The broker was always meant to scan MQTT sessions every `5000` milliseconds, but due to a bug it was doing so every `500` milliseconds instead.
 This has been fixed via https://issues.apache.org/jira/browse/ARTEMIS-5202[ARTEMIS-5202].
