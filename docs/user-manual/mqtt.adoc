@@ -204,13 +204,14 @@ In the case of MQTT 5 clients they will receive a disconnect reason code of http
 
 Sometimes MQTT 3.x clients using `CleanSession=false` don't properly unsubscribe. The URL parameter `defaultMqttSessionExpiryInterval` can be configured on the MQTT `acceptor` so that abandoned sessions and subscription queues will be cleaned up automatically after the expiry interval elapses.
 
+The default `defaultMqttSessionExpiryInterval` is `-1` which means no clean up will happen for MQTT 3.x clients.
+Otherwise it represents the number of *seconds* which must elapse after the client has disconnected before the broker will remove the session state and subscription queues.
+
 MQTT 5 has the same basic semantics with slightly different configuration.
 The `CleanSession` flag was replaced with `CleanStart` and a https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901048[session expiry interval] property.
 The broker will use the client's session expiry interval if it is set.
-If it is not set then the broker will apply the `defaultMqttSessionExpiryInterval`.
+If it is not set or set to `0`, the session ends when the Network Connection is closed.
 
-The default `defaultMqttSessionExpiryInterval` is `-1` which means no clean up will happen for MQTT 3.x clients or for MQTT 5 clients which do not pass their own session expiry interval.
-Otherwise it represents the number of *seconds* which must elapse after the client has disconnected before the broker will remove the session state and subscription queues.
 
 MQTT session state is scanned every 5,000 milliseconds by default.
 This can be changed using the `mqtt-session-scan-interval` element set in the `core` section of `broker.xml`.
