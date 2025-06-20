@@ -21,7 +21,9 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 * Apply `security-setting` configuration according to xref:address-model.adoc#uuid-resources[`uuid-namespace`].
 * Control the maximum number of in-flight MQTT messages for both 3.x and 5.0 clients via xref:mqtt.adoc#flow-control[`defaultMaximumInFlightPublishMessages`].
-* Performance for persisting MQTT subscriptions is much improved.
+* MQTT performance improvements for:
+** persisting subscriptions
+** matching subscription identifiers to topic filters for 5.0 clients
 
 === Upgrading from 2.41.0
 
