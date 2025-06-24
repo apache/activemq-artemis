@@ -41,7 +41,7 @@ a `Long` property containing the _actual expiration time_ of the expired message
 
 == Configuring Expiry Addresses
 
-Expiry address are defined in the address-setting configuration:
+Expiry addresses are defined in the `address-setting` configuration:
 
 [,xml]
 ----
@@ -50,6 +50,8 @@ Expiry address are defined in the address-setting configuration:
    <expiry-address>expiryQueue</expiry-address>
 </address-setting>
 ----
+
+== Dropping Expired Messages
 
 If messages are expired and no expiry address is specified or explicitly unset (e.g. using `<expiry-address/>`) then messages are simply removed from the queue and dropped.
 Address xref:wildcard-syntax.adoc#wildcard-syntax[wildcards] can be used to configure expiry address for a set of addresses.
