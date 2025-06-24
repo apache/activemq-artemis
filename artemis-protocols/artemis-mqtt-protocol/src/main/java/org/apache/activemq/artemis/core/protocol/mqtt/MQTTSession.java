@@ -152,7 +152,7 @@ public class MQTTSession {
             if (state.isWill() && failure) {
                sendWillMessage();
             }
-            if (isClean()) {
+            if (isClean() || state.getClientSessionExpiryInterval() == 0) {
                clean(false);
                stateManager.removeSessionState(connection.getClientID());
             }
