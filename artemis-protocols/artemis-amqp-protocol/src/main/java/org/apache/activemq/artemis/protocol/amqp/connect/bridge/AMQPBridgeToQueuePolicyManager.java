@@ -114,9 +114,11 @@ public class AMQPBridgeToQueuePolicyManager extends AMQPBridgeToPolicyManager im
          final AMQPBridgeQueueSenderManager manager;
          final AMQPBridgeSenderInfo info = createSenderInfo(addressInfo, queue);
 
-         manager = new AMQPBridgeQueueSenderManager(this, configuration, info);
-         queueSenders.put(info.getLocalFqqn(), manager);
-         manager.start();
+         if (!queueSenders.containsKey(info.getLocalFqqn())) {
+            manager = new AMQPBridgeQueueSenderManager(this, configuration, info);
+            queueSenders.put(info.getLocalFqqn(), manager);
+            manager.start();
+         }
       }
    }
 

@@ -82,7 +82,7 @@ public class AMQPBridgeToAddressPolicyManager extends AMQPBridgeToPolicyManager 
 
    @Override
    public synchronized void afterAddAddress(AddressInfo addressInfo, boolean reload) {
-      if (isActive() && policy.test(addressInfo)) {
+      if (isActive() && policy.test(addressInfo) && !addressTracking.containsKey(addressInfo.getName().toString())) {
          try {
             final AMQPBridgeAddressSenderManager manager = new AMQPBridgeAddressSenderManager(this, configuration, addressInfo);
             addressTracking.put(manager.getAddress(), manager);

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.PREFER_SHARED_DURABLE_SUBSCRIPTIONS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.PULL_RECEIVER_BATCH_SIZE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.RECEIVER_CREDITS;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -990,6 +991,9 @@ class AMQPBridgeServerToServerTest extends AmqpClientTestSupport {
          Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.of(getTestName())).isExists());
          Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.of(getTestName()), false).getQueueNames().size() == 1);
 
+         // Connection has been restored to the remote and the bridge created a new binding to send to the remote
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of(getTestName()), false).getQueueNames().size() == 1, 5000, 50);
+
          assertNull(consumerR.receiveNoWait());
 
          message.setStringProperty("testProperty", "testValue-3");
@@ -1268,6 +1272,115 @@ class AMQPBridgeServerToServerTest extends AmqpClientTestSupport {
          assertEquals("Hello World", ((TextMessage) receivedAfter).getText());
          assertTrue(receivedAfter.propertyExists("color"));
          assertEquals("red", receivedAfter.getStringProperty("color"));
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testSharedDurableAddressSubscriptionRecoveredOnRestart() throws Exception {
+      logger.info("Test started: {}", getTestName());
+
+      final String filterString = "color='red'";
+
+      final AMQPBridgeAddressPolicyElement bridgeAddressPolicy = new AMQPBridgeAddressPolicyElement();
+      bridgeAddressPolicy.setName("test-policy");
+      bridgeAddressPolicy.setUseDurableSubscriptions(true);
+      bridgeAddressPolicy.setFilter(filterString);
+      bridgeAddressPolicy.addToIncludes(getTestName());
+
+      final AMQPBridgeBrokerConnectionElement element = new AMQPBridgeBrokerConnectionElement();
+      element.setName(getTestName());
+      element.addBridgeFromAddressPolicy(bridgeAddressPolicy);
+      element.addProperty(PREFER_SHARED_DURABLE_SUBSCRIPTIONS, "true");
+
+      final AMQPBrokerConnectConfiguration amqpConnection =
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
+      amqpConnection.setReconnectAttempts(10); // Limit reconnects
+      amqpConnection.setRetryInterval(50);
+      amqpConnection.addElement(element);
+
+      server.getConfiguration().addAMQPConnection(amqpConnection);
+      remoteServer.start();
+      server.start();
+
+      // Create an address with a binding to simulate demand from a consumer
+      server.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.MULTICAST)
+                                                             .setAddress(getTestName())
+                                                             .setAutoCreated(false));
+      // Wait for the bridge to form to the remote and capture the durable subscription name
+      Wait.assertEquals(1L, () -> remoteServer.bindingQuery(SimpleString.of(getTestName()), false).getQueueNames().size(), 500_000, 50);
+
+      // The actual subscription queue for the "shared" bridge receivers should be a stable queue
+      final String subscriptionQueueName = remoteServer.bindingQuery(SimpleString.of(getTestName())).getQueueNames().get(0).toString();
+
+      assertNotNull(subscriptionQueueName);
+      assertTrue(subscriptionQueueName.contains("amqp-bridge-"));
+      assertTrue(subscriptionQueueName.contains(getTestName()));
+
+      final org.apache.activemq.artemis.core.server.Queue subscriptionQueue = remoteServer.locateQueue(subscriptionQueueName);
+
+      assertNotNull(subscriptionQueue);
+      Wait.assertEquals(1L, () -> subscriptionQueue.getConsumerCount(), 5_000, 100);
+      assertTrue(subscriptionQueue.isDurable());
+      assertEquals(filterString, subscriptionQueue.getFilter().getFilterString().toString());
+
+      server.stop();
+
+      Wait.assertEquals(1L, () -> remoteServer.bindingQuery(SimpleString.of(getTestName()), false).getQueueNames().size(), 5_000, 50);
+      Wait.assertEquals(0L, () -> subscriptionQueue.getConsumerCount(), 5_000, 100);
+
+      final ConnectionFactory factoryRemote = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + SERVER_PORT_REMOTE);
+
+      try (Connection connection = factoryRemote.createConnection()) {
+         final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+         final Topic topic = session.createTopic(getTestName());
+         final MessageProducer producerL = session.createProducer(topic);
+         final TextMessage message = session.createTextMessage("Hello World");
+
+         message.setStringProperty("color", "green");
+         producerL.send(message);
+         message.setStringProperty("color", "red");
+         producerL.send(message);
+
+         Wait.assertEquals(1L, () -> subscriptionQueue.getMessageCount(), 5_000, 100);
+      }
+
+      server.start();
+
+      // Server should re-attach and recover the subscription and take the message
+      Wait.assertEquals(1L, () -> subscriptionQueue.getConsumerCount(), 5_000, 100);
+      Wait.assertEquals(0L, () -> subscriptionQueue.getMessageCount(), 5_000, 100);
+
+      final ConnectionFactory factoryLocal = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + SERVER_PORT);
+
+      try (Connection connection = factoryLocal.createConnection()) {
+         final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+         final Topic topic = session.createTopic(getTestName() + "::" + getTestName()); // Access our pre-created queue via FQQN
+         final MessageConsumer consumer = session.createConsumer(topic);
+
+         connection.start();
+
+         final Message receivedAfter = consumer.receive(5_000);
+
+         assertNotNull(receivedAfter);
+         assertTrue(receivedAfter instanceof TextMessage);
+         assertEquals("Hello World", ((TextMessage) receivedAfter).getText());
+         assertTrue(receivedAfter.propertyExists("color"));
+         assertEquals("red", receivedAfter.getStringProperty("color"));
+
+         final TextMessage message = session.createTextMessage("Hello Again");
+         final MessageProducer producerL = session.createProducer(topic);
+
+         message.setStringProperty("color", "red");
+         producerL.send(message);
+
+         final Message receiveAnother = consumer.receive(5_000);
+
+         assertNotNull(receiveAnother);
+         assertTrue(receiveAnother instanceof TextMessage);
+         assertEquals("Hello Again", ((TextMessage) receiveAnother).getText());
+         assertTrue(receiveAnother.propertyExists("color"));
+         assertEquals("red", receiveAnother.getStringProperty("color"));
       }
    }
 }

@@ -150,10 +150,12 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
          connectionR.start();
 
          // Demand on local address should trigger receiver on remote.
-         Wait.assertTrue(() -> server.addressQuery(SimpleString.of("test")).isExists());
-         Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.of("test")).isExists());
-         Wait.assertTrue(() -> federationPlugin.beforeCreateConsumerCapture.get() != null);
-         Wait.assertTrue(() -> federationPlugin.afterCreateConsumerCapture.get() != null);
+         Wait.assertTrue(() -> server.addressQuery(SimpleString.of("test")).isExists(), 5000, 50);
+         Wait.assertTrue(() -> server.bindingQuery(SimpleString.of("test")).getQueueNames().size() > 0, 5000, 50);
+         Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.of("test")).isExists(), 5000, 50);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.of("test")).getQueueNames().size() > 0, 5000, 50);
+         Wait.assertTrue(() -> federationPlugin.beforeCreateConsumerCapture.get() != null, 5000, 50);
+         Wait.assertTrue(() -> federationPlugin.afterCreateConsumerCapture.get() != null, 5000, 50);
 
          final MessageProducer producerR = sessionR.createProducer(topic);
          final TextMessage message = sessionR.createTextMessage("Hello World");
@@ -170,8 +172,8 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
 
          producerR.send(message);
 
-         Wait.assertTrue(() -> messagePreHandled.get() != null);
-         Wait.assertTrue(() -> messagePostHandled.get() != null);
+         Wait.assertTrue(() -> messagePreHandled.get() != null, 5000, 50);
+         Wait.assertTrue(() -> messagePostHandled.get() != null, 5000, 50);
 
          assertSame(messagePreHandled.get(), messagePostHandled.get());
 
@@ -179,8 +181,8 @@ public class AMQPFederationBrokerPliuginTest extends AmqpClientTestSupport {
 
          consumerL.close();
 
-         Wait.assertTrue(() -> federationPlugin.beforeCloseConsumerCapture.get() != null);
-         Wait.assertTrue(() -> federationPlugin.afterCloseConsumerCapture.get() != null);
+         Wait.assertTrue(() -> federationPlugin.beforeCloseConsumerCapture.get() != null, 5000, 50);
+         Wait.assertTrue(() -> federationPlugin.afterCloseConsumerCapture.get() != null, 5000, 50);
 
          assertNotNull(received);
       }

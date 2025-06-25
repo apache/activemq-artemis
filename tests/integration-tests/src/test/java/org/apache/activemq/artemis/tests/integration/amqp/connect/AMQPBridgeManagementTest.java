@@ -1006,6 +1006,8 @@ public class AMQPBridgeManagementTest extends AmqpClientTestSupport {
          final String policyResourceName = AMQPBridgeManagementSupport.getBridgePolicyManagerResourceName(getTestName(), getTestName(), "to-address-policy");
          final String producerResourceName = AMQPBridgeManagementSupport.getBridgeAddressSenderResourceName(getTestName(), getTestName(), "to-address-policy", getTestName());
 
+         Wait.assertTrue(() -> server.getManagementService().getResource(producerResourceName) != null, 5_000, 50);
+
          final BrokerConnectionControl brokerConnection = (BrokerConnectionControl)
             server.getManagementService().getResource(brokerConnectionName);
          final AMQPBridgeManagerControl bridgeControl =
