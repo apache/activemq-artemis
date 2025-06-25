@@ -25,6 +25,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridg
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.PULL_RECEIVER_BATCH_SIZE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.QUEUE_RECEIVER_IDLE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.LARGE_MESSAGE_THRESHOLD;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.PREFER_SHARED_DURABLE_SUBSCRIPTIONS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.ADDRESS_RECEIVER_IDLE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.DISABLE_RECEIVER_DEMAND_TRACKING;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.DISABLE_RECEIVER_PRIORITY;
@@ -193,6 +194,20 @@ public final class AMQPBridgeReceiverConfiguration extends AMQPBridgeLinkConfigu
          return Boolean.parseBoolean((String) property);
       } else {
          return configuration.isReceiverDemandTrackingDisabled();
+      }
+   }
+
+   /**
+    * {@return <code>true</code> if bridge from address policies are configured to prefer using shared durable address subscriptions}
+    */
+   public boolean isPreferSharedDurableSubscriptions() {
+      final Object property = properties.get(PREFER_SHARED_DURABLE_SUBSCRIPTIONS);
+      if (property instanceof Boolean) {
+         return (Boolean) property;
+      } else if (property instanceof String) {
+         return Boolean.parseBoolean((String) property);
+      } else {
+         return configuration.isPreferSharedDurableSubscriptions();
       }
    }
 }

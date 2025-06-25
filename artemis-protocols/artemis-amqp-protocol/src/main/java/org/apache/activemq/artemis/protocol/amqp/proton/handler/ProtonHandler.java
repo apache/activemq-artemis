@@ -54,6 +54,7 @@ import org.apache.qpid.proton.engine.Transport;
 import org.apache.qpid.proton.engine.impl.TransportInternal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.lang.invoke.MethodHandles;
 
 public class ProtonHandler extends ProtonInitializable implements SaslListener {
@@ -629,11 +630,11 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       flush();
    }
 
-
-   public void open(String containerId, Map<Symbol, Object> connectionProperties) {
+   public void open(String containerId, Map<Symbol, Object> connectionProperties, Symbol[] desiredCapabilities) {
       this.transport.open();
       this.connection.setContainer(containerId);
       this.connection.setProperties(connectionProperties);
+      this.connection.setDesiredCapabilities(desiredCapabilities);
       this.connection.open();
       flush();
    }

@@ -76,6 +76,7 @@ public class AMQPConnectionContextTest {
          scheduledPool,
          false,
          null,
+         null,
          null);
 
       connectionContext.onRemoteOpen(connection);

@@ -19,6 +19,9 @@ package org.apache.activemq.artemis.protocol.amqp.connect.bridge;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LINK_INITIALIZER_KEY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.RECEIVER_PRIORITY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SHARED;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SHARED_SUBS;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyCapabilities;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyDesiredCapability;
 
 import java.lang.invoke.MethodHandles;
@@ -80,6 +83,12 @@ public class AMQPBridgeFromAddressReceiver extends AMQPBridgeReceiver {
       return configuration.getAddressReceiverIdleTimeout();
    }
 
+   private boolean isUseSharedDurableSubscriptions() {
+      return getPolicy().isUseDurableSubscriptions() &&
+             configuration.isPreferSharedDurableSubscriptions() &&
+             verifyCapabilities(session.getSession().getConnection().getRemoteOfferedCapabilities(), SHARED_SUBS);
+   }
+
    @Override
    protected void doCreateReceiver() {
       try {
@@ -97,6 +106,10 @@ public class AMQPBridgeFromAddressReceiver extends AMQPBridgeReceiver {
             source.setDurable(TerminusDurability.UNSETTLED_STATE);
             source.setExpiryPolicy(TerminusExpiryPolicy.NEVER);
             source.setDistributionMode(AmqpSupport.COPY);
+
+            if (isUseSharedDurableSubscriptions()) {
+               source.setCapabilities(SHARED);
+            }
          } else {
             source.setDurable(TerminusDurability.NONE);
             source.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
@@ -192,7 +205,15 @@ public class AMQPBridgeFromAddressReceiver extends AMQPBridgeReceiver {
    }
 
    private String generateLinkName(AMQPBridgeAddressPolicy policy) {
-      if (policy.isUseDurableSubscriptions()) {
+      if (isUseSharedDurableSubscriptions()) {
+         // Append the sequence ID with a '|' to create a shared durable subscription for reconnects
+         // but a unique name to prevent stealing on rapid demand cycles.
+         return "amqp-bridge-" + bridgeManager.getName() +
+                "-policy-" + policy.getPolicyName() +
+                "-address-receiver-" + receiverInfo.getRemoteAddress() +
+                "-" + bridgeManager.getServer().getNodeID() +
+                "|" + LINK_SEQUENCE_ID.incrementAndGet();
+      } else if (policy.isUseDurableSubscriptions()) {
          // Omit the sequence ID to create a stable durable subscription name for reconnects.
          return "amqp-bridge-" + bridgeManager.getName() +
                 "-policy-" + policy.getPolicyName() +
