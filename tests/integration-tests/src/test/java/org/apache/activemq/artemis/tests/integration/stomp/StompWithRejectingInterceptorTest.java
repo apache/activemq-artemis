@@ -54,23 +54,19 @@ public class StompWithRejectingInterceptorTest extends StompTestBase {
 
       StompClientConnection conn = StompClientConnectionFactory.createClientConnection(uri);
       conn.connect(defUser, defPass);
+      Wait.assertEquals(1, () -> IncomingStompFrameRejectInterceptor.interceptedFrames.size(), 500, 10);
+      assertEquals("CONNECT", IncomingStompFrameRejectInterceptor.interceptedFrames.get(0).getCommand());
 
       ClientStompFrame frame = conn.createFrame("SEND");
       frame.addHeader("destination", getQueuePrefix() + getQueueName());
       frame.setBody("Hello World");
       conn.sendFrame(frame);
+      Wait.assertEquals(2, () -> IncomingStompFrameRejectInterceptor.interceptedFrames.size(), 500, 10);
+      assertEquals("SEND", IncomingStompFrameRejectInterceptor.interceptedFrames.get(1).getCommand());
+
       conn.disconnect();
-
-      assertTrue(Wait.waitFor(() -> IncomingStompFrameRejectInterceptor.interceptedFrames.size() == 3, 10000, 50));
-
-      List<String> incomingCommands = new ArrayList<>(4);
-      incomingCommands.add("CONNECT");
-      incomingCommands.add("SEND");
-      incomingCommands.add("DISCONNECT");
-
-      for (int i = 0; i < IncomingStompFrameRejectInterceptor.interceptedFrames.size(); i++) {
-         assertEquals(incomingCommands.get(i), IncomingStompFrameRejectInterceptor.interceptedFrames.get(i).getCommand());
-      }
+      Wait.assertEquals(3, () -> IncomingStompFrameRejectInterceptor.interceptedFrames.size(), 500, 10);
+      assertEquals("DISCONNECT", IncomingStompFrameRejectInterceptor.interceptedFrames.get(2).getCommand());
 
       Wait.assertFalse(() -> server.locateQueue(SimpleString.of(getQueuePrefix() + getQueueName())).getMessageCount() > 0, 1000, 100);
    }
