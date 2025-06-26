@@ -16,15 +16,18 @@
  */
 package org.apache.activemq.artemis.cli.commands.messages;
 
+import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
 
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.cli.factory.ConnectionFactoryClosable;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import picocli.CommandLine.Option;
 
-public class ConnectionAbstract extends BasicConnectionAbstract {
+public class ConnectionAbstract extends ConnectionConfigurationAbtract {
    @Option(names = "--clientID", description = "ClientID set on the connection.")
    protected String clientID;
 
@@ -52,21 +55,20 @@ public class ConnectionAbstract extends BasicConnectionAbstract {
       this.protocol = ConnectionProtocol.fromString(protocol);
    }
 
-   @Override
-   protected ConnectionFactory createConnectionFactory() throws Exception {
+   protected ConnectionFactoryClosable createConnectionFactory() throws Exception {
       recoverConnectionInformation();
       return createConnectionFactory(brokerURL, user, password, clientID, protocol);
    }
 
-   protected ConnectionFactory createConnectionFactory(String brokerURL,
+   protected ConnectionFactoryClosable createConnectionFactory(String brokerURL,
                                                        String user,
                                                        String password,
                                                        String clientID,
                                                        ConnectionProtocol protocol) throws Exception {
       if (protocol == ConnectionProtocol.CORE) {
-         return createCoreConnectionFactory(brokerURL, user, password, clientID);
+         return new ConnectionFactoryClosable(createCoreConnectionFactory(brokerURL, user, password, clientID));
       } else if (protocol == ConnectionProtocol.AMQP) {
-         return createAMQPConnectionFactory(brokerURL, user, password, clientID);
+         return new ConnectionFactoryClosable(createAMQPConnectionFactory(brokerURL, user, password, clientID));
       } else {
          throw new IllegalStateException("protocol " + protocol + " not supported");
       }
@@ -175,6 +177,27 @@ public class ConnectionAbstract extends BasicConnectionAbstract {
          } catch (Exception e2) {
          }
          return cf;
+      }
+   }
+
+   protected void tryConnect(String brokerURL,
+                             String user,
+                             String password,
+                             ConnectionFactory cf) throws JMSException {
+      Connection connection = cf.createConnection();
+      connection.close();
+      saveConnectionInfo(brokerURL, user, password);
+   }
+
+   protected void performCoreManagement(ManagementHelper.MessageAcceptor setup, ManagementHelper.MessageAcceptor ok, ManagementHelper.MessageAcceptor failed) throws Exception {
+      try (ActiveMQConnectionFactory factory = createCoreConnectionFactory()) {
+         ManagementHelper.doManagement(factory.getServerLocator(), user, password, setup, ok, failed);
+      }
+   }
+
+   protected void performCoreManagement(String uri, String user, String password, ManagementHelper.MessageAcceptor setup, ManagementHelper.MessageAcceptor ok, ManagementHelper.MessageAcceptor failed) throws Exception {
+      try (ActiveMQConnectionFactory factory = createCoreConnectionFactory(uri, user, password, clientID)) {
+         ManagementHelper.doManagement(factory.getServerLocator(), user, password, setup, ok, failed);
       }
    }
 }

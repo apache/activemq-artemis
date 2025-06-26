@@ -31,7 +31,7 @@ public class ClusterCheck extends ConnectionAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      createConnectionFactory();
+      createConnectionFactory().close();
 
       try (ClusterNodeVerifier clusterVerifier = new ClusterNodeVerifier(brokerURL, user, password, variance).open()) {
          return clusterVerifier.verify(context);

@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -97,7 +98,7 @@ public class JournalFlushInterruptTest extends SoakTestBase {
       assertTrue(serverProcess.waitFor(1, TimeUnit.MINUTES));
       serverProcess = startServer(SERVER_NAME_0, 0, 0);
 
-      waitForServerToStart("tcp://localhost:61616", "artemis", "artemis", 5000);
+      ServerUtil.waitForServerToStart("tcp://localhost:61616", "artemis", "artemis", 5000);
       queueControl = getQueueControl(liveURI, nameBuilder, queueName, queueName, RoutingType.ANYCAST, 5000);
 
       Wait.assertEquals(messageCount, queueControl::getMessageCount);

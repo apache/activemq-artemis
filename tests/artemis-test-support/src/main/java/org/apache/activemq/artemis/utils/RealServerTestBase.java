@@ -45,9 +45,7 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.SimpleManagement;
-import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -279,27 +277,10 @@ public class RealServerTestBase extends ActiveMQTestBase {
       logger.info("Zip finished with {}", process.waitFor());
    }
 
-   public boolean waitForServerToStart(String uri, String username, String password, long timeout) throws InterruptedException {
-      long realTimeout = System.currentTimeMillis() + timeout;
-      while (System.currentTimeMillis() < realTimeout) {
-         try (ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory(uri, null)) {
-            cf.createConnection(username, password).close();
-            System.out.println("server " + uri + " started");
-         } catch (Exception e) {
-            System.out.println("awaiting server " + uri + " start at ");
-            Thread.sleep(500);
-            continue;
-         }
-         return true;
-      }
-
-      return false;
-   }
-
    protected static void saveProperties(Properties properties, File propertiesFile) throws Exception {
-      OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(propertiesFile));
-      properties.store(outputStream, "# Broker properties");
-      outputStream.close();
+      try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(propertiesFile))) {
+         properties.store(outputStream, "# Broker properties");
+      }
    }
 
 
