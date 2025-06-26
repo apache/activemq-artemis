@@ -31,6 +31,7 @@ import javax.jms.Topic;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.InputAbstract;
+import org.apache.activemq.artemis.cli.factory.ConnectionFactoryClosable;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import picocli.CommandLine.Command;
@@ -341,7 +342,7 @@ public class Transfer extends InputAbstract {
    }
 
    private int doTransfer(ActionContext context) throws Exception {
-      ConnectionFactory sourceConnectionFactory = createConnectionFactory("source", sourceProtocol, sourceURL, sourceUser, sourcePassword, sourceClientID);
+      ConnectionFactoryClosable sourceConnectionFactory = createConnectionFactory("source", sourceProtocol, sourceURL, sourceUser, sourcePassword, sourceClientID);
       Connection sourceConnection = sourceConnectionFactory.createConnection();
 
       Session sourceSession = sourceConnection.createSession(Session.SESSION_TRANSACTED);
@@ -378,7 +379,7 @@ public class Transfer extends InputAbstract {
          }
       }
 
-      ConnectionFactory targetConnectionFactory = createConnectionFactory("target", targetProtocol, targetURL, targetUser, targetPassword, null);
+      ConnectionFactoryClosable targetConnectionFactory = createConnectionFactory("target", targetProtocol, targetURL, targetUser, targetPassword, null);
       Connection targetConnection = targetConnectionFactory.createConnection();
       Session targetSession = targetConnection.createSession(Session.SESSION_TRANSACTED);
       Destination targetDestination = createDestination("target", targetSession, targetQueue, targetTopic);
@@ -437,7 +438,10 @@ public class Transfer extends InputAbstract {
       }
 
       sourceConnection.close();
+      sourceConnectionFactory.close();
+
       targetConnection.close();
+      targetConnectionFactory.close();
 
       return total;
    }
@@ -458,7 +462,7 @@ public class Transfer extends InputAbstract {
       throw new IllegalArgumentException("You need to pass either a topic or a queue as " + role);
    }
 
-   protected ConnectionFactory createConnectionFactory(String role,
+   protected ConnectionFactoryClosable createConnectionFactory(String role,
                                                        String protocol,
                                                        String brokerURL,
                                                        String user,
@@ -468,12 +472,12 @@ public class Transfer extends InputAbstract {
          if (isVerbose()) {
             getActionContext().out.println("Creating " + role + " CORE Connection towards " + brokerURL);
          }
-         return createCoreConnectionFactory(brokerURL, user, password, clientID);
+         return new ConnectionFactoryClosable(createCoreConnectionFactory(brokerURL, user, password, clientID));
       } else if (protocol.equals("amqp")) {
          if (isVerbose()) {
             getActionContext().out.println("Creating " + role + " AMQP Connection towards " + brokerURL);
          }
-         return createAMQPConnectionFactory(brokerURL, user, password, clientID);
+         return new ConnectionFactoryClosable(createAMQPConnectionFactory(brokerURL, user, password, clientID));
       } else {
          throw new IllegalStateException("protocol " + protocol + " not supported");
       }
@@ -533,6 +537,7 @@ public class Transfer extends InputAbstract {
          connection.close();
          return cf;
       } catch (JMSSecurityException e) {
+         cf.close();
          // if a security exception will get the user and password through an input
          getActionContext().err.println("Connection failed::" + e.getMessage());
          Pair<String, String> userPair = userPassword(brokerURL);
@@ -542,6 +547,7 @@ public class Transfer extends InputAbstract {
          }
          return cf;
       } catch (JMSException e) {
+         cf.close();
          // if a connection exception will ask for the URL, user and password
          getActionContext().err.println("Connection failed::" + e.getMessage());
          brokerURL = input("--url", "Type in the broker URL for a retry (e.g. tcp://localhost:61616)", brokerURL);

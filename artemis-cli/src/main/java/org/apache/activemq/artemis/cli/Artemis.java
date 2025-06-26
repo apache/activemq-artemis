@@ -314,16 +314,17 @@ public class Artemis implements Runnable {
 
 
    public static String getNameFromBanner() throws Exception {
-      InputStream inputStream = Artemis.class.getResourceAsStream("banner.txt");
-      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-      String lastLine = "";
-      while (reader.ready()) {
-         String line = reader.readLine();
-         if (!line.trim().isEmpty()) {
-            lastLine = line;
+      try (InputStream inputStream = Artemis.class.getResourceAsStream("banner.txt")) {
+         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+         String lastLine = "";
+         while (reader.ready()) {
+            String line = reader.readLine();
+            if (!line.trim().isEmpty()) {
+               lastLine = line;
+            }
          }
+         return lastLine.trim();
       }
-      return lastLine.trim();
    }
 
    private static long copy(InputStream in, OutputStream out) throws Exception {

@@ -29,7 +29,7 @@ public class Connect extends ConnectionAbstract {
       super.execute(context);
       try {
          CONNECTION_INFORMATION.remove();
-         createConnectionFactory();
+         createConnectionFactory().close();
          context.out.println("Connection Successful!");
 
          if (Shell.inShell()) {

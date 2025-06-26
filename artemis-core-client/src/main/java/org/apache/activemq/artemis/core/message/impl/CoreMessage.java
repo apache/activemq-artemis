@@ -281,16 +281,17 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    private ActiveMQBuffer getLargeMessageBuffer() throws ActiveMQException {
-      LargeBodyReader encoder = getLargeBodyReader();
-      encoder.open();
-      int bodySize = (int) encoder.getSize();
-      final ActiveMQBuffer buffer = new ChannelBufferWrapper(UnpooledByteBufAllocator.DEFAULT.heapBuffer(bodySize));
-      buffer.byteBuf().ensureWritable(bodySize);
-      final ByteBuffer nioBuffer = buffer.byteBuf().internalNioBuffer(0, bodySize);
-      encoder.readInto(nioBuffer);
-      buffer.writerIndex(bodySize);
-      encoder.close();
-      return buffer;
+      try (LargeBodyReader encoder = getLargeBodyReader()) {
+         encoder.open();
+         int bodySize = (int) encoder.getSize();
+         final ActiveMQBuffer buffer = new ChannelBufferWrapper(UnpooledByteBufAllocator.DEFAULT.heapBuffer(bodySize));
+         buffer.byteBuf().ensureWritable(bodySize);
+         final ByteBuffer nioBuffer = buffer.byteBuf().internalNioBuffer(0, bodySize);
+         encoder.readInto(nioBuffer);
+         buffer.writerIndex(bodySize);
+         encoder.close();
+         return buffer;
+      }
    }
 
    private ActiveMQBuffer inflate(ActiveMQBuffer buffer) throws DataFormatException {

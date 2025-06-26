@@ -201,7 +201,7 @@ public class StatQueue extends ConnectionAbstract {
          getActionContext().out.println("filter is '" + filter + "'");
          getActionContext().out.println("maxRows='" + maxRows + "'");
       }
-      createConnectionFactory();
+      createConnectionFactory().close();
 
       if (json) {
          jsonExecution(context, filter);

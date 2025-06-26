@@ -18,7 +18,6 @@
 package org.apache.activemq.artemis.cli.commands.messages;
 
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.Message;
@@ -28,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.factory.ConnectionFactoryClosable;
 import org.apache.activemq.artemis.cli.factory.serialize.MessageSerializer;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -149,9 +149,8 @@ public class Producer extends DestAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      ConnectionFactory factory = createConnectionFactory();
-
-      try (Connection connection = factory.createConnection()) {
+      try (ConnectionFactoryClosable factory = createConnectionFactory();
+           Connection connection = factory.createConnection()) {
 
          // If we are reading from file, we process messages sequentially to guarantee ordering.  i.e. no thread creation.
          if (file != null) {
