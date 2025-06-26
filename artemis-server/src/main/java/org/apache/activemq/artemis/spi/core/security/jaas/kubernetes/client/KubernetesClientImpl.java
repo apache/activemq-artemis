@@ -148,7 +148,7 @@ public class KubernetesClientImpl implements KubernetesClient {
    }
 
    private SSLContext buildSSLContext() throws Exception {
-      SSLContext ctx = SSLContext.getInstance("SSL");
+      SSLContext ctx = SSLContext.getInstance("TLS");
       File certFile = new File(caPath);
       if (!certFile.exists()) {
          logger.debug("Kubernetes CA certificate not found at: {}. Truststore not configured", caPath);
