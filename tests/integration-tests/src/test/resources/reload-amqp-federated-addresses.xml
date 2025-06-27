@@ -46,7 +46,7 @@ under the License.
 
       <address-settings>
          <!-- if you define auto-create on certain queues, management has to be auto-create -->
-         <address-setting match="activemq.management#">
+         <address-setting match="activemq.management.#">
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
