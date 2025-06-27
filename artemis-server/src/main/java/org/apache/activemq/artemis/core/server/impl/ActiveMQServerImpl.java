@@ -3230,15 +3230,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          this.ioExecutorFactory = new OrderedExecutorFactory(ioExecutorPool);
       }
 
-      if (serviceRegistry.getIOExecutorService() != null) {
-         this.ioExecutorFactory = new OrderedExecutorFactory(serviceRegistry.getIOExecutorService());
-      } else {
-         ThreadFactory tFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("ActiveMQ-IO-server-" + this, false, ClientSessionFactoryImpl.class.getClassLoader()));
-
-         this.ioExecutorPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), tFactory);
-         this.ioExecutorFactory = new OrderedExecutorFactory(ioExecutorPool);
-      }
-
       if (serviceRegistry.getPageExecutorService() != null) {
          this.pageExecutorFactory = new OrderedExecutorFactory(serviceRegistry.getPageExecutorService()).setFair(true);
       } else {
