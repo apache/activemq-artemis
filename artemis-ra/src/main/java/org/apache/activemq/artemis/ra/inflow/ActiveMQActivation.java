@@ -351,7 +351,7 @@ public class ActiveMQActivation {
             }
          };
 
-         Thread threadTearDown = startThread("TearDown/HornetQActivation", runTearDown);
+         Thread threadTearDown = startThread("resource-adapter-activation-teardown", runTearDown);
 
          try {
             threadTearDown.join(timeout);

@@ -377,7 +377,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
       private SequentialFile originalFile;
 
       MockSequentialFile(SequentialFile originalFile) throws Exception {
-         super(originalFile.getJavaFile().getParentFile(), originalFile.getFileName(), new FakeSequentialFileFactory(), null);
+         super(originalFile.getJavaFile().getParentFile(), originalFile.getFileName(), new FakeSequentialFileFactory());
          this.originalFile = originalFile;
          this.originalFile.close();
       }

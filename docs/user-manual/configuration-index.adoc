@@ -519,7 +519,7 @@ In most cases this should be set to '1'.
 | <<resource-limit-type,a list of resource-limits>>
 | n/a
 
-| xref:thread-pooling.adoc#server-scheduled-thread-pool[scheduled-thread-pool-max-size]
+| xref:thread-pooling.adoc#scheduled-thread-pool[scheduled-thread-pool-max-size]
 | Maximum number of threads to use for the scheduled thread pool.
 | 5
 

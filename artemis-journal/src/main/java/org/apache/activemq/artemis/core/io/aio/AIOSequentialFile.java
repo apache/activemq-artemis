@@ -18,9 +18,9 @@ package org.apache.activemq.artemis.core.io.aio;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.util.PriorityQueue;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -31,9 +31,8 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is implementing Runnable to reuse a callback to close it.
@@ -69,9 +68,8 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
                             final int bufferSize,
                             final long bufferTimeoutMilliseconds,
                             final File directory,
-                            final String fileName,
-                            final Executor writerExecutor) {
-      super(directory, fileName, factory, writerExecutor);
+                            final String fileName) {
+      super(directory, fileName, factory);
       this.aioFactory = factory;
    }
 
@@ -92,7 +90,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
 
    @Override
    public SequentialFile cloneFile() {
-      return new AIOSequentialFile(aioFactory, -1, -1, getFile().getParentFile(), getFile().getName(), null);
+      return new AIOSequentialFile(aioFactory, -1, -1, getFile().getParentFile(), getFile().getName());
    }
 
 

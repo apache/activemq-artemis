@@ -96,7 +96,7 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
       };
       pool2 = Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       pool3 = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
-      NettyAcceptor acceptor = new NettyAcceptor("netty", null, params, handler, listener, pool2, pool3, new HashMap<>());
+      NettyAcceptor acceptor = new NettyAcceptor("netty", null, params, handler, listener, pool2, pool3, new HashMap<>(), null, null);
 
       addActiveMQComponent(acceptor);
       acceptor.start();
@@ -149,7 +149,7 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
 
       try {
-         new NettyAcceptor("netty", null, params, null, null, null, null, Map.of());
+         new NettyAcceptor("netty", null, params, null, null, null, null, Map.of(), null, null);
          fail("This should have failed with an IllegalArgumentException");
       } catch (IllegalArgumentException e) {
          // expected
@@ -161,7 +161,7 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
       params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, RandomUtil.randomUUIDString());
-      new NettyAcceptor("netty", null, params, null, null, null, null, Map.of());
+      new NettyAcceptor("netty", null, params, null, null, null, null, Map.of(), null, null);
    }
 
    @Test
@@ -169,6 +169,6 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
       params.put(TransportConstants.SSL_CONTEXT_PROP_NAME, RandomUtil.randomUUIDString());
-      new NettyAcceptor("netty", null, params, null, null, null, null, Map.of());
+      new NettyAcceptor("netty", null, params, null, null, null, null, Map.of(), null, null);
    }
 }

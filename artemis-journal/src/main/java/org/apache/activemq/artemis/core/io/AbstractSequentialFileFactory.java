@@ -20,19 +20,12 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
-import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 
@@ -61,13 +54,6 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
    protected IOCriticalErrorListener critialErrorListener;
 
    protected final CriticalAnalyzer criticalAnalyzer;
-
-   /**
-    * Asynchronous writes need to be done at another executor. This needs to be done at NIO, or else we would have the
-    * callers thread blocking for the return. At AIO this is necessary as context switches on writes would fire flushes
-    * at the kernel.
-    */
-   protected ExecutorService writeExecutor;
 
    protected AbstractSequentialFileFactory(final File journalDir,
                                            final boolean buffered,
@@ -149,18 +135,6 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
       if (timedBuffer != null) {
          timedBuffer.stop();
       }
-
-      if (isSupportsCallbacks() && writeExecutor != null) {
-         writeExecutor.shutdown();
-
-         try {
-            if (!writeExecutor.awaitTermination(AbstractSequentialFileFactory.EXECUTOR_TIMEOUT, TimeUnit.SECONDS)) {
-               ActiveMQJournalLogger.LOGGER.timeoutOnWriterShutdown(new Exception("trace"));
-            }
-         } catch (InterruptedException e) {
-            throw new ActiveMQInterruptedException(e);
-         }
-      }
    }
 
    @Override
@@ -172,15 +146,6 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
    public void start() {
       if (timedBuffer != null) {
          timedBuffer.start();
-      }
-
-      if (isSupportsCallbacks()) {
-         writeExecutor = Executors.newSingleThreadExecutor(AccessController.doPrivileged(new PrivilegedAction<ActiveMQThreadFactory>() {
-            @Override
-            public ActiveMQThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-Asynchronous-Persistent-Writes" + System.identityHashCode(this), true, AbstractSequentialFileFactory.class.getClassLoader());
-            }
-         }));
       }
    }
 

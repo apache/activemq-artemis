@@ -59,4 +59,23 @@ public class StringUtil {
       }
       return list;
    }
+
+   public static String convertPascalCaseToKebabCase(String input) {
+      if (input == null || input.isEmpty()) {
+         return input;
+      }
+      StringBuilder builder = new StringBuilder();
+      for (int i = 0; i < input.length(); i++) {
+         char c = input.charAt(i);
+         if (Character.isUpperCase(c)) {
+            if (i > 0) {
+               builder.append('-');
+            }
+            builder.append(Character.toLowerCase(c));
+         } else {
+            builder.append(c);
+         }
+      }
+      return builder.toString();
+   }
 }

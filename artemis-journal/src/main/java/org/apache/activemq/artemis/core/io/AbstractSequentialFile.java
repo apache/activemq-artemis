@@ -18,11 +18,11 @@ package org.apache.activemq.artemis.core.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
 import io.netty.buffer.ByteBuf;
@@ -39,9 +39,8 @@ import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.ByteUtil;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractSequentialFile implements SequentialFile {
 
@@ -67,8 +66,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
 
    public AbstractSequentialFile(final File directory,
                                  final String file,
-                                 final SequentialFileFactory factory,
-                                 final Executor writerExecutor) {
+                                 final SequentialFileFactory factory) {
       super();
       this.file = new File(directory, file);
       this.directory = directory;

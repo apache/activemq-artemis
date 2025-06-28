@@ -19,9 +19,13 @@ package org.apache.activemq.artemis.core.server.metrics;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.function.ToDoubleFunction;
 
@@ -33,14 +37,19 @@ import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics;
+import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
 import io.micrometer.core.instrument.binder.logging.Log4j2Metrics;
+import io.micrometer.core.instrument.binder.netty4.NettyMeters;
 import io.micrometer.core.instrument.binder.system.FileDescriptorMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
+import io.micrometer.core.instrument.config.MeterFilter;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.EventLoopGroup;
+import io.netty.util.concurrent.SingleThreadEventExecutor;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.security.SecurityStore;
@@ -51,9 +60,12 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static io.micrometer.core.instrument.binder.netty4.NettyMeters.EVENT_EXECUTOR_TASKS_PENDING;
+
 public class MetricsManager {
 
    public static final String BROKER_TAG_NAME = "broker";
+   public static final String METER_PREFIX = "artemis.";
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -62,19 +74,34 @@ public class MetricsManager {
    private final Tags commonTags;
    private final MeterRegistry meterRegistry;
 
-   private final Map<String, List<Meter>> meters = new ConcurrentHashMap<>();
+   private final Map<String, Collection<Meter>> meters = new ConcurrentHashMap<>();
 
    private final HierarchicalRepository<AddressSettings> addressSettingsRepository;
+
+   private final MetricsConfiguration metricsConfiguration;
 
    public MetricsManager(String brokerName,
                          MetricsConfiguration metricsConfiguration,
                          HierarchicalRepository<AddressSettings> addressSettingsRepository,
                          SecurityStore securityStore) {
       this.brokerName = brokerName;
+      this.metricsConfiguration = metricsConfiguration;
       this.meterRegistry = metricsConfiguration.getPlugin().getRegistry();
       this.addressSettingsRepository = addressSettingsRepository;
       this.commonTags = Tags.of(BROKER_TAG_NAME, brokerName);
       if (meterRegistry != null) {
+
+         // This is a temporary workaround until Micrometer supports common tags on NettyEventExecutorMetrics
+         meterRegistry.config().meterFilter(new MeterFilter() {
+            @Override
+            public Meter.Id map(Meter.Id id) {
+               if (id.getName().equals(EVENT_EXECUTOR_TASKS_PENDING.getName())) {
+                  return id.withTags(commonTags);
+               }
+               return id;
+            }
+         });
+
          Metrics.globalRegistry.add(meterRegistry);
          if (metricsConfiguration.isJvmMemory()) {
             new JvmMemoryMetrics(commonTags).bindTo(meterRegistry);
@@ -124,7 +151,7 @@ public class MetricsManager {
       final List<Builder<Object>> gaugeBuilders = new ArrayList<>();
       builder.accept((metricName, state, f, description, gaugeTags) -> {
          Builder<Object> meter = Gauge
-            .builder("artemis." + metricName, state, f)
+            .builder(METER_PREFIX + metricName, state, f)
             .tags(commonTags)
             .tags(gaugeTags)
             .tag("address", address)
@@ -142,7 +169,7 @@ public class MetricsManager {
       final List<Builder<Object>> gaugeBuilders = new ArrayList<>();
       builder.accept((metricName, state, f, description, gaugeTags) -> {
          Builder<Object> meter = Gauge
-            .builder("artemis." + metricName, state, f)
+            .builder(METER_PREFIX + metricName, state, f)
             .tags(commonTags)
             .tags(gaugeTags)
             .tag("address", address)
@@ -159,7 +186,7 @@ public class MetricsManager {
       final List<Builder<Object>> gaugeBuilders = new ArrayList<>();
       builder.accept((metricName, state, f, description, gaugeTags) -> {
          Builder<Object> meter = Gauge
-            .builder("artemis." + metricName, state, f)
+            .builder(METER_PREFIX + metricName, state, f)
             .tags(commonTags)
             .tags(gaugeTags)
             .description(description);
@@ -173,7 +200,7 @@ public class MetricsManager {
          throw ActiveMQMessageBundle.BUNDLE.metersAlreadyRegistered(resource);
       }
       logger.debug("Registering meters for {}", resource);
-      List<Meter> newMeters = new ArrayList<>(gaugeBuilders.size());
+      Set<Meter> newMeters = new HashSet<>(gaugeBuilders.size());
       for (Builder<Object> gaugeBuilder : gaugeBuilders) {
          Gauge gauge = gaugeBuilder.register(meterRegistry);
          newMeters.add(gauge);
@@ -183,7 +210,7 @@ public class MetricsManager {
    }
 
    public void remove(String resource) {
-      List<Meter> resourceMeters = meters.remove(resource);
+      Collection<Meter> resourceMeters = meters.remove(resource);
       if (resourceMeters != null) {
          logger.debug("Unregistering meters for {}", resource);
          for (Meter meter : resourceMeters) {
@@ -196,6 +223,44 @@ public class MetricsManager {
          }
       } else {
          logger.debug("Attempted to unregister meters for {}, but none were found.", resource);
+      }
+   }
+
+   public void registerExecutorService(String name, ExecutorService executorService) {
+      if (this.meterRegistry == null || !metricsConfiguration.isExecutorServices()) {
+         return;
+      }
+      logger.debug("Registering ExecutorService for {}: {}", name, executorService);
+      ExecutorServiceMetrics.monitor(meterRegistry, executorService, name, commonTags);
+   }
+
+   /* This method is based on io.micrometer.core.instrument.binder.netty4.NettyEventExecutorMetrics but that class
+    * doesn't have a way to track and unregister meters later which is necessary when acceptors are stopped or
+    * destroyed.
+    */
+   public void registerNettyEventLoopGroup(String name, EventLoopGroup eventLoopGroup) {
+      if (this.meterRegistry == null || !metricsConfiguration.isExecutorServices()) {
+         return;
+      }
+      String resource = ResourceNames.ACCEPTOR + name;
+      if (meters.get(resource) != null) {
+         throw ActiveMQMessageBundle.BUNDLE.metersAlreadyRegistered(resource);
+      }
+      logger.debug("Registering Netty EventLoopGroup for {}: {}", name, eventLoopGroup);
+      Set<Meter> meters = new HashSet<>();
+      eventLoopGroup.forEach(eventExecutor -> {
+         if (eventExecutor instanceof SingleThreadEventExecutor) {
+            SingleThreadEventExecutor singleThreadEventExecutor = (SingleThreadEventExecutor) eventExecutor;
+            Meter meter = Gauge.builder(NettyMeters.EVENT_EXECUTOR_TASKS_PENDING.getName(), singleThreadEventExecutor::pendingTasks)
+               .tag("name", singleThreadEventExecutor.threadProperties().name())
+               .tags(commonTags)
+               .register(this.meterRegistry);
+            meters.add(meter);
+            logger.debug("Registered meter: {}", meter.getId());
+         }
+      });
+      if (!meters.isEmpty()) {
+         this.meters.put(resource, meters);
       }
    }
 }

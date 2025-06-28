@@ -153,6 +153,8 @@ public interface ActiveMQServer extends ServiceComponent {
 
    void removeMirrorControl();
 
+   String getThreadGroupName(String groupName);
+
    ServiceRegistry getServiceRegistry();
 
    RemotingService getRemotingService();

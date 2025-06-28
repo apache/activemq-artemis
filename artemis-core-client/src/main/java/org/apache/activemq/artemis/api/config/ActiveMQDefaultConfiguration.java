@@ -652,6 +652,9 @@ public final class ActiveMQDefaultConfiguration {
    // Whether or not to report JVM thread metrics
    private static final boolean DEFAULT_JVM_THREAD_METRICS = false;
 
+   // Whether or not to report executor service metrics
+   private static final boolean DEFAULT_EXECUTOR_SERVICE_METRICS = false;
+
    public static final String DEFAULT_UUID_NAMESPACE = "";
 
    @Deprecated(forRemoval = true)
@@ -1877,6 +1880,10 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static boolean getDefaultJvmThreadMetrics() {
       return DEFAULT_JVM_THREAD_METRICS;
+   }
+
+   public static boolean getDefaultExecutorServiceMetrics() {
+      return DEFAULT_EXECUTOR_SERVICE_METRICS;
    }
 
    public static String getDefaultUuidNamespace() {
