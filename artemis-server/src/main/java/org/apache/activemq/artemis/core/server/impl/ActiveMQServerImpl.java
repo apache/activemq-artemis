@@ -40,6 +40,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -165,6 +166,7 @@ import org.apache.activemq.artemis.core.server.group.impl.RemoteGroupingHandler;
 import org.apache.activemq.artemis.core.server.impl.jdbc.JdbcNodeManager;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.impl.ManagementServiceImpl;
+import org.apache.activemq.artemis.core.server.metrics.BrokerMetricNames;
 import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.server.mirror.MirrorRegistry;
@@ -248,6 +250,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     */
    @Deprecated
    public static final String GENERIC_IGNORED_FILTER = Filter.GENERIC_IGNORED_FILTER;
+
+   private static final long THREAD_POOL_KEEP_ALIVE_SECONDS = 60L;
 
    private HAPolicy haPolicy;
 
@@ -1024,7 +1028,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public ExecutorService getThreadPool() {
+   public Executor getThreadPool() {
       return threadPool;
    }
 
@@ -3190,17 +3194,17 @@ public class ActiveMQServerImpl implements ActiveMQServer {
     * Sets up ActiveMQ Artemis Executor Services.
     */
    private void initializeExecutorServices() {
+      int maxIoThreads = configuration.getPageMaxConcurrentIO() <= 0 ? Integer.MAX_VALUE : configuration.getPageMaxConcurrentIO();
       /*
        * We check to see if a Thread Pool is supplied in the InjectedObjectRegistry.  If so we created a new Ordered
        * Executor based on the provided Thread pool.  Otherwise we create a new ThreadPool.
        */
       if (serviceRegistry.getExecutorService() == null) {
-         ThreadFactory tFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) ()-> new ActiveMQThreadFactory("ActiveMQ-server-" + this, false, ClientSessionFactoryImpl.class.getClassLoader()));
-
+         ThreadFactory tFactory = getThreadFactory(null);
          if (configuration.getThreadPoolMaxSize() == -1) {
-            threadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), tFactory);
+            threadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, THREAD_POOL_KEEP_ALIVE_SECONDS, TimeUnit.SECONDS, new SynchronousQueue<>(), tFactory);
          } else {
-            threadPool = new ActiveMQThreadPoolExecutor(0, configuration.getThreadPoolMaxSize(), 60L, TimeUnit.SECONDS, tFactory);
+            threadPool = new ActiveMQThreadPoolExecutor(0, configuration.getThreadPoolMaxSize(), THREAD_POOL_KEEP_ALIVE_SECONDS, TimeUnit.SECONDS, tFactory);
          }
       } else {
          threadPool = serviceRegistry.getExecutorService();
@@ -3208,40 +3212,26 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
       this.executorFactory = new OrderedExecutorFactory(threadPool);
 
-      if (serviceRegistry.getIOExecutorService() != null) {
-         this.ioExecutorFactory = new OrderedExecutorFactory(serviceRegistry.getIOExecutorService());
+      if (serviceRegistry.getIOExecutorService() == null) {
+         this.ioExecutorPool = new ActiveMQThreadPoolExecutor(0, maxIoThreads, THREAD_POOL_KEEP_ALIVE_SECONDS, TimeUnit.SECONDS, getThreadFactory("io"));
       } else {
-         ThreadFactory tFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("ActiveMQ-IO-server-" + this, false, ClientSessionFactoryImpl.class.getClassLoader()));
-
-         // Perhaps getPageMaxConcurrentIO should be deprecated and a new value added
-         int maxIO = configuration.getPageMaxConcurrentIO() <= 0 ? Integer.MAX_VALUE : configuration.getPageMaxConcurrentIO();
-         this.ioExecutorPool = new ActiveMQThreadPoolExecutor(0, maxIO, 60L, TimeUnit.SECONDS, tFactory);
-         this.ioExecutorFactory = new OrderedExecutorFactory(ioExecutorPool);
+         this.ioExecutorPool = serviceRegistry.getIOExecutorService();
       }
+      this.ioExecutorFactory = new OrderedExecutorFactory(ioExecutorPool);
 
-      if (serviceRegistry.getPageExecutorService() != null) {
-         this.pageExecutorFactory = new OrderedExecutorFactory(serviceRegistry.getPageExecutorService()).setFair(true);
+      if (serviceRegistry.getPageExecutorService() == null) {
+         this.pageExecutorPool = new ActiveMQThreadPoolExecutor(0, maxIoThreads, THREAD_POOL_KEEP_ALIVE_SECONDS, TimeUnit.SECONDS, getThreadFactory("paging"));
       } else {
-         ThreadFactory tFactory = AccessController.doPrivileged(new PrivilegedAction<>() {
-            @Override
-            public ThreadFactory run() {
-               return new ActiveMQThreadFactory("ActiveMQ-PageExecutor-server-" + this.toString(), false, ClientSessionFactoryImpl.class.getClassLoader());
-            }
-         });
-
-         int maxIO = configuration.getPageMaxConcurrentIO() <= 0 ? Integer.MAX_VALUE : configuration.getPageMaxConcurrentIO();
-         this.pageExecutorPool = new ActiveMQThreadPoolExecutor(0, maxIO, 60L, TimeUnit.SECONDS, tFactory);
-         this.pageExecutorFactory = new OrderedExecutorFactory(pageExecutorPool);
+         this.pageExecutorPool = serviceRegistry.getPageExecutorService();
       }
+      this.pageExecutorFactory = new OrderedExecutorFactory(pageExecutorPool);
 
-       /*
-        * We check to see if a Scheduled Executor Service is provided in the InjectedObjectRegistry.  If so we use this
+      /*
+       * We check to see if a Scheduled Executor Service is provided in the InjectedObjectRegistry.  If so we use this
        * Scheduled ExecutorService otherwise we create a new one.
        */
       if (serviceRegistry.getScheduledExecutorService() == null) {
-         ThreadFactory tFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("ActiveMQ-scheduled-threads", false, ClientSessionFactoryImpl.class.getClassLoader()));
-
-         ScheduledThreadPoolExecutor scheduledPoolExecutor = new ScheduledThreadPoolExecutor(configuration.getScheduledThreadPoolMaxSize(), tFactory);
+         ScheduledThreadPoolExecutor scheduledPoolExecutor = new ScheduledThreadPoolExecutor(configuration.getScheduledThreadPoolMaxSize(), getThreadFactory("scheduled"));
          scheduledPoolExecutor.setRemoveOnCancelPolicy(true);
          scheduledPool = scheduledPoolExecutor;
       } else {
@@ -3253,6 +3243,23 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             ActiveMQServerLogger.LOGGER.scheduledPoolWithNoRemoveOnCancelPolicy();
          }
       }
+   }
+
+   private ActiveMQThreadFactory getThreadFactory(String name) {
+      return AccessController.doPrivileged((PrivilegedAction<ActiveMQThreadFactory>) () -> new ActiveMQThreadFactory(getThreadGroupName(name), false, ClientSessionFactoryImpl.class.getClassLoader()));
+   }
+
+   @Override
+   public String getThreadGroupName(String groupName) {
+      final String tFactoryGroupNameSuffix;
+      if (identity != null) {
+         tFactoryGroupNameSuffix = identity;
+      } else if (configuration != null && configuration.getName() != null && !configuration.getName().isEmpty()) {
+         tFactoryGroupNameSuffix = configuration.getName();
+      } else {
+         tFactoryGroupNameSuffix = Integer.toHexString(System.identityHashCode(this));
+      }
+      return (groupName == null ? "" : groupName + "-") + tFactoryGroupNameSuffix;
    }
 
    @Override
@@ -3317,6 +3324,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
        */
       if (configuration.getMetricsConfiguration() != null && configuration.getMetricsConfiguration().getPlugin() != null) {
          metricsManager = new MetricsManager(configuration.getName(), configuration.getMetricsConfiguration(), addressSettingsRepository, securityStore);
+         metricsManager.registerExecutorService(BrokerMetricNames.GENERAL_EXECUTOR_SERVICE, threadPool);
+         metricsManager.registerExecutorService(BrokerMetricNames.IO_EXECUTOR_SERVICE, ioExecutorPool);
+         metricsManager.registerExecutorService(BrokerMetricNames.PAGE_EXECUTOR_SERVICE, pageExecutorPool);
+         metricsManager.registerExecutorService(BrokerMetricNames.SCHEDULED_EXECUTOR_SERVICE, scheduledPool);
       }
 
       postOffice = new PostOfficeImpl(this, storageManager, pagingManager, queueFactory, managementService, configuration.getMessageExpiryScanPeriod(), configuration.getAddressQueueScanPeriod(), configuration.getWildcardConfiguration(), configuration.getIDCacheSize(), configuration.isPersistIDCache(), addressSettingsRepository);

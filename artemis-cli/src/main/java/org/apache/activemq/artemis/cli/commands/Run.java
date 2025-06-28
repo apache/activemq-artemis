@@ -179,7 +179,7 @@ public class Run extends LockAbstract {
          }
       }
 
-      shutdownTimer = new Timer("ActiveMQ Artemis Server Shutdown Timer", true);
+      shutdownTimer = new Timer("activemq-shutdown-timer", true);
       shutdownTimer.scheduleAtFixedRate(new TimerTask() {
          @Override
          public void run() {

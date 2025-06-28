@@ -26,6 +26,8 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -33,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
 import jakarta.servlet.DispatcherType;
@@ -49,6 +52,7 @@ import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.marker.WebServerComponentMarker;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.PemConfigUtil;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -74,6 +78,8 @@ import org.eclipse.jetty.util.Scanner;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
+import org.eclipse.jetty.util.thread.Scheduler;
+import org.eclipse.jetty.util.thread.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,7 +143,10 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       }
       ActiveMQWebLogger.LOGGER.startingEmbeddedWebServer();
 
-      server = new Server(new QueuedThreadPool(webServerConfig.maxThreads, webServerConfig.minThreads, webServerConfig.idleThreadTimeout));
+      ThreadFactory threadFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("web", false, WebServerComponent.class.getClassLoader()));
+      ThreadPool threadPool = new QueuedThreadPool(webServerConfig.maxThreads, webServerConfig.minThreads, webServerConfig.idleThreadTimeout, -1, null, null, threadFactory);
+      Scheduler scheduler = new ScheduledExecutorScheduler("activemq-web-scheduled", false);
+      server = new Server(threadPool, scheduler, null);
       handlers = new Handler.Sequence();
 
       HttpConfiguration httpConfiguration = new HttpConfiguration();

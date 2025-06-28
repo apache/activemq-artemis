@@ -104,57 +104,97 @@ However, these metrics can be deduced by aggregating the lower level metrics (e.
 There are a handful of other useful metrics that are related to the JVM, the underlying operating system, etc.
 These metrics are provided specifically by Micrometer and therefore do not have the `artmemis.` prefix.
 
-JVM memory metrics::
+==== JVM memory metrics
 Gauges buffer and memory pool utilization.
 Underlying data gathered from Java's https://docs.oracle.com/en/java/javase/11/docs/api/java.management/java/lang/management/BufferPoolMXBean.html[BufferPoolMXBeans] and https://docs.oracle.com/en/java/javase/11/docs/api/java.management/java/lang/management/MemoryPoolMXBean.html[MemoryPoolMXBeans].
-+
+
 Enabled by default.
-JVM GC::
+
+==== JVM GC
 Gauges max and live data size, promotion and allocation rates, and the number of times the GC pauses (or concurrent phase time in the case of CMS).
 Underlying data gathered from Java's https://docs.oracle.com/en/java/javase/11/docs/api/java.management/java/lang/management/MemoryPoolMXBean.html[MemoryPoolMXBeans].
-+
+
 Disabled by default.
-JVM thread::
+
+==== JVM thread
 Gauges thread peak, the number of daemon threads, and live threads.
 Underlying data gathered from Java's https://docs.oracle.com/en/java/javase/11/docs/api/java.management/java/lang/management/ThreadMXBean.html[ThreadMXBean].
-+
+
 Disabled by default.
-Netty::
+
+==== Netty Allocator
 Collects metrics from Netty's https://netty.io/4.1/api/io/netty/buffer/PooledByteBufAllocatorMetric.html[PooledByteBufAllocatorMetric].
-+
+
 Disabled by default.
 File descriptors::
 Gauges current and max-allowed open files.
-+
+
 Disabled by default.
-Processor::
+
+==== Processor
 Gauges system CPU count, CPU usage, and 1-minute load average as well as process CPU usage.
-+
+
 Disabled by default.
-Uptime::
+
+==== Uptime
 Gauges process start time and uptime.
-+
+
 Disabled by default.
-Logging::
+
+==== Logging
 Counts the number of logging events per logging category (e.g. `WARN`, `ERROR`, etc.).
-+
+
 Disabled by default.
-+
+
 [WARNING]
 ====
 This works _exclusively_ with Log4j2 (i.e the default logging implementation shipped with the broker).
 If you're embedding the broker and using a different logging implementation (e.g. Log4j 1.x, JUL, Logback, etc.) and you enable these metrics then the broker will fail to start with a `java.lang.NoClassDefFoundError` as it attempts to locate Log4j2 classes that don't exist on the classpath.
 ====
-Security caches::
-The following authentication & authorization cache metrics are exported. They are all tagged by `cache` (either `authentication` or `authorization`). Additional tags are noted.
+
+==== Security caches
+The following authentication & authorization cache metrics are exported.
+They are all tagged by `cache` (either `authentication` or `authorization`).
+Additional tags are noted.
+
 * `cache.size`
 * `cache.puts`
 * `cache.gets` tagged by `result` - either `hit` or `miss`
 * `cache.evictions`
 * `cache.eviction.weight`
 
-+
 Disabled by default.
+
+==== Executor Services
+
+Metrics for executor services cover both the major instances of https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/ExecutorService.html[`java.util.concurrent.ExecutorService`] used by the broker to manage threads as well as https://netty.io/4.1/api/io/netty/util/concurrent/EventExecutor.html[`EventExecutors`] associated with instances of Netty's https://netty.io/4.1/api/io/netty/channel/EventLoopGroup.html[`EventLoopGroup`].
+
+Executor service metrics are disabled by default.
+
+===== Java Executor Services
+
+All metrics are tagged with the name of the broker and with the executor service name which corresponds to the role it plays within the broker (e.g. general, io, paging, scheduled).
+
+* `executor`
+* `executor.completed`
+* `executor.active`
+* `executor.idle`
+* `executor.queued`
+* `executor.queue.remaining`
+* `executor.pool.core`
+* `executor.pool.size`
+* `executor.pool.max`
+
+Any `ExecutorService` instance used to schedule tasks also has these metrics:
+
+* `executor.scheduled.repetitively`
+* `executor.scheduled.once`
+
+====== Netty Event Executors
+
+All metrics are tagged with the name of the broker and with the name of the underlying Netty `EventExecutor`.
+
+* `netty.eventexecutor.tasks.pending`
 
 == Configuration
 
@@ -176,6 +216,7 @@ Here's a configuration with all optional metrics:
    <uptime>true</uptime> <!-- defaults to false -->
    <logging>true</logging> <!-- defaults to false -->
    <security-caches>true</security-caches> <!-- defaults to false -->
+   <executor-services>true</executor-services> <!-- defaults to false -->
    <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.LoggingMetricsPlugin"/>
 </metrics>
 ----

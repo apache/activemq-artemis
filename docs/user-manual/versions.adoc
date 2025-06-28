@@ -13,6 +13,59 @@ NOTE: If the upgrade spans multiple versions then the steps from *each* version 
 
 NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#upgrading-the-broker[Upgrading the Broker]  chapter in addition to any version-specific upgrade instructions outlined here.
 
+== 2.43.0
+
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=XXX[Full release notes]
+
+=== Highlights
+
+* Broker observability has improved with the new ability to export xref:metrics.adoc#executor-services[metrics for executor services] (aka thread pools).
+
+=== Upgrading from 2.41.0
+
+* As part of the work for https://issues.apache.org/jira/browse/ARTEMIS-5557[ARTEMIS-5557] to report executor service metrics the names of many ActiveMQ-related threads were changed to be more clear and consistent.
+This will be visible, for example, when inspecting thread dumps or if you happen to include the thread name in your logging output.
+Here's examples of old names vs. the new ones.
++
+|===
+|Old Thread Name |New Thread Name
+
+|Thread-0 (ActiveMQ-scheduled-threads)
+|Thread-0 (activemq-scheduled-0.0.0.0)
+
+|Thread-0 (ActiveMQ-server-ActiveMQServerImpl::name=0.0.0.0)
+|Thread-0 (activemq-0.0.0.0)
+
+|Thread-0 (ActiveMQ-IO-server-ActiveMQServerImpl::name=0.0.0.0)
+|Thread-0 (activemq-io-0.0.0.0)
+
+|Thread-0 (ActiveMQ-PageExecutor-server-org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl$2@7841111)
+|Thread-0 (activemq-paging-0.0.0.0)
+
+|Thread-0 (activemq-netty-threads)
+|Thread-0 (activemq-remoting-amqp-0.0.0.0)
+
+|ActiveMQ Artemis Server Shutdown Timer
+|activemq-shutdown-timer
+
+|Critical-Analyzer-0 (CriticalAnalyzer)
+|Thread-0 (activemq-critical-analyzer)
+
+|Network-Checker-0 (NetworkChecker)
+|Thread-0 (activemq-network-checker)
+
+|Apache ActiveMQ Artemis libaio poller
+|activemq-libaio-poller
+
+|qtp748316439-74
+|Thread-0 (activemq-web)
+
+|Scheduler-624545052-1
+|activemq-web-scheduled-1
+|===
++
+See the xref:thread-pooling.adoc[Thread Pooling] documentation for more details.
+
 == 2.42.0
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12355900[Full release notes]

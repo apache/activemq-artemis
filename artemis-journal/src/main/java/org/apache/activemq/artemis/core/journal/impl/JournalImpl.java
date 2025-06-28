@@ -2836,7 +2836,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
 
       if (providedIOThreadPool == null) {
-         ThreadFactory factory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("ArtemisIOThread", true, JournalImpl.class.getClassLoader()));
+         ThreadFactory factory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("io", true, JournalImpl.class.getClassLoader()));
 
          threadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue(), factory);
          ioExecutorFactory = new OrderedExecutorFactory(threadPool);

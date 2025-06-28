@@ -138,7 +138,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
    @Override
    public SequentialFile createSequentialFile(final String fileName) {
-      return new AIOSequentialFile(this, bufferSize, bufferTimeout, journalDir, fileName, writeExecutor);
+      return new AIOSequentialFile(this, bufferSize, bufferTimeout, journalDir, fileName);
    }
 
    @Override
@@ -439,7 +439,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
    private class PollerThread extends Thread {
 
       private PollerThread() {
-         super("Apache ActiveMQ Artemis libaio poller");
+         super("activemq-libaio-poller");
       }
 
       @Override

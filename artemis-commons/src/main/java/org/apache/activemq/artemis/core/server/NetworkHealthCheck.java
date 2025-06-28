@@ -160,7 +160,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
 
    @Override
    protected ActiveMQThreadFactory getThreadFactory() {
-      return new ActiveMQThreadFactory("NetworkChecker", "Network-Checker-", false, getThisClassLoader());
+      return new ActiveMQThreadFactory("network-checker", false, getThisClassLoader());
    }
 
 

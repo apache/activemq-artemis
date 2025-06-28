@@ -29,4 +29,8 @@ public class BrokerMetricNames {
    public static final String ACTIVE = "active";
    public static final String AUTHENTICATION_COUNT = "authentication.count";
    public static final String AUTHORIZATION_COUNT = "authorization.count";
+   public static final String GENERAL_EXECUTOR_SERVICE = "general.executor.service";
+   public static final String IO_EXECUTOR_SERVICE = "io.executor.service";
+   public static final String PAGE_EXECUTOR_SERVICE = "paging.executor.service";
+   public static final String SCHEDULED_EXECUTOR_SERVICE = "scheduled.executor.service";
 }

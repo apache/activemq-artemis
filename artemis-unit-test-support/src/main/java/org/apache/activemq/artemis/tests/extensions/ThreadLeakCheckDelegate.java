@@ -239,7 +239,7 @@ public class ThreadLeakCheckDelegate {
          return true;
       } else if (threadName.contains("globalEventExecutor")) {
          return true;
-      } else if (threadName.contains("netty-threads")) {
+      } else if (threadName.contains("activemq-remoting") || threadName.contains("activemq-client-remoting")) {
          // This is ok as we use EventLoopGroup.shutdownGracefully() which will shutdown things with a bit of delay
          // if the EventLoop's are still busy.
          return true;

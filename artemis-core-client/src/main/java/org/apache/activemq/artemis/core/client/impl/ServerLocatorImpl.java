@@ -207,21 +207,21 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       } else {
          this.shutdownPool = true;
 
-         ThreadFactory factory = getThreadFactory("ActiveMQ-client-factory-threads-");
+         ThreadFactory factory = getThreadFactory("client-factory-");
          if (config.threadPoolMaxSize == -1) {
             threadPool = Executors.newCachedThreadPool(factory);
          } else {
             threadPool = new ActiveMQThreadPoolExecutor(0, config.threadPoolMaxSize, 60L, TimeUnit.SECONDS, factory);
          }
 
-         factory = getThreadFactory("ActiveMQ-client-factory-flow-control-threads-");
+         factory = getThreadFactory("client-factory-flow-control-");
          if (config.flowControlThreadPoolMaxSize == -1) {
             flowControlThreadPool = Executors.newCachedThreadPool(factory);
          } else {
             flowControlThreadPool = new ActiveMQThreadPoolExecutor(0, config.flowControlThreadPoolMaxSize, 60L, TimeUnit.SECONDS, factory);
          }
 
-         factory = getThreadFactory("ActiveMQ-client-factory-pinger-threads-");
+         factory = getThreadFactory("client-factory-pinger-");
          scheduledThreadPool = Executors.newScheduledThreadPool(config.scheduledThreadPoolMaxSize, factory);
       }
       this.updateArrayActor = new Actor<>(threadPool, this::internalUpdateArray);

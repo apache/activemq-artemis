@@ -21,13 +21,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.io.StringWriter;
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.buffer.ByteBuf;
@@ -45,7 +45,6 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.utils.Env;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class NIOSequentialFile extends AbstractSequentialFile {
 
@@ -73,9 +72,8 @@ public class NIOSequentialFile extends AbstractSequentialFile {
    public NIOSequentialFile(final SequentialFileFactory factory,
                             final File directory,
                             final String file,
-                            final int maxIO,
-                            final Executor writerExecutor) {
-      super(directory, file, factory, writerExecutor);
+                            final int maxIO) {
+      super(directory, file, factory);
       this.maxIO = maxIO;
    }
 
@@ -375,7 +373,7 @@ public class NIOSequentialFile extends AbstractSequentialFile {
 
    @Override
    public SequentialFile cloneFile() {
-      return new NIOSequentialFile(factory, directory, getFileName(), maxIO, null);
+      return new NIOSequentialFile(factory, directory, getFileName(), maxIO);
    }
 
    @Override

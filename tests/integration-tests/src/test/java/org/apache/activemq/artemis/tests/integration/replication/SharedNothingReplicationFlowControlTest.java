@@ -16,21 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.integration.replication;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -76,12 +72,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.extensions.TargetTempDirFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,7 +85,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
@@ -324,7 +323,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
       @Override
       public SequentialFile createSequentialFile(String fileName) {
-         return new TestableSequentialFile(this, journalDir, fileName, maxIO, writeExecutor);
+         return new TestableSequentialFile(this, journalDir, fileName, maxIO);
       }
 
       private static File newFolder(File root, String... subDirs) throws IOException {
@@ -360,9 +359,8 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       public TestableSequentialFile(SequentialFileFactory factory,
                                     File directory,
                                     String file,
-                                    int maxIO,
-                                    Executor writerExecutor) {
-         super(factory, directory, file, maxIO, writerExecutor);
+                                    int maxIO) {
+         super(factory, directory, file, maxIO);
       }
 
       @Override
