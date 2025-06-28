@@ -19,16 +19,16 @@ package org.apache.activemq.artemis.core.server.metrics;
 import java.util.List;
 import java.util.function.Function;
 
+import io.micrometer.core.instrument.FunctionCounter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.MeterBinder;
+import io.netty.buffer.PoolArenaMetric;
 import io.netty.buffer.PoolChunkListMetric;
 import io.netty.buffer.PoolChunkMetric;
 import io.netty.buffer.PoolSubpageMetric;
 import io.netty.buffer.PooledByteBufAllocatorMetric;
-import io.micrometer.core.instrument.FunctionCounter;
-import io.netty.buffer.PoolArenaMetric;
 
 public final class NettyPooledAllocatorMetrics implements MeterBinder {
 

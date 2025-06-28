@@ -43,7 +43,8 @@ public class FakeAcceptorFactory implements AcceptorFactory {
                                   ServerConnectionLifeCycleListener listener,
                                   Executor threadPool,
                                   ScheduledExecutorService scheduledThreadPool,
-                                  Map<String, ProtocolManager> protocolMap) {
+                                  Map<String, ProtocolManager> protocolMap,
+                                  String threadFactoryGroupName) {
       return new FakeAcceptor();
    }
 

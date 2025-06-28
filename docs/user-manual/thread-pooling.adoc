@@ -5,62 +5,111 @@
 
 This chapter describes how Apache ActiveMQ Artemis uses and pools threads and how you can manage them.
 
-First we'll discuss how threads are managed and used on the server side, then we'll look at the client side.
+First we'll discuss how threads are managed and used on the server side then we'll look at the client side.
 
 == Server-Side Thread Management
 
-Each Apache ActiveMQ Artemis Server maintains a single thread pool for general use, and a scheduled thread pool for scheduled use.
-A Java scheduled thread pool cannot be configured to use a standard thread pool, otherwise we could use a single thread pool for both scheduled and non scheduled activity.
+Thread pools exist for each of the following:
 
-Apache ActiveMQ Artemis will, by default, cap its thread pool at three times the number of cores (or hyper-threads) as reported by `             Runtime.getRuntime().availableProcessors()`` for processing incoming packets.
-To override this value, you can set the number of threads by specifying the parameter ``nioRemotingThreads` in the transport configuration.
-See the xref:configuring-transports.adoc#configuring-the-transport[configuring transports] for more information on this.
+* scheduled tasks
+* general use
+* asynchronous IO
+* paging
+* remoting (managed by Netty on a per-acceptor basis)
 
-There are also a small number of other places where threads are used directly, we'll discuss each in turn.
+[IMPORTANT]
+.Broker Identification in Thread Names
+====
+Many thread names contain broker identification.
+This is done to assist in cases where multiple brokers are running in the same JVM (e.g. in the test-suite).
+The identification which appears in the thread name is determined by the following in order of precedence:
 
-=== Server Scheduled Thread Pool
+* `identity` set in the internal `ConfigurationImpl` object (done by tests)
+* `name` set in `broker.xml`
+* the hexadecimal representation of the `ActiveMQServerImpl` Java Object's identity acquired via https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/System.html#identityHashCode(java.lang.Object)[`System.identityHashCode`]
+====
 
-The server scheduled thread pool is used for most activities on the server side that require running periodically or with delays.
-It maps internally to a `java.util.concurrent.ScheduledThreadPoolExecutor` instance.
+=== Scheduled Thread Pool
 
-The maximum number of thread used by this pool is configure in `broker.xml` with the `scheduled-thread-pool-max-size` parameter.
-The default value is `5` threads.
-A small number of threads is usually sufficient for this pool.
+The scheduled thread pool is used for most activities on the server side that require running periodically or with delays.
+This includes tasks like scanning:
 
-=== General Purpose Server Thread Pool
+* queues for expired messages or scheduled deliveries
+* configuration files for changes
+* unused addresses & queues for deletion
+
+The maximum number of thread used by this pool is configure in `broker.xml` with the `scheduled-thread-pool-max-size` parameter, e.g.:
+
+[,xml]
+----
+<scheduled-thread-pool-max-size>10</scheduled-thread-pool-max-size>
+----
+
+The default `scheduled-thread-pool-max-size` is `5` . A value of `0` is not allowed.
+
+The name for threads from this pool will contain `activemq-scheduled`.
+
+=== General Purpose Thread Pool
 
 This general purpose thread pool is used for most asynchronous actions on the server side.
-It maps internally to a `java.util.concurrent.ThreadPoolExecutor` instance.
+The maximum number of threads used by this pool is configure in `broker.xml` with the `thread-pool-max-size` parameter, e.g.:
 
-The maximum number of thread used by this pool is configure in `broker.xml` with the `thread-pool-max-size` parameter.
+[,xml]
+----
+<thread-pool-max-size>60</thread-pool-max-size>
+----
 
-If a value of `-1` is used this signifies that the thread pool has no upper bound and new threads will be created on demand if there are not enough threads available to satisfy a request.
-If activity later subsides then threads are timed-out and closed.
+The default `thread-pool-max-size` is `30`.
+A value of `-1` signifies that the thread pool has _no upper bound_ and new threads will be created on demand if there are not enough threads already available to satisfy demand.
+A value of `0` is not allowed.
 
-If a value of `n` where ``n``is a positive integer greater than zero is used this signifies that the thread pool is bounded.
-If more requests come in and there are no free threads in the pool and the pool is full then requests will block until a thread becomes available.
-It is recommended that a bounded thread pool is used with caution since it can lead to dead-lock situations if the upper bound is chosen to be too low.
+Any threads in this pool which are idle for `60` seconds will be terminated.
 
-The default value for `thread-pool-max-size` is `30`.
-
-See the https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ThreadPoolExecutor.html[J2SE javadoc] for more information on unbounded (cached), and bounded (fixed) thread pools.
-
-=== Expiry Reaper Thread
-
-A single thread is also used on the server side to scan for expired messages in queues.
-We cannot use either of the thread pools for this since this thread needs to run at its own configurable priority.
-
-For more information on configuring the reaper, please see xref:message-expiry.adoc#message-expiry[message expiry].
+The name for threads from this pool will contain `activemq-<brokerName>`.
 
 === Asynchronous IO
 
-Asynchronous IO has a thread pool for receiving and dispatching events out of the native layer.
-You will find it on a thread dump with the prefix ActiveMQ-AIO-poller-pool.
-Apache ActiveMQ Artemis uses one thread per opened file on the journal (there is usually one).
+Threads from this pool are used for journal-related disk I/O, JDBC, & replication.
 
-There is also a single thread used to invoke writes on libaio.
-We do that to avoid context switching on libaio that would cause performance issues.
-You will find this thread on a thread dump with the prefix ActiveMQ-AIO-writer-pool.
+The name for threads from this pool will contain `activemq-io-<brokerName>`.
+
+=== Paging
+
+Threads from this pool are used to write to and read from paging (disk or JDBC).
+
+The name for threads from this pool will contain `activemq-paging-<brokerName>`.
+
+=== Netty Acceptors
+
+Apache ActiveMQ Artemis will, by default, cap Netty threads on a per-acceptor basis at three times the number of cores (or hyper-threads) as reported by `Runtime.getRuntime().availableProcessors()` for processing network traffic.
+To override this value, you can set the number of threads by specifying the parameter `remotingThreads` in the transport configuration.
+See the xref:configuring-transports.adoc#configuring-the-transport[configuring transports] for more information on this.
+
+Threads names will include the name of their corresponding acceptor with the prefix `activemq-remoting-`.
+For example, for the acceptor named `amqp` the corresponding thread names will contain `activemq-remoting-amqp-<brokerName>`.
+
+=== Other Server-Side Threads
+
+A thread dump from the server's JVM will have other threads as well.
+Here's other names you might find in a thread dump and the function they perform.
+
+`activemq-web`::
+thread pool managed by Jetty (i.e. the xref:web-server.adoc[embedded web server]) to handle HTTP connections (e.g. from the web console or other Jolokia clients)
+`activemq-failure-check-thread`::
+checks TTL on incoming connections
+`activemq-buffer-timeout`::
+flushes disk IO buffers upon timeout
+`activemq-libaio-poller`::
+polls AIO for callbacks
+`activemq-critical-analyzer`::
+monitors for timeouts of various critical server operations
+`activemq-shutdown-timer`::
+monitors configuration directory for status file to stop the server
+`activemq-remoting-service`::
+in-vm connectivity and invoking failure listeners for Netty
+`Log4j2-TF-\*-Scheduled-*`::
+executes Log4j2 tasks related to `CronTriggeringPolicy` used by default `log4j2.properties`
+
 
 == Client-Side Thread Management
 

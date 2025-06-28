@@ -17,8 +17,9 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import javax.annotation.concurrent.GuardedBy;
+import java.lang.invoke.MethodHandles;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -49,7 +50,6 @@ import org.apache.activemq.artemis.lockmanager.UnavailableStateException;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.server.ActiveMQServer.SERVER_STATE.STARTED;
 import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequenceStateMachine.awaitNextCommittedActivationSequence;
@@ -374,12 +374,12 @@ public class ReplicationPrimaryActivation extends PrimaryActivation implements D
    }
 
    private void onReplicationConnectionClose() {
-      ExecutorService executorService = activeMQServer.getThreadPool();
-      if (executorService != null) {
+      Executor executor = activeMQServer.getThreadPool();
+      if (executor != null) {
          if (stoppingServer.get()) {
             return;
          }
-         executorService.execute(() -> {
+         executor.execute(() -> {
             synchronized (replicationLock) {
                if (replicationManager == null) {
                   return;

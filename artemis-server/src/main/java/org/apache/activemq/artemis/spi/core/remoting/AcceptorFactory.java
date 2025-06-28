@@ -49,7 +49,8 @@ public interface AcceptorFactory {
                            ServerConnectionLifeCycleListener listener,
                            Executor threadPool,
                            ScheduledExecutorService scheduledThreadPool,
-                           Map<String, ProtocolManager> protocolMap);
+                           Map<String, ProtocolManager> protocolMap,
+                           String threadFactoryGroupName);
 
    default boolean supportsRemote() {
       return true;

@@ -29,6 +29,7 @@
          <uptime>true</uptime>
          <logging>true</logging>
          <security-caches>true</security-caches>
+         <executor-services>true</executor-services>
          <plugin class-name="org.apache.activemq.artemis.core.config.impl.FileConfigurationTest$FakeMetricPlugin">
             <property key="key1" value="value1"/>
             <property key="key2" value="value2"/>

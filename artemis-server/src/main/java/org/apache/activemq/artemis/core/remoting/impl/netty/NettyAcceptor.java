@@ -36,6 +36,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -85,6 +86,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
+import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
@@ -251,6 +253,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private volatile int actualPort = 0;
 
+   private final String threadFactoryGroupName;
+
    public NettyAcceptor(final String name,
                         final ClusterConnection clusterConnection,
                         final Map<String, Object> configuration,
@@ -258,7 +262,8 @@ public class NettyAcceptor extends AbstractAcceptor {
                         final ServerConnectionLifeCycleListener listener,
                         final ScheduledExecutorService scheduledThreadPool,
                         final Executor failureExecutor,
-                        final Map<String, ProtocolManager> protocolMap) {
+                        final Map<String, ProtocolManager> protocolMap,
+                        final String threadFactoryGroupName) {
       super(protocolMap);
 
       this.failureExecutor = failureExecutor;
@@ -273,9 +278,11 @@ public class NettyAcceptor extends AbstractAcceptor {
 
       this.listener = listener;
 
+      this.threadFactoryGroupName = threadFactoryGroupName;
+
       sslEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.SSL_ENABLED_PROP_NAME, TransportConstants.DEFAULT_SSL_ENABLED, configuration);
 
-      remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, -1, configuration);
+      remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, Runtime.getRuntime().availableProcessors() * 3, configuration);
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.REMOTING_THREADS_PROPNAME, remotingThreads, configuration);
 
       useEpoll = ConfigurationHelper.getBooleanProperty(TransportConstants.USE_EPOLL_PROP_NAME, TransportConstants.DEFAULT_USE_EPOLL, configuration);
@@ -428,29 +435,22 @@ public class NettyAcceptor extends AbstractAcceptor {
          channelClazz = LocalServerChannel.class;
          eventLoopGroup = new DefaultEventLoopGroup();
       } else {
-
-         if (remotingThreads == -1) {
-            // Default to number of cores * 3
-            remotingThreads = Runtime.getRuntime().availableProcessors() * 3;
-         }
-
+         ThreadFactory threadFactory = AccessController.doPrivileged((PrivilegedAction<ActiveMQThreadFactory>) () -> new ActiveMQThreadFactory(threadFactoryGroupName, true, ClientSessionFactoryImpl.class.getClassLoader()));
          if (useEpoll && CheckDependencies.isEpollAvailable()) {
             channelClazz = EpollServerSocketChannel.class;
-            eventLoopGroup = new EpollEventLoopGroup(remotingThreads, AccessController.doPrivileged((PrivilegedAction<ActiveMQThreadFactory>) () -> new ActiveMQThreadFactory("activemq-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader())));
+            eventLoopGroup = new EpollEventLoopGroup(remotingThreads, threadFactory);
             acceptorType = EPOLL_ACCEPTOR_TYPE;
-
-            logger.debug("Acceptor using native epoll");
+            logger.debug("Acceptor {} using native epoll", name);
          } else if (useKQueue && CheckDependencies.isKQueueAvailable()) {
             channelClazz = KQueueServerSocketChannel.class;
-            eventLoopGroup = new KQueueEventLoopGroup(remotingThreads, AccessController.doPrivileged((PrivilegedAction<ActiveMQThreadFactory>) () -> new ActiveMQThreadFactory("activemq-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader())));
+            eventLoopGroup = new KQueueEventLoopGroup(remotingThreads, threadFactory);
             acceptorType = KQUEUE_ACCEPTOR_TYPE;
-
-            logger.debug("Acceptor using native kqueue");
+            logger.debug("Acceptor {} using native kqueue", name);
          } else {
             channelClazz = NioServerSocketChannel.class;
-            eventLoopGroup = new NioEventLoopGroup(remotingThreads, AccessController.doPrivileged((PrivilegedAction<ActiveMQThreadFactory>) () -> new ActiveMQThreadFactory("activemq-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader())));
+            eventLoopGroup = new NioEventLoopGroup(remotingThreads, threadFactory);
             acceptorType = NIO_ACCEPTOR_TYPE;
-            logger.debug("Acceptor using nio");
+            logger.debug("Acceptor {} using nio", name);
          }
       }
 
@@ -1032,12 +1032,22 @@ public class NettyAcceptor extends AbstractAcceptor {
       }
    }
 
+   @Override
    public boolean isAutoStart() {
       return autoStart;
    }
 
    @Override
+   public void registerMetrics(MetricsManager metricsManager) {
+      metricsManager.registerNettyEventLoopGroup(getName(), eventLoopGroup);
+   }
+
+   @Override
    public int getActualPort() {
       return actualPort;
+   }
+
+   public int getRemotingThreads() {
+      return remotingThreads;
    }
 }

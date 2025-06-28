@@ -25,6 +25,9 @@ import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
+import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
+
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_AUTO_START;
 
 /**
  * An Acceptor is used by the RemotingService to allow clients to connect. It should take care of dispatching client
@@ -93,5 +96,13 @@ public interface Acceptor extends ActiveMQComponent {
     */
    default int getActualPort() {
       return -1;
+   }
+
+   default boolean isAutoStart() {
+      return DEFAULT_AUTO_START;
+   }
+
+   default void registerMetrics(MetricsManager metricsManager) {
+      // no-op by default
    }
 }

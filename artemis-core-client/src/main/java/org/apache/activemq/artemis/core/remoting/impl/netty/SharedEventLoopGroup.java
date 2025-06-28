@@ -61,7 +61,7 @@ public class SharedEventLoopGroup extends DelegatingEventLoopGroup {
             f.cancel(false);
          }
       } else {
-         instance = new SharedEventLoopGroup(eventLoopGroupSupplier.apply((ThreadFactory) AccessController.doPrivileged((PrivilegedAction) () -> new ActiveMQThreadFactory("ActiveMQ-client-netty-threads", true, ClientSessionFactoryImpl.class.getClassLoader()))));
+         instance = new SharedEventLoopGroup(eventLoopGroupSupplier.apply((ThreadFactory) AccessController.doPrivileged((PrivilegedAction) () -> new ActiveMQThreadFactory("client-remoting", true, ClientSessionFactoryImpl.class.getClassLoader()))));
       }
       instance.channelFactoryCount.incrementAndGet();
       return instance;
