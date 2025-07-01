@@ -28,6 +28,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.LongSupplier;
 
 import io.netty.util.collection.LongObjectHashMap;
@@ -109,7 +110,7 @@ public class AckManager implements ActiveMQComponent {
          scheduledComponent = null;
       }
       AckManagerProvider.remove(this.server);
-      logger.debug("Stopping ackmanager on server {}", server);
+      logger.trace("Stopping ackmanager on server {}", server);
    }
 
    public synchronized void pause() {
@@ -126,8 +127,8 @@ public class AckManager implements ActiveMQComponent {
 
    @Override
    public synchronized void start() {
-      if (logger.isDebugEnabled()) {
-         logger.debug("Starting ACKManager on {} with period = {}, minQueueAttempts={}, maxPageAttempts={}", server, configuration.getMirrorAckManagerRetryDelay(), configuration.getMirrorAckManagerQueueAttempts(), configuration.getMirrorAckManagerPageAttempts());
+      if (logger.isTraceEnabled()) {
+         logger.trace("Starting ACKManager on {} with period = {}, minQueueAttempts={}, maxPageAttempts={}", server, configuration.getMirrorAckManagerRetryDelay(), configuration.getMirrorAckManagerQueueAttempts(), configuration.getMirrorAckManagerPageAttempts());
       }
       if (!isStarted()) {
          scheduledComponent = new ActiveMQScheduledComponent(server.getScheduledPool(), server.getExecutorFactory().getExecutor(), server.getConfiguration().getMirrorAckManagerRetryDelay(), server.getConfiguration().getMirrorAckManagerRetryDelay(), TimeUnit.MILLISECONDS, true) {
@@ -139,7 +140,7 @@ public class AckManager implements ActiveMQComponent {
          scheduledComponent.start();
          scheduledComponent.delay();
       } else {
-         logger.debug("Starting ignored on server {}", server);
+         logger.trace("Starting ignored on server {}", server);
       }
    }
 
@@ -198,7 +199,7 @@ public class AckManager implements ActiveMQComponent {
    }
 
    private void flushMirrorTargets() {
-      logger.debug("scanning and flushing mirror targets");
+      logger.trace("scanning and flushing mirror targets");
       List<AMQPMirrorControllerTarget> targetCopy = copyTargets();
       targetCopy.forEach(AMQPMirrorControllerTarget::flush);
    }
@@ -241,35 +242,41 @@ public class AckManager implements ActiveMQComponent {
       return retriesByAddress;
    }
 
-   private boolean isEmpty(LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> queuesToRetry) {
-      AtomicBoolean empty = new AtomicBoolean(true);
-
-      queuesToRetry.forEach((id, journalHashMap) -> {
-         if (!journalHashMap.isEmpty()) {
-            empty.set(false);
+   private boolean isSnapshotComplete(LongObjectHashMap<AtomicInteger> pendingSnapshot) {
+      AtomicBoolean complete = new AtomicBoolean(true);
+      pendingSnapshot.forEach((l, count) -> {
+         if (count.get() > 0) {
+            complete.set(false);
          }
       });
 
-      return empty.get();
+      return complete.get();
    }
-
-
 
    // to be used with the same executor as the PagingStore executor
    public void retryAddress(SimpleString address, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> acksToRetry) {
+
+
+      // This is an optimization:
+      // we peek at how many records we currently have. When we scan all the records that were initially input we would
+      // interrupt the scan and start over
+      // to avoid scanning for records that will never match since new ones are probably "in the past" now
+      LongObjectHashMap<AtomicInteger> snapshotCount = buildCounterSnapshot(acksToRetry);
+
       MirrorController previousController = AMQPMirrorControllerTarget.getControllerInUse();
       logger.trace("retrying address {} on server {}", address, server);
       try {
          AMQPMirrorControllerTarget.setControllerInUse(disabledAckMirrorController);
 
-         if (checkRetriesAndPaging(acksToRetry)) {
+         if (checkRetriesAndPaging(acksToRetry, snapshotCount)) {
             logger.trace("scanning paging for {}", address);
-            AckRetry key = new AckRetry();
 
+            boolean completeSnapshot = false;
             PagingStore store = server.getPagingManager().getPageStore(address);
             for (long pageId = store.getFirstPage(); pageId <= store.getCurrentWritingPage(); pageId++) {
-               if (isEmpty(acksToRetry)) {
-                  logger.trace("Retry stopped while reading page {} on address {} as the outcome is now empty, server={}", pageId, address, server);
+               if (isSnapshotComplete(snapshotCount)) {
+                  completeSnapshot = true;
+                  logger.debug("AckManager Page Scanning complete (done) on address {}", address);
                   break;
                }
                Page page = openPage(store, pageId);
@@ -277,12 +284,30 @@ public class AckManager implements ActiveMQComponent {
                   continue;
                }
                try {
-                  retryPage(acksToRetry, address, page, key);
+                  retryPage(snapshotCount, acksToRetry, address, page);
                } finally {
                   page.usageDown();
                }
             }
-            validateExpiredSet(address, acksToRetry);
+            if (!completeSnapshot) {
+               // completeSnapshot == true, it means that every record meant to be acked was used,
+               // so there is no need to check the expired set and we bypass this check
+               // we used to check this every page scan, but as an optimization we removed this unecessary step
+               validateExpiredSet(address, acksToRetry);
+
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Retry page address got to the end of the list without still finding a few records to acknowledge");
+                  snapshotCount.forEach((l, c) -> logger.warn("debug {} still have {} ack records after the scan is finished", l, c));
+                  acksToRetry.forEach((l, m) -> {
+                     logger.debug("Records on queue {}:", l);
+                     m.forEach((ack1, ack2) -> {
+                        if (ack1.getViewCount() > 0) {
+                           logger.debug("Record {}", ack1);
+                        }
+                     });
+                  });
+               }
+            }
          } else {
             logger.trace("Page Scan not required for address {}", address);
          }
@@ -294,6 +319,20 @@ public class AckManager implements ActiveMQComponent {
       } finally {
          AMQPMirrorControllerTarget.setControllerInUse(previousController);
       }
+   }
+
+   private static LongObjectHashMap<AtomicInteger> buildCounterSnapshot(LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> acksToRetry) {
+      LongObjectHashMap<AtomicInteger> snapshotCount = new LongObjectHashMap<>();
+      acksToRetry.forEach((l, map) -> {
+         AtomicInteger recordCount = new AtomicInteger(0);
+         snapshotCount.put(l, recordCount);
+         map.forEach((ack1, ack2) -> {
+            ack2.incrementViewCount();
+            recordCount.incrementAndGet();
+         });
+         logger.trace("Building counter snapshot for Queue {} with {} ack elements", l, recordCount);
+      });
+      return snapshotCount;
    }
 
    private Page openPage(PagingStore store, long pageID) throws Throwable {
@@ -313,7 +352,9 @@ public class AckManager implements ActiveMQComponent {
 
    private void validateExpireSet(SimpleString address, long queueID, JournalHashMap<AckRetry, AckRetry, Queue> retries) {
       for (AckRetry retry : retries.valuesCopy()) {
-         if (retry.getQueueAttempts() >= configuration.getMirrorAckManagerQueueAttempts()) {
+         // we only remove or configure to be removed if the retry was initially seen on the start of the process
+         // this is to avoid a race where an ACK entered the list after the scan been through where the element was supposed to be
+         if (retry.getViewCount() > 0 && retry.getQueueAttempts() >= configuration.getMirrorAckManagerQueueAttempts()) {
             if (retry.attemptedPage() >= configuration.getMirrorAckManagerPageAttempts()) {
                if (configuration.isMirrorAckManagerWarnUnacked()) {
                   ActiveMQAMQPProtocolLogger.LOGGER.ackRetryFailed(retry, address, queueID);
@@ -325,20 +366,22 @@ public class AckManager implements ActiveMQComponent {
                   mirrorRegistry.decrementMirrorAckSize();
                }
             } else {
-               if (logger.isDebugEnabled()) {
-                  logger.debug("Retry {} attempted {} times on paging, Configuration Page Attempts={}", retry, retry.getPageAttempts(), configuration.getMirrorAckManagerPageAttempts());
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Retry {} attempted {} times on paging, Configuration Page Attempts={}", retry, retry.getPageAttempts(), configuration.getMirrorAckManagerPageAttempts());
                }
             }
          } else {
-            logger.debug("Retry {} queue attempted {} times on paging, QueueAttempts {} Configuration Page Attempts={}", retry, retry.getQueueAttempts(), retry.getPageAttempts(), configuration.getMirrorAckManagerPageAttempts());
+            logger.trace("Retry {} queue attempted {} times on paging, QueueAttempts {} Configuration Page Attempts={}", retry, retry.getQueueAttempts(), retry.getPageAttempts(), configuration.getMirrorAckManagerPageAttempts());
          }
       }
    }
 
-   private void retryPage(LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> queuesToRetry,
+   private void retryPage(LongObjectHashMap<AtomicInteger> snapshotCount,
+                          LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> queuesToRetry,
                           SimpleString address,
-                          Page page,
-                          AckRetry key) throws Exception {
+                          Page page) throws Exception {
+
+      AckRetry key = new AckRetry();
       logger.debug("scanning for acks on page {} on address {}", page.getPageId(), address);
       TransactionImpl transaction = new TransactionImpl(server.getStorageManager()).setAsync(true);
       // scan each page for acks
@@ -346,6 +389,7 @@ public class AckManager implements ActiveMQComponent {
          for (int i = 0; i < pagedMessage.getQueueIDs().length; i++) {
             long queueID = pagedMessage.getQueueIDs()[i];
             JournalHashMap<AckRetry, AckRetry, Queue> retries = queuesToRetry.get(queueID);
+            AtomicInteger snapshotOnQueue = snapshotCount.get(queueID);
             if (retries != null) {
                String serverID = referenceIDSupplier.getServerID(pagedMessage.getMessage());
                if (serverID == null) {
@@ -353,14 +397,11 @@ public class AckManager implements ActiveMQComponent {
                }
                long id = referenceIDSupplier.getID(pagedMessage.getMessage());
 
-               logger.trace("Looking for retry on serverID={}, id={} on server={}", serverID, id, server);
                key.setNodeID(serverID).setMessageID(id);
 
                AckRetry ackRetry = retries.get(key);
 
-               // we first retry messages in the queue first.
-               // this is to avoid messages that are in transit from being depaged into the queue
-               if (ackRetry != null && ackRetry.getQueueAttempts() > configuration.getMirrorAckManagerQueueAttempts()) {
+               if (ackRetry != null) {
                   Queue queue = retries.getContext();
 
                   if (queue != null) {
@@ -379,13 +420,12 @@ public class AckManager implements ActiveMQComponent {
                      }
                      if (retries.remove(ackRetry, transaction.getID()) != null) {
                         mirrorRegistry.decrementMirrorAckSize();
+                        decrementSnapshotCount(ackRetry, snapshotOnQueue);
                      }
                      transaction.setContainsPersistent();
                      logger.trace("retry performed ok, ackRetry={} for message={} on queue", ackRetry, pagedMessage);
                   }
                }
-            } else {
-               logger.trace("Retry key={} not found server={}", key, server);
             }
          }
       });
@@ -400,10 +440,28 @@ public class AckManager implements ActiveMQComponent {
       }
    }
 
+   private void decrementSnapshotCount(AckRetry retry, AtomicInteger queueSnapshotCount) {
+      // we check the view count as we only decrement the snapshot if the record was
+      // in the initial list when we started the scan
+      // otherwise we will of course ack the message since we have the record anyways
+      // but we won't discount it from the snapshot counter
+      if (retry.getViewCount() > 0) {
+         if (queueSnapshotCount != null) {
+            queueSnapshotCount.decrementAndGet();
+         }
+      } else {
+         // we count the initial records on the retry list
+         // however more records could still be flowing while the scan is being performed
+         // on this case the record entered the scan list, we can actually acknowledge the entry, but we should not decrement
+         // the snapshot count as it wasn't part of the initial list
+         logger.trace("Update on snapshot count ignrored for {}", retry);
+      }
+   }
+
    /**
     * {@return {@code true} if there are retries ready to be scanned on paging}
     */
-   private boolean checkRetriesAndPaging(LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> queuesToRetry) {
+   private boolean checkRetriesAndPaging(LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> queuesToRetry, LongObjectHashMap<AtomicInteger> snapshotCount) {
       boolean needScanOnPaging = false;
       Iterator<Map.Entry<Long, JournalHashMap<AckRetry, AckRetry, Queue>>> iter = queuesToRetry.entrySet().iterator();
 
@@ -411,11 +469,13 @@ public class AckManager implements ActiveMQComponent {
          Map.Entry<Long, JournalHashMap<AckRetry, AckRetry, Queue>> entry = iter.next();
          JournalHashMap<AckRetry, AckRetry, Queue> queueRetries = entry.getValue();
          Queue queue = queueRetries.getContext();
+         AtomicInteger queueSnapshotCount = snapshotCount.get(queue.getID());
          for (AckRetry retry : queueRetries.valuesCopy()) {
             if (ack(retry.getNodeID(), queue, retry.getMessageID(), retry.getReason(), false)) {
                logger.trace("Removing retry {} as the retry went ok", retry);
                queueRetries.remove(retry);
                mirrorRegistry.decrementMirrorAckSize();
+               decrementSnapshotCount(retry, queueSnapshotCount);
             } else {
                int retried = retry.attemptedQueue();
                if (logger.isTraceEnabled()) {
@@ -453,15 +513,15 @@ public class AckManager implements ActiveMQComponent {
       MessageReference reference = targetQueue.removeWithSuppliedID(nodeID, messageID, referenceIDSupplier);
 
       if (reference == null) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("ACK Manager could not find reference nodeID={} (while localID={}), messageID={} on queue {}, server={}. Adding retry with minQueue={}, maxPage={}, delay={}", nodeID, referenceIDSupplier.getDefaultNodeID(), messageID, targetQueue.getName(), server, configuration.getMirrorAckManagerQueueAttempts(), configuration.getMirrorAckManagerPageAttempts(), configuration.getMirrorAckManagerRetryDelay());
+         if (logger.isTraceEnabled()) {
+            logger.trace("ACK Manager could not find reference nodeID={} (while localID={}), messageID={} on queue {}, server={}. Adding retry with minQueue={}, maxPage={}, delay={}", nodeID, referenceIDSupplier.getDefaultNodeID(), messageID, targetQueue.getName(), server, configuration.getMirrorAckManagerQueueAttempts(), configuration.getMirrorAckManagerPageAttempts(), configuration.getMirrorAckManagerRetryDelay());
          }
 
          if (allowRetry) {
             if (configuration != null && configuration.isMirrorAckManagerWarnUnacked() && targetQueue.getConsumerCount() > 0) {
                ActiveMQAMQPProtocolLogger.LOGGER.unackWithConsumer(targetQueue.getConsumerCount(), targetQueue.getName(), nodeID, messageID);
             } else {
-               logger.debug("There are {} consumers on queue {}, what made Ack for message with nodeID={}, messageID={} enter a retry list", targetQueue.getConsumerCount(), targetQueue.getName(), nodeID, messageID);
+               logger.trace("There are {} consumers on queue {}, what made Ack for message with nodeID={}, messageID={} enter a retry list", targetQueue.getConsumerCount(), targetQueue.getName(), nodeID, messageID);
             }
             addRetry(nodeID, targetQueue, messageID, reason);
          }
