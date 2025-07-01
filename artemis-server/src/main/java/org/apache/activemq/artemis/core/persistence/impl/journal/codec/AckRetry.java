@@ -32,6 +32,15 @@ public final class AckRetry {
    AckReason reason;
    int pageAttempts;
    int queueAttempts;
+   int viewCount;
+
+   public int getViewCount() {
+      return viewCount;
+   }
+
+   public int incrementViewCount() {
+      return ++viewCount;
+   }
 
    private static Persister persister = new Persister();
 
@@ -41,7 +50,7 @@ public final class AckRetry {
 
    @Override
    public String toString() {
-      return "AckRetry{" + "nodeID='" + nodeID + '\'' + ", messageID=" + messageID + ", reason=" + reason + ", pageAttempts=" + pageAttempts + ", queueAttempts=" + queueAttempts + '}';
+      return "AckRetry{" + "nodeID='" + nodeID + '\'' + ", messageID=" + messageID + ", reason=" + reason + ", pageAttempts=" + pageAttempts + ", queueAttempts=" + queueAttempts + ", viewCount=" + viewCount + '}';
    }
 
    public AckRetry() {
