@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.tests.smoke.console.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 
 import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.BRAND_LOCATOR;
 import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.LOGIN_BUTTON_LOCATOR;
@@ -43,8 +45,9 @@ public class LoginPage extends ConsolePage {
 
       driver.findElement(USERNAME_LOCATOR).sendKeys(username);
       driver.findElement(PASSWORD_LOCATOR).sendKeys(password);
-      driver.findElement(LOGIN_BUTTON_LOCATOR).click();
-
+      WebElement element = driver.findElement(LOGIN_BUTTON_LOCATOR);
+      Actions actions = new Actions(driver);
+      actions.moveToElement(element).click().perform();
       waitForElementToBeVisible(LOGOUT_DROPDOWN_LOCATOR, timeout);
       waitForElementToBeVisible(By.xpath("//button/span[contains(text(),'Status')]"), timeout);
 

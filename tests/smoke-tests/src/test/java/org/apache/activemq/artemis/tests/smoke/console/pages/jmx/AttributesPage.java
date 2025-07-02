@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.smoke.console.pages.jmx;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 
 import java.util.Iterator;
 import java.util.List;
@@ -39,7 +40,8 @@ public class AttributesPage extends ArtemisTreePage {
          WebElement row = iterator.next();
          List<WebElement> cols = row.findElements(TD_TAG_LOCATOR);
          if (cols.size() == 2 && name.equals(cols.get(0).getText())) {
-            cols.get(0).click();
+            Actions actions = new Actions(driver);
+            actions.moveToElement(cols.get(0)).click().perform();
             break;
          }
       }
