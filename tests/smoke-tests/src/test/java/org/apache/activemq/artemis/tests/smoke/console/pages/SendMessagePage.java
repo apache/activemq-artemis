@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.smoke.console.pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
 import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.MESSAGE_TEXT_EDITOR_LOCATOR;
@@ -47,13 +48,17 @@ public class SendMessagePage extends ArtemisPage {
 
    public void selectUseCurrentLogonUser() {
       if (!isUseCurrentLogonUserSelected()) {
-         driver.findElement(USE_LOGIN_LOCATOR).click();
+         WebElement element = driver.findElement(USE_LOGIN_LOCATOR);
+         Actions actions = new Actions(driver);
+         actions.moveToElement(element).click().perform();
       }
    }
 
    public void unselectUseCurrentLogonUser() {
       if (isUseCurrentLogonUserSelected()) {
-         driver.findElement(USE_LOGIN_LOCATOR).click();
+         WebElement element = driver.findElement(USE_LOGIN_LOCATOR);
+         Actions actions = new Actions(driver);
+         actions.moveToElement(element).click().perform();
       }
    }
 
@@ -69,8 +74,11 @@ public class SendMessagePage extends ArtemisPage {
    }
 
    public void sendMessage() {
-      driver.findElement(By.xpath("//button[contains(text(),'Send')]")).click();
-
-      driver.findElement(By.xpath("//button[contains(text(),'Cancel')]")).click();
+      WebElement element = driver.findElement(By.xpath("//button[contains(text(),'Send')]"));
+      Actions actions = new Actions(driver);
+      actions.moveToElement(element).click().perform();
+      element = driver.findElement(By.xpath("//button[contains(text(),'Cancel')]"));
+      actions = new Actions(driver);
+      actions.moveToElement(element).click().perform();
    }
 }

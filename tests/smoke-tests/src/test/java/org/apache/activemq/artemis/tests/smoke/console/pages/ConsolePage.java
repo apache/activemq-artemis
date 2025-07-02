@@ -23,7 +23,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.H1_TAG_LOCATOR;
+import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.STATUS_TAB_LOCATOR;
+
 
 public abstract class ConsolePage {
    protected WebDriver driver;
@@ -39,7 +40,7 @@ public abstract class ConsolePage {
    }
 
    public void waitForLoading(int timeout) {
-      waitForElementToBeVisible(H1_TAG_LOCATOR, timeout);
+      waitForElementToBeVisible(STATUS_TAB_LOCATOR, timeout);
    }
 
    public void waitForElementToBeVisible(final By elementLocator, int timeout) {

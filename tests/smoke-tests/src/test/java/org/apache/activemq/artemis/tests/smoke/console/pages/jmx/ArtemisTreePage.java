@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.tests.smoke.console.pages.jmx;
 
 import org.apache.activemq.artemis.tests.smoke.console.pages.ConsolePage;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 
 import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.BROKER_NODE_LOCATOR;
 import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.BUTTON_LOCATOR;
@@ -34,14 +36,18 @@ public class ArtemisTreePage extends ConsolePage {
 
    public void expandTree(int timeout) {
       waitForElementToBeVisible(EXPAND_BUTTON, timeout);
-      driver.findElement(EXPAND_BUTTON).click();
+      WebElement element = driver.findElement(EXPAND_BUTTON);
+      Actions actions = new Actions(driver);
+      actions.moveToElement(element).click().perform();
       waitForElementToBeVisible(COLLAPSE_BUTTON, timeout);
    }
 
 
    public void collapseTree(int timeout) {
       waitForElementToBeVisible(COLLAPSE_BUTTON, timeout);
-      driver.findElement(COLLAPSE_BUTTON).click();
+      WebElement element = driver.findElement(COLLAPSE_BUTTON);
+      Actions actions = new Actions(driver);
+      actions.moveToElement(element).click().perform();
       waitForElementToBeVisible(EXPAND_BUTTON, timeout);
    }
 
@@ -50,7 +56,9 @@ public class ArtemisTreePage extends ConsolePage {
    }
 
    public AttributesPage selectBrokerNode() {
-      driver.findElement(BROKER_NODE_LOCATOR).findElement(BUTTON_LOCATOR).click();
+      WebElement element = driver.findElement(BROKER_NODE_LOCATOR).findElement(BUTTON_LOCATOR);
+      Actions actions = new Actions(driver);
+      actions.moveToElement(element).click().perform();
       return new AttributesPage(driver);
    }
 }

@@ -181,7 +181,8 @@ public class QueuesTest extends ArtemisTest {
       sendMessagePage.appendMessageText("xxx");
       sendMessagePage.sendMessage();
 
-      QueuePage queuePage = sendMessagePage.getQueuesPage(DEFAULT_TIMEOUT).getQueuePage(queueName, DEFAULT_TIMEOUT);
+      beforeQueuesPage.refresh(DEFAULT_TIMEOUT);
+      QueuePage queuePage = statusPage.getQueuesPage(DEFAULT_TIMEOUT).getQueuePage(queueName, DEFAULT_TIMEOUT);
       assertTrue(queuePage.postJolokiaExecRequest(testQueueObjectName.getCanonicalName(), "expireMessage(long)",
          String.valueOf(queuePage.getMessageId(0))).toString().contains("\"status\":200"));
       assertTrue(queuePage.postJolokiaExecRequest(testQueueObjectName.getCanonicalName(), "expireMessage(long)",
@@ -234,7 +235,7 @@ public class QueuesTest extends ArtemisTest {
          sendMessagePage.appendMessageText(messageText);
          sendMessagePage.sendMessage();
       }
-
+      sendMessagePage.refresh(DEFAULT_TIMEOUT);
       QueuesPage afterSendingQueuesPage = sendMessagePage.getQueuesPage(DEFAULT_TIMEOUT);
       Wait.assertEquals(1, () -> afterSendingQueuesPage.countQueue("DLQ"));
       Wait.assertEquals(messages, () -> afterSendingQueuesPage.getMessagesCount(queueName));
