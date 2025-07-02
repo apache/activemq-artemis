@@ -46,6 +46,18 @@ This has been fixed via https://issues.apache.org/jira/browse/ARTEMIS-5202[ARTEM
 Since this is technically changing the default behavior of the broker it is being enumerated here for clarity.
 Keep in mind that this is configurable via the xref:mqtt.adoc#automatic-subscription-clean-up[`mqtt-session-scan-interval`] parameter in `broker.xml`.
 
+* Due to https://issues.apache.org/jira/browse/ARTEMIS-5364[ARTEMIS-5364] several adjustments have been made to the supporting files used to run the broker on both Linux and Windows.
+While these changes do not result in any significant behavioral differences, they're worth noting here since users often modify these files for their specific use-case.
++
+The relevant changes include:
+
+** Removing the following variables from all profiles (i.e. `artemis.profile` for Linux & `artemis.profile.cmd` for Windows):
+*** `ARTEMIS_INSTANCE_URI`
+*** `ARTEMIS_INSTANCE_ETC_URI`
+*** `ARTEMIS_ETC_DIR`
+** Removing the `ARTEMIS_OOME_DUMP` from the "utility" profiles
+** Update the order of Windows' profile `JAVA_ARGS` to match those from Linux
+
 == 2.41.0
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12355793[Full release notes]
