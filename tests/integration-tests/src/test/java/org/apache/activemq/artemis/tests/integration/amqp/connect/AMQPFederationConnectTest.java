@@ -1341,6 +1341,30 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       }
    }
 
+   @Test
+   @Timeout(20)
+   public void testBrokerConnectionDoesNotSendOfferedCapabilities() throws Exception {
+      // Checks that current behavior is to not send, this will break if the defaults are
+      // changed such that the connection starts sending offered capabilities by default.
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
+         peer.expectOpen().withOfferedCapabilities(nullValue()).respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         // No user or pass given, it will have to select ANONYMOUS even though PLAIN also offered
+         AMQPBrokerConnectConfiguration amqpConnection =
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
 
    // Use these methods to script the initial handshake that a broker that is establishing
    // a federation connection with a remote broker instance would perform.

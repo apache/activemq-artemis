@@ -630,10 +630,11 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       flush();
    }
 
-   public void open(String containerId, Map<Symbol, Object> connectionProperties, Symbol[] desiredCapabilities) {
+   public void open(String containerId, Map<Symbol, Object> connectionProperties, Symbol[] offeredCapabilities, Symbol[] desiredCapabilities) {
       this.transport.open();
       this.connection.setContainer(containerId);
       this.connection.setProperties(connectionProperties);
+      this.connection.setOfferedCapabilities(offeredCapabilities);
       this.connection.setDesiredCapabilities(desiredCapabilities);
       this.connection.open();
       flush();
