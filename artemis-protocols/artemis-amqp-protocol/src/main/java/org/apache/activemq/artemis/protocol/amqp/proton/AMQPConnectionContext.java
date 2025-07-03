@@ -121,6 +121,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    private final boolean isIncomingConnection;
    private final ClientSASLFactory saslClientFactory;
    private final Map<Symbol, Object> connectionProperties = new HashMap<>();
+   private final Symbol[] offeredCapabilities;
    private final Symbol[] desiredCapabilities;
    private final ScheduledExecutorService scheduledPool;
    private final Map<String, LinkCloseListener> linkCloseListeners = new ConcurrentHashMap<>();
@@ -152,8 +153,9 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
                                 boolean isIncomingConnection,
                                 ClientSASLFactory saslClientFactory,
                                 Map<Symbol, Object> connectionProperties,
+                                Symbol[] offeredCapabilities,
                                 Symbol[] desiredCapabilities) {
-      this(protocolManager, connectionSP, containerId, idleTimeout, maxFrameSize, channelMax, useCoreSubscriptionNaming, scheduledPool, isIncomingConnection, saslClientFactory, connectionProperties, desiredCapabilities, false);
+      this(protocolManager, connectionSP, containerId, idleTimeout, maxFrameSize, channelMax, useCoreSubscriptionNaming, scheduledPool, isIncomingConnection, saslClientFactory, connectionProperties, offeredCapabilities, desiredCapabilities, false);
    }
 
    public AMQPConnectionContext(ProtonProtocolManager protocolManager,
@@ -167,6 +169,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
                                 boolean isIncomingConnection,
                                 ClientSASLFactory saslClientFactory,
                                 Map<Symbol, Object> connectionProperties,
+                                Symbol[] offeredCapabilities,
                                 Symbol[] desiredCapabilities,
                                 boolean brokerConnection) {
       this.protocolManager = protocolManager;
@@ -182,6 +185,12 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
       if (connectionProperties != null) {
          this.connectionProperties.putAll(connectionProperties);
+      }
+
+      if (offeredCapabilities != null && offeredCapabilities.length > 0) {
+         this.offeredCapabilities = Arrays.copyOf(offeredCapabilities, offeredCapabilities.length);
+      } else {
+         this.offeredCapabilities = null;
       }
 
       if (desiredCapabilities != null && desiredCapabilities.length > 0) {
@@ -510,8 +519,13 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       return verifyDesiredCapability(sender, FEDERATION_ADDRESS_RECEIVER);
    }
 
-   public Symbol[] getConnectionCapabilitiesOffered() {
-      URI tc = connectionCallback.getFailoverList();
+   private Symbol[] getOfferedCapabilitiesForResponse() {
+      return offeredCapabilities != null ? offeredCapabilities : ExtCapability.getCapabilities();
+   }
+
+   private Map<Symbol, Object> getConnectionPropertiesForResponse() {
+      final URI tc = connectionCallback.getFailoverList();
+
       if (tc != null) {
          Map<Symbol, Object> hostDetails = new HashMap<>();
          hostDetails.put(NETWORK_HOST, tc.getHost());
@@ -526,11 +540,12 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
          connectionProperties.put(FAILOVER_SERVER_LIST, Arrays.asList(hostDetails));
       }
-      return ExtCapability.getCapabilities();
+
+      return Collections.unmodifiableMap(connectionProperties);
    }
 
    public void open() {
-      handler.open(containerId, connectionProperties, desiredCapabilities);
+      handler.open(containerId, connectionProperties, offeredCapabilities, desiredCapabilities);
    }
 
    public String getContainer() {
@@ -661,8 +676,8 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          // sent values or preventing the in process open from configuring the values it wants.
          if (isIncomingConnection) {
             connection.setContainer(containerId);
-            connection.setProperties(connectionProperties);
-            connection.setOfferedCapabilities(getConnectionCapabilitiesOffered());
+            connection.setProperties(getConnectionPropertiesForResponse());
+            connection.setOfferedCapabilities(getOfferedCapabilitiesForResponse());
             connection.setDesiredCapabilities(desiredCapabilities);
             connection.open();
          }

@@ -237,7 +237,7 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    @Override
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection remotingConnection) {
-      return internalConnectionEntry(remotingConnection, false, null, null, null);
+      return internalConnectionEntry(remotingConnection, false, null, null, null, null);
    }
 
    /**
@@ -245,22 +245,22 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
     * AMQP Bridges
     */
    public ConnectionEntry createOutgoingConnectionEntry(Connection remotingConnection) {
-      return internalConnectionEntry(remotingConnection, true, null, null, null);
+      return internalConnectionEntry(remotingConnection, true, null, null, null, null);
    }
 
    public ConnectionEntry createOutgoingConnectionEntry(Connection remotingConnection, ClientSASLFactory saslFactory) {
-      return internalConnectionEntry(remotingConnection, true, saslFactory, null, null);
+      return internalConnectionEntry(remotingConnection, true, saslFactory, null, null, null);
    }
 
    public ConnectionEntry createOutgoingConnectionEntry(Connection remotingConnection, ClientSASLFactory saslFactory, Map<Symbol, Object> connectionProperties) {
-      return internalConnectionEntry(remotingConnection, true, saslFactory, connectionProperties, null);
+      return internalConnectionEntry(remotingConnection, true, saslFactory, connectionProperties, null, null);
    }
 
-   public ConnectionEntry createOutgoingConnectionEntry(Connection remotingConnection, ClientSASLFactory saslFactory, Map<Symbol, Object> connectionProperties, Symbol[] desiredCapabilities) {
-      return internalConnectionEntry(remotingConnection, true, saslFactory, connectionProperties, desiredCapabilities);
+   public ConnectionEntry createOutgoingConnectionEntry(Connection remotingConnection, ClientSASLFactory saslFactory, Map<Symbol, Object> connectionProperties, Symbol[] offeredCapabilities, Symbol[] desiredCapabilities) {
+      return internalConnectionEntry(remotingConnection, true, saslFactory, connectionProperties, offeredCapabilities, desiredCapabilities);
    }
 
-   private ConnectionEntry internalConnectionEntry(Connection remotingConnection, boolean outgoing, ClientSASLFactory saslFactory, Map<Symbol, Object> connectionProperties, Symbol[] desiredCapabilities) {
+   private ConnectionEntry internalConnectionEntry(Connection remotingConnection, boolean outgoing, ClientSASLFactory saslFactory, Map<Symbol, Object> connectionProperties, Symbol[] offeredCapabilities, Symbol[] desiredCapabilities) {
       AMQPConnectionCallback connectionCallback = new AMQPConnectionCallback(this, remotingConnection, server.getExecutorFactory().getExecutor(), server);
       long ttl = ActiveMQClient.DEFAULT_CONNECTION_TTL;
 
@@ -278,7 +278,10 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
       String id = server.getNodeID().toString();
       boolean useCoreSubscriptionNaming = server.getConfiguration().isAmqpUseCoreSubscriptionNaming();
-      AMQPConnectionContext amqpConnection = new AMQPConnectionContext(this, connectionCallback, id, (int) ttl, getMaxFrameSize(), AMQPConstants.Connection.DEFAULT_CHANNEL_MAX, useCoreSubscriptionNaming, server.getScheduledPool(), true, saslFactory, connectionProperties, desiredCapabilities, outgoing);
+      AMQPConnectionContext amqpConnection = new AMQPConnectionContext(
+         this, connectionCallback, id, (int) ttl, getMaxFrameSize(), AMQPConstants.Connection.DEFAULT_CHANNEL_MAX,
+         useCoreSubscriptionNaming, server.getScheduledPool(), true, saslFactory, connectionProperties,
+         offeredCapabilities, desiredCapabilities, outgoing);
 
       Executor executor = server.getExecutorFactory().getExecutor();
 

@@ -41,13 +41,21 @@ public class AMQPClientConnectionFactory {
    private final Map<Symbol, Object> connectionProperties;
    private final int ttl;
    private final boolean useCoreSubscriptionNaming;
+   private final Symbol[] desiredCapabilities;
+   private final Symbol[] offeredCapabilities;
 
    public AMQPClientConnectionFactory(ActiveMQServer server, String containerId, Map<Symbol, Object> connectionProperties, int ttl) {
+      this(server, containerId, connectionProperties, ttl, null, null);
+   }
+
+   public AMQPClientConnectionFactory(ActiveMQServer server, String containerId, Map<Symbol, Object> connectionProperties, int ttl, Symbol[] offeredCapabilities, Symbol[] desiredCapabilities) {
       this.server = server;
       this.containerId = containerId;
       this.connectionProperties = connectionProperties;
       this.ttl = ttl;
       this.useCoreSubscriptionNaming = false;
+      this.offeredCapabilities = offeredCapabilities;
+      this.desiredCapabilities = desiredCapabilities;
    }
 
    public ActiveMQProtonRemotingConnection createConnection(ProtonProtocolManager protocolManager, Connection connection, Optional<EventHandler> eventHandler, ClientSASLFactory clientSASLFactory) {
@@ -55,7 +63,10 @@ public class AMQPClientConnectionFactory {
 
       Executor executor = server.getExecutorFactory().getExecutor();
 
-      AMQPConnectionContext amqpConnection = new AMQPConnectionContext(protocolManager, connectionCallback, containerId, ttl, protocolManager.getMaxFrameSize(), AMQPConstants.Connection.DEFAULT_CHANNEL_MAX, useCoreSubscriptionNaming, server.getScheduledPool(), false, clientSASLFactory, connectionProperties, null);
+      AMQPConnectionContext amqpConnection = new AMQPConnectionContext(
+         protocolManager, connectionCallback, containerId, ttl, protocolManager.getMaxFrameSize(),
+         AMQPConstants.Connection.DEFAULT_CHANNEL_MAX, useCoreSubscriptionNaming, server.getScheduledPool(),
+         false, clientSASLFactory, connectionProperties, offeredCapabilities, desiredCapabilities);
       eventHandler.ifPresent(amqpConnection::addEventHandler);
 
       ActiveMQProtonRemotingConnection delegate = new ActiveMQProtonRemotingConnection(protocolManager, amqpConnection, connection, executor);

@@ -505,7 +505,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          final Symbol[] brokerDesiredCapabilities = bridgeManagers == null ? null : new Symbol[] {SHARED_SUBS};
 
          NettyConnectorCloseHandler connectorCloseHandler = new NettyConnectorCloseHandler(connector, connectExecutor);
-         ConnectionEntry entry = protonProtocolManager.createOutgoingConnectionEntry(connection, saslFactory, brokerConnectionProperties, brokerDesiredCapabilities);
+         ConnectionEntry entry = protonProtocolManager.createOutgoingConnectionEntry(connection, saslFactory, brokerConnectionProperties, null, brokerDesiredCapabilities);
          server.getRemotingService().addConnectionEntry(connection, entry);
          protonRemotingConnection = (ActiveMQProtonRemotingConnection) entry.connection;
          protonRemotingConnection.getAmqpConnection().addLinkRemoteCloseListener(getName(), this::linkClosed);

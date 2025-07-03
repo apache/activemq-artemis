@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -27,6 +28,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -47,6 +49,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.engine.Connection;
+import org.apache.qpid.protonj2.test.driver.ProtonTestServer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -71,7 +74,6 @@ public class AmqpOutboundConnectionTest extends AmqpClientTestSupport {
    public void testOutboundConnectionWithSecurity() throws Throwable {
       runOutboundConnectionTest(true, true);
    }
-
 
    private void runOutboundConnectionTest(boolean withSecurity, boolean closeFromClient) throws Exception {
       final ActiveMQServer remote;
@@ -156,6 +158,164 @@ public class AmqpOutboundConnectionTest extends AmqpClientTestSupport {
       }
    }
 
+   @Test
+   @Timeout(20)
+   public void testOutboundConnectsWithOfferedAndDesiredCapabilities() throws Exception {
+      // Tests that the underlying AMQPConnectionContext will honor the set offered and desired capabilities
+      // and place them in the outgoing Open performative.
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
+         peer.expectOpen().withOfferedCapability("ANONYMOUS_RELAY")
+                          .withDesiredCapability("SHARED_SUBS")
+                          .respond();
+         peer.start();
+
+         final Map<String, Object> config = new LinkedHashMap<>(); config.put(TransportConstants.HOST_PROP_NAME, "localhost");
+         config.put(TransportConstants.PORT_PROP_NAME, String.valueOf(peer.getServerURI().getPort()));
+
+         final ClientSASLFactory clientSASLFactory = availableMechanims -> {
+            if (availableMechanims != null && Arrays.asList(availableMechanims).contains("ANONYMOUS")) {
+               return new AnonymousSASLMechanism();
+            } else {
+               return null;
+            }
+         };
+
+         final AtomicBoolean connectionOpened = new AtomicBoolean();
+
+         EventHandler eventHandler = new EventHandler() {
+            @Override
+            public void onRemoteOpen(Connection connection) throws Exception {
+               connectionOpened.set(true);
+            }
+         };
+
+         final Symbol[] offeredCapabilities = new Symbol[] {Symbol.valueOf("ANONYMOUS_RELAY")};
+         final Symbol[] desiredCapabilities = new Symbol[] {Symbol.valueOf("SHARED_SUBS")};
+
+         AMQPClientConnectionFactory clientFactory = new AMQPClientConnectionFactory(server, "myid", Collections.singletonMap(Symbol.getSymbol("myprop"), "propvalue"), 5000, offeredCapabilities, desiredCapabilities);
+         ProtonClientConnectionManager lifeCycleListener = new ProtonClientConnectionManager(clientFactory, Optional.of(eventHandler), clientSASLFactory);
+         ProtonClientProtocolManager protocolManager = new ProtonClientProtocolManager(new ProtonProtocolManagerFactory(), server);
+         NettyConnector connector = new NettyConnector(config, lifeCycleListener, lifeCycleListener, server.getExecutorFactory().getExecutor(), server.getExecutorFactory().getExecutor(), server.getScheduledPool(), protocolManager);
+
+         try {
+            connector.start();
+
+            assertNotNull(connector.createConnection().getID());
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            Wait.assertTrue(connectionOpened::get);
+         } finally {
+            lifeCycleListener.stop();
+         }
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testOutboundTreatsEmptyOfferedAndDesiredAsNoCapabilities() throws Exception {
+      // Tests that the underlying AMQPConnectionContext will treat empty offered and desired capabilities
+      // arrays as being nothing to send and proceeding as normal with old default behavior of sending nothing.
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
+         peer.expectOpen().withOfferedCapabilities(nullValue())
+                          .withDesiredCapabilities(nullValue())
+                          .respond();
+         peer.start();
+
+         final Map<String, Object> config = new LinkedHashMap<>(); config.put(TransportConstants.HOST_PROP_NAME, "localhost");
+         config.put(TransportConstants.PORT_PROP_NAME, String.valueOf(peer.getServerURI().getPort()));
+
+         final ClientSASLFactory clientSASLFactory = availableMechanims -> {
+            if (availableMechanims != null && Arrays.asList(availableMechanims).contains("ANONYMOUS")) {
+               return new AnonymousSASLMechanism();
+            } else {
+               return null;
+            }
+         };
+
+         final AtomicBoolean connectionOpened = new AtomicBoolean();
+
+         EventHandler eventHandler = new EventHandler() {
+            @Override
+            public void onRemoteOpen(Connection connection) throws Exception {
+               connectionOpened.set(true);
+            }
+         };
+
+         final Symbol[] offeredCapabilities = new Symbol[0];
+         final Symbol[] desiredCapabilities = new Symbol[0];
+
+         AMQPClientConnectionFactory clientFactory = new AMQPClientConnectionFactory(server, "myid", Collections.singletonMap(Symbol.getSymbol("myprop"), "propvalue"), 5000, offeredCapabilities, desiredCapabilities);
+         ProtonClientConnectionManager lifeCycleListener = new ProtonClientConnectionManager(clientFactory, Optional.of(eventHandler), clientSASLFactory);
+         ProtonClientProtocolManager protocolManager = new ProtonClientProtocolManager(new ProtonProtocolManagerFactory(), server);
+         NettyConnector connector = new NettyConnector(config, lifeCycleListener, lifeCycleListener, server.getExecutorFactory().getExecutor(), server.getExecutorFactory().getExecutor(), server.getScheduledPool(), protocolManager);
+
+         try {
+            connector.start();
+
+            assertNotNull(connector.createConnection().getID());
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            Wait.assertTrue(connectionOpened::get);
+         } finally {
+            lifeCycleListener.stop();
+         }
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testOutboundRemainsDefaultedToNoOfferedOrDesiredCapabilities() throws Exception {
+      // Tests that the underlying AMQPConnectionContext retains its default behavior of not sending
+      // offered or desired capabilities if not told to do so.
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect("PLAIN", "ANONYMOUS");
+         peer.expectOpen().withOfferedCapabilities(nullValue())
+                          .withDesiredCapabilities(nullValue())
+                          .respond();
+         peer.start();
+
+         final Map<String, Object> config = new LinkedHashMap<>(); config.put(TransportConstants.HOST_PROP_NAME, "localhost");
+         config.put(TransportConstants.PORT_PROP_NAME, String.valueOf(peer.getServerURI().getPort()));
+
+         final ClientSASLFactory clientSASLFactory = availableMechanims -> {
+            if (availableMechanims != null && Arrays.asList(availableMechanims).contains("ANONYMOUS")) {
+               return new AnonymousSASLMechanism();
+            } else {
+               return null;
+            }
+         };
+
+         final AtomicBoolean connectionOpened = new AtomicBoolean();
+
+         EventHandler eventHandler = new EventHandler() {
+            @Override
+            public void onRemoteOpen(Connection connection) throws Exception {
+               connectionOpened.set(true);
+            }
+         };
+
+         AMQPClientConnectionFactory clientFactory = new AMQPClientConnectionFactory(server, "myid", Collections.singletonMap(Symbol.getSymbol("myprop"), "propvalue"), 5000);
+         ProtonClientConnectionManager lifeCycleListener = new ProtonClientConnectionManager(clientFactory, Optional.of(eventHandler), clientSASLFactory);
+         ProtonClientProtocolManager protocolManager = new ProtonClientProtocolManager(new ProtonProtocolManagerFactory(), server);
+         NettyConnector connector = new NettyConnector(config, lifeCycleListener, lifeCycleListener, server.getExecutorFactory().getExecutor(), server.getExecutorFactory().getExecutor(), server.getScheduledPool(), protocolManager);
+
+         try {
+            connector.start();
+
+            assertNotNull(connector.createConnection().getID());
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            Wait.assertTrue(connectionOpened::get);
+         } finally {
+            lifeCycleListener.stop();
+         }
+      }
+   }
    @Override
    protected boolean isSecurityEnabled() {
       return securityEnabled;
@@ -182,6 +342,24 @@ public class AmqpOutboundConnectionTest extends AmqpClientTestSupport {
       @Override
       public byte[] getInitialResponse() {
          return initialResponse;
+      }
+
+      @Override
+      public byte[] getResponse(byte[] challenge) {
+         return new byte[0];
+      }
+   }
+
+   private static class AnonymousSASLMechanism implements ClientSASL {
+
+      @Override
+      public String getName() {
+         return "ANONYMOUS";
+      }
+
+      @Override
+      public byte[] getInitialResponse() {
+         return null;
       }
 
       @Override

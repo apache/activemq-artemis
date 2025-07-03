@@ -77,6 +77,7 @@ public class AMQPConnectionContextTest {
          false,
          null,
          null,
+         null,
          null);
 
       connectionContext.onRemoteOpen(connection);
