@@ -809,11 +809,6 @@
                <version>1.0</version>
             </plugin>
             <plugin>
-               <groupId>org.eclipse.jetty</groupId>
-               <artifactId>jetty-maven-plugin</artifactId>
-               <version>${jetty.version}</version>
-            </plugin>
-            <plugin>
                <groupId>org.wildfly.extras.batavia</groupId>
                <artifactId>transformer-tools-mvn</artifactId>
                <version>${version.batavia}</version>
