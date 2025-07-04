@@ -78,6 +78,7 @@
       <dependency>
          <groupId>org.jboss.arquillian.junit</groupId>
          <artifactId>arquillian-junit-core</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.junit.vintage</groupId>
@@ -96,11 +97,11 @@
       <dependency>
          <groupId>org.jboss.arquillian.junit</groupId>
          <artifactId>arquillian-junit-container</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.arquillian.container</groupId>
          <artifactId>arquillian-container-test-api</artifactId>
-         <version>${arquillian.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>

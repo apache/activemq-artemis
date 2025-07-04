@@ -690,16 +690,11 @@
             <scope>test</scope>
          </dependency>
          <dependency>
-            <groupId>org.jboss.arquillian.junit</groupId>
-            <artifactId>arquillian-junit-container</artifactId>
+            <groupId>org.jboss.arquillian</groupId>
+            <artifactId>arquillian-bom</artifactId>
             <version>${arquillian.version}</version>
-            <scope>test</scope>
-         </dependency>
-         <dependency>
-            <groupId>org.jboss.arquillian.junit</groupId>
-            <artifactId>arquillian-junit-core</artifactId>
-            <version>${arquillian.version}</version>
-            <scope>test</scope>
+            <type>pom</type>
+            <scope>import</scope>
          </dependency>
          <dependency>
             <groupId>org.jboss.shrinkwrap</groupId>
