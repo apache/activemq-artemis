@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.smoke.console.pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 
 import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.A_TAG_LOCATOR;
 import static org.apache.activemq.artemis.tests.smoke.console.PageConstants.COLUMN_MESSAGE_ID;
@@ -37,8 +38,9 @@ public class QueuePage extends ArtemisPage {
 
    public MessagePage getMessagePage(int index, int timeout) {
       int col = getIndexOfColumn(COLUMN_MESSAGE_ID);
-      driver.findElement(TABLE_TAG_LOCATOR).findElements(TD_TAG_LOCATOR).get(col).findElement(A_TAG_LOCATOR).click();
-
+      WebElement element = driver.findElement(TABLE_TAG_LOCATOR).findElements(TD_TAG_LOCATOR).get(col).findElement(A_TAG_LOCATOR);
+      Actions actions = new Actions(driver);
+      actions.moveToElement(element).click().perform();
       waitForElementToBeVisible(VIEW_MESSAGE_TITLE_LOCATOR, timeout);
 
       return new MessagePage(driver);

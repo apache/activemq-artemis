@@ -26,8 +26,6 @@ public class PageConstants {
 
    public static final String A_CONTAINS_TEXT_LOG_OUT = "//span[contains(text(),'Log out')]";
 
-   public static final String H1 = "h1";
-
    public static final String H2 = "h2";
 
    public static final String TD = "td";
@@ -56,7 +54,7 @@ public class PageConstants {
 
    public static final String QUEUE_NODE_SUFFIX = "queues-folder-anycast-folder-DLQ";
    // Tag Locators
-   public static final By H1_TAG_LOCATOR = By.tagName(H1);
+   public static final By STATUS_TAB_LOCATOR = By.xpath("//span[contains(text(),'Status')]");
 
    public static final By H2_TAG_LOCATOR = By.tagName(H2);
 
@@ -92,7 +90,7 @@ public class PageConstants {
    public static final By LOGIN_BUTTON_LOCATOR = By.xpath("//button[@type='submit']");
 
 
-   public static final  By MESSAGE_TEXT_EDITOR_LOCATOR = By.cssSelector("div[class='view-zones']");
+   public static final  By MESSAGE_TEXT_EDITOR_LOCATOR = By.cssSelector("div[class='pf-v5-c-code-editor__code']");
 
    public static final By USE_LOGIN_LOCATOR = By.id("uselogon");
 

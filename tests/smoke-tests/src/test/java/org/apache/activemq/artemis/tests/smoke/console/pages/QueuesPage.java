@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.smoke.console.pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 
 public class QueuesPage extends ArtemisPage {
    private static final String MESSAGE_COUNT_COLUMN_NAME = "Message Count";
@@ -35,8 +36,8 @@ public class QueuesPage extends ArtemisPage {
       WebElement messagesCountWebElement = queueRowWebElement.findElements(By.tagName("td"))
          .get(getIndexOfColumn(MESSAGE_COUNT_COLUMN_NAME)).findElement(By.tagName("a"));
 
-      messagesCountWebElement.click();
-
+      Actions actions = new Actions(driver);
+      actions.moveToElement(messagesCountWebElement).click().perform();
       waitForElementToBeVisible(QUEUES_PAGE_TITLE, timeout);
 
       return new QueuePage(driver);
@@ -61,7 +62,8 @@ public class QueuesPage extends ArtemisPage {
 
 
    public boolean searchQueues(String queueNameInResults) {
-      driver.findElement(SEARCH_BUTTON_LOCATOR).click();
-      return countQueue(queueNameInResults) == 1;
+      WebElement element = driver.findElement(SEARCH_BUTTON_LOCATOR);
+      Actions actions = new Actions(driver);
+      actions.moveToElement(element).click().perform();      return countQueue(queueNameInResults) == 1;
    }
 }
