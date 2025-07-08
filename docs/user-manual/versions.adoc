@@ -30,7 +30,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 === Upgrading from 2.41.0
 
 * Due to https://issues.apache.org/jira/browse/ARTEMIS-5553[ARTEMIS-5553] the default `match` for management-related `address-settings` is now `activemq.management.\#`.
-Previously it was `activemq.management#` which technically worked but was not valid wildcard syntax.
+Previously it was `activemq.management#` which technically worked but was not valid xref:wildcard-syntax.adoc[wildcard syntax].
 +
 This change will have no functional impact.
 It is being identified here to avoid confusion when user's notice the difference.
@@ -39,7 +39,7 @@ It is being identified here to avoid confusion when user's notice the difference
 Timeouts are no longer possible due to an adjustment of how the broker manages MQTT subscription persistence.
 You can continue to define `mqtt-session-state-persistence-timeout` in `broker.xml` without error, but it won't actually do anything.
 +
-Furthermore, it is no longer recommended to disable MQTT subscription persistence by modifying the configuration of the `$sys.mqtt.sessions` queue. This method still works, but the `mqtt-subscription-persistence-enabled` configuration parameter was added for convenience & clarity.
+Furthermore, it is no longer recommended to disable MQTT subscription persistence by modifying the configuration of the `$sys.mqtt.sessions` queue. This method still works, but the xref:mqtt.adoc#persistent-subscriptions[`mqtt-subscription-persistence-enabled`] configuration parameter was added for convenience & clarity.
 Performance will also be _slightly_ better with this new parameter.
 
 * Due to https://issues.apache.org/jira/browse/ARTEMIS-5444[ARTEMIS-5444] the `temporary-queue-namespace` configuration parameter has been renamed to xref:address-model.adoc#uuid-resources[`uuid-namespace`].
