@@ -271,11 +271,9 @@ public class AckManager implements ActiveMQComponent {
          if (checkRetriesAndPaging(acksToRetry, snapshotCount)) {
             logger.trace("scanning paging for {}", address);
 
-            boolean completeSnapshot = false;
             PagingStore store = server.getPagingManager().getPageStore(address);
             for (long pageId = store.getFirstPage(); pageId <= store.getCurrentWritingPage(); pageId++) {
                if (isSnapshotComplete(snapshotCount)) {
-                  completeSnapshot = true;
                   logger.debug("AckManager Page Scanning complete (done) on address {}", address);
                   break;
                }
@@ -289,15 +287,21 @@ public class AckManager implements ActiveMQComponent {
                   page.usageDown();
                }
             }
-            if (!completeSnapshot) {
-               // completeSnapshot == true, it means that every record meant to be acked was used,
+
+            // a note on the following statement:
+            // I used to store the result of isSnapshotComplete in a variable
+            // however in the case where we got to the end of the list and at the same time the snapshot was emptied,
+            // we would still print any logging on the next block, and verify the expired sets
+            // You can see the difference between this and the previous commit on ARTEMIS-5564
+            if (!isSnapshotComplete(snapshotCount)) {
+               // isSnapshotComplete == true, it means that every record meant to be acked was used,
                // so there is no need to check the expired set and we bypass this check
                // we used to check this every page scan, but as an optimization we removed this unecessary step
                validateExpiredSet(address, acksToRetry);
 
                if (logger.isDebugEnabled()) {
                   logger.debug("Retry page address got to the end of the list without still finding a few records to acknowledge");
-                  snapshotCount.forEach((l, c) -> logger.warn("debug {} still have {} ack records after the scan is finished", l, c));
+                  snapshotCount.forEach((l, c) -> logger.warn("queue {} still have {} ack records after the scan is finished", l, c));
                   acksToRetry.forEach((l, m) -> {
                      logger.debug("Records on queue {}:", l);
                      m.forEach((ack1, ack2) -> {
