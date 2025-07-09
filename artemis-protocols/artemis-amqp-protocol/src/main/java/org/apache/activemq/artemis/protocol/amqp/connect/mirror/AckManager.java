@@ -281,6 +281,10 @@ public class AckManager implements ActiveMQComponent {
                if (page == null) {
                   continue;
                }
+
+               if (logger.isDebugEnabled()) {
+                  logger.debug("scanning for acks on page {}/{} on address {}", page.getPageId(), store.getCurrentWritingPage(), address);
+               }
                try {
                   retryPage(snapshotCount, acksToRetry, address, page);
                } finally {
@@ -386,7 +390,6 @@ public class AckManager implements ActiveMQComponent {
                           Page page) throws Exception {
 
       AckRetry key = new AckRetry();
-      logger.debug("scanning for acks on page {} on address {}", page.getPageId(), address);
       TransactionImpl transaction = new TransactionImpl(server.getStorageManager()).setAsync(true);
       // scan each page for acks
       page.getMessages().forEach(pagedMessage -> {
