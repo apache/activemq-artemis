@@ -185,15 +185,7 @@ public interface StorageManager extends MapStorageManager, IDGenerator, ActiveMQ
 
    void clearContext();
 
-   /**
-    * Confirms that a large message was finished
-    */
-   void confirmPendingLargeMessageTX(Transaction transaction, long messageID, long recordID) throws Exception;
-
-   /**
-    * Confirms that a large message was finished
-    */
-   void confirmPendingLargeMessage(long recordID) throws Exception;
+   void deletePendingLargeMessage(long recordID) throws Exception;
 
    void storeMessage(Message message) throws Exception;
 
