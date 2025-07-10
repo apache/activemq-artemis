@@ -53,9 +53,7 @@ public final class JournalRecordIds {
    // Message journal record types
 
    /**
-    * This is used when a large message is created but not yet stored on the system.
-    * <p>
-    * We use this to avoid temporary files missing
+    * THIS RECORD IS NO LONGER USED, WE NOW WILL SCAN ALL PAGE FILES FOR PENDING LARGE MESSAGES
     */
    public static final byte ADD_LARGE_MESSAGE_PENDING = 29;
 

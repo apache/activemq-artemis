@@ -138,7 +138,6 @@ import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.JournalType;
-import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MemoryManager;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
@@ -3921,12 +3920,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       journalLoader.handleDuplicateIds(duplicateIDMap);
 
+      // this deals with legacy pending large message records that might be left in a journal after an upgrade
       for (Pair<Long, Long> msgToDelete : pendingLargeMessages) {
-         ActiveMQServerLogger.LOGGER.deletingPendingMessage(msgToDelete);
-         LargeServerMessage msg = storageManager.createCoreLargeMessage();
-         msg.setMessageID(msgToDelete.getB());
-         msg.setDurable(true);
-         msg.deleteFile();
+         logger.debug("Removing pending large message record: {}", msgToDelete.getA());
+         storageManager.deletePendingLargeMessage(msgToDelete.getA());
       }
 
       if (pendingNonTXPageCounter.size() != 0) {

@@ -468,19 +468,12 @@ public class TransactionImplTest extends ServerTestBase {
       }
 
       @Override
-      public void confirmPendingLargeMessageTX(Transaction transaction,
-                                               long messageID,
-                                               long recordID) throws Exception {
-
-      }
-
-      @Override
       public void injectMonitor(FileStoreMonitor monitor) throws Exception {
 
       }
 
       @Override
-      public void confirmPendingLargeMessage(long recordID) throws Exception {
+      public void deletePendingLargeMessage(long recordID) throws Exception {
 
       }
 
