@@ -27,8 +27,10 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -107,8 +109,8 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
    private ServerLocator locator;
    private String acceptorName;
 
-   private NioEventLoopGroup bossGroup;
-   private NioEventLoopGroup workerGroup;
+   private EventLoopGroup bossGroup;
+   private EventLoopGroup workerGroup;
 
    private String SERVER_SIDE_KEYSTORE = "server-keystore.jks";
    private String CLIENT_SIDE_TRUSTSTORE = "server-ca-truststore.jks";
@@ -214,8 +216,8 @@ public class NettyConnectorWithHTTPUpgradeTest extends ActiveMQTestBase {
    }
 
    private void startWebServer(int port) throws Exception {
-      bossGroup = new NioEventLoopGroup();
-      workerGroup = new NioEventLoopGroup();
+      bossGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
+      workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
       ServerBootstrap b = new ServerBootstrap();
       final SSLContext context;
       if (useSSL) {
