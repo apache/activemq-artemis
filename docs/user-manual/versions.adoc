@@ -25,6 +25,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 ** persisting subscriptions
 ** matching subscription identifiers to topic filters for 5.0 clients
 * Upgrade to https://activemq.apache.org/components/artemis-console/download/release-notes-1.2.1[ActiveMQ Artemis Console 1.2.1] with lots of usability improvements
+* Support for XOAUTH SASL mechanism for xref:amqp-broker-connections.adoc[AMQP broker connections]
 * And for developers...almost 2,500 lines of code were elminated by consistently using the convenience methods from Java's `java.util.Objects` class across the code-base (e.g. https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Objects.html#hash(java.lang.Object...)[`hash`], https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Objects.html#toString(java.lang.Object)[`toString`], https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Objects.html#equals(java.lang.Object,java.lang.Object)[`equals`], https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Objects.html#requireNonNull(T)[`requireNonNull`], etc.).
 
 === Upgrading from 2.41.0
