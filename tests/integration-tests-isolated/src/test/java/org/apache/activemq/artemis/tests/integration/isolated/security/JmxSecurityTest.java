@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.tests.extensions.SubjectDotDoAsExtension;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -145,8 +146,7 @@ public class JmxSecurityTest {
 
       addressControl.sendMessage(null, 1, "hi", false, null, null);
 
-      long unRoutedMessageCountAfter = addressControl.getUnRoutedMessageCount();
-      assertEquals(3L, unRoutedMessageCountAfter);
+      Wait.assertEquals(3L, () -> addressControl.getUnRoutedMessageCount(), 2000, 50);
 
       assertFalse(addressControl.isPaging());
 
