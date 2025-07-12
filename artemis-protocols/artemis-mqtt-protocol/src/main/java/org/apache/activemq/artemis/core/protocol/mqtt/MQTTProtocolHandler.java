@@ -478,8 +478,8 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       final String clientID = session.getConnection().getClientID();
       LinkStealingResult result;
 
-      if (protocolManager.getStateManager().isClientConnected(clientID)) {
-         MQTTConnection existingConnection = protocolManager.getStateManager().getConnectedClient(clientID);
+      MQTTConnection existingConnection = protocolManager.getStateManager().getConnectedClient(clientID);
+      if (existingConnection != null) {
          if (protocolManager.isAllowLinkStealing()) {
             MQTTSession existingSession = protocolManager.getStateManager().getSessionState(clientID).getSession();
             if (existingSession != null) {
