@@ -364,7 +364,8 @@ Here's my +1
 
 === What if the vote fails?
 
-If the vote fails then you'll need to revert the two commits from the Maven release process and delete the tag so the issues with the release can be fixed and the release can be re-tagged.
+If the vote fails then you'll need clean up the previous release, fix the issue(s), and re-spin the release.
+Cleaning up includes the following:
 
 * The Maven release process creates 2 commits - one for preparing the release and another for preparing the "next development iteration."
 Here's an example of these commits as presented by `git log`:
@@ -420,6 +421,16 @@ Date:   Fri Jul 11 10:38:12 2025 -0500
 git tag --delete 2.42.0
 git push --delete apache 2.42.0
 ----
+
+* Delete the resources from Subversion created <<stage-the-release,here>>, e.g.:
++
+[,console]
+----
+svn delete 2.42.0
+svn commit
+----
+
+* Drop the staging repository that was closed <<close-the-staging-repository,here>>.
 
 * Correct the issue with the release and proceed with the <<prepare-maven-release,Maven release process>> once more.
 
