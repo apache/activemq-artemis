@@ -362,6 +362,67 @@ This vote will stay open until at least <3-business-days-from-now>.
 Here's my +1
 ----
 
+=== What if the vote fails?
+
+If the vote fails then you'll need to revert the two commits from the Maven release process and delete the tag so the issues with the release can be fixed and the release can be re-tagged.
+
+* The Maven release process creates 2 commits - one for preparing the release and another for preparing the "next development iteration."
+Here's an example of these commits as presented by `git log`:
++
+[,console]
+----
+commit 4c201a63ec078887cdf8eee2c3ceaf53447de38b
+Author: Justin Bertram <jbertram@apache.org>
+Date:   Tue Jul 8 12:42:29 2025 -0500
+
+    [maven-release-plugin] prepare for next development iteration
+
+commit 4a837a711bc1af36516e40737110ba3c759350cd
+Author: Justin Bertram <jbertram@apache.org>
+Date:   Tue Jul 8 12:42:19 2025 -0500
+
+    [maven-release-plugin] prepare release 2.42.0
+----
++
+These commits should be reverted in _reverse_ order, e.g.:
++
+[,console]
+----
+git revert 4c201a63ec078887cdf8eee2c3ceaf53447de38b
+git revert 4a837a711bc1af36516e40737110ba3c759350cd
+----
++
+The revert commits will look something like this:
++
+[,console]
+----
+commit 10c11268a552b2a644b8bf1493b1ebc6bbbdf92c
+Author: Justin Bertram <jbertram@apache.org>
+Date:   Fri Jul 11 10:38:28 2025 -0500
+
+    Revert "[maven-release-plugin] prepare release 2.42.0"
+    
+    This reverts commit 4a837a711bc1af36516e40737110ba3c759350cd.
+
+commit 9214281eaf011c554cde23cf456817b75738b818
+Author: Justin Bertram <jbertram@apache.org>
+Date:   Fri Jul 11 10:38:12 2025 -0500
+
+    Revert "[maven-release-plugin] prepare for next development iteration"
+    
+    This reverts commit 4c201a63ec078887cdf8eee2c3ceaf53447de38b.
+----
+
+* Delete the Git tag locally first and then remotely, e.g.:
++
+[,console]
+----
+git tag --delete 2.42.0
+git push --delete apache 2.42.0
+----
+
+* Correct the issue with the release and proceed with the <<prepare-maven-release,Maven release process>> once more.
+
 == Send Result Email
 
 Rules for the Apache voting process are stipulated https://www.apache.org/foundation/voting.html[here].
