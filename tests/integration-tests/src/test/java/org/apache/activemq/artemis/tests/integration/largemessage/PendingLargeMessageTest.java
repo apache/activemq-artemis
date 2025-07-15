@@ -42,7 +42,6 @@ public class PendingLargeMessageTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   // The ClientConsumer should be able to also send ServerLargeMessages as that's done by the CoreBridge
    @Test
    public void testPendingRecords() throws Exception {
       ActiveMQServer server = createServer(true);
