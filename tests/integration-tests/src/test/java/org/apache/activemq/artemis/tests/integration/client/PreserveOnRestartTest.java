@@ -102,6 +102,6 @@ public class PreserveOnRestartTest extends ActiveMQTestBase {
 
       server.stop();
       server.start();
-      assertNull(server.locateQueue(queueName));
+      Wait.assertTrue(() -> server.locateQueue(queueName) == null, 5000, 100);
    }
 }
