@@ -1421,12 +1421,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
 
       if (discoveryGroup != null) {
-         synchronized (this) {
-            try {
-               discoveryGroup.stop();
-            } catch (Exception e) {
-               ActiveMQClientLogger.LOGGER.failedToStopDiscovery(e);
-            }
+         try {
+            discoveryGroup.stop();
+         } catch (Exception e) {
+            ActiveMQClientLogger.LOGGER.failedToStopDiscovery(e);
          }
       } else {
          staticConnector.disconnect();
