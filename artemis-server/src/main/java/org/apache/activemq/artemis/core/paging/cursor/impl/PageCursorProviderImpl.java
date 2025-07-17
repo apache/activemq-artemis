@@ -84,15 +84,12 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          throw new IllegalStateException("Cursor " + cursorID + " had already been created");
       }
 
-
       PageSubscriptionCounter subscriptionCounter = createPageCounter(cursorID, persistent);
       PageSubscription activeCursor = new PageSubscriptionImpl(this, pagingStore, storageManager, filter, cursorID, persistent, subscriptionCounter);
-
 
       activeCursors.put(cursorID, activeCursor);
       return activeCursor;
    }
-
 
    private PageSubscriptionCounter createPageCounter(long cursorID, boolean persistent) {
       return new PageSubscriptionCounterImpl(storageManager, cursorID);
@@ -272,7 +269,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       // I tried to simplify the locks but each PageStore has its own lock, so this was the best option
       // I found in order to fix https://issues.apache.org/jira/browse/ARTEMIS-3054
       try (ArtemisCloseable readLock = storageManager.closeableReadLock()) {
-
          while (true) {
             if (pagingStore.writeLock(1_000)) {
                break;
@@ -283,57 +279,54 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
          logger.trace(">>>> Cleanup {}", this.pagingStore.getAddress());
 
-         synchronized (this) {
-            try {
-               if (!pagingStore.isStarted()) {
-                  logger.trace("Paging store is not started");
-                  return;
-               }
-
-               if (!pagingStore.isPaging()) {
-                  logger.trace("Paging Store was not paging, so no reason to retry the cleanup");
-                  return;
-               }
-
-               List<PageSubscription> cursorList = cloneSubscriptions();
-
-               long minPage = checkMinPage(cursorList);
-               final long firstPage = pagingStore.getFirstPage();
-               deliverIfNecessary(cursorList, minPage);
-
-               if (logger.isTraceEnabled()) {
-                  logger.trace("firstPage={}, minPage={}, currentWritingPage={}", firstPage, minPage, pagingStore.getCurrentWritingPage());
-               }
-
-               // First we cleanup regular streaming, at the beginning of set of files
-               cleanupRegularStream(depagedPages, depagedPagesSet, cursorList, minPage, firstPage);
-
-               // Then we do some check on eventual pages that can be already removed but they are away from the streaming
-               cleanupMiddleStream(depagedPages, depagedPagesSet, cursorList, minPage, firstPage);
-
-               if (pagingStore.isPageFull()) {
-                  checkClearPageLimit();
-               }
-
-               assert pagingStore.getNumberOfPages() >= 0;
-
-               if (!pagingStore.hasPendingIO() && (pagingStore.getNumberOfPages() == 0 || pagingStore.getNumberOfPages() == 1 && (pagingStore.getCurrentPage() == null || pagingStore.getCurrentPage().getNumberOfMessages() == 0))) {
-                  logger.trace("StopPaging being called on {}, pending={}", pagingStore, pagingStore.hasPendingIO());
-                  pagingStore.stopPaging();
-               } else {
-                  if (logger.isTraceEnabled()) {
-                     logger.trace("Couldn't cleanup page on address {} as numberOfPages == {}  and currentPage.numberOfMessages = {}",
-                        pagingStore.getAddress(), pagingStore.getNumberOfPages(), pagingStore.getCurrentPage().getNumberOfMessages());
-                  }
-               }
-            } catch (Throwable ex) {
-               ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(pagingStore.getAddress(), ex);
-               logger.warn(ex.getMessage(), ex);
+         try {
+            if (!pagingStore.isStarted()) {
+               logger.trace("Paging store is not started");
                return;
-            } finally {
-               logger.trace("<<<< Cleanup end on {}", pagingStore.getAddress());
-               pagingStore.writeUnlock();
             }
+
+            if (!pagingStore.isPaging()) {
+               logger.trace("Paging Store was not paging, so no reason to retry the cleanup");
+               return;
+            }
+
+            List<PageSubscription> cursorList = cloneSubscriptions();
+
+            long minPage = checkMinPage(cursorList);
+            final long firstPage = pagingStore.getFirstPage();
+            deliverIfNecessary(cursorList, minPage);
+
+            if (logger.isTraceEnabled()) {
+               logger.trace("firstPage={}, minPage={}, currentWritingPage={}", firstPage, minPage, pagingStore.getCurrentWritingPage());
+            }
+
+            // First we cleanup regular streaming, at the beginning of set of files
+            cleanupRegularStream(depagedPages, depagedPagesSet, cursorList, minPage, firstPage);
+
+            // Then we do some check on eventual pages that can be already removed but they are away from the streaming
+            cleanupMiddleStream(depagedPages, depagedPagesSet, cursorList, minPage, firstPage);
+
+            if (pagingStore.isPageFull()) {
+               checkClearPageLimit();
+            }
+
+            assert pagingStore.getNumberOfPages() >= 0;
+
+            if (!pagingStore.hasPendingIO() && (pagingStore.getNumberOfPages() == 0 || pagingStore.getNumberOfPages() == 1 && (pagingStore.getCurrentPage() == null || pagingStore.getCurrentPage().getNumberOfMessages() == 0))) {
+               logger.trace("StopPaging being called on {}, pending={}", pagingStore, pagingStore.hasPendingIO());
+               pagingStore.stopPaging();
+            } else {
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Couldn't cleanup page on address {} as numberOfPages == {}  and currentPage.numberOfMessages = {}", pagingStore.getAddress(), pagingStore.getNumberOfPages(), pagingStore.getCurrentPage().getNumberOfMessages());
+               }
+            }
+         } catch (Throwable ex) {
+            ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(pagingStore.getAddress(), ex);
+            logger.warn(ex.getMessage(), ex);
+            return;
+         } finally {
+            logger.trace("<<<< Cleanup end on {}", pagingStore.getAddress());
+            pagingStore.writeUnlock();
          }
       }
       finishCleanup(depagedPages);
@@ -344,7 +337,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
     * This cleanup process will calculate the min page for every cursor and then we remove the pages based on that. if
     * we knew ahead all the queues belonging to every page we could remove this process.
     */
-   private void cleanupRegularStream(List<Page> depagedPages,
+   protected void cleanupRegularStream(List<Page> depagedPages,
                           LongHashSet depagedPagesSet,
                           List<PageSubscription> cursorList,
                           long minPage,
