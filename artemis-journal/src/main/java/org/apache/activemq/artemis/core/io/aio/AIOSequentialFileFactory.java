@@ -445,6 +445,9 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       @Override
       public void run() {
          while (running.get()) {
+            // To optimize performance, libaioContext.poll should always be invoked from the same thread.
+            // This approach leverages kernel-level efficiencies in context switching.
+            // Consistent polling from a dedicated thread will yield substantial performance gains.
             try {
                libaioContext.poll();
             } catch (Throwable e) {
