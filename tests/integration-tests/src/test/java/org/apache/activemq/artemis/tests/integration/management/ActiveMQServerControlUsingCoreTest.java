@@ -37,6 +37,16 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       extraProducers = 1;
    }
 
+
+   @Disabled
+   @Override
+   @TestTemplate
+   public void testListConnectionsCoreClientID() throws Exception {
+      // noise from the connector itself could affect test results,
+      // hence this test is being disabled
+   }
+
+
    @Disabled
    @Override
    @TestTemplate
