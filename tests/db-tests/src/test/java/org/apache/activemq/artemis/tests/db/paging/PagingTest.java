@@ -52,6 +52,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -96,6 +97,7 @@ import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderImpl;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderTestAccessor;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl;
+import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryDatabase;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreImpl;
@@ -124,6 +126,7 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
+import org.apache.activemq.artemis.utils.collections.LongHashSet;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
@@ -3825,6 +3828,121 @@ public class PagingTest extends ParameterDBTestBase {
 
       server.stop();
 
+   }
+
+   // The pages are complete, and this is simulating a scenario where the server crashed before deleting the pages.
+   @TestTemplate
+   public void testCreateQueueWhileCleanup() throws Exception {
+
+      Configuration config = createDefaultInVMConfig();
+
+      CountDownLatch letGoLatch = new CountDownLatch(1);
+      runAfter(letGoLatch::countDown);
+      CountDownLatch startFlag = new CountDownLatch(1);
+      class InterruptedCursorProvider extends PageCursorProviderImpl {
+
+         InterruptedCursorProvider(PagingStore pagingStore, StorageManager storageManager) {
+            super(pagingStore, storageManager);
+         }
+
+         @Override
+         protected void cleanupRegularStream(List<Page> depagedPages,
+                                             LongHashSet depagedPagesSet,
+                                             List<PageSubscription> cursorList,
+                                             long minPage,
+                                             long firstPage) throws Exception {
+            super.cleanupRegularStream(depagedPages, depagedPagesSet, cursorList, minPage, firstPage);
+            startFlag.countDown();
+            for (int i = 0; i < 60; i++) {
+               if (!letGoLatch.await(1, TimeUnit.SECONDS)) {
+                  logger.warn("letGoLatch still unreleased");
+               }
+            }
+         }
+      }
+
+      server = new ActiveMQServerImpl(config, ManagementFactory.getPlatformMBeanServer(), new ActiveMQSecurityManagerImpl()) {
+         @Override
+         protected PagingStoreFactoryNIO getPagingStoreFactory() {
+            return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
+               @Override
+               public PageCursorProvider newCursorProvider(PagingStore store,
+                                                           StorageManager storageManager,
+                                                           AddressSettings addressSettings,
+                                                           ArtemisExecutor executor) {
+                  return new InterruptedCursorProvider(store, storageManager);
+               }
+            };
+         }
+
+      };
+
+      addServer(server);
+
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(PagingTest.PAGE_SIZE).setMaxSizeBytes(0).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxReadPageBytes(-1);
+
+      server.getAddressSettingsRepository().addMatch("#", defaultSetting);
+
+      server.start();
+
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+
+      sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(true, true, 0);
+
+      String queue1Name = "Queue1";
+      String queue2Name = "Queue2";
+
+
+      server.addAddressInfo(new AddressInfo(ADDRESS).addRoutingType(RoutingType.MULTICAST));
+
+      session.createQueue(QueueConfiguration.of(queue1Name).setAddress(ADDRESS).setRoutingType(RoutingType.MULTICAST));
+
+      final Queue queue1 = server.locateQueue(queue1Name);
+
+      queue1.getPageSubscription().getPagingStore().startPaging();
+
+      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+
+      ClientMessage message;
+
+      for (int i = 0; i < 20; i++) {
+         message = session.createMessage(true);
+
+         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
+
+         bodyLocal.writeBytes(new byte[100 * 4]);
+
+         message.putIntProperty(SimpleString.of("idi"), i);
+
+         producer.send(message);
+         session.commit();
+      }
+
+      Wait.assertTrue(queue1.getPagingStore()::isPaging);
+      Future<Boolean> doneCleanup = queue1.getPagingStore().getCursorProvider().scheduleCleanup();
+
+      assertTrue(startFlag.await(5, TimeUnit.SECONDS));
+
+      ExecutorService executorService = Executors.newSingleThreadExecutor();
+      runAfter(executorService::shutdownNow);
+      CountDownLatch created = new CountDownLatch(1);
+      executorService.execute(() -> {
+         try {
+            server.createQueue(QueueConfiguration.of(queue2Name).setAddress(ADDRESS));
+            created.countDown();
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+         }
+      });
+
+      assertTrue(created.await(5, TimeUnit.SECONDS));
+
+      assertNotNull(server.locateQueue(queue2Name));
+      letGoLatch.countDown();
+      assertTrue(doneCleanup.get(10, TimeUnit.SECONDS));
+
+      server.stop();
    }
 
    @TestTemplate
