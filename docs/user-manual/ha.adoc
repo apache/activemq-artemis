@@ -172,6 +172,12 @@ noac::
 Disables attribute caching. This behavior is needed to achieve attribute cache coherence among multiple clients.
 soft::
 Specifies that if the NFS server is unavailable the error should be reported rather than waiting for the server to come back online.
++
+[TIP]
+====
+The https://linux.die.net/man/5/nfs[NFS documentation] notes the potential for "silent data corruption" when using `soft`. 
+This can be safely ignored in the case of ActiveMQ Artemis.
+====
 lookupcache=none::
 Disables lookup caching.
 timeo=n::
