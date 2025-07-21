@@ -66,11 +66,6 @@ public class FailoverPrefetchZeroTest extends OpenwireArtemisBaseTest {
       }
    }
 
-   public void startBroker() throws Exception {
-      broker = createBroker();
-      broker.start();
-   }
-
    @Test
    @BMRules(
       rules = {@BMRule(

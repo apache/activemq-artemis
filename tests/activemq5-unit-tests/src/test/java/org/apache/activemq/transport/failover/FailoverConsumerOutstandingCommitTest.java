@@ -67,11 +67,6 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
       }
    }
 
-   public void startServer() throws Exception {
-      server = createBroker();
-      server.start();
-   }
-
    @Test
    @BMRules(
       rules = {@BMRule(
