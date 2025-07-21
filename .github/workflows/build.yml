@@ -118,7 +118,7 @@ jobs:
         if: matrix.java != '17'
         run: |
           cd activemq-artemis
-          mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Pdev -Pjmh install
+          mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Pdev -Pjmh -Popenwire-tests -DskipActiveMQ5Tests install
 
       - name: Set Examples Version to Artemis Version
         run: |

@@ -64,20 +64,10 @@ public class FailoverDuplicateTest extends OpenwireArtemisBaseTest {
       stopBroker();
    }
 
-   public void stopBroker() throws Exception {
+   protected void stopBroker() throws Exception {
       if (broker != null) {
          broker.stop();
       }
-   }
-
-   public void startBroker(boolean deleteAllMessagesOnStartup) throws Exception {
-      broker = createBroker();
-      broker.start();
-   }
-
-   public void startBroker() throws Exception {
-      broker = createBroker();
-      broker.start();
    }
 
    public void configureConnectionFactory(ActiveMQConnectionFactory factory) {
