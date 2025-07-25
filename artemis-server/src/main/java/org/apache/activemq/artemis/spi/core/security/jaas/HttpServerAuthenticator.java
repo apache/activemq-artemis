@@ -53,8 +53,9 @@ public class HttpServerAuthenticator extends Authenticator {
 
    @Override
    public Result authenticate(HttpExchange httpExchange) {
-
+      ClassLoader currentTCCL = Thread.currentThread().getContextClassLoader();
       try {
+         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
          LoginContext loginContext = new LoginContext(realm, callbacks -> {
             for (Callback callback : callbacks) {
                if (callback instanceof PasswordCallback passwordCallback) {
@@ -108,6 +109,8 @@ public class HttpServerAuthenticator extends Authenticator {
          return new Authenticator.Success(new HttpPrincipal(nameFromAuthSubject(loginContext.getSubject()), realm));
       } catch (Exception e) {
          return new Authenticator.Failure(401);
+      } finally {
+         Thread.currentThread().setContextClassLoader(currentTCCL);
       }
    }
 
