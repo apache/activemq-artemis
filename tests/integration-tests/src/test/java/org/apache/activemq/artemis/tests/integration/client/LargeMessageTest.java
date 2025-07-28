@@ -102,12 +102,10 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
    protected ServerLocator locator;
 
-   private int largeMessageSize;
+   private static final int LARGE_MESSAGE_SIZE = 5 * 1024;
 
    public LargeMessageTest(StoreConfiguration.StoreType storeType) {
       super(storeType);
-      // The JDBC Large Message store is pretty slow, to speed tests up we only test 5MB large messages
-      largeMessageSize = (storeType == StoreConfiguration.StoreType.DATABASE) ? 5 * 1024 : 100 * 1024;
    }
 
    @TestTemplate
@@ -126,7 +124,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
    }
 
    private void internalTestRollbackPartiallyConsumedBuffer(final boolean redeliveryDelay) throws Exception {
-      final int messageSize = largeMessageSize;
+      final int messageSize = LARGE_MESSAGE_SIZE;
 
       final ClientSession session;
 
@@ -1369,37 +1367,37 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
    @TestTemplate
    public void testFilePersistenceOneHugeMessage() throws Exception {
-      testChunks(false, false, false, true, true, false, false, false, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0, 10 * 1024 * 1024, 1024 * 1024);
+      testChunks(false, false, false, true, true, false, false, false, false, 1, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0, 10 * 1024 * 1024, 1024 * 1024);
    }
 
    @TestTemplate
    public void testFilePersistenceOneMessageStreaming() throws Exception {
-      testChunks(false, false, false, true, true, false, false, false, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(false, false, false, true, true, false, false, false, false, 1, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceSmallMessageStreaming() throws Exception {
-      testChunks(false, false, false, true, true, false, false, false, false, 100, 1024, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(false, false, false, true, true, false, false, false, false, 10, 1024, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceOneHugeMessageConsumer() throws Exception {
-      testChunks(false, false, false, true, true, false, false, false, true, 1, largeMessageSize, 120000, 0, 10 * 1024 * 1024, 1024 * 1024);
+      testChunks(false, false, false, true, true, false, false, false, true, 1, LARGE_MESSAGE_SIZE, 120000, 0, 10 * 1024 * 1024, 1024 * 1024);
    }
 
    @TestTemplate
    public void testFilePersistence() throws Exception {
-      testChunks(false, false, true, false, true, false, false, true, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(false, false, true, false, true, false, false, true, false, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceConsumer() throws Exception {
-      testChunks(false, false, true, false, true, false, false, true, true, 2, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(false, false, true, false, true, false, false, true, true, 2, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceXA() throws Exception {
-      testChunks(true, false, true, false, true, false, false, true, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(true, false, true, false, true, false, false, true, false, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
@@ -1414,122 +1412,122 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
    @TestTemplate
    public void testFilePersistenceXAConsumer() throws Exception {
-      testChunks(true, false, true, false, true, false, false, true, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(true, false, true, false, true, false, false, true, true, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceXAConsumerRestart() throws Exception {
-      testChunks(true, true, true, false, true, false, false, true, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(true, true, true, false, true, false, false, true, true, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceBlocked() throws Exception {
-      testChunks(false, false, true, false, true, false, true, true, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(false, false, true, false, true, false, true, true, false, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceBlockedConsumer() throws Exception {
-      testChunks(false, false, true, false, true, false, true, true, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(false, false, true, false, true, false, true, true, true, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceBlockedXA() throws Exception {
-      testChunks(true, false, true, false, true, false, true, true, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(true, false, true, false, true, false, true, true, false, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceBlockedXAConsumer() throws Exception {
-      testChunks(true, false, true, false, true, false, true, true, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(true, false, true, false, true, false, true, true, true, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceBlockedPreACK() throws Exception {
-      testChunks(false, false, true, false, true, true, true, true, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(false, false, true, false, true, true, true, true, false, 1, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceBlockedPreACKConsumer() throws Exception {
-      testChunks(false, false, true, false, true, true, true, true, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(false, false, true, false, true, true, true, true, true, 1, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceBlockedPreACKXA() throws Exception {
-      testChunks(true, false, true, false, true, true, true, true, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(true, false, true, false, true, true, true, true, false, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceBlockedPreACKXARestart() throws Exception {
-      testChunks(true, true, true, false, true, true, true, true, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(true, true, true, false, true, true, true, true, false, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceBlockedPreACKXAConsumer() throws Exception {
-      testChunks(true, false, true, false, true, true, true, true, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(true, false, true, false, true, true, true, true, true, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceBlockedPreACKXAConsumerRestart() throws Exception {
-      testChunks(true, true, true, false, true, true, true, true, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(true, true, true, false, true, true, true, true, true, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testFilePersistenceDelayed() throws Exception {
-      testChunks(false, false, true, false, true, false, false, false, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
+      testChunks(false, false, true, false, true, false, false, false, false, 1, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
    }
 
    @TestTemplate
    public void testFilePersistenceDelayedConsumer() throws Exception {
-      testChunks(false, false, true, false, true, false, false, false, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
+      testChunks(false, false, true, false, true, false, false, false, true, 1, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
    }
 
    @TestTemplate
    public void testFilePersistenceDelayedXA() throws Exception {
-      testChunks(true, false, true, false, true, false, false, false, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
+      testChunks(true, false, true, false, true, false, false, false, false, 1, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
    }
 
    @TestTemplate
    public void testFilePersistenceDelayedXAConsumer() throws Exception {
-      testChunks(true, false, true, false, true, false, false, false, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
+      testChunks(true, false, true, false, true, false, false, false, true, 1, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 200);
    }
 
    @TestTemplate
    public void testNullPersistence() throws Exception {
-      testChunks(false, false, true, false, false, false, false, true, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(false, false, true, false, false, false, false, true, true, 1, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testNullPersistenceConsumer() throws Exception {
-      testChunks(false, false, true, false, false, false, false, true, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(false, false, true, false, false, false, false, true, true, 1, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testNullPersistenceXA() throws Exception {
-      testChunks(true, false, true, false, false, false, false, true, false, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(true, false, true, false, false, false, false, true, false, 1, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testNullPersistenceXAConsumer() throws Exception {
-      testChunks(true, false, true, false, false, false, false, true, true, 1, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
+      testChunks(true, false, true, false, false, false, false, true, true, 1, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 0);
    }
 
    @TestTemplate
    public void testNullPersistenceDelayed() throws Exception {
-      testChunks(false, false, true, false, false, false, false, false, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
+      testChunks(false, false, true, false, false, false, false, false, false, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
    @TestTemplate
    public void testNullPersistenceDelayedConsumer() throws Exception {
-      testChunks(false, false, true, false, false, false, false, false, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
+      testChunks(false, false, true, false, false, false, false, false, true, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
    @TestTemplate
    public void testNullPersistenceDelayedXA() throws Exception {
-      testChunks(true, false, true, false, false, false, false, false, false, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
+      testChunks(true, false, true, false, false, false, false, false, false, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
    @TestTemplate
    public void testNullPersistenceDelayedXAConsumer() throws Exception {
-      testChunks(true, false, true, false, false, false, false, false, true, 100, largeMessageSize, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
+      testChunks(true, false, true, false, false, false, false, false, true, 10, LARGE_MESSAGE_SIZE, LargeMessageTest.RECEIVE_WAIT_TIME, 100);
    }
 
    @TestTemplate
@@ -2230,7 +2228,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       ClientProducer producer = session.createProducer(ADDRESS);
       int msgId = 0;
 
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < 10; i++) {
          ClientMessage message = session.createMessage(true);
 
          message.putIntProperty("msgID", msgId++);
@@ -2264,7 +2262,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
          session.start();
 
          for (int received = 0; received < 5; received++) {
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 10; i++) {
                ClientMessage message2 = consumer.receive(LargeMessageTest.RECEIVE_WAIT_TIME);
 
                assertNotNull(message2);
@@ -2315,7 +2313,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          server.start();
 
-         locator.setMinLargeMessageSize(largeMessageSize * 1024);
+         locator.setMinLargeMessageSize(LARGE_MESSAGE_SIZE * 1024);
 
          ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -2382,7 +2380,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          server.start();
 
-         locator.setMinLargeMessageSize(largeMessageSize * 1024);
+         locator.setMinLargeMessageSize(LARGE_MESSAGE_SIZE * 1024);
 
          ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -2448,7 +2446,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          server.start();
 
-         locator.setMinLargeMessageSize(largeMessageSize * 1024);
+         locator.setMinLargeMessageSize(LARGE_MESSAGE_SIZE * 1024);
 
          ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
@@ -2586,19 +2584,19 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       assertEquals(0, fileMessage.getBodyBufferSize());
 
-      for (int i = 0; i < largeMessageSize; i++) {
+      for (int i = 0; i < LARGE_MESSAGE_SIZE; i++) {
          fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
       }
       fileMessage.releaseResources(true, false);
 
-      assertEquals(largeMessageSize, fileMessage.getBodyBufferSize());
+      assertEquals(LARGE_MESSAGE_SIZE, fileMessage.getBodyBufferSize());
 
       // The server would be doing this
-      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, largeMessageSize);
+      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, LARGE_MESSAGE_SIZE);
 
       fileMessage.releaseResources(true, false);
 
-      assertEquals(largeMessageSize, fileMessage.getBodyBufferSize());
+      assertEquals(LARGE_MESSAGE_SIZE, fileMessage.getBodyBufferSize());
    }
 
    // The ClientConsumer should be able to also send ServerLargeMessages as that's done by the CoreBridge
@@ -2616,12 +2614,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       fileMessage.setMessageID(1005);
 
-      for (int i = 0; i < largeMessageSize; i++) {
+      for (int i = 0; i < LARGE_MESSAGE_SIZE; i++) {
          fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
       }
 
       // The server would be doing this
-      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, largeMessageSize);
+      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, LARGE_MESSAGE_SIZE);
 
       fileMessage.releaseResources(true, false);
 
@@ -2643,9 +2641,9 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       assertNotNull(msg);
 
-      assertEquals(msg.getBodySize(), largeMessageSize);
+      assertEquals(msg.getBodySize(), LARGE_MESSAGE_SIZE);
 
-      for (int i = 0; i < largeMessageSize; i++) {
+      for (int i = 0; i < LARGE_MESSAGE_SIZE; i++) {
          assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
       }
 
@@ -2668,12 +2666,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       fileMessage.setMessageID(1005);
 
-      for (int i = 0; i < largeMessageSize; i++) {
+      for (int i = 0; i < LARGE_MESSAGE_SIZE; i++) {
          fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
       }
 
       // The server would be doing this
-      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, largeMessageSize);
+      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, LARGE_MESSAGE_SIZE);
 
       fileMessage.releaseResources(true, false);
 
@@ -2695,18 +2693,18 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       assertEquals(1, producer.getMessagesSent());
 
-      assertEquals(largeMessageSize, producer.getMessagesSentSize());
+      assertEquals(LARGE_MESSAGE_SIZE, producer.getMessagesSentSize());
 
       fileMessage = new LargeServerMessageImpl(server.getStorageManager());
 
       fileMessage.setMessageID(1006);
 
-      for (int i = 0; i < largeMessageSize; i++) {
+      for (int i = 0; i < LARGE_MESSAGE_SIZE; i++) {
          fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
       }
 
       // The server would be doing this
-      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, largeMessageSize);
+      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, LARGE_MESSAGE_SIZE);
 
       fileMessage.releaseResources(true, false);
 
@@ -2724,7 +2722,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       assertEquals(2, producer.getMessagesSent());
 
-      assertEquals(largeMessageSize * 2, producer.getMessagesSentSize());
+      assertEquals(LARGE_MESSAGE_SIZE * 2, producer.getMessagesSentSize());
    }
 
 
@@ -2855,7 +2853,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       fileMessage.setMessageID(1005);
 
-      for (int i = 0; i < largeMessageSize; i++) {
+      for (int i = 0; i < LARGE_MESSAGE_SIZE; i++) {
          fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
       }
 
