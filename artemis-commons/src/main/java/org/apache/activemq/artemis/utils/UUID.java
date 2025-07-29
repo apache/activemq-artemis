@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+
 /**
  * UUID represents Universally Unique Identifiers (aka Global UID in Windows world). UUIDs are usually generated via
  * UUIDGenerator (or in case of 'Null UUID', 16 zero bytes, via static method getNullUUID()), or received from external
@@ -62,6 +64,8 @@ public final class UUID {
    public static final byte TYPE_RANDOM_BASED = 4;
 
    public static final char HYPHEN = '-';
+
+   public static final int UUID_STRING_LENGTH = 36;
 
    // 'Standard' namespaces defined (suggested) by UUID specs:
    public static final String NAMESPACE_DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
@@ -174,7 +178,7 @@ public final class UUID {
        */
 
       if (mDesc == null) {
-         StringBuilder b = new StringBuilder(36);
+         StringBuilder b = new StringBuilder(UUID_STRING_LENGTH);
 
          for (int i = 0; i < 16; ++i) {
             // Need to bypass hyphens:
@@ -262,7 +266,7 @@ public final class UUID {
     * @return {@code true} if the string is a valid UUID format; {@code false} otherwise
     */
    public static boolean isUUID(CharSequence str) {
-      if (str == null || str.length() != 36) {
+      if (str == null || str.length() != UUID_STRING_LENGTH) {
          return false;
       }
 
@@ -284,5 +288,22 @@ public final class UUID {
 
    private static boolean isHex(char c) {
       return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
+   }
+
+   /**
+    * Removes a trailing UUID from the given input, if present. The method checks whether the last characters of the
+    * input adhere to a valid UUID format and removes them if true.
+    *
+    * @param input the input {@code SimpleString} which may contain a trailing UUID to be stripped
+    * @return a {@code SimpleString} with the trailing UUID removed if present; otherwise, returns the original input
+    *         unchanged
+    */
+   public static SimpleString stripTrailingUUID(SimpleString input) {
+      int length = input.length();
+      if (length >= UUID_STRING_LENGTH && UUID.isUUID(input.subSeq(length - UUID_STRING_LENGTH, length))) {
+         return input.subSeq(0, length - UUID_STRING_LENGTH);
+      } else {
+         return input;
+      }
    }
 }

@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.jupiter.api.Test;
@@ -100,5 +101,14 @@ public class UUIDTest extends ActiveMQTestBase {
 
       // null
       assertFalse(UUID.isUUID(null));
+   }
+
+   @Test
+   public void testStringTrailingUUID() {
+      SimpleString uuid = RandomUtil.randomUUIDSimpleString();
+      assertEquals(uuid, UUID.stripTrailingUUID(uuid.concat(RandomUtil.randomUUIDSimpleString())));
+
+      SimpleString foo = SimpleString.of("foo");
+      assertEquals(foo, UUID.stripTrailingUUID(foo));
    }
 }

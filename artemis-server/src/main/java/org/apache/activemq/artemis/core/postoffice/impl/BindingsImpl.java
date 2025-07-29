@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.core.server.group.impl.Proposal;
 import org.apache.activemq.artemis.core.server.group.impl.Response;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.utils.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -343,12 +344,6 @@ public final class BindingsImpl implements Bindings {
          } else if (groupRouting && groupingHandler != null && (groupId = message.getGroupID()) != null) {
             context.clear().setReusable(false);
             routeUsingStrictOrdering(message, context, groupingHandler, groupId, 0);
-         } else if (CompositeAddress.isFullyQualified(message.getAddress())) {
-            context.clear().setReusable(false);
-            final Binding theBinding = bindingsNameMap.get(String.valueOf(CompositeAddress.extractQueueName(message.getAddressSimpleString())));
-            if (theBinding != null && (theBinding.getFilter() == null || theBinding.getFilter().match(message))) {
-               theBinding.route(message, context);
-            }
          } else {
             // in a optimization, we are reusing the previous context if everything is right for it
             // so the simpleRouting will only happen if needed
@@ -494,8 +489,11 @@ public final class BindingsImpl implements Bindings {
          return false;
       }
 
-      final Filter filter = binding.getFilter();
+      if (CompositeAddress.isFullyQualified(message.getAddress()) && binding instanceof QueueBinding && !UUID.stripTrailingUUID(binding.getClusterName()).equals(CompositeAddress.extractQueueName(message.getAddressSimpleString()))) {
+         return false;
+      }
 
+      final Filter filter = binding.getFilter();
       if (filter == null || filter.match(message)) {
          return true;
       }
