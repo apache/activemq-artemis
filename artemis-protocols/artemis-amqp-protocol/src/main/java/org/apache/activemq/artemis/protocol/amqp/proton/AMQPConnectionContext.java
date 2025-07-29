@@ -39,6 +39,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
@@ -360,7 +361,6 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    public AMQPSessionContext getSessionExtension(Session realSession) throws ActiveMQAMQPException {
       AMQPSessionContext sessionExtension = sessions.get(realSession);
       if (sessionExtension == null) {
-         // how this is possible? Log a warn here
          sessionExtension = newSessionExtension(realSession);
          realSession.setContext(sessionExtension);
          sessions.put(realSession, sessionExtension);
@@ -410,43 +410,52 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    protected void remoteLinkOpened(Link link) throws Exception {
       final AMQPSessionContext protonSession = getSessionExtension(link.getSession());
 
-      final Runnable runnable = link.attachments().get(AMQP_LINK_INITIALIZER_KEY, Runnable.class);
-      if (runnable != null) {
-         link.attachments().set(AMQP_LINK_INITIALIZER_KEY, Runnable.class, null);
-         runnable.run();
-         return;
-      }
+      // The operation context is needed in case there are auto-created destinations.
+      // We need to ensure the binding storage operation is complete before sending the remoteLinkOpened response.
+      OperationContext oldContext = protonSession.sessionSPI.recoverContext();
 
-      if (link.getLocalState() ==  EndpointState.ACTIVE) { // if already active it's probably from the AMQP bridge and hence we just ignore it
-         return;
-      }
+      try {
 
-      link.setSource(link.getRemoteSource());
-      link.setTarget(link.getRemoteTarget());
-
-      if (link instanceof Receiver receiver) {
-         if (link.getRemoteTarget() instanceof Coordinator coordinator) {
-            protonSession.addTransactionHandler(coordinator, receiver);
-         } else if (isReplicaTarget(receiver)) {
-            handleReplicaTargetLinkOpened(protonSession, receiver);
-         } else if (isFederationControlLink(receiver)) {
-            handleFederationControlLinkOpened(protonSession, receiver);
-         } else if (isFederationEventLink(receiver)) {
-            protonSession.addFederationEventProcessor(receiver);
-         } else {
-            protonSession.addReceiver(receiver);
+         final Runnable runnable = link.attachments().get(AMQP_LINK_INITIALIZER_KEY, Runnable.class);
+         if (runnable != null) {
+            link.attachments().set(AMQP_LINK_INITIALIZER_KEY, Runnable.class, null);
+            runnable.run();
+            return;
          }
-      } else {
-         final Sender sender = (Sender) link;
-         if (isFederationAddressReceiver(sender)) {
-            protonSession.addFederationAddressSender(sender);
-         } else if (isFederationQueueReceiver(sender)) {
-            protonSession.addFederationQueueSender(sender);
-         } else if (isFederationEventLink(sender)) {
-            protonSession.addFederationEventDispatcher(sender);
-         } else {
-            protonSession.addSender(sender);
+
+         if (link.getLocalState() == EndpointState.ACTIVE) { // if already active it's probably from the AMQP bridge and hence we just ignore it
+            return;
          }
+
+         link.setSource(link.getRemoteSource());
+         link.setTarget(link.getRemoteTarget());
+
+         if (link instanceof Receiver receiver) {
+            if (link.getRemoteTarget() instanceof Coordinator coordinator) {
+               protonSession.addTransactionHandler(coordinator, receiver);
+            } else if (isReplicaTarget(receiver)) {
+               handleReplicaTargetLinkOpened(protonSession, receiver);
+            } else if (isFederationControlLink(receiver)) {
+               handleFederationControlLinkOpened(protonSession, receiver);
+            } else if (isFederationEventLink(receiver)) {
+               protonSession.addFederationEventProcessor(receiver);
+            } else {
+               protonSession.addReceiver(receiver);
+            }
+         } else {
+            final Sender sender = (Sender) link;
+            if (isFederationAddressReceiver(sender)) {
+               protonSession.addFederationAddressSender(sender);
+            } else if (isFederationQueueReceiver(sender)) {
+               protonSession.addFederationQueueSender(sender);
+            } else if (isFederationEventLink(sender)) {
+               protonSession.addFederationEventDispatcher(sender);
+            } else {
+               protonSession.addSender(sender);
+            }
+         }
+      } finally {
+         protonSession.sessionSPI.resetContext(oldContext);
       }
    }
 
