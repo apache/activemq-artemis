@@ -526,7 +526,13 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          }
       } finally {
          pendingDelivery.countDown();
-         callback.afterDelivery();
+
+         // ensure the callback is still valid without blocking other threads
+         final SessionCallback localCallback = callback;
+         if (localCallback != null) {
+            localCallback.afterDelivery();
+         }
+
          if (server.hasBrokerMessagePlugins()) {
             server.callBrokerMessagePlugins(plugin -> plugin.afterDeliver(this, reference));
          }
