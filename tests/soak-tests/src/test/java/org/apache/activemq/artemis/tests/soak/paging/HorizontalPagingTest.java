@@ -30,9 +30,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -40,8 +38,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.TestParameters;
 import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.junit.jupiter.api.BeforeAll;
@@ -61,10 +60,12 @@ public class HorizontalPagingTest extends SoakTestBase {
    private static final String TEST_NAME = "HORIZONTAL";
 
    private static final boolean TEST_ENABLED = Boolean.parseBoolean(testProperty(TEST_NAME, "TEST_ENABLED", "true"));
-   private static final int SERVER_START_TIMEOUT = testProperty(TEST_NAME, "SERVER_START_TIMEOUT", 300_000);
-   private static final int TIMEOUT_MINUTES = testProperty(TEST_NAME, "TIMEOUT_MINUTES", 120);
-   private static final String PROTOCOL_LIST = testProperty(TEST_NAME, "PROTOCOL_LIST", "OPENWIRE,CORE,AMQP");
+   private static final int SERVER_START_TIMEOUT = testProperty(TEST_NAME, "SERVER_START_TIMEOUT", 20_000);
+   private static final int TIMEOUT_MINUTES = testProperty(TEST_NAME, "TIMEOUT_MINUTES", 5);
    private static final int PRINT_INTERVAL = testProperty(TEST_NAME, "PRINT_INTERVAL", 100);
+   // This property is useful if you want to validate a setup on a different data folder, for example a remote directory on a NFS server or anything like that
+   private static final String DATA_FOLDER = testProperty(TEST_NAME, "DATA_FOLDER", null);
+   private static final int EXECUTOR_SIZE = testProperty(TEST_NAME, "EXECUTOR_SIZE", 50);
 
    private final int DESTINATIONS;
    private final int MESSAGES;
@@ -72,7 +73,6 @@ public class HorizontalPagingTest extends SoakTestBase {
    // if 0 will use AUTO_ACK
    private final int RECEIVE_COMMIT_INTERVAL;
    private final int MESSAGE_SIZE;
-   private final int PARALLEL_SENDS;
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -84,35 +84,34 @@ public class HorizontalPagingTest extends SoakTestBase {
          File serverLocation = getFileServerLocation(SERVER_NAME_0);
          deleteDirectory(serverLocation);
 
+         File dataFolder = null;
+         if (DATA_FOLDER != null) {
+            dataFolder = new File(DATA_FOLDER);
+            if (dataFolder.exists()) {
+               deleteDirectory(dataFolder);
+            }
+         }
+
          HelperCreate cliCreateServer = helperCreate();
          cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(serverLocation);
-         // some limited memory to make it more likely to fail
          cliCreateServer.setArgs("--java-memory", "2g");
-         cliCreateServer.setConfiguration("./src/main/resources/servers/subscriptionPaging");
+         cliCreateServer.setConfiguration("./src/main/resources/servers/horizontalPaging");
          cliCreateServer.createServer();
+
+         if (dataFolder != null) {
+            assertTrue(FileUtil.findReplace(new File(getFileServerLocation(SERVER_NAME_0), "/etc/broker.xml"), "data/", dataFolder.getAbsolutePath() + "/"));
+         }
       }
-   }
-
-   public static List<String> parseProtocolList() {
-      String[] protocols = PROTOCOL_LIST.split(",");
-
-      List<String> protocolList = new ArrayList<>();
-      for (String str : protocols) {
-         logger.info("Adding {} to the list for the test", str);
-         protocolList.add(str);
-      }
-
-      return protocolList;
    }
 
    public HorizontalPagingTest() {
-      DESTINATIONS = TestParameters.testProperty(TEST_NAME, "DESTINATIONS", 5);
-      MESSAGES = TestParameters.testProperty(TEST_NAME, "MESSAGES", 1000);
+      DESTINATIONS = TestParameters.testProperty(TEST_NAME, "DESTINATIONS", 100);
+      MESSAGES = TestParameters.testProperty(TEST_NAME, "MESSAGES", 100);
       COMMIT_INTERVAL = TestParameters.testProperty(TEST_NAME, "COMMIT_INTERVAL", 100);
       // if 0 will use AUTO_ACK
       RECEIVE_COMMIT_INTERVAL = TestParameters.testProperty(TEST_NAME, "RECEIVE_COMMIT_INTERVAL", 100);
       MESSAGE_SIZE = TestParameters.testProperty(TEST_NAME, "MESSAGE_SIZE", 10_000);
-      PARALLEL_SENDS = TestParameters.testProperty(TEST_NAME, "PARALLEL_SENDS", 5);
+
    }
 
    Process serverProcess;
@@ -125,29 +124,43 @@ public class HorizontalPagingTest extends SoakTestBase {
       serverProcess = startServer(SERVER_NAME_0, 0, SERVER_START_TIMEOUT);
    }
 
+   /// ///////////////////////////////////////////////////
+   /// It is important to keep separate tests here
+   /// as the server has to be killed within the timeframe of protocol being executed
+   /// to validate proper callbacks are in place
    @Test
-   public void testHorizontal() throws Exception {
-      Collection<String> protocolList = parseProtocolList();
+   public void testHorizontalAMQP() throws Exception {
+      testHorizontal("AMQP");
+   }
+
+   @Test
+   public void testHorizontalCORE() throws Exception {
+      testHorizontal("CORE");
+   }
+
+   @Test
+   public void testHorizontalOPENWIRE() throws Exception {
+      testHorizontal("OPENWIRE");
+   }
+
+   private void testHorizontal(String protocol) throws Exception {
       AtomicInteger errors = new AtomicInteger(0);
 
-      ExecutorService service = Executors.newFixedThreadPool(DESTINATIONS * protocolList.size());
+      ExecutorService service = Executors.newFixedThreadPool(EXECUTOR_SIZE);
       runAfter(service::shutdownNow);
 
       String text = RandomUtil.randomAlphaNumericString(MESSAGE_SIZE);
 
-      ReusableLatch latchDone = new ReusableLatch(0);
-
-      for (String protocol : protocolList) {
-         String protocolUsed = protocol;
+      {
+         CountDownLatch latchDone = new CountDownLatch(DESTINATIONS);
 
          ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
          Connection connection = factory.createConnection();
          runAfter(connection::close);
 
          for (int i = 0; i < DESTINATIONS; i++) {
-            latchDone.countUp();
             Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-            Queue queue = session.createQueue("queue_" + i + protocolUsed);
+            Queue queue = session.createQueue("queue_" + i + "_" + protocol);
             service.execute(() -> {
                try {
                   logger.info("*******************************************************************************************************************************\ndestination {}", queue.getQueueName());
@@ -172,25 +185,24 @@ public class HorizontalPagingTest extends SoakTestBase {
                }
             });
          }
+         assertTrue(latchDone.await(TIMEOUT_MINUTES, TimeUnit.MINUTES));
       }
 
-      assertTrue(latchDone.await(TIMEOUT_MINUTES, TimeUnit.MINUTES));
-
       killServer(serverProcess, true);
-
-      serverProcess = startServer(SERVER_NAME_0, 0, SERVER_START_TIMEOUT);
+      serverProcess = startServer(SERVER_NAME_0, 0, -1);
+      assertTrue(ServerUtil.waitForServerToStart(0, SERVER_START_TIMEOUT));
+      assertEquals(0, errors.get());
 
       AtomicInteger completedFine = new AtomicInteger(0);
 
-      for (String protocol : protocolList) {
-         String protocolUsed = protocol;
+      {
+         CountDownLatch latchDone = new CountDownLatch(DESTINATIONS);
 
          ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
          Connection connectionConsumer = factory.createConnection();
          runAfter(connectionConsumer::close);
 
          for (int i = 0; i < DESTINATIONS; i++) {
-            latchDone.countUp();
             int destination = i;
             service.execute(() -> {
                try {
@@ -202,10 +214,13 @@ public class HorizontalPagingTest extends SoakTestBase {
                      sessionConsumer = connectionConsumer.createSession(true, Session.SESSION_TRANSACTED);
                   }
 
-                  MessageConsumer messageConsumer = sessionConsumer.createConsumer(sessionConsumer.createQueue("queue_" + destination + protocolUsed));
+                  String queueName = "queue_" + destination + "_" + protocol;
+
+                  MessageConsumer messageConsumer = sessionConsumer.createConsumer(sessionConsumer.createQueue(queueName));
                   for (int m = 0; m < MESSAGES; m++) {
-                     TextMessage message = (TextMessage) messageConsumer.receive(50_000);
+                     TextMessage message = (TextMessage) messageConsumer.receive(1_000);
                      if (message == null) {
+                        logger.info("message is null on {}, m={}", queueName, m);
                         m--;
                         continue;
                      }
@@ -238,14 +253,18 @@ public class HorizontalPagingTest extends SoakTestBase {
          }
 
          connectionConsumer.start();
-      }
 
-      assertTrue(latchDone.await(TIMEOUT_MINUTES, TimeUnit.MINUTES));
+         assertTrue(latchDone.await(TIMEOUT_MINUTES, TimeUnit.MINUTES));
+      }
 
       service.shutdown();
       assertTrue(service.awaitTermination(TIMEOUT_MINUTES, TimeUnit.MINUTES), "Test Timed Out");
       assertEquals(0, errors.get());
-      assertEquals(DESTINATIONS * protocolList.size(), completedFine.get());
+      assertEquals(DESTINATIONS, completedFine.get());
+
+      killServer(serverProcess, true);
+      serverProcess = startServer(SERVER_NAME_0, 0, -1);
+      assertTrue(ServerUtil.waitForServerToStart(0, SERVER_START_TIMEOUT));
    }
 
 }
