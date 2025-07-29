@@ -999,7 +999,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
                   boolean topicChanged = !oldTopicName.equals(dest.getSimpleAddress());
 
-                  if ((selectorChanged || topicChanged) && !subResponse.isConfigurationManaged()) {
+                  if ((selectorChanged || topicChanged) && !Boolean.TRUE.equals(subResponse.isConfigurationManaged())) {
                      // Delete the old durable sub
                      session.deleteQueue(queueName);
 
