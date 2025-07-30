@@ -305,7 +305,7 @@ public class AckManager implements ActiveMQComponent {
 
                if (logger.isDebugEnabled()) {
                   logger.debug("Retry page address got to the end of the list without still finding a few records to acknowledge");
-                  snapshotCount.forEach((l, c) -> logger.warn("queue {} still have {} ack records after the scan is finished", l, c));
+                  snapshotCount.forEach((l, c) -> logger.debug("queue {} still have {} ack records after the scan is finished", l, c));
                   acksToRetry.forEach((l, m) -> {
                      logger.debug("Records on queue {}:", l);
                      m.forEach((ack1, ack2) -> {
