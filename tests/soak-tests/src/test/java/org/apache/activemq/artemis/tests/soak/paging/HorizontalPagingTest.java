@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.soak.paging;
 
 import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -30,6 +31,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.File;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,7 +45,7 @@ import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.TestParameters;
 import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
-import org.junit.jupiter.api.BeforeAll;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -52,8 +54,9 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Refer to ./scripts/parameters.sh for suggested parameters #You may choose to use zip files to save some time on
- * producing if you want to run this test over and over when debugging export TEST_HORIZONTAL_ZIP_LOCATION=a folder
+ * Refer to ./scripts/parameters.sh for suggested parameters.
+ *
+ * It is recommended to set ARTEMIS_NFS to a mounted NFS folder in order to run this test.
  */
 public class HorizontalPagingTest extends SoakTestBase {
 
@@ -78,28 +81,35 @@ public class HorizontalPagingTest extends SoakTestBase {
 
    public static final String SERVER_NAME_0 = "horizontalPaging";
 
-   @BeforeAll
-   public static void createServers() throws Exception {
-      {
-         File serverLocation = getFileServerLocation(SERVER_NAME_0);
-         deleteDirectory(serverLocation);
+   public static void createLocalServer(boolean purgePage) throws Exception {
+      File serverLocation = getFileServerLocation(SERVER_NAME_0);
+      deleteDirectory(serverLocation);
 
-         File dataFolder = null;
-         if (DATA_FOLDER != null) {
-            dataFolder = new File(DATA_FOLDER);
-            if (dataFolder.exists()) {
-               deleteDirectory(dataFolder);
-            }
-         }
+      File dataFolder = selectedDataFolder();
+      deleteDirectory(dataFolder);
 
-         HelperCreate cliCreateServer = helperCreate();
-         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(serverLocation);
-         cliCreateServer.setArgs("--java-memory", "2g");
-         cliCreateServer.setConfiguration("./src/main/resources/servers/horizontalPaging");
-         cliCreateServer.createServer();
+      HelperCreate cliCreateServer = helperCreate();
+      cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(serverLocation);
+      cliCreateServer.setArgs("--java-memory", "2g").setPurgePageFolders(purgePage);
+      cliCreateServer.createServer();
 
-         if (dataFolder != null) {
-            assertTrue(FileUtil.findReplace(new File(getFileServerLocation(SERVER_NAME_0), "/etc/broker.xml"), "data/", dataFolder.getAbsolutePath() + "/"));
+      File brokerXml = new File(getServerLocation(SERVER_NAME_0), "/etc/broker.xml");
+
+      assertNotNull(dataFolder);
+
+      assertTrue(FileUtil.findReplace(brokerXml, "<max-size-messages>-1</max-size-messages>", "<max-size-messages>0</max-size-messages>"));
+      assertTrue(FileUtil.findReplace(new File(getFileServerLocation(SERVER_NAME_0), "/etc/broker.xml"), "./data/", dataFolder.getAbsolutePath() + "/"));
+
+   }
+
+   private static File selectedDataFolder() {
+      if (DATA_FOLDER != null) {
+         return new File(DATA_FOLDER);
+      } else {
+         if (TestParameters.NFS_FOLDER != null) {
+            return new File(TestParameters.NFS_FOLDER + "/horizontalPagingTest");
+         } else {
+            return new File(getServerLocation(SERVER_NAME_0), "data");
          }
       }
    }
@@ -120,8 +130,6 @@ public class HorizontalPagingTest extends SoakTestBase {
    public void before() throws Exception {
       assumeTrue(TEST_ENABLED);
       cleanupData(SERVER_NAME_0);
-
-      serverProcess = startServer(SERVER_NAME_0, 0, SERVER_START_TIMEOUT);
    }
 
    /// ///////////////////////////////////////////////////
@@ -129,21 +137,25 @@ public class HorizontalPagingTest extends SoakTestBase {
    /// as the server has to be killed within the timeframe of protocol being executed
    /// to validate proper callbacks are in place
    @Test
-   public void testHorizontalAMQP() throws Exception {
-      testHorizontal("AMQP");
+   public void testHorizontalAMQPAndPurge() throws Exception {
+
+      // we will use purge in just one of the options.. no need to mix the protocols, one is enough
+      testHorizontal("AMQP", true);
    }
 
    @Test
    public void testHorizontalCORE() throws Exception {
-      testHorizontal("CORE");
+      testHorizontal("CORE", false);
    }
 
    @Test
    public void testHorizontalOPENWIRE() throws Exception {
-      testHorizontal("OPENWIRE");
+      testHorizontal("OPENWIRE", false);
    }
 
-   private void testHorizontal(String protocol) throws Exception {
+   private void testHorizontal(String protocol, boolean purgePage) throws Exception {
+      createLocalServer(purgePage);
+      serverProcess = startServer(SERVER_NAME_0, 0, SERVER_START_TIMEOUT);
       AtomicInteger errors = new AtomicInteger(0);
 
       ExecutorService service = Executors.newFixedThreadPool(EXECUTOR_SIZE);
@@ -189,7 +201,8 @@ public class HorizontalPagingTest extends SoakTestBase {
       }
 
       killServer(serverProcess, true);
-      serverProcess = startServer(SERVER_NAME_0, 0, -1);
+
+      serverProcess = startServer(SERVER_NAME_0, 0, SERVER_START_TIMEOUT);
       assertTrue(ServerUtil.waitForServerToStart(0, SERVER_START_TIMEOUT));
       assertEquals(0, errors.get());
 
@@ -262,9 +275,23 @@ public class HorizontalPagingTest extends SoakTestBase {
       assertEquals(0, errors.get());
       assertEquals(DESTINATIONS, completedFine.get());
 
-      killServer(serverProcess, true);
+      validatePageFolders(purgePage);
+
+      killServer(serverProcess, false);
+
       serverProcess = startServer(SERVER_NAME_0, 0, -1);
       assertTrue(ServerUtil.waitForServerToStart(0, SERVER_START_TIMEOUT));
+
+      validatePageFolders(purgePage);
+   }
+
+   private static void validatePageFolders(boolean purgePage) throws Exception {
+      File dataFolder = new File(selectedDataFolder(), "paging");
+      if (purgePage) {
+         Wait.assertEquals(0, () -> (Objects.requireNonNull(dataFolder.listFiles())).length, 5000, 100);
+      } else {
+         Wait.assertTrue(() -> Objects.requireNonNull(dataFolder.listFiles()).length > 0, 5000, 100);
+      }
    }
 
 }

@@ -490,7 +490,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       try {
          final PagingStore pageStore = getPagingStore();
 
-         if (pageStore == null || !pageStore.isPaging()) {
+         if (pageStore == null || !pageStore.isStorePaging()) {
             return 0;
          } else {
             return pageStore.getNumberOfPages();

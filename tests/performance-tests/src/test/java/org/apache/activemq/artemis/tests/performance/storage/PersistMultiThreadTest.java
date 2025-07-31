@@ -416,6 +416,11 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
+      public boolean isStorePaging() {
+         return false;
+      }
+
+      @Override
       public Page usePage(long page, boolean create) {
          return null;
       }

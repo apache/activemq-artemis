@@ -717,9 +717,9 @@ public final class ActiveMQDefaultConfiguration {
    private static final boolean DEFAULT_MIRROR_ACK_MANAGER_WARN_UNACKED = false;
    private static final boolean DEFAULT_MIRROR_PAGE_TRANSACTION = false;
 
+   private static final boolean DEFAULT_PURGE_PAGE_FOLDERS = false;
 
    private static final int DEFAULT_CLUSTER_TOPOLOGY_SCANNER_ATTEMPTS = 30;
-
 
    /**
     * If {@code true} then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on
@@ -2011,6 +2011,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static boolean getMirrorPageTransaction() {
       return DEFAULT_MIRROR_PAGE_TRANSACTION;
+   }
+
+   public static boolean getPurgePageFolders() {
+      return DEFAULT_PURGE_PAGE_FOLDERS;
    }
 
    /**

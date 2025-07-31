@@ -58,6 +58,19 @@ import org.xml.sax.SAXParseException;
 
 public class FileConfigurationParserTest extends ServerTestBase {
 
+   private static final String PURGE_FOLDER_FALSE = """
+      <configuration>
+         <core>
+             <purge-page-folders>false</purge-page-folders>
+         </core></configuration>""";
+
+   private static final String PURGE_FOLDER_TRUE = """
+      <configuration>
+         <core>
+             <purge-page-folders>true</purge-page-folders>
+         </core></configuration>""";
+
+
    private static final String FIRST_PART = """
       <core xmlns="urn:activemq:core">
          <name>ActiveMQ.main.config</name>
@@ -202,6 +215,24 @@ public class FileConfigurationParserTest extends ServerTestBase {
 
       assertEquals("my-discovery-group", config.getClusterConfigurations().get(0).getDiscoveryGroupName());
       assertEquals(333, config.getClusterConfigurations().get(0).getRetryInterval());
+   }
+
+   @Test
+   public void testParsePurgePageFolder() throws Exception {
+
+      FileConfigurationParser parser = new FileConfigurationParser();
+      {
+         ByteArrayInputStream input = new ByteArrayInputStream(PURGE_FOLDER_TRUE.getBytes(StandardCharsets.UTF_8));
+         Configuration config = parser.parseMainConfig(input);
+         assertTrue(config.isPurgePageFolders());
+      }
+
+      {
+         ByteArrayInputStream input = new ByteArrayInputStream(PURGE_FOLDER_FALSE.getBytes(StandardCharsets.UTF_8));
+         Configuration config = parser.parseMainConfig(input);
+         assertFalse(config.isPurgePageFolders());
+      }
+
    }
 
    @Test

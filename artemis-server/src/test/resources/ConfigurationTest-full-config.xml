@@ -563,6 +563,7 @@
       <paging-directory>pagingdir</paging-directory>
       <bindings-directory>somedir</bindings-directory>
       <create-bindings-dir>false</create-bindings-dir>
+      <purge-page-folders>true</purge-page-folders>
       <page-max-concurrent-io>17</page-max-concurrent-io>
       <read-whole-page>true</read-whole-page>
       <journal-directory>somedir2</journal-directory>

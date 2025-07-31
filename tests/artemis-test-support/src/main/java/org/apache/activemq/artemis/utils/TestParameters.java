@@ -29,8 +29,9 @@ import org.slf4j.LoggerFactory;
  */
 public class TestParameters {
 
-
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   public static final String NFS_FOLDER = getVariable("ARTEMIS_NFS", null);
 
    private static String propertyName(String testName, String property) {
       if (testName == null) {
@@ -62,6 +63,15 @@ public class TestParameters {
 
       property = propertyName(testName, property);
 
+      String value = getVariable(property, defaultValue);
+
+      logger.info("{}={}", property, value);
+
+      return value;
+
+   }
+
+   public static String getVariable(String property, String defaultValue) {
       String value = System.getenv(property);
       if (value == null) {
          value = System.getProperty(property);
@@ -71,8 +81,6 @@ public class TestParameters {
          logger.debug("System property '{}' not defined, using default: {}", property, defaultValue);
          value = defaultValue;
       }
-
-      logger.info("{}={}", property, value);
 
       return value;
 

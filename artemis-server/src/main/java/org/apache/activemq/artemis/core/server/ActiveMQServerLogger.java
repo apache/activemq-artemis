@@ -1504,4 +1504,10 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224145, value = "Error looking up bindings for address {}.", level = LogMessage.Level.WARN)
    void bridgeBindingsLookupError(SimpleString address, Throwable e);
 
+   @LogMessage(id = 224146, value = "Purging Page Folder {} on address {}", level = LogMessage.Level.INFO)
+   void purgingPageFolder(String folder, SimpleString address);
+
+   @LogMessage(id = 224147, value = "Failed purging folder {}", level = LogMessage.Level.WARN)
+   void failedPurgingFolder(String folder);
+
 }

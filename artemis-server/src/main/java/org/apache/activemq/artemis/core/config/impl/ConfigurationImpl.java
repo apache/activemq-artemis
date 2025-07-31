@@ -472,6 +472,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private int globalMaxSizePercentOfJvmMaxMemory = ActiveMQDefaultConfiguration.DEFAULT_GLOBAL_MAX_MEMORY_PERCENT;
 
+   private boolean purgePageFolders = ActiveMQDefaultConfiguration.getPurgePageFolders();
+
    /**
     * Parent folder for all data folders.
     */
@@ -3395,6 +3397,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
       logger.debug("Setting mirrorAckManagerMinQueueAttempts = {}", minQueueAttempts);
       this.mirrorAckManagerQueueAttempts = minQueueAttempts;
       return this;
+   }
+
+   @Override
+   public ConfigurationImpl setPurgePageFolders(boolean purgePageFolders) {
+      this.purgePageFolders = purgePageFolders;
+      return this;
+   }
+
+   @Override
+   public boolean isPurgePageFolders() {
+      return purgePageFolders;
    }
 
    @Override
