@@ -294,7 +294,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
                                       ExecutorFactory executorFactory,
                                       boolean syncNonTransactional,
                                       IOCriticalErrorListener critialErrorListener) {
-         super(storageManager, directory, syncTimeout, scheduledExecutor, executorFactory, syncNonTransactional, critialErrorListener);
+         super(storageManager, directory, syncTimeout, scheduledExecutor, executorFactory, syncNonTransactional, critialErrorListener, false);
       }
 
       PageStoreFactoryTestable(PagingStoreFactoryNIO other) {

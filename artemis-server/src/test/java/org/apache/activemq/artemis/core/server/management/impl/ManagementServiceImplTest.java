@@ -68,6 +68,7 @@ public class ManagementServiceImplTest {
       Mockito.when(messagingServer.getPostOffice()).thenReturn(postOffice);
       Mockito.when(pagingManager.getPageStore(Mockito.any(SimpleString.class))).thenReturn(pageStore);
       Mockito.when(pageStore.isPaging()).thenReturn(true);
+      Mockito.when(pageStore.isStorePaging()).thenReturn(true);
 
 
       managementService.registerServer(null, securityStore, null, configuration, null, null, null, null, messagingServer, null, null, pagingManager, false);

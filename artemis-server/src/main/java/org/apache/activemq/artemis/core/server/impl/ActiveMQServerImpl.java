@@ -3132,7 +3132,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
          return new PagingStoreFactoryDatabase(dbConf, storageManager, configuration.getPageSyncTimeout(), scheduledPool, pageExecutorFactory, false, ioCriticalErrorListener);
       } else {
-         return new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(), configuration.getPageSyncTimeout(), scheduledPool, pageExecutorFactory, configuration.isJournalSyncNonTransactional(), ioCriticalErrorListener);
+         return new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(), configuration.getPageSyncTimeout(), scheduledPool, pageExecutorFactory, configuration.isJournalSyncNonTransactional(), ioCriticalErrorListener, configuration.isPurgePageFolders());
       }
    }
 

@@ -79,7 +79,7 @@ public class PageCounterRebuildManager implements Runnable {
       store.writeLock();
       try {
          try {
-            paging = store.isPaging();
+            paging = store.isStorePaging();
             if (!paging) {
                logger.trace("Destination {} was not paging, no need to rebuild counters", store.getAddress());
                store.getCursorProvider().forEachSubscription(subscription -> {

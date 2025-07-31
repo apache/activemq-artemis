@@ -65,7 +65,7 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
       ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
       runAfter(scheduledExecutorService::shutdownNow);
 
-      PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, getPageDirFile(), 100, scheduledExecutorService, orderedExecutorFactory, true, null);
+      PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, getPageDirFile(), 100, scheduledExecutorService, orderedExecutorFactory, true, null, true);
 
       PagingManagerImpl managerImpl = new PagingManagerImpl(storeFactory, addressSettings);
 

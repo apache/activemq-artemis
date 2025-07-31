@@ -170,6 +170,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    @Override
    public Future<Boolean> scheduleCleanup() {
       final SimpleFutureImpl<Boolean> future = new SimpleFutureImpl<>();
+      if (!cleanupEnabled) {
+         logger.info("Cleanup is not enabled!!", new Exception("trace"));
+      }
       if (!cleanupEnabled || scheduledCleanup.intValue() > 2) {
          // Scheduled cleanup was already scheduled before.
          // On that case just flush the executor returning the future.set(true)
@@ -285,7 +288,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                return;
             }
 
-            if (!pagingStore.isPaging()) {
+            if (!pagingStore.isStorePaging()) {
                logger.trace("Paging Store was not paging, so no reason to retry the cleanup");
                return;
             }

@@ -170,6 +170,8 @@ public class PagingStoreImpl implements PagingStore {
 
    private long rejectThreshold;
 
+   private final boolean purgePageFolder;
+
    public PagingStoreImpl(final SimpleString address,
                           final ScheduledExecutorService scheduledExecutor,
                           final long syncTimeout,
@@ -180,7 +182,8 @@ public class PagingStoreImpl implements PagingStore {
                           final SimpleString storeName,
                           final AddressSettings addressSettings,
                           final ArtemisExecutor executor,
-                          final boolean syncNonTransactional) {
+                          final boolean syncNonTransactional,
+                          final boolean purgePageFolder) {
       Objects.requireNonNull(scheduledExecutor, "scheduledExecutor = null");
 
       Objects.requireNonNull(pagingManager, "Paging Manager can't be null");
@@ -202,6 +205,8 @@ public class PagingStoreImpl implements PagingStore {
       this.pagingManager = pagingManager;
 
       this.fileFactory = fileFactory;
+
+      this.purgePageFolder = purgePageFolder;
 
       this.storeFactory = storeFactory;
 
@@ -571,6 +576,11 @@ public class PagingStoreImpl implements PagingStore {
    }
 
    @Override
+   public boolean isStorePaging() {
+      return paging;
+   }
+
+   @Override
    public boolean isPaging() {
       AddressFullMessagePolicy policy = this.addressFullMessagePolicy;
       if (policy == AddressFullMessagePolicy.BLOCK) {
@@ -810,6 +820,24 @@ public class PagingStoreImpl implements PagingStore {
             pageLimitReleased();
          }
          this.cursorProvider.onPageModeCleared();
+         if (purgePageFolder) {
+            execute(this::purgeFolder);
+         }
+      } finally {
+         writeUnlock();
+      }
+   }
+
+   @Override
+   public void purgeFolder() {
+      writeLock();
+      try {
+         if (!isStorePaging() && !hasPendingIO() && fileFactory != null) {
+            ActiveMQServerLogger.LOGGER.purgingPageFolder(fileFactory.getDirectoryName(), storeName);
+            cursorProvider.forEachSubscription(PageSubscription::deleteCursorInfo);
+            currentPage = null;
+            deleteFolder();
+         }
       } finally {
          writeUnlock();
       }
@@ -880,6 +908,9 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public boolean checkPageFileExists(final long pageNumber) {
+      if (fileFactory == null) {
+         return false;
+      }
       String fileName = createFileName(pageNumber);
 
       SequentialFileFactory factory = null;
@@ -920,6 +951,9 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public Page usePage(final long pageId, final boolean createEntry, final boolean createFile) {
+      if (fileFactory == null) {
+         return null;
+      }
       synchronized (usedPages) {
          try {
             Page page = usedPages.get(pageId);
@@ -955,6 +989,32 @@ public class PagingStoreImpl implements PagingStore {
    protected SequentialFileFactory getFileFactory() throws Exception {
       checkFileFactory();
       return fileFactory;
+   }
+
+   protected void deleteFolder() {
+      SequentialFileFactory sequentialFileFactory = fileFactory;
+      if (sequentialFileFactory != null) {
+         List<String> files;
+         try {
+            files = fileFactory.listFiles(null);
+         } catch (Exception e) {
+            sequentialFileFactory.onIOError(e, e.getMessage());
+            return;
+         }
+         files.forEach(f -> {
+            SequentialFile file = sequentialFileFactory.createSequentialFile(f);
+            try {
+               logger.debug("Deleting {}", file);
+               file.delete();
+            } catch (Exception e) {
+               logger.warn(e.getMessage(), e);
+               sequentialFileFactory.onIOError(e, e.getMessage(), file.getFileName());
+            }
+         });
+         logger.debug("Deleting directory {}", sequentialFileFactory.getDirectory());
+         sequentialFileFactory.deleteFolder();
+         this.fileFactory = null;
+      }
    }
 
    private SequentialFileFactory checkFileFactory() throws Exception {
@@ -1399,7 +1459,7 @@ public class PagingStoreImpl implements PagingStore {
       int bytesToWrite = pagedMessage.getEncodeSize() + PageReadWriter.SIZE_RECORD;
 
       currentPageSize += bytesToWrite;
-      if (currentPageSize > pageSize && currentPage.getNumberOfMessages() > 0) {
+      if (currentPage == null || currentPageSize > pageSize && currentPage.getNumberOfMessages() > 0) {
          // Make sure nothing is currently validating or using currentPage
          openNewPage();
          currentPageSize += bytesToWrite;

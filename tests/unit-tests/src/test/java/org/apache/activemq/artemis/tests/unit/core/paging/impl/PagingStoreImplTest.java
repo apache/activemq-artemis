@@ -141,7 +141,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    public void testDoubleStart() throws Exception {
       SequentialFileFactory factory = new FakeSequentialFileFactory();
 
-      PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, new FakeStoreFactory(factory), PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), orderedExecutorFactory.getExecutor(), true);
+      PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, new FakeStoreFactory(factory), PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), orderedExecutorFactory.getExecutor(), true, false);
 
       storeImpl.start();
 
@@ -162,7 +162,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       AddressSettings addressSettings = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
-      PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, storeFactory, PagingStoreImplTest.destinationTestName, addressSettings, orderedExecutorFactory.getExecutor(), true);
+      PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, storeFactory, PagingStoreImplTest.destinationTestName, addressSettings, orderedExecutorFactory.getExecutor(), true, false);
 
       storeImpl.start();
 
@@ -189,7 +189,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       assertEquals(1, storeImpl.getNumberOfPages());
 
-      storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, storeFactory, PagingStoreImplTest.destinationTestName, addressSettings, orderedExecutorFactory.getExecutor(), true);
+      storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, storeFactory, PagingStoreImplTest.destinationTestName, addressSettings, orderedExecutorFactory.getExecutor(), true, false);
 
       storeImpl.start();
 
@@ -206,7 +206,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 
-      PagingStoreImpl storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, storeFactory, PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), orderedExecutorFactory.getExecutor(), true);
+      PagingStoreImpl storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, storeFactory, PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), orderedExecutorFactory.getExecutor(), true, false);
 
       storeImpl.start();
 
@@ -268,7 +268,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 
-      PagingStoreImpl storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 1, createMockManager(), nullStorageManager, factory, storeFactory, PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), orderedExecutorFactory.getExecutor(), false);
+      PagingStoreImpl storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 1, createMockManager(), nullStorageManager, factory, storeFactory, PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), orderedExecutorFactory.getExecutor(), false, false);
       PageSubscription subscription = storeImpl.getCursorProvider().createSubscription(1, null, true);
       FakeQueue fakeQueue = new FakeQueue(destination, 1).setDurable(true).setPageSubscription(subscription);
 
@@ -387,7 +387,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 
-      PagingStoreImpl storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 1, createMockManager(), nullStorageManager, factory, storeFactory, PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), orderedExecutorFactory.getExecutor(), false);
+      PagingStoreImpl storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 1, createMockManager(), nullStorageManager, factory, storeFactory, PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), orderedExecutorFactory.getExecutor(), false, false);
       PageSubscription subscription = storeImpl.getCursorProvider().createSubscription(1, null, true);
       FakeQueue fakeQueue = new FakeQueue(destination, 1).setDurable(true).setPageSubscription(subscription);
 
@@ -494,7 +494,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       StorageManager storageManager = nullStorageManager;
 
-      PagingStoreImpl storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), storageManager, factory, storeFactory, PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), orderedExecutorFactory.getExecutor(), true);
+      PagingStoreImpl storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), storageManager, factory, storeFactory, PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), orderedExecutorFactory.getExecutor(), true, false);
       PageSubscription subscription = storeImpl.getCursorProvider().createSubscription(1, null, true);
       FakeQueue fakeQueue = new FakeQueue(destination, 1).setDurable(true).setPageSubscription(subscription);
 
@@ -541,7 +541,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
 
-      PagingStoreImpl store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, storeFactory, PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), orderedExecutorFactory.getExecutor(), true);
+      PagingStoreImpl store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, storeFactory, PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), orderedExecutorFactory.getExecutor(), true, false);
 
       store.start();
 
@@ -670,7 +670,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       AddressSettings settings = new AddressSettings().setPageSizeBytes(MAX_SIZE).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
-      final PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, storeFactory, SimpleString.of("test"), settings, orderedExecutorFactory.getExecutor(), true);
+      final PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, storeFactory, SimpleString.of("test"), settings, orderedExecutorFactory.getExecutor(), true, false);
 
       storeImpl.start();
 
@@ -704,7 +704,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          AddressSettings settings = new AddressSettings().setPageSizeBytes(MAX_SIZE).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
-         final PagingStore store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, storeFactory, SimpleString.of("test"), settings, orderedExecutorFactory.getExecutor(), false);
+         final PagingStore store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, storeFactory, SimpleString.of("test"), settings, orderedExecutorFactory.getExecutor(), false, false);
 
          store.start();
          runAfter(store::stop);
@@ -803,7 +803,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       AddressSettings settings = new AddressSettings().setPageSizeBytes(MAX_SIZE).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
 
-      final PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, storeFactory, SimpleString.of("test"), settings, orderedExecutorFactory.getExecutor(), true);
+      final PagingStore storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100, createMockManager(), nullStorageManager, factory, storeFactory, SimpleString.of("test"), settings, orderedExecutorFactory.getExecutor(), true, false);
 
       storeImpl.start();
 
@@ -872,7 +872,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                                                   PagingStoreImplTest.destinationTestName,
                                                   new AddressSettings()
                                                      .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE),
-                                                  orderedExecutorFactory.getExecutor(),  true);
+                                                  orderedExecutorFactory.getExecutor(),  true, false);
 
       store.start();
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
@@ -893,7 +893,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                                                   PagingStoreImplTest.destinationTestName,
                                                   new AddressSettings()
                                                      .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE),
-                                                  orderedExecutorFactory.getExecutor(),  true);
+                                                  orderedExecutorFactory.getExecutor(),  true, false);
       store.start();
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          store.startPaging();
@@ -913,7 +913,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                                                   PagingStoreImplTest.destinationTestName,
                                                   new AddressSettings()
                                                      .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK),
-                                                  orderedExecutorFactory.getExecutor(),  true);
+                                                  orderedExecutorFactory.getExecutor(),  true, false);
 
       store.start();
       try {
@@ -984,7 +984,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                                                   PagingStoreImplTest.destinationTestName,
                                                   new AddressSettings()
                                                      .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK),
-                                                  orderedExecutorFactory.getExecutor(), true);
+                                                  orderedExecutorFactory.getExecutor(), true, false);
 
       store.start();
       try {
@@ -1028,7 +1028,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                                                   PagingStoreImplTest.destinationTestName,
                                                   new AddressSettings()
                                                      .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK),
-                                                  orderedExecutorFactory.getExecutor(), true);
+                                                  orderedExecutorFactory.getExecutor(), true, false);
 
       store.start();
       try {
@@ -1245,7 +1245,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                                                   mockManager, nullStorageManager, factory, storeFactory,
                                                   PagingStoreImplTest.destinationTestName,
                                                   new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK),
-                                                  sameThreadExecutor, true);
+                                                  sameThreadExecutor, true, false);
 
       store.start();
       try {

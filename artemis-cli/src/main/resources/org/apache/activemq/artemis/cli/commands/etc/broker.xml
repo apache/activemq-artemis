@@ -42,6 +42,9 @@ ${jdbc}
        -->
       <journal-type>${journal.settings}</journal-type>
 
+      <!-- Set this attribute to true to enable purging paging folder once the system leaves paging state -->
+      <purge-page-folders>false</purge-page-folders>
+
       <paging-directory>${data.dir}/paging</paging-directory>
 
       <bindings-directory>${data.dir}/bindings</bindings-directory>
