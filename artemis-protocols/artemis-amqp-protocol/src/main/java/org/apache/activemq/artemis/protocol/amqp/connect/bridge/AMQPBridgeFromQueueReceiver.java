@@ -301,7 +301,7 @@ public class AMQPBridgeFromQueueReceiver extends AMQPBridgeReceiver {
          }
 
          // If we offered core tunneling then check if the remote indicated support and enabled the readers
-         if (configuration.isCoreMessageTunnelingEnabled() && verifyDesiredCapability(protonReceiver, CORE_MESSAGE_TUNNELING_SUPPORT)) {
+         if (configuration.isCoreMessageTunnelingEnabled() && verifyDesiredCapability(receiver, CORE_MESSAGE_TUNNELING_SUPPORT)) {
             enableCoreTunneling();
          }
 
