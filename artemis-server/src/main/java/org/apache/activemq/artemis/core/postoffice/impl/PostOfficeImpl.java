@@ -2034,7 +2034,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (!queue.isInternalQueue() && queue.isAutoDelete() && QueueManagerImpl.consumerCountCheck(queue) && (initialCheck || QueueManagerImpl.delayCheck(queue, settings)) && QueueManagerImpl.messageCountCheck(queue) && (initialCheck || queueWasUsed(queue, settings))) {
             // we only reap queues on the initialCheck if they are actually empty
             PagingStore queuePagingStore = queue.getPagingStore();
-            boolean isPaging = queuePagingStore != null && queuePagingStore.isPaging();
+            boolean isPaging = queuePagingStore != null && queuePagingStore.isStorePaging();
             boolean validInitialCheck = initialCheck && queue.getMessageCount() == 0 && !isPaging;
             if (validInitialCheck || queue.isSwept()) {
                if (logger.isDebugEnabled()) {

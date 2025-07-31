@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Supplier;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
@@ -74,6 +75,8 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
    private final IOCriticalErrorListener critialErrorListener;
 
+   private final Supplier<Boolean> purgePageFolders;
+
    public File getDirectory() {
       return directory;
    }
@@ -109,6 +112,17 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
                                 final ExecutorFactory executorFactory,
                                 final boolean syncNonTransactional,
                                 final IOCriticalErrorListener critialErrorListener) {
+      this(storageManager, directory, syncTimeout, scheduledExecutor, executorFactory, syncNonTransactional, critialErrorListener, () -> false);
+   }
+
+   public PagingStoreFactoryNIO(final StorageManager storageManager,
+                                final File directory,
+                                final long syncTimeout,
+                                final ScheduledExecutorService scheduledExecutor,
+                                final ExecutorFactory executorFactory,
+                                final boolean syncNonTransactional,
+                                final IOCriticalErrorListener critialErrorListener,
+                                final Supplier<Boolean> purgePageFolders) {
       this.storageManager = storageManager;
       this.directory = directory;
       this.executorFactory = executorFactory;
@@ -116,6 +130,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
       this.scheduledExecutor = scheduledExecutor;
       this.syncTimeout = syncTimeout;
       this.critialErrorListener = critialErrorListener;
+      this.purgePageFolders = purgePageFolders;
    }
 
 
@@ -148,8 +163,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
    @Override
    public synchronized PagingStore newStore(final SimpleString address, final AddressSettings settings) {
-
-      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor().setFair(true), syncNonTransactional);
+      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor().setFair(true), syncNonTransactional, purgePageFolders);
    }
 
    @Override
@@ -226,7 +240,7 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
             AddressSettings settings = addressSettingsRepository.getMatch(address.toString());
 
-            PagingStore store = new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, factory, this, address, settings, executorFactory.getExecutor(), syncNonTransactional);
+            PagingStore store = new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, factory, this, address, settings, executorFactory.getExecutor(), syncNonTransactional, purgePageFolders);
 
             storesReturn.add(store);
          }

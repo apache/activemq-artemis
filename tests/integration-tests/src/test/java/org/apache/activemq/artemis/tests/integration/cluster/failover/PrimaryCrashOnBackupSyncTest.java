@@ -215,7 +215,7 @@ public class PrimaryCrashOnBackupSyncTest extends ActiveMQTestBase {
          ActiveMQServer primaryServer = new ActiveMQServerImpl(primaryConfiguration, ManagementFactory.getPlatformMBeanServer(), new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration())) {
             @Override
             protected PagingStoreFactoryNIO getPagingStoreFactory() {
-               return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(),  this.getConfiguration().isJournalSyncNonTransactional(), null) {
+               return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(),  this.getConfiguration().isJournalSyncNonTransactional(), null, () -> true) {
                   @Override
                   public synchronized PagingStore newStore(SimpleString address, AddressSettings settings) {
                      return new DelayPagingStoreImpl(address, this.getScheduledExecutor(), primaryConfiguration.getJournalBufferTimeout_NIO(), getPagingManager(), getStorageManager(), null, this, address, settings, getExecutorFactory().getExecutor(), getExecutorFactory().getExecutor(), this.isSyncNonTransactional());
@@ -268,7 +268,7 @@ class DelayPagingStoreImpl extends PagingStoreImpl {
                                AddressSettings addressSettings,
                                ArtemisExecutor executor, ArtemisExecutor ioExecutor,
                                boolean syncNonTransactional) {
-      super(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, fileFactory, storeFactory, storeName, addressSettings, executor, syncNonTransactional);
+      super(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, fileFactory, storeFactory, storeName, addressSettings, executor, syncNonTransactional, () -> true);
    }
 
    @Override

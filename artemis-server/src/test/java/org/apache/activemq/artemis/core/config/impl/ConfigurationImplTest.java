@@ -130,6 +130,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
 
    @Test
    public void testDefaults() {
+      assertEquals(ActiveMQDefaultConfiguration.getPurgePageFolders(), conf.isPurgePageFolders());
       assertEquals(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), conf.getScheduledThreadPoolMaxSize());
       assertEquals(ActiveMQDefaultConfiguration.getDefaultSecurityInvalidationInterval(), conf.getSecurityInvalidationInterval());
       assertEquals(ActiveMQDefaultConfiguration.isDefaultSecurityEnabled(), conf.isSecurityEnabled());

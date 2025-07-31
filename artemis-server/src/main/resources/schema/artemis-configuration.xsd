@@ -565,6 +565,15 @@
 
          <xsd:element ref="grouping-handler" maxOccurs="1" minOccurs="0"/>
 
+         <xsd:element name="purge-page-folders" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Specifies whether paging folders should be automatically removed when the address
+                  exits the paging state.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="paging-directory" type="xsd:string" default="data/paging" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

@@ -764,6 +764,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setPagingDirectory(getString(e, "paging-directory", config.getPagingDirectory(), NOT_NULL_OR_EMPTY));
 
+      config.setPurgePageFolders(getBoolean(e, "purge-page-folders", config.isPurgePageFolders()));
+
       config.setCreateJournalDir(getBoolean(e, "create-journal-dir", config.isCreateJournalDir()));
 
       String s = getString(e, "journal-type", config.getJournalType().toString(), JOURNAL_TYPE);

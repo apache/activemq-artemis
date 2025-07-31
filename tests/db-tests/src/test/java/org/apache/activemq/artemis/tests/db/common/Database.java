@@ -155,7 +155,7 @@ public enum Database {
       return dbList;
    }
 
-   public static Database random() {
+   public static Database randomDB() {
       List<Database> selectedDatabases = selectedList();
       if (selectedDatabases.isEmpty()) {
          return null;
@@ -167,7 +167,7 @@ public enum Database {
    public static List<Database> randomList() {
       List<Database> selectedDatabases = selectedList();
       List<Database> list = new ArrayList<>();
-      Database randomDB = random();
+      Database randomDB = randomDB();
       if (randomDB != null) {
          list.add(randomDB);
       }

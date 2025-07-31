@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -32,10 +33,16 @@ import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    protected ActiveMQServer createInVMFailoverServer(final boolean realFiles,
@@ -125,4 +132,49 @@ public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
 
       Wait.assertFalse(queue.getPageSubscription().getPagingStore()::isPaging);
    }
+
+   @Test
+   public void testMultipleCleanup() throws Exception {
+      int numMessages = 50;
+      int repeats = 3;
+      createSessionFactory();
+      try (ClientSession session = createSession(sf, false, false)) {
+
+         session.createQueue(QueueConfiguration.of(FailoverTestBase.ADDRESS).setDurable(true));
+
+         ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
+
+         Queue queue = primaryServer.getServer().locateQueue(FailoverTest.ADDRESS);
+
+         for (int runNumber = 0; runNumber < repeats; runNumber++) {
+
+            logger.info("Repeat #{}", runNumber);
+
+            assertTrue(queue.getPageSubscription().getPagingStore().startPaging());
+            assertNotNull(queue);
+
+            for (int i = 0; i < numMessages; i++) {
+               logger.debug("Send {}", i);
+               producer.send(createMessage(session, i, true));
+            }
+            session.commit();
+
+            try (ClientConsumer consumer = session.createConsumer(FailoverTestBase.ADDRESS, false)) {
+               session.start();
+
+               for (int i = 0; i < numMessages; i++) {
+                  ClientMessage msg = consumer.receive(500);
+                  Assertions.assertNotNull(msg);
+                  msg.acknowledge();
+                  logger.debug("consumed {}", i);
+               }
+               assertNull(consumer.receiveImmediate());
+            }
+            session.commit();
+
+            Wait.assertFalse(queue.getPageSubscription().getPagingStore()::isPaging, 5000, 100);
+         }
+      }
+   }
+
 }
