@@ -315,7 +315,7 @@ public final class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
          if (configuration.isCoreMessageTunnelingEnabled()) {
             // We will have offered it if the option is enabled, but the remote needs to indicate it desires it
             // otherwise we want to fail on any tunneled core messages that arrives which is the default.
-            if (verifyDesiredCapability(protonReceiver, AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT)) {
+            if (verifyDesiredCapability(receiver, AmqpSupport.CORE_MESSAGE_TUNNELING_SUPPORT)) {
                enableCoreTunneling();
             }
          }
