@@ -1327,6 +1327,8 @@ public class AMQPBridgeManagementTest extends AmqpClientTestSupport {
          Wait.assertTrue(() -> server.getManagementService().getResource(producerResourceName) != null, 5_000, 100);
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectDetach().optional();
+         peer.expectClose().optional();
          peer.expectConnectionToDrop();
 
          brokerConnection.stop();
