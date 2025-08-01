@@ -38,6 +38,8 @@ public interface PageSubscription {
     */
    void counterSnapshot();
 
+   void deleteCursorInfo();
+
    /**
     * This is a callback to inform the PageSubscription that something was routed, so the empty flag can be cleared
     */
@@ -61,6 +63,8 @@ public interface PageSubscription {
     * Used as a delegate method to {@link PagingStore#isPaging()}
     */
    boolean isPaging();
+
+   boolean isStorePaging();
 
    PageIterator iterator();
 

@@ -30,6 +30,8 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.File;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,7 +45,6 @@ import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.TestParameters;
 import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -78,8 +79,7 @@ public class HorizontalPagingTest extends SoakTestBase {
 
    public static final String SERVER_NAME_0 = "horizontalPaging";
 
-   @BeforeAll
-   public static void createServers() throws Exception {
+   public static void createServers(boolean purgePage) throws Exception {
       {
          File serverLocation = getFileServerLocation(SERVER_NAME_0);
          deleteDirectory(serverLocation);
@@ -97,6 +97,10 @@ public class HorizontalPagingTest extends SoakTestBase {
          cliCreateServer.setArgs("--java-memory", "2g");
          cliCreateServer.setConfiguration("./src/main/resources/servers/horizontalPaging");
          cliCreateServer.createServer();
+
+         Properties properties = new Properties();
+         properties.put("purgePageFolders", String.valueOf(purgePage));
+         saveProperties(properties, new File(serverLocation, "broker.properties"));
 
          if (dataFolder != null) {
             assertTrue(FileUtil.findReplace(new File(getFileServerLocation(SERVER_NAME_0), "/etc/broker.xml"), "data/", dataFolder.getAbsolutePath() + "/"));
@@ -120,8 +124,6 @@ public class HorizontalPagingTest extends SoakTestBase {
    public void before() throws Exception {
       assumeTrue(TEST_ENABLED);
       cleanupData(SERVER_NAME_0);
-
-      serverProcess = startServer(SERVER_NAME_0, 0, SERVER_START_TIMEOUT);
    }
 
    /// ///////////////////////////////////////////////////
@@ -129,21 +131,25 @@ public class HorizontalPagingTest extends SoakTestBase {
    /// as the server has to be killed within the timeframe of protocol being executed
    /// to validate proper callbacks are in place
    @Test
-   public void testHorizontalAMQP() throws Exception {
-      testHorizontal("AMQP");
+   public void testHorizontalAMQPAndPurge() throws Exception {
+
+      // we will use purge in just one of the options.. no need to mix the protocols, one is enough
+      testHorizontal("AMQP", true);
    }
 
    @Test
    public void testHorizontalCORE() throws Exception {
-      testHorizontal("CORE");
+      testHorizontal("CORE", false);
    }
 
    @Test
    public void testHorizontalOPENWIRE() throws Exception {
-      testHorizontal("OPENWIRE");
+      testHorizontal("OPENWIRE", false);
    }
 
-   private void testHorizontal(String protocol) throws Exception {
+   private void testHorizontal(String protocol, boolean purgePage) throws Exception {
+      createServers(purgePage);
+      serverProcess = startServer(SERVER_NAME_0, 0, SERVER_START_TIMEOUT, new File(getServerLocation(SERVER_NAME_0), "broker.properties"));
       AtomicInteger errors = new AtomicInteger(0);
 
       ExecutorService service = Executors.newFixedThreadPool(EXECUTOR_SIZE);
@@ -189,7 +195,7 @@ public class HorizontalPagingTest extends SoakTestBase {
       }
 
       killServer(serverProcess, true);
-      serverProcess = startServer(SERVER_NAME_0, 0, -1);
+      serverProcess = startServer(SERVER_NAME_0, 0, SERVER_START_TIMEOUT, new File(getServerLocation(SERVER_NAME_0), "broker.properties"));
       assertTrue(ServerUtil.waitForServerToStart(0, SERVER_START_TIMEOUT));
       assertEquals(0, errors.get());
 
@@ -262,9 +268,28 @@ public class HorizontalPagingTest extends SoakTestBase {
       assertEquals(0, errors.get());
       assertEquals(DESTINATIONS, completedFine.get());
 
-      killServer(serverProcess, true);
+      killServer(serverProcess, false);
+
+      validatePageFolders(purgePage);
+
       serverProcess = startServer(SERVER_NAME_0, 0, -1);
       assertTrue(ServerUtil.waitForServerToStart(0, SERVER_START_TIMEOUT));
+
+      validatePageFolders(purgePage);
+   }
+
+   private static void validatePageFolders(boolean pageFolder) {
+      File dataFolder;
+      if (DATA_FOLDER != null) {
+         dataFolder = new File(DATA_FOLDER + "/data/paging");
+      } else {
+         dataFolder = new File(getFileServerLocation(SERVER_NAME_0), "data/paging");
+      }
+      if (pageFolder) {
+         assertEquals(0, Objects.requireNonNull(dataFolder.listFiles()).length);
+      } else {
+         assertTrue(Objects.requireNonNull(dataFolder.listFiles()).length > 0);
+      }
    }
 
 }

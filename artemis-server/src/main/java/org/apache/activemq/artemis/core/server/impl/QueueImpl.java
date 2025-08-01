@@ -999,7 +999,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                if (deliveriesInTransit.getCount() == 0 && getExecutor().isFlushed() &&
                   intermediateMessageReferences.isEmpty() && messageReferences.isEmpty() &&
                   pageIterator != null && !pageIterator.hasNext() &&
-                  pageSubscription != null && !pageSubscription.isPaging()) {
+                  pageSubscription != null && !pageSubscription.isStorePaging()) {
                   // We must block on the executor to ensure any async deliveries have completed or we might get out of order
                   // deliveries
                   // Go into direct delivery mode
@@ -1061,7 +1061,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void forceDelivery() {
-      if (pageSubscription != null && pageSubscription.isPaging()) {
+      if (pageSubscription != null && pageSubscription.isStorePaging()) {
          logger.trace("Force delivery scheduling depage");
          scheduleDepage(false);
       }
@@ -1097,7 +1097,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public ArtemisExecutor getExecutor() {
-      if (pageSubscription != null && pageSubscription.isPaging()) {
+      if (pageSubscription != null && pageSubscription.isStorePaging()) {
          // When in page mode, we don't want to have concurrent IO on the same PageStore
          return pageSubscription.getPagingStore().getExecutor();
       } else {
@@ -3086,7 +3086,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (queueDestroyed) {
          return;
       }
-      if (pageIterator != null && pageSubscription.isPaging()) {
+      if (pageIterator != null && pageSubscription.isStorePaging()) {
          if (logger.isDebugEnabled()) {
             logger.debug("CheckDepage on queue name {}, id={}", queueConfiguration.getName(), queueConfiguration.getId());
          }

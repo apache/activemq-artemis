@@ -717,6 +717,8 @@ public final class ActiveMQDefaultConfiguration {
    private static final boolean DEFAULT_MIRROR_ACK_MANAGER_WARN_UNACKED = false;
    private static final boolean DEFAULT_MIRROR_PAGE_TRANSACTION = false;
 
+   private static final boolean DEFAULT_PURGE_PAGE_FOLDERS = false;
+
 
    private static final int DEFAULT_CLUSTER_TOPOLOGY_SCANNER_ATTEMPTS = 30;
 
@@ -2011,6 +2013,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static boolean getMirrorPageTransaction() {
       return DEFAULT_MIRROR_PAGE_TRANSACTION;
+   }
+
+   public static boolean getPurgePageFolders() {
+      return DEFAULT_PURGE_PAGE_FOLDERS;
    }
 
    /**

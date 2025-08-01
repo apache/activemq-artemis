@@ -713,7 +713,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
                                              final ScheduledExecutorService scheduledExecutorService,
                                              final HierarchicalRepository<AddressSettings> addressSettingsRepository) throws Exception {
 
-      PagingManager paging = new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(), 1000, scheduledExecutorService, executorFactory, false, null), addressSettingsRepository, configuration.getManagementAddress());
+      PagingManager paging = new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(), 1000, scheduledExecutorService, executorFactory, false, null, true), addressSettingsRepository, configuration.getManagementAddress());
 
       paging.start();
       runAfter(paging::stop);

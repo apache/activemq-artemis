@@ -118,6 +118,7 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManagerImpl;
 import org.apache.activemq.artemis.tests.db.common.Database;
 import org.apache.activemq.artemis.tests.db.common.ParameterDBTestBase;
+import org.apache.activemq.artemis.tests.extensions.parameterized.Parameter;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -149,17 +150,22 @@ public class PagingTest extends ParameterDBTestBase {
    protected ClientSessionFactory sf;
    private AssertionLoggerHandler loggerHandler;
 
-   @Parameters(name = "db={0}")
+   @Parameter(index = 1)
+   public boolean purgeFolders;
+
+
+   @Override
+   protected Configuration createDefaultInVMConfig() throws Exception {
+      return super.createDefaultConfig(0, false).setPurgePageFolders(purgeFolders);
+   }
+
+   @Parameters(name = "db={0}, purgeFolders={1}")
    public static Collection<Object[]> parameters() {
-      List<Database> databases = new ArrayList<>();
-      databases.add(Database.JOURNAL);
-
-      // PagingTest is quite expensive. And it's not really needed to run every single database every time
-      // we will just pick one!
-      databases.addAll(Database.randomList());
-
-      // we will run PagingTest in one database and the journal to validate the codebase in both implementations
-      return convertParameters(databases);
+      List<Object[]> databases = new ArrayList<>();
+      databases.add(new Object[] {Database.JOURNAL, true});
+      databases.add(new Object[] {Database.JOURNAL, false});
+      databases.add(new Object[] {Database.randomDB(), false});
+      return databases;
    }
 
    @Override
@@ -3712,7 +3718,7 @@ public class PagingTest extends ParameterDBTestBase {
       server = new ActiveMQServerImpl(config, ManagementFactory.getPlatformMBeanServer(), new ActiveMQSecurityManagerImpl()) {
          @Override
          protected PagingStoreFactoryNIO getPagingStoreFactory() {
-            return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
+            return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null, purgeFolders) {
                @Override
                public PageCursorProvider newCursorProvider(PagingStore store,
                                                            StorageManager storageManager,
@@ -3864,7 +3870,7 @@ public class PagingTest extends ParameterDBTestBase {
       server = new ActiveMQServerImpl(config, ManagementFactory.getPlatformMBeanServer(), new ActiveMQSecurityManagerImpl()) {
          @Override
          protected PagingStoreFactoryNIO getPagingStoreFactory() {
-            return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
+            return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null, purgeFolders) {
                @Override
                public PageCursorProvider newCursorProvider(PagingStore store,
                                                            StorageManager storageManager,
@@ -6086,7 +6092,7 @@ public class PagingTest extends ParameterDBTestBase {
                                      AddressSettings addressSettings,
                                      ArtemisExecutor executor,
                                      boolean syncNonTransactional) {
-            super(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, fileFactory, storeFactory, storeName, addressSettings, executor, syncNonTransactional);
+            super(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, fileFactory, storeFactory, storeName, addressSettings, executor, syncNonTransactional, purgeFolders);
          }
 
          /**
@@ -6114,7 +6120,7 @@ public class PagingTest extends ParameterDBTestBase {
          server = new ActiveMQServerImpl(config, ManagementFactory.getPlatformMBeanServer(), new ActiveMQSecurityManagerImpl()) {
             @Override
             protected PagingStoreFactoryNIO getPagingStoreFactory() {
-               return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
+               return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null, purgeFolders) {
                   @Override
                   public synchronized PagingStore newStore(SimpleString address, AddressSettings settings) {
                      return new NonStoppablePagingStoreImpl(address, this.getScheduledExecutor(), config.getJournalBufferTimeout_NIO(), getPagingManager(), getStorageManager(), null, this, address, settings, getExecutorFactory().getExecutor(), this.isSyncNonTransactional());

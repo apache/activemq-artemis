@@ -304,7 +304,7 @@ public class FileMoveManagerTest extends ArtemisTestCase {
 
             final StorageManager storageManager = new NullStorageManager();
 
-            PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, dataLocation, 100, Mockito.mock(ScheduledExecutorService.class), new OrderedExecutorFactory(threadPool), true, null);
+            PagingStoreFactoryNIO storeFactory = new PagingStoreFactoryNIO(storageManager, dataLocation, 100, Mockito.mock(ScheduledExecutorService.class), new OrderedExecutorFactory(threadPool), true, null, false);
 
             PagingManagerImpl managerImpl = new PagingManagerImpl(storeFactory, addressSettings, -1, -1, ActiveMQDefaultConfiguration.getDefaultManagementAddress(), null);
 
