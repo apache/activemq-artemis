@@ -18,10 +18,10 @@ package org.apache.activemq.artemis.core.server.reload;
 
 import java.io.File;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +38,7 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
 
    private volatile Runnable tick;
 
-   private final Map<URL, ReloadRegistry> registry = new HashMap<>();
+   private final Map<URL, ReloadRegistry> registry = new ConcurrentHashMap<>();
 
    public ReloadManagerImpl(ScheduledExecutorService scheduledExecutorService, Executor executor, long checkPeriod) {
       super(scheduledExecutorService, executor, checkPeriod, TimeUnit.MILLISECONDS, false);
@@ -52,6 +52,15 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
    @Override
    public synchronized void setTick(Runnable tick) {
       this.tick = tick;
+   }
+
+   @Override
+   public synchronized void removeCallbacks(URL uri) {
+      final ReloadRegistry uriRegistry = registry.remove(uri);
+
+      if (uriRegistry != null) {
+         uriRegistry.clear();
+      }
    }
 
    @Override
@@ -140,6 +149,10 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
 
       public void add(ReloadCallback callback) {
          callbacks.add(callback);
+      }
+
+      public void clear() {
+         callbacks.clear();
       }
    }
 }

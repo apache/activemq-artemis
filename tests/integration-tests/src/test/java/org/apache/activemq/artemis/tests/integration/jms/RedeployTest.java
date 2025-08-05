@@ -18,20 +18,25 @@ package org.apache.activemq.artemis.tests.integration.jms;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
 import java.io.InputStream;
+import java.io.Writer;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -46,11 +51,20 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.AcceptorControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
@@ -62,14 +76,15 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.cluster.impl.RemoteQueueBindingImpl;
 import org.apache.activemq.artemis.core.server.embedded.EmbeddedActiveMQ;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
-import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.fakes.FakeQueue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.jupiter.api.Test;
 
@@ -1452,6 +1467,416 @@ public class RedeployTest extends ActiveMQTestBase {
       } finally {
          embeddedActiveMQ.stop();
       }
+   }
+
+   @Test
+   public void testRedeployNewAcceptorsAndRemoveOldAcceptor() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-acceptor.xml");
+      URL url2 = RedeployTest.class.getClassLoader().getResource("reload-acceptor-add-new.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      final MBeanServer mBeanServer = MBeanServerFactory.createMBeanServer();
+      runAfter(() -> MBeanServerFactory.releaseMBeanServer(mBeanServer));
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.setMbeanServer(mBeanServer);
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+      final Runnable tick = latch::countDown;
+      final ManagementService managementService = embeddedActiveMQ.getActiveMQServer().getManagementService();
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+
+         final TransportConfiguration acceptor0 = findInConfiguration("artemis", embeddedActiveMQ.getActiveMQServer().getConfiguration());
+
+         assertNotNull(acceptor0);
+         assertEquals("127.0.0.1", acceptor0.getParams().get(TransportConstants.HOST_PROP_NAME));
+         assertEquals("61616", acceptor0.getParams().get(TransportConstants.PORT_PROP_NAME));
+
+         final AcceptorControl acceptorControl = (AcceptorControl) managementService.getResource(ResourceNames.ACCEPTOR + "artemis");
+
+         assertNotNull(acceptorControl);
+         assertTrue(acceptorControl.isStarted());
+
+         @SuppressWarnings("resource")
+         final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://127.0.0.1:61616");
+         final Connection connection = connectionFactory.createConnection();
+
+         try (Session session = connection.createSession()) {
+            final Queue queue = session.createQueue("test-queue");
+
+            session.createConsumer(queue);
+         } catch (Exception e) {
+            fail("Should be able to connect and create resources");
+         }
+
+         Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         // Should not be present in the server any longer
+         final AcceptorControl afterReload = (AcceptorControl) managementService.getResource(ResourceNames.ACCEPTOR + "artemis");
+         assertNull(afterReload);
+
+         final TransportConfiguration acceptor1 = findInConfiguration("artemis1", embeddedActiveMQ.getActiveMQServer().getConfiguration());
+         final TransportConfiguration acceptor2 = findInConfiguration("artemis2", embeddedActiveMQ.getActiveMQServer().getConfiguration());
+
+         assertNotNull(acceptor1);
+         assertEquals("127.0.0.2", acceptor1.getParams().get(TransportConstants.HOST_PROP_NAME));
+         assertEquals("61617", acceptor1.getParams().get(TransportConstants.PORT_PROP_NAME));
+
+         final AcceptorControl acceptorControl1 = (AcceptorControl) managementService.getResource(ResourceNames.ACCEPTOR + "artemis1");
+
+         assertNotNull(acceptorControl1);
+         assertTrue(acceptorControl1.isStarted());
+
+         assertNotNull(acceptor2);
+         assertEquals("127.0.0.3", acceptor2.getParams().get(TransportConstants.HOST_PROP_NAME));
+         assertEquals("61618", acceptor2.getParams().get(TransportConstants.PORT_PROP_NAME));
+
+         final AcceptorControl acceptorControl2 = (AcceptorControl) managementService.getResource(ResourceNames.ACCEPTOR + "artemis2");
+
+         assertNotNull(acceptorControl2);
+         assertFalse(acceptorControl2.isStarted());
+
+         // Our original connection on the removed acceptor should have been closed.
+         try (Session session = connection.createSession()) {
+            final Queue queue = session.createQueue("test-queue");
+
+            session.createConsumer(queue);
+            fail("Should have been disconnected when acceptor was removed.");
+         } catch (Exception e) {
+         }
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
+   @Test
+   public void testRedeploySameAcceptorChangedToNotAutoStart() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-acceptor.xml");
+      URL url2 = RedeployTest.class.getClassLoader().getResource("reload-acceptor-updated.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      final MBeanServer mBeanServer = MBeanServerFactory.createMBeanServer();
+      runAfter(() -> MBeanServerFactory.releaseMBeanServer(mBeanServer));
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.setMbeanServer(mBeanServer);
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+      final Runnable tick = latch::countDown;
+      final ManagementService managementService = embeddedActiveMQ.getActiveMQServer().getManagementService();
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+
+         final TransportConfiguration acceptor = findInConfiguration("artemis", embeddedActiveMQ.getActiveMQServer().getConfiguration());
+
+         assertNotNull(acceptor);
+         assertEquals("127.0.0.1", acceptor.getParams().get(TransportConstants.HOST_PROP_NAME));
+         assertEquals("61616", acceptor.getParams().get(TransportConstants.PORT_PROP_NAME));
+         assertNull(acceptor.getParams().get(TransportConstants.AUTO_START));
+
+         final AcceptorControl acceptorControl = (AcceptorControl) managementService.getResource(ResourceNames.ACCEPTOR + "artemis");
+
+         assertNotNull(acceptorControl);
+         assertTrue(acceptorControl.isStarted());
+
+         @SuppressWarnings("resource")
+         final ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://127.0.0.1:61616");
+         final Connection connection = connectionFactory.createConnection();
+
+         try (Session session = connection.createSession()) {
+            final Queue queue = session.createQueue("test-queue");
+
+            session.createConsumer(queue);
+         } catch (Exception e) {
+            fail("Should be able to connect and create resources");
+         }
+
+         Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         final TransportConfiguration acceptorUpdated = findInConfiguration("artemis", embeddedActiveMQ.getActiveMQServer().getConfiguration());
+
+         assertNotNull(acceptorUpdated);
+         assertEquals("127.0.0.1", acceptorUpdated.getParams().get(TransportConstants.HOST_PROP_NAME));
+         assertEquals("61616", acceptorUpdated.getParams().get(TransportConstants.PORT_PROP_NAME));
+         assertEquals("false", acceptorUpdated.getParams().get(TransportConstants.AUTO_START));
+
+         final AcceptorControl acceptorControl2 = (AcceptorControl) managementService.getResource(ResourceNames.ACCEPTOR + "artemis");
+
+         assertNotNull(acceptorControl2);
+
+         // Re-added and not started according to new configuration
+         assertFalse(acceptorControl2.isStarted());
+
+         // Our original connection on the removed acceptor should have been closed.
+         try (Session session = connection.createSession()) {
+            final Queue queue = session.createQueue("test-queue");
+
+            session.createConsumer(queue);
+            fail("Should have been disconnected when acceptor was removed.");
+         } catch (Exception e) {
+         }
+
+         // New connection should fail the acceptor is not auto starting now
+         try (ActiveMQConnectionFactory connectionFactory1 = new ActiveMQConnectionFactory("tcp://127.0.0.1:61616")) {
+            connectionFactory1.createConnection();
+            fail("Should not be able to connect");
+         } catch (Exception e) {
+         }
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
+   @Test
+   public void testUpdatedAcceptorStillWatchesForTLSPropertiesUpdatesAfterReload() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      Path brokerProperties = getTestDirfile().toPath().resolve("broker.properties");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-no-acceptor-config.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      // reference Key Store from temporary location that we can update later
+      File keyStoreToReload = new File(getTestDirfile(), "server-ks.p12");
+      copyRecursive(new File(this.getClass().getClassLoader().getResource("unknown-server-keystore.p12").getFile()), keyStoreToReload);
+
+      final Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+
+      properties.put("acceptorConfigurations.tcp.factoryClassName", NETTY_ACCEPTOR_FACTORY);
+      properties.put("acceptorConfigurations.tcp.params.host", "127.0.0.1");
+      properties.put("acceptorConfigurations.tcp.params.port", "61617");
+      properties.put("acceptorConfigurations.tcp.params." + TransportConstants.SSL_AUTO_RELOAD_PROP_NAME, "true");
+      properties.put("acceptorConfigurations.tcp.params." + TransportConstants.SSL_ENABLED_PROP_NAME, "true");
+      properties.put("acceptorConfigurations.tcp.params." + TransportConstants.KEYSTORE_PATH_PROP_NAME, keyStoreToReload.getAbsolutePath());
+      properties.put("acceptorConfigurations.tcp.params." + TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+
+      Writer propertiesWriter = Files.newBufferedWriter(brokerProperties, StandardOpenOption.WRITE,
+                                                                          StandardOpenOption.CREATE,
+                                                                          StandardOpenOption.TRUNCATE_EXISTING);
+      try {
+         properties.store(propertiesWriter, null);
+      } finally {
+         propertiesWriter.flush();
+         propertiesWriter.close();
+      }
+
+      final MBeanServer mBeanServer = MBeanServerFactory.createMBeanServer();
+      runAfter(() -> MBeanServerFactory.releaseMBeanServer(mBeanServer));
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setPropertiesResourcePath(brokerProperties.toString());
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.setMbeanServer(mBeanServer);
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+      final Runnable tick = latch::countDown;
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+
+         final TransportConfiguration acceptor = findInConfiguration("tcp", embeddedActiveMQ.getActiveMQServer().getConfiguration());
+
+         assertNotNull(acceptor);
+         assertEquals("127.0.0.1", acceptor.getParams().get(TransportConstants.HOST_PROP_NAME));
+         assertEquals("61617", acceptor.getParams().get(TransportConstants.PORT_PROP_NAME));
+
+         String url = "tcp://127.0.0.1:61616?sslEnabled=true;trustStorePath=server-ca-truststore.p12;trustStorePassword=securepass";
+         ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocator(url)).setCallTimeout(3000);
+
+         try {
+            createSessionFactory(locator);
+            fail("Creating session here should fail due to SSL handshake problems.");
+         } catch (Exception ignored) {
+         }
+
+         // Update the broker properties file with the correct port to trigger configuration reload.
+         // This should retain the ability to watch the TLS resources for updates and after the reload
+         // the test will update the key store to one that allows the client to connect and we should
+         // see the client succeed eventually.
+         properties.put("acceptorConfigurations.tcp.params.port", "61616");
+
+         propertiesWriter = Files.newBufferedWriter(brokerProperties, StandardOpenOption.WRITE,
+                                                                      StandardOpenOption.TRUNCATE_EXISTING);
+         try {
+            properties.store(propertiesWriter, null);
+         } finally {
+            propertiesWriter.flush();
+            propertiesWriter.close();
+         }
+
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         final TransportConfiguration updatedAcceptor = findInConfiguration("tcp", embeddedActiveMQ.getActiveMQServer().getConfiguration());
+
+         assertNotNull(updatedAcceptor);
+         assertEquals("127.0.0.1", updatedAcceptor.getParams().get(TransportConstants.HOST_PROP_NAME));
+         assertEquals("61616", updatedAcceptor.getParams().get(TransportConstants.PORT_PROP_NAME));
+
+         // update the server side key store with one that actually works with the client trust store
+         copyRecursive(new File(this.getClass().getClassLoader().getResource("server-keystore.p12").getFile()), keyStoreToReload);
+
+         // expect success after auto reload, which we wait for
+         Wait.assertTrue(() -> {
+            try {
+               addSessionFactory(createSessionFactory(locator));
+               return true;
+            } catch (Throwable ignored) {
+            }
+            return false;
+         }, 5000, 100);
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
+   @Test
+   public void testReplacedAcceptorWatchesForTLSPropertiesUpdatesAfterReload() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      Path brokerProperties = getTestDirfile().toPath().resolve("broker.properties");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-no-acceptor-config.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      // reference Key Store from temporary location that we can update later
+      File keyStoreToReload = new File(getTestDirfile(), "server-ks.p12");
+      copyRecursive(new File(this.getClass().getClassLoader().getResource("unknown-server-keystore.p12").getFile()), keyStoreToReload);
+
+      final Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+
+      properties.put("acceptorConfigurations.tcp1.factoryClassName", NETTY_ACCEPTOR_FACTORY);
+      properties.put("acceptorConfigurations.tcp1.params.host", "127.0.0.1");
+      properties.put("acceptorConfigurations.tcp1.params.port", "61617");
+      properties.put("acceptorConfigurations.tcp1.params." + TransportConstants.SSL_AUTO_RELOAD_PROP_NAME, "true");
+      properties.put("acceptorConfigurations.tcp1.params." + TransportConstants.SSL_ENABLED_PROP_NAME, "true");
+      properties.put("acceptorConfigurations.tcp1.params." + TransportConstants.KEYSTORE_PATH_PROP_NAME, keyStoreToReload.getAbsolutePath());
+      properties.put("acceptorConfigurations.tcp1.params." + TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+
+      Writer propertiesWriter = Files.newBufferedWriter(brokerProperties, StandardOpenOption.WRITE,
+                                                                          StandardOpenOption.CREATE,
+                                                                          StandardOpenOption.TRUNCATE_EXISTING);
+      try {
+         properties.store(propertiesWriter, null);
+      } finally {
+         propertiesWriter.flush();
+         propertiesWriter.close();
+      }
+
+      final MBeanServer mBeanServer = MBeanServerFactory.createMBeanServer();
+      runAfter(() -> MBeanServerFactory.releaseMBeanServer(mBeanServer));
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setPropertiesResourcePath(brokerProperties.toString());
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.setMbeanServer(mBeanServer);
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+      final Runnable tick = latch::countDown;
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+
+         final TransportConfiguration acceptor = findInConfiguration("tcp1", embeddedActiveMQ.getActiveMQServer().getConfiguration());
+
+         assertNotNull(acceptor);
+         assertEquals("127.0.0.1", acceptor.getParams().get(TransportConstants.HOST_PROP_NAME));
+         assertEquals("61617", acceptor.getParams().get(TransportConstants.PORT_PROP_NAME));
+
+         String url = "tcp://127.0.0.1:61616?sslEnabled=true;trustStorePath=server-ca-truststore.p12;trustStorePassword=securepass";
+         ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocator(url)).setCallTimeout(3000);
+
+         try {
+            createSessionFactory(locator);
+            fail("Creating session here should fail due to SSL handshake problems.");
+         } catch (Exception ignored) {
+         }
+
+         // Update the broker properties file with a new acceptor on the correct port to trigger configuration
+         // reload. This should retain the ability to watch the TLS resources for updates and after the reload
+         // the test will update the key store to one that allows the client to connect and we should see the
+         // client succeed eventually.
+         properties.clear();
+         properties.put("acceptorConfigurations.tcp2.factoryClassName", NETTY_ACCEPTOR_FACTORY);
+         properties.put("acceptorConfigurations.tcp2.params.host", "127.0.0.1");
+         properties.put("acceptorConfigurations.tcp2.params.port", "61616");
+         properties.put("acceptorConfigurations.tcp2.params." + TransportConstants.SSL_AUTO_RELOAD_PROP_NAME, "true");
+         properties.put("acceptorConfigurations.tcp2.params." + TransportConstants.SSL_ENABLED_PROP_NAME, "true");
+         properties.put("acceptorConfigurations.tcp2.params." + TransportConstants.KEYSTORE_PATH_PROP_NAME, keyStoreToReload.getAbsolutePath());
+         properties.put("acceptorConfigurations.tcp2.params." + TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+
+         propertiesWriter = Files.newBufferedWriter(brokerProperties, StandardOpenOption.WRITE,
+                                                                      StandardOpenOption.TRUNCATE_EXISTING);
+         try {
+            properties.store(propertiesWriter, null);
+         } finally {
+            propertiesWriter.flush();
+            propertiesWriter.close();
+         }
+
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         // Old acceptor should be null but new one should be present and should be watching for updates
+         assertNull(findInConfiguration("tcp1", embeddedActiveMQ.getActiveMQServer().getConfiguration()));
+         final TransportConfiguration updatedAcceptor = findInConfiguration("tcp2", embeddedActiveMQ.getActiveMQServer().getConfiguration());
+
+         assertNotNull(updatedAcceptor);
+         assertEquals("127.0.0.1", updatedAcceptor.getParams().get(TransportConstants.HOST_PROP_NAME));
+         assertEquals("61616", updatedAcceptor.getParams().get(TransportConstants.PORT_PROP_NAME));
+
+         // update the server side key store with one that actually works with the client trust store
+         copyRecursive(new File(this.getClass().getClassLoader().getResource("server-keystore.p12").getFile()), keyStoreToReload);
+
+         // expect success after auto reload, which we wait for
+         Wait.assertTrue(() -> {
+            try {
+               addSessionFactory(createSessionFactory(locator));
+               return true;
+            } catch (Throwable ignored) {
+            }
+            return false;
+         }, 5000, 100);
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
+   private TransportConfiguration findInConfiguration(String acceptorName, Configuration configuration) {
+      final Set<TransportConfiguration> acceptors = configuration.getAcceptorConfigurations();
+
+      for (TransportConfiguration acceptorConfig : acceptors) {
+         if (acceptorName.equals(acceptorConfig.getName())) {
+            return acceptorConfig;
+         }
+      }
+
+      return null;
    }
 
    private AddressSettings getAddressSettings(EmbeddedActiveMQ embeddedActiveMQ, String address) {

@@ -16,15 +16,12 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import javax.management.MBeanServer;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -59,6 +56,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import javax.management.MBeanServer;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQDeleteAddressException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -67,7 +66,6 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.management.AcceptorControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
@@ -208,10 +206,8 @@ import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.OpenWireUUIDUtil;
-import org.apache.activemq.artemis.utils.PemConfigUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
@@ -230,12 +226,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static java.util.stream.Collectors.groupingBy;
-import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SSL_AUTO_RELOAD;
-import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.KEYSTORE_PATH_PROP_NAME;
-import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.KEYSTORE_TYPE_PROP_NAME;
-import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.SSL_AUTO_RELOAD_PROP_NAME;
-import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PATH_PROP_NAME;
-import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_TYPE_PROP_NAME;
 import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 
 /**
@@ -3410,20 +3400,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                PropertiesLoader.reload();
             });
          }
-
-         // track tls resources on acceptors and reload via remoting server
-         configuration.getAcceptorConfigurations().forEach((acceptorConfig) -> {
-            Map<String, Object> config = acceptorConfig.getCombinedParams();
-            if (ConfigurationHelper.getBooleanProperty(SSL_AUTO_RELOAD_PROP_NAME, DEFAULT_SSL_AUTO_RELOAD, config)) {
-               addAcceptorStoreReloadCallback(acceptorConfig.getName(),
-                  fileUrlFrom(config.get(KEYSTORE_PATH_PROP_NAME)),
-                  storeTypeFrom(config.get(KEYSTORE_TYPE_PROP_NAME)));
-
-               addAcceptorStoreReloadCallback(acceptorConfig.getName(),
-                  fileUrlFrom(config.get(TRUSTSTORE_PATH_PROP_NAME)),
-                  storeTypeFrom(config.get(TRUSTSTORE_TYPE_PROP_NAME)));
-            }
-         });
       }
 
       if (hasBrokerPlugins()) {
@@ -3435,56 +3411,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       return true;
-   }
-
-   private void addAcceptorStoreReloadCallback(String acceptorName, URL storeURL, String storeType) {
-      if (storeURL != null) {
-         reloadManager.addCallback(storeURL, (uri) -> {
-            // preference for Control to capture consistent audit logging
-            if (managementService != null) {
-               Object targetControl = managementService.getResource(ResourceNames.ACCEPTOR + acceptorName);
-               if (targetControl instanceof AcceptorControl acceptorControl) {
-                  acceptorControl.reload();
-               }
-            }
-         });
-
-         if (PemConfigUtil.isPemConfigStoreType(storeType)) {
-            String[] sources = null;
-
-            try (InputStream pemConfigStream = storeURL.openStream()) {
-               sources = PemConfigUtil.parseSources(pemConfigStream);
-            } catch (IOException e) {
-               ActiveMQServerLogger.LOGGER.skipSSLAutoReloadForSourcesOfStore(storeURL.getPath(), e.toString());
-            }
-
-            if (sources != null) {
-               for (String source : sources) {
-                  URL sourceURL = fileUrlFrom(source);
-                  if (sourceURL != null) {
-                     addAcceptorStoreReloadCallback(acceptorName, sourceURL, null);
-                  }
-               }
-            }
-         }
-      }
-   }
-
-   private URL fileUrlFrom(Object o) {
-      if (o instanceof String string) {
-         try {
-            return new File(string).toURI().toURL();
-         } catch (MalformedURLException ignored) {
-         }
-      }
-      return null;
-   }
-
-   private String storeTypeFrom(Object o) {
-      if (o instanceof String string) {
-         return string;
-      }
-      return null;
    }
 
    @Override
@@ -4697,6 +4623,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       configuration.setQueueConfigs(config.getQueueConfigs());
       configuration.setBridgeConfigurations(config.getBridgeConfigurations());
       configuration.setConnectorConfigurations(config.getConnectorConfigurations());
+      configuration.setAcceptorConfigurations(config.getAcceptorConfigurations());
       configuration.setAMQPConnectionConfigurations(config.getAMQPConnection());
       configurationReloadDeployed.set(false);
       if (isActive()) {

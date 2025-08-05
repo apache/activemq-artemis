@@ -16,9 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
-import javax.management.ObjectName;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
+
+import javax.management.ObjectName;
 
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -46,11 +47,11 @@ import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.RemoteBrokerConnection;
-import org.apache.activemq.artemis.core.server.routing.ConnectionRouter;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.routing.ConnectionRouter;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
@@ -106,6 +107,8 @@ public interface ManagementService extends NotificationService, ActiveMQComponen
    void unregisterQueue(SimpleString name, SimpleString address, RoutingType routingType) throws Exception;
 
    void registerAcceptor(Acceptor acceptor, TransportConfiguration configuration) throws Exception;
+
+   void unregisterAcceptor(String acceptorName) throws Exception;
 
    void unregisterAcceptors();
 
