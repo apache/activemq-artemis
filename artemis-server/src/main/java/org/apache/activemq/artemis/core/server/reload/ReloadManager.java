@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.reload;
 
+import java.net.URI;
 import java.net.URL;
 
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -23,6 +24,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 public interface ReloadManager extends ActiveMQComponent {
 
    void addCallback(URL uri, ReloadCallback callback);
+
+   /**
+    * Remove any callback instances previously registered with this manager.
+    *
+    * @param uri
+    *    The {@link URI} used to add callback instances to this manager
+    */
+   void removeCallbacks(URL uri);
 
    /**
     * Callback for the next tick

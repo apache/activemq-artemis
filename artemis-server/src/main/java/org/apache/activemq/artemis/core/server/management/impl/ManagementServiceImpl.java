@@ -399,6 +399,7 @@ public class ManagementServiceImpl implements ManagementService {
       }
    }
 
+   @Override
    public void unregisterAcceptor(final String name) throws Exception {
       unregisterFromJMX(objectNameBuilder.getAcceptorObjectName(name));
       unregisterFromRegistry(ResourceNames.ACCEPTOR + name);

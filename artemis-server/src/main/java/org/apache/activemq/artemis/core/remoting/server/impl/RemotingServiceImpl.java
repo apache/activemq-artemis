@@ -16,15 +16,30 @@
  */
 package org.apache.activemq.artemis.core.remoting.server.impl;
 
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SSL_AUTO_RELOAD;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.KEYSTORE_PATH_PROP_NAME;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.KEYSTORE_TYPE_PROP_NAME;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.SSL_AUTO_RELOAD_PROP_NAME;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PATH_PROP_NAME;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_TYPE_PROP_NAME;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,6 +53,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -46,6 +63,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.management.AcceptorControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
@@ -62,6 +81,7 @@ import org.apache.activemq.artemis.core.server.ServiceRegistry;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
+import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
@@ -78,6 +98,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ssl.OpenSSLContextFactoryPr
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactoryProvider;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.utils.PemConfigUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,10 +109,11 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    private static final int ACCEPTOR_STOP_TIMEOUT = 3000;
 
+   private static final int UPDATE_ACCEPTORS_STOP_TIMEOUT = 5000;
 
    private volatile boolean started = false;
 
-   private final Set<TransportConfiguration> acceptorsConfig;
+   private final Map<String, TransportConfiguration> acceptorsConfig;
 
    private final List<BaseInterceptor> incomingInterceptors = new CopyOnWriteArrayList<>();
 
@@ -140,7 +162,12 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
                               final ServiceRegistry serviceRegistry) {
       this.serviceRegistry = serviceRegistry;
 
-      acceptorsConfig = config.getAcceptorConfigurations();
+      if (config.getAcceptorConfigurations() != null && !config.getAcceptorConfigurations().isEmpty()) {
+         acceptorsConfig = config.getAcceptorConfigurations().stream()
+                                                             .collect(Collectors.toMap(c -> c.getName(), Function.identity()));
+      } else {
+         acceptorsConfig = new HashMap<>();
+      }
 
       this.server = server;
 
@@ -206,7 +233,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       threadPool = Executors.newCachedThreadPool(tFactory);
 
-      for (TransportConfiguration info : acceptorsConfig) {
+      for (TransportConfiguration info : acceptorsConfig.values()) {
          createAcceptor(info);
       }
 
@@ -281,6 +308,21 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          ActiveMQServerLogger.LOGGER.errorCreatingAcceptor(info.getName(), e);
       }
 
+      if (server.getConfiguration().getConfigurationFileRefreshPeriod() > 0) {
+         // track TLS resources on acceptors and reload on updates
+         final Map<String, Object> config = info.getCombinedParams();
+
+         if (ConfigurationHelper.getBooleanProperty(SSL_AUTO_RELOAD_PROP_NAME, DEFAULT_SSL_AUTO_RELOAD, config)) {
+            addAcceptorStoreReloadCallback(info.getName(),
+               fileUrlFrom(config.get(KEYSTORE_PATH_PROP_NAME)),
+               storeTypeFrom(config.get(KEYSTORE_TYPE_PROP_NAME)));
+
+            addAcceptorStoreReloadCallback(info.getName(),
+               fileUrlFrom(config.get(TRUSTSTORE_PATH_PROP_NAME)),
+               storeTypeFrom(config.get(TRUSTSTORE_TYPE_PROP_NAME)));
+         }
+      }
+
       return acceptor;
    }
 
@@ -329,7 +371,6 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
    public synchronized void pauseAcceptors() {
       if (!started)
          return;
-
       paused = true;
 
       for (Acceptor acceptor : acceptors.values()) {
@@ -571,8 +612,121 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    @Override
    public void updateProtocolServices(List<ActiveMQComponent> protocolServices) throws Exception {
+      updateAcceptors();
+
       for (ProtocolManagerFactory protocolManagerFactory : protocolMap.values()) {
          protocolManagerFactory.updateProtocolServices(this.server, protocolServices);
+      }
+   }
+
+   private void updateAcceptors() throws Exception {
+      final Set<TransportConfiguration> updatedConfigurationSet = Objects.requireNonNullElse(server.getConfiguration().getAcceptorConfigurations(), Collections.emptySet());
+      final Map<String, TransportConfiguration> updatedConfiguration =
+         updatedConfigurationSet.stream()
+                                .collect(Collectors.toMap(c -> c.getName(), Function.identity()));
+
+      final Set<TransportConfiguration> acceptorsToStop = new HashSet<>();
+      final Set<TransportConfiguration> acceptorsToCreate = new HashSet<>();
+
+      for (TransportConfiguration candidateConfiguration : updatedConfiguration.values()) {
+         final TransportConfiguration previous = acceptorsConfig.get(candidateConfiguration.getName());
+
+         if (previous == null) {
+            // New configuration that was added during the update
+            acceptorsToCreate.add(candidateConfiguration);
+         } else if (!previous.equals(candidateConfiguration)) {
+            // Updated configuration that needs to be stopped and restarted.
+            acceptorsToCreate.add(candidateConfiguration);
+            acceptorsToStop.add(candidateConfiguration);
+         }
+      }
+
+      for (TransportConfiguration currentConfiguration : acceptorsConfig.values()) {
+         if (!updatedConfiguration.containsKey(currentConfiguration.getName())) {
+            // Acceptor that was removed from the configuration which needs stopped and removed.
+            acceptorsToStop.add(currentConfiguration);
+         }
+      }
+
+      // Replace old configuration map with new configurations ahead of the stop and restart phase.
+      acceptorsConfig.clear();
+      acceptorsConfig.putAll(updatedConfiguration);
+
+      final CountDownLatch acceptorsStoppedLatch = new CountDownLatch(acceptorsToStop.size());
+
+      for (TransportConfiguration acceptorToStop : acceptorsToStop) {
+         final Acceptor acceptor = acceptors.remove(acceptorToStop.getName());
+
+         if (acceptor == null) {
+            continue;
+         }
+
+         final Map<String, Object> acceptorToStopParams = acceptorToStop.getCombinedParams();
+
+         removeAcceptorStoreReloadCallback(acceptorToStop.getName(),
+            fileUrlFrom(acceptorToStopParams.get(KEYSTORE_PATH_PROP_NAME)),
+            storeTypeFrom(acceptorToStopParams.get(KEYSTORE_TYPE_PROP_NAME)));
+
+         removeAcceptorStoreReloadCallback(acceptorToStop.getName(),
+            fileUrlFrom(acceptorToStopParams.get(TRUSTSTORE_PATH_PROP_NAME)),
+            storeTypeFrom(acceptorToStopParams.get(TRUSTSTORE_TYPE_PROP_NAME)));
+
+         try {
+            managementService.unregisterAcceptor(acceptor.getName());
+         } catch (Throwable t) {
+            ActiveMQServerLogger.LOGGER.errorStoppingAcceptor(acceptor.getName());
+         }
+
+         try {
+            acceptor.notifyStop();
+         } catch (Throwable t) {
+            ActiveMQServerLogger.LOGGER.errorStoppingAcceptor(acceptor.getName());
+         }
+
+         try {
+            acceptor.pause();
+         } catch (Throwable t) {
+            ActiveMQServerLogger.LOGGER.errorStoppingAcceptor(acceptor.getName());
+         }
+
+         try {
+            acceptor.asyncStop(acceptorsStoppedLatch::countDown);
+         } catch (Throwable t) {
+            ActiveMQServerLogger.LOGGER.errorStoppingAcceptor(acceptor.getName());
+         }
+      }
+
+      // In some cases an acceptor stopping could be locked ie NettyAcceptor stopping could be locked by a network failure.
+      if (!acceptorsStoppedLatch.await(UPDATE_ACCEPTORS_STOP_TIMEOUT, TimeUnit.MILLISECONDS)) {
+         logger.warn("Timed out waiting on removed or updated acceptors stopping.");
+      }
+
+      final Collection<Acceptor> acceptorsToStart = new ArrayList<>();
+
+      // Add all the new or updated acceptors now that removed or updated acceptors have been stopped.
+      for (TransportConfiguration candidateConfiguration : acceptorsToCreate) {
+         final Acceptor acceptor = createAcceptor(candidateConfiguration);
+
+         if (isStarted() && acceptor instanceof NettyAcceptor startable && startable.isAutoStart()) {
+            acceptorsToStart.add(startable);
+         }
+      }
+
+      Exception acceptorStartError = null;
+
+      for (Acceptor acceptor : acceptorsToStart) {
+         try {
+            acceptor.start();
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.errorStartingAcceptor(acceptor.getName(), acceptor.getConfiguration());
+            if (acceptorStartError == null) {
+               acceptorStartError = e;
+            }
+         }
+      }
+
+      if (acceptorStartError != null) {
+         throw acceptorStartError;
       }
    }
 
@@ -894,4 +1048,82 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       }
    }
 
+   private void removeAcceptorStoreReloadCallback(String acceptorName, URL storeURL, String storeType) {
+      if (storeURL != null) {
+         final ReloadManager reloadManager = server.getReloadManager();
+
+         reloadManager.removeCallbacks(storeURL);
+
+         if (PemConfigUtil.isPemConfigStoreType(storeType)) {
+            String[] sources = null;
+
+            try (InputStream pemConfigStream = storeURL.openStream()) {
+               sources = PemConfigUtil.parseSources(pemConfigStream);
+            } catch (IOException e) {
+               ActiveMQServerLogger.LOGGER.skipSSLAutoReloadForSourcesOfStore(storeURL.getPath(), e.toString());
+            }
+
+            if (sources != null) {
+               for (String source : sources) {
+                  URL sourceURL = fileUrlFrom(source);
+                  if (sourceURL != null) {
+                     reloadManager.removeCallbacks(sourceURL);
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   private void addAcceptorStoreReloadCallback(String acceptorName, URL storeURL, String storeType) {
+      if (storeURL != null) {
+         server.getReloadManager().addCallback(storeURL, (uri) -> {
+            // preference for Control to capture consistent audit logging
+            if (managementService != null) {
+               Object targetControl = managementService.getResource(ResourceNames.ACCEPTOR + acceptorName);
+               if (targetControl instanceof AcceptorControl acceptorControl) {
+                  acceptorControl.reload();
+               }
+            }
+         });
+
+         if (PemConfigUtil.isPemConfigStoreType(storeType)) {
+            String[] sources = null;
+
+            try (InputStream pemConfigStream = storeURL.openStream()) {
+               sources = PemConfigUtil.parseSources(pemConfigStream);
+            } catch (IOException e) {
+               ActiveMQServerLogger.LOGGER.skipSSLAutoReloadForSourcesOfStore(storeURL.getPath(), e.toString());
+            }
+
+            if (sources != null) {
+               for (String source : sources) {
+                  URL sourceURL = fileUrlFrom(source);
+                  if (sourceURL != null) {
+                     addAcceptorStoreReloadCallback(acceptorName, sourceURL, null);
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   private static URL fileUrlFrom(Object o) {
+      if (o instanceof String string) {
+         try {
+            return new File(string).toURI().toURL();
+         } catch (MalformedURLException ignored) {
+         }
+      }
+
+      return null;
+   }
+
+   private static String storeTypeFrom(Object o) {
+      if (o instanceof String string) {
+         return string;
+      }
+
+      return null;
+   }
 }

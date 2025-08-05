@@ -16,6 +16,7 @@ Once the configuration file is changed (broker.xml) the following modules will b
 * Diverts
 * Addresses & Queues
 * Bridges
+* Acceptors
 
 If using xref:configuration-index.adoc#modularising-broker-xml[modularised `broker.xml`] ensure you also read xref:configuration-index.adoc#reloading-modular-configuration-files[reloading modular configuration files]
 
@@ -549,6 +550,9 @@ Below lists the effects of adding, deleting and updating of an element/attribute
 | The queue user will be set to the default `null` after reloading
 | The queue user will be set to the new value after reloading
 |===
+
+==== `<acceptors>`
+Adding, updating and removing an `<acceptor>` is supported, updating or removing an `<acceptor>` results in the closure of all connections that were accepted previously. Added or updated acceptors are automatically started during the configuration reload process unless the `auto-start` option is set to false.
 
 === `<jms>` _(Deprecated)_
 
