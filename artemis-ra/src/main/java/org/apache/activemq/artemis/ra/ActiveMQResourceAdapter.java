@@ -1490,10 +1490,18 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    public synchronized void closeConnectionFactory(ConnectionFactoryProperties properties) {
-      Pair<ActiveMQConnectionFactory, AtomicInteger> pair = knownConnectionFactories.get(properties);
-      int references = pair.getB().decrementAndGet();
-      if (pair.getA() != null && pair.getA() != defaultActiveMQConnectionFactory && references == 0) {
-         knownConnectionFactories.remove(properties).getA().close();
+      Pair<ActiveMQConnectionFactory, AtomicInteger> factoryPair = knownConnectionFactories.get(properties);
+      if (factoryPair == null) {
+         logger.debug("No connection factory found for client '{}', probably already closed.", properties.getClientID());
+         return;
+      }
+
+      ActiveMQConnectionFactory factory = factoryPair.getA();
+      int referenceCount = factoryPair.getB().decrementAndGet();
+
+      if (factory != null && factory != defaultActiveMQConnectionFactory && referenceCount == 0) {
+         knownConnectionFactories.remove(properties);
+         factory.close();
       }
    }
 
