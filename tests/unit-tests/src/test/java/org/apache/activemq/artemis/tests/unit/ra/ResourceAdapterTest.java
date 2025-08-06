@@ -655,23 +655,23 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
          server.stop();
       }
    }
-    @Test
-    public void testCloseConnectionFactoryMultipleTimesDoesNotThrow() throws Exception {
-        ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
-        ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+   @Test
+   public void testCloseConnectionFactoryMultipleTimesDoesNotThrow() throws Exception {
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
+      ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
 
-        ConnectionFactoryProperties properties = new ConnectionFactoryProperties();
-        properties.setClientID("test-client");
+      ConnectionFactoryProperties properties = new ConnectionFactoryProperties();
+      properties.setClientID("test-client");
 
-        ActiveMQConnectionFactory factory = ra.getConnectionFactory(properties);
-        assertNotNull(factory);
+      ActiveMQConnectionFactory factory = ra.getConnectionFactory(properties);
+      assertNotNull(factory);
 
-        ra.closeConnectionFactory(properties);
+      ra.closeConnectionFactory(properties);
 
-        try {
-            ra.closeConnectionFactory(properties);
-        } catch (NullPointerException e) {
-            fail("NullPointerException was thrown when closing connection factory multiple times");
-        }
-    }
+      try {
+         ra.closeConnectionFactory(properties);
+      } catch (NullPointerException e) {
+         fail("NullPointerException was thrown when closing connection factory multiple times");
+      }
+   }
 }
