@@ -1496,8 +1496,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          return;
       }
 
-     ActiveMQConnectionFactory factory = factoryPair.getA();
-     int referenceCount = factoryPair.getB().decrementAndGet();
+      ActiveMQConnectionFactory factory = factoryPair.getA();
+      int referenceCount = factoryPair.getB().decrementAndGet();
 
       if (factory != null && factory != defaultActiveMQConnectionFactory && referenceCount == 0) {
          knownConnectionFactories.remove(properties);
