@@ -118,7 +118,7 @@ public class MetricsManager {
    }
 
    public void registerQueueGauge(String address, String queue, Consumer<MetricGaugeBuilder> builder) {
-      if (this.meterRegistry == null || !addressSettingsRepository.getMatch(queue).isEnableMetrics()) {
+      if (this.meterRegistry == null || !addressSettingsRepository.getMatch(address).isEnableMetrics()) {
          return;
       }
       final List<Builder<Object>> gaugeBuilders = new ArrayList<>();
