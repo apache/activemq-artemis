@@ -42,15 +42,18 @@ public class MetricsManagerTest {
    }
 
    public void testQueueMetrics(boolean enableMetrics) throws Exception {
+      final String address = RandomUtil.randomAlphaNumericString(4);
+      final String queue = RandomUtil.randomAlphaNumericString(4);
       HierarchicalRepository<AddressSettings> addressSettingsRepository = new HierarchicalObjectRepository<>(new WildcardConfiguration());
-      addressSettingsRepository.addMatch("#", new AddressSettings().setEnableMetrics(enableMetrics));
+      addressSettingsRepository.addMatch("#", new AddressSettings().setEnableMetrics(!enableMetrics));
+      addressSettingsRepository.addMatch(address, new AddressSettings().setEnableMetrics(enableMetrics));
 
       MetricsConfiguration metricsConfiguration = new MetricsConfiguration();
       metricsConfiguration.setPlugin(new SimpleMetricsPlugin().init(null));
       MetricsManager metricsManager = new MetricsManager(RandomUtil.randomUUIDString(), metricsConfiguration, addressSettingsRepository, null);
 
       AtomicBoolean test = new AtomicBoolean(false);
-      metricsManager.registerQueueGauge(RandomUtil.randomAlphaNumericString(4), RandomUtil.randomAlphaNumericString(4), (builder) -> {
+      metricsManager.registerQueueGauge(address, queue, (builder) -> {
          test.set(true);
       });
       assertEquals(enableMetrics, test.get());
