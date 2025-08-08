@@ -223,15 +223,8 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       paused = false;
 
-      // The remoting service maintains it's own thread pool for handling remoting traffic
-      // If OIO each connection will have it's own thread
-      // If NIO these are capped at nio-remoting-threads which defaults to num cores * 3
-      // This needs to be a different thread pool to the main thread pool especially for OIO where we may need
-      // to support many hundreds of connections, but the main thread pool must be kept small for better performance
-
-      ThreadFactory tFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("ActiveMQ-remoting-threads-" + server.toString() + "-" + System.identityHashCode(this), false, Thread.currentThread().getContextClassLoader()));
-
-      threadPool = Executors.newCachedThreadPool(tFactory);
+      // this is used for in-vm but for Netty it's only used for executing failure listeners
+      threadPool = Executors.newCachedThreadPool(AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory(server.getThreadGroupName("remoting-service"), false, Thread.currentThread().getContextClassLoader())));
 
       for (TransportConfiguration info : acceptorsConfig.values()) {
          createAcceptor(info);
@@ -291,7 +284,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
             selectedProtocols.put(entry.getKey(), entry.getValue().createProtocolManager(server, info.getCombinedParams(), incomingInterceptors, outgoingInterceptors));
          }
 
-         acceptor = factory.createAcceptor(info.getName(), clusterConnection, info.getParams(), new DelegatingBufferHandler(), this, threadPool, scheduledThreadPool, selectedProtocols);
+         acceptor = factory.createAcceptor(info.getName(), clusterConnection, info.getParams(), new DelegatingBufferHandler(), this, threadPool, scheduledThreadPool, selectedProtocols, server.getThreadGroupName("remoting-" + info.getName()));
 
          if (defaultInvmSecurityPrincipal != null && acceptor.isUnsecurable()) {
             acceptor.setDefaultActiveMQPrincipal(defaultInvmSecurityPrincipal);
@@ -345,10 +338,14 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       if (isStarted()) {
          for (Acceptor a : acceptors.values()) {
             try {
-               if (a instanceof NettyAcceptor acceptor && !acceptor.isAutoStart()) {
+               if (!a.isAutoStart()) {
                   continue;
                }
                a.start();
+
+               if (server.getMetricsManager() != null) {
+                  a.registerMetrics(server.getMetricsManager());
+               }
             } catch (Throwable t) {
                ActiveMQServerLogger.LOGGER.errorStartingAcceptor(a.getName(), a.getConfiguration());
                throw t;

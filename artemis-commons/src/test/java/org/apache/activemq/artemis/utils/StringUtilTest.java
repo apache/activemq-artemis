@@ -14,14 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.util;
+package org.apache.activemq.artemis.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.activemq.artemis.utils.StringUtil;
 import org.junit.jupiter.api.Test;
 
 public class StringUtilTest {
@@ -64,5 +63,10 @@ public class StringUtilTest {
       assertEquals("blue", result.get(1));
       assertEquals("yellow", result.get(2));
       assertEquals("green", result.get(3));
+   }
+
+   @Test
+   public void testPascalToKebab() throws Exception {
+      assertEquals("pascal-to-kebab", StringUtil.convertPascalCaseToKebabCase("PascalToKebab"));
    }
 }

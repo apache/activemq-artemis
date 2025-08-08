@@ -1053,6 +1053,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                metricsConfiguration.setLogging(XMLUtil.parseBoolean(child));
             } else if (child.getNodeName().equals("security-caches")) {
                metricsConfiguration.setSecurityCaches(XMLUtil.parseBoolean(child));
+            } else if (child.getNodeName().equals("executor-services")) {
+               metricsConfiguration.setExecutorServices(XMLUtil.parseBoolean(child));
             } else if (child.getNodeName().equals("plugin")) {
                metricsConfiguration.setPlugin(parseMetricsPlugin(child, config));
             }

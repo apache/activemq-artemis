@@ -16,9 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAlreadyReplicatingException;
@@ -61,7 +62,6 @@ import org.apache.activemq.artemis.core.server.cluster.quorum.QuorumManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class SharedNothingPrimaryActivation extends PrimaryActivation {
 
@@ -243,9 +243,9 @@ public class SharedNothingPrimaryActivation extends PrimaryActivation {
       }
 
       private void handleClose(boolean failed) {
-         ExecutorService executorService = activeMQServer.getThreadPool();
-         if (executorService != null) {
-            executorService.execute(() -> {
+         Executor executor = activeMQServer.getThreadPool();
+         if (executor != null) {
+            executor.execute(() -> {
                synchronized (replicationLock) {
                   if (replicationManager != null) {
                      activeMQServer.getStorageManager().stopReplication();

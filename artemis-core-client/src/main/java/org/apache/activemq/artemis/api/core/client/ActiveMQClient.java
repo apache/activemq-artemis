@@ -245,12 +245,12 @@ public final class ActiveMQClient {
    }
 
    public static synchronized ExecutorService getGlobalThreadPool() {
-      globalThreadPool = internalGetGlobalThreadPool(globalThreadPool, "ActiveMQ-client-global-threads", ActiveMQClient.globalThreadPoolSize);
+      globalThreadPool = internalGetGlobalThreadPool(globalThreadPool, "client-global", ActiveMQClient.globalThreadPoolSize);
       return globalThreadPool;
    }
 
    public static synchronized ExecutorService getGlobalFlowControlThreadPool() {
-      globalFlowControlThreadPool = internalGetGlobalThreadPool(globalFlowControlThreadPool, "ActiveMQ-client-global-flow-control-threads", ActiveMQClient.globalFlowControlThreadPoolSize);
+      globalFlowControlThreadPool = internalGetGlobalThreadPool(globalFlowControlThreadPool, "client-global-flow-control", ActiveMQClient.globalFlowControlThreadPoolSize);
       return globalFlowControlThreadPool;
    }
 
@@ -269,7 +269,7 @@ public final class ActiveMQClient {
 
    public static synchronized ScheduledExecutorService getGlobalScheduledThreadPool() {
       if (globalScheduledThreadPool == null) {
-         ThreadFactory factory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("ActiveMQ-client-global-scheduled-threads", true, ClientSessionFactoryImpl.class.getClassLoader()));
+         ThreadFactory factory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("client-global-scheduled", true, ClientSessionFactoryImpl.class.getClassLoader()));
 
          globalScheduledThreadPool = new ScheduledThreadPoolExecutor(ActiveMQClient.globalScheduledThreadPoolSize, factory);
       }

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.function.ToDoubleFunction;
 
@@ -33,14 +34,18 @@ import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics;
+import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
 import io.micrometer.core.instrument.binder.logging.Log4j2Metrics;
+import io.micrometer.core.instrument.binder.netty4.NettyEventExecutorMetrics;
 import io.micrometer.core.instrument.binder.system.FileDescriptorMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.core.instrument.binder.system.UptimeMetrics;
+import io.micrometer.core.instrument.config.MeterFilter;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.EventLoopGroup;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.MetricsConfiguration;
 import org.apache.activemq.artemis.core.security.SecurityStore;
@@ -54,6 +59,7 @@ import org.slf4j.LoggerFactory;
 public class MetricsManager {
 
    public static final String BROKER_TAG_NAME = "broker";
+   public static final String METER_PREFIX = "artemis.";
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -66,15 +72,30 @@ public class MetricsManager {
 
    private final HierarchicalRepository<AddressSettings> addressSettingsRepository;
 
+   private final MetricsConfiguration metricsConfiguration;
+
    public MetricsManager(String brokerName,
                          MetricsConfiguration metricsConfiguration,
                          HierarchicalRepository<AddressSettings> addressSettingsRepository,
                          SecurityStore securityStore) {
       this.brokerName = brokerName;
+      this.metricsConfiguration = metricsConfiguration;
       this.meterRegistry = metricsConfiguration.getPlugin().getRegistry();
       this.addressSettingsRepository = addressSettingsRepository;
       this.commonTags = Tags.of(BROKER_TAG_NAME, brokerName);
       if (meterRegistry != null) {
+
+         // This is a temporary workaround until Micrometer supports common tags on NettyEventExecutorMetrics
+         meterRegistry.config().meterFilter(new MeterFilter() {
+            @Override
+            public Meter.Id map(Meter.Id id) {
+               if (id.getName().startsWith("netty")) {
+                  return id.withTags(commonTags);
+               }
+               return id;
+            }
+         });
+
          Metrics.globalRegistry.add(meterRegistry);
          if (metricsConfiguration.isJvmMemory()) {
             new JvmMemoryMetrics(commonTags).bindTo(meterRegistry);
@@ -124,7 +145,7 @@ public class MetricsManager {
       final List<Builder<Object>> gaugeBuilders = new ArrayList<>();
       builder.accept((metricName, state, f, description, gaugeTags) -> {
          Builder<Object> meter = Gauge
-            .builder("artemis." + metricName, state, f)
+            .builder(METER_PREFIX + metricName, state, f)
             .tags(commonTags)
             .tags(gaugeTags)
             .tag("address", address)
@@ -142,7 +163,7 @@ public class MetricsManager {
       final List<Builder<Object>> gaugeBuilders = new ArrayList<>();
       builder.accept((metricName, state, f, description, gaugeTags) -> {
          Builder<Object> meter = Gauge
-            .builder("artemis." + metricName, state, f)
+            .builder(METER_PREFIX + metricName, state, f)
             .tags(commonTags)
             .tags(gaugeTags)
             .tag("address", address)
@@ -159,7 +180,7 @@ public class MetricsManager {
       final List<Builder<Object>> gaugeBuilders = new ArrayList<>();
       builder.accept((metricName, state, f, description, gaugeTags) -> {
          Builder<Object> meter = Gauge
-            .builder("artemis." + metricName, state, f)
+            .builder(METER_PREFIX + metricName, state, f)
             .tags(commonTags)
             .tags(gaugeTags)
             .description(description);
@@ -197,5 +218,21 @@ public class MetricsManager {
       } else {
          logger.debug("Attempted to unregister meters for {}, but none were found.", resource);
       }
+   }
+
+   public void registerExecutorService(ExecutorService executorService, String name) {
+      if (this.meterRegistry == null || !metricsConfiguration.isExecutorServices()) {
+         return;
+      }
+      logger.debug("Registering ExecutorService {}: {}", name, executorService);
+      ExecutorServiceMetrics.monitor(meterRegistry, executorService, name, commonTags);
+   }
+
+   public void registerNettyEventLoopGroup(String name, EventLoopGroup eventLoopGroup) {
+      if (this.meterRegistry == null || !metricsConfiguration.isExecutorServices()) {
+         return;
+      }
+      logger.info("Registering Netty EventLoopGroup for {}: {}", name, eventLoopGroup);
+      new NettyEventExecutorMetrics(eventLoopGroup).bindTo(this.meterRegistry);
    }
 }

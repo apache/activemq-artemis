@@ -37,7 +37,8 @@ public class InVMAcceptorFactory implements AcceptorFactory {
                                   final ServerConnectionLifeCycleListener listener,
                                   final Executor threadPool,
                                   final ScheduledExecutorService scheduledThreadPool,
-                                  final Map<String, ProtocolManager> protocolMap) {
+                                  final Map<String, ProtocolManager> protocolMap,
+                                  String threadFactoryGroupName) {
       return new InVMAcceptor(name, clusterConnection, configuration, handler, listener, protocolMap, threadPool);
    }
 

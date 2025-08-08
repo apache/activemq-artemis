@@ -38,8 +38,9 @@ public class NettyAcceptorFactory implements AcceptorFactory {
                                   final ServerConnectionLifeCycleListener listener,
                                   final Executor threadPool,
                                   final ScheduledExecutorService scheduledThreadPool,
-                                  final Map<String, ProtocolManager> protocolMap) {
+                                  final Map<String, ProtocolManager> protocolMap,
+                                  final String threadFactoryGroupName) {
       Executor failureExecutor = new OrderedExecutor(threadPool);
-      return new NettyAcceptor(name, connection, configuration, handler, listener, scheduledThreadPool, failureExecutor, protocolMap);
+      return new NettyAcceptor(name, connection, configuration, handler, listener, scheduledThreadPool, failureExecutor, protocolMap, threadFactoryGroupName);
    }
 }
