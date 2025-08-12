@@ -89,22 +89,37 @@ retry-interval:: default is 5000, in milliseconds, the wait between each retry o
 
 It is also possible to specify alternate hosts on a broker connection by appending a comma separated list after a `#` at the end of the URI.
 The broker connection would keep trying on the alternate list until one of the targets is available to connect.
-Example:
+
+For example, a backup broker can be specified like this:
 
 [,xml]
 ----
 <broker-connections>
-  <amqp-connection uri="tcp://ServerA:5672#BackupA:5672,BackupB:5672" name="ServerA" reconnect-attempts="-1" retry-interval="5000">
+  <amqp-connection uri="tcp://ServerA:5672#tcp://BackupA:5672" name="MyBrokerConnection" reconnect-attempts="-1" retry-interval="5000">
     ...
   </amqp-connection>
 </broker-connections>
 ----
 
-image:images/broker-connection-failover.jpg[Broker Connection Failover] Figure 1.
-Broker Connection - Reconnecting and Failover.
+To specify more than 2 elements use a comma separated list after the first pair, e.g.:
+
+[,xml]
+----
+<broker-connections>
+  <amqp-connection uri="tcp://ServerA:5672#tcp://BackupA:5672,tcp://BackupB:5672" name="MyBrokerConnection" reconnect-attempts="-1" retry-interval="5000">
+    ...
+  </amqp-connection>
+</broker-connections>
+----
+.Broker Connection - Reconnecting and Failover
+image::images/broker-connection-failover.jpg[]
 
 The previous example portrays a case of connection failure towards ServerA.
-The system would try to connect to serverA, backupA, and backupB until it successfully connects to one of these nodes.
+The system would try to connect to ServerA, BackupA, and BackupB until it successfully connects to one of these nodes.
+
+WARNING: For failover on mirrored brokers, all nodes in the list must be high-available (HA) failover nodes.
+Specifying independents nodes in the mirror list can cause consistency issues between the message
+sent to the mirror and the acknowledgements received on the mirror.
 
 == Mirroring
 
