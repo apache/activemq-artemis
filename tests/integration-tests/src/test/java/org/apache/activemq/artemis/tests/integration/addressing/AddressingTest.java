@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.addressing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -41,6 +42,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.jupiter.api.BeforeEach;
@@ -297,9 +299,24 @@ public class AddressingTest extends ActiveMQTestBase {
       assertNotNull(server.locateQueue(queueName));
       Wait.assertEquals(0, queue::getMessageCount);
 
-      // there are no consumers so no messages should be routed to the queue
-      producer.send(session.createMessage(true));
-      Wait.assertEquals(0, queue::getMessageCount);
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         // there are no consumers so no messages should be routed to the queue
+         for (int i = 0; i < 5; i++) {
+            producer.send(session.createMessage(true));
+         }
+         // should be informed only once
+         assertEquals(1, loggerHandler.countText("AMQ224149"));
+         Wait.assertEquals(0, queue::getMessageCount);
+
+         consumer = session.createConsumer(queueName);
+         producer.send(session.createMessage(true));
+         consumer.close();
+         producer.send(session.createMessage(true));
+
+         // the second send should warn again as we cleared the status to print the logging again
+         assertEquals(2, loggerHandler.countText("AMQ224149"));
+         Wait.assertEquals(0, queue::getMessageCount);
+      }
    }
 
    @Test
@@ -336,7 +353,10 @@ public class AddressingTest extends ActiveMQTestBase {
       assertNotNull(server.locateQueue(disabledQueue));
       ClientSession session = sessionFactory.createSession();
       ClientProducer producer = session.createProducer(address);
-      producer.send(session.createMessage(true));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         producer.send(session.createMessage(true));
+         assertEquals(1, loggerHandler.countText("AMQ224148"));
+      }
 
       assertNotNull(server.locateQueue(defaultQueue));
       assertNotNull(server.locateQueue(enabledQueue));
@@ -351,7 +371,12 @@ public class AddressingTest extends ActiveMQTestBase {
       server.updateQueue(QueueConfiguration.of(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
       server.updateQueue(QueueConfiguration.of(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
 
-      producer.send(session.createMessage(true));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         producer.send(session.createMessage(true));
+         producer.send(session.createMessage(true));
+         // we should be informed only twice even though there are 3 queues, as one of those were already informed before
+         assertEquals(2, loggerHandler.countText("AMQ224148"));
+      }
 
       Wait.assertEquals(1, server.locateQueue(defaultQueue)::getMessageCount);
       Wait.assertEquals(1, server.locateQueue(enabledQueue)::getMessageCount);
@@ -364,12 +389,32 @@ public class AddressingTest extends ActiveMQTestBase {
       server.updateQueue(QueueConfiguration.of(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
 
 
-      producer.send(session.createMessage(true));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         producer.send(session.createMessage(true));
+         assertFalse(loggerHandler.findText("AMQ224148"));
+      }
 
       Wait.assertEquals(2, server.locateQueue(defaultQueue)::getMessageCount);
       Wait.assertEquals(2, server.locateQueue(enabledQueue)::getMessageCount);
       Wait.assertEquals(1, server.locateQueue(disabledQueue)::getMessageCount);
 
+      // disable again
+      server.updateQueue(QueueConfiguration.of(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+      server.updateQueue(QueueConfiguration.of(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+      server.updateQueue(QueueConfiguration.of(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         for (int i = 0; i < 10; i++) {
+            producer.send(session.createMessage(true));
+         }
+         // we should warn again since it was enabled.
+         // and we should be warned 3 times, one for each queue.
+         assertEquals(3, loggerHandler.countText("AMQ224148"));
+      }
+
+      Wait.assertEquals(2, server.locateQueue(defaultQueue)::getMessageCount);
+      Wait.assertEquals(2, server.locateQueue(enabledQueue)::getMessageCount);
+      Wait.assertEquals(1, server.locateQueue(disabledQueue)::getMessageCount);
    }
 
    @Test

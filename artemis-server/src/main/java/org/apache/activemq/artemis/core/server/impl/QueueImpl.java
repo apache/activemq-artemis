@@ -316,6 +316,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile long createdTimestamp = -1;
 
+   // should it print logging in case no messages are routed
+   private volatile boolean noRouteLogging = true;
+
    private final int initialQueueBufferSize;
 
    protected final QueueConfiguration queueConfiguration;
@@ -569,15 +572,26 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public void route(final Message message, final RoutingContext context) throws Exception {
       if (!queueConfiguration.isEnabled()) {
+         if (noRouteLogging) {
+            noRouteLogging = false;
+            ActiveMQServerLogger.LOGGER.noRouteDisabledQueue(this.getName());
+         }
          context.setReusable(false);
          return;
       }
       if (queueConfiguration.isPurgeOnNoConsumers()) {
          context.setReusable(false);
          if (getConsumerCount() == 0) {
+            if (noRouteLogging) {
+               noRouteLogging = false;
+               ActiveMQServerLogger.LOGGER.noRouteNoConsumers(this.getName());
+            }
             return;
          }
       }
+
+      noRouteLogging = true;
+
       context.addQueue(queueConfiguration.getAddress(), this);
    }
 
