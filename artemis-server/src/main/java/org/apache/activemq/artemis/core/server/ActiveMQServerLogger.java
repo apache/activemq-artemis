@@ -1515,4 +1515,7 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224149, value = "Messages are being dropped on queue {}. PurgeOnNoConsumers=true and there are no consumers on this queue.", level = LogMessage.Level.INFO)
    void noRouteNoConsumers(SimpleString queueName);
+
+   @LogMessage(id = 224150, value = "Messages will be dropped on queue {}. Queue is disabled.", level = LogMessage.Level.INFO)
+   void noRouteMessagesWillBeDropped(SimpleString queueName);
 }
