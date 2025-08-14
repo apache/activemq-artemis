@@ -455,9 +455,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          ? ActiveMQDefaultConfiguration.INITIAL_QUEUE_BUFFER_SIZE
          : this.cachedAddressSettings.getInitialQueueBufferSize();
       this.intermediateMessageReferences = new MpscUnboundedArrayQueue<>(initialQueueBufferSize);
+
+      verifyDisabledConfiguration();
    }
 
-   // Bindable implementation -------------------------------------------------------------------------------------
+   private void verifyDisabledConfiguration() {
+      if (noRouteLogging && !this.queueConfiguration.isEnabled()) {
+         ActiveMQServerLogger.LOGGER.noRouteMessagesWillBeDropped(this.getName());
+      }
+   }
+
 
    @Override
    public boolean allowsReferenceCallback() {
@@ -659,6 +666,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public synchronized void setEnabled(boolean value) {
       queueConfiguration.setEnabled(value);
+      verifyDisabledConfiguration();
    }
 
    @Override

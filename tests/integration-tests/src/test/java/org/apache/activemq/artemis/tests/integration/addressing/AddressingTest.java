@@ -341,20 +341,23 @@ public class AddressingTest extends ActiveMQTestBase {
       SimpleString enabledQueue = SimpleString.of(UUID.randomUUID().toString());
       SimpleString disabledQueue = SimpleString.of(UUID.randomUUID().toString());
 
-
       //Validate default is enabled, and check that queues enabled receive messages and disabled do not on same address.
 
-      server.createQueue(QueueConfiguration.of(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST));
-      server.createQueue(QueueConfiguration.of(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
-      server.createQueue(QueueConfiguration.of(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
-
-      assertNotNull(server.locateQueue(defaultQueue));
-      assertNotNull(server.locateQueue(enabledQueue));
-      assertNotNull(server.locateQueue(disabledQueue));
       ClientSession session = sessionFactory.createSession();
       ClientProducer producer = session.createProducer(address);
+
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         server.createQueue(QueueConfiguration.of(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST));
+         server.createQueue(QueueConfiguration.of(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
+         server.createQueue(QueueConfiguration.of(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+         // one queue was disabled
+         assertEquals(1, loggerHandler.countText("AMQ224150"));
+
+         assertNotNull(server.locateQueue(defaultQueue));
+         assertNotNull(server.locateQueue(enabledQueue));
+         assertNotNull(server.locateQueue(disabledQueue));
          producer.send(session.createMessage(true));
+         // the warning had already been sent when the queue was created
          assertEquals(1, loggerHandler.countText("AMQ224148"));
       }
 
@@ -366,12 +369,13 @@ public class AddressingTest extends ActiveMQTestBase {
       Wait.assertEquals(1, server.locateQueue(enabledQueue)::getMessageCount);
       Wait.assertEquals(0, server.locateQueue(disabledQueue)::getMessageCount);
 
-      //Update Queue Disable All
-      server.updateQueue(QueueConfiguration.of(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
-      server.updateQueue(QueueConfiguration.of(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
-      server.updateQueue(QueueConfiguration.of(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
-
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         //Update Queue Disable All
+         server.updateQueue(QueueConfiguration.of(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+         server.updateQueue(QueueConfiguration.of(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+         server.updateQueue(QueueConfiguration.of(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+         assertEquals(2, loggerHandler.countText("AMQ224150"));
+
          producer.send(session.createMessage(true));
          producer.send(session.createMessage(true));
          // we should be informed only twice even though there are 3 queues, as one of those were already informed before
@@ -383,13 +387,12 @@ public class AddressingTest extends ActiveMQTestBase {
       Wait.assertEquals(0, server.locateQueue(disabledQueue)::getMessageCount);
 
 
-      //Update Queue Enable All
-      server.updateQueue(QueueConfiguration.of(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
-      server.updateQueue(QueueConfiguration.of(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
-      server.updateQueue(QueueConfiguration.of(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
-
-
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         //Update Queue Enable All
+         server.updateQueue(QueueConfiguration.of(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
+         server.updateQueue(QueueConfiguration.of(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
+         server.updateQueue(QueueConfiguration.of(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(true));
+
          producer.send(session.createMessage(true));
          assertFalse(loggerHandler.findText("AMQ224148"));
       }
@@ -399,11 +402,13 @@ public class AddressingTest extends ActiveMQTestBase {
       Wait.assertEquals(1, server.locateQueue(disabledQueue)::getMessageCount);
 
       // disable again
-      server.updateQueue(QueueConfiguration.of(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
-      server.updateQueue(QueueConfiguration.of(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
-      server.updateQueue(QueueConfiguration.of(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
 
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         server.updateQueue(QueueConfiguration.of(defaultQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+         server.updateQueue(QueueConfiguration.of(enabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+         server.updateQueue(QueueConfiguration.of(disabledQueue).setAddress(address).setRoutingType(RoutingType.MULTICAST).setEnabled(false));
+         assertEquals(3, loggerHandler.countText("AMQ224150"));
+
          for (int i = 0; i < 10; i++) {
             producer.send(session.createMessage(true));
          }
