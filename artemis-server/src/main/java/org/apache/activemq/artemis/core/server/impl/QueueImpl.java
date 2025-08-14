@@ -461,7 +461,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private void verifyDisabledConfiguration() {
       if (noRouteLogging && !this.queueConfiguration.isEnabled()) {
-         ActiveMQServerLogger.LOGGER.noRouteMessagesWillBeDropped(this.getName());
+         ActiveMQServerLogger.LOGGER.noRouteMessagesWillBeDropped(this.getAddress(), this.getName());
       }
    }
 
@@ -581,7 +581,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (!queueConfiguration.isEnabled()) {
          if (noRouteLogging) {
             noRouteLogging = false;
-            ActiveMQServerLogger.LOGGER.noRouteDisabledQueue(this.getName());
+            ActiveMQServerLogger.LOGGER.noRouteDisabledQueue(this.getAddress(), this.getName());
          }
          context.setReusable(false);
          return;
@@ -591,7 +591,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (getConsumerCount() == 0) {
             if (noRouteLogging) {
                noRouteLogging = false;
-               ActiveMQServerLogger.LOGGER.noRouteNoConsumers(this.getName());
+               ActiveMQServerLogger.LOGGER.noRouteNoConsumers(this.getAddress(), this.getName());
             }
             return;
          }
