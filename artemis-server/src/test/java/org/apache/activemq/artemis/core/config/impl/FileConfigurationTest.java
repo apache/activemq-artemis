@@ -685,6 +685,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertTrue(metricsConfiguration.isUptime());
       assertTrue(metricsConfiguration.isLogging());
       assertTrue(metricsConfiguration.isSecurityCaches());
+      assertTrue(metricsConfiguration.isExecutorServices());
    }
 
    private void verifyAddresses() {

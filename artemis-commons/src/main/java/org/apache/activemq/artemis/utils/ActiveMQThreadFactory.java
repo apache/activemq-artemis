@@ -62,7 +62,7 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
     * @param tccl      the context class loader of newly created threads
     */
    public ActiveMQThreadFactory(final String groupName, String prefix, final boolean daemon, final ClassLoader tccl) {
-      this.groupName = groupName;
+      this.groupName = "activemq-" + StringUtil.convertPascalCaseToKebabCase(groupName);
 
       this.prefix = prefix;
 

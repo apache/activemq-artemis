@@ -59,7 +59,7 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
 
          @Override
          protected ActiveMQThreadFactory getThreadFactory() {
-            return new ActiveMQThreadFactory("CriticalAnalyzer", "Critical-Analyzer-", true, getThisClassLoader());
+            return new ActiveMQThreadFactory("critical-analyzer", true, getThisClassLoader());
          }
 
          private ClassLoader getThisClassLoader() {

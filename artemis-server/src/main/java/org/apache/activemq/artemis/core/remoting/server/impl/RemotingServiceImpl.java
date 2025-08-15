@@ -16,13 +16,6 @@
  */
 package org.apache.activemq.artemis.core.remoting.server.impl;
 
-import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SSL_AUTO_RELOAD;
-import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.KEYSTORE_PATH_PROP_NAME;
-import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.KEYSTORE_TYPE_PROP_NAME;
-import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.SSL_AUTO_RELOAD_PROP_NAME;
-import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PATH_PROP_NAME;
-import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_TYPE_PROP_NAME;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,7 +62,6 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.impl.CoreProtocolManagerFactory;
-import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.remoting.server.RemotingService;
 import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
@@ -102,6 +94,13 @@ import org.apache.activemq.artemis.utils.PemConfigUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SSL_AUTO_RELOAD;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.KEYSTORE_PATH_PROP_NAME;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.KEYSTORE_TYPE_PROP_NAME;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.SSL_AUTO_RELOAD_PROP_NAME;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_PATH_PROP_NAME;
+import static org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.TRUSTSTORE_TYPE_PROP_NAME;
 
 public class RemotingServiceImpl implements RemotingService, ServerConnectionLifeCycleListener {
 
@@ -223,15 +222,8 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       paused = false;
 
-      // The remoting service maintains it's own thread pool for handling remoting traffic
-      // If OIO each connection will have it's own thread
-      // If NIO these are capped at nio-remoting-threads which defaults to num cores * 3
-      // This needs to be a different thread pool to the main thread pool especially for OIO where we may need
-      // to support many hundreds of connections, but the main thread pool must be kept small for better performance
-
-      ThreadFactory tFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("ActiveMQ-remoting-threads-" + server.toString() + "-" + System.identityHashCode(this), false, Thread.currentThread().getContextClassLoader()));
-
-      threadPool = Executors.newCachedThreadPool(tFactory);
+      // this is used for in-vm but for Netty it's only used for executing failure listeners
+      threadPool = Executors.newCachedThreadPool(AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory(server.getThreadGroupName("remoting-service"), false, Thread.currentThread().getContextClassLoader())));
 
       for (TransportConfiguration info : acceptorsConfig.values()) {
          createAcceptor(info);
@@ -291,7 +283,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
             selectedProtocols.put(entry.getKey(), entry.getValue().createProtocolManager(server, info.getCombinedParams(), incomingInterceptors, outgoingInterceptors));
          }
 
-         acceptor = factory.createAcceptor(info.getName(), clusterConnection, info.getParams(), new DelegatingBufferHandler(), this, threadPool, scheduledThreadPool, selectedProtocols);
+         acceptor = factory.createAcceptor(info.getName(), clusterConnection, info.getParams(), new DelegatingBufferHandler(), this, threadPool, scheduledThreadPool, selectedProtocols, server.getThreadGroupName("remoting-" + info.getName()), server.getMetricsManager());
 
          if (defaultInvmSecurityPrincipal != null && acceptor.isUnsecurable()) {
             acceptor.setDefaultActiveMQPrincipal(defaultInvmSecurityPrincipal);
@@ -345,7 +337,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       if (isStarted()) {
          for (Acceptor a : acceptors.values()) {
             try {
-               if (a instanceof NettyAcceptor acceptor && !acceptor.isAutoStart()) {
+               if (!a.isAutoStart()) {
                   continue;
                }
                a.start();
@@ -707,8 +699,8 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       for (TransportConfiguration candidateConfiguration : acceptorsToCreate) {
          final Acceptor acceptor = createAcceptor(candidateConfiguration);
 
-         if (isStarted() && acceptor instanceof NettyAcceptor startable && startable.isAutoStart()) {
-            acceptorsToStart.add(startable);
+         if (isStarted() && acceptor.isAutoStart()) {
+            acceptorsToStart.add(acceptor);
          }
       }
 

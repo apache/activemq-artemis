@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import java.lang.invoke.MethodHandles;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Objects;
@@ -30,7 +31,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * This is for components with a scheduled at a fixed rate.
@@ -184,7 +184,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    }
 
    protected ActiveMQThreadFactory getThreadFactory() {
-      return new ActiveMQThreadFactory(this.getClass().getSimpleName() + "-scheduled-threads", false, getThisClassLoader());
+      return new ActiveMQThreadFactory(this.getClass().getSimpleName() + "-scheduled", false, getThisClassLoader());
    }
 
    private ClassLoader getThisClassLoader() {

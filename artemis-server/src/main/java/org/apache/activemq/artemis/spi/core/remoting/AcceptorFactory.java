@@ -21,6 +21,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
+import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 
 /**
@@ -49,7 +50,9 @@ public interface AcceptorFactory {
                            ServerConnectionLifeCycleListener listener,
                            Executor threadPool,
                            ScheduledExecutorService scheduledThreadPool,
-                           Map<String, ProtocolManager> protocolMap);
+                           Map<String, ProtocolManager> protocolMap,
+                           String threadFactoryGroupName,
+                           MetricsManager metricsManager);
 
    default boolean supportsRemote() {
       return true;

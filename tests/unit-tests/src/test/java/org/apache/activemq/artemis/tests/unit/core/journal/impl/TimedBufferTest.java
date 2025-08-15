@@ -227,7 +227,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
       NIOSequentialFileFactory factory = new NIOSequentialFileFactory(getTestDirfile(), 1) {
          @Override
          public SequentialFile createSequentialFile(final String fileName) {
-            return new NIOSequentialFile(this, journalDir, fileName, maxIO, writeExecutor) {
+            return new NIOSequentialFile(this, journalDir, fileName, maxIO) {
                @Override
                protected void syncChannel(FileChannel channel) throws IOException {
                   try {

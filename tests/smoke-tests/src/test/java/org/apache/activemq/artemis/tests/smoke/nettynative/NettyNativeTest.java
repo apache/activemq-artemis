@@ -37,6 +37,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.File;
+import java.util.Arrays;
 
 public class NettyNativeTest extends SmokeTestBase {
 
@@ -92,8 +93,10 @@ public class NettyNativeTest extends SmokeTestBase {
       }
 
       File artemisLog = new File("target/" + SERVER_NAME + "/log/artemis.log");
-      assertTrue(findLogRecord(artemisLog,  "Acceptor using native"));
-      assertFalse(findLogRecord(artemisLog, "Acceptor using nio"));
+      for (String protocol : Arrays.asList("artemis", "amqp", "stomp", "hornetq", "mqtt")) {
+         assertTrue(findLogRecord(artemisLog, "Acceptor " + protocol + " using native"));
+         assertFalse(findLogRecord(artemisLog, "Acceptor " + protocol + " using nio"));
+      }
    }
 
 }

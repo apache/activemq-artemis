@@ -53,7 +53,7 @@ public class AcceptorParserTest {
       assertEquals(33, ConfigurationHelper.getIntProperty(TransportConstants.QUIET_PERIOD, -1, configs.get(0).getParams()));
       assertEquals(55, ConfigurationHelper.getIntProperty(TransportConstants.SHUTDOWN_TIMEOUT, -1, configs.get(0).getParams()));
 
-      NettyAcceptor nettyAcceptor = new NettyAcceptor("name", null, configs.get(0).getParams(), null, null, null, null, new HashMap<>());
+      NettyAcceptor nettyAcceptor = new NettyAcceptor("name", null, configs.get(0).getParams(), null, null, null, null, new HashMap<>(), "threadFactoryGroupName", null);
 
       assertEquals(33, nettyAcceptor.getQuietPeriod());
       assertEquals(55, nettyAcceptor.getShutdownTimeout());
