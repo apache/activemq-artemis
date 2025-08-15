@@ -918,7 +918,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          return;
       }
 
-      SimpleString qName = SimpleString.of(dest.getPhysicalName());
+      // Use normalized core name for broker lookup / auto-create, but keep the
+      // original ActiveMQDestination for advisories / state (back-compat).
+      final String coreLookupName = dest.isQueue()
+         ? org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil.toCoreProduceAddress(dest)
+         : dest.getPhysicalName();
+      SimpleString qName = SimpleString.of(coreLookupName);
 
       AutoCreateResult autoCreateResult = internalSession.checkAutoCreate(QueueConfiguration.of(qName)
                                                                              .setRoutingType(dest.isQueue() ? RoutingType.ANYCAST : RoutingType.MULTICAST)
