@@ -684,6 +684,9 @@ public class FederatedAddressTest extends FederatedTestBase {
 
          MessageProducer producer = session0.createProducer(topic0);
 
+         Wait.assertEquals(2, () -> getServer(0).getPostOffice().getBindingsForAddress(SimpleString.of(address)).getBindings().size(), 5000, 100);
+         Wait.assertEquals(2, () -> getServer(1).getPostOffice().getBindingsForAddress(SimpleString.of(address)).getBindings().size(), 5000, 100);
+
          sendAndConsume(producer, session0, DATA_REGULAR, "regular", consumer0, consumer1);
          sendAndConsume(producer, session0, DATA_COMPRESSED_LARGE, "compressedLarge", consumer0, consumer1);
          sendAndConsume(producer, session0, DATA_COMPRESSED_REGULAR, "compressedRegular", consumer0, consumer1);
@@ -701,8 +704,8 @@ public class FederatedAddressTest extends FederatedTestBase {
          message.setStringProperty("identification", identification);
          producer.send(message);
       }
-      TextMessage message0 = (TextMessage) consumer0.receive(1000);
-      TextMessage message1 = (TextMessage) consumer1.receive(1000);
+      TextMessage message0 = (TextMessage) consumer0.receive(10_000);
+      TextMessage message1 = (TextMessage) consumer1.receive(10_000);
       assertNotNull(message0);
       assertNotNull(message1);
       assertEquals(data, message0.getText());
