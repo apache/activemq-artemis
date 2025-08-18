@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
+import org.apache.activemq.artemis.tests.unit.util.InVMContext;
+
 /**
  * An in-VM JNDI InitialContextFactory. Lightweight JNDI implementation used for testing.
  */
