@@ -87,7 +87,6 @@ public class OpenWireUtil {
 
    /**
     * Converts an ActiveMQ destination to a core produce address.
-    * <p/>
     * This method handles different types of destinations:
     * - Returns the physical name for temporary or advisory destinations
     * - For FQQN addresses, escapes backslashes in the address part only
@@ -116,7 +115,6 @@ public class OpenWireUtil {
 
    /**
     * Converts an ActiveMQ destination to a core consume pattern.
-    * <p/>
     * This method handles different types of destinations:
     * - Returns the physical name for temporary or advisory destinations
     * - For FQQN addresses, converts wildcards in the address part only
