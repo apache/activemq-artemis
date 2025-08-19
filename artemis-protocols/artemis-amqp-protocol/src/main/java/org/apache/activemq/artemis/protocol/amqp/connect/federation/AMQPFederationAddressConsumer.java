@@ -69,10 +69,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Consumer implementation for Federated Addresses that receives from a remote AMQP peer and forwards those messages
- * onto the internal broker Address for consumption by an attached consumers.
+ * Base AMQP federation address consumer implementation that provides the common functionality that all
+ * federation address consumers must provide with extension points to customize the actual message routing
+ * behavior as needed.
  */
-public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer {
+public abstract class AMQPFederationAddressConsumer extends AMQPFederationConsumer {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -112,12 +113,12 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
    }
 
    @Override
-   public int getReceiverIdleTimeout() {
+   public final int getReceiverIdleTimeout() {
       return configuration.getAddressReceiverIdleTimeout();
    }
 
    @Override
-   protected void doCreateReceiver() {
+   protected final void doCreateReceiver() {
       try {
          final Receiver protonReceiver = session.getSession().receiver(generateLinkName());
          final Target target = new Target();
@@ -216,7 +217,7 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
                // operator manually closing the link.
                federation.addLinkClosedInterceptor(consumerInfo.getId(), remoteCloseInterceptor);
 
-               receiver = new AMQPFederatedAddressDeliveryReceiver(session, consumerInfo, protonReceiver);
+               receiver = createDeliveryHandler(protonReceiver);
 
                final boolean linkOpened = protonReceiver.getRemoteSource() != null;
 
@@ -243,6 +244,16 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
 
       connection.flush();
    }
+
+   /**
+    * Create the delivery handler instance that will assigned as the context on the AMQP receiver link instance.
+    *
+    * @param receiver
+    *    The {@link Receiver} instance that the returned delivery handler is bound to.
+    *
+    * @return a new delivery handler that will route incoming messages to their intended target.
+    */
+   protected abstract AMQPFederatedAddressDeliveryHandler createDeliveryHandler(Receiver receiver);
 
    private static AMQPMessage incrementAMQPMessageHops(AMQPMessage message) {
       Object hops = message.getAnnotation(MESSAGE_HOPS_ANNOTATION);
@@ -277,11 +288,11 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
     * Wrapper around the standard receiver context that provides federation specific entry points and customizes inbound
     * delivery handling for this Address receiver.
     */
-   private class AMQPFederatedAddressDeliveryReceiver extends ProtonServerReceiverContext {
+   protected abstract class AMQPFederatedAddressDeliveryHandler extends ProtonServerReceiverContext {
 
-      private final SimpleString cachedAddress;
+      protected final SimpleString cachedAddress;
 
-      private boolean closed;
+      protected boolean closed;
 
       /**
        * Creates the federation receiver instance.
@@ -289,14 +300,14 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
        * @param session  The server session context bound to the receiver instance.
        * @param receiver The proton receiver that will be wrapped in this server context instance.
        */
-      AMQPFederatedAddressDeliveryReceiver(AMQPSessionContext session, FederationConsumerInfo consumerInfo, Receiver receiver) {
+      AMQPFederatedAddressDeliveryHandler(AMQPSessionContext session, FederationConsumerInfo consumerInfo, Receiver receiver) {
          super(session.getSessionSPI(), session.getAMQPConnectionContext(), session, receiver);
 
          this.cachedAddress = SimpleString.of(consumerInfo.getAddress());
       }
 
       @Override
-      public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
+      public final void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
          if (!closed) {
             super.close(remoteLinkClose);
 
@@ -321,7 +332,7 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
       }
 
       @Override
-      protected Runnable createCreditRunnable(AMQPConnectionContext connection) {
+      protected final Runnable createCreditRunnable(AMQPConnectionContext connection) {
          // We defer to the configuration instance as opposed to the base class version that reads
          // from the connection this allows us to defer to configured policy properties that specify
          // credit. This also allows consumers created on the remote side of a federation connection
@@ -331,14 +342,14 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
       }
 
       @Override
-      protected int getConfiguredMinLargeMessageSize(AMQPConnectionContext connection) {
+      protected final int getConfiguredMinLargeMessageSize(AMQPConnectionContext connection) {
          // Looks at policy properties first before looking at federation configuration and finally
          // going to the base connection context to read the URI configuration.
          return configuration.getLargeMessageThreshold();
       }
 
       @Override
-      public void initialize() throws Exception {
+      public final void initialize() throws Exception {
          initialized = true;
 
          final Target target = (Target) receiver.getRemoteTarget();
@@ -391,7 +402,7 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
       }
 
       @Override
-      protected void actualDelivery(Message message, Delivery delivery, DeliveryAnnotations deliveryAnnotations, Receiver receiver, Transaction tx) {
+      protected final void actualDelivery(Message message, Delivery delivery, DeliveryAnnotations deliveryAnnotations, Receiver receiver, Transaction tx) {
          try {
             if (logger.isTraceEnabled()) {
                logger.trace("AMQP Federation {} address consumer {} dispatching incoming message: {}",
@@ -419,7 +430,7 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
             }
 
             signalPluginBeforeFederationConsumerMessageHandled(theMessage);
-            sessionSPI.serverSend(this, tx, receiver, delivery, cachedAddress, routingContext, theMessage);
+            routeFederatedMessage(theMessage, delivery, receiver, tx);
             signalPluginAfterFederationConsumerMessageHandled(theMessage);
          } catch (Exception e) {
             logger.warn("Inbound delivery for {} encountered an error: {}", consumerInfo, e.getMessage(), e);
@@ -428,5 +439,22 @@ public final class AMQPFederationAddressConsumer extends AMQPFederationConsumer 
             recordFederatedMessageReceived(message);
          }
       }
+
+      /**
+       * Route the inbound message to the intended target address bindings.
+       *
+       * @param message
+       *    The received message after transform and hops count updates.
+       * @param delivery
+       *    The {@link Delivery} that the message arrived in
+       * @param receiver
+       *    The {@link Receiver} that represents the consumer link.
+       * @param tx
+       *    The active transaction this message arrived within.
+       *
+       * @throws Exception if an error occurs routing the message.
+       */
+      protected abstract void routeFederatedMessage(Message message, Delivery delivery, Receiver receiver, Transaction tx) throws Exception;
+
    }
 }

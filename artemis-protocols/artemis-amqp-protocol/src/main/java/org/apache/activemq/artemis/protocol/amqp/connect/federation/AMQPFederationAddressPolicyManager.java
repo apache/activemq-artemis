@@ -20,15 +20,20 @@ package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.generateAddressFilter;
 
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.HexFormat;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.DivertBinding;
@@ -38,7 +43,6 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerAddressPlugi
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromAddressPolicy;
-import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo.Role;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +54,9 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   protected final String remoteQueueFilter;
+   protected final String baseConsumerFilter;
    protected final FederationReceiveFromAddressPolicy policy;
-   protected final Map<String, AMQPFederationAddressConsumerManager> federationConsumers = new HashMap<>();
+   protected final Map<String, AMQPFederationAddressConsumerRegistry> addressTracking = new HashMap<>();
    protected final Map<DivertBinding, Set<QueueBinding>> divertsTracking = new HashMap<>();
 
    public AMQPFederationAddressPolicyManager(AMQPFederation federation, AMQPFederationMetrics metrics, FederationReceiveFromAddressPolicy addressPolicy) throws ActiveMQException {
@@ -61,7 +65,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       Objects.requireNonNull(addressPolicy, "The Address match policy cannot be null");
 
       this.policy = addressPolicy;
-      this.remoteQueueFilter = generateAddressFilter(policy.getMaxHops());
+      this.baseConsumerFilter = generateAddressFilter(policy.getMaxHops());
    }
 
    /**
@@ -75,17 +79,17 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
    @Override
    protected void safeCleanupManagerResources(boolean force) {
       try {
-         federationConsumers.values().forEach((entry) -> {
-            if (entry != null) {
+         addressTracking.values().forEach((registry) -> {
+            if (registry != null) {
                if (isConnected() && !force) {
-                  entry.shutdown();
+                  registry.shutdown();
                } else {
-                  entry.shutdownNow();
+                  registry.shutdownNow();
                }
             }
          });
       } finally {
-         federationConsumers.clear();
+         addressTracking.clear();
          divertsTracking.clear();
       }
    }
@@ -93,9 +97,9 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
    @Override
    public synchronized void afterRemoveAddress(SimpleString address, AddressInfo addressInfo) throws ActiveMQException {
       if (isActive()) {
-         final AMQPFederationAddressConsumerManager entry = federationConsumers.remove(address.toString());
+         final AMQPFederationAddressConsumerRegistry registry = addressTracking.remove(address.toString());
 
-         if (entry != null) {
+         if (registry != null) {
             logger.trace("Federated address {} was removed, closing federation consumer", address);
 
             // Demand is gone because the Address is gone and any in-flight messages can be
@@ -104,7 +108,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
             // of data for entries that may never return and to prevent interference from the
             // next set of events which will be the close of all local consumers for this now
             // removed Address.
-            entry.shutdownNow();
+            registry.shutdownNow();
          }
       }
    }
@@ -113,14 +117,14 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
    public synchronized void afterRemoveBinding(Binding binding, Transaction tx, boolean deleteData) throws ActiveMQException {
       if (isActive()) {
          if (binding instanceof QueueBinding) {
-            final AMQPFederationAddressConsumerManager entry = federationConsumers.get(binding.getAddress().toString());
+            final AMQPFederationAddressConsumerRegistry registry = addressTracking.get(binding.getAddress().toString());
 
             logger.trace("Federated address {} binding was removed, reducing demand.", binding.getAddress());
 
-            if (entry != null) {
+            if (registry != null) {
                // This is QueueBinding that was mapped to a federated address so we can directly remove
                // demand from the federation consumer and close it if demand is now gone.
-               tryRemoveDemandOnAddress(entry, binding);
+               tryRemoveDemandOnAddress(registry, binding);
             } else if (policy.isEnableDivertBindings()) {
                // See if there is any matching diverts that are forwarding to an address where this QueueBinding
                // is bound and remove the mapping for any matches, diverts can have a composite set of address
@@ -138,13 +142,12 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
                      divertEntry.getValue().remove(binding);
 
                      if (divertEntry.getValue().isEmpty()) {
-                        tryRemoveDemandOnAddress(federationConsumers.get(sourceAddress), divertEntry.getKey());
+                        tryRemoveDemandOnAddress(addressTracking.get(sourceAddress), divertEntry.getKey());
                      }
                   }
                });
             }
          } else if (policy.isEnableDivertBindings() && binding instanceof DivertBinding divert) {
-
             if (divertsTracking.remove(divert) != null) {
                // The divert binding is treated as one unit of demand on a federated address and
                // when the divert is removed that unit of demand is removed regardless of existing
@@ -152,7 +155,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
                // only thing keeping the federated address consumer open this will result in it
                // being closed.
                try {
-                  tryRemoveDemandOnAddress(federationConsumers.get(divert.getAddress().toString()), divert);
+                  tryRemoveDemandOnAddress(addressTracking.get(divert.getAddress().toString()), divert);
                } catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.federationBindingsLookupError(divert.getDivert().getForwardAddress(), e);
                }
@@ -161,10 +164,10 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       }
    }
 
-   private void tryRemoveDemandOnAddress(AMQPFederationAddressConsumerManager entry, Binding binding) {
-      if (entry != null) {
-         logger.trace("Reducing demand on federated address {}", entry.getAddress());
-         entry.removeDemand(binding);
+   private void tryRemoveDemandOnAddress(AMQPFederationAddressConsumerRegistry registry, Binding binding) {
+      if (registry != null) {
+         logger.trace("Reducing demand on federated address {}", registry.getAddress());
+         registry.removeDemand(binding);
       }
    }
 
@@ -212,6 +215,8 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       if (binding instanceof QueueBinding queueBinding) {
          final AddressInfo addressInfo = server.getPostOffice().getAddressInfo(binding.getAddress());
 
+         logger.trace("Binding Added on address: {}, filter={}", queueBinding.getAddress(), queueBinding.getFilter());
+
          if (testIfAddressMatchesPolicy(addressInfo)) {
             // A plugin can block address federation for a given queue and if another queue
             // binding does trigger address federation we don't want to track the rejected
@@ -243,7 +248,7 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
 
       // We only need to check if we've never seen the divert before, afterwards we will
       // be checking it any time a new QueueBinding is added instead.
-      if (divertsTracking.get(divertBinding) == null) {
+      if (!divertsTracking.containsKey(divertBinding)) {
          final Set<QueueBinding> matchingQueues = new HashSet<>();
          divertsTracking.put(divertBinding, matchingQueues);
 
@@ -325,21 +330,21 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       logger.trace("Federation Address Policy matched on for demand on address: {} : binding: {}", addressInfo, binding);
 
       final String addressName = addressInfo.getName().toString();
-      final AMQPFederationAddressConsumerManager entry;
+      final AMQPFederationAddressConsumerRegistry consumerRegistry;
 
       // Check for existing consumer add demand from a additional local consumer to ensure
       // the remote consumer remains active until all local demand is withdrawn.
-      if (federationConsumers.containsKey(addressName)) {
-         entry = federationConsumers.get(addressName);
+      if (addressTracking.containsKey(addressName)) {
+         consumerRegistry = addressTracking.get(addressName);
       } else {
-         entry = new AMQPFederationAddressConsumerManager(this, addressInfo);
-         federationConsumers.put(addressName, entry);
+         consumerRegistry = new AMQPFederationAddressConsumerRegistry(this, addressInfo);
+         addressTracking.put(addressName, consumerRegistry);
       }
 
       // Demand passed all binding plugin blocking checks so we track it, plugin can still
       // stop federation of the address based on some external criteria but once it does
       // (if ever) allow it we will have tracked all allowed demand.
-      entry.addDemand(binding);
+      consumerRegistry.addDemand(binding);
    }
 
    /**
@@ -357,10 +362,10 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       // current demand and don't need to re-check the server state before trying to create the
       // remote address consumer.
       if (isActive() && testIfAddressMatchesPolicy(addressName, RoutingType.MULTICAST)) {
-         final AMQPFederationAddressConsumerManager entry = federationConsumers.get(addressName);
+         final AMQPFederationAddressConsumerRegistry consumerRegistry = addressTracking.get(addressName);
 
-         if (entry != null) {
-            entry.recover();
+         if (consumerRegistry != null) {
+            consumerRegistry.recover();
          }
       }
    }
@@ -401,47 +406,6 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       return policy.test(address, type);
    }
 
-   /**
-    * Create a new {@link FederationConsumerInfo} based on the given {@link AddressInfo} and the configured
-    * {@link FederationReceiveFromAddressPolicy}. A subclass must override this method to return a consumer information
-    * object with the data used be that implementation.
-    *
-    * @param address The {@link AddressInfo} to use as a basis for the consumer information object.
-    * @return a new {@link FederationConsumerInfo} instance based on the given address
-    */
-   private AMQPFederationGenericConsumerInfo createConsumerInfo(AddressInfo address) {
-      final String addressName = address.getName().toString();
-      final String generatedQueueName = generateQueueName(address);
-
-      return new AMQPFederationGenericConsumerInfo(Role.ADDRESS_CONSUMER,
-         addressName,
-         generatedQueueName,
-         address.getRoutingType(),
-         remoteQueueFilter,
-         CompositeAddress.toFullyQualified(addressName, generatedQueueName),
-         ActiveMQDefaultConfiguration.getDefaultConsumerPriority());
-   }
-
-   @Override
-   protected AMQPFederationConsumer createFederationConsumer(FederationConsumerInfo consumerInfo) {
-      Objects.requireNonNull(consumerInfo, "Federation Address consumer information object was null");
-
-      if (logger.isTraceEnabled()) {
-         logger.trace("AMQP Federation {} creating address consumer: {} for policy: {}", federation.getName(), consumerInfo, policy.getPolicyName());
-      }
-
-      // Don't initiate anything yet as the caller might need to register error handlers etc
-      // before the attach is sent otherwise they could miss the failure case.
-      return new AMQPFederationAddressConsumer(this, configuration, session, consumerInfo, metrics.newConsumerMetrics());
-   }
-
-   private String generateQueueName(AddressInfo address) {
-      return "federation." + federation.getName() +
-             ".policy." + getPolicyName() +
-             ".address." + address.getName() +
-             ".node." + server.getNodeID();
-   }
-
    private static boolean isAddressInDivertForwards(final SimpleString targetAddress, final SimpleString forwardAddress) {
       final SimpleString[] forwardAddresses = forwardAddress.split(',');
 
@@ -454,35 +418,216 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       return false;
    }
 
-   private static class AMQPFederationAddressConsumerManager extends AMQPFederationConsumerManager<Binding> {
+   private static class AMQPFederationConsumerKey {
 
-      private final AMQPFederationAddressPolicyManager manager;
-      private final AddressInfo addressInfo;
+      private final String address;
+      private final Filter filter;
 
-      AMQPFederationAddressConsumerManager(AMQPFederationAddressPolicyManager manager, AddressInfo addressInfo) {
-         super(manager);
-
-         this.manager = manager;
-         this.addressInfo = addressInfo;
+      AMQPFederationConsumerKey(String address) {
+         this(address, null);
       }
 
-      /**
-       * {@return the address information that this entry is acting to federate}
-       */
-      public AddressInfo getAddressInfo() {
-         return addressInfo;
-      }
-
-      /**
-       * {@return the address that this entry is acting to federate}
-       */
-      public String getAddress() {
-         return getAddressInfo().getName().toString();
+      AMQPFederationConsumerKey(String address, Filter filter) {
+         this.address = Objects.requireNonNull(address);
+         this.filter = filter;
       }
 
       @Override
-      protected AMQPFederationConsumer createFederationConsumer() {
-         return manager.createFederationConsumer(manager.createConsumerInfo(addressInfo));
+      public int hashCode() {
+         return Objects.hashCode(address) + Objects.hashCode(filter);
+      }
+
+      @Override
+      public boolean equals(Object obj) {
+         if (this == obj) {
+            return true;
+         }
+         if (obj == null) {
+            return false;
+         }
+         if (getClass() != obj.getClass()) {
+            return false;
+         }
+
+         final AMQPFederationConsumerKey other = (AMQPFederationConsumerKey) obj;
+
+         return Objects.equals(address, other.address) && Objects.equals(filter, other.filter);
+      }
+   }
+
+   /*
+    * Tracks federation consumers for a given address. When the federation policy enabled consumers
+    * with filters there can be multiple federation consumers to the remote that each apply a different
+    * message filter each of which is tracked here.
+    */
+   private static class AMQPFederationAddressConsumerRegistry {
+
+      private final AMQPFederationConsumerKey unfilteredConsumerKey;
+      private final AMQPFederationAddressPolicyManager manager;
+      private final Map<AMQPFederationConsumerKey, AMQPFederationAddressConsumerManager<?>> registry = new HashMap<>();
+      private final AddressInfo addressInfo;
+      private final String baseConsumerFilter;
+      private final AMQPFederationConsumerConfiguration configuration;
+
+      AMQPFederationAddressConsumerRegistry(AMQPFederationAddressPolicyManager manager, AddressInfo addressInfo) {
+         this.manager = manager;
+         this.addressInfo = addressInfo;
+         this.baseConsumerFilter = manager.baseConsumerFilter;
+         this.configuration = manager.configuration;
+         this.unfilteredConsumerKey = new AMQPFederationConsumerKey(addressInfo.getName().toString());
+      }
+
+      public void removeDemand(Binding binding) {
+         final AMQPFederationConsumerKey key = createConsumerKey(binding);
+         final AMQPFederationAddressConsumerManager<?> manager = registry.get(key);
+
+         if (manager != null) {
+            manager.removeDemand(binding);
+         }
+      }
+
+      public void addDemand(Binding binding) {
+         final AMQPFederationConsumerKey key = createConsumerKey(binding);
+
+         AMQPFederationAddressConsumerManager<?> consumerManager = registry.get(key);
+
+         if (consumerManager == null) {
+            if (isUseConduitConsumer()) {
+               registry.put(key, consumerManager = new AMQPFederationAddressConduitConsumerManager(manager, createConsumerInfo(addressInfo, binding), addressInfo));
+            } else {
+               registry.put(key, consumerManager = new AMQPFederationAddressBindingsConsumerManager(manager, createConsumerInfo(addressInfo, binding), addressInfo));
+            }
+         }
+
+         consumerManager.addDemand(binding);
+      }
+
+      public String getAddress() {
+         return addressInfo.getName().toString();
+      }
+
+      public void recover() {
+         registry.values().forEach((entry) -> {
+            if (entry != null) {
+               entry.recover();
+            }
+         });
+      }
+
+      public void shutdown() {
+         registry.values().forEach((entry) -> {
+            if (entry != null) {
+               entry.shutdown();
+            }
+         });
+      }
+
+      public void shutdownNow() {
+         registry.values().forEach((entry) -> {
+            if (entry != null) {
+               entry.shutdownNow();
+            }
+         });
+      }
+
+      private AMQPFederationConsumerKey createConsumerKey(Binding binding) {
+         if (isUseConduitConsumer() || binding.getFilter() == null) {
+            return unfilteredConsumerKey;
+         } else {
+            return new AMQPFederationConsumerKey(binding.getAddress().toString(), binding.getFilter());
+         }
+      }
+
+      /**
+       * Create a new {@link FederationConsumerInfo} based on the given {@link AddressInfo} and the configured
+       * {@link FederationReceiveFromAddressPolicy}.
+       *
+       * @param address
+       *       The {@link AddressInfo} to use as a basis for the consumer information object.
+       * @param binding
+       *       The {@link Binding} that is the source of demand for this consumer info object
+       *
+       * @return a new {@link FederationConsumerInfo} instance based on the given address
+       */
+      private FederationConsumerInfo createConsumerInfo(AddressInfo address, Binding binding) {
+         final String addressName = address.getName().toString();
+         final boolean ignoreBindingFilters = isUseConduitConsumer() || binding.getFilter() == null;
+         final String generatedQueueName = generateQueueName(address, binding, ignoreBindingFilters);
+         final String consumerFilter;
+
+         if (ignoreBindingFilters) {
+            consumerFilter = baseConsumerFilter;
+         } else if (baseConsumerFilter != null) {
+            consumerFilter = "(" + binding.getFilter().getFilterString() + ") AND " + baseConsumerFilter;
+         } else {
+            consumerFilter = binding.getFilter().getFilterString().toString();
+         }
+
+         return new AMQPFederationGenericConsumerInfo(FederationConsumerInfo.Role.ADDRESS_CONSUMER,
+            addressName,
+            generatedQueueName,
+            address.getRoutingType(),
+            consumerFilter,
+            CompositeAddress.toFullyQualified(addressName, generatedQueueName),
+            ActiveMQDefaultConfiguration.getDefaultConsumerPriority());
+      }
+
+      private boolean isUseConduitConsumer() {
+         // Only use binding filters when configured to do so and the remote supports FQQN subscriptions because
+         // we need to be able to open multiple uniquely named queues for an address if more than one consumer with
+         // differing filters are present and prior to FQQN subscription support we used a simple link name that
+         // would not be unique amongst multiple consumers.
+         return configuration.isIgnoreAddressBindingFilters() ||
+                !manager.getFederation().getCapabilities().isUseFQQNAddressSubscriptions();
+      }
+
+      private String generateQueueName(AddressInfo address, Binding binding, boolean ignoreFilters) {
+         if (ignoreFilters) {
+            return "federation." + manager.getFederation().getName() +
+                   ".policy." + manager.getPolicyName() +
+                   ".address." + address.getName() +
+                   ".node." + manager.server.getNodeID();
+         } else {
+            return "federation." + manager.getFederation().getName() +
+                   ".policy." + manager.getPolicyName() +
+                   ".address." + address.getName() +
+                   ".filterId." + generateFilterId(binding.getFilter().getFilterString().toString()) +
+                   ".node." + manager.server.getNodeID();
+         }
+      }
+   }
+
+   private static String generateFilterId(String filterString) {
+      final byte[] filterUTF8 = filterString.getBytes(StandardCharsets.UTF_8);
+
+      try {
+         return filterString.hashCode() + "." + HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(filterUTF8));
+      } catch (Exception e) {
+         throw new UnsupportedOperationException(
+            "Could not create filter ID SHA, enable ignore address filters required to create federation consumers", e);
+      }
+   }
+
+   /*
+    * This base class is the manager for a single AMQP federation address consumer which ensure that consumer are
+    * started and stopped with proper error handling and recovery mechanics
+    */
+   private abstract static class AMQPFederationAddressConsumerManager<Consumer extends AMQPFederationConsumer> extends AMQPFederationConsumerManager<Binding, Consumer> {
+
+      protected final AMQPFederation federation;
+      protected final AMQPFederationAddressPolicyManager manager;
+      protected final FederationReceiveFromAddressPolicy policy;
+      protected final AddressInfo addressInfo;
+      protected final FederationConsumerInfo consumerInfo;
+
+      AMQPFederationAddressConsumerManager(AMQPFederationAddressPolicyManager manager, FederationConsumerInfo consumerInfo, AddressInfo addressInfo) {
+         super(manager);
+
+         this.manager = manager;
+         this.federation = manager.getFederation();
+         this.policy = manager.getPolicy();
+         this.addressInfo = addressInfo;
+         this.consumerInfo = consumerInfo;
       }
 
       @Override
@@ -491,13 +636,77 @@ public final class AMQPFederationAddressPolicyManager extends AMQPFederationLoca
       }
 
       @Override
-      protected void whenDemandTrackingEntryAdded(Binding entry) {
+      protected void whenDemandTrackingEntryAdded(Binding entry, Consumer consumer) {
          // No current action needed
       }
 
       @Override
-      protected void whenDemandTrackingEntryRemoved(Binding entry) {
+      protected void whenDemandTrackingEntryRemoved(Binding entry, Consumer consumer) {
          // No current action needed
+      }
+   }
+
+   /**
+    * Manager type that creates address conduit consumers that routes to the address proper.
+    */
+   private static class AMQPFederationAddressConduitConsumerManager extends AMQPFederationAddressConsumerManager<AMQPFederationAddressConduitConsumer> {
+
+      AMQPFederationAddressConduitConsumerManager(AMQPFederationAddressPolicyManager manager, FederationConsumerInfo consumerInfo, AddressInfo addressInfo) {
+         super(manager, consumerInfo, addressInfo);
+      }
+
+      @Override
+      protected AMQPFederationAddressConduitConsumer createFederationConsumer(Set<Binding> demand) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("AMQP Federation {} creating address consumer: {} for policy: {}", federation.getName(), consumerInfo, policy.getPolicyName());
+         }
+
+         // Don't initiate anything yet as the caller might need to register error handlers etc
+         // before the attach is sent otherwise they could miss the failure case.
+         return new AMQPFederationAddressConduitConsumer(
+            manager, manager.getConfiguration(), federation.getSessionContext(), consumerInfo, manager.getMetrics().newConsumerMetrics());
+      }
+   }
+
+   /**
+    * Manager type that creates address consumers that will route to bindings
+    */
+   private static class AMQPFederationAddressBindingsConsumerManager extends AMQPFederationAddressConsumerManager<AMQPFederationAddressBindingsConsumer> {
+
+      AMQPFederationAddressBindingsConsumerManager(AMQPFederationAddressPolicyManager manager, FederationConsumerInfo consumerInfo, AddressInfo addressInfo) {
+         super(manager, consumerInfo, addressInfo);
+      }
+
+      @Override
+      protected AMQPFederationAddressBindingsConsumer createFederationConsumer(Set<Binding> demand) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("AMQP Federation {} creating address consumer: {} for policy: {}", federation.getName(), consumerInfo, policy.getPolicyName());
+         }
+
+         // Don't initiate anything yet as the caller might need to register error handlers etc
+         // before the attach is sent otherwise they could miss the failure case.
+         final AMQPFederationAddressBindingsConsumer consumer = new AMQPFederationAddressBindingsConsumer(
+            manager, manager.getConfiguration(), federation.getSessionContext(), consumerInfo, manager.getMetrics().newConsumerMetrics());
+
+         consumer.addBindings(demand);
+
+         return consumer;
+      }
+
+      @Override
+      protected void whenDemandTrackingEntryAdded(Binding binding, AMQPFederationAddressBindingsConsumer consumer) {
+         // When a consumer exists it needs to know about new bindings, when created it will be given the current set.
+         if (consumer != null) {
+            consumer.addBinding(binding);
+         }
+      }
+
+      @Override
+      protected void whenDemandTrackingEntryRemoved(Binding binding, AMQPFederationAddressBindingsConsumer consumer) {
+         // When a consumer exists it needs to know about removed bindings, when created it will be given the current set.
+         if (consumer != null) {
+            consumer.removeBinding(binding);
+         }
       }
    }
 }

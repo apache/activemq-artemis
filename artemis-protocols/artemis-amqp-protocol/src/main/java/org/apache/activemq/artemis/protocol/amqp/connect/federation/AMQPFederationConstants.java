@@ -144,6 +144,18 @@ public final class AMQPFederationConstants {
    public static final String LARGE_MESSAGE_THRESHOLD = "minLargeMessageSize";
 
    /**
+    * Configuration property used to convey the local side value to use when considering if federation address consumers
+    * should filter using the filters defined on individual bindings, this can be sent to the peer so that dual federation
+    * configurations share the same configuration on both sides of the connection. This value can be used to reduce the
+    * amount of messages that are federated for an address if the local consumers use filters but must be enabled with care
+    * as it can easily lead to duplicate messages being dispatched from the remote as each unique address binding filter
+    * creates a remote consumer with that matching filter. If any filters overlap in the messages they allow to pass or
+    * there are bindings without a filter then the remote will be sending the same message to multiple federation consumers
+    * in order to provide each group of bindings with their matching messages.
+    */
+   public static final String IGNORE_ADDRESS_BINDING_FILTERS = "ignoreAddressBindingFilters";
+
+   /**
     * Configuration property used to convey the local side value to use when considering if federation queue consumers
     * should filter using the filters defined on individual queue subscriptions, this can be sent to the peer so that
     * dual federation configurations share the same configuration on both sides of the connection. This can be used to

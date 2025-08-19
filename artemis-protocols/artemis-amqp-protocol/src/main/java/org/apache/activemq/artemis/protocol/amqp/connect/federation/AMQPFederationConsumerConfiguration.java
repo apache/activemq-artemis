@@ -17,14 +17,8 @@
 
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
-
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_RECEIVER_IDLE_TIMEOUT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_ADDRESS_BINDING_FILTERS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_FILTERS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LARGE_MESSAGE_THRESHOLD;
@@ -34,6 +28,13 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 
 /**
  * Configuration options applied to a consumer created from federation policies for address or queue federation. The
@@ -184,6 +185,20 @@ public final class AMQPFederationConsumerConfiguration {
          return Boolean.parseBoolean(string);
       } else {
          return configuration.isCoreMessageTunnelingEnabled();
+      }
+   }
+
+   /**
+    * {@return {@code true} if federation is configured to ignore filters on individual address bindings}
+    */
+   public boolean isIgnoreAddressBindingFilters() {
+      final Object property = properties.get(IGNORE_ADDRESS_BINDING_FILTERS);
+      if (property instanceof Boolean booleanValue) {
+         return booleanValue;
+      } else if (property instanceof String string) {
+         return Boolean.parseBoolean(string);
+      } else {
+         return configuration.isIgnoreAddressBindingFilters();
       }
    }
 

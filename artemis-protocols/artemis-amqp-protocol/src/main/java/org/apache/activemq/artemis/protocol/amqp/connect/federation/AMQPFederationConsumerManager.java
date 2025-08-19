@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.protocol.amqp.connect.federation;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <E> The type used in the demand tracking collection.
  */
-public abstract class AMQPFederationConsumerManager<E> {
+public abstract class AMQPFederationConsumerManager<E, Consumer extends AMQPFederationConsumer> {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -48,12 +49,12 @@ public abstract class AMQPFederationConsumerManager<E> {
       CLOSED
    }
 
-   private final AMQPFederation federation;
-   private final AMQPFederationLocalPolicyManager manager;
-   private final Set<E> demandTracking = new HashSet<>();
+   protected final AMQPFederation federation;
+   protected final AMQPFederationLocalPolicyManager manager;
 
+   private final Set<E> demandTracking = new HashSet<>();
    private State state = State.READY;
-   private AMQPFederationConsumer consumer;
+   private Consumer consumer;
    private ScheduledFuture<?> pendingIdleTimeout;
 
    public AMQPFederationConsumerManager(AMQPFederationLocalPolicyManager manager) {
@@ -98,7 +99,7 @@ public abstract class AMQPFederationConsumerManager<E> {
 
             demandTracking.forEach(entry -> {
                try {
-                  whenDemandTrackingEntryRemoved(entry);
+                  whenDemandTrackingEntryRemoved(entry, consumer);
                } catch (Exception ignore) {
                }
             });
@@ -149,7 +150,7 @@ public abstract class AMQPFederationConsumerManager<E> {
       checkClosed();
 
       if (demandTracking.add(demand)) {
-         whenDemandTrackingEntryAdded(demand);
+         whenDemandTrackingEntryAdded(demand, consumer);
       }
 
       // This will create a new consumer only if there isn't one currently assigned to this entry and any configured
@@ -175,7 +176,7 @@ public abstract class AMQPFederationConsumerManager<E> {
       checkClosed();
 
       if (demandTracking.remove(demand)) {
-         whenDemandTrackingEntryRemoved(demand);
+         whenDemandTrackingEntryRemoved(demand, consumer);
       }
 
       if (hasDemand() || state == State.READY) {
@@ -189,7 +190,7 @@ public abstract class AMQPFederationConsumerManager<E> {
    private void tryCreateFederationConsumer() {
       if (!isPluginBlockingFederationConsumerCreate()) {
          state = State.STARTING;
-         consumer = createFederationConsumer();
+         consumer = createFederationConsumer(Collections.unmodifiableSet(demandTracking));
 
          logger.trace("Federation Consumer manager creating remote consumer for: {}", consumer.getConsumerInfo());
 
@@ -390,25 +391,34 @@ public abstract class AMQPFederationConsumerManager<E> {
     * An event point that a subclass can use to perform an initialization action whenever an entry is added to
     * demand tracking.
     *
-    * @param entry The entry that is being added to demand tracking.
+    * @param entry
+    *    The entry that is being added to demand tracking.
+    * @param consumer
+    *    The currently active federation consumer (can be null if no consumer).
     */
-   protected abstract void whenDemandTrackingEntryAdded(E entry);
+   protected abstract void whenDemandTrackingEntryAdded(E entry, Consumer consumer);
 
    /**
     * An event point that a subclass can use to perform a cleanup action whenever an entry is removed from
     * demand tracking.
     *
-    * @param entry The entry that is being removed from demand tracking.
+    * @param entry
+    *    The entry that is being removed from demand tracking.
+    * @param consumer
+    *    The currently active federation consumer (can be null if no consumer).
     */
-   protected abstract void whenDemandTrackingEntryRemoved(E entry);
+   protected abstract void whenDemandTrackingEntryRemoved(E entry, Consumer consumer);
 
    /**
     * Creates a new federation consumer that this manager will monitor and maintain. The returned consumer should be in
     * an initial state ready for this manager to initialize once it is fully configured.
     *
+    * @param currentDemand
+    *    Unmodifiable {@link Set} of entries that account for the demand on the consumer being created.
+    *
     * @return a newly create {@link AMQPFederationConsumer} for use by this manager
     */
-   protected abstract AMQPFederationConsumer createFederationConsumer();
+   protected abstract Consumer createFederationConsumer(Set<E> currentDemand);
 
    /**
     * Query all registered plugins for this federation instance to determine if any wish to prevent a federation

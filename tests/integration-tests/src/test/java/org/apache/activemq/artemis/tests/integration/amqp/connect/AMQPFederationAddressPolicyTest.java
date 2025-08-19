@@ -17,16 +17,55 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
-import javax.jms.BytesMessage;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
+import static org.apache.activemq.artemis.core.config.WildcardConfiguration.DEFAULT_WILDCARD_CONFIGURATION;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_DELAY;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_MSG_COUNT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_ENABLE_DIVERT_BINDINGS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_EXCLUDES;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_INCLUDES;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_MAX_HOPS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_RECEIVER_IDLE_TIMEOUT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_ADDRESS_POLICY;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.EVENT_TYPE;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_ADDRESS_RECEIVER;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONFIGURATION;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_POLICY_NAME;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_V1;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_V2;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_VERSION;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_ADDRESS_BINDING_FILTERS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LARGE_MESSAGE_THRESHOLD;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.OPERATION_TYPE;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.POLICY_NAME;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.POLICY_PROPERTIES_MAP;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.REQUESTED_ADDRESS_ADDED;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.REQUESTED_ADDRESS_NAME;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.TRANSFORMER_CLASS_NAME;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.TRANSFORMER_PROPERTIES_MAP;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.FEDERATED_ADDRESS_SOURCE_PROPERTIES;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.MESSAGE_HOPS_ANNOTATION;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.generateAddressFilter;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.ArrayList;
@@ -44,6 +83,17 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import javax.jms.BytesMessage;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -59,6 +109,7 @@ import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.connect.federation.ActiveMQServerAMQPFederationPlugin;
@@ -92,54 +143,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.apache.activemq.artemis.core.config.WildcardConfiguration.DEFAULT_WILDCARD_CONFIGURATION;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_DELAY;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_AUTO_DELETE_MSG_COUNT;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_ENABLE_DIVERT_BINDINGS;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_EXCLUDES;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_INCLUDES;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_MAX_HOPS;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_RECEIVER_IDLE_TIMEOUT;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_ADDRESS_POLICY;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.EVENT_TYPE;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_ADDRESS_RECEIVER;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONFIGURATION;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_POLICY_NAME;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_V1;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_V2;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_VERSION;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LARGE_MESSAGE_THRESHOLD;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.OPERATION_TYPE;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.POLICY_NAME;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.POLICY_PROPERTIES_MAP;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.REQUESTED_ADDRESS_ADDED;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.REQUESTED_ADDRESS_NAME;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.TRANSFORMER_CLASS_NAME;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.TRANSFORMER_PROPERTIES_MAP;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.FEDERATED_ADDRESS_SOURCE_PROPERTIES;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.MESSAGE_HOPS_ANNOTATION;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport.generateAddressFilter;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_LARGE_MESSAGE_FORMAT;
-import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for AMQP Broker federation handling of the receive from and send to address policy configuration handling.
@@ -5572,6 +5575,961 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationCreatesFilteredAddressReceiversWhenLocalQueuesAreStaticlyDefined() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withProperty(FEDERATION_VERSION.toString(), FEDERATION_V2)
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withProperty(FEDERATION_VERSION.toString(), FEDERATION_V2)
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSenderSettleModeSettled()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes(getTestName());
+         receiveFromAddress.setAutoDelete(false);
+         receiveFromAddress.setAutoDeleteDelay(-1L);
+         receiveFromAddress.setAutoDeleteMessageCount(-1L);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
+         element.addProperty(IGNORE_ADDRESS_BINDING_FILTERS, "false");
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final Map<String, Object> expectedSourceProperties = new HashMap<>();
+         expectedSourceProperties.put(ADDRESS_AUTO_DELETE, false);
+         expectedSourceProperties.put(ADDRESS_AUTO_DELETE_DELAY, -1L);
+         expectedSourceProperties.put(ADDRESS_AUTO_DELETE_MSG_COUNT, -1L);
+
+         final String expectedJMSFilter1 = "color='red'";
+         final String expectedJMSFilter2 = "color='blue'";
+         final AtomicReference<Attach> capturedAttach1 = new AtomicReference<>();
+         final AtomicReference<Attach> capturedAttach2 = new AtomicReference<>();
+         final Symbol jmsSelectorKey = Symbol.valueOf("jms-selector");
+         final org.apache.qpid.protonj2.test.driver.codec.primitives.UnsignedLong jmsSelectorCode =
+            org.apache.qpid.protonj2.test.driver.codec.primitives.UnsignedLong.valueOf(0x0000468C00000004L);
+
+         peer.expectAttach().ofReceiver()
+                            .withCapture(attach -> capturedAttach1.set(attach))
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), expectedSourceProperties)
+                            .withProperty(FEDERATION_POLICY_NAME.toString(), "address-policy")
+                            .withSource().withAddress(startsWith(getTestName() + "::federation." + getTestName() + ".policy.address-policy.")).and()
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+         peer.expectFlow().withLinkCredit(1000);
+
+         server.createQueue(QueueConfiguration.of("queue1").setRoutingType(RoutingType.MULTICAST)
+                                                           .setAddress(getTestName())
+                                                           .setAutoCreated(false)
+                                                           .setFilterString(expectedJMSFilter1));
+
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue1")).isExists(), 5000, 100);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withCapture(attach -> capturedAttach2.set(attach))
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), expectedSourceProperties)
+                            .withProperty(FEDERATION_POLICY_NAME.toString(), "address-policy")
+                            .withSource().withAddress(startsWith(getTestName() + "::federation." + getTestName() + ".policy.address-policy.")).and()
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+         peer.expectFlow().withLinkCredit(1000);
+
+         server.createQueue(QueueConfiguration.of("queue2").setRoutingType(RoutingType.MULTICAST)
+                                                           .setAddress(getTestName())
+                                                           .setAutoCreated(false)
+                                                           .setFilterString(expectedJMSFilter2));
+
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue2")).isExists(), 5000, 100);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         // Should be no frames generated as we already federated the address and the statically added
+         // queue should retain demand when this consumer leaves.
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+
+            session.createConsumer(session.createTopic(getTestName()), expectedJMSFilter1);
+            session.createConsumer(session.createTopic(getTestName()), expectedJMSFilter2);
+
+            connection.start();
+         }
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         assertNotNull(capturedAttach1.get());
+         assertNotNull(capturedAttach2.get());
+
+         final Map<Symbol, Object> filtersMap1 = capturedAttach1.get().getSource().getFilter();
+         final Map<Symbol, Object> filtersMap2 = capturedAttach2.get().getSource().getFilter();
+
+         assertNotNull(filtersMap1);
+         assertTrue(filtersMap1.containsKey(jmsSelectorKey));
+         final DescribedType jmsSelectorEntry1 = (DescribedType) filtersMap1.get(jmsSelectorKey);
+         assertNotNull(jmsSelectorEntry1);
+         assertEquals(jmsSelectorEntry1.getDescriptor(), jmsSelectorCode);
+         assertEquals(jmsSelectorEntry1.getDescribed().toString(), expectedJMSFilter1);
+
+         assertNotNull(filtersMap2);
+         assertTrue(filtersMap2.containsKey(jmsSelectorKey));
+         final DescribedType jmsSelectorEntry2 = (DescribedType) filtersMap2.get(jmsSelectorKey);
+         assertNotNull(jmsSelectorEntry2);
+         assertEquals(jmsSelectorEntry2.getDescriptor(), jmsSelectorCode);
+         assertEquals(jmsSelectorEntry2.getDescribed().toString(), expectedJMSFilter2);
+
+         // Receiver closed when address binding 'queue1' is removed
+         peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                          .respond()
+                          .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+         peer.expectDetach().respond();
+
+         logger.info("Removing Queue 1 from federated address to eliminate demand from that filtered consumer");
+         server.destroyQueue(SimpleString.of("queue1"));
+         Wait.assertFalse(() -> server.queueQuery(SimpleString.of("queue1")).isExists());
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         // Receiver closed when address binding 'queue2' is removed
+         peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                          .respond()
+                          .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+         peer.expectDetach().respond();
+
+         logger.info("Removing Queue 2 from federated address to eliminate demand from that filtered consumer");
+         server.destroyQueue(SimpleString.of("queue2"));
+         Wait.assertFalse(() -> server.queueQuery(SimpleString.of("queue2")).isExists());
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationCreatesFilteredAddressReceiversWhenConsumerAddedAndRouteMessage() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withProperty(FEDERATION_VERSION.toString(), FEDERATION_V2)
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withProperty(FEDERATION_VERSION.toString(), FEDERATION_V2)
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSenderSettleModeSettled()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes(getTestName());
+         receiveFromAddress.setAutoDelete(false);
+         receiveFromAddress.setAutoDeleteDelay(-1L);
+         receiveFromAddress.setAutoDeleteMessageCount(-1L);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
+         element.addProperty(IGNORE_ADDRESS_BINDING_FILTERS, "false");
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final Map<String, Object> expectedSourceProperties = new HashMap<>();
+         expectedSourceProperties.put(ADDRESS_AUTO_DELETE, false);
+         expectedSourceProperties.put(ADDRESS_AUTO_DELETE_DELAY, -1L);
+         expectedSourceProperties.put(ADDRESS_AUTO_DELETE_MSG_COUNT, -1L);
+
+         final String expectedJMSFilter = "color='red'";
+         final AtomicReference<Attach> capturedAttach = new AtomicReference<>();
+         final Symbol jmsSelectorKey = Symbol.valueOf("jms-selector");
+         final org.apache.qpid.protonj2.test.driver.codec.primitives.UnsignedLong jmsSelectorCode =
+            org.apache.qpid.protonj2.test.driver.codec.primitives.UnsignedLong.valueOf(0x0000468C00000004L);
+
+         // This should be the consumer without a message selector
+         peer.expectAttach().ofReceiver()
+                            .withHandle(2)
+                            .withCapture(attach -> capturedAttach.set(attach))
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), expectedSourceProperties)
+                            .withProperty(FEDERATION_POLICY_NAME.toString(), "address-policy")
+                            .withSource().withAddress(startsWith(getTestName() + "::federation." + getTestName() + ".policy.address-policy.")).and()
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+         peer.expectFlow().withLinkCredit(1000);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         // Should be no frames generated as we already federated the address and the statically added
+         // queue should retain demand when this consumer leaves.
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+
+            final MessageConsumer consumer0 = session.createConsumer(session.createTopic(getTestName()));
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            final Map<Symbol, Object> filtersMap0 = capturedAttach.get().getSource().getFilter();
+
+            assertNotNull(filtersMap0);
+            assertFalse(filtersMap0.containsKey(jmsSelectorKey));
+
+            peer.expectAttach().ofReceiver()
+                               .withHandle(3)
+                               .withCapture(attach -> capturedAttach.set(attach))
+                               .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                               .withName(allOf(containsString(getTestName()),
+                                               containsString("address-receiver"),
+                                               containsString(server.getNodeID().toString())))
+                               .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), expectedSourceProperties)
+                               .withProperty(FEDERATION_POLICY_NAME.toString(), "address-policy")
+                               .withSource().withAddress(startsWith(getTestName() + "::federation." + getTestName() + ".policy.address-policy.")).and()
+                               .respond()
+                               .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+            peer.expectFlow().withLinkCredit(1000);
+
+            final MessageConsumer consumer1 = session.createConsumer(session.createTopic(getTestName()), expectedJMSFilter);
+            final MessageConsumer consumer2 = session.createConsumer(session.createTopic(getTestName()), expectedJMSFilter);
+            final MessageConsumer consumer3 = session.createConsumer(session.createTopic(getTestName()), expectedJMSFilter);
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            assertNotNull(capturedAttach.get());
+
+            final Map<Symbol, Object> filtersMap1 = capturedAttach.get().getSource().getFilter();
+
+            assertNotNull(filtersMap1);
+            assertTrue(filtersMap1.containsKey(jmsSelectorKey));
+            final DescribedType jmsSelectorEntry = (DescribedType) filtersMap1.get(jmsSelectorKey);
+            assertNotNull(jmsSelectorEntry);
+            assertEquals(jmsSelectorEntry.getDescriptor(), jmsSelectorCode);
+            assertEquals(jmsSelectorEntry.getDescribed().toString(), expectedJMSFilter);
+
+            connection.start();
+
+            peer.expectDisposition().withState().accepted();
+            peer.expectDisposition().withState().accepted();
+            peer.remoteTransfer().withHandle(3) // This is the filtered federation consumer link
+                                 .withHeader().withDurability(true).also()
+                                 .withApplicationProperties().withProperty("color", "red").also()
+                                 .withMessageAnnotations().withAnnotation("x-opt-test", "test").also()
+                                 .withBody().withString("First Message")
+                                 .also()
+                                 .withDeliveryId(1)
+                                 .now();
+            peer.remoteTransfer().withHandle(3) // This is the filtered federation consumer link
+                                 .withHeader().withDurability(true).also()
+                                 .withApplicationProperties().withProperty("color", "red").also()
+                                 .withMessageAnnotations().withAnnotation("x-opt-test", "test").also()
+                                 .withBody().withString("Second Message")
+                                 .also()
+                                 .withDeliveryId(2)
+                                 .now();
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Consumer without filter gets nothing as remote targeted the filtered peer
+            assertNull(consumer0.receiveNoWait());
+
+            // All should get the message routed even though one was sent from the peer.
+            assertNotNull(consumer1.receiveNoWait());
+            assertNotNull(consumer2.receiveNoWait());
+            assertNotNull(consumer3.receiveNoWait());
+
+            // All should get the message routed even though one was sent from the peer.
+            assertNotNull(consumer1.receiveNoWait());
+            assertNotNull(consumer2.receiveNoWait());
+            assertNotNull(consumer3.receiveNoWait());
+
+            // Should be no more messages
+            assertNull(consumer1.receiveNoWait());
+            assertNull(consumer2.receiveNoWait());
+            assertNull(consumer3.receiveNoWait());
+
+            peer.expectDisposition().withState().accepted();
+            peer.remoteTransfer().withHandle(2) // This is the non-filtering address consumer
+                                 .withHeader().withDurability(true).also()
+                                 .withApplicationProperties().withProperty("color", "red").also()
+                                 .withMessageAnnotations().withAnnotation("x-opt-test", "test").also()
+                                 .withBody().withString("Third Message")
+                                 .also()
+                                 .withDeliveryId(3)
+                                 .now();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Consumer without filter gets the message as it was targeted by the remote
+            assertNotNull(consumer0.receiveNoWait());
+
+            // Close the consumer without filter to create predictable shutdown order for flow and detach
+            peer.expectFlow().withLinkCredit(999).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+            peer.expectDetach().respond();
+
+            consumer0.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            // Should be no messages sent to these consumer bindings
+            assertNull(consumer1.receiveNoWait());
+            assertNull(consumer2.receiveNoWait());
+            assertNull(consumer3.receiveNoWait());
+
+            // The remaining link will be closed when the connection drops and the demand is removed.
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(998).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+            peer.expectDetach().respond();
+         }
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationCreatesSingleUnfilteredConsumerWhenRemoteDoesNotSupportFQQNSubs() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withProperty(FEDERATION_VERSION.toString(), FEDERATION_V2)
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSenderSettleModeSettled()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes(getTestName());
+         receiveFromAddress.setAutoDelete(false);
+         receiveFromAddress.setAutoDeleteDelay(-1L);
+         receiveFromAddress.setAutoDeleteMessageCount(-1L);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
+         element.addProperty(IGNORE_ADDRESS_BINDING_FILTERS, "false");
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final Map<String, Object> expectedSourceProperties = new HashMap<>();
+         expectedSourceProperties.put(ADDRESS_AUTO_DELETE, false);
+         expectedSourceProperties.put(ADDRESS_AUTO_DELETE_DELAY, -1L);
+         expectedSourceProperties.put(ADDRESS_AUTO_DELETE_MSG_COUNT, -1L);
+
+         final String jmsFilterQueue1 = "color='red'";
+         final String jmsFilterQueue2 = "color='blue'";
+         final AtomicReference<Attach> capturedAttach = new AtomicReference<>();
+
+         // Remote indicated no support for FQQN subscriptions and so we cannot create federation consumers
+         // with filters as unique link names cannot be generated so it falls back to a single conduit type
+         // subscription with no JMS selector filter assigned.
+         peer.expectAttach().ofReceiver()
+                            .withCapture(attach -> capturedAttach.set(attach))
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), expectedSourceProperties)
+                            .withProperty(FEDERATION_POLICY_NAME.toString(), "address-policy")
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+         peer.expectFlow().withLinkCredit(1000);
+
+         server.createQueue(QueueConfiguration.of("queue1").setRoutingType(RoutingType.MULTICAST)
+                                                           .setAddress(getTestName())
+                                                           .setAutoCreated(false)
+                                                           .setFilterString(jmsFilterQueue1));
+
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue1")).isExists(), 5000, 100);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         assertNotNull(capturedAttach.get());
+
+         final Map<Symbol, Object> filtersMap = capturedAttach.get().getSource().getFilter();
+         final Symbol jmsSelectorKey = Symbol.valueOf("jms-selector");
+
+         assertNotNull(filtersMap);
+         assertFalse(filtersMap.containsKey(jmsSelectorKey));
+
+         server.createQueue(QueueConfiguration.of("queue2").setRoutingType(RoutingType.MULTICAST)
+                                                           .setAddress(getTestName())
+                                                           .setAutoCreated(false)
+                                                           .setFilterString(jmsFilterQueue2));
+
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue2")).isExists(), 5000, 100);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         // Should be no frames generated as we already federated the address and the statically added
+         // queue should retain demand when this consumer leaves.
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+
+            session.createConsumer(session.createTopic(getTestName()), jmsFilterQueue1);
+            session.createConsumer(session.createTopic(getTestName()), jmsFilterQueue2);
+
+            connection.start();
+         }
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                          .respond()
+                          .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+         peer.expectDetach().respond();
+
+         logger.info("Removing Queues from federated address to eliminate demand");
+         server.destroyQueue(SimpleString.of("queue1"));
+         Wait.assertFalse(() -> server.queueQuery(SimpleString.of("queue1")).isExists());
+         server.destroyQueue(SimpleString.of("queue2"));
+         Wait.assertFalse(() -> server.queueQuery(SimpleString.of("queue2")).isExists());
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testMaxHopsPreservedInFilterWhenNotIgnoringBindingsFilters() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withProperty(FEDERATION_VERSION.toString(), FEDERATION_V2)
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withProperty(FEDERATION_VERSION.toString(), FEDERATION_V2)
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSenderSettleModeSettled()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes(getTestName());
+         receiveFromAddress.setAutoDelete(false);
+         receiveFromAddress.setAutoDeleteDelay(-1L);
+         receiveFromAddress.setAutoDeleteMessageCount(-1L);
+         receiveFromAddress.setMaxHops(3);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
+         element.addProperty(IGNORE_ADDRESS_BINDING_FILTERS, "false");
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final String expectedJMSFilter = "color='red'";
+         final String expectedMaxHopsFilter = generateAddressFilter(3);
+         final AtomicReference<Attach> capturedAttach = new AtomicReference<>();
+         final Symbol jmsSelectorKey = Symbol.valueOf("jms-selector");
+         final org.apache.qpid.protonj2.test.driver.codec.primitives.UnsignedLong jmsSelectorCode =
+            org.apache.qpid.protonj2.test.driver.codec.primitives.UnsignedLong.valueOf(0x0000468C00000004L);
+
+         peer.expectAttach().ofReceiver()
+                            .withCapture(attach -> capturedAttach.set(attach))
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .withProperty(FEDERATION_POLICY_NAME.toString(), "address-policy")
+                            .withSource().withAddress(startsWith(getTestName() + "::federation." + getTestName() + ".policy.address-policy.")).and()
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+         peer.expectFlow().withLinkCredit(1000);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         // Should be no frames generated as we already federated the address and the statically added
+         // queue should retain demand when this consumer leaves.
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+
+            session.createConsumer(session.createTopic(getTestName()), expectedJMSFilter);
+            session.createConsumer(session.createTopic(getTestName()), expectedJMSFilter);
+
+            connection.start();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+            peer.expectDetach().respond();
+         }
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         assertNotNull(capturedAttach.get());
+
+         final Map<Symbol, Object> filtersMap = capturedAttach.get().getSource().getFilter();
+
+         assertNotNull(filtersMap);
+         assertTrue(filtersMap.containsKey(jmsSelectorKey));
+         final DescribedType jmsSelectorEntry = (DescribedType) filtersMap.get(jmsSelectorKey);
+         assertNotNull(jmsSelectorEntry);
+         assertEquals(jmsSelectorEntry.getDescriptor(), jmsSelectorCode);
+
+         final String sentJMSFilter = jmsSelectorEntry.getDescribed().toString();
+         assertTrue(sentJMSFilter.contains(expectedJMSFilter));
+         assertTrue(sentJMSFilter.contains(expectedMaxHopsFilter));
+
+         peer.expectClose();
+         peer.remoteClose().now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testRouteToAddressHandlesAddressFullWithFailPolicy() throws Exception {
+      doTestRoutedMessageReturnsRejectedToRemoteWhenAddressFull(true, false);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testRouteToBindingsHandlesAddressFullWithFailPolicy() throws Exception {
+      doTestRoutedMessageReturnsRejectedToRemoteWhenAddressFull(false, false);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testRouteToAddressHandlesAddressFullWithFailPolicyButSendsModifiedDisposition() throws Exception {
+      doTestRoutedMessageReturnsRejectedToRemoteWhenAddressFull(true, true);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testRouteToBindingsHandlesAddressFullWithFailPolicyButSendsModifiedDisposition() throws Exception {
+      doTestRoutedMessageReturnsRejectedToRemoteWhenAddressFull(false, true);
+   }
+
+   private void doTestRoutedMessageReturnsRejectedToRemoteWhenAddressFull(boolean ignoreFilters, boolean useModifiedForReject) throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withProperty(FEDERATION_VERSION.toString(), FEDERATION_V2)
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withProperty(FEDERATION_VERSION.toString(), FEDERATION_V2)
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSenderSettleModeSettled()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes(getTestName());
+         receiveFromAddress.setAutoDelete(false);
+         receiveFromAddress.setAutoDeleteDelay(-1L);
+         receiveFromAddress.setAutoDeleteMessageCount(-1L);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
+         element.addProperty(IGNORE_ADDRESS_BINDING_FILTERS, Boolean.toString(ignoreFilters));
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(),
+               "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort() + "?amqpUseModifiedForTransientDeliveryErrors=" + useModifiedForReject);
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         final AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(getTestName());
+         addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
+         addressSettings.setMaxSizeBytes(1000);
+         server.getAddressSettingsRepository().addMatch(getTestName(), addressSettings);
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final String payload = "A".repeat(2048);
+         final String expectedJMSFilter = "color='red'";
+         final AtomicReference<Attach> capturedAttach = new AtomicReference<>();
+         final org.apache.qpid.protonj2.test.driver.codec.primitives.UnsignedLong jmsSelectorCode =
+            org.apache.qpid.protonj2.test.driver.codec.primitives.UnsignedLong.valueOf(0x0000468C00000004L);
+
+         peer.expectAttach().ofReceiver()
+                            .withCapture(attach -> capturedAttach.set(attach))
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .withProperty(FEDERATION_POLICY_NAME.toString(), "address-policy")
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+         peer.expectFlow().withLinkCredit(1000);
+
+         server.createQueue(QueueConfiguration.of("queue1").setRoutingType(RoutingType.MULTICAST)
+                                                           .setAddress(getTestName())
+                                                           .setAutoCreated(false)
+                                                           .setFilterString(expectedJMSFilter));
+         server.createQueue(QueueConfiguration.of("queue2").setRoutingType(RoutingType.MULTICAST)
+                                                           .setAddress(getTestName())
+                                                           .setAutoCreated(false)
+                                                           .setFilterString(expectedJMSFilter));
+
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue1")).isExists(), 5000, 100);
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue2")).isExists(), 5000, 100);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         assertNotNull(capturedAttach.get());
+
+         final Map<Symbol, Object> filtersMap = capturedAttach.get().getSource().getFilter();
+         final Symbol jmsSelectorKey = Symbol.valueOf("jms-selector");
+
+         assertNotNull(filtersMap);
+         if (ignoreFilters) {
+            assertFalse(filtersMap.containsKey(jmsSelectorKey));
+         } else {
+            assertTrue(filtersMap.containsKey(jmsSelectorKey));
+            final DescribedType jmsSelectorEntry = (DescribedType) filtersMap.get(jmsSelectorKey);
+            assertNotNull(jmsSelectorEntry);
+            assertEquals(jmsSelectorEntry.getDescriptor(), jmsSelectorCode);
+            assertEquals(jmsSelectorEntry.getDescribed().toString(), expectedJMSFilter);
+         }
+
+         peer.expectDisposition().withState().accepted(); // This should fill the address
+
+         // If sending modified the remote won't discard the message, it will send it again
+         if (useModifiedForReject) {
+            peer.expectDisposition().withState().modified(true);
+         } else {
+            peer.expectDisposition().withState().rejected();
+         }
+
+         peer.remoteTransfer().withHeader().withDurability(true).also()
+                              .withApplicationProperties().withProperty("color", "red").also()
+                              .withMessageAnnotations().withAnnotation("x-opt-test", "1").also()
+                              .withBody().withString("First Message: " + payload)
+                              .also()
+                              .withDeliveryId(1)
+                              .now();
+         peer.remoteTransfer().withHeader().withDurability(true).also()
+                              .withApplicationProperties().withProperty("color", "red").also()
+                              .withMessageAnnotations().withAnnotation("x-opt-test", "2").also()
+                              .withBody().withString("Second Message: ")
+                              .also()
+                              .withDeliveryId(2)
+                              .later(10);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationConsumerFilteredCreatedWhenDemandAddedToDivertWithFilterAddress() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withProperty(FEDERATION_VERSION.toString(), FEDERATION_V2)
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withProperty(FEDERATION_VERSION.toString(), FEDERATION_V2)
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSenderSettleModeSettled()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes(getTestName());
+         receiveFromAddress.setAutoDelete(false);
+         receiveFromAddress.setAutoDeleteDelay(-1L);
+         receiveFromAddress.setAutoDeleteMessageCount(-1L);
+         receiveFromAddress.setEnableDivertBindings(true);
+         receiveFromAddress.addProperty(IGNORE_ADDRESS_BINDING_FILTERS, "false");
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 2);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         final String expectedJMSFilter = "color='red'";
+         final AtomicReference<Attach> capturedAttach = new AtomicReference<>();
+         final org.apache.qpid.protonj2.test.driver.codec.primitives.UnsignedLong jmsSelectorCode =
+            org.apache.qpid.protonj2.test.driver.codec.primitives.UnsignedLong.valueOf(0x0000468C00000004L);
+
+         // The filter at the divert is honored if configured. We do not look further down the chain though
+         // so any binding on a diverts forward is not checked for a filter.
+         final DivertConfiguration divertConfig = new DivertConfiguration().setAddress(getTestName())
+                                                                           .setForwardingAddress("forward")
+                                                                           .setFilterString(expectedJMSFilter)
+                                                                           .setName("test-divert");
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.deployDivert(divertConfig);
+         server.addAddressInfo(new AddressInfo(SimpleString.of(getTestName()), RoutingType.MULTICAST));
+
+         // Demand on the forwarding address should create a remote consumer for the forwarded address.
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withCapture(attach -> capturedAttach.set(attach))
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+         peer.expectFlow().withLinkCredit(1000);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageConsumer consumer = session.createConsumer(session.createTopic("forward"), "property='a'");
+
+            connection.start();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+            final Map<Symbol, Object> filtersMap = capturedAttach.get().getSource().getFilter();
+            final Symbol jmsSelectorKey = Symbol.valueOf("jms-selector");
+
+            assertNotNull(filtersMap);
+            assertTrue(filtersMap.containsKey(jmsSelectorKey));
+            final DescribedType jmsSelectorEntry = (DescribedType) filtersMap.get(jmsSelectorKey);
+            assertNotNull(jmsSelectorEntry);
+            assertEquals(jmsSelectorEntry.getDescriptor(), jmsSelectorCode);
+            assertEquals(jmsSelectorEntry.getDescribed().toString(), expectedJMSFilter);
+
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+            peer.expectDetach().respond();
+
+            consumer.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.close();
+         }
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testRemoteReFederatesAddressWhenDemandIsAppliedAfterInitialDeliveryMarkedModifiedFailed() throws Exception {
+      server.start();
+
+      final Map<String, Object> remoteSourceProperties = new HashMap<>();
+      remoteSourceProperties.put(ADDRESS_AUTO_DELETE, true);
+      remoteSourceProperties.put(ADDRESS_AUTO_DELETE_DELAY, 100_000L);
+      remoteSourceProperties.put(ADDRESS_AUTO_DELETE_MSG_COUNT, 1L);
+
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         scriptFederationConnectToRemote(peer, "test", true);
+         peer.connect("localhost", AMQP_PORT);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender().withName("federation-address-receiver")
+                                       .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                                       .withTarget().also()
+                                       .withSource().withAddress(getTestName() + "::" + getTestName());
+
+         // Connect to remote as if a queue had demand and matched our local federation policy
+         peer.remoteAttach().ofReceiver()
+                            .withDesiredCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName("federation-address-receiver")
+                            .withSenderSettleModeUnsettled()
+                            .withReceivervSettlesFirst()
+                            .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), remoteSourceProperties)
+                            .withSource().withDurabilityOfNone()
+                                         .withExpiryPolicyOnLinkDetach()
+                                         .withAddress(getTestName() + "::" + getTestName())
+                                         .withCapabilities("topic")
+                                         .and()
+                            .withTarget().and()
+                            .now();
+         peer.remoteFlow().withLinkCredit(1).withDeliveryCount(0).now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         // Simulate transient delivery error by settling with modified and delivery failed
+         peer.expectTransfer().withMessage().withHeader().also()
+                                            .withMessageAnnotations().also()
+                                            .withProperties().also()
+                                            .withValue("Message").and()
+                                            .modify(true);
+
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of(getTestName())).isExists(), 5000, 100);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageProducer producer = session.createProducer(session.createTopic(getTestName()));
+            final Message message = session.createTextMessage("Message");
+
+            producer.send(message);
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         }
+
+         // Next grant of credit will deliver the message again
+         peer.expectTransfer().withMessage().withHeader().also()
+                                            .withMessageAnnotations().also()
+                                            .withProperties().also()
+                                            .withValue("Message").and()
+                                            .accept();
+         peer.remoteFlow().withLinkCredit(1).withDeliveryCount(1).now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+
+         server.stop();
       }
    }
 
