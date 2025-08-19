@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_ADDRESS_BINDING_FILTERS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.PULL_RECEIVER_BATCH_SIZE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
@@ -1806,5 +1807,120 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
       server.stop();
       remoteServer.stop();
+   }
+
+   @Test
+   @Timeout(20)
+   public void testRemoteAddressFederationAppliesConsumerFilterIfConfigured() throws Exception {
+      doTestRemoteAddressFederationAppliesConsumerFilterIfConfigured(false);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testRemoteAddressFederationDoesNotApplyConsumerFilterIfConfigured() throws Exception {
+      doTestRemoteAddressFederationAppliesConsumerFilterIfConfigured(true);
+   }
+
+   private void doTestRemoteAddressFederationAppliesConsumerFilterIfConfigured(boolean ignoreFilters) throws Exception {
+      logger.info("Test started: {}", getTestName());
+
+      final AMQPFederationAddressPolicyElement remoteAddressPolicy = new AMQPFederationAddressPolicyElement();
+      remoteAddressPolicy.setName("test-policy");
+      remoteAddressPolicy.addToIncludes(getTestName());
+      remoteAddressPolicy.setAutoDelete(false);
+      remoteAddressPolicy.setAutoDeleteDelay(-1L);
+      remoteAddressPolicy.setAutoDeleteMessageCount(-1L);
+      remoteAddressPolicy.addProperty(IGNORE_ADDRESS_BINDING_FILTERS, String.valueOf(ignoreFilters));
+
+      final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+      element.setName(getTestName());
+      element.addRemoteAddressPolicy(remoteAddressPolicy);
+
+      final AMQPBrokerConnectConfiguration amqpConnection =
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
+      amqpConnection.setReconnectAttempts(10);// Limit reconnects
+      amqpConnection.addElement(element);
+
+      server.getConfiguration().addAMQPConnection(amqpConnection);
+      remoteServer.start();
+      server.start();
+
+      final ConnectionFactory factoryLocal = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + SERVER_PORT);
+      final ConnectionFactory factoryRemote = CFUtil.createConnectionFactory("AMQP", "failover:(amqp://localhost:" + SERVER_PORT_REMOTE + ")");
+
+      final Connection connectionL = factoryLocal.createConnection();
+      final Connection connectionR = factoryRemote.createConnection();
+
+      final Session sessionL = connectionL.createSession(Session.AUTO_ACKNOWLEDGE);
+      final Session sessionR = connectionR.createSession(Session.AUTO_ACKNOWLEDGE);
+
+      final Topic topic = sessionR.createTopic(getTestName());
+
+      final MessageConsumer consumerR = sessionR.createConsumer(topic, "color='red'");
+
+      connectionL.start();
+      connectionR.start();
+
+      // Demand on local address should trigger receiver on remote.
+      Wait.assertTrue(() -> server.addressQuery(SimpleString.of(getTestName())).isExists());
+      Wait.assertTrue(() -> remoteServer.addressQuery(SimpleString.of(getTestName())).isExists());
+
+      // Captures state of JMS consumers and federation consumers attached on each node
+      Wait.assertTrue(() -> server.bindingQuery(SimpleString.of(getTestName()), false).getQueueNames().size() == 1);
+      Wait.assertTrue(() -> remoteServer.bindingQuery(SimpleString.of(getTestName()), false).getQueueNames().size() == 1);
+
+      try {
+         final MessageProducer producerL = sessionL.createProducer(topic);
+         final TextMessage message = sessionL.createTextMessage();
+
+         message.setText("First Red Message");
+         message.setStringProperty("color", "red");
+         producerL.send(message);
+
+         // Message that matched consumer filter should federate
+         final Message received1 = consumerR.receive(5_000);
+
+         assertNotNull(received1);
+         assertInstanceOf(TextMessage.class, received1);
+         assertEquals("First Red Message", ((TextMessage) received1).getText());
+         assertTrue(received1.propertyExists("color"));
+         assertEquals("red", received1.getStringProperty("color"));
+
+         // May or may not be filtered by the local broker when federation is active to the remote based on configuration
+         message.setText("Hello World Blue");
+         message.setStringProperty("color", "blue");
+         producerL.send(message);
+
+         message.setText("Second Red Message");
+         message.setStringProperty("color", "red");
+         producerL.send(message);
+
+         final Message received2 = consumerR.receive(5_000);
+
+         assertNotNull(received2);
+         assertInstanceOf(TextMessage.class, received2);
+         assertEquals("Second Red Message", ((TextMessage) received2).getText());
+         assertTrue(received2.propertyExists("color"));
+         assertEquals("red", received2.getStringProperty("color"));
+
+         // Should be no more messages
+         assertNull(consumerR.receiveNoWait());
+
+         final org.apache.activemq.artemis.core.server.Queue localQueue =
+            server.locateQueue(server.bindingQuery(SimpleString.of(getTestName()), false).getQueueNames().get(0));
+
+         // Filtered message should not be federated
+         if (ignoreFilters) {
+            assertEquals(3, localQueue.getMessagesAdded());
+         } else {
+            assertEquals(2, localQueue.getMessagesAdded());
+         }
+      } finally {
+         connectionL.close();
+         connectionR.close();
+
+         server.stop();
+         remoteServer.stop();
+      }
    }
 }

@@ -49,6 +49,13 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
     */
    public abstract FederationReceiveFromResourcePolicy getPolicy();
 
+   /**
+    * {@return the active configuration at this time the method is called}
+    */
+   protected AMQPFederationConsumerConfiguration getConfiguration() {
+      return configuration;
+   }
+
    @Override
    protected final void handleManagerInitialized() {
       server.registerBrokerPlugin(this);
@@ -101,16 +108,6 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
          scanAllBindings();
       }
    }
-
-   /**
-    * Create a new {@link AMQPFederationConsumer} instance using the consumer information given. This is called when
-    * local demand for a matched resource requires a new consumer to be created. A subclass must override this to
-    * perform the create operation.
-    *
-    * @param consumerInfo The {@link FederationConsumerInfo} that defines the consumer to be created.
-    * @return a new {@link AMQPFederationConsumer} instance that will reside in this manager
-    */
-   protected abstract AMQPFederationConsumer createFederationConsumer(FederationConsumerInfo consumerInfo);
 
    /**
     * Scans all bindings and push them through the normal bindings checks that would be done on an add. This allows for

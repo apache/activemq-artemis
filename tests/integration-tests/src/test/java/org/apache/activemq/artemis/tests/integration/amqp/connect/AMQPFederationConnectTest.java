@@ -30,16 +30,19 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_RECEIVER_IDLE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_ADDRESS_POLICY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADD_QUEUE_POLICY;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_BASE_VALIDATION_ADDRESS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONFIGURATION;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK_PREFIX;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_BASE_VALIDATION_ADDRESS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENTS_LINK_PREFIX;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_EVENT_LINK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_NAME;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_V1;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_V2;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_VERSION;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_ADDRESS_BINDING_FILTERS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_FILTERS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LARGE_MESSAGE_THRESHOLD;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.LINK_ATTACH_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.OPERATION_TYPE;
@@ -53,8 +56,8 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_FILTERS;
-import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -62,8 +65,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.allOf;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
@@ -75,6 +76,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -253,6 +255,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       final boolean AMQP_TUNNEL_CORE_MESSAGES = false;
       final boolean AMQP_INGNORE_CONSUMER_FILTERS = false;
       final boolean AMQP_INGNORE_CONSUMER_PRIORITIES = false;
+      final boolean AMQP_INGNORE_ADDRESS_BINDING_FILTERS = false;
 
       final Map<String, Object> federationConfiguration = new HashMap<>();
       federationConfiguration.put(RECEIVER_CREDITS, AMQP_CREDITS);
@@ -265,6 +268,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       federationConfiguration.put(LINK_ATTACH_TIMEOUT, AMQP_LINK_ATTACH_TIMEOUT);
       federationConfiguration.put(IGNORE_QUEUE_CONSUMER_FILTERS, AMQP_INGNORE_CONSUMER_FILTERS);
       federationConfiguration.put(IGNORE_QUEUE_CONSUMER_PRIORITIES, AMQP_INGNORE_CONSUMER_PRIORITIES);
+      federationConfiguration.put(IGNORE_ADDRESS_BINDING_FILTERS, AMQP_INGNORE_ADDRESS_BINDING_FILTERS);
       federationConfiguration.put(AmqpSupport.TUNNEL_CORE_MESSAGES, AMQP_TUNNEL_CORE_MESSAGES);
 
       final String controlLinkAddress = "test-control-address";
@@ -305,6 +309,7 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          federation.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, AMQP_ADDRESS_RECEIVER_IDLE_TIMEOUT);
          federation.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, AMQP_QUEUE_RECEIVER_IDLE_TIMEOUT);
          federation.addProperty(IGNORE_QUEUE_CONSUMER_PRIORITIES, Boolean.toString(AMQP_INGNORE_CONSUMER_PRIORITIES));
+         federation.addProperty(IGNORE_ADDRESS_BINDING_FILTERS, Boolean.toString(AMQP_INGNORE_ADDRESS_BINDING_FILTERS));
          amqpConnection.addElement(federation);
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();

@@ -23,6 +23,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -322,22 +323,11 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
       }
    }
 
-   @Override
-   protected AMQPFederationConsumer createFederationConsumer(FederationConsumerInfo consumerInfo) {
-      Objects.requireNonNull(consumerInfo, "Federation Queue consumer information object was null");
+   private static class AMQPFederationQueueConsumerManager extends AMQPFederationConsumerManager<ServerConsumer, AMQPFederationQueueConsumer> {
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("AMQP Federation {} creating queue consumer: {} for policy: {}", federation.getName(), consumerInfo, policy.getPolicyName());
-      }
-
-      // Don't initiate anything yet as the caller might need to register error handlers etc
-      // before the attach is sent otherwise they could miss the failure case.
-      return new AMQPFederationQueueConsumer(this, configuration, session, consumerInfo, metrics.newConsumerMetrics());
-   }
-
-   private static class AMQPFederationQueueConsumerManager extends AMQPFederationConsumerManager<ServerConsumer> {
-
+      private final AMQPFederation federation;
       private final AMQPFederationQueuePolicyManager manager;
+      private final FederationReceiveFromQueuePolicy policy;
       private final Queue queue;
       private final FederationConsumerInfo consumerInfo;
       private final String policyInfoKey;
@@ -345,6 +335,8 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
       AMQPFederationQueueConsumerManager(AMQPFederationQueuePolicyManager manager, String policyInfoKey, FederationConsumerInfo consumerInfo, Queue queue) {
          super(manager);
 
+         this.federation = manager.getFederation();
+         this.policy = manager.getPolicy();
          this.manager = manager;
          this.queue = queue;
          this.consumerInfo = consumerInfo;
@@ -359,8 +351,14 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
       }
 
       @Override
-      protected AMQPFederationConsumer createFederationConsumer() {
-         return manager.createFederationConsumer(consumerInfo);
+      protected AMQPFederationQueueConsumer createFederationConsumer(Set<ServerConsumer> demand) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("AMQP Federation {} creating queue consumer: {} for policy: {}", federation.getName(), consumerInfo, policy.getPolicyName());
+         }
+
+         // Don't initiate anything yet as the caller might need to register error handlers etc
+         // before the attach is sent otherwise they could miss the failure case.
+         return new AMQPFederationQueueConsumer(manager, manager.getConfiguration(), federation.getSessionContext(), consumerInfo, manager.getMetrics().newConsumerMetrics());
       }
 
       @Override
@@ -369,15 +367,15 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
       }
 
       @Override
-      protected void whenDemandTrackingEntryRemoved(ServerConsumer consumer) {
-         consumer.removeAttachment(policyInfoKey);
+      protected void whenDemandTrackingEntryRemoved(ServerConsumer serverConsumer, AMQPFederationQueueConsumer consumer) {
+         serverConsumer.removeAttachment(policyInfoKey);
       }
 
       @Override
-      protected void whenDemandTrackingEntryAdded(ServerConsumer consumer) {
+      protected void whenDemandTrackingEntryAdded(ServerConsumer serverConsumer, AMQPFederationQueueConsumer consumer) {
          // Attach the consumer info to the server consumer for later use on consumer close or other
          // operations that need to retrieve the data used to create the federation consumer identity.
-         consumer.addAttachment(policyInfoKey, consumerInfo);
+         serverConsumer.addAttachment(policyInfoKey, consumerInfo);
       }
    }
 }
