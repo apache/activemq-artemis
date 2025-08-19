@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
@@ -375,11 +376,15 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          scanner.setReportDirs(false);
          scanner.setReportExistingFilesOnStartup(false);
          scanner.setScanDepth(1);
-         scanner.addListener((Scanner.BulkListener) filenames -> {
-            for (String filename: filenames) {
-               List<Runnable> tasks = scannerTasks.get(filename);
-               if (tasks != null) {
-                  tasks.forEach(t -> t.run());
+         scanner.addListener(new Scanner.BulkListener() {
+            @Override
+            public void pathsChanged(Map<Path, Scanner.Notification> changeSet) throws Exception {
+               Set<String> filenames = changeSet.keySet().stream().map(Path::toString).collect(Collectors.toSet());
+               for (String filename: filenames) {
+                  List<Runnable> tasks = scannerTasks.get(filename);
+                  if (tasks != null) {
+                     tasks.forEach(t -> t.run());
+                  }
                }
             }
          });
