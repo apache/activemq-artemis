@@ -251,27 +251,64 @@ With the 'data gravity' mindset, operators are less concerned with numbers of co
 
 == Redirection
 
-Apache ActiveMQ Artemis provides a native redirection for supported clients and a new management API for other clients.
-The native redirection can be enabled per acceptor and is supported only for AMQP, CORE and OPENWIRE clients.
+Apache ActiveMQ Artemis provides a protocol-native redirection as well as a management API for other clients using a messaging protocol which doesn't support redirection.
+
+=== Native Redirection
+
+Native redirection is supported for applications using one of the following protocols:
+
+* AMQP 1.0
+* https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Server_redirection[MQTT 5]
+* Core
+* OpenWire
+
+Native redirection is configurable on a per-acceptor basis.
 The acceptor with the `router` url parameter will redirect the incoming connections.
-The `router` url parameter specifies the name of the connection router to use, ie the following acceptor will redirect the incoming CORE client connections using the connection router with the name `simple-router`:
+The `router` url parameter specifies the name of the connection router to use.
+For example, the following acceptor will redirect incoming Core client connections using the connection router with the name `simple-router`:
 
 [,xml]
 ----
 <acceptor name="artemis">tcp://0.0.0.0:61616?router=simple-router;protocols=CORE</acceptor>
 ----
 
-=== Native Redirect Sequence
-
-The clients supporting the native redirection connect to the acceptor with the redirection enabled.
-The acceptor sends to the client the target broker to redirect if it is ready and closes the connection.
-The client connects to the target broker if it has received one before getting disconnected otherwise it connected again to the acceptor with the redirection enabled.
+Here's how it works.
+Applications using a protocol supporting native redirection connect to the acceptor with the router enabled.
+The acceptor redirects the connection to the target broker and closes the connection.
+The client then establishes a connection to the target broker.
 
 image::images/native_redirect_sequence.png[Native Redirect Sequence]
 
-=== Management API Redirect Sequence
+=== Management API Redirection
 
-The clients not supporting the native redirection queries the management API of connection router to get the target broker to redirect.
-If the API returns a target broker the client connects to it otherwise the client queries again the API.
+Applications using a protocol not supporting native redirection can query the management API of connection router to get the target broker to redirect.
+If the API returns a target broker the client connects to it otherwise the client can query the API again.
 
 image::images/management_api_redirect_sequence.png[Management API Redirect Sequence]
+
+The relevant `ConnectionRouterControl` MBean is named like:
+
+[,]
+----
+org.apache.activemq.artemis:broker="<brokerName>",component=connection-routers,name="<routerName>"
+----
+
+Therefore, if your broker was named `myBroker` and your `connection-router` was named `myRouter` then the MBean name would be:
+
+[,]
+----
+org.apache.activemq.artemis:broker="myBroker",component=connection-routers,name="myRouter"
+----
+
+The API has two operations both of which take a single input parameter - <<key-values,key>>:
+
+* `getTarget`: returns a `javax.management.openmbean.CompositeData` object
+* `getTargetAsJSON`: returns a JSON string
+
+Both return values contain the following data:
+
+* `connector`: where to connect
+* `nodeID`: the UUID of the broker
+* `local`: whether the target is the local broker hosting the router
+
+This API can be accessed over xref:management.adoc#exposing-jmx-using-jolokia[HTTP via Jolokia].
