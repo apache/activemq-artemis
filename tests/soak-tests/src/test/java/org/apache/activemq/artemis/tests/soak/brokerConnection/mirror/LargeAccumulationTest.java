@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.tests.soak.brokerConnection.mirror;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
+import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
@@ -46,6 +47,7 @@ import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.TestParameters;
 import org.apache.activemq.artemis.utils.Wait;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -123,6 +125,7 @@ public class LargeAccumulationTest extends SoakTestBase {
       brokerProperties.put("AMQPConnections." + connectionName + ".type", AMQPBrokerConnectionAddressType.MIRROR.toString());
       brokerProperties.put("AMQPConnections." + connectionName + ".connectionElements.mirror.sync", "false");
       brokerProperties.put("largeMessageSync", "false");
+      brokerProperties.put("mirrorDisconnectConsumers", "true");
       brokerProperties.put("pageSyncTimeout", "" + TimeUnit.MILLISECONDS.toNanos(1));
       brokerProperties.put("messageExpiryScanPeriod", "-1");
 
@@ -153,7 +156,6 @@ public class LargeAccumulationTest extends SoakTestBase {
          "\n" + "logger.db1.name=org.apache.activemq.artemis.protocol.amqp.connect.mirror.AckManager\n"
          + "logger.db1.level=DEBUG"));
    }
-
 
    @BeforeAll
    public static void createServers() throws Exception {
@@ -262,9 +264,6 @@ public class LargeAccumulationTest extends SoakTestBase {
    @Test
    public void testLargeAccumulation() throws Exception {
 
-      final boolean useTopic = true;
-      final boolean useQueue = true;
-
       AtomicInteger errors = new AtomicInteger(0);
 
       // producers will have 2 sets of producers (queue and topic)
@@ -297,70 +296,57 @@ public class LargeAccumulationTest extends SoakTestBase {
          }
       }
 
+      Connection connectionOnServer2 = cfs[1].createConnection();
+      runAfter(connectionOnServer2::close);
+
+      Session sessionOnSrv2 = connectionOnServer2.createSession(true, Session.SESSION_TRANSACTED);
+
+      MessageConsumer deadConsumer = sessionOnSrv2.createConsumer(sessionOnSrv2.createQueue(QUEUE_NAME));
+
       CountDownLatch doneTopic = null, doneQueue = null;
 
-      if (useTopic) {
-         doneTopic = send(service, errors, NUMBER_OF_THREADS, cfs[0], NUMBER_OF_LARGE_MESSAGES, 10, SIZE_OF_LARGE_MESSAGE, largeTopic, "LargeMessageTopic");
-      }
-      if (useQueue) {
-         doneQueue = send(service, errors, NUMBER_OF_THREADS, cfs[0], NUMBER_OF_LARGE_MESSAGES, 10, SIZE_OF_LARGE_MESSAGE, largeQueue, "LargeMessageQueue");
-      }
+      doneTopic = send(service, errors, NUMBER_OF_THREADS, cfs[0], NUMBER_OF_LARGE_MESSAGES, 10, SIZE_OF_LARGE_MESSAGE, largeTopic, "LargeMessageTopic");
+      doneQueue = send(service, errors, NUMBER_OF_THREADS, cfs[0], NUMBER_OF_LARGE_MESSAGES, 10, SIZE_OF_LARGE_MESSAGE, largeQueue, "LargeMessageQueue");
 
-      if (useTopic) {
-         assertTrue(doneTopic.await(LARGE_TIMEOUT_MINUTES, TimeUnit.MINUTES));
-      }
-      if (useQueue) {
-         assertTrue(doneQueue.await(LARGE_TIMEOUT_MINUTES, TimeUnit.MINUTES));
-      }
+      assertTrue(doneTopic.await(LARGE_TIMEOUT_MINUTES, TimeUnit.MINUTES));
+      assertTrue(doneQueue.await(LARGE_TIMEOUT_MINUTES, TimeUnit.MINUTES));
 
       assertEquals(0, errors.get());
 
-      if (useTopic) {
-         doneTopic = send(service, errors, NUMBER_OF_THREADS, cfs[0], NUMBER_OF_REGULAR_MESSAGES, 100, SIZE_OF_REGULAR_MESSAGE, largeTopic, "MediumMessageTopic");
-      }
-      if (useQueue) {
-         doneQueue = send(service, errors, NUMBER_OF_THREADS, cfs[0], NUMBER_OF_REGULAR_MESSAGES, 100, SIZE_OF_REGULAR_MESSAGE, largeQueue, "MediumMessageQueue");
-      }
+      doneTopic = send(service, errors, NUMBER_OF_THREADS, cfs[0], NUMBER_OF_REGULAR_MESSAGES, 100, SIZE_OF_REGULAR_MESSAGE, largeTopic, "MediumMessageTopic");
+      doneQueue = send(service, errors, NUMBER_OF_THREADS, cfs[0], NUMBER_OF_REGULAR_MESSAGES, 100, SIZE_OF_REGULAR_MESSAGE, largeQueue, "MediumMessageQueue");
 
-      if (useTopic) {
-         assertTrue(doneTopic.await(LARGE_TIMEOUT_MINUTES, TimeUnit.MINUTES));
-      }
-      if (useQueue) {
-         assertTrue(doneQueue.await(LARGE_TIMEOUT_MINUTES, TimeUnit.MINUTES));
-      }
+      assertTrue(doneTopic.await(LARGE_TIMEOUT_MINUTES, TimeUnit.MINUTES));
+      assertTrue(doneQueue.await(LARGE_TIMEOUT_MINUTES, TimeUnit.MINUTES));
       assertEquals(0, errors.get());
 
-      matchMessageCounts(sm, (long) (NUMBER_OF_LARGE_MESSAGES + NUMBER_OF_REGULAR_MESSAGES) * NUMBER_OF_THREADS, useTopic, useQueue, true);
+      matchMessageCounts(sm, (long) (NUMBER_OF_LARGE_MESSAGES + NUMBER_OF_REGULAR_MESSAGES) * NUMBER_OF_THREADS, true);
 
-      if (useQueue) {
-         doneQueue = new CountDownLatch(NUMBER_OF_THREADS);
-         consume(service, errors, NUMBER_OF_THREADS, cfs[0], NUMBER_OF_LARGE_MESSAGES + NUMBER_OF_REGULAR_MESSAGES, 100, null, largeQueue, doneQueue);
-      }
-      if (useTopic) {
-         doneTopic = new CountDownLatch(NUMBER_OF_THREADS * NUMBER_OF_SUBSCRIPTIONS);
-         for (int i = 0; i < NUMBER_OF_SUBSCRIPTIONS; i++) {
-            consume(service, errors, NUMBER_OF_THREADS, cfs[0], NUMBER_OF_LARGE_MESSAGES + NUMBER_OF_REGULAR_MESSAGES, 100, "sub_" + i, largeTopic, doneTopic);
-         }
+      doneQueue = new CountDownLatch(NUMBER_OF_THREADS);
+      consume(service, errors, NUMBER_OF_THREADS, cfs[0], NUMBER_OF_LARGE_MESSAGES + NUMBER_OF_REGULAR_MESSAGES, 100, null, largeQueue, doneQueue);
+      doneTopic = new CountDownLatch(NUMBER_OF_THREADS * NUMBER_OF_SUBSCRIPTIONS);
+      for (int i = 0; i < NUMBER_OF_SUBSCRIPTIONS; i++) {
+         consume(service, errors, NUMBER_OF_THREADS, cfs[0], NUMBER_OF_LARGE_MESSAGES + NUMBER_OF_REGULAR_MESSAGES, 100, "sub_" + i, largeTopic, doneTopic);
       }
 
-      if (useTopic) {
-         assertTrue(doneTopic.await(LARGE_TIMEOUT_MINUTES, TimeUnit.MINUTES));
-      }
+      assertTrue(doneTopic.await(LARGE_TIMEOUT_MINUTES, TimeUnit.MINUTES));
 
-      if (useQueue) {
-         assertTrue(doneQueue.await(LARGE_TIMEOUT_MINUTES, TimeUnit.MINUTES));
-      }
+      assertTrue(doneQueue.await(LARGE_TIMEOUT_MINUTES, TimeUnit.MINUTES));
 
       assertEquals(0, errors.get());
 
-      matchMessageCounts(sm, 0, useTopic, useQueue, true);
+      matchMessageCounts(sm, 0, true);
+
+      // deadConsumer was supposed to be disconnected from the ack manager
+      Assertions.assertThrows(JMSException.class, () -> {
+         deadConsumer.receive(5000);
+      });
+
+      connectionOnServer2.close();
+
    }
 
-   private boolean matchMessageCounts(SimpleManagement[] sm,
-                                      long numberOfMessages,
-                                      boolean useTopic,
-                                      boolean useQueue,
-                                      boolean useWait) throws Exception {
+   private boolean matchMessageCounts(SimpleManagement[] sm, long numberOfMessages, boolean useWait) throws Exception {
       for (SimpleManagement s : sm) {
          logger.debug("Checking counts on SNF for {}", s.getUri());
          if (useWait) {
@@ -371,27 +357,23 @@ public class LargeAccumulationTest extends SoakTestBase {
             }
          }
 
-         if (useTopic) {
-            for (int i = 0; i < NUMBER_OF_SUBSCRIPTIONS; i++) {
-               String subscriptionName = "sub_" + i + ":global";
-               logger.debug("Checking counts on {} on {}", subscriptionName, s.getUri());
-               if (useWait) {
-                  Wait.assertEquals(numberOfMessages, () -> s.getMessageCountOnQueue(subscriptionName), TimeUnit.MINUTES.toMillis(LARGE_TIMEOUT_MINUTES), 100);
-               } else {
-                  if (s.getMessageCountOnQueue(subscriptionName) != numberOfMessages) {
-                     return false;
-                  }
+         for (int i = 0; i < NUMBER_OF_SUBSCRIPTIONS; i++) {
+            String subscriptionName = "sub_" + i + ":global";
+            logger.debug("Checking counts on {} on {}", subscriptionName, s.getUri());
+            if (useWait) {
+               Wait.assertEquals(numberOfMessages, () -> s.getMessageCountOnQueue(subscriptionName), TimeUnit.MINUTES.toMillis(LARGE_TIMEOUT_MINUTES), 100);
+            } else {
+               if (s.getMessageCountOnQueue(subscriptionName) != numberOfMessages) {
+                  return false;
                }
             }
          }
 
-         if (useQueue) {
-            if (useWait) {
-               Wait.assertEquals(numberOfMessages, () -> s.getMessageCountOnQueue(QUEUE_NAME), TimeUnit.MINUTES.toMillis(LARGE_TIMEOUT_MINUTES), 100);
-            } else {
-               if (s.getMessageCountOnQueue(QUEUE_NAME) != numberOfMessages) {
-                  return false;
-               }
+         if (useWait) {
+            Wait.assertEquals(numberOfMessages, () -> s.getMessageCountOnQueue(QUEUE_NAME), TimeUnit.MINUTES.toMillis(LARGE_TIMEOUT_MINUTES), 100);
+         } else {
+            if (s.getMessageCountOnQueue(QUEUE_NAME) != numberOfMessages) {
+               return false;
             }
          }
       }

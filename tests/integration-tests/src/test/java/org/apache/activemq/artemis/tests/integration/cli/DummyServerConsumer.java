@@ -249,7 +249,6 @@ public class DummyServerConsumer implements ServerConsumer {
 
    @Override
    public void disconnect() {
-
    }
 
    @Override

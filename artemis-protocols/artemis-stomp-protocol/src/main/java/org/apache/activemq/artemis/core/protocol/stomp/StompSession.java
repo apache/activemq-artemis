@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
@@ -117,6 +118,12 @@ public class StompSession implements SessionCallback {
    public boolean isWritable(ReadyListener callback, Object protocolContext) {
       return connection.isWritable(callback);
    }
+
+   @Override
+   public void failConnection(String errorMessage) {
+      connection.fail(new ActiveMQException(errorMessage));
+   }
+
 
    void setServerSession(ServerSession session) {
       this.session = session;

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
@@ -79,6 +80,13 @@ public final class CoreSessionCallback implements SessionCallback {
    public boolean isWritable(ReadyListener callback, Object protocolContext) {
       return connection.isWritable(callback);
    }
+
+
+   @Override
+   public void failConnection(String errorMessage) {
+      connection.fail(new ActiveMQException(errorMessage));
+   }
+
 
    @Override
    public boolean updateDeliveryCountAfterCancel(ServerConsumer consumer, MessageReference ref, boolean failed) {

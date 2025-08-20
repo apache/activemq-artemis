@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.advisory.AdvisorySupport;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.AutoCreateResult;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -282,6 +283,12 @@ public class AMQSession implements SessionCallback {
    public boolean isWritable(ReadyListener callback, Object protocolContext) {
       return connection.isWritable(callback);
    }
+
+   @Override
+   public void failConnection(String errorMessage) {
+      connection.fail(new ActiveMQException(errorMessage));
+   }
+
 
    @Override
    public void sendProducerCreditsMessage(int credits, SimpleString address) {

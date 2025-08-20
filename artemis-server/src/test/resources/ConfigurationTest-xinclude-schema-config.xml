@@ -79,6 +79,7 @@
       <mirror-ack-manager-retry-delay>333</mirror-ack-manager-retry-delay>
       <mirror-ack-manager-warn-unacked>true</mirror-ack-manager-warn-unacked>
       <mirror-page-transaction>true</mirror-page-transaction>
+      <mirror-disconnect-consumers>true</mirror-disconnect-consumers>
 
 
       <xi:include href="${xincludePath}/ConfigurationTest-xinclude-schema-config-remoting-incoming-interceptors.xml"/>

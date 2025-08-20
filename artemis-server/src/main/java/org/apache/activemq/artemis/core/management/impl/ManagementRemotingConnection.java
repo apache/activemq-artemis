@@ -261,6 +261,11 @@ public class ManagementRemotingConnection implements RemotingConnection {
       }
 
       @Override
+      public void failConnection(String errorMessage) {
+
+      }
+
+      @Override
       public boolean isWritable(ReadyListener callback, Object protocolContext) {
          return false;
       }
