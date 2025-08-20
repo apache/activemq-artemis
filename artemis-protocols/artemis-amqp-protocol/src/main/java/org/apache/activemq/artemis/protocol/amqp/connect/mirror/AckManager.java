@@ -47,9 +47,12 @@ import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.AckRetry;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -255,7 +258,7 @@ public class AckManager implements ActiveMQComponent {
 
    // to be used with the same executor as the PagingStore executor
    public void retryAddress(SimpleString address, LongObjectHashMap<JournalHashMap<AckRetry, AckRetry, Queue>> acksToRetry) {
-
+      checkConsumers(address);
 
       // This is an optimization:
       // we peek at how many records we currently have. When we scan all the records that were initially input we would
@@ -379,7 +382,7 @@ public class AckManager implements ActiveMQComponent {
                }
             }
          } else {
-            logger.trace("Retry {} queue attempted {} times on paging, QueueAttempts {} Configuration Page Attempts={}", retry, retry.getQueueAttempts(), retry.getPageAttempts(), configuration.getMirrorAckManagerPageAttempts());
+            logger.trace("Retry {} attempted {} times on paging, Configuration Page Attempts={}", retry, retry.getPageAttempts(), configuration.getMirrorAckManagerPageAttempts());
          }
       }
    }
@@ -512,6 +515,36 @@ public class AckManager implements ActiveMQComponent {
       }
    }
 
+   private void checkConsumers(SimpleString address) {
+      if (configuration.isMirrorDisconnectConsumers()) {
+         try {
+            Bindings bindings = server.getPostOffice().getBindingsForAddress(address);
+            bindings.forEach((n, b) -> {
+               if (b instanceof LocalQueueBinding) {
+                  Queue queue = ((LocalQueueBinding) b).getQueue();
+                  checkConsumers(queue);
+               }
+            });
+         } catch (Exception e) {
+            // nothing that we can do here other than log
+            logger.warn(e.getMessage(), e);
+         }
+      }
+   }
+
+   private void checkConsumers(Queue queue) {
+      if (configuration.isMirrorDisconnectConsumers() && queue.getConsumerCount() > 0) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("Disconnecting consumers on queue {}", queue.getName());
+         }
+         queue.forEachConsumer(this::failConsumer);
+      }
+   }
+
+   private void failConsumer(Consumer consumer) {
+      consumer.failConnection("Mirror requesting consumers away to perform proper ACK retries");
+   }
+
    public boolean ack(String nodeID, Queue targetQueue, long messageID, AckReason reason, boolean allowRetry) {
       if (logger.isTraceEnabled()) {
          logger.trace("performAck (nodeID={}, messageID={}), targetQueue={}, allowRetry={})", nodeID, messageID, targetQueue.getName(), allowRetry);
@@ -525,6 +558,8 @@ public class AckManager implements ActiveMQComponent {
          }
 
          if (allowRetry) {
+            checkConsumers(targetQueue);
+
             if (configuration != null && configuration.isMirrorAckManagerWarnUnacked() && targetQueue.getConsumerCount() > 0) {
                ActiveMQAMQPProtocolLogger.LOGGER.unackWithConsumer(targetQueue.getConsumerCount(), targetQueue.getName(), nodeID, messageID);
             } else {

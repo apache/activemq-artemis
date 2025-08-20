@@ -79,6 +79,8 @@ public interface SessionCallback {
 
    boolean isWritable(ReadyListener callback, Object protocolContext);
 
+   void failConnection(String errorMessage);
+
    /**
     * Some protocols (Openwire) needs a special message with the browser is finished.
     */
