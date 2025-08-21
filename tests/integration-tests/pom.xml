@@ -366,7 +366,7 @@
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-tcnative-boringssl-static</artifactId>
-         <version>${netty-tcnative-version}</version>
+         <scope>test</scope>
       </dependency>
 
       <!-- need this for org.apache.activemq.filter.JAXPXPathEvaluator for Xpath selectors with OpenWire JMS clients-->
