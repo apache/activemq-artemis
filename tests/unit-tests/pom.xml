@@ -169,7 +169,6 @@
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-tcnative-boringssl-static</artifactId>
-         <version>${netty-tcnative-version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>

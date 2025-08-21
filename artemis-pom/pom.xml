@@ -482,6 +482,18 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-tcnative-boringssl-static</artifactId>
+            <version>${netty-tcnative-version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http2</artifactId>
+            <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
             <groupId>org.apache.qpid</groupId>
             <artifactId>proton-j</artifactId>
             <version>${proton.version}</version>
