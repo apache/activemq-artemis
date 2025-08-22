@@ -1659,7 +1659,15 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                             final boolean direct) throws Exception {
       final ArrayList<MessageReference> refs = new ArrayList<>();
 
-      final Transaction tx = context.getTransaction();
+      Transaction tx = context.getTransaction();
+      boolean startedTX = false;
+
+      if (tx == null && mirrorControllerSource != null) {
+         context.setReusable(false);
+         tx = new TransactionImpl(storageManager).setAsync(true);
+         context.setTransaction(tx);
+         startedTX = true;
+      }
 
       final Long deliveryTime;
 
@@ -1731,6 +1739,10 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                processReferences(refs, direct);
             }
          });
+      }
+
+      if (startedTX) {
+         tx.commit();
       }
    }
 
