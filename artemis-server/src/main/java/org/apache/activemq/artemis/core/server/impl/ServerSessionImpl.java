@@ -554,6 +554,22 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                         final boolean browseOnly,
                                         final boolean supportLargeMessage,
                                         final Integer credits) throws Exception {
+      return this.createConsumer(consumerID, queueName, filterString, priority, browseOnly, supportLargeMessage, credits, true);
+   }
+
+   public ServerConsumer createInternalConsumer(final SimpleString queueName) throws Exception {
+      return this.createConsumer(storageManager.generateID(), queueName, null, ActiveMQDefaultConfiguration.getDefaultConsumerPriority(), false, false, -1, false);
+   }
+
+   @Override
+   public ServerConsumer createConsumer(final long consumerID,
+                                        final SimpleString queueName,
+                                        final SimpleString filterString,
+                                        final int priority,
+                                        final boolean browseOnly,
+                                        final boolean supportLargeMessage,
+                                        final Integer credits,
+                                        final boolean enforceSecurity) throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.createCoreConsumer(this, remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), consumerID, queueName, filterString, priority, browseOnly, supportLargeMessage, credits);
       }
@@ -566,19 +582,21 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       SimpleString address = removePrefix(binding.getAddress());
-      try {
-         securityCheck(address, unPrefixedQueueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this);
-      } catch (Exception e) {
-         /*
-          * This is here for backwards compatibility with the pre-FQQN syntax from ARTEMIS-592.
-          * We only want to do this check if an exact match exists in the security-settings.
-          * This code is deprecated and should be removed at the release of the next major version.
-          */
-         SimpleString exactMatch = address.concat(".").concat(unPrefixedQueueName);
-         if (server.getSecurityRepository().containsExactMatch(exactMatch.toString())) {
-            securityCheck(exactMatch, unPrefixedQueueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this);
-         } else {
-            throw e;
+      if (enforceSecurity) {
+         try {
+            securityCheck(address, unPrefixedQueueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this);
+         } catch (Exception e) {
+            /*
+             * This is here for backwards compatibility with the pre-FQQN syntax from ARTEMIS-592.
+             * We only want to do this check if an exact match exists in the security-settings.
+             * This code is deprecated and should be removed at the release of the next major version.
+             */
+            SimpleString exactMatch = address.concat(".").concat(unPrefixedQueueName);
+            if (server.getSecurityRepository().containsExactMatch(exactMatch.toString())) {
+               securityCheck(exactMatch, unPrefixedQueueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this);
+            } else {
+               throw e;
+            }
          }
       }
 

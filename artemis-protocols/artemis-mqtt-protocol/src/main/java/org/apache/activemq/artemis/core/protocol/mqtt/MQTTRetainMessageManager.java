@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -58,8 +59,9 @@ public class MQTTRetainMessageManager {
       queue.deleteAllReferences();
 
       if (!reset) {
-         Message message = LargeServerMessageImpl.checkLargeMessage(messageParameter, session.getServer().getStorageManager());
-         sendToQueue(message.copy(session.getServer().getStorageManager().generateID()), queue, tx);
+         StorageManager storageManager = session.getServer().getStorageManager();
+         Message message = LargeServerMessageImpl.checkLargeMessage(messageParameter, storageManager);
+         MQTTUtil.sendMessageDirectlyToQueue(storageManager, session.getServer().getPostOffice(), message.copy(storageManager.generateID()), queue, tx);
       }
    }
 
@@ -84,7 +86,7 @@ public class MQTTRetainMessageManager {
                   }
                   Message message = ref.getMessage().copy(session.getServer().getStorageManager().generateID());
                   message.putStringProperty(MQTT_MESSAGE_RETAIN_INITIAL_DISTRIBUTION_KEY, (String) null);
-                  sendToQueue(message, queue, tx);
+                  MQTTUtil.sendMessageDirectlyToQueue(session.getServer().getStorageManager(), session.getServer().getPostOffice(), message, queue, tx);
                }
             }
          }

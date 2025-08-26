@@ -332,7 +332,7 @@ public class MQTTTest extends MQTTTestSupport {
          assertEquals(payload, new String(message));
       }
 
-      final Queue queue = server.locateQueue(SimpleString.of(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + clientId));
+      final Queue queue = server.locateQueue(SimpleString.of(MQTTUtil.QOS2_MANAGEMENT_QUEUE_PREFIX + clientId));
 
       Wait.waitFor(() -> queue.getMessageCount() == 0, 1000, 100);
 

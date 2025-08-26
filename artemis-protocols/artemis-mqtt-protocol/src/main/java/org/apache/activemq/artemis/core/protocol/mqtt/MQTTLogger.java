@@ -17,9 +17,9 @@
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.logs.BundleFactory;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Codes 830000 - 839999

@@ -33,11 +33,10 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -179,10 +178,8 @@ public class MQTTStateManager {
    public void storeDurableSubscriptionState(MQTTSessionState state) throws Exception {
       if (subscriptionPersistenceEnabled) {
          logger.debug("Adding durable MQTT subscription record for: {}", state.getClientId());
-         Transaction tx = new TransactionImpl(server.getStorageManager());
-         tx.setAsync(true);
-         server.getPostOffice().route(serializeState(state, server.getStorageManager().generateID()), tx, false);
-         tx.commit();
+         StorageManager storageManager = server.getStorageManager();
+         MQTTUtil.sendMessageDirectlyToQueue(storageManager, server.getPostOffice(), serializeState(state, storageManager.generateID()), sessionStore, null);
       }
    }
 

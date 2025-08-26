@@ -914,4 +914,14 @@ public class MQTT5Test extends MQTT5TestSupport {
       assertTrue(latch.await(1, TimeUnit.MINUTES), "not all tasks finished");
       assertFalse(failed.get());
    }
+
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testSessionCount() throws Exception {
+      MqttClient subscriber = createPahoClient("subscriber");
+      subscriber.connect();
+      MqttClient producer = createPahoClient("producer");
+      producer.connect();
+      assertEquals(2, server.getActiveMQServerControl().getSessionCount());
+   }
 }
