@@ -16,9 +16,11 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -27,16 +29,13 @@ import io.netty.handler.codec.mqtt.MqttConnAckVariableHeader;
 import io.netty.handler.codec.mqtt.MqttConnectMessage;
 import io.netty.handler.codec.mqtt.MqttConnectPayload;
 import io.netty.handler.codec.mqtt.MqttConnectVariableHeader;
-import io.netty.handler.codec.mqtt.MqttFixedHeader;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessageIdVariableHeader;
-import io.netty.handler.codec.mqtt.MqttMessageType;
 import io.netty.handler.codec.mqtt.MqttProperties;
 import io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType;
 import io.netty.handler.codec.mqtt.MqttPubReplyMessageVariableHeader;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
-import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.handler.codec.mqtt.MqttReasonCodeAndPropertiesVariableHeader;
 import io.netty.handler.codec.mqtt.MqttSubAckMessage;
 import io.netty.handler.codec.mqtt.MqttSubscribeMessage;
@@ -48,12 +47,17 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.postoffice.PostOffice;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.commons.text.CaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import java.util.Objects;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CONTENT_TYPE;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CORRELATION_DATA;
@@ -116,7 +120,7 @@ public class MQTTUtil {
 
    public static final SimpleString MQTT_CONTENT_TYPE_KEY = SimpleString.of("mqtt.content.type");
 
-   public static final String MANAGEMENT_QUEUE_PREFIX = DOLLAR + "sys.mqtt.queue.qos2.";
+   public static final String QOS2_MANAGEMENT_QUEUE_PREFIX = DOLLAR + "sys.mqtt.queue.qos2.";
 
    public static final String SHARED_SUBSCRIPTION_PREFIX = DOLLAR + "share/";
 
@@ -214,7 +218,7 @@ public class MQTTUtil {
       return wildcardConfiguration.convert(address, MQTT_WILDCARD);
    }
 
-   private static ICoreMessage createServerMessage(MQTTSession session, SimpleString address, MqttPublishMessage mqttPublishMessage) {
+   public static ICoreMessage createServerMessage(MQTTSession session, SimpleString address, MqttPublishMessage mqttPublishMessage) {
       long id = session.getServer().getStorageManager().generateID();
 
       CoreMessage message = new CoreMessage(id, mqttPublishMessage.fixedHeader().remainingLength(), session.getCoreMessageObjectPools());
@@ -282,15 +286,6 @@ public class MQTTUtil {
 
       ByteBuf payload = mqttPublishMessage.payload();
       message.getBodyBuffer().writeBytes(payload, 0, payload.readableBytes());
-      return message;
-   }
-
-   public static Message createPubRelMessage(MQTTSession session, SimpleString address, int messageId) {
-      MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.PUBREL, false, MqttQoS.AT_LEAST_ONCE, false, 0);
-      MqttPublishMessage publishMessage = new MqttPublishMessage(fixedHeader, null, null);
-      Message message = createServerMessage(session, address, publishMessage)
-         .putIntProperty(MQTTUtil.MQTT_MESSAGE_ID_KEY, messageId)
-         .putIntProperty(MQTTUtil.MQTT_MESSAGE_TYPE_KEY, MqttMessageType.PUBREL.value());
       return message;
    }
 
@@ -588,6 +583,21 @@ public class MQTTUtil {
          return true;
       } else {
          return false;
+      }
+   }
+
+   public static void sendMessageDirectlyToQueue(StorageManager storageManager, PostOffice postOffice, Message message, Queue queue, final Transaction incomingTx) throws Exception {
+      Transaction tx = incomingTx;
+      if (incomingTx == null) {
+         tx = new TransactionImpl(storageManager);
+         tx.setAsync(true);
+      }
+      RoutingContext context = new RoutingContextImpl(tx);
+      queue.route(message, context);
+      postOffice.processRoute(message, context, false);
+      if (incomingTx == null) {
+         // commit the transaction we created otherwise leave it for the caller to commit
+         tx.commit();
       }
    }
 }

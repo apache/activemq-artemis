@@ -122,6 +122,15 @@ public interface ServerSession extends SecurityAuth {
                                  boolean supportLargeMessage,
                                  Integer credits) throws Exception;
 
+   ServerConsumer createConsumer(long consumerID,
+                                 SimpleString queueName,
+                                 SimpleString filterString,
+                                 int priority,
+                                 boolean browseOnly,
+                                 boolean supportLargeMessage,
+                                 Integer credits,
+                                 boolean enforceSecurity) throws Exception;
+
    /**
     * To be used by protocol heads that needs to control the transaction outside the session context.
     */

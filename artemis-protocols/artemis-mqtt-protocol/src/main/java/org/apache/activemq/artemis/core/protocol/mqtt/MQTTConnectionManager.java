@@ -73,10 +73,7 @@ public class MQTTConnectionManager {
       sessionState.setFailed(false);
       ServerSessionImpl serverSession = createServerSession(username, password, validatedUser);
       serverSession.start();
-      ServerSessionImpl internalServerSession = createServerSession(username, password, validatedUser);
-      internalServerSession.disableSecurity();
-      internalServerSession.start();
-      session.setServerSession(serverSession, internalServerSession);
+      session.setServerSession(serverSession);
 
       if (cleanStart) {
          /*

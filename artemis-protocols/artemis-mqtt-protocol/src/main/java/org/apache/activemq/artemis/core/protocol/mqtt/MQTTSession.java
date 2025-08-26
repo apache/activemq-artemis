@@ -49,8 +49,6 @@ public class MQTTSession {
 
    private ServerSessionImpl serverSession;
 
-   private ServerSessionImpl internalServerSession;
-
    private MQTTPublishManager mqttPublishManager;
 
    private MQTTConnectionManager mqttConnectionManager;
@@ -129,11 +127,6 @@ public class MQTTSession {
             serverSession.close(failure);
          }
 
-         if (internalServerSession != null) {
-            internalServerSession.stop();
-            internalServerSession.close(failure);
-         }
-
          state.setAttached(false);
          state.setDisconnectedTime(System.currentTimeMillis());
          state.clearTopicAliases();
@@ -193,10 +186,6 @@ public class MQTTSession {
       return serverSession;
    }
 
-   ServerSessionImpl getInternalServerSession() {
-      return internalServerSession;
-   }
-
    ActiveMQServer getServer() {
       return protocolHandler.getServer();
    }
@@ -213,9 +202,8 @@ public class MQTTSession {
       return sessionCallback;
    }
 
-   void setServerSession(ServerSessionImpl serverSession, ServerSessionImpl internalServerSession) {
+   void setServerSession(ServerSessionImpl serverSession) {
       this.serverSession = serverSession;
-      this.internalServerSession = internalServerSession;
    }
 
    void setSessionState(MQTTSessionState state) {

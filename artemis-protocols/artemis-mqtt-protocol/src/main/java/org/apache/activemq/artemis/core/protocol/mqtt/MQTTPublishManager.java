@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -50,8 +52,6 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import java.util.Objects;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CONTENT_TYPE;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CORRELATION_DATA;
@@ -68,6 +68,7 @@ import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_PAYLO
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_RESPONSE_TOPIC_KEY;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_USER_PROPERTY_EXISTS_KEY;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_USER_PROPERTY_KEY_PREFIX_SIMPLE;
+import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.createServerMessage;
 
 /**
  * Handles MQTT Exactly Once (QoS level 2) Protocol.
@@ -76,15 +77,17 @@ public class MQTTPublishManager {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private SimpleString managementAddress;
+   private SimpleString qos2ManagementAddress;
+
+   private Queue qos2ManagementQueue;
 
    private final String senderName = UUIDGenerator.getInstance().generateUUID().toString();
 
    private boolean createProducer = true;
 
-   private ServerConsumer managementConsumer;
+   private ServerConsumer qos2ManagementConsumer;
 
-   private MQTTSession session;
+   private final MQTTSession session;
 
    private final Object lock = new Object();
 
@@ -109,42 +112,21 @@ public class MQTTPublishManager {
       if (serversession != null) {
          serversession.removeProducer(serversession.getName());
       }
-      if (managementConsumer != null) {
-         managementConsumer.removeItself();
-         managementConsumer.setStarted(false);
-         managementConsumer.close(false);
+      if (qos2ManagementConsumer != null) {
+         qos2ManagementConsumer.removeItself();
+         qos2ManagementConsumer.setStarted(false);
+         qos2ManagementConsumer.close(false);
       }
    }
 
    void clean() throws Exception {
-      SimpleString managementAddress = createManagementAddress();
-      Queue queue = session.getServer().locateQueue(managementAddress);
-      if (queue != null) {
-         queue.deleteQueue();
+      if (qos2ManagementQueue != null) {
+         qos2ManagementQueue.deleteQueue();
       }
    }
 
-   private void createManagementConsumer() throws Exception {
-      long consumerId = session.getServer().getStorageManager().generateID();
-      managementConsumer = session.getInternalServerSession().createConsumer(consumerId, managementAddress, null, false, false, -1);
-      managementConsumer.setStarted(true);
-   }
-
-   private SimpleString createManagementAddress() {
-      return SimpleString.of(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + session.getState().getClientId());
-   }
-
-   private void createManagementQueue() throws Exception {
-      Queue q = session.getServer().locateQueue(managementAddress);
-      if (q == null) {
-         session.getServer().createQueue(QueueConfiguration.of(managementAddress)
-                                            .setRoutingType(RoutingType.ANYCAST)
-                                            .setDurable(MQTTUtil.DURABLE_MESSAGES));
-      }
-   }
-
-   boolean isManagementConsumer(ServerConsumer consumer) {
-      return consumer == managementConsumer;
+   boolean isQos2ManagementConsumer(ServerConsumer consumer) {
+      return consumer == qos2ManagementConsumer;
    }
 
    /**
@@ -156,7 +138,7 @@ public class MQTTPublishManager {
     */
    protected void sendMessage(ICoreMessage message, ServerConsumer consumer, int deliveryCount) throws Exception {
       // This is to allow retries of PubRel.
-      if (isManagementConsumer(consumer)) {
+      if (isQos2ManagementConsumer(consumer)) {
          sendPubRelMessage(message);
       } else {
          int qos = decideQoS(message, consumer);
@@ -312,22 +294,12 @@ public class MQTTPublishManager {
       session.getProtocolHandler().sendPubRel(messageId);
    }
 
-   private SimpleString getManagementAddress() throws Exception {
-      if (managementAddress == null) {
-         managementAddress = createManagementAddress();
-         createManagementQueue();
-         createManagementConsumer();
-      }
-      return managementAddress;
-   }
-
    void handlePubRec(int messageId) throws Exception {
       try {
          Pair<Long, Long> ref = outboundStore.publishReceived(messageId);
          if (ref != null) {
-            Message m = MQTTUtil.createPubRelMessage(session, getManagementAddress(), messageId);
-            //send the management message via the internal server session to bypass security.
-            session.getInternalServerSession().send(m, true, senderName);
+            initQos2Resources();
+            MQTTUtil.sendMessageDirectlyToQueue(session.getServer().getStorageManager(), session.getServer().getPostOffice(), createPubRelMessage(session, messageId), qos2ManagementQueue, null);
             session.getServerSession().individualAcknowledge(ref.getB(), ref.getA());
             releaseFlowControl(ref.getB());
          } else {
@@ -336,6 +308,32 @@ public class MQTTPublishManager {
       } catch (ActiveMQIllegalStateException e) {
          MQTTLogger.LOGGER.failedToAckMessage(session.getState().getClientId(), e);
       }
+   }
+
+   /*
+    * Only create these resources if we actually need them (i.e. we're sending a message to a subscriber via QoS 2)
+    */
+   private void initQos2Resources() throws Exception {
+      if (qos2ManagementAddress == null) {
+         qos2ManagementAddress = SimpleString.of(MQTTUtil.QOS2_MANAGEMENT_QUEUE_PREFIX + session.getState().getClientId());
+      }
+      if (qos2ManagementQueue == null) {
+         qos2ManagementQueue = session.getServer().createQueue(QueueConfiguration.of(qos2ManagementAddress)
+                                                                  .setRoutingType(RoutingType.ANYCAST)
+                                                                  .setDurable(MQTTUtil.DURABLE_MESSAGES),
+                                                               true);
+         qos2ManagementConsumer = session.getServerSession().createInternalConsumer(qos2ManagementAddress);
+         qos2ManagementConsumer.setStarted(true);
+      }
+   }
+
+   private Message createPubRelMessage(MQTTSession session, int messageId) {
+      MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.PUBREL, false, MqttQoS.AT_LEAST_ONCE, false, 0);
+      MqttPublishMessage publishMessage = new MqttPublishMessage(fixedHeader, null, null);
+      Message message = createServerMessage(session, qos2ManagementAddress, publishMessage)
+         .putIntProperty(MQTTUtil.MQTT_MESSAGE_ID_KEY, messageId)
+         .putIntProperty(MQTTUtil.MQTT_MESSAGE_TYPE_KEY, MqttMessageType.PUBREL.value());
+      return message;
    }
 
    /**
@@ -352,7 +350,7 @@ public class MQTTPublishManager {
       Pair<Long, Long> ref = session.getState().getOutboundStore().publishComplete(messageId);
       if (ref != null) {
          // ack the message via the internal server session to bypass security.
-         session.getInternalServerSession().individualAcknowledge(managementConsumer.getID(), ref.getA());
+         session.getServerSession().individualAcknowledge(qos2ManagementConsumer.getID(), ref.getA());
       }
    }
 

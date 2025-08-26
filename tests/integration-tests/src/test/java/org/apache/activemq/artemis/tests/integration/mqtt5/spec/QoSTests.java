@@ -370,8 +370,8 @@ public class QoSTests extends MQTT5TestSupport {
          if (packet.fixedHeader().messageType() == MqttMessageType.PUBCOMP) {
             try {
                // ensure the message is still in the management queue before we get the PUBCOMP from the client
-               Wait.assertEquals(1L, () -> server.locateQueue(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + CONSUMER_ID).getMessageCount(), 2000, 100);
-               Wait.assertEquals(1L, () -> server.locateQueue(MQTTUtil.MANAGEMENT_QUEUE_PREFIX + CONSUMER_ID).getDeliveringCount(), 2000, 100);
+               Wait.assertEquals(1L, () -> server.locateQueue(MQTTUtil.QOS2_MANAGEMENT_QUEUE_PREFIX + CONSUMER_ID).getMessageCount(), 2000, 100);
+               Wait.assertEquals(1L, () -> server.locateQueue(MQTTUtil.QOS2_MANAGEMENT_QUEUE_PREFIX + CONSUMER_ID).getDeliveringCount(), 2000, 100);
             } catch (Exception e) {
                return false;
             }
