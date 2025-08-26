@@ -273,21 +273,7 @@ The Java NIO journal gives great performance, but If you are running Apache Acti
 
 It's not possible to use the ASYNCIO journal under other operating systems or earlier versions of the Linux kernel.
 
-If you are running Linux kernel 2.6 or later and don't already have `libaio` installed, you can easily install it using the following steps:
-
-Using yum, (e.g. on Fedora or Red Hat Enterprise Linux):
-
-[,sh]
-----
-yum install libaio
-----
-
-Using aptitude, (e.g. on Ubuntu or Debian system):
-
-[,sh]
-----
-apt-get install libaio
-----
+If you are running Linux kernel 2.6 or later and don't already have `libaio` installed you can easily install it using the xref:libaio.adoc#runtime-dependencies[following steps].
 
 == JDBC Persistence
 
