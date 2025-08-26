@@ -517,7 +517,6 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       if (internalMirrorID == null) {
          internalMirrorID = getRemoteMirrorId(); // not passing the ID means the data was generated on the remote broker
       }
-
       Long internalIDLong = (Long) deliveryAnnotations.getValue().get(INTERNAL_ID);
       String internalAddress = (String) deliveryAnnotations.getValue().get(INTERNAL_DESTINATION);
 

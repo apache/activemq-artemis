@@ -298,7 +298,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       }
       String remoteID = getRemoteMirrorId();
       if (remoteID == null) {
-         // This is to avoid a reflection (Mirror sending messages back to itself) from a small period of time one node reconnects but not the opposite direction.
+         // This is to avoid a reflection (Miror sendin messages back to itself) from a small period of time one node reconnects but not the opposite direction.
          Object localRemoteID = message.getAnnotation(BROKER_ID_SIMPLE_STRING);
          if (localRemoteID != null) {
             remoteID = String.valueOf(localRemoteID);
@@ -341,21 +341,19 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       SimpleString address = context.getAddress(message);
 
       if (context.isInternal()) {
-         logger.trace("sendMessage::server {} is discarding send {} to avoid sending to internal queue", server, message);
+         logger.trace("sendMessage::server {} is discarding send to avoid sending to internal queue", server);
          return;
       }
 
       if (invalidTarget(context.getMirrorSource(), message)) {
-         logger.trace("sendMessage::server {} is discarding send {} to avoid infinite loop (reflection with the mirror)", server, message);
+         logger.trace("sendMessage::server {} is discarding send to avoid infinite loop (reflection with the mirror)", server);
          return;
       }
 
       if (ignoreAddress(address)) {
-         logger.trace("sendMessage::server {} is discarding send {} to address {}, address doesn't match filter", server, address, message);
+         logger.trace("sendMessage::server {} is discarding send to address {}, address doesn't match filter", server, address);
          return;
       }
-
-      logger.trace("sendMessage::server {} is SENDING {}", server, message);
 
       try {
          context.setReusable(false);

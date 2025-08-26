@@ -395,7 +395,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String MIRROR_ACK_MANAGER_RETRY_DELAY = "mirror-ack-manager-retry-delay";
    private static final String MIRROR_ACK_MANAGER_WARN_UNACKED = "mirror-ack-manager-warn-unacked";
-   private static final String MIRROR_DISCONNECT_CONSUMERS = "mirror-disconnect-consumers";
 
    private static final String MIRROR_PAGE_TRANSACTION = "mirror-page-transaction";
 
@@ -889,8 +888,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       config.setMirrorAckManagerRetryDelay(getInteger(e, MIRROR_ACK_MANAGER_RETRY_DELAY, config.getMirrorAckManagerRetryDelay(), GT_ZERO));
 
       config.setMirrorAckManagerWarnUnacked(getBoolean(e, MIRROR_ACK_MANAGER_WARN_UNACKED, config.isMirrorAckManagerWarnUnacked()));
-
-      config.setMirrorDisconnectConsumers(getBoolean(e, MIRROR_DISCONNECT_CONSUMERS, config.isMirrorDisconnectConsumers()));
 
       parseAddressSettings(e, config);
 

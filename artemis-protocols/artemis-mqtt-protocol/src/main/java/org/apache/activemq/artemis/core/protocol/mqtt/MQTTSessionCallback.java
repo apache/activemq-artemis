@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -44,13 +43,6 @@ public class MQTTSessionCallback implements SessionCallback {
    public boolean isWritable(ReadyListener callback, Object protocolContext) {
       return connection.isWritable(callback);
    }
-
-
-   @Override
-   public void failConnection(String errorMessage) {
-      connection.fail(new ActiveMQException(errorMessage));
-   }
-
 
    @Override
    public int sendMessage(MessageReference ref,

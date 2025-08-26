@@ -1229,11 +1229,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public void forEachConsumer(java.util.function.Consumer<Consumer> callback) {
-      consumers.stream().forEach(t -> callback.accept(t.consumer));
-   }
-
-   @Override
    public void addLingerSession(String sessionId) {
       lingerSessionIds.add(sessionId);
    }

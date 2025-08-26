@@ -167,9 +167,6 @@ public interface Queue extends Bindable, CriticalComponent {
 
    void addConsumer(Consumer consumer) throws Exception;
 
-   default void forEachConsumer(java.util.function.Consumer<Consumer> callback) {
-   }
-
    void addLingerSession(String sessionId);
 
    void removeLingerSession(String sessionId);

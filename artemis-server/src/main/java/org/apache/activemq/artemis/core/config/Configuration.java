@@ -1527,14 +1527,6 @@ public interface Configuration {
    boolean isMirrorAckManagerWarnUnacked();
 
    /**
-    * Should Mirror disconnect consumers in order to clearn Acknowledgement retries.
-    * This is useful in situations where you want consumers connected to only one side of the Mirrors.
-    * */
-   Configuration setMirrorDisconnectConsumers(boolean disconnectConsumers);
-
-   boolean isMirrorDisconnectConsumers();
-
-   /**
     *  Should the system remove page folders once destinations stop paging.
     *  Default is false, however future major versions will have this as true */
    Configuration setPurgePageFolders(boolean purgePageFolders);

@@ -597,7 +597,6 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
 
       assertEquals(111, configInstance.getMirrorAckManagerQueueAttempts());
       assertTrue(configInstance.isMirrorAckManagerWarnUnacked());
-      assertTrue(configInstance.isMirrorDisconnectConsumers());
       assertEquals(222, configInstance.getMirrorAckManagerPageAttempts());
       assertEquals(333, configInstance.getMirrorAckManagerRetryDelay());
       assertTrue(configInstance.isMirrorPageTransaction());

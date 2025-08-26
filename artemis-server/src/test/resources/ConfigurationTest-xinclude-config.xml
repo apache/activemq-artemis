@@ -79,7 +79,6 @@
       <mirror-ack-manager-retry-delay>333</mirror-ack-manager-retry-delay>
       <mirror-ack-manager-warn-unacked>true</mirror-ack-manager-warn-unacked>
       <mirror-page-transaction>true</mirror-page-transaction>
-      <mirror-disconnect-consumers>true</mirror-disconnect-consumers>
 
       <remoting-incoming-interceptors>
          <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor1</class-name>

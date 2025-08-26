@@ -84,13 +84,6 @@ public interface Consumer extends PriorityAware {
     */
    void disconnect();
 
-   /**
-    * disconnect the consumer
-    */
-   default void failConnection(String errorMessage) {
-   }
-
-
    void failed(Throwable t);
 
    /**

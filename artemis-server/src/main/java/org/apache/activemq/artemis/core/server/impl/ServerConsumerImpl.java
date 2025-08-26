@@ -1167,11 +1167,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
-   public void failConnection(String errorMessage) {
-      callback.failConnection(errorMessage);
-   }
-
-   @Override
    public void failed(Throwable t) {
       try {
          this.close(true);

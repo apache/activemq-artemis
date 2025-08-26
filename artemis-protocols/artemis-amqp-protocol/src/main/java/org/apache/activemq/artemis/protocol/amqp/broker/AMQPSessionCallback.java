@@ -790,11 +790,6 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    @Override
-   public void failConnection(String errorMessage) {
-      serverSession.getRemotingConnection().fail(new ActiveMQException(errorMessage));
-   }
-
-   @Override
    public boolean hasCredits(ServerConsumer consumer) {
       ProtonServerSenderContext plugSender = (ProtonServerSenderContext) consumer.getProtocolContext();
 

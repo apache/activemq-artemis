@@ -520,11 +520,6 @@ public class HangConsumerTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void failConnection(String errorMessage) {
-         targetCallback.failConnection(errorMessage);
-      }
-
-      @Override
       public void closed() {
          targetCallback.closed();
       }
