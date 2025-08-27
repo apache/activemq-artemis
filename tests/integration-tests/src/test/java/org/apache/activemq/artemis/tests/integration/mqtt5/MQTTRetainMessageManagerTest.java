@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
@@ -142,7 +143,7 @@ public class MQTTRetainMessageManagerTest extends MQTT5TestSupport {
             final MqttMessage message = new MqttMessage();
             message.setQos(qos);
             message.setRetained(true);
-            message.setPayload(RandomUtil.randomBytes(128));
+            message.setPayload(RandomUtil.randomUUIDString().getBytes(StandardCharsets.UTF_8));
             mqttPublisher.publish(topic, message);
             lastMessagePublished.set(message);
          }
@@ -153,15 +154,21 @@ public class MQTTRetainMessageManagerTest extends MQTT5TestSupport {
          Wait.waitFor(() -> lastMessageArrivedOnConsumerAfterPublish2.get() != null, 5000, 100);
 
          assertEquals(1, arrivedCountAferPublish.get());
-         assertArrayEquals(lastMessagePublished.get().getPayload(), lastMessageArrivedOnConsumerBeforePublish.get().getPayload(), String.format(
-                              "\nMessage arrived on consumer subscribed before the publish is different from the last published message!\nPublished: %s\nArrived  : %s\n",
-                              new String(lastMessagePublished.get().getPayload()), new String(lastMessageArrivedOnConsumerAfterPublish.get().getPayload())));
-         assertArrayEquals(lastMessagePublished.get().getPayload(), lastMessageArrivedOnConsumerAfterPublish.get().getPayload(), String.format(
-                              "\nMessage arrived on consumer subscribed after the publish is different from the last published message!\nPublished: %s\nArrived  : %s\n",
-                              new String(lastMessagePublished.get().getPayload()), new String(lastMessageArrivedOnConsumerAfterPublish.get().getPayload())));
-         assertArrayEquals(lastMessagePublished.get().getPayload(), lastMessageArrivedOnConsumerAfterPublish2.get().getPayload(), String.format(
-                              "\nMessage arrived on consumer subscribed after the publish (2) is different from the last published message!\nPublished: %s\nArrived  : %s\n",
-                              new String(lastMessagePublished.get().getPayload()), new String(lastMessageArrivedOnConsumerAfterPublish.get().getPayload())));
+         assertArrayEquals(lastMessagePublished.get().getPayload(),
+                           lastMessageArrivedOnConsumerBeforePublish.get().getPayload(),
+                           String.format("\nMessage that arrived on consumer subscribed before the publish is different from the last published message!\nPublished: %s\nArrived  : %s\n",
+                                         new String(lastMessagePublished.get().getPayload(), StandardCharsets.UTF_8),
+                                         new String(lastMessageArrivedOnConsumerBeforePublish.get().getPayload(), StandardCharsets.UTF_8)));
+         assertArrayEquals(lastMessagePublished.get().getPayload(),
+                           lastMessageArrivedOnConsumerAfterPublish.get().getPayload(),
+                           String.format("\nMessage that arrived on consumer subscribed after the publish is different from the last published message!\nPublished: %s\nArrived  : %s\n",
+                                         new String(lastMessagePublished.get().getPayload(), StandardCharsets.UTF_8),
+                                         new String(lastMessageArrivedOnConsumerAfterPublish.get().getPayload(), StandardCharsets.UTF_8)));
+         assertArrayEquals(lastMessagePublished.get().getPayload(),
+                           lastMessageArrivedOnConsumerAfterPublish2.get().getPayload(),
+                           String.format("\nMessage that arrived on consumer subscribed after the publish (2) is different from the last published message!\nPublished: %s\nArrived  : %s\n",
+                                         new String(lastMessagePublished.get().getPayload(), StandardCharsets.UTF_8),
+                                         new String(lastMessageArrivedOnConsumerAfterPublish2.get().getPayload(), StandardCharsets.UTF_8)));
       } catch (MqttException e) {
          fail(e.getMessage());
       }
