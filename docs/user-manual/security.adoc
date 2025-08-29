@@ -1365,7 +1365,7 @@ activemq-cert {
 ----
 
 * Change the hawtio realm to match the realm defined in the `login.config` file for the <<certificateloginmodule,certificate login module>>.
-This is configured in the `artemis.profile` via the system property `-Dhawtio.role=activemq-cert`.
+This is configured in the `artemis.profile` via the system property `-Dhawtio.realm=activemq-cert`.
 * Create a key pair for the client and import the public key in a truststore file.
 +
 ----
