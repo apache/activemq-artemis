@@ -192,7 +192,7 @@
       <!-- used on tests -->
       <elementary.version>3.0.0</elementary.version>
       <groovy.version>5.0.0</groovy.version>
-      <hadoop.minikdc.version>3.4.1</hadoop.minikdc.version>
+      <hadoop.minikdc.version>3.4.2</hadoop.minikdc.version>
       <mockserver.version>5.15.0</mockserver.version>
 
       <owasp.version>12.1.3</owasp.version>
