@@ -86,10 +86,8 @@ Typically, this will be some kind of high performance Storage Area Network (SAN)
 Network Attached Storage (NAS), like an <<NFS Mount Recommendations,NFS mount>>, is viable but won't provide optimal performance.
 
 One main advantage of a shared store configuration is that no replication occurs between the primary and backup nodes which means it does not suffer any performance penalties due to the overhead of replication during normal operation.
-
-One potentially significant disadvantage of shared store versus replication is that it requires a shared file system, and when the backup server activates it needs to load the journal from the shared store which can take some time depending on the amount of data in the store and the speed of the store.
-
-If you require the highest performance during normal operation then acquire access to a fast SAN and deal with a slightly slower failover (depending on amount of data).
+The main disadvantage is that shared stores are typically less performant than local file stores. In particular, because the journal is always read in full on startup, the difference in read latency between local and shared storage can be a significant startup overhead. The shared store may need to be optimised for reads of size journal-file-size.
+If you require the highest performance then acquire access to a fast SAN.
 
 [TIP]
 .What About Split Brain?
