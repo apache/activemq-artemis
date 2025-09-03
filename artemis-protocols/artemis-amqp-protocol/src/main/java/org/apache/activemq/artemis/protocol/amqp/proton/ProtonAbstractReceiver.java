@@ -20,11 +20,15 @@ import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessa
 import static org.apache.activemq.artemis.protocol.amqp.proton.AMQPTunneledMessageConstants.AMQP_TUNNELED_CORE_MESSAGE_FORMAT;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -35,10 +39,17 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
+import org.apache.qpid.proton.amqp.messaging.Modified;
+import org.apache.qpid.proton.amqp.messaging.Outcome;
+import org.apache.qpid.proton.amqp.messaging.Rejected;
+import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.transaction.TransactionalState;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
+import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
+import org.apache.qpid.proton.amqp.transport.LinkError;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.slf4j.Logger;
@@ -50,6 +61,7 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
 
    protected enum ReceiverState {
       STARTED,
+      DRAINING,
       STOPPING,
       STOPPED,
       CLOSED
@@ -67,13 +79,15 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    protected final MessageReader largeMessageReader = new AMQPLargeMessageReader(this);
    protected final Runnable creditRunnable;
    protected final boolean useModified;
+   protected final boolean drainCreditOnNoSpace;
+   protected final long drainTimeout;
    protected final Runnable creditTopUpRunner = this::doCreditTopUpRun;
 
    protected volatile MessageReader messageReader;
    protected int pendingSettles = 0;
    protected volatile ReceiverState state = ReceiverState.STARTED;
    protected BiConsumer<ProtonAbstractReceiver, Boolean> pendingStop;
-   protected ScheduledFuture<?> pendingStopTimeout;
+   protected ScheduledFuture<?> pendingQuiesceTimeout;
 
    // Not always used so left unallocated until needed, on attach the capabilities drive if supported
    protected MessageReader coreMessageReader;
@@ -90,7 +104,9 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       this.receiver = receiver;
       this.minLargeMessageSize = getConfiguredMinLargeMessageSize(connection);
       this.creditRunnable = createCreditRunnable(connection);
-      this.useModified = this.connection.getProtocolManager().isUseModifiedForTransientDeliveryErrors();
+      this.useModified = connection.getProtocolManager().isUseModifiedForTransientDeliveryErrors();
+      this.drainCreditOnNoSpace = connection.getProtocolManager().isDrainOnTransientDeliveryErrors();
+      this.drainTimeout = connection.getProtocolManager().getLinkQuiesceTimeout();
       this.routingContext = new RoutingContextImpl(null).setDuplicateDetection(connection.getProtocolManager().isAmqpDuplicateDetection());
    }
 
@@ -128,25 +144,38 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
     * an asynchronous call invalid. The stop call allows a timeout to be specified which will signal the stopped
     * consumer if the timeout elapses and leaves the receiver in the stopping state which does not allow for a restart.
     *
-    * @param stopTimeout A time in milliseconds to wait for the stop to complete before considering it as having
-    *                    failed.
-    * @param onStopped   A consumer that is signaled once the receiver has stopped or the timeout elapsed.
+    * @param stopTimeout
+    *    A time in milliseconds to wait for the stop to complete before considering it as having failed.
+    * @param onStopped
+    *    A consumer that is signaled once the receiver has stopped or the timeout elapsed.
+    *
     * @throws IllegalStateException if the receiver is currently in the stopping state.
     */
    public void stop(int stopTimeout, BiConsumer<ProtonAbstractReceiver, Boolean> onStopped) {
       Objects.requireNonNull(onStopped, "The stopped callback must not be null");
       connection.requireInHandler();
 
-      if (isStarted()) {
+      if (state.ordinal() < ReceiverState.STOPPING.ordinal()) {
          state = ReceiverState.STOPPING;
          pendingStop = onStopped;
-         if (!checkIfPendingStopCanComplete()) {
-            if (receiver.getCredit() != 0) {
+
+         if (!tryCompletePendingQuiesce()) {
+            // The receiver could already be draining but if not we trigger a drain to handle
+            // the run off of pending messages from the remote before reporting stopped.
+            if (receiver.getCredit() != 0 && !receiver.draining()) {
                receiver.drain(0);
             }
 
             if (stopTimeout > 0) {
-               pendingStopTimeout = protonSession.getServer().getScheduledPool().schedule(() -> {
+               // Take over any pending timeout setup from a drain operation with one with the given
+               // stop timeout otherwise the pending drain timeout will kick in and will signal the
+               // stop callback indicating that stop failed.
+               if (pendingQuiesceTimeout != null) {
+                  pendingQuiesceTimeout.cancel(false);
+                  pendingQuiesceTimeout = null;
+               }
+
+               pendingQuiesceTimeout = protonSession.getServer().getScheduledPool().schedule(() -> {
                   connection.runNow(() -> signalStoppedCallback(false));
                }, stopTimeout, TimeUnit.MILLISECONDS);
             }
@@ -183,8 +212,8 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       return state == ReceiverState.STARTED;
    }
 
-   public boolean isBusy() {
-      return false;
+   public boolean isDraining() {
+      return state == ReceiverState.DRAINING;
    }
 
    public boolean isStopping() {
@@ -197,6 +226,10 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
 
    public boolean isClosed() {
       return state == ReceiverState.CLOSED;
+   }
+
+   public boolean isBusy() {
+      return false;
    }
 
    /**
@@ -245,6 +278,7 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
     * @param receiver   The proton receiver that will have its credit refilled
     * @param connection The connection that own the receiver
     * @param context    The context that will be associated with the receiver
+    *
     * @return A new Runnable that can be used to keep receiver credit replenished
     */
    public static Runnable createCreditRunnable(int refill,
@@ -320,16 +354,27 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       if (isStarted()) {
          topUpCreditIfNeeded();
       } else {
-         checkIfPendingStopCanComplete();
+         tryCompletePendingQuiesce();
       }
    }
 
-   private boolean checkIfPendingStopCanComplete() {
-      if (isStopping() && pendingSettles == 0 && receiver.getQueued() == 0 && receiver.getCredit() == 0) {
-         state = ReceiverState.STOPPED;
-         signalStoppedCallback(true);
+   private boolean tryCompletePendingQuiesce() {
+      if (pendingSettles == 0 && receiver.getQueued() == 0 && receiver.getCredit() == 0) {
+         if (isStopping()) {
+            state = ReceiverState.STOPPED;
+            signalStoppedCallback(true);
+            return true;
+         } else if (isDraining()) {
+            state = ReceiverState.STARTED;
 
-         return true;
+            if (pendingQuiesceTimeout != null) {
+               pendingQuiesceTimeout.cancel(false);
+               pendingQuiesceTimeout = null;
+            }
+
+            topUpCreditIfNeeded();
+            return true;
+         }
       }
 
       return false;
@@ -337,10 +382,10 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
 
    @Override
    public void onFlow(int credits, boolean drain) {
-      if (isStopping()) {
-         checkIfPendingStopCanComplete();
-      } else {
+      if (isStarted()) {
          topUpCreditIfNeeded();
+      } else {
+         tryCompletePendingQuiesce();
       }
    }
 
@@ -359,7 +404,7 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       if (!receiver.getDrain() && isStarted()) {
          receiver.flow(1);
       } else {
-         checkIfPendingStopCanComplete();
+         tryCompletePendingQuiesce();
       }
    }
 
@@ -477,6 +522,47 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       });
    }
 
+   public void deliveryFailed(Delivery delivery, Receiver receiver, Exception e) {
+      connection.runNow(() -> {
+         if (drainCreditOnNoSpace && isStarted() && receiver.getCredit() > 0 && isAddressFull(e)) {
+            // Only when started do we want to drain off credit when the address is full since we
+            // will have already reacted to a stop or close. Once drained this will return to the
+            // started state if not stopped or closed since.
+            state = ReceiverState.DRAINING;
+            receiver.drain(0);
+
+            if (drainTimeout > 0) {
+               pendingQuiesceTimeout = protonSession.getServer().getScheduledPool().schedule(() -> {
+                  final ErrorCondition error = new ErrorCondition(LinkError.DETACH_FORCED, "Timed out waiting for remote sender to drain");
+
+                  connection.runLater(() -> {
+                     try {
+                        // Accounts for possible swap to stopping where the caller did not provide their
+                        // own timeout so the stop will leave the drain timeout in place if one was active.
+                        if (isStopping()) {
+                           pendingStop.accept(this, false);
+                        } else {
+                           try {
+                              close(error);
+                           } finally {
+                              receiver.close();
+                           }
+                        }
+                     } catch (ActiveMQAMQPException ex) {
+                        logger.debug("Error while attempting to close receiver that did not drain or stop in time", ex);
+                     } finally {
+                        connection.flush();
+                     }
+                  });
+               }, drainTimeout, TimeUnit.MILLISECONDS);
+            }
+         }
+         delivery.disposition(determineDeliveryState(((Source) receiver.getSource()), useModified, e));
+         settle(delivery);
+         connection.flush();
+      });
+   }
+
    /**
     * {@return either the fixed address assigned to this sender, or the last address used by an anonymous relay sender;
     * if this is an anonymous relay and no send has occurred then this method returns {@code null}}
@@ -509,9 +595,9 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    }
 
    private void signalStoppedCallback(boolean stopped) {
-      if (pendingStopTimeout != null) {
-         pendingStopTimeout.cancel(false);
-         pendingStopTimeout = null;
+      if (pendingQuiesceTimeout != null) {
+         pendingQuiesceTimeout.cancel(false);
+         pendingQuiesceTimeout = null;
       }
 
       if (pendingStop != null) {
@@ -554,6 +640,60 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       if (!coreTunnelingEnabled) {
          throw new UnsupportedOperationException("Core tunnel not enabled for this link");
       }
+   }
+
+   protected static boolean isAddressFull(final Exception e) {
+      return e instanceof ActiveMQException amqe && ActiveMQExceptionType.ADDRESS_FULL.equals(amqe.getType());
+   }
+
+   protected static boolean outcomeSupported(final Source source, final Symbol outcome) {
+      if (source != null && source.getOutcomes() != null) {
+         return Arrays.asList((source).getOutcomes()).contains(outcome);
+      }
+      return false;
+   }
+
+   protected static Outcome getEffectiveDefaultOutcome(final Source source) {
+      return (source.getOutcomes() == null || source.getOutcomes().length == 0) ? source.getDefaultOutcome() : null;
+   }
+
+   private static DeliveryState determineDeliveryState(final Source source, final boolean useModified, final Exception e) {
+      Outcome defaultOutcome = getEffectiveDefaultOutcome(source);
+
+      if (isAddressFull(e) && useModified && (outcomeSupported(source, Modified.DESCRIPTOR_SYMBOL) || defaultOutcome instanceof Modified)) {
+         Modified modified = new Modified();
+         modified.setDeliveryFailed(true);
+         return modified;
+      } else {
+         if (outcomeSupported(source, Rejected.DESCRIPTOR_SYMBOL) || defaultOutcome instanceof Rejected) {
+            return createRejected(e);
+         } else if (source.getDefaultOutcome() instanceof DeliveryState) {
+            return ((DeliveryState) source.getDefaultOutcome());
+         } else {
+            // The AMQP specification requires that Accepted is returned for this case. However there exist
+            // implementations that set neither outcomes/default-outcome but use/expect for full range of outcomes.
+            // To maintain compatibility with these implementations, we maintain previous behaviour.
+            return createRejected(e);
+         }
+      }
+   }
+
+   private static Rejected createRejected(final Exception e) {
+      ErrorCondition condition = new ErrorCondition();
+
+      if (e instanceof ActiveMQSecurityException) {
+         condition.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
+      } else if (isAddressFull(e)) {
+         condition.setCondition(AmqpError.RESOURCE_LIMIT_EXCEEDED);
+      } else {
+         condition.setCondition(Symbol.valueOf("failed"));
+      }
+      condition.setDescription(e.getMessage());
+
+      Rejected rejected = new Rejected();
+      rejected.setError(condition);
+
+      return rejected;
    }
 
    public static boolean isBellowThreshold(int credit, int pending, int threshold) {

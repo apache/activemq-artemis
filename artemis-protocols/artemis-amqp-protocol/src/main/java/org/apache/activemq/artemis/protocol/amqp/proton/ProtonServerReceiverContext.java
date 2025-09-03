@@ -18,13 +18,9 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -43,14 +39,7 @@ import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMess
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
-import org.apache.qpid.proton.amqp.messaging.Modified;
-import org.apache.qpid.proton.amqp.messaging.Outcome;
-import org.apache.qpid.proton.amqp.messaging.Rejected;
-import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
-import org.apache.qpid.proton.amqp.transport.AmqpError;
-import org.apache.qpid.proton.amqp.transport.DeliveryState;
-import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
@@ -235,14 +224,6 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
       }
    }
 
-   public void deliveryFailed(Delivery delivery, Receiver receiver, Exception e) {
-      connection.runNow(() -> {
-         delivery.disposition(determineDeliveryState(((Source) receiver.getSource()), useModified, e));
-         settle(delivery);
-         connection.flush();
-      });
-   }
-
    @Override
    public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
       super.close(remoteLinkClose);
@@ -266,28 +247,6 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
       return Objects.requireNonNullElse(sessionSPI.getRoutingTypeFromPrefix(address, sessionSPI.getDefaultRoutingType(address)), ActiveMQDefaultConfiguration.getDefaultRoutingType());
    }
 
-   private static DeliveryState determineDeliveryState(final Source source, final boolean useModified, final Exception e) {
-      Outcome defaultOutcome = getEffectiveDefaultOutcome(source);
-
-      if (isAddressFull(e) && useModified &&
-          (outcomeSupported(source, Modified.DESCRIPTOR_SYMBOL) || defaultOutcome instanceof Modified)) {
-         Modified modified = new Modified();
-         modified.setDeliveryFailed(true);
-         return modified;
-      } else {
-         if (outcomeSupported(source, Rejected.DESCRIPTOR_SYMBOL) || defaultOutcome instanceof Rejected) {
-            return createRejected(e);
-         } else if (source.getDefaultOutcome() instanceof DeliveryState) {
-            return ((DeliveryState) source.getDefaultOutcome());
-         } else {
-            // The AMQP specification requires that Accepted is returned for this case. However there exist
-            // implementations that set neither outcomes/default-outcome but use/expect for full range of outcomes.
-            // To maintain compatibility with these implementations, we maintain previous behaviour.
-            return createRejected(e);
-         }
-      }
-   }
-
    private static RoutingType getExplicitRoutingType(Symbol[] symbols) {
       if (symbols != null) {
          for (Symbol symbol : symbols) {
@@ -299,38 +258,5 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
          }
       }
       return null;
-   }
-
-   private static Rejected createRejected(final Exception e) {
-      ErrorCondition condition = new ErrorCondition();
-
-      if (e instanceof ActiveMQSecurityException) {
-         condition.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
-      } else if (isAddressFull(e)) {
-         condition.setCondition(AmqpError.RESOURCE_LIMIT_EXCEEDED);
-      } else {
-         condition.setCondition(Symbol.valueOf("failed"));
-      }
-      condition.setDescription(e.getMessage());
-
-      Rejected rejected = new Rejected();
-      rejected.setError(condition);
-
-      return rejected;
-   }
-
-   private static boolean isAddressFull(final Exception e) {
-      return e instanceof ActiveMQException amqe && ActiveMQExceptionType.ADDRESS_FULL.equals(amqe.getType());
-   }
-
-   private static boolean outcomeSupported(final Source source, final Symbol outcome) {
-      if (source != null && source.getOutcomes() != null) {
-         return Arrays.asList((source).getOutcomes()).contains(outcome);
-      }
-      return false;
-   }
-
-   private static Outcome getEffectiveDefaultOutcome(final Source source) {
-      return (source.getOutcomes() == null || source.getOutcomes().length == 0) ? source.getDefaultOutcome() : null;
    }
 }
