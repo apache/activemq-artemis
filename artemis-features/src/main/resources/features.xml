@@ -29,9 +29,6 @@
 	</feature>
 
 	<feature name="netty-core" version="${netty.version}" description="Netty libraries">
-		<!-- The wrap feature and svm dep can be removed once netty-common is fixed in 4.1.125 -->
-		<feature prerequisite="true">wrap</feature>
-		<bundle>wrap:mvn:org.graalvm.nativeimage/svm/19.3.6</bundle>
 		<bundle>mvn:io.netty/netty-common/${netty.version}</bundle>
 		<bundle>mvn:io.netty/netty-resolver/${netty.version}</bundle>
 		<bundle>mvn:io.netty/netty-transport/${netty.version}</bundle>
