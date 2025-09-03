@@ -49,6 +49,12 @@ public class AmqpSupport {
    // Defaults for controlling the behaviour of AMQP dispositions
    public static final boolean AMQP_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS = false;
 
+   // Defaults for controlling the behaviour of AMQP credit draining on resource exhaustion
+   public static final boolean AMQP_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS = true;
+
+   // Default timeout (in milliseconds) before closing a link as failed if a quiesce is initiated from this peer
+   public static final int AMQP_LINK_QUIESCE_TIMEOUT = 600_000; // ten minutes
+
    // Identification values used to locating JMS selector types.
    public static final Symbol JMS_SELECTOR_KEY = Symbol.valueOf("jms-selector");
    public static final UnsignedLong JMS_SELECTOR_CODE = UnsignedLong.valueOf(0x0000468C00000004L);

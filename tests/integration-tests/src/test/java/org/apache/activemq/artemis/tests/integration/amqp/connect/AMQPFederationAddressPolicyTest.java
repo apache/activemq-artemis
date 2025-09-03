@@ -6319,6 +6319,12 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
          peer.expectDisposition().withState().accepted(); // This should fill the address
 
+         // In either configuration we drain the link credit to avoid repeated sends of the failed
+         // deliveries where possible.
+         peer.expectFlow().withDrain(true).withLinkCredit(998)
+                          .respond()
+                          .withDrain(true).withLinkCredit(0).withDeliveryCount(998).afterDelay(5);
+
          // If sending modified the remote won't discard the message, it will send it again
          if (useModifiedForReject) {
             peer.expectDisposition().withState().modified(true);

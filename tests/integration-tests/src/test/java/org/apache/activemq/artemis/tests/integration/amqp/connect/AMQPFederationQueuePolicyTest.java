@@ -4990,6 +4990,108 @@ public class AMQPFederationQueuePolicyTest extends AmqpClientTestSupport {
       }
    }
 
+   @Test
+   @Timeout(20)
+   public void testFederationGrantsCreditOnNewReceiverAfterLinkQuiescedByMessagesConsumingDrainedCredit() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respondInKind();
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Connect test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationQueuePolicyElement receiveFromQueue = new AMQPFederationQueuePolicyElement();
+         receiveFromQueue.setName("queue-policy");
+         receiveFromQueue.addToIncludes(getTestName(), getTestName());
+         receiveFromQueue.addProperty(RECEIVER_QUIESCE_TIMEOUT, 10_000);
+         receiveFromQueue.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, 10_000);
+         receiveFromQueue.addProperty("amqpCredits", "3");
+         receiveFromQueue.addProperty("amqpCreditsLow", "0");
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalQueuePolicy(receiveFromQueue);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.ANYCAST)
+                                                                .setAddress(getTestName())
+                                                                .setAutoCreated(false));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_QUEUE_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("queue-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respondInKind();
+         peer.expectFlow().withLinkCredit(3);
+
+         final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+
+         try (Connection connection = factory.createConnection()) {
+            final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+            final MessageConsumer consumer = session.createConsumer(session.createQueue(getTestName()));
+
+            connection.start();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            // Demand is removed so expect a drain, respond to drain to quiesce the link
+            // which should leave it idling and ready for recovery by next consumer.
+            peer.expectFlow().withLinkCredit(3).withDrain(true);
+
+            // Burn off credit with messages instead of a flow with drained.
+            peer.remoteTransfer().withBody().withString("test-message-1").also()
+                                 .withHeader().withDurability(true).also()
+                                 .withApplicationProperties().also()
+                                 .withMessageAnnotations().also()
+                                 .withDeliveryId(0)
+                                 .queue();
+            peer.expectDisposition().withState().accepted();
+            peer.remoteTransfer().withBody().withString("test-message-2").also()
+                                 .withHeader().withDurability(true).also()
+                                 .withApplicationProperties().also()
+                                 .withMessageAnnotations().also()
+                                 .withDeliveryId(1)
+                                 .queue();
+            peer.expectDisposition().withState().accepted();
+            peer.remoteTransfer().withBody().withString("test-message-3").also()
+                                 .withHeader().withDurability(true).also()
+                                 .withApplicationProperties().also()
+                                 .withMessageAnnotations().also()
+                                 .withDeliveryId(2)
+                                 .queue();
+            peer.expectDisposition().withState().accepted();
+
+            consumer.close();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(3).withDeliveryCount(3);
+
+            // New demand added before any quiesce or idle timeout can trigger
+            session.createConsumer(session.createQueue(getTestName()));
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         }
+
+         peer.close();
+      }
+   }
+
    private static void sendQueueAddedEvent(ProtonTestPeer peer, String address, String queue, int handle, int deliveryId) {
       final Map<String, Object> eventMap = new LinkedHashMap<>();
       eventMap.put(REQUESTED_ADDRESS_NAME, address);
