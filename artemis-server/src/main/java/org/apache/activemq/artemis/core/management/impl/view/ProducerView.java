@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.management.impl.view;
 import java.util.Objects;
 
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ProducerFilterPredicate;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -62,6 +63,8 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
          .add(ProducerField.ADDRESS.getName(), toString(Objects.requireNonNullElse(producer.getAddress(), session.getDefaultAddress())))
          .add(ProducerField.LOCAL_ADDRESS.getName(), toString(session.getRemotingConnection().getTransportConnection().getLocalAddress()))
          .add(ProducerField.REMOTE_ADDRESS.getName(), toString(session.getRemotingConnection().getTransportConnection().getRemoteAddress()))
+         .add(ProducerField.PROXY_ADDRESS.getName(), toString(NettyServerConnection.getProxyAddress(session.getRemotingConnection().getTransportConnection())))
+         .add(ProducerField.PROXY_VERSION.getName(), toString(NettyServerConnection.getProxyVersion(session.getRemotingConnection().getTransportConnection())))
          .add(ProducerField.CREATION_TIME.getName(), toString(producer.getCreationTime()))
          .add(ProducerField.MESSAGE_SENT.getName(), producer.getMessagesSent())
          .add(ProducerField.MESSAGE_SENT_SIZE.getName(), producer.getMessagesSentSize())
@@ -90,6 +93,8 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
          case ADDRESS -> Objects.requireNonNullElse(producer.getAddress(), session.getDefaultAddress());
          case LOCAL_ADDRESS -> session.getRemotingConnection().getTransportConnection().getLocalAddress();
          case REMOTE_ADDRESS -> session.getRemotingConnection().getTransportConnection().getRemoteAddress();
+         case PROXY_ADDRESS -> NettyServerConnection.getProxyAddress(session.getRemotingConnection().getTransportConnection());
+         case PROXY_VERSION -> NettyServerConnection.getProxyVersion(session.getRemotingConnection().getTransportConnection());
          case CREATION_TIME -> producer.getCreationTime();
          default -> throw new IllegalArgumentException("Unsupported field, " + fieldName);
       };

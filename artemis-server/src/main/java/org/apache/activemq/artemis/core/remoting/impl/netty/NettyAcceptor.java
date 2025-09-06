@@ -63,6 +63,7 @@ import io.netty.channel.local.LocalAddress;
 import io.netty.channel.local.LocalServerChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.haproxy.HAProxyMessageDecoder;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.ResourceLeakDetector;
@@ -144,6 +145,8 @@ public class NettyAcceptor extends AbstractAcceptor {
    private final ServerConnectionLifeCycleListener listener;
 
    private final boolean sslEnabled;
+
+   private final boolean proxyEnabled;
 
    private final boolean useInvm;
 
@@ -287,6 +290,8 @@ public class NettyAcceptor extends AbstractAcceptor {
       this.metricsManager = metricsManager;
 
       sslEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.SSL_ENABLED_PROP_NAME, TransportConstants.DEFAULT_SSL_ENABLED, configuration);
+
+      proxyEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.PROXY_ENABLED_PROP_NAME, TransportConstants.DEFAULT_PROXY_ENABLED, configuration);
 
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, Runtime.getRuntime().availableProcessors() * 3, configuration);
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.REMOTING_THREADS_PROPNAME, remotingThreads, configuration);
@@ -485,6 +490,9 @@ public class NettyAcceptor extends AbstractAcceptor {
                   logger.debug("Getting SSL handler failed", e);
                   throw e;
                }
+            }
+            if (proxyEnabled) {
+               pipeline.addLast(new HAProxyMessageDecoder());
             }
             pipeline.addLast(protocolHandler.getProtocolDecoder());
          }

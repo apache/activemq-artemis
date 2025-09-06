@@ -69,6 +69,8 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          .add(ConsumerField.ADDRESS.getName(), toString(consumer.getQueueAddress()))
          .add(ConsumerField.LOCAL_ADDRESS.getName(), toString(consumer.getConnectionLocalAddress()))
          .add(ConsumerField.REMOTE_ADDRESS.getName(), toString(consumer.getConnectionRemoteAddress()))
+         .add(ConsumerField.PROXY_ADDRESS.getName(), toString(consumer.getConnectionProxyAddress()))
+         .add(ConsumerField.PROXY_VERSION.getName(), toString(consumer.getConnectionProxyVersion()))
          .add(ConsumerField.CREATION_TIME.getName(), new Date(consumer.getCreationTime()).toString())
          .add(ConsumerField.MESSAGES_IN_TRANSIT.getName(), toString(consumer.getMessagesInTransit()))
          .add(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName(), toString(consumer.getMessagesInTransitSize()))
@@ -106,6 +108,8 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          case FILTER -> consumer.getFilterString();
          case LOCAL_ADDRESS -> consumer.getConnectionLocalAddress();
          case REMOTE_ADDRESS -> consumer.getConnectionRemoteAddress();
+         case PROXY_ADDRESS -> consumer.getConnectionProxyAddress();
+         case PROXY_VERSION -> consumer.getConnectionProxyVersion();
          case CREATION_TIME -> new Date(consumer.getCreationTime());
          case MESSAGES_IN_TRANSIT -> consumer.getMessagesInTransit();
          case MESSAGES_IN_TRANSIT_SIZE -> consumer.getMessagesInTransitSize();

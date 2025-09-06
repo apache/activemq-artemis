@@ -31,6 +31,8 @@ public enum ProducerField {
    CLIENT_ID("clientID"),
    LOCAL_ADDRESS("localAddress"),
    REMOTE_ADDRESS("remoteAddress"),
+   PROXY_ADDRESS("proxyAddress"),
+   PROXY_VERSION("proxyVersion"),
    CREATION_TIME("creationTime"),
    MESSAGE_SENT("msgSent"),
    MESSAGE_SENT_SIZE("msgSizeSent"),

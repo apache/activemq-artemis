@@ -64,6 +64,16 @@ public interface ConsumerInfo {
    String getConnectionRemoteAddress();
 
    /**
+    * {@return a string representation of the remote address this connection is connected to}
+    */
+   String getConnectionProxyAddress();
+
+   /**
+    * {@return a string representation of the remote address this connection is connected to}
+    */
+   String getConnectionProxyVersion();
+
+   /**
     * {@return how many messages are out for delivery but not yet acknowledged}
     */
    int getMessagesInTransit();

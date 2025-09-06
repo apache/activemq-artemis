@@ -72,6 +72,8 @@ public abstract class ContainerService {
 
    public abstract Object newInterconnectImage();
 
+   public abstract Object newHaProxyImage();
+
    public abstract void setNetwork(Object container, Object network);
 
    public abstract void exposePorts(Object container, Integer... ports);
@@ -172,12 +174,12 @@ public abstract class ContainerService {
 
       @Override
       public ConnectionFactory createCF(Object container, String protocol, int port) {
-         return CFUtil.createConnectionFactory("amqp", "tcp://" + getHost(container) + ":" + getPort(container, port));
+         return CFUtil.createConnectionFactory(protocol, "tcp://" + getHost(container) + ":" + getPort(container, port));
       }
       @Override
       public ConnectionFactory createCF(Object container, String protocol, int port, String extraURI) {
          System.out.println("tcp://" + getHost(container) + ":" + getPort(container, port) + extraURI);
-         return CFUtil.createConnectionFactory("amqp", "tcp://" + getHost(container) + ":" + getPort(container, port) + extraURI);
+         return CFUtil.createConnectionFactory(protocol, "tcp://" + getHost(container) + ":" + getPort(container, port) + extraURI);
       }
 
       @Override
@@ -199,6 +201,11 @@ public abstract class ContainerService {
       @Override
       public Object newInterconnectImage() {
          return new GenericContainer<>(DockerImageName.parse("quay.io/interconnectedcloud/qdrouterd:latest"));
+      }
+
+      @Override
+      public Object newHaProxyImage() {
+         return new GenericContainer<>(DockerImageName.parse("haproxy:latest"));
       }
 
       @Override

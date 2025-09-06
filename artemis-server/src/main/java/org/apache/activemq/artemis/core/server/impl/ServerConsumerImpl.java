@@ -53,6 +53,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -1574,6 +1575,24 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          return null;
       } else {
          return this.session.getRemotingConnection().getTransportConnection().getRemoteAddress();
+      }
+   }
+
+   @Override
+   public String getConnectionProxyAddress() {
+      if (this.session == null || this.session.getRemotingConnection() == null || this.session.getRemotingConnection().getTransportConnection() == null) {
+         return null;
+      } else {
+         return NettyServerConnection.getProxyAddress(this.session.getRemotingConnection().getTransportConnection());
+      }
+   }
+
+   @Override
+   public String getConnectionProxyVersion() {
+      if (this.session == null || this.session.getRemotingConnection() == null || this.session.getRemotingConnection().getTransportConnection() == null) {
+         return null;
+      } else {
+         return NettyServerConnection.getProxyVersion(this.session.getRemotingConnection().getTransportConnection());
       }
    }
 
