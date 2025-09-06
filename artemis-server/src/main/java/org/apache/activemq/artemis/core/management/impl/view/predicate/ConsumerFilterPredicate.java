@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
 import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 
@@ -52,6 +53,10 @@ public class ConsumerFilterPredicate extends ActiveMQFilterPredicate<ServerConsu
             matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getTransportConnection().getLocalAddress());
          case REMOTE_ADDRESS ->
             matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getTransportConnection().getRemoteAddress());
+         case PROXY_ADDRESS ->
+            matches(NettyServerConnection.getProxyAddress(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getTransportConnection()));
+         case PROXY_VERSION ->
+            matches(NettyServerConnection.getProxyVersion(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getTransportConnection()));
          case MESSAGES_IN_TRANSIT -> matches(consumer.getMessagesInTransit());
          case MESSAGES_IN_TRANSIT_SIZE -> matches(consumer.getMessagesInTransitSize());
          case MESSAGES_DELIVERED -> matches(consumer.getDeliveringMessages());

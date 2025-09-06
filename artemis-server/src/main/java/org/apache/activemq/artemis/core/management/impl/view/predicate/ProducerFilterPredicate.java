@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
 import org.apache.activemq.artemis.core.management.impl.view.ProducerField;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerProducer;
 
@@ -51,6 +52,10 @@ public class ProducerFilterPredicate extends ActiveMQFilterPredicate<ServerProdu
             matches(server.getSessionByID(producer.getSessionID()).getRemotingConnection().getTransportConnection().getLocalAddress());
          case REMOTE_ADDRESS ->
             matches(server.getSessionByID(producer.getSessionID()).getRemotingConnection().getTransportConnection().getRemoteAddress());
+         case PROXY_ADDRESS ->
+            matches(NettyServerConnection.getProxyAddress(server.getSessionByID(producer.getSessionID()).getRemotingConnection().getTransportConnection()));
+         case PROXY_VERSION ->
+            matches(NettyServerConnection.getProxyVersion(server.getSessionByID(producer.getSessionID()).getRemotingConnection().getTransportConnection()));
          default -> true;
       };
    }

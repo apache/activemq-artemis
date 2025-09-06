@@ -387,7 +387,7 @@ public class NettyConnection implements Connection {
    }
 
    @Override
-   public final String getRemoteAddress() {
+   public String getRemoteAddress() {
       SocketAddress address = channel.remoteAddress();
       if (address == null) {
          return null;

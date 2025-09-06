@@ -307,6 +307,16 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
+   public String getConnectionProxyAddress() {
+      return null;
+   }
+
+   @Override
+   public String getConnectionProxyVersion() {
+      return null;
+   }
+
+   @Override
    public int getMessagesInTransit() {
       return 0;
    }

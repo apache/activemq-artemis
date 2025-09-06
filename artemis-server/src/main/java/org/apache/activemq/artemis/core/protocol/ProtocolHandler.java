@@ -32,6 +32,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.haproxy.HAProxyMessage;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -39,7 +40,6 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
-
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ConnectionCreator;
@@ -58,6 +58,11 @@ import org.apache.activemq.artemis.utils.ConfigurationHelper;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static org.apache.activemq.artemis.utils.ProxyProtocolUtil.PROXY_PROTOCOL_DESTINATION_ADDRESS;
+import static org.apache.activemq.artemis.utils.ProxyProtocolUtil.PROXY_PROTOCOL_DESTINATION_PORT;
+import static org.apache.activemq.artemis.utils.ProxyProtocolUtil.PROXY_PROTOCOL_SOURCE_ADDRESS;
+import static org.apache.activemq.artemis.utils.ProxyProtocolUtil.PROXY_PROTOCOL_SOURCE_PORT;
+import static org.apache.activemq.artemis.utils.ProxyProtocolUtil.PROXY_PROTOCOL_VERSION;
 
 public class ProtocolHandler {
 
@@ -122,6 +127,10 @@ public class ProtocolHandler {
 
       private NettySNIHostnameHandler nettySNIHostnameHandler;
 
+      private boolean skipProxyBytes = false;
+
+      private boolean proxyAttributesSet = false;
+
       ProtocolDecoder(boolean http, boolean httpEnabled) {
          this.http = http;
          this.httpEnabled = httpEnabled;
@@ -147,11 +156,26 @@ public class ProtocolHandler {
             timeoutFuture.cancel(true);
             timeoutFuture = null;
          }
+         if (proxyAttributesSet) {
+            ctx.channel().attr(PROXY_PROTOCOL_SOURCE_ADDRESS).remove();
+            ctx.channel().attr(PROXY_PROTOCOL_SOURCE_PORT).remove();
+            ctx.channel().attr(PROXY_PROTOCOL_DESTINATION_ADDRESS).remove();
+            ctx.channel().attr(PROXY_PROTOCOL_DESTINATION_PORT).remove();
+            ctx.channel().attr(PROXY_PROTOCOL_VERSION).remove();
+         }
       }
 
       @Override
       public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-         if (msg instanceof FullHttpRequest httpRequest) {
+         if (msg instanceof HAProxyMessage haProxyMessage) {
+            ctx.channel().attr(PROXY_PROTOCOL_SOURCE_ADDRESS).set(haProxyMessage.sourceAddress());
+            ctx.channel().attr(PROXY_PROTOCOL_SOURCE_PORT).set(Integer.toString(haProxyMessage.sourcePort()));
+            ctx.channel().attr(PROXY_PROTOCOL_DESTINATION_ADDRESS).set(haProxyMessage.destinationAddress());
+            ctx.channel().attr(PROXY_PROTOCOL_DESTINATION_PORT).set(Integer.toString(haProxyMessage.destinationPort()));
+            ctx.channel().attr(PROXY_PROTOCOL_VERSION).set(haProxyMessage.protocolVersion().toString());
+            proxyAttributesSet = true;
+            skipProxyBytes = true;
+         } else if (msg instanceof FullHttpRequest httpRequest) {
             HttpHeaders headers = httpRequest.headers();
             String upgrade = headers.get("upgrade");
 
@@ -184,7 +208,9 @@ public class ProtocolHandler {
                ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN)).addListener(ChannelFutureListener.CLOSE);
             }
          } else {
-            super.channelRead(ctx, msg);
+            // slice off the proxy-related bytes that have already been read so other protocol handlers don't choke on them
+            super.channelRead(ctx, skipProxyBytes ? ((ByteBuf) msg).slice() : msg);
+            skipProxyBytes = false;
          }
       }
 
@@ -215,7 +241,7 @@ public class ProtocolHandler {
          if (!protocolSet.isEmpty()) {
             // Use getBytes(...) as this works with direct and heap buffers.
             byte[] bytes = new byte[8];
-            in.getBytes(0, bytes);
+            in.getBytes(in.readerIndex(), bytes);
 
             for (String protocol : protocolSet) {
                ProtocolManager protocolManager = protocolMap.get(protocol);

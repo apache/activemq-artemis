@@ -33,6 +33,8 @@ public enum ConsumerField {
    CLIENT_ID("clientID"),
    LOCAL_ADDRESS("localAddress"),
    REMOTE_ADDRESS("remoteAddress"),
+   PROXY_ADDRESS("proxyAddress"),
+   PROXY_VERSION("proxyVersion"),
    QUEUE_TYPE("queueType"),
    BROWSE_ONLY("browseOnly"),
    CREATION_TIME("creationTime"),
