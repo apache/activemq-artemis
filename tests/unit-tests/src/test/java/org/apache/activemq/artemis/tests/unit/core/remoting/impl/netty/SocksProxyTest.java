@@ -103,8 +103,8 @@ public class SocksProxyTest extends ActiveMQTestBase {
 
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, address.getHostAddress());
-      params.put(TransportConstants.PROXY_ENABLED_PROP_NAME, true);
-      params.put(TransportConstants.PROXY_HOST_PROP_NAME, "localhost");
+      params.put(TransportConstants.SOCKS_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.SOCKS_HOST_PROP_NAME, "localhost");
 
       ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
          @Override
@@ -166,8 +166,8 @@ public class SocksProxyTest extends ActiveMQTestBase {
 
       Map<String, Object> params = new HashMap<>();
       params.put(TransportConstants.HOST_PROP_NAME, "localhost");
-      params.put(TransportConstants.PROXY_ENABLED_PROP_NAME, true);
-      params.put(TransportConstants.PROXY_HOST_PROP_NAME, "localhost");
+      params.put(TransportConstants.SOCKS_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.SOCKS_HOST_PROP_NAME, "localhost");
 
       ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
          @Override
@@ -208,10 +208,10 @@ public class SocksProxyTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
 
       params.put(TransportConstants.HOST_PROP_NAME, "only-resolvable-on-proxy");
-      params.put(TransportConstants.PROXY_ENABLED_PROP_NAME, true);
-      params.put(TransportConstants.PROXY_HOST_PROP_NAME, "localhost");
-      params.put(TransportConstants.PROXY_PORT_PROP_NAME, SOCKS_PORT);
-      params.put(TransportConstants.PROXY_REMOTE_DNS_PROP_NAME, true);
+      params.put(TransportConstants.SOCKS_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.SOCKS_HOST_PROP_NAME, "localhost");
+      params.put(TransportConstants.SOCKS_PORT_PROP_NAME, SOCKS_PORT);
+      params.put(TransportConstants.SOCKS_REMOTE_DNS_PROP_NAME, true);
 
       ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
          @Override

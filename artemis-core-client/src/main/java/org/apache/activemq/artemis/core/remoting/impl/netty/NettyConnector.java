@@ -211,19 +211,19 @@ public class NettyConnector extends AbstractConnector {
    // will be handled by the server's http server.
    private boolean httpUpgradeEnabled;
 
-   private boolean proxyEnabled;
+   private boolean socksEnabled;
 
-   private String proxyHost;
+   private String socksHost;
 
-   private int proxyPort;
+   private int socksPort;
 
-   private SocksVersion proxyVersion;
+   private SocksVersion socksVersion;
 
-   private String proxyUsername;
+   private String socksUsername;
 
-   private String proxyPassword;
+   private String socksPassword;
 
-   private boolean proxyRemoteDNS;
+   private boolean socksRemoteDNS;
 
    private boolean useServlet;
 
@@ -382,18 +382,18 @@ public class NettyConnector extends AbstractConnector {
 
       httpUpgradeEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME, TransportConstants.DEFAULT_HTTP_UPGRADE_ENABLED, configuration);
 
-      proxyEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.PROXY_ENABLED_PROP_NAME, TransportConstants.DEFAULT_PROXY_ENABLED, configuration);
-      if (proxyEnabled) {
-         proxyHost = ConfigurationHelper.getStringProperty(TransportConstants.PROXY_HOST_PROP_NAME, TransportConstants.DEFAULT_PROXY_HOST, configuration);
-         proxyPort = ConfigurationHelper.getIntProperty(TransportConstants.PROXY_PORT_PROP_NAME, TransportConstants.DEFAULT_PROXY_PORT, configuration);
+      socksEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.SOCKS_ENABLED_PROP_NAME, TransportConstants.DEFAULT_SOCKS_ENABLED, configuration);
+      if (socksEnabled) {
+         socksHost = ConfigurationHelper.getStringProperty(TransportConstants.SOCKS_HOST_PROP_NAME, TransportConstants.DEFAULT_SOCKS_HOST, configuration);
+         socksPort = ConfigurationHelper.getIntProperty(TransportConstants.SOCKS_PORT_PROP_NAME, TransportConstants.DEFAULT_SOCKS_PORT, configuration);
 
-         int socksVersionNumber = ConfigurationHelper.getIntProperty(TransportConstants.PROXY_VERSION_PROP_NAME, TransportConstants.DEFAULT_PROXY_VERSION, configuration);
-         proxyVersion = SocksVersion.valueOf((byte) socksVersionNumber);
+         int socksVersionNumber = ConfigurationHelper.getIntProperty(TransportConstants.SOCKS_VERSION_PROP_NAME, TransportConstants.DEFAULT_SOCKS_VERSION, configuration);
+         socksVersion = SocksVersion.valueOf((byte) socksVersionNumber);
 
-         proxyUsername = ConfigurationHelper.getStringProperty(TransportConstants.PROXY_USERNAME_PROP_NAME, TransportConstants.DEFAULT_PROXY_USERNAME, configuration);
-         proxyPassword = ConfigurationHelper.getStringProperty(TransportConstants.PROXY_PASSWORD_PROP_NAME, TransportConstants.DEFAULT_PROXY_PASSWORD, configuration);
+         socksUsername = ConfigurationHelper.getStringProperty(TransportConstants.SOCKS_USERNAME_PROP_NAME, TransportConstants.DEFAULT_SOCKS_USERNAME, configuration);
+         socksPassword = ConfigurationHelper.getStringProperty(TransportConstants.SOCKS_PASSWORD_PROP_NAME, TransportConstants.DEFAULT_SOCKS_PASSWORD, configuration);
 
-         proxyRemoteDNS = ConfigurationHelper.getBooleanProperty(TransportConstants.PROXY_REMOTE_DNS_PROP_NAME, TransportConstants.DEFAULT_PROXY_REMOTE_DNS, configuration);
+         socksRemoteDNS = ConfigurationHelper.getBooleanProperty(TransportConstants.SOCKS_REMOTE_DNS_PROP_NAME, TransportConstants.SOCKS_PROXY_REMOTE_DNS, configuration);
       }
 
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, -1, configuration);
@@ -656,19 +656,19 @@ public class NettyConnector extends AbstractConnector {
          public void initChannel(Channel channel) throws Exception {
             final ChannelPipeline pipeline = channel.pipeline();
 
-            if (proxyEnabled && (proxyRemoteDNS || !isTargetLocalHost())) {
-               InetSocketAddress proxyAddress = new InetSocketAddress(proxyHost, proxyPort);
-               ProxyHandler proxyHandler = switch (proxyVersion) {
-                  case SOCKS5 -> new Socks5ProxyHandler(proxyAddress, proxyUsername, proxyPassword);
-                  case SOCKS4a -> new Socks4ProxyHandler(proxyAddress, proxyUsername);
+            if (socksEnabled && (socksRemoteDNS || !isTargetLocalHost())) {
+               InetSocketAddress proxyAddress = new InetSocketAddress(socksHost, socksPort);
+               ProxyHandler proxyHandler = switch (socksVersion) {
+                  case SOCKS5 -> new Socks5ProxyHandler(proxyAddress, socksUsername, socksPassword);
+                  case SOCKS4a -> new Socks4ProxyHandler(proxyAddress, socksUsername);
                   default -> throw new IllegalArgumentException("Unknown SOCKS proxy version");
                };
 
                channel.pipeline().addLast(proxyHandler);
 
-               logger.debug("Using a SOCKS proxy at {}:{}", proxyHost, proxyPort);
+               logger.debug("Using a SOCKS proxy at {}:{}", socksHost, socksPort);
 
-               if (proxyRemoteDNS) {
+               if (socksRemoteDNS) {
                   bootstrap.resolver(NoopAddressResolverGroup.INSTANCE);
                }
             }
@@ -876,7 +876,7 @@ public class NettyConnector extends AbstractConnector {
 
    public NettyConnection createConnection(Consumer<ChannelFuture> onConnect, String host, int port) {
       InetSocketAddress remoteDestination;
-      if (proxyEnabled && proxyRemoteDNS) {
+      if (socksEnabled && socksRemoteDNS) {
          remoteDestination = InetSocketAddress.createUnresolved(IPV6Util.stripBracketsAndZoneID(host), port);
       } else {
          remoteDestination = new InetSocketAddress(IPV6Util.stripBracketsAndZoneID(host), port);

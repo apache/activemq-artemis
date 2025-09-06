@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ConnectionFilterPredicate;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
@@ -65,7 +66,9 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
          .add(ConnectionField.PROTOCOL.getName(), toString(connection.getProtocolName()))
          .add(ConnectionField.CLIENT_ID.getName(), toString(connection.getClientID()))
          .add(ConnectionField.LOCAL_ADDRESS.getName(), toString(connection.getTransportLocalAddress()))
-         .add(ConnectionField.SESSION_COUNT.getName(), sessions.size());
+         .add(ConnectionField.SESSION_COUNT.getName(), sessions.size())
+         .add(ConnectionField.PROXY_ADDRESS.getName(), toString(NettyServerConnection.getProxyAddress(connection.getTransportConnection())))
+         .add(ConnectionField.PROXY_PROTOCOL_VERSION.getName(), toString(NettyServerConnection.getProxyProtocolVersion(connection.getTransportConnection())));
    }
 
    @Override
@@ -96,6 +99,10 @@ public class ConnectionView extends ActiveMQAbstractView<RemotingConnection> {
             return connection.getTransportLocalAddress();
          case SESSION_COUNT:
             return server.getSessions(connection.getID().toString()).size();
+         case PROXY_ADDRESS:
+            return NettyServerConnection.getProxyAddress(connection.getTransportConnection());
+         case PROXY_PROTOCOL_VERSION:
+            return NettyServerConnection.getProxyProtocolVersion(connection.getTransportConnection());
          default:
             throw new IllegalArgumentException("Unsupported field, " + fieldName);
       }
