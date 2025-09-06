@@ -39,10 +39,10 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
-
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.remoting.impl.netty.ConnectionCreator;
+import org.apache.activemq.artemis.core.remoting.impl.netty.HAProxyMessageEnforcer;
 import org.apache.activemq.artemis.core.remoting.impl.netty.HttpAcceptorHandler;
 import org.apache.activemq.artemis.core.remoting.impl.netty.HttpKeepAliveRunnable;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
@@ -55,6 +55,8 @@ import org.apache.activemq.artemis.core.server.protocol.websocket.WebSocketFrame
 import org.apache.activemq.artemis.core.server.protocol.websocket.WebSocketServerHandler;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.utils.ProxyProtocolUtil;
+import org.apache.activemq.artemis.utils.SocketAddressUtil;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
@@ -134,7 +136,7 @@ public class ProtocolHandler {
 
          if (handshakeTimeout > 0) {
             timeoutFuture = scheduledThreadPool.schedule(() -> {
-               ActiveMQServerLogger.LOGGER.handshakeTimeout(handshakeTimeout, nettyAcceptor.getName(), ctx.channel().remoteAddress().toString());
+               ActiveMQServerLogger.LOGGER.handshakeTimeout(handshakeTimeout, nettyAcceptor.getName(), ProxyProtocolUtil.getRemoteAddress(ctx.channel()));
                ctx.channel().close();
             }, handshakeTimeout, TimeUnit.SECONDS);
          }
@@ -204,9 +206,12 @@ public class ProtocolHandler {
             timeoutFuture = null;
          }
 
-         final int magic1 = in.getUnsignedByte(in.readerIndex());
-         final int magic2 = in.getUnsignedByte(in.readerIndex() + 1);
-         if (http && isHttp(magic1, magic2)) {
+         if (HAProxyMessageEnforcer.isProxyProtocol(in)) {
+            ActiveMQServerLogger.LOGGER.proxyProtocolViolation(SocketAddressUtil.toString(ctx.channel().remoteAddress()), nettyAcceptor.getName(), false, "used");
+            ctx.channel().close();
+         }
+
+         if (http && isHttp(in)) {
             switchToHttp(ctx);
             return;
          }
@@ -241,7 +246,7 @@ public class ProtocolHandler {
 
          ProtocolManager protocolManagerToUse = protocolMap.get(protocolToUse);
          if (protocolManagerToUse == null) {
-            ActiveMQServerLogger.LOGGER.failedToFindProtocolManager(ctx.channel() == null ? null : Objects.toString(ctx.channel().remoteAddress()), ctx.channel() == null ? null : Objects.toString(ctx.channel().localAddress(), null), protocolToUse, protocolMap.keySet().toString());
+            ActiveMQServerLogger.LOGGER.failedToFindProtocolManager(ctx.channel() == null ? null : ProxyProtocolUtil.getRemoteAddress(ctx.channel()), ctx.channel() == null ? null : Objects.toString(ctx.channel().localAddress(), null), protocolToUse, protocolMap.keySet().toString());
             return;
          }
          ConnectionCreator channelHandler = nettyAcceptor.createConnectionCreator();
@@ -259,13 +264,15 @@ public class ProtocolHandler {
       @Override
       public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
          try {
-            ActiveMQServerLogger.LOGGER.failureDuringProtocolHandshake(ctx.channel().localAddress(), ctx.channel().remoteAddress(), cause);
+            ActiveMQServerLogger.LOGGER.failureDuringProtocolHandshake(ctx.channel().localAddress(), ProxyProtocolUtil.getRemoteAddress(ctx.channel()), cause);
          } finally {
             ctx.close();
          }
       }
 
-      private boolean isHttp(int magic1, int magic2) {
+      private boolean isHttp(ByteBuf in) {
+         final int magic1 = in.getUnsignedByte(in.readerIndex());
+         final int magic2 = in.getUnsignedByte(in.readerIndex() + 1);
          return magic1 == 'G' && magic2 == 'E' || // GET
             magic1 == 'P' && magic2 == 'O' || // POST
             magic1 == 'P' && magic2 == 'U' || // PUT

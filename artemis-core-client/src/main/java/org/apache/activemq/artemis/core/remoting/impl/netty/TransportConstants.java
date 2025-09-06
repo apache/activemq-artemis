@@ -36,6 +36,8 @@ public class TransportConstants {
 
    public static final String SSL_ENABLED_PROP_NAME = "sslEnabled";
 
+   public static final String PROXY_PROTOCOL_ENABLED_PROP_NAME = "proxyProtocolEnabled";
+
    public static final String SSL_AUTO_RELOAD_PROP_NAME = "sslAutoReload";
 
    public static final boolean DEFAULT_SSL_AUTO_RELOAD = false;
@@ -186,25 +188,27 @@ public class TransportConstants {
 
    public static final int STOMP_DEFAULT_CONSUMER_WINDOW_SIZE = 10 * 1024; // 10K
 
-   public static final String PROXY_ENABLED_PROP_NAME = "socksEnabled";
+   public static final String SOCKS_ENABLED_PROP_NAME = "socksEnabled";
 
-   public static final String PROXY_HOST_PROP_NAME = "socksHost";
+   public static final String SOCKS_HOST_PROP_NAME = "socksHost";
 
-   public static final String PROXY_PORT_PROP_NAME = "socksPort";
+   public static final String SOCKS_PORT_PROP_NAME = "socksPort";
 
-   public static final String PROXY_VERSION_PROP_NAME = "socksVersion";
+   public static final String SOCKS_VERSION_PROP_NAME = "socksVersion";
 
-   public static final String PROXY_USERNAME_PROP_NAME = "socksUsername";
+   public static final String SOCKS_USERNAME_PROP_NAME = "socksUsername";
 
-   public static final String PROXY_PASSWORD_PROP_NAME = "socksPassword";
+   public static final String SOCKS_PASSWORD_PROP_NAME = "socksPassword";
 
-   public static final String PROXY_REMOTE_DNS_PROP_NAME = "socksRemoteDNS";
+   public static final String SOCKS_REMOTE_DNS_PROP_NAME = "socksRemoteDNS";
 
    public static final String AUTO_START = "autoStart";
 
    public static final boolean DEFAULT_AUTO_START = true;
 
    public static final boolean DEFAULT_SSL_ENABLED = false;
+
+   public static final boolean DEFAULT_PROXY_PROTOCOL_ENABLED = false;
 
    public static final String DEFAULT_SNIHOST_CONFIG = null;
 
@@ -381,19 +385,19 @@ public class TransportConstants {
     */
    public static final int DEFAULT_SHUTDOWN_TIMEOUT = parseDefaultVariable("DEFAULT_SHUTDOWN_TIMEOUT", 3_000);
 
-   public static final boolean DEFAULT_PROXY_ENABLED = false;
+   public static final boolean DEFAULT_SOCKS_ENABLED = false;
 
-   public static final String DEFAULT_PROXY_HOST = null;
+   public static final String DEFAULT_SOCKS_HOST = null;
 
-   public static final int DEFAULT_PROXY_PORT = 0;
+   public static final int DEFAULT_SOCKS_PORT = 0;
 
-   public static final byte DEFAULT_PROXY_VERSION = SocksVersion.SOCKS5.byteValue();
+   public static final byte DEFAULT_SOCKS_VERSION = SocksVersion.SOCKS5.byteValue();
 
-   public static final String DEFAULT_PROXY_USERNAME = null;
+   public static final String DEFAULT_SOCKS_USERNAME = null;
 
-   public static final String DEFAULT_PROXY_PASSWORD = null;
+   public static final String DEFAULT_SOCKS_PASSWORD = null;
 
-   public static final boolean DEFAULT_PROXY_REMOTE_DNS = false;
+   public static final boolean SOCKS_PROXY_REMOTE_DNS = false;
 
    public static final String ROUTER = "router";
 
@@ -479,6 +483,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.DISABLE_STOMP_SERVER_HEADER);
       allowableAcceptorKeys.add(TransportConstants.AUTO_START);
       allowableAcceptorKeys.add(TransportConstants.ROUTER);
+      allowableAcceptorKeys.add(TransportConstants.PROXY_PROTOCOL_ENABLED_PROP_NAME);
 
       ALLOWABLE_ACCEPTOR_KEYS = Collections.unmodifiableSet(allowableAcceptorKeys);
 
@@ -525,13 +530,13 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.NIO_REMOTING_THREADS_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.REMOTING_THREADS_PROPNAME);
       allowableConnectorKeys.add(TransportConstants.BATCH_DELAY);
-      allowableConnectorKeys.add(TransportConstants.PROXY_ENABLED_PROP_NAME);
-      allowableConnectorKeys.add(TransportConstants.PROXY_HOST_PROP_NAME);
-      allowableConnectorKeys.add(TransportConstants.PROXY_PORT_PROP_NAME);
-      allowableConnectorKeys.add(TransportConstants.PROXY_VERSION_PROP_NAME);
-      allowableConnectorKeys.add(TransportConstants.PROXY_USERNAME_PROP_NAME);
-      allowableConnectorKeys.add(TransportConstants.PROXY_PASSWORD_PROP_NAME);
-      allowableConnectorKeys.add(TransportConstants.PROXY_REMOTE_DNS_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SOCKS_ENABLED_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SOCKS_HOST_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SOCKS_PORT_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SOCKS_VERSION_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SOCKS_USERNAME_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SOCKS_PASSWORD_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.SOCKS_REMOTE_DNS_PROP_NAME);
       allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropMaskPassword());
       allowableConnectorKeys.add(ActiveMQDefaultConfiguration.getPropPasswordCodec());
       allowableConnectorKeys.add(TransportConstants.NETTY_CONNECT_TIMEOUT);

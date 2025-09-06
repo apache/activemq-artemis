@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.apache.activemq.artemis.core.management.impl.view.ConnectionField;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -53,6 +54,8 @@ public class ConnectionFilterPredicate extends ActiveMQFilterPredicate<RemotingC
          case SESSION_ID -> matchAny(server.getSessions(connection.getID().toString()));
          case CREATION_TIME -> matches(connection.getCreationTime());
          case IMPLEMENTATION -> matches(connection.getClass().getSimpleName());
+         case PROXY_ADDRESS -> matches(NettyServerConnection.getProxyAddress(connection.getTransportConnection()));
+         case PROXY_PROTOCOL_VERSION -> matches(NettyServerConnection.getProxyProtocolVersion(connection.getTransportConnection()));
       };
    }
 

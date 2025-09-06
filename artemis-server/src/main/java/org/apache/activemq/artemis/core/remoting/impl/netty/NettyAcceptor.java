@@ -63,6 +63,7 @@ import io.netty.channel.local.LocalAddress;
 import io.netty.channel.local.LocalServerChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.haproxy.HAProxyMessageDecoder;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.ResourceLeakDetector;
@@ -98,6 +99,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextConfig;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactoryProvider;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.utils.ProxyProtocolUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -144,6 +146,8 @@ public class NettyAcceptor extends AbstractAcceptor {
    private final ServerConnectionLifeCycleListener listener;
 
    private final boolean sslEnabled;
+
+   private final boolean proxyProtocolEnabled;
 
    private final boolean useInvm;
 
@@ -287,6 +291,8 @@ public class NettyAcceptor extends AbstractAcceptor {
       this.metricsManager = metricsManager;
 
       sslEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.SSL_ENABLED_PROP_NAME, TransportConstants.DEFAULT_SSL_ENABLED, configuration);
+
+      proxyProtocolEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.PROXY_PROTOCOL_ENABLED_PROP_NAME, TransportConstants.DEFAULT_PROXY_PROTOCOL_ENABLED, configuration);
 
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, Runtime.getRuntime().availableProcessors() * 3, configuration);
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.REMOTING_THREADS_PROPNAME, remotingThreads, configuration);
@@ -472,6 +478,9 @@ public class NettyAcceptor extends AbstractAcceptor {
          @Override
          public void initChannel(Channel channel) throws Exception {
             ChannelPipeline pipeline = channel.pipeline();
+            if (proxyProtocolEnabled) {
+               pipeline.addLast(new HAProxyMessageEnforcer(getName()), new HAProxyMessageDecoder(), new HAProxyMessageHandler());
+            }
             if (sslEnabled) {
                final Pair<String, Integer> peerInfo = getPeerInfo(channel);
                try {
@@ -480,7 +489,7 @@ public class NettyAcceptor extends AbstractAcceptor {
                   pipeline.addLast("sslHandshakeExceptionHandler", new SslHandshakeExceptionHandler());
                } catch (Exception e) {
                   Throwable rootCause = ExceptionUtils.getRootCause(e);
-                  ActiveMQServerLogger.LOGGER.gettingSslHandlerFailed(channel.remoteAddress().toString(), rootCause.getClass().getName() + ": " + rootCause.getMessage());
+                  ActiveMQServerLogger.LOGGER.gettingSslHandlerFailed(ProxyProtocolUtil.getRemoteAddress(channel), rootCause.getClass().getName() + ": " + rootCause.getMessage());
 
                   logger.debug("Getting SSL handler failed", e);
                   throw e;
@@ -491,7 +500,7 @@ public class NettyAcceptor extends AbstractAcceptor {
 
          private Pair<String, Integer> getPeerInfo(Channel channel) {
             try {
-               String[] peerInfo = channel.remoteAddress().toString().replace("/", "").split(":");
+               String[] peerInfo = ProxyProtocolUtil.getRemoteAddress(channel).replace("/", "").split(":");
                return new Pair<>(peerInfo[0], Integer.parseInt(peerInfo[1]));
             } catch (Exception e) {
                logger.debug("Failed to parse peer info for SSL engine initialization", e);
@@ -787,7 +796,7 @@ public class NettyAcceptor extends AbstractAcceptor {
                ActiveMQServerLogger.LOGGER.nettyChannelGroupError();
                for (Channel channel : future.group()) {
                   if (channel.isActive()) {
-                     ActiveMQServerLogger.LOGGER.nettyChannelStillOpen(channel, channel.remoteAddress());
+                     ActiveMQServerLogger.LOGGER.nettyChannelStillOpen(channel, ProxyProtocolUtil.getRemoteAddress(channel));
                   }
                }
             }
@@ -852,7 +861,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             ActiveMQServerLogger.LOGGER.nettyChannelGroupBindError();
             for (Channel channel : future.group()) {
                if (channel.isActive()) {
-                  ActiveMQServerLogger.LOGGER.nettyChannelStillBound(channel, channel.remoteAddress());
+                  ActiveMQServerLogger.LOGGER.nettyChannelStillBound(channel, ProxyProtocolUtil.getRemoteAddress(channel));
                }
             }
          }
@@ -951,7 +960,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             }
             return nc;
          } else {
-            ActiveMQServerLogger.LOGGER.connectionLimitReached(connectionsAllowed, ctx.channel().remoteAddress().toString());
+            ActiveMQServerLogger.LOGGER.connectionLimitReached(connectionsAllowed, ProxyProtocolUtil.getRemoteAddress(ctx.channel()));
             ctx.channel().close();
             return null;
          }
@@ -1036,7 +1045,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             Throwable rootCause = ExceptionUtils.getRootCause(cause);
             String errorMessage = rootCause.getClass().getName() + ": " + rootCause.getMessage();
 
-            ActiveMQServerLogger.LOGGER.sslHandshakeFailed(ctx.channel().remoteAddress().toString(), errorMessage);
+            ActiveMQServerLogger.LOGGER.sslHandshakeFailed(ProxyProtocolUtil.getRemoteAddress(ctx.channel()), errorMessage);
 
             logger.debug("SSL handshake failed", cause);
          }
