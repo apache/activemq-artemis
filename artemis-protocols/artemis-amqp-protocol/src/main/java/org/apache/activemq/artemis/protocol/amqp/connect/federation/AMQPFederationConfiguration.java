@@ -27,7 +27,10 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_RECEIVER_IDLE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_LINK_QUIESCE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -105,6 +108,15 @@ public final class AMQPFederationConfiguration {
     * credit.
     */
    public static final int DEFAULT_QUEUE_RECEIVER_IDLE_TIMEOUT = 60_000;
+
+   /**
+    * Default value for how a federation receiver should respond to delivery errors indicating that an address is full
+    * and cannot accept messages at this time. By default we want to send Modified outcomes with the delivery failed
+    * value set to true such that the remote will deliver the message again after incrementing the delivery count of
+    * the message. This is an opinionated choice and the value set on the connector URI is not referenced by federation
+    * as we want to maintain this behavior unless specifically set on federation configuration explicitly.
+    */
+   public static final boolean DEFAULT_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS = true;
 
    private final Map<String, Object> properties;
    private final AMQPConnectionContext connection;
@@ -296,6 +308,48 @@ public final class AMQPFederationConfiguration {
    }
 
    /**
+    * (@return the use modified for transient delivery errors configuration}
+    */
+   public boolean isUseModifiedForTransientDeliveryErrors() {
+      final Object property = properties.get(USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS);
+      if (property instanceof Boolean booleanValue) {
+         return booleanValue;
+      } else if (property instanceof String string) {
+         return Boolean.parseBoolean(string);
+      } else {
+         return DEFAULT_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS;
+      }
+   }
+
+   /**
+    * (@return the drain link credit on transient delivery errors configuration}
+    */
+   public boolean isDrainOnTransientDeliveryErrors() {
+      final Object property = properties.get(RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS);
+      if (property instanceof Boolean booleanValue) {
+         return booleanValue;
+      } else if (property instanceof String string) {
+         return Boolean.parseBoolean(string);
+      } else {
+         return connection.getProtocolManager().isDrainOnTransientDeliveryErrors();
+      }
+   }
+
+   /**
+    * {@return the federation receiver link quiesce timeout configuration}
+    */
+   public int getLinkQuiesceTimeout() {
+      final Object property = properties.get(RECEIVER_LINK_QUIESCE_TIMEOUT);
+      if (property instanceof Number number) {
+         return number.intValue();
+      } else if (property instanceof String string) {
+         return Integer.parseInt(string);
+      } else {
+         return connection.getProtocolManager().getLinkQuiesceTimeout();
+      }
+   }
+
+   /**
     * Enumerate the configuration options in this configuration object and return a {@link Map} that contains the values
     * which can be sent to a remote peer
     *
@@ -315,6 +369,9 @@ public final class AMQPFederationConfiguration {
       configMap.put(IGNORE_ADDRESS_BINDING_FILTERS, isIgnoreAddressBindingFilters());
       configMap.put(IGNORE_QUEUE_CONSUMER_FILTERS, isIgnoreSubscriptionFilters());
       configMap.put(IGNORE_QUEUE_CONSUMER_PRIORITIES, isIgnoreSubscriptionPriorities());
+      configMap.put(USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS, isUseModifiedForTransientDeliveryErrors());
+      configMap.put(RECEIVER_LINK_QUIESCE_TIMEOUT, getLinkQuiesceTimeout());
+      configMap.put(RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS, isDrainOnTransientDeliveryErrors());
       configMap.put(AmqpSupport.TUNNEL_CORE_MESSAGES, isCoreMessageTunnelingEnabled());
 
       return configMap;
