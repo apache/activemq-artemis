@@ -55,7 +55,10 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPF
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.QUEUE_RECEIVER_IDLE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_CREDITS_LOW;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_LINK_QUIESCE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.RECEIVER_QUIESCE_TIMEOUT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -256,6 +259,9 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       final boolean AMQP_INGNORE_CONSUMER_FILTERS = false;
       final boolean AMQP_INGNORE_CONSUMER_PRIORITIES = false;
       final boolean AMQP_INGNORE_ADDRESS_BINDING_FILTERS = false;
+      final boolean AMQP_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS = false;
+      final int AMQP_RECEIVER_LINK_QUIESCE_TIMEOUT = 250_000;
+      final boolean AMQP_RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS = false;
 
       final Map<String, Object> federationConfiguration = new HashMap<>();
       federationConfiguration.put(RECEIVER_CREDITS, AMQP_CREDITS);
@@ -270,6 +276,9 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
       federationConfiguration.put(IGNORE_QUEUE_CONSUMER_PRIORITIES, AMQP_INGNORE_CONSUMER_PRIORITIES);
       federationConfiguration.put(IGNORE_ADDRESS_BINDING_FILTERS, AMQP_INGNORE_ADDRESS_BINDING_FILTERS);
       federationConfiguration.put(AmqpSupport.TUNNEL_CORE_MESSAGES, AMQP_TUNNEL_CORE_MESSAGES);
+      federationConfiguration.put(USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS, AMQP_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS);
+      federationConfiguration.put(RECEIVER_LINK_QUIESCE_TIMEOUT, AMQP_RECEIVER_LINK_QUIESCE_TIMEOUT);
+      federationConfiguration.put(RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS, AMQP_RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS);
 
       final String controlLinkAddress = "test-control-address";
 
@@ -310,6 +319,9 @@ public class AMQPFederationConnectTest extends AmqpClientTestSupport {
          federation.addProperty(QUEUE_RECEIVER_IDLE_TIMEOUT, AMQP_QUEUE_RECEIVER_IDLE_TIMEOUT);
          federation.addProperty(IGNORE_QUEUE_CONSUMER_PRIORITIES, Boolean.toString(AMQP_INGNORE_CONSUMER_PRIORITIES));
          federation.addProperty(IGNORE_ADDRESS_BINDING_FILTERS, Boolean.toString(AMQP_INGNORE_ADDRESS_BINDING_FILTERS));
+         federation.addProperty(USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS, Boolean.toString(AMQP_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS));
+         federation.addProperty(RECEIVER_LINK_QUIESCE_TIMEOUT, AMQP_RECEIVER_LINK_QUIESCE_TIMEOUT);
+         federation.addProperty(RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS, Boolean.toString(AMQP_RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS));
          amqpConnection.addElement(federation);
          server.getConfiguration().addAMQPConnection(amqpConnection);
          server.start();

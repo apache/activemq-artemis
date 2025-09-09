@@ -175,6 +175,30 @@ public final class AMQPFederationConstants {
    public static final String IGNORE_QUEUE_CONSUMER_PRIORITIES = "ignoreQueueConsumerPriorities";
 
    /**
+    * Configuration property for how a federation receiver should respond to delivery errors indicating that an address is
+    * full and cannot accept messages at this time. By default we want to send Modified outcomes with the delivery failed
+    * value set to true such that the remote will deliver the message again after incrementing the delivery count of the
+    * message.
+    */
+   public static final String USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS = "amqpUseModifiedForTransientDeliveryErrors";
+
+   /**
+    * Configuration property that defines the time in milliseconds that a receiver will wait before considering a pending
+    * quiesce timeout to have failed and should close the link. This configuration can be sent to the remote peer so that
+    * dual federation configurations share the same configuration on both sides of the connection. This option can be used
+    * to override the value specified on the connector URI to allow federation to operate with a different default.
+    */
+   public static final String RECEIVER_LINK_QUIESCE_TIMEOUT = "amqpLinkQuiesceTimeout";
+
+   /**
+    * Configuration property that defines if a federation receiver should drain the link credit when a transient delivery
+    * error such as the address being full occurs. This configuration can be sent to the remote peer so that dual federation
+    * configurations share the same configuration on both sides of the connection. This option can be used to override the
+    * value specified on the connector URI to allow federation to operate with a different default.
+    */
+   public static final String RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS = "amqpDrainOnTransientDeliveryErrors";
+
+   /**
     * A desired capability added to the federation queue receiver link that must be offered in return for a federation
     * queue receiver to be successfully opened.  On the remote the presence of this capability indicates that the
     * matching queue should be present on the remote and its absence constitutes a failure that should result in the

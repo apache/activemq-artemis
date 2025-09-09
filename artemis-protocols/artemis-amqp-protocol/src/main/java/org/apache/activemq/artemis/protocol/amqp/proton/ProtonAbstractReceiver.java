@@ -104,9 +104,9 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       this.receiver = receiver;
       this.minLargeMessageSize = getConfiguredMinLargeMessageSize(connection);
       this.creditRunnable = createCreditRunnable(connection);
-      this.useModified = connection.getProtocolManager().isUseModifiedForTransientDeliveryErrors();
-      this.drainCreditOnNoSpace = connection.getProtocolManager().isDrainOnTransientDeliveryErrors();
-      this.drainTimeout = connection.getProtocolManager().getLinkQuiesceTimeout();
+      this.useModified = isUseModifiedForTransientDeliveryErrors(connection);
+      this.drainCreditOnNoSpace = isDrainOnTransientDeliveryErrors(connection);
+      this.drainTimeout = getLinkQuiesceTimeout(connection);
       this.routingContext = new RoutingContextImpl(null).setDuplicateDetection(connection.getProtocolManager().isAmqpDuplicateDetection());
    }
 
@@ -246,6 +246,46 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
             messageReader = null;
          }
       });
+   }
+
+   /**
+    * Should the receiver send an AMQP Modified disposition with delivery failed set to true for
+    * address full errors instead of the Rejected disposition it would by default.
+    *
+    * @param connection
+    *    The connection context that this receiver instance is bound to
+    *
+    * @return <code>true</code> if the receiver send a modified outcome and false for rejected outcomes.
+    */
+   protected boolean isUseModifiedForTransientDeliveryErrors(AMQPConnectionContext connection) {
+      return connection.getProtocolManager().isUseModifiedForTransientDeliveryErrors();
+   }
+
+   /**
+    * Should the receiver drain link credit when a transient delivery error occurs, this allows subclass
+    * implementations to override the defaults set on the connection level.
+    *
+    * @param connection
+    *    The connection context that this receiver instance is bound to
+    *
+    * @return true if transient delivery errors should be handled by draining link credit from the remote sender.
+    */
+   protected boolean isDrainOnTransientDeliveryErrors(AMQPConnectionContext connection) {
+      return connection.getProtocolManager().isDrainOnTransientDeliveryErrors();
+   }
+
+   /**
+    * Gets the time in milliseconds that the receiver should wait before it considers a link quiesce attempt to
+    * have failed and act to close the link with an error, this allows subclass implementations to override the
+    * defaults set on the connection level.
+    *
+    * @param connection
+    *    The connection context that this receiver instance is bound to
+    *
+    * @return the time in milliseconds to wait for remote sender once a link quiesce is initiated by this peer.
+    */
+   protected int getLinkQuiesceTimeout(AMQPConnectionContext connection) {
+      return connection.getProtocolManager().getLinkQuiesceTimeout();
    }
 
    /**
