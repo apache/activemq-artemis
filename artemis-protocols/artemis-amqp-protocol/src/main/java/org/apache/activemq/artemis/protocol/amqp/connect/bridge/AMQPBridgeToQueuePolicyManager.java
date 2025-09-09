@@ -82,15 +82,15 @@ public class AMQPBridgeToQueuePolicyManager extends AMQPBridgeToPolicyManager im
    }
 
    @Override
-   public void afterCreateQueue(Queue queue) throws ActiveMQException {
+   public synchronized void afterCreateQueue(Queue queue) throws ActiveMQException {
       if (isActive()) {
          checkQueueForMatch(queue);
       }
    }
 
    @Override
-   public void afterDestroyQueue(Queue queue, SimpleString address, final SecurityAuth session, boolean checkConsumerCount,
-                                 boolean removeConsumers, boolean autoDeleteAddress) throws ActiveMQException {
+   public synchronized void afterDestroyQueue(Queue queue, SimpleString address, final SecurityAuth session, boolean checkConsumerCount,
+                                              boolean removeConsumers, boolean autoDeleteAddress) throws ActiveMQException {
       if (isActive()) {
          final String fqqn = CompositeAddress.toFullyQualified(queue.getAddress(), queue.getName()).toString();
          final AMQPBridgeQueueSenderManager manager = queueSenders.remove(fqqn);

@@ -124,7 +124,7 @@ public final class AMQPBridgeFromQueuePolicyManager extends AMQPBridgeFromPolicy
    }
 
    @Override
-   public void afterAddBinding(Binding binding) throws ActiveMQException {
+   public synchronized void afterAddBinding(Binding binding) throws ActiveMQException {
       if (isActive() && configuration.isReceiverDemandTrackingDisabled() && binding instanceof QueueBinding queueBinding) {
          reactIfQueueMatchesPolicy(queueBinding.getQueue());
       }
