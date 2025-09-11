@@ -32,7 +32,8 @@ public class SendMessagePage extends ArtemisPage {
    }
 
    public void clearMessageText() {
-      while (!getMessageText().isEmpty()) {
+      //the "1" here is what HawtIO shows when clear as the 1st line number
+      while (!"1".equals(getMessageText())) {
          Actions actions = new Actions(driver);
          actions.click(driver.findElement(MESSAGE_TEXT_EDITOR_LOCATOR));
          actions.sendKeys(Keys.BACK_SPACE);
