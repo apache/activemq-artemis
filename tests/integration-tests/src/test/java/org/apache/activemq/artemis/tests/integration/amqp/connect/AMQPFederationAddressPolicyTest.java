@@ -352,7 +352,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
 
    @Test
    @Timeout(20)
-   public void testFederationCreatesReceiverWithStbleFQQNWhenLocalDemandIsAppliedRepeatedly() throws Exception {
+   public void testFederationCreatesReceiverWithStableFQQNWhenLocalDemandIsAppliedRepeatedly() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
          peer.expectOpen().respond();
@@ -6487,7 +6487,7 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
                                        .withTarget().also()
                                        .withSource().withAddress(getTestName() + "::" + getTestName());
 
-         // Connect to remote as if a queue had demand and matched our local federation policy
+         // Connect to remote as if an address had demand and matched our local federation policy
          peer.remoteAttach().ofReceiver()
                             .withDesiredCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
                             .withName("federation-address-receiver")
@@ -6877,6 +6877,159 @@ public class AMQPFederationAddressPolicyTest extends AmqpClientTestSupport {
          peer.remoteClose().now();
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
          peer.close();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationSourceDoesNotTreatTargetFederationReceiversAsLocalDemand() throws Exception {
+      doTestFederationSourceDoesNotTreatTargetFederationReceiversAsLocalDemand(false);
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederationSourceDoesNotTreatTargetFilteredFederationReceiversAsLocalDemand() throws Exception {
+      doTestFederationSourceDoesNotTreatTargetFederationReceiversAsLocalDemand(true);
+   }
+
+   private void doTestFederationSourceDoesNotTreatTargetFederationReceiversAsLocalDemand(boolean includeFilterId) throws Exception {
+      final Map<String, Object> remoteSourceProperties = new HashMap<>();
+      remoteSourceProperties.put(ADDRESS_AUTO_DELETE, true);
+      remoteSourceProperties.put(ADDRESS_AUTO_DELETE_DELAY, 100_000L);
+      remoteSourceProperties.put(ADDRESS_AUTO_DELETE_MSG_COUNT, 1L);
+
+      final String remoteNodeID = UUID.randomUUID().toString();
+      final String federationBindingName;
+
+      if (includeFilterId) {
+         federationBindingName = "federation.test-name.policy.test123.address." + getTestName() + ".filterId.123456789.node." + remoteNodeID;
+      } else {
+         federationBindingName = "federation.test-name.policy.test123.address." + getTestName() + ".node." + remoteNodeID;
+      }
+
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond().withContainerId(remoteNodeID);
+         peer.expectBegin().respond();
+         peer.expectAttach().ofSender()
+                            .withProperty(FEDERATION_VERSION.toString(), FEDERATION_V2)
+                            .withDesiredCapability(FEDERATION_CONTROL_LINK.toString())
+                            .respond()
+                            .withProperty(FEDERATION_VERSION.toString(), FEDERATION_V2)
+                            .withOfferedCapabilities(FEDERATION_CONTROL_LINK.toString());
+         peer.expectAttach().ofReceiver()
+                            .withSenderSettleModeSettled()
+                            .withSource().withDynamic(true)
+                            .and()
+                            .withDesiredCapability(FEDERATION_EVENT_LINK.toString())
+                            .respondInKind()
+                            .withTarget().withAddress("test-dynamic-events");
+         peer.expectFlow().withLinkCredit(10);
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPFederationAddressPolicyElement receiveFromAddress = new AMQPFederationAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes(getTestName());
+         receiveFromAddress.setAutoDelete(false);
+         receiveFromAddress.setAutoDeleteDelay(-1L);
+         receiveFromAddress.setAutoDeleteMessageCount(-1L);
+         receiveFromAddress.setEnableDivertBindings(true);
+
+         final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addLocalAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 2);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+         server.addAddressInfo(new AddressInfo(SimpleString.of(getTestName()), RoutingType.MULTICAST));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofSender().withName("federation-address-receiver")
+                                       .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                                       .withTarget().also()
+                                       .withSource().withAddress(getTestName() + "::" + federationBindingName);
+         peer.remoteFlow().withLinkCredit(10).queue();
+         peer.expectDetach();
+
+         // Connect to remote as if the address had demand and matched our local federation policy
+         // since this uses the federation based address binding name the broker should not treat
+         // it as local demand and should not create a federation receiver back to the test peer.
+         if (includeFilterId) {
+            peer.remoteAttach().ofReceiver()
+                               .withDesiredCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                               .withName("federation-address-receiver")
+                               .withSenderSettleModeUnsettled()
+                               .withReceivervSettlesFirst()
+                               .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), remoteSourceProperties)
+                               .withSource().withDurabilityOfNone()
+                                            .withExpiryPolicyOnLinkDetach()
+                                            .withAddress(getTestName() + "::" + federationBindingName)
+                                            .withCapabilities("topic")
+                                            .withJMSSelector("color='red'")
+                                            .and()
+                               .withTarget().and()
+                               .now();
+         } else {
+            peer.remoteAttach().ofReceiver()
+                               .withDesiredCapabilities(FEDERATION_ADDRESS_RECEIVER.toString())
+                               .withName("federation-address-receiver")
+                               .withSenderSettleModeUnsettled()
+                               .withReceivervSettlesFirst()
+                               .withProperty(FEDERATED_ADDRESS_SOURCE_PROPERTIES.toString(), remoteSourceProperties)
+                               .withSource().withDurabilityOfNone()
+                                            .withExpiryPolicyOnLinkDetach()
+                                            .withAddress(getTestName() + "::" + federationBindingName)
+                                            .withCapabilities("topic")
+                                            .and()
+                               .withTarget().and()
+                               .now();
+         }
+
+         // Create a window where a remote attach for federation receiver can arrive if the attach of this
+         // federation receiver from the remote peer was treated as demand. Peer is awaiting the response
+         // so we will block on the wait until the Detach arrives.
+         peer.remoteDetach().later(20);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectAttach().ofReceiver()
+                            .withDesiredCapability(FEDERATION_ADDRESS_RECEIVER.toString())
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respond()
+                            .withOfferedCapabilities(FEDERATION_ADDRESS_RECEIVER.toString());
+         peer.expectFlow().withLinkCredit(1000);
+
+         final String otherFederationNodeId = UUID.randomUUID().toString();
+         final String otherFederationBindingName;
+
+         if (includeFilterId) {
+            otherFederationBindingName = "federation.test-name.policy.test123.address." + getTestName() + ".filterId.123456789.node." + otherFederationNodeId;
+         } else {
+            otherFederationBindingName = "federation.test-name.policy.test123.address." + getTestName() + ".node." + otherFederationNodeId;
+         }
+
+         // Create any other federation node binding and we should get a federation receiver created to the test peer.
+         server.createQueue(QueueConfiguration.of(otherFederationBindingName).setRoutingType(RoutingType.MULTICAST)
+                                                                             .setAddress(getTestName())
+                                                                             .setAutoCreated(false));
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+
+         server.stop();
       }
    }
 

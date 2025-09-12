@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerConsumerPlug
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromQueuePolicy;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo.Role;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.slf4j.Logger;
@@ -146,6 +147,11 @@ public final class AMQPFederationQueuePolicyManager extends AMQPFederationLocalP
             .filter(b -> b instanceof QueueBinding)
             .map(b -> (QueueBinding) b)
             .forEach(b -> checkQueueForMatch(b.getQueue()));
+   }
+
+   @Override
+   protected void updateStateAfterConnect(AMQPFederationConsumerConfiguration configuration, AMQPSessionContext session) {
+      // No state needs updated currently on a per connection basis.
    }
 
    private void checkQueueForMatch(Queue queue) {

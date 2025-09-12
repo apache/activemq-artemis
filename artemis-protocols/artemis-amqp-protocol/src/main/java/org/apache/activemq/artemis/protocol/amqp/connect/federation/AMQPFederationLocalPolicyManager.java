@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBindingPlugi
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumer;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationConsumerInfo;
 import org.apache.activemq.artemis.protocol.amqp.federation.FederationReceiveFromResourcePolicy;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPSessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,10 +105,23 @@ public abstract class AMQPFederationLocalPolicyManager extends AMQPFederationPol
       // need to capture in the current configuration state.
       configuration = new AMQPFederationConsumerConfiguration(federation.getConfiguration(), getPolicy().getProperties());
 
+      updateStateAfterConnect(configuration, session);
+
       if (isActive()) {
          scanAllBindings();
       }
    }
+
+   /**
+    * Allows the policy manager implementation to update internal state after (re)connection and before the
+    * policy manager triggers a scan of all bindings to check for existing or new demand.
+    *
+    * @param configuration
+    *    The updated configuration based on the current connection.
+    * @param session
+    *    The session that matches the current connection.
+    */
+   protected abstract void updateStateAfterConnect(AMQPFederationConsumerConfiguration configuration, AMQPSessionContext session);
 
    /**
     * Scans all bindings and push them through the normal bindings checks that would be done on an add. This allows for

@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.connect;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.ADDRESS_RECEIVER_IDLE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_ADDRESS_BINDING_FILTERS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.IGNORE_QUEUE_CONSUMER_PRIORITIES;
 import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.PULL_RECEIVER_BATCH_SIZE;
@@ -1921,6 +1922,165 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          server.stop();
          remoteServer.stop();
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testAddressFederatedOnTwoConnectionsDoesNotCreateSelfSustainingLoop() throws Exception {
+      logger.info("Test started: {}", getTestName());
+
+      final AMQPFederationAddressPolicyElement localAddressPolicy1 = new AMQPFederationAddressPolicyElement();
+      localAddressPolicy1.setName("local-test-policy-1");
+      localAddressPolicy1.addToIncludes("test");
+      localAddressPolicy1.setAutoDelete(false);
+      localAddressPolicy1.setAutoDeleteDelay(-1L);
+      localAddressPolicy1.setAutoDeleteMessageCount(-1L);
+      localAddressPolicy1.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
+
+      final AMQPFederationAddressPolicyElement localAddressPolicy2 = new AMQPFederationAddressPolicyElement();
+      localAddressPolicy2.setName("local-test-policy-2");
+      localAddressPolicy2.addToIncludes("test");
+      localAddressPolicy2.setAutoDelete(false);
+      localAddressPolicy2.setAutoDeleteDelay(-1L);
+      localAddressPolicy2.setAutoDeleteMessageCount(-1L);
+      localAddressPolicy2.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
+
+      final AMQPFederatedBrokerConnectionElement element1 = new AMQPFederatedBrokerConnectionElement();
+      element1.setName(getTestName() + ":1");
+      element1.addLocalAddressPolicy(localAddressPolicy1);
+
+      final AMQPFederatedBrokerConnectionElement element2 = new AMQPFederatedBrokerConnectionElement();
+      element2.setName(getTestName() + ":2");
+      element2.addLocalAddressPolicy(localAddressPolicy2);
+
+      final AMQPBrokerConnectConfiguration amqpConnection1 =
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
+      amqpConnection1.setReconnectAttempts(10);// Limit reconnects
+      amqpConnection1.addElement(element1);
+
+      final AMQPBrokerConnectConfiguration amqpConnection2 =
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT);
+      amqpConnection2.setReconnectAttempts(10);// Limit reconnects
+      amqpConnection2.addElement(element2);
+
+      server.getConfiguration().addAMQPConnection(amqpConnection1);
+      remoteServer.getConfiguration().addAMQPConnection(amqpConnection2);
+      remoteServer.start();
+      server.start();
+
+      final ConnectionFactory factoryLocal = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + SERVER_PORT);
+      final ConnectionFactory factoryRemote = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + SERVER_PORT_REMOTE);
+
+      try (Connection connectionL = factoryLocal.createConnection();
+           Connection connectionR = factoryRemote.createConnection()) {
+
+         final Session sessionL = connectionL.createSession(Session.AUTO_ACKNOWLEDGE);
+         final Session sessionR = connectionR.createSession(Session.AUTO_ACKNOWLEDGE);
+
+         final Topic topic = sessionL.createTopic("test");
+
+         final MessageConsumer consumerL = sessionL.createConsumer(topic);
+         final MessageConsumer consumerR = sessionR.createConsumer(topic);
+
+         connectionL.start();
+         connectionR.start();
+
+         final SimpleString addressName = SimpleString.of("test");
+
+         Wait.assertTrue(() -> server.addressQuery(addressName).isExists(), 5_000, 50);
+         Wait.assertTrue(() -> remoteServer.addressQuery(addressName).isExists(), 5_000, 50);
+
+         // Captures state of JMS consumer and federation consumer attached on each node
+         Wait.assertTrue(() -> server.bindingQuery(addressName, false).getQueueNames().size() == 2, 10_000, 50);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(addressName, false).getQueueNames().size() == 2, 10_000, 50);
+
+         // Without active consumers the federation bindings should not sustain each other
+
+         consumerL.close();
+
+         Wait.assertTrue(() -> server.bindingQuery(addressName, false).getQueueNames().size() == 1, 10_000, 50);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(addressName, false).getQueueNames().size() == 1, 10_000, 50);
+
+         consumerR.close();
+
+         Wait.assertTrue(() -> server.bindingQuery(addressName, false).getQueueNames().size() == 0, 10_000, 50);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(addressName, false).getQueueNames().size() == 0, 10_000, 50);
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testAddressFederatedOnOneConnectionDoesNotCreateSelfSustainingLoop() throws Exception {
+      logger.info("Test started: {}", getTestName());
+
+      final AMQPFederationAddressPolicyElement localAddressPolicy = new AMQPFederationAddressPolicyElement();
+      localAddressPolicy.setName("local-test-policy");
+      localAddressPolicy.addToIncludes("test");
+      localAddressPolicy.setAutoDelete(false);
+      localAddressPolicy.setAutoDeleteDelay(-1L);
+      localAddressPolicy.setAutoDeleteMessageCount(-1L);
+      localAddressPolicy.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
+
+      final AMQPFederationAddressPolicyElement remoteAddressPolicy = new AMQPFederationAddressPolicyElement();
+      remoteAddressPolicy.setName("remote-test-policy");
+      remoteAddressPolicy.addToIncludes("test");
+      remoteAddressPolicy.setAutoDelete(false);
+      remoteAddressPolicy.setAutoDeleteDelay(-1L);
+      remoteAddressPolicy.setAutoDeleteMessageCount(-1L);
+      remoteAddressPolicy.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 0);
+
+      final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+      element.setName(getTestName() + ":1");
+      element.addLocalAddressPolicy(localAddressPolicy);
+      element.addRemoteAddressPolicy(remoteAddressPolicy);
+
+      final AMQPBrokerConnectConfiguration amqpConnection1 =
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT_REMOTE);
+      amqpConnection1.setReconnectAttempts(10);// Limit reconnects
+      amqpConnection1.addElement(element);
+
+      server.getConfiguration().addAMQPConnection(amqpConnection1);
+      remoteServer.start();
+      server.start();
+
+      final ConnectionFactory factoryLocal = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + SERVER_PORT);
+      final ConnectionFactory factoryRemote = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + SERVER_PORT_REMOTE);
+
+      try (Connection connectionL = factoryLocal.createConnection();
+           Connection connectionR = factoryRemote.createConnection()) {
+
+         final Session sessionL = connectionL.createSession(Session.AUTO_ACKNOWLEDGE);
+         final Session sessionR = connectionR.createSession(Session.AUTO_ACKNOWLEDGE);
+
+         final Topic topic = sessionL.createTopic("test");
+
+         final MessageConsumer consumerL = sessionL.createConsumer(topic);
+         final MessageConsumer consumerR = sessionR.createConsumer(topic);
+
+         connectionL.start();
+         connectionR.start();
+
+         final SimpleString addressName = SimpleString.of("test");
+
+         Wait.assertTrue(() -> server.addressQuery(addressName).isExists(), 5_000, 50);
+         Wait.assertTrue(() -> remoteServer.addressQuery(addressName).isExists(), 5_000, 50);
+
+         // Captures state of JMS consumer and federation consumer attached on each node
+         Wait.assertTrue(() -> server.bindingQuery(addressName, false).getQueueNames().size() == 2, 10_000, 50);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(addressName, false).getQueueNames().size() == 2, 10_000, 50);
+
+         // Without active consumers the federation bindings should not sustain each other
+
+         consumerL.close();
+
+         Wait.assertTrue(() -> server.bindingQuery(addressName, false).getQueueNames().size() == 1, 10_000, 50);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(addressName, false).getQueueNames().size() == 1, 10_000, 50);
+
+         consumerR.close();
+
+         Wait.assertTrue(() -> server.bindingQuery(addressName, false).getQueueNames().size() == 0, 10_000, 50);
+         Wait.assertTrue(() -> remoteServer.bindingQuery(addressName, false).getQueueNames().size() == 0, 10_000, 50);
       }
    }
 }
