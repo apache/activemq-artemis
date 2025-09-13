@@ -30,6 +30,7 @@ image::images/activemq-logo.png[align="center"]
 * xref:jms-core-mapping.adoc#mapping-jms-concepts-to-the-core-api[Mapping JMS Concepts to the Core API]
 * xref:using-jms.adoc#using-jms-or-jakarta-messaging[Using JMS or Jakarta Messaging]
 ** xref:pre-acknowledge.adoc#extra-acknowledge-modes[Extra Acknowledge Modes]
+* xref:proxy-protocol.adoc#proxy-protocol[PROXY Protocol]
 
 == Upgrading
 

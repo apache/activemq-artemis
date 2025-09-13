@@ -85,6 +85,21 @@
          <groupId>org.apache.qpid</groupId>
          <artifactId>qpid-jms-client</artifactId>
       </dependency>
+      <dependency>
+         <groupId>org.eclipse.paho</groupId>
+         <artifactId>org.eclipse.paho.mqttv5.client</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.johnzon</groupId>
+         <artifactId>johnzon-core</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>jakarta.json</groupId>
+         <artifactId>jakarta.json-api</artifactId>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 
    <build>
@@ -222,6 +237,22 @@
                </execution>
                <execution>
                   <phase>test-compile</phase>
+                  <id>create-proxy-protocol</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>artemis</user>
+                     <password>artemis</password>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <instance>${basedir}/target/proxy-protocol</instance>
+                     <configuration>${basedir}/target/classes/servers/proxy-protocol</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
                   <id>create-dualMirror-serverA</id>
                   <goals>
                      <goal>create</goal>
@@ -327,6 +358,52 @@
                   <configuration>
                      <instance>${basedir}/target/brokerConnect/chainedMirror/serverB</instance>
                      <configuration>${basedir}/target/classes/servers/brokerConnect/chainedMirror/serverB</configuration>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+            <artifactId>maven-resources-plugin</artifactId>
+            <configuration>
+               <nonFilteredFileExtensions>
+                  <nonFilteredFileExtension>jks</nonFilteredFileExtension>
+               </nonFilteredFileExtensions>
+            </configuration>
+            <executions>
+               <execution>
+                  <id>copy-proxy-protocol-broker-security-resources</id>
+                  <phase>validate</phase>
+                  <goals>
+                     <goal>copy-resources</goal>
+                  </goals>
+                  <configuration>
+                     <outputDirectory>${basedir}/target/proxy-protocol/etc</outputDirectory>
+                     <resources>
+                        <resource>
+                           <directory>../security-resources</directory>
+                           <includes>
+                              <include>server-keystore.jks</include>
+                           </includes>
+                        </resource>
+                     </resources>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>copy-proxy-protocol-client-security-resources</id>
+                  <phase>validate</phase>
+                  <goals>
+                     <goal>copy-resources</goal>
+                  </goals>
+                  <configuration>
+                     <outputDirectory>${basedir}/target/test-classes</outputDirectory>
+                     <resources>
+                        <resource>
+                           <directory>../security-resources</directory>
+                           <includes>
+                              <include>server-ca-truststore.jks</include>
+                           </includes>
+                        </resource>
+                     </resources>
                   </configuration>
                </execution>
             </executions>

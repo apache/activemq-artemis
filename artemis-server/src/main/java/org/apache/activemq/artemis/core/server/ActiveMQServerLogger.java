@@ -497,13 +497,13 @@ public interface ActiveMQServerLogger {
    void nettyChannelGroupError();
 
    @LogMessage(id = 222075, value = "{} is still connected to {}", level = LogMessage.Level.WARN)
-   void nettyChannelStillOpen(Channel channel, SocketAddress remoteAddress);
+   void nettyChannelStillOpen(Channel channel, String remoteAddress);
 
    @LogMessage(id = 222076, value = "channel group did not completely unbind", level = LogMessage.Level.WARN)
    void nettyChannelGroupBindError();
 
    @LogMessage(id = 222077, value = "{} is still bound to {}", level = LogMessage.Level.WARN)
-   void nettyChannelStillBound(Channel channel, SocketAddress remoteAddress);
+   void nettyChannelStillBound(Channel channel, String remoteAddress);
 
    @LogMessage(id = 222080, value = "Error creating acceptor: {}", level = LogMessage.Level.WARN)
    void errorCreatingAcceptor(String name, Exception e);
@@ -1440,7 +1440,7 @@ public interface ActiveMQServerLogger {
    void noPagefullPolicySet(Object address, Object limitBytes, Object limitMessages);
 
    @LogMessage(id = 224126, value = "Failure during protocol handshake on connection to {} from {}", level = LogMessage.Level.ERROR)
-   void failureDuringProtocolHandshake(SocketAddress localAddress, SocketAddress remoteAddress, Throwable e);
+   void failureDuringProtocolHandshake(SocketAddress localAddress, String remoteAddress, Throwable e);
 
    // Note the custom loggerName rather than the overall LogBundle-wide definition used by other methods.
    @LogMessage(id = 224127, value = "Message dispatch from paging is blocked. Address {}/Queue {} will not read any more messages from paging until pending messages are acknowledged. "
@@ -1518,4 +1518,7 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224150, value = "Messages will be dropped on address {} / queue {}. Queue is disabled.", level = LogMessage.Level.INFO)
    void noRouteMessagesWillBeDropped(SimpleString addressName, SimpleString queueName);
+
+   @LogMessage(id = 224151, value = "Closing connection from {} for PROXY Protocol violation. Acceptor {} uses proxyProtocolEnabled={}, but connection {} PROXY Protocol.", level = LogMessage.Level.WARN)
+   void proxyProtocolViolation(String remoteAddress, String acceptorName, boolean proxyProtocolEnabled, String actualUsage);
 }
