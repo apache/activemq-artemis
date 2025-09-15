@@ -2015,7 +2015,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       conf.setLargeMessageTableName(getString(storeNode, "large-message-table-name", conf.getLargeMessageTableName(), NO_CHECK));
       conf.setPageStoreTableName(getString(storeNode, "page-store-table-name", conf.getPageStoreTableName(), NO_CHECK));
       conf.setNodeManagerStoreTableName(getString(storeNode, "node-manager-store-table-name", conf.getNodeManagerStoreTableName(), NO_CHECK));
-      conf.setJdbcConnectionUrl(getString(storeNode, "jdbc-connection-url", conf.getJdbcConnectionUrl(), NO_CHECK));
+      String jdbcConnectionUrl = getString(storeNode, "jdbc-connection-url", conf.getJdbcConnectionUrl(), NO_CHECK);
+      if (jdbcConnectionUrl != null && !jdbcConnectionUrl.startsWith("jdbc:")) {
+         jdbcConnectionUrl = PasswordMaskingUtil.resolveMask(jdbcConnectionUrl, mainConfig.getPasswordCodec());
+      }
+      conf.setJdbcConnectionUrl(jdbcConnectionUrl);
       conf.setJdbcDriverClassName(getString(storeNode, "jdbc-driver-class-name", conf.getJdbcDriverClassName(), NO_CHECK));
       conf.setJdbcNetworkTimeout(getInteger(storeNode, "jdbc-network-timeout", conf.getJdbcNetworkTimeout(), NO_CHECK));
       conf.setJdbcLockRenewPeriodMillis(getLong(storeNode, "jdbc-lock-renew-period", conf.getJdbcLockRenewPeriodMillis(), NO_CHECK));
