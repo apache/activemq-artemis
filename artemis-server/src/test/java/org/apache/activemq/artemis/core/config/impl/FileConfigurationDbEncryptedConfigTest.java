@@ -16,17 +16,52 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class FileConfigurationDbEncryptedPassTest extends AbstractConfigurationTestBase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class FileConfigurationDbEncryptedConfigTest extends AbstractConfigurationTestBase {
+
+   private static final String ENCODED_PASSWORD = RandomUtil.randomUUIDString();
+   private static final String PASSWORD = RandomUtil.randomUUIDString();
+   private static final String ENCODED_USER = RandomUtil.randomUUIDString();
+   private static final String USER = RandomUtil.randomUUIDString();
+   private static final String ENCODED_URL = RandomUtil.randomUUIDString();
+   private static final String URL = RandomUtil.randomUUIDString();
+
+   private static final Map<String, String> SENSITIVE_PROPERTIES = new HashMap<>();
+
+   static {
+      SENSITIVE_PROPERTIES.put(ENCODED_PASSWORD, PASSWORD);
+      SENSITIVE_PROPERTIES.put(ENCODED_USER, USER);
+      SENSITIVE_PROPERTIES.put(ENCODED_URL, URL);
+   }
 
    protected String getConfigurationName() {
-      return "ConfigurationTest-db-encrypted-pass-config.xml";
+      return "ConfigurationTest-db-encrypted-config.xml";
+   }
+
+   @Override
+   @BeforeEach
+   public void setUp() throws Exception {
+      System.setProperty("dbPass", ENCODED_PASSWORD);
+      System.setProperty("dbUser", ENCODED_USER);
+      System.setProperty("dbUrl", ENCODED_URL);
+      runAfter(() -> {
+         System.clearProperty("dbPass");
+         System.clearProperty("dbUser");
+         System.clearProperty("dbUrl");
+      });
+      super.setUp();
    }
 
    @Override
@@ -40,7 +75,17 @@ public class FileConfigurationDbEncryptedPassTest extends AbstractConfigurationT
 
    @Test
    public void testJdbcPasswordWithCustomCodec() {
-      assertTrue(MySensitiveStringCodec.decoded);
+      assertEquals(PASSWORD, ((DatabaseStorageConfiguration)conf.getStoreConfiguration()).getJdbcPassword());
+   }
+
+   @Test
+   public void testJdbcUserWithCustomCodec() {
+      assertEquals(USER, ((DatabaseStorageConfiguration)conf.getStoreConfiguration()).getJdbcUser());
+   }
+
+   @Test
+   public void testJdbcUrlWithCustomCodec() {
+      assertEquals(URL, ((DatabaseStorageConfiguration)conf.getStoreConfiguration()).getJdbcConnectionUrl());
    }
 
    @Test
@@ -64,12 +109,9 @@ public class FileConfigurationDbEncryptedPassTest extends AbstractConfigurationT
    }
 
    public static class MySensitiveStringCodec implements SensitiveDataCodec<String> {
-      public static boolean decoded = false;
-
       @Override
       public String decode(Object mask) throws Exception {
-         decoded = true;
-         return null;
+         return SENSITIVE_PROPERTIES.get(mask);
       }
 
       @Override

@@ -20,17 +20,18 @@
         xsi:schemaLocation="urn:activemq ../../../../activemq-server/src/main/resources/schema/artemis-server.xsd">
    <core xmlns="urn:activemq:core">
 
-      <password-codec>org.apache.activemq.artemis.core.config.impl.FileConfigurationDbEncryptedPassTest$MySensitiveStringCodec</password-codec>
+      <password-codec>org.apache.activemq.artemis.core.config.impl.FileConfigurationDbEncryptedConfigTest$MySensitiveStringCodec</password-codec>
 
       <store>
          <database-store>
             <jdbc-driver-class-name>foo</jdbc-driver-class-name>
-            <jdbc-connection-url>foo</jdbc-connection-url>
+            <jdbc-connection-url>ENC(${dbUrl})</jdbc-connection-url>
             <message-table-name>foo</message-table-name>
             <bindings-table-name>foo</bindings-table-name>
             <large-message-table-name>foo</large-message-table-name>
             <page-store-table-name>foo</page-store-table-name>
-            <jdbc-password>ENC(foo)</jdbc-password>
+            <jdbc-password>ENC(${dbPass})</jdbc-password>
+            <jdbc-user>ENC(${dbUser})</jdbc-user>
          </database-store>
       </store>
 
