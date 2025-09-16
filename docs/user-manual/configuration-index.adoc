@@ -115,24 +115,29 @@ acceptorConfigurations.tcp.params.port=61616
  . set the acceptor named "tcp" 'HOST' parameter to localhost
  . set the acceptor named "tcp" 'PORT' parameter to 61616
 
+==== Usage
+
+The `artemis run` command script supports `--properties <properties file url>`, where a properties file can be configured.
+
+There is a related xref:management.adoc#server-management[server management operation] `exportConfigAsProperties` that will export the current configuration as broker properties. Use this to get a better understanding of how properties apply to the broker configuration and how they map from xml.
+
 ==== Attribute Names with Dots
-Dots are significant in property keys because they identify the nesting level. If attribute names contain dots those need to be quoted. The default quote string is specified via the property key.surround and has a default value of the double quote character: ".
+Dots are significant in property keys because they identify the nesting level. If attribute names contain dots those need to be quoted. The quote string is specified via the property `key.surround` and has a default value of the double quote character: `"`.
 
 An address setting, where the address contains dots, would be a typical example where quoting is required:
 ----
 addressSettings."Address.Name.With.Dots".expiryAddress=expiredMessages
 ----
 
-The configuration properties are very low level, lower level than xml, which makes them very powerful.
+==== Error reporting
+The free form text format of a java properties file and the inexact mapping from xml attribute to key=value can make it tricky to correctly configure broker properties.
+Properties that don't match or fail to apply are tracked through the status attribute of the broker, visible through the xref:management.adoc#server-management[server management operation] `getStatus`.
+
+More detailed information can also be obtained through debug logging of the `org.apache.activemq.artemis.core.config.impl.ConfigurationImpl` class.
+
+NOTE: The configuration properties are very low level, lower level than xml, which makes them very powerful.
 Any accessible attribute of the internal `org.apache.activemq.artemis.core.config.impl.ConfigurationImpl` objects can be modified.
 With great power one must take great care!
-
-The `artemis run` command script supports `--properties <properties file url>`, where a properties file can be configured.
-
-NOTE: one shortcoming of this method of configuration is that any property that does not match is ignored with no fanfare.
-Enable debug logging for `org.apache.activemq.artemis.core.config.impl.ConfigurationImpl` to get more insight.
-
-There is a related xref:management.adoc#server-management[server management operation], `exportConfigAsProperties` that will export the current configuration as broker properties. Use this to get a better understanding of how properties apply to the broker configuration and how they map from xml.
 
 == The core configuration
 
