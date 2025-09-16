@@ -100,8 +100,7 @@ Collections need some special treatment to allow additions and reference.
 We utilise the name attribute of configuration entities to find existing entries and when populating new entities, we set the name to match the requested key.
 Removal of configuration from named collections is supported by setting a key value to "-".
 The remove match value can be configured with a property key "remove.value".
-
-For example, a properties file containing:
+For example, a properties file containing the following keys and values:
 
 ----
 securityEnabled=false
@@ -110,11 +109,22 @@ acceptorConfigurations.tcp.params.host=localhost
 acceptorConfigurations.tcp.params.port=61616
 ----
 
-would: 1) disable RBAC security checks 2) add or modify an acceptor named "tcp" that will use Netty 3) set the acceptor named "tcp" 'HOST' parameter to localhost 4) set the acceptor named "tcp" 'PORT' parameter to 61616
+.would:
+ . disable RBAC security checks
+ . add or modify an acceptor named "tcp" that will use Netty
+ . set the acceptor named "tcp" 'HOST' parameter to localhost
+ . set the acceptor named "tcp" 'PORT' parameter to 61616
 
-The configuration properties are low level, lower level than xml, however it is very powerful;
-any accessible attribute of the internal `org.apache.activemq.artemis.core.config.impl.ConfigurationImpl` objects can be modified.
+==== Attribute Names with Dots
+Dots are significant in property keys because they identify the nesting level. If attribute names contain dots those need to be quoted. The default quote string is specified via the property key.surround and has a default value of the double quote character: ".
 
+An address setting, where the address contains dots, would be a typical example where quoting is required:
+----
+addressSettings."Address.Name.With.Dots".expiryAddress=expiredMessages
+----
+
+The configuration properties are very low level, lower level than xml, which makes them very powerful.
+Any accessible attribute of the internal `org.apache.activemq.artemis.core.config.impl.ConfigurationImpl` objects can be modified.
 With great power one must take great care!
 
 The `artemis run` command script supports `--properties <properties file url>`, where a properties file can be configured.
