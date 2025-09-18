@@ -236,6 +236,21 @@ public class AMQPBridgeFromQueueReceiver extends AMQPBridgeReceiver {
       }
 
       @Override
+      protected boolean isUseModifiedForTransientDeliveryErrors(AMQPConnectionContext connection) {
+         return configuration.isUseModifiedForTransientDeliveryErrors();
+      }
+
+      @Override
+      protected boolean isDrainOnTransientDeliveryErrors(AMQPConnectionContext connection) {
+         return configuration.isDrainOnTransientDeliveryErrors();
+      }
+
+      @Override
+      protected int getLinkQuiesceTimeout(AMQPConnectionContext connection) {
+         return configuration.getLinkQuiesceTimeout();
+      }
+
+      @Override
       public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
          super.close(remoteLinkClose);
 
