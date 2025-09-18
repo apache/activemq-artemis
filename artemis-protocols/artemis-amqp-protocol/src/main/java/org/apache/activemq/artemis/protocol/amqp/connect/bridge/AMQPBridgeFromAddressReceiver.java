@@ -277,6 +277,21 @@ public class AMQPBridgeFromAddressReceiver extends AMQPBridgeReceiver {
       }
 
       @Override
+      protected boolean isUseModifiedForTransientDeliveryErrors(AMQPConnectionContext connection) {
+         return configuration.isUseModifiedForTransientDeliveryErrors();
+      }
+
+      @Override
+      protected boolean isDrainOnTransientDeliveryErrors(AMQPConnectionContext connection) {
+         return configuration.isDrainOnTransientDeliveryErrors();
+      }
+
+      @Override
+      protected int getLinkQuiesceTimeout(AMQPConnectionContext connection) {
+         return configuration.getLinkQuiesceTimeout();
+      }
+
+      @Override
       protected Runnable createCreditRunnable(AMQPConnectionContext connection) {
          // We defer to the configuration instance as opposed to the base class version that reads
          // from the connection this allows us to defer to configured policy properties that specify

@@ -32,7 +32,10 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridg
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.MAX_LINK_RECOVERY_ATTEMPTS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.PREFER_SHARED_DURABLE_SUBSCRIPTIONS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.PRESETTLE_SEND_MODE;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.RECEIVER_LINK_QUIESCE_TIMEOUT;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -71,6 +74,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
@@ -925,7 +930,7 @@ class AMQPBridgeFromAddressTest extends AmqpClientTestSupport {
          server.start();
          server.deployDivert(divertConfig);
          // Current implementation requires the source address exist on the local broker before it
-         // will attempt to federate it from the remote.
+         // will attempt to bridge it from the remote.
          server.addAddressInfo(new AddressInfo(SimpleString.of(getTestName()), RoutingType.MULTICAST));
 
          // Demand on the forwarding address should create a remote consumer for the forwarded address.
@@ -999,7 +1004,7 @@ class AMQPBridgeFromAddressTest extends AmqpClientTestSupport {
          server.start();
          server.deployDivert(divertConfig);
          // Current implementation requires the source address exist on the local broker before it
-         // will attempt to federate it from the remote.
+         // will attempt to bridge it from the remote.
          server.addAddressInfo(new AddressInfo(SimpleString.of(getTestName()), RoutingType.MULTICAST));
 
          // Demand on the forwarding address should create a remote consumer for the forwarded address.
@@ -1824,7 +1829,7 @@ class AMQPBridgeFromAddressTest extends AmqpClientTestSupport {
 
    @Test
    @Timeout(20)
-   public void testAddressPolicyCanOverridesZeroCreditsInBridgeConfigurationAndFederateAddress() throws Exception {
+   public void testAddressPolicyCanOverridesZeroCreditsInBridgeConfigurationAndBridgeAddress() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLAnonymousConnect();
          peer.expectOpen().respond();
@@ -3876,6 +3881,184 @@ class AMQPBridgeFromAddressTest extends AmqpClientTestSupport {
 
          // Non-shared subs should be used so no sequence number in the link name means they will be the same
          assertEquals(capturedAttach1.get().getName(), capturedAttach2.get().getName());
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testBridgeReceiverRejectsWithModifiedDeliveryFailedAsDefault() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPBridgeAddressPolicyElement receiveFromAddress = new AMQPBridgeAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes(getTestName());
+
+         final AMQPBridgeBrokerConnectionElement element = new AMQPBridgeBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addBridgeFromAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 10);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         final AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(getTestName());
+         addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
+         addressSettings.setMaxSizeBytes(500);
+         server.getAddressSettingsRepository().addMatch(getTestName(), addressSettings);
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final String payload = "A".repeat(2048);
+
+         peer.expectAttach().ofReceiver()
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respond();
+         peer.expectFlow().withLinkCredit(1000);
+
+         server.createQueue(QueueConfiguration.of(getTestName()).setRoutingType(RoutingType.MULTICAST)
+                                                                .setAddress(getTestName())
+                                                                .setAutoCreated(false)
+                                                                .setFilterString("color='red'"));
+
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of(getTestName())).isExists(), 5000, 100);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         peer.expectDisposition().withState().accepted();       // This should fill the address
+         peer.expectFlow().withLinkCredit(998).withDrain(true); // Receiver drains credit before sending the disposition
+         peer.expectDisposition().withState().modified(true);   // Expect modified / failed so remote doesn't drop the message
+
+         peer.remoteTransfer().withHeader().withDurability(true).also()
+                              .withApplicationProperties().withProperty("color", "red").also()
+                              .withMessageAnnotations().withAnnotation("x-opt-test", "1").also()
+                              .withBody().withString("First Message: " + payload)
+                              .also()
+                              .withDeliveryId(1)
+                              .now();
+         peer.remoteTransfer().withHeader().withDurability(true).also()
+                              .withApplicationProperties().withProperty("color", "red").also()
+                              .withMessageAnnotations().withAnnotation("x-opt-test", "2").also()
+                              .withBody().withString("Second Message: ")
+                              .also()
+                              .withDeliveryId(2)
+                              .later(10);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
+      }
+   }
+
+   @Test
+   public void testDrainReceiverOnTransientErrorsConfiguredAtBridgeLevel() throws Exception {
+      doTestDrainReceiverOnTransientErrorsConfiguredAtBridgeLevel(true);
+   }
+
+   @Test
+   public void testNoDrainReceiverOnTransientErrorsConfiguredAtBridgeLevel() throws Exception {
+      doTestDrainReceiverOnTransientErrorsConfiguredAtBridgeLevel(false);
+   }
+
+   private void doTestDrainReceiverOnTransientErrorsConfiguredAtBridgeLevel(boolean drainOnFull) throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         peer.expectSASLAnonymousConnect();
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.info("Test started, peer listening on: {}", remoteURI);
+
+         final AMQPBridgeAddressPolicyElement receiveFromAddress = new AMQPBridgeAddressPolicyElement();
+         receiveFromAddress.setName("address-policy");
+         receiveFromAddress.addToIncludes(getTestName());
+
+         final AMQPBridgeBrokerConnectionElement element = new AMQPBridgeBrokerConnectionElement();
+         element.setName(getTestName());
+         element.addBridgeFromAddressPolicy(receiveFromAddress);
+         element.addProperty(ADDRESS_RECEIVER_IDLE_TIMEOUT, 10);
+         element.addProperty(RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS, String.valueOf(drainOnFull));
+         element.addProperty(RECEIVER_LINK_QUIESCE_TIMEOUT, 350);
+
+         final AMQPBrokerConnectConfiguration amqpConnection =
+            new AMQPBrokerConnectConfiguration(getTestName(), "tcp://" + remoteURI.getHost() + ":" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(0);// No reconnects
+         amqpConnection.addElement(element);
+
+         final AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(getTestName());
+         addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
+         addressSettings.setMaxSizeBytes(1000);
+         server.getAddressSettingsRepository().addMatch(getTestName(), addressSettings);
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         final String payload = "A".repeat(2048);
+
+         peer.expectAttach().ofReceiver()
+                            .withName(allOf(containsString(getTestName()),
+                                            containsString("address-receiver"),
+                                            containsString(server.getNodeID().toString())))
+                            .respond();
+         peer.expectFlow().withLinkCredit(1000);
+
+         server.createQueue(QueueConfiguration.of("queue1").setRoutingType(RoutingType.MULTICAST)
+                                                           .setAddress(getTestName())
+                                                           .setAutoCreated(false));
+         server.createQueue(QueueConfiguration.of("queue2").setRoutingType(RoutingType.MULTICAST)
+                                                           .setAddress(getTestName())
+                                                           .setAutoCreated(false));
+
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue1")).isExists(), 5000, 100);
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of("queue2")).isExists(), 5000, 100);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectDisposition().withState().accepted(); // This should fill the address
+
+         if (drainOnFull) {
+            peer.expectFlow().withDrain(true).withLinkCredit(998);
+            peer.expectDisposition().withState().modified(true);
+            peer.expectDetach().withError(notNullValue()).respond();
+         } else {
+            peer.expectDisposition().withState().modified(true);
+         }
+
+         peer.remoteTransfer().withHeader().withDurability(true).also()
+                              .withApplicationProperties().withProperty("color", "red").also()
+                              .withMessageAnnotations().withAnnotation("x-opt-test", "1").also()
+                              .withBody().withString("First Message: " + payload)
+                              .also()
+                              .withDeliveryId(1)
+                              .now();
+         peer.remoteTransfer().withHeader().withDurability(true).also()
+                              .withApplicationProperties().withProperty("color", "red").also()
+                              .withMessageAnnotations().withAnnotation("x-opt-test", "2").also()
+                              .withBody().withString("Second Message: ")
+                              .also()
+                              .withDeliveryId(2)
+                              .later(5);
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.close();
       }
    }
 

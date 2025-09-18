@@ -30,6 +30,9 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridg
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.RECEIVER_CREDITS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.RECEIVER_CREDITS_LOW;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.RECEIVER_QUIESCE_TIMEOUT;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.RECEIVER_LINK_QUIESCE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.IGNORE_QUEUE_FILTERS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.ADDRESS_RECEIVER_IDLE_TIMEOUT;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.AUTO_DELETE_DURABLE_SUBSCRIPTION;
@@ -55,6 +58,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridg
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.DEFAULT_SEND_SETTLED;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.DISABLE_RECEIVER_DEMAND_TRACKING;
 import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.IGNORE_QUEUE_CONSUMER_FILTERS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.bridge.AMQPBridgeConstants.DEFAULT_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -376,6 +380,48 @@ public class AMQPBridgeConfiguration {
          return Boolean.parseBoolean((String) property);
       } else {
          return DEFAULT_PREFER_SHARED_DURABLE_SUBSCRIPTIONS;
+      }
+   }
+
+   /**
+    * (@return the use modified for transient delivery errors configuration}
+    */
+   public boolean isUseModifiedForTransientDeliveryErrors() {
+      final Object property = properties.get(USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS);
+      if (property instanceof Boolean booleanValue) {
+         return booleanValue;
+      } else if (property instanceof String string) {
+         return Boolean.parseBoolean(string);
+      } else {
+         return DEFAULT_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS;
+      }
+   }
+
+   /**
+    * (@return the drain link credit on transient delivery errors configuration}
+    */
+   public boolean isDrainOnTransientDeliveryErrors() {
+      final Object property = properties.get(RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS);
+      if (property instanceof Boolean booleanValue) {
+         return booleanValue;
+      } else if (property instanceof String string) {
+         return Boolean.parseBoolean(string);
+      } else {
+         return connection.getProtocolManager().isDrainOnTransientDeliveryErrors();
+      }
+   }
+
+   /**
+    * {@return the bridge receiver link quiesce timeout configuration}
+    */
+   public int getLinkQuiesceTimeout() {
+      final Object property = properties.get(RECEIVER_LINK_QUIESCE_TIMEOUT);
+      if (property instanceof Number number) {
+         return number.intValue();
+      } else if (property instanceof String string) {
+         return Integer.parseInt(string);
+      } else {
+         return connection.getProtocolManager().getLinkQuiesceTimeout();
       }
    }
 }

@@ -271,7 +271,7 @@ public final class AMQPBridgeConstants {
    /**
     * Default value for the auto delete address sender durable subscription binding.
     */
-   public static boolean DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION = false;
+   public static final boolean DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION = false;
 
    /**
     * Encodes a boolean value that indicates if AMQP bridge senders should configure an auto delete option
@@ -284,7 +284,7 @@ public final class AMQPBridgeConstants {
    /**
     * Default value for the auto delete address sender message count for durable subscription bindings.
     */
-   public static long DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION_MSG_COUNT = 0;
+   public static final long DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION_MSG_COUNT = 0;
 
    /**
     * Encodes a signed long value that controls the delay before auto deletion if using durable address
@@ -295,12 +295,43 @@ public final class AMQPBridgeConstants {
    /**
     * Default value for the auto delete address sender message count for durable subscription bindings.
     */
-   public static long DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION_DELAY = 0;
+   public static final long DEFAULT_AUTO_DELETE_DURABLE_SUBSCRIPTION_DELAY = 0;
 
    /**
     * Encodes a signed long value that controls the message count value that allows for address auto delete
     * if using durable address subscriptions for bridge to address senders.
     */
    public static final String AUTO_DELETE_DURABLE_SUBSCRIPTION_DELAY = "auto-delete-durable-subscription-delay";
+
+   /**
+    * Configuration property for how a bridge receiver should respond to delivery errors indicating that an address is
+    * full and cannot accept messages at this time. By default we want to send Modified outcomes with the delivery failed
+    * value set to true such that the remote will deliver the message again after incrementing the delivery count of the
+    * message.
+    */
+   public static final String USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS = "amqpUseModifiedForTransientDeliveryErrors";
+
+   /**
+    * Default value for how a bridge receiver should respond to delivery errors indicating that an address is full
+    * and cannot accept messages at this time. By default we want to send Modified outcomes with the delivery failed
+    * value set to true such that the remote will deliver the message again after incrementing the delivery count of
+    * the message. This is an opinionated choice and the value set on the connector URI is not referenced by bridges
+    * as we want to maintain this behavior unless specifically set on bridge configuration explicitly.
+    */
+   public static final boolean DEFAULT_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS = true;
+
+   /**
+    * Configuration property that defines the time in milliseconds that a receiver will wait before considering a pending
+    * quiesce timeout to have failed and should close the link. This option can be used to override the value specified on
+    * the connector URI to allow bridges to operate with a different default.
+    */
+   public static final String RECEIVER_LINK_QUIESCE_TIMEOUT = "amqpLinkQuiesceTimeout";
+
+   /**
+    * Configuration property that defines if a bridge receiver should drain the link credit when a transient delivery
+    * error such as the address being full occurs. This option can be used to override the value specified on the
+    * connector URI to allow bridges to operate with a different default.
+    */
+   public static final String RECEIVER_DRAIN_ON_TRANSIENT_DELIVERY_ERRORS = "amqpDrainOnTransientDeliveryErrors";
 
 }
