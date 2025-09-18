@@ -535,4 +535,7 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229257, value = "IDGenerator has been stopped")
    RuntimeException idGeneratorStopped();
 
+   @Message(id = 229258, value = "Invalid cluster bridge message! No queue IDs defined in the property {}")
+   ActiveMQIllegalStateException noQueueIdsDefined(SimpleString idsHeaderName);
+
 }
