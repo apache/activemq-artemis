@@ -417,7 +417,9 @@ public class SimpleAddressManager implements AddressManager {
 
    @Override
    public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
-      return addressInfoMap.remove(CompositeAddress.extractAddressName(address));
+      SimpleString realAddress = CompositeAddress.extractAddressName(address);
+      mappings.remove(realAddress);
+      return addressInfoMap.remove(realAddress);
    }
 
    @Override
