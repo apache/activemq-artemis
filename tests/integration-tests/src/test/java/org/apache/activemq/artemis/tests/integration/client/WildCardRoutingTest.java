@@ -16,10 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -34,6 +30,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class WildCardRoutingTest extends ActiveMQTestBase {
 
@@ -215,9 +215,8 @@ public class WildCardRoutingTest extends ActiveMQTestBase {
       ClientConsumer clientConsumer = clientSession.createConsumer(queueName);
       clientSession.start();
       clientSession.deleteQueue(queueName1);
-      // the wildcard binding should still exist
-      assertEquals(1, server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size());
       producer.send(createTextMessage(clientSession, "m1"));
+      assertEquals(1, server.getPostOffice().getBindingsForAddress(addressAB).getBindings().size());
       producer2.send(createTextMessage(clientSession, "m2"));
       ClientMessage m = clientConsumer.receive(500);
       assertNotNull(m);
