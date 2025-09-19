@@ -16,11 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.postoffice.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -53,13 +50,16 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
-import java.util.function.BiConsumer;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -140,6 +140,30 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       ad.removeAddressInfo(SimpleString.of("Topic1.#"));
 
       assertNull(ad.getAddressInfo(SimpleString.of("Topic1.#")));
+   }
+
+   @Test
+   public void testWildCardAddressRemovalNoExplicitBindings() throws Exception {
+      final SimpleString address = SimpleString.of(getName());
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null, null);
+
+      // add a wildcard address & binding
+      ad.addAddressInfo(new AddressInfo(SimpleString.of("#"), RoutingType.MULTICAST));
+      ad.addBinding(new BindingFake("#", RandomUtil.randomUUIDString()));
+
+      // add a non-wildcard address
+      ad.addAddressInfo(new AddressInfo(address, RoutingType.MULTICAST));
+
+      // induce the creation of an bindings object for the non-wildcard address
+      ad.getBindingsForRoutingAddress(address);
+
+      // remove the AddressInfo
+      ad.removeAddressInfo(address);
+
+      // verify everything is cleaned up
+      assertNull(ad.getAddressMap().getRootNode().getChild(address.toString()));
+      assertNull(ad.getAddressInfo(address));
+      assertNull(ad.getExistingBindingsForRoutingAddress(address));
    }
 
    @Test

@@ -45,6 +45,10 @@ public class AddressMap<T> {
       return address.getPaths(DELIMITER);
    }
 
+   public AddressPartNode<T> getRootNode() {
+      return rootNode;
+   }
+
    /**
     * @param address a non wildcard to match against wildcards in the map
     */

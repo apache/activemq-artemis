@@ -22,8 +22,10 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.BindingsFactory;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.metrics.MetricsManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 
 /**
  * extends the simple manager to allow wildcard addresses to be used.
@@ -146,5 +148,12 @@ public class WildcardAddressManager extends SimpleAddressManager {
 
    public AddressMap<Bindings> getAddressMap() {
       return addressMap;
+   }
+
+   @Override
+   public AddressInfo removeAddressInfo(SimpleString address) throws Exception {
+      SimpleString realAddress = CompositeAddress.extractAddressName(address);
+      addressMap.remove(realAddress, super.getBindingsForRoutingAddress(realAddress));
+      return super.removeAddressInfo(address);
    }
 }
