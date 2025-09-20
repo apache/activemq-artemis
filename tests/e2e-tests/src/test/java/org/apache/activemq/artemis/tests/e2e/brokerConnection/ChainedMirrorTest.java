@@ -29,6 +29,7 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.tests.e2e.common.ContainerService;
 import org.apache.activemq.artemis.tests.e2e.common.E2ETestBase;
+import org.apache.activemq.artemis.tests.e2e.common.ValidateContainer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

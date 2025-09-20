@@ -20,6 +20,9 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 === Highlights
 
 * Broker observability has improved with the new ability to export xref:metrics.adoc#executor-services[metrics for executor services] (aka thread pools).
+* The https://github.com/haproxy/haproxy/blob/master/doc/proxy-protocol.txt[PROXY Protocol] is now supported!
+This means that clients connecting through an applicable reverse proxy (e.g. HAProxy, nginx, etc.) will have the original client IP address reflected in the logs and in the web console rather than that of the proxy itself.
+More details available xref:proxy-protocol.adoc[here].
 
 === Upgrading from 2.41.0
 

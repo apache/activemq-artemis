@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.IPV6Util;
+import org.apache.activemq.artemis.utils.SocketAddressUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -387,17 +388,8 @@ public class NettyConnection implements Connection {
    }
 
    @Override
-   public final String getRemoteAddress() {
-      SocketAddress address = channel.remoteAddress();
-      if (address == null) {
-         return null;
-      }
-      String result = address.toString();
-      if (result.startsWith("/")) {
-         return result.substring(1);
-      } else {
-         return result;
-      }
+   public String getRemoteAddress() {
+      return SocketAddressUtil.toString(channel.remoteAddress());
    }
 
    @Override
@@ -477,7 +469,7 @@ public class NettyConnection implements Connection {
 
    @Override
    public final String toString() {
-      return super.toString() + "[ID=" + getID() + ", local= " + channel.localAddress() + ", remote=" + channel.remoteAddress() + "]";
+      return super.toString() + "[ID=" + getID() + ", local= " + channel.localAddress() + ", remote=" + getRemoteAddress() + "]";
    }
 
    private void closeChannel(final Channel channel, boolean inEventLoop) {

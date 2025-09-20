@@ -14,18 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.e2e.brokerConnection;
+package org.apache.activemq.artemis.tests.e2e.common;
 
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.File;
 
-import org.apache.activemq.artemis.tests.e2e.common.ContainerService;
-
 /**
  * The purpose of this class is to validate if the container and Docker (or an equivalent) is available on the
  * environment. Tests can use an assume to be ignored in case the image is not available. The test will also cache the
- * result by creating a file target/org.apache.activemq.artemis.tests.smoke.brokerConnection.ValidateContainer.ok So, we
+ * result by creating a file target/org.apache.activemq.artemis.tests.e2e.common.ValidateContainer.ok So, we
  * won't keep redoing the check during development on an IDE.
  */
 public class ValidateContainer {

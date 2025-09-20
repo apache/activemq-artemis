@@ -26,13 +26,12 @@ public class CFUtil {
    public static ConnectionFactory createConnectionFactory(String protocol, String uri) {
       if (protocol.toUpperCase().equals("OPENWIRE")) {
          return new org.apache.activemq.ActiveMQConnectionFactory(uri);
+      } else if (protocol.toUpperCase().equals("OPENWIRE_SSL")) {
+         return new org.apache.activemq.ActiveMQSslConnectionFactory(uri.replaceFirst("^tcp", "ssl"));
       } else if (protocol.toUpperCase().equals("AMQP")) {
-
-         if (uri.startsWith("tcp://")) {
-            // replacing tcp:// by amqp://
-            uri = "amqp" + uri.substring(3);
-         }
-         return new JmsConnectionFactory(uri);
+         return new JmsConnectionFactory(uri.replaceFirst("^tcp", "amqp"));
+      } else if (protocol.toUpperCase().equals("AMQPS")) {
+         return new JmsConnectionFactory(uri.replaceFirst("^tcp", "amqps"));
       } else if (protocol.toUpperCase().equals("CORE") || protocol.toUpperCase().equals("ARTEMIS")) {
          return new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory(uri);
       } else {
