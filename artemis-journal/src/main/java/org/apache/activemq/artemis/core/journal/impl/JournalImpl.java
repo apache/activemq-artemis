@@ -2688,7 +2688,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    }
 
    @Override
-   public void flush() throws Exception {
+   public void flush() throws InterruptedException {
       fileFactory.flush();
 
       flushExecutor(appendExecutor);
@@ -2858,15 +2858,20 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    }
 
    @Override
-   public synchronized void stop() throws Exception {
+   public synchronized void stop() {
       if (state == JournalState.STOPPED) {
          return;
       }
 
-      flush();
+      try {
+         flush();
+      } catch (InterruptedException e) {
+         logger.debug(e.getMessage(), e);
+         // passing the interrupt forward
+         Thread.currentThread().interrupt();
+      }
 
       setJournalState(JournalState.STOPPED);
-
 
       journalLock.writeLock().lock();
       try {
@@ -2880,8 +2885,12 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
          fileFactory.deactivateBuffer();
 
-         if (currentFile != null && currentFile.getFile().isOpen()) {
-            currentFile.getFile().close(true, true);
+         try {
+            if (currentFile != null && currentFile.getFile().isOpen()) {
+               currentFile.getFile().close(true, true);
+            }
+         } catch (Exception e) {
+            ActiveMQJournalLogger.LOGGER.errorClosingFile(e);
          }
          filesRepository.clear();
 
@@ -2899,8 +2908,14 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       if (providedIOThreadPool == null) {
          threadPool.shutdown();
 
-         if (!threadPool.awaitTermination(120, TimeUnit.SECONDS)) {
-            threadPool.shutdownNow();
+         try {
+            if (!threadPool.awaitTermination(120, TimeUnit.SECONDS)) {
+               threadPool.shutdownNow();
+            }
+         } catch (InterruptedException e) {
+            logger.debug(e.getMessage(), e);
+            // delegating exception to further interrupt
+            Thread.currentThread().interrupt();
          }
          threadPool = null;
          ioExecutorFactory = null;

@@ -151,7 +151,7 @@ public class JournalFilesRepository {
       this.openFilesExecutor = fileExecutor;
    }
 
-   public void clear() throws Exception {
+   public void clear() {
       dataFiles.clear();
 
       freeFiles.clear();
