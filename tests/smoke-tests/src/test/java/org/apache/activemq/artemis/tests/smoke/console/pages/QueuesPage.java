@@ -23,7 +23,7 @@ import org.openqa.selenium.interactions.Actions;
 
 public class QueuesPage extends ArtemisPage {
    private static final String MESSAGE_COUNT_COLUMN_NAME = "Message Count";
-   private static final By SEARCH_BUTTON_LOCATOR = By.id("table-search-button");
+   private static final By SEARCH_BUTTON_LOCATOR = By.xpath("//button[contains(text(),'Search')]");
    private static final By QUEUES_PAGE_TITLE = By.xpath("//h2[contains(text(),'Browsing')]");
 
    public QueuesPage(WebDriver driver) {
