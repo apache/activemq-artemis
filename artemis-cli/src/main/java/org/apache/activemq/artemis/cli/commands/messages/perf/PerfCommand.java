@@ -29,6 +29,7 @@ import java.util.concurrent.locks.LockSupport;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import org.apache.activemq.artemis.cli.commands.messages.DestAbstract;
+import org.apache.activemq.artemis.cli.factory.ConnectionFactoryClosable;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
@@ -75,20 +76,21 @@ public abstract class PerfCommand extends ConnectionAbstract {
          context.out.println("--tx-size is deprecated, please use --commit-interval");
          commitInterval = txSize;
       }
-      final ConnectionFactory factory = createConnectionFactory(brokerURL, user, password, null, protocol);
-      final Destination[] jmsDestinations = lookupDestinations(factory, destinations, numDestinations);
-      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-         onInterruptBenchmark();
-         try {
-            completed.await();
-         } catch (InterruptedException ignored) {
+      try (ConnectionFactoryClosable factory = createConnectionFactory(brokerURL, user, password, null, protocol)) {
+         final Destination[] jmsDestinations = lookupDestinations(factory, destinations, numDestinations);
+         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            onInterruptBenchmark();
+            try {
+               completed.await();
+            } catch (InterruptedException ignored) {
 
+            }
+         }));
+         try {
+            onExecuteBenchmark(factory, jmsDestinations, context);
+         } finally {
+            completed.countDown();
          }
-      }));
-      try {
-         onExecuteBenchmark(factory, jmsDestinations, context);
-      } finally {
-         completed.countDown();
       }
       return null;
    }
