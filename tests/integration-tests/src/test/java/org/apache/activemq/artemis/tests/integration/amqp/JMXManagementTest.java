@@ -289,7 +289,7 @@ public class JMXManagementTest extends JMSClientTestSupport {
 
          assertEquals(0, queueAControl.countMessages());
          assertEquals(0, queueBControl.countMessages());
-         assertEquals(MESSAGE_COUNT * 2, queueCControl.countMessages());
+         Wait.assertEquals(MESSAGE_COUNT * 2, () -> queueCControl.countMessages());
 
          final String originalGroup = queueCControl.countMessages(null, "_AMQ_ORIG_QUEUE");
          final String[] originalSplit = originalGroup.split(",");
