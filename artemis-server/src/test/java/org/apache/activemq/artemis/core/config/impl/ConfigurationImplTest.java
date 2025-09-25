@@ -1536,6 +1536,66 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
    }
 
    @Test
+   public void testAllAddressRemovalViaProperties() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      properties.put("addressConfigurations.\"LB.TEST\".queueConfigs.\"LB.TEST\".routingType", "ANYCAST");
+      configuration.parsePrefixedProperties(properties, null);
+
+      assertEquals(1, configuration.getAddressConfigurations().size());
+      assertEquals(1, configuration.getAddressConfigurations().get(0).getQueueConfigs().size());
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+
+      properties.clear();
+      properties.put("addressConfigurations", "-");
+      configuration.parsePrefixedProperties(properties, null);
+
+      assertEquals(0, configuration.getAddressConfigurations().size());
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+   }
+
+   @Test
+   public void testAllMapRemovalViaProperties() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+      properties.put("addressSettings.NeedToTrackExpired.expiryAddress", "important");
+      configuration.parsePrefixedProperties(properties, null);
+
+      assertEquals(1, configuration.getAddressSettings().size());
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+
+      properties.clear();
+      properties.put("addressSettings", "-");
+      configuration.parsePrefixedProperties(properties, null);
+
+      assertEquals(0, configuration.getAddressSettings().size());
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+   }
+
+   @Test
+   public void testRemovalInvalidViaProperties() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+      properties.put("HAPolicyConfiguration", "PRIMARY_ONLY");
+      configuration.parsePrefixedProperties(properties, null);
+
+      assertNotNull(configuration.getHAPolicyConfiguration());
+      assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+
+      properties.clear();
+      properties.put("HAPolicyConfiguration", "-");
+      configuration.parsePrefixedProperties(properties, null);
+      assertNotNull(configuration.getHAPolicyConfiguration());
+
+      assertEquals(0, configuration.getAddressSettings().size());
+      assertTrue(configuration.getStatus().contains("InvocationTargetException"));
+   }
+
+   @Test
    public void testRoleRemovalViaCustomRemoveProperties() throws Throwable {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
