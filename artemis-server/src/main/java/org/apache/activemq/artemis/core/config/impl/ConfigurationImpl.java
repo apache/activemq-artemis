@@ -739,7 +739,19 @@ public class ConfigurationImpl implements Configuration, Serializable {
                         throw new InvocationTargetException(e, "Can only remove named entries from collections or maps. property: " + name + ", on: " + target);
                      }
                   } else {
-                     throw new InvocationTargetException(null, "Can only remove entries from collections or maps. property: " + name + ", on: " + target);
+                     // empty the collection referenced by this property
+                     try {
+                        target = getPropertyUtils().getProperty(target, name);
+                     } catch (NoSuchMethodException e) {
+                        throw new InvocationTargetException(e, "Can only clear entries from collection or map properties that are accessible. property: " + name + ", on: " + target);
+                     }
+                     if (target instanceof Map mapToClear) {
+                        mapToClear.clear();
+                     } else if (target instanceof Collection collectionToClear) {
+                        collectionToClear.clear();
+                     } else {
+                        throw new InvocationTargetException(null, "Can only clear entries from collection or map properties. property: " + name + ", on: " + target);
+                     }
                   }
 
                   logger.trace("removed from target, bean: {}, name: {}", target.getClass(), name);
