@@ -3385,21 +3385,22 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (configurationFileRefreshPeriod > 0) {
          this.reloadManager = new ReloadManagerImpl(getScheduledPool(), executorFactory.getExecutor(), configurationFileRefreshPeriod);
 
-         if (configuration.getConfigurationUrl() != null && getScheduledPool() != null) {
-            final URL configUrl = configuration.getConfigurationUrl();
-            ReloadCallback xmlConfigReload = uri -> {
-               // ignore the argument from the callback such that we can respond
-               // to property file locations with a full reload
-               reloadConfigurationFile(configUrl);
-            };
-            reloadManager.addCallback(configUrl, xmlConfigReload);
+         final URL configUrl = configuration.getConfigurationUrl();
+         ReloadCallback fullConfigReloadCallback = uri -> {
+            // ignore the argument from the callback such that we can respond
+            // to property file locations with a full reload
+            reloadConfigurationFile(configUrl);
+         };
 
-            // watch properties and reload xml config
-            String propsLocations = configuration.resolvePropertiesSources(propertiesFileUrl);
-            if (propsLocations != null) {
-               for (String fileUrl : propsLocations.split(",")) {
-                  reloadManager.addCallback(new File(fileUrl).toURI().toURL(), xmlConfigReload);
-               }
+         if (configUrl != null) {
+            reloadManager.addCallback(configUrl, fullConfigReloadCallback);
+         }
+
+         // watch properties and reload config
+         String propsLocations = configuration.resolvePropertiesSources(propertiesFileUrl);
+         if (propsLocations != null) {
+            for (String fileUrl : propsLocations.split(",")) {
+               reloadManager.addCallback(new File(fileUrl).toURI().toURL(), fullConfigReloadCallback);
             }
          }
 
@@ -4624,9 +4625,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    private void reloadConfigurationFile(URL uri) throws Exception {
-      Configuration config = new FileConfigurationParser().parseMainConfig(uri.openStream());
-      LegacyJMSConfiguration legacyJMSConfiguration = new LegacyJMSConfiguration(config);
-      legacyJMSConfiguration.parseConfiguration(uri.openStream());
+      Configuration config = null;
+      if (uri == null) {
+         config = new ConfigurationImpl();
+      } else {
+         config = new FileConfigurationParser().parseMainConfig(uri.openStream());
+         LegacyJMSConfiguration legacyJMSConfiguration = new LegacyJMSConfiguration(config);
+         legacyJMSConfiguration.parseConfiguration(uri.openStream());
+      }
       configuration.setSecurityRoles(config.getSecurityRoles());
       configuration.setAddressSettings(config.getAddressSettings());
       configuration.setDivertConfigurations(config.getDivertConfigurations());
