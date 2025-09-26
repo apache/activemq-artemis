@@ -19,7 +19,9 @@ package org.apache.activemq.artemis.core.remoting.impl.netty;
 import java.util.Map;
 
 import io.netty.channel.Channel;
+import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
+import org.apache.activemq.artemis.utils.ProxyProtocolUtil;
 
 public class NettyServerConnection extends NettyConnection {
 
@@ -50,5 +52,45 @@ public class NettyServerConnection extends NettyConnection {
    @Override
    public String getRouter() {
       return router;
+   }
+
+   /**
+    * {@return a string representation of the remote address of this connection; if this connection was made via the
+    * proxy protocol then this will be the original address, not the proxy address}
+    */
+   @Override
+   public String getRemoteAddress() {
+      return ProxyProtocolUtil.getRemoteAddress(channel);
+   }
+
+   /**
+    * {@return if this connection is made via the proxy protocol then this will be the address of the proxy; otherwise
+    * null}
+    */
+   public String getProxyAddress() {
+      return ProxyProtocolUtil.getProxyAddress(channel);
+   }
+
+   /**
+    * {@return the version of the proxy protocol used to make the connection or null if not applicable}
+    */
+   public String getProxyProtocolVersion() {
+      return ProxyProtocolUtil.getProxyProtocolVersion(channel);
+   }
+
+   public static String getProxyAddress(Connection connection) {
+      if (connection instanceof NettyServerConnection nettyServerConnection) {
+         return nettyServerConnection.getProxyAddress();
+      } else {
+         return null;
+      }
+   }
+
+   public static String getProxyProtocolVersion(Connection connection) {
+      if (connection instanceof NettyServerConnection nettyServerConnection) {
+         return nettyServerConnection.getProxyProtocolVersion();
+      } else {
+         return null;
+      }
    }
 }

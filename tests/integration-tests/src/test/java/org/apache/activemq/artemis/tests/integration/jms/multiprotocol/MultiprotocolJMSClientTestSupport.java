@@ -290,8 +290,12 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
    }
 
    protected String getBrokerQpidJMSConnectionString() {
+      return getBrokerQpidJMSConnectionString(PORT);
+   }
+
+   protected String getBrokerQpidJMSConnectionString(int port) {
       try {
-         String uri = "amqp://127.0.0.1:" + PORT;
+         String uri = "amqp://127.0.0.1:" + port;
 
          if (!getJmsConnectionURIOptions().isEmpty()) {
             uri = uri + "?" + getJmsConnectionURIOptions();
@@ -304,8 +308,12 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
    }
 
    protected URI getBrokerQpidJMSConnectionURI() {
+      return getBrokerQpidJMSConnectionURI(PORT);
+   }
+
+   protected URI getBrokerQpidJMSConnectionURI(int port) {
       try {
-         return new URI(getBrokerQpidJMSConnectionString());
+         return new URI(getBrokerQpidJMSConnectionString(port));
       } catch (Exception e) {
          throw new RuntimeException();
       }
@@ -321,6 +329,10 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
 
    protected Connection createConnection() throws JMSException {
       return createConnection(getBrokerQpidJMSConnectionURI(), null, null, null, true);
+   }
+
+   protected Connection createConnection(int port) throws JMSException {
+      return createConnection(getBrokerQpidJMSConnectionURI(port), null, null, null, true);
    }
 
    protected Connection createFailoverConnection() throws JMSException {
@@ -362,8 +374,12 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
    }
 
    protected String getBrokerCoreJMSConnectionString() {
+      return getBrokerCoreJMSConnectionString(PORT);
+   }
+
+   protected String getBrokerCoreJMSConnectionString(int port) {
       try {
-         String uri = "tcp://127.0.0.1:" + PORT;
+         String uri = "tcp://127.0.0.1:" + port;
 
          if (!getJmsConnectionURIOptions().isEmpty()) {
             uri = uri + "?" + getJmsConnectionURIOptions();
@@ -376,7 +392,11 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
    }
 
    protected Connection createCoreConnection() throws JMSException {
-      return createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, null, true);
+      return createCoreConnection(PORT);
+   }
+
+   protected Connection createCoreConnection(int port) throws JMSException {
+      return createCoreConnection(getBrokerCoreJMSConnectionString(port), null, null, null, true);
    }
 
    protected Connection createCoreConnection(boolean start) throws JMSException {
@@ -413,8 +433,12 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
    }
 
    protected String getBrokerOpenWireJMSConnectionString() {
+      return getBrokerOpenWireJMSConnectionString(PORT);
+   }
+
+   protected String getBrokerOpenWireJMSConnectionString(int port) {
       try {
-         String uri = "tcp://127.0.0.1:" + PORT;
+         String uri = "tcp://127.0.0.1:" + port;
 
          if (!getJmsConnectionURIOptions().isEmpty()) {
             uri = uri + "?" + getJmsConnectionURIOptions();
@@ -430,6 +454,10 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
 
    protected Connection createOpenWireConnection() throws JMSException {
       return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, null, true);
+   }
+
+   protected Connection createOpenWireConnection(int port) throws JMSException {
+      return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(port), null, null, null, true);
    }
 
    protected Connection createOpenWireConnection(boolean start) throws JMSException {
@@ -466,11 +494,11 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
       return connection;
    }
 
-   interface ConnectionSupplier {
+   public interface ConnectionSupplier {
       Connection createConnection() throws JMSException;
    }
 
-   interface SecureConnectionSupplier {
+   public interface SecureConnectionSupplier {
       Connection createConnection(String username, String Password) throws JMSException;
    }
 }

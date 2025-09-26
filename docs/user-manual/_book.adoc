@@ -26,6 +26,7 @@ include::client-failover.adoc[leveloffset=1]
 include::jms-core-mapping.adoc[leveloffset=1]
 include::using-jms.adoc[leveloffset=1]
 include::pre-acknowledge.adoc[leveloffset=1]
+include::proxy-protocol.adoc[leveloffset=1]
 
 //== Upgrading
 
