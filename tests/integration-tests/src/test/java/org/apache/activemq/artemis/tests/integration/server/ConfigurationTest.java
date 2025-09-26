@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Properties;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
@@ -82,7 +83,7 @@ public class ConfigurationTest extends ActiveMQTestBase {
       propsFile.createNewFile();
 
       ConfigurationImpl.InsertionOrderedProperties config = new ConfigurationImpl.InsertionOrderedProperties();
-      config.put("configurationFileRefreshPeriod", "500");
+      config.put("configurationFileRefreshPeriod", "100");
 
       config.put("addressConfigurations.mytopic_3.routingTypes", "MULTICAST");
 
@@ -152,6 +153,55 @@ public class ConfigurationTest extends ActiveMQTestBase {
          // verify some server attributes
          assertTrue(server.getActiveMQServerControl().getStatus().contains("version"));
          assertTrue(server.getActiveMQServerControl().getStatus().contains("uptime"));
+
+      } finally {
+         try {
+            server.stop();
+         } catch (Exception e) {
+         }
+      }
+   }
+
+   @Test
+   public void testPropertiesOnlyConfigReload() throws Exception {
+
+      File propsFile = new File(getTestDirfile(), "somemore.props");
+      propsFile.createNewFile();
+
+
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+      properties.put("configurationFileRefreshPeriod", "100");
+      properties.put("persistenceEnabled", "false");
+      properties.put("connectionRouters.joe.localTargetFilter", "LF");
+
+      try (FileOutputStream outStream = new FileOutputStream(propsFile)) {
+         properties.store(outStream, null);
+      }
+      assertTrue(propsFile.exists());
+
+      FileConfiguration fc = new FileConfiguration();
+      ActiveMQJAASSecurityManager sm = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration());
+      ActiveMQServer server = addServer(new ActiveMQServerImpl(fc, sm));
+      server.setProperties(propsFile.getAbsolutePath());    // no xml config
+      try {
+
+         server.start();
+
+         assertEquals(1, server.getConfiguration().getConnectionRouters().size());
+         assertEquals("LF", server.getConfiguration().getConnectionRouters().get(0).getLocalTargetFilter());
+
+         properties.put("persistenceEnabled", "false");
+         properties.put("configurationFileRefreshPeriod", "100");
+
+         // verify update
+         properties.put("connectionRouters.joe.localTargetFilter", "UPDATED");
+         try (FileOutputStream outStream = new FileOutputStream(propsFile)) {
+            properties.store(outStream, null);
+         }
+
+         Wait.assertTrue(() -> {
+            return "UPDATED".equals(server.getConfiguration().getConnectionRouters().get(0).getLocalTargetFilter());
+         });
 
       } finally {
          try {
