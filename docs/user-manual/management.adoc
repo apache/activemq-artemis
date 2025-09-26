@@ -94,6 +94,8 @@ Since this method actually stops the server you will probably receive some sort 
 The broker's tmp dir is configured via the system property `java.io.tmpdir`. The default value, set via the launch scripts, is `$ARTEMIS_INSTANCE/tmp`.
 ====
 
+* The status of the broker, a json string, can be obtained through the `getStatus()` operation. The status includes identity, uptime, activation state and information about broker properties configuration and reload.
+
 === Address Management
 
 Individual addresses can be managed using the `AddressControl` interface.
