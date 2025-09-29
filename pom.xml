@@ -116,7 +116,7 @@
       <versions.maven.plugin.version>2.16.1</versions.maven.plugin.version>
       <maven.pmd.plugin.version>3.27.0</maven.pmd.plugin.version>
       <sevntu.checks.version>1.44.1</sevntu.checks.version>
-      <checkstyle.version>11.0.1</checkstyle.version>
+      <checkstyle.version>11.1.0</checkstyle.version>
       <mockito.version>5.20.0</mockito.version>
       <jctools.version>4.0.5</jctools.version>
       <netty.version>4.1.127.Final</netty.version>
