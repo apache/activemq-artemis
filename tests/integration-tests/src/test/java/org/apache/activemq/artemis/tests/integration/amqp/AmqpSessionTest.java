@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
@@ -32,12 +33,14 @@ import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.activemq.transport.amqp.client.AmqpValidator;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Session;
+import org.apache.qpid.protonj2.test.driver.ProtonTestClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AmqpSessionTest extends AmqpClientTestSupport {
+
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
@@ -87,7 +90,6 @@ public class AmqpSessionTest extends AmqpClientTestSupport {
       connection.close();
    }
 
-
    @Test
    @Timeout(60)
    public void testCreateSessionProducerConsumerDoesNotLeakClosable() throws Exception {
@@ -111,4 +113,64 @@ public class AmqpSessionTest extends AmqpClientTestSupport {
       connection.close();
    }
 
+   @Test
+   public void testSessionClosedOnServerEndsClientSession() throws Exception {
+      doTestSessionClosedOnServerEndsClientSession(false, false);
+   }
+
+   @Test
+   public void testSessionClosedOnServerEndsClientSessionWithFailed() throws Exception {
+      doTestSessionClosedOnServerEndsClientSession(true, false);
+   }
+
+   @Test
+   public void testSessionClosedOnServerEndsClientSessionWithFailedAndForced() throws Exception {
+      doTestSessionClosedOnServerEndsClientSession(true, true);
+   }
+
+   @Test
+   public void testSessionClosedOnServerEndsClientSessionForced() throws Exception {
+      doTestSessionClosedOnServerEndsClientSession(false, true);
+   }
+
+   public void doTestSessionClosedOnServerEndsClientSession(boolean failed, boolean forced) throws Exception {
+      try (ProtonTestClient peer = new ProtonTestClient()) {
+         peer.queueClientSaslAnonymousConnect();
+         peer.connect("localhost", AMQP_PORT);
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+
+         peer.expectOpen();
+         peer.expectBegin();
+         peer.expectAttach().ofReceiver();
+         peer.expectFlow().withLinkCredit(1000);
+
+         peer.remoteOpen().withContainerId("test-client").now();
+         peer.remoteBegin().now();
+         peer.remoteAttach().ofSender()
+                            .withInitialDeliveryCount(0)
+                            .withName("client-link")
+                            .withSource().withAddress(getTestName())
+                                         .withCapabilities("queue").also()
+                            .withTarget().also()
+                            .now();
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectEnd().respond(); // Server signals client of session close.
+
+         assertEquals(1, server.getSessions().size());
+
+         final ServerSession session = server.getSessions().iterator().next();
+
+         assertNotNull(session);
+
+         session.close(failed, forced); // Should trigger End frame.
+
+         assertEquals(0, server.getSessions().size());
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+         peer.expectClose();
+         peer.remoteClose().now();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
 }

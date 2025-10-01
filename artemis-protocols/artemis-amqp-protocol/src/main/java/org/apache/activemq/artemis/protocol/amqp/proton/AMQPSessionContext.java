@@ -181,6 +181,20 @@ public class AMQPSessionContext extends ProtonInitializable {
          logger.warn(e.getMessage(), e);
       }
       closed = true;
+
+      connection.runNow(() -> {
+         // Only close proactively if the connection and session are active to avoid introducing
+         // changes in behaviors around normal remote close and some other local close pathways
+         // that can trip over themselves if this closes a session on a closed connection before
+         // a flush of the engine.
+         if (session.getConnection().getLocalState() == EndpointState.ACTIVE && session.getLocalState() == EndpointState.ACTIVE) {
+            try {
+               session.close();
+            } finally {
+               connection.flush();
+            }
+         }
+      });
    }
 
    public void removeReceiver(Receiver receiver) {
