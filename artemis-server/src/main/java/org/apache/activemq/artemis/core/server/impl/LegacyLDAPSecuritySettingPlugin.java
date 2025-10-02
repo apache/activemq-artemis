@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
@@ -52,9 +53,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.activemq.artemis.core.config.WildcardConfiguration.DEFAULT_WILDCARD_CONFIGURATION;
+
 public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   private static final WildcardConfiguration OPENWIRE_WILDCARD = new WildcardConfiguration().setDelimiter('.').setAnyWords('>').setSingleWord('*');
 
    private static final long serialVersionUID = 4793109879399750045L;
 
@@ -74,6 +79,9 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    public static final String REFRESH_INTERVAL = "refreshInterval";
    public static final String MAP_ADMIN_TO_MANAGE = "mapAdminToManage";
    public static final String ALLOW_QUEUE_ADMIN_ON_READ = "allowQueueAdminOnRead";
+   public static final String ANY_WORDS_WILDCARD_CONVERSION = "anyWordsWildcardConversion";
+   public static final String SINGLE_WORD_WILDCARD_CONVERSION = "singleWordWildcardConversion";
+   public static final String DELIMITER_WILDCARD_CONVERSION = "delimiterWildcardConversion";
 
    private String initialContextFactory = "com.sun.jndi.ldap.LdapCtxFactory";
    private String connectionURL = "ldap://localhost:1024";
@@ -91,6 +99,10 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    private int refreshInterval = 0;
    private boolean mapAdminToManage = false;
    private boolean allowQueueAdminOnRead = false;
+   private WildcardConfiguration wildcardConfiguration = new WildcardConfiguration()
+      .setAnyWords(DEFAULT_WILDCARD_CONFIGURATION.getAnyWords())
+      .setSingleWord(DEFAULT_WILDCARD_CONFIGURATION.getSingleWord())
+      .setDelimiter(DEFAULT_WILDCARD_CONFIGURATION.getDelimiter());
 
    private DirContext context;
    private EventDirContext eventContext;
@@ -118,6 +130,9 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          refreshInterval = Integer.parseInt(getOption(options, REFRESH_INTERVAL, Integer.valueOf(refreshInterval).toString()));
          mapAdminToManage = getOption(options, MAP_ADMIN_TO_MANAGE, Boolean.FALSE.toString()).equalsIgnoreCase(Boolean.TRUE.toString());
          allowQueueAdminOnRead = getOption(options, ALLOW_QUEUE_ADMIN_ON_READ, Boolean.FALSE.toString()).equalsIgnoreCase(Boolean.TRUE.toString());
+         wildcardConfiguration.setAnyWords(getCharOption(options, ANY_WORDS_WILDCARD_CONVERSION, String.valueOf(DEFAULT_WILDCARD_CONFIGURATION.getAnyWords())));
+         wildcardConfiguration.setSingleWord(getCharOption(options, SINGLE_WORD_WILDCARD_CONVERSION, String.valueOf(DEFAULT_WILDCARD_CONFIGURATION.getSingleWord())));
+         wildcardConfiguration.setDelimiter(getCharOption(options, DELIMITER_WILDCARD_CONVERSION, String.valueOf(DEFAULT_WILDCARD_CONFIGURATION.getDelimiter())));
       }
 
       if (refreshInterval > 0) {
@@ -136,6 +151,14 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       }
 
       return this;
+   }
+
+   private char getCharOption(Map<String, String> options, String key, String defaultValue) {
+      String result = getOption(options, key, defaultValue);
+      if (result.length() != 1) {
+         throw new IllegalArgumentException("Value for " + key + " is longer than 1 character: " + result);
+      }
+      return result.charAt(0);
    }
 
    private String getOption(Map<String, String> options, String key, String defaultValue) {
@@ -264,6 +287,15 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       return this;
    }
 
+   public int getRefreshInterval() {
+      return refreshInterval;
+   }
+
+   public LegacyLDAPSecuritySettingPlugin setRefreshInterval(int refreshInterval) {
+      this.refreshInterval = refreshInterval;
+      return this;
+   }
+
    public boolean isMapAdminToManage() {
       return mapAdminToManage;
    }
@@ -279,6 +311,33 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
 
    public LegacyLDAPSecuritySettingPlugin setAllowQueueAdminOnRead(boolean allowQueueAdminOnRead) {
       this.allowQueueAdminOnRead = allowQueueAdminOnRead;
+      return this;
+   }
+
+   public char getAnyWordsWildcardConversion() {
+      return this.wildcardConfiguration.getAnyWords();
+   }
+
+   public LegacyLDAPSecuritySettingPlugin setAnyWordsWildcardConversion(char anyWordsWildcardConversion) {
+      this.wildcardConfiguration.setAnyWords(anyWordsWildcardConversion);
+      return this;
+   }
+
+   public char getSingleWordWildcardConversion() {
+      return this.wildcardConfiguration.getSingleWord();
+   }
+
+   public LegacyLDAPSecuritySettingPlugin setSingleWordWildcardConversion(char singleWordWildcardConversion) {
+      this.wildcardConfiguration.setSingleWord(singleWordWildcardConversion);
+      return this;
+   }
+
+   public char getDelimiterWildcardConversion() {
+      return this.wildcardConfiguration.getDelimiter();
+   }
+
+   public LegacyLDAPSecuritySettingPlugin setDelimiterWildcardConversion(char delimiterWildcardConversion) {
+      this.wildcardConfiguration.setDelimiter(delimiterWildcardConversion);
       return this;
    }
 
@@ -415,7 +474,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       if (prepareDebugLog) {
          logMessage.append("\n\tDestination name: ").append(rdn.getValue());
       }
-      String destination = rdn.getValue().toString();
+      String destination = convertDestinationWildcards(rdn.getValue().toString());
 
       rdn = rdns.get(rdns.size() - 1);
       if (prepareDebugLog) {
@@ -480,6 +539,14 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       if (!exists) {
          securityRoles.put(destination, roles);
       }
+   }
+
+   private String convertDestinationWildcards(String destination) {
+      // Convert the OpenWire wildcard syntax to the corresponding Artemis syntax
+      destination = OPENWIRE_WILDCARD.convert(destination, wildcardConfiguration);
+      // The '$' character was used previously in LDAP entries to represent the '>' character
+      destination = destination.replace('$', wildcardConfiguration.getAnyWords());
+      return destination;
    }
 
    @Override
