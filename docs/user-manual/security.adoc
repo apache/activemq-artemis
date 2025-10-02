@@ -349,6 +349,21 @@ Whether or not to map the legacy `read` permission to the `createDurableQueue`, 
 This was allowed in ActiveMQ Classic.
 The default value is `false`.
 
+anyWordsWildcardConversion::
+This is a 1-character value that should match the `any-words` xref:wildcard-syntax.adoc#customizing-the-syntax[wildcard syntax] setting defined for the broker.
+The plugin will translate any `<` or `$` character to this value in an LDAP entry defining a destination name.
+The default value is `#`.
+
+singleWordWildcardConversion::
+This is a 1-character value that should match the `single-word` xref:wildcard-syntax.adoc#customizing-the-syntax[wildcard syntax] setting defined for the broker.
+The plugin will translate any `\*` character to this value in an LDAP entry defining a destination name.
+The default value is `*`.
+
+delimiterWildcardConversion::
+This is a 1-character value that should match the `delimiter` xref:wildcard-syntax.adoc#customizing-the-syntax[wildcard syntax] setting defined for the broker.
+The plugin will translate any `.` character to this value in an LDAP entry defining a destination name.
+The default value is `.`.
+
 The name of the queue or topic defined in LDAP will serve as the "match" for the security-setting, the permission value will be mapped from the ActiveMQ Classic type to the Artemis type, and the role will be mapped as-is.
 
 ActiveMQ Classic only has 3 permission types - `read`, `write`, and `admin`.
