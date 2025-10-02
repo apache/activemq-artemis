@@ -924,4 +924,18 @@ public class MQTT5Test extends MQTT5TestSupport {
       producer.connect();
       assertEquals(2, server.getActiveMQServerControl().getSessionCount());
    }
+
+   @Test
+   @Timeout(DEFAULT_TIMEOUT_SEC)
+   public void testSubscriptionQueueRoutingType() throws Exception {
+      String topic = getName();
+      String clientID = "myClientId";
+      server.getAddressSettingsRepository().addMatch(topic, new AddressSettings().setDefaultQueueRoutingType(RoutingType.ANYCAST));
+
+      MqttClient subscriber = createPahoClient(clientID);
+      subscriber.connect();
+      subscriber.subscribe(topic, AT_LEAST_ONCE);
+      // ensure the subscription queue uses multicast even though the default is anycast
+      assertEquals(RoutingType.MULTICAST, getSubscriptionQueue(topic, clientID).getRoutingType());
+   }
 }
