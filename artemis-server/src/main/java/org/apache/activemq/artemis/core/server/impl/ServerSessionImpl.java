@@ -108,6 +108,7 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
+import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.apache.activemq.artemis.utils.runnables.RunnableList;
 import org.slf4j.Logger;
@@ -116,9 +117,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Server side Session implementation
  */
-public class ServerSessionImpl implements ServerSession, FailureListener {
+public class ServerSessionImpl extends CriticalComponentImpl implements ServerSession, FailureListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   private static final int CRITICAL_PATH_CLOSE = 0;
 
    private boolean securityEnabled = true;
 
@@ -202,6 +205,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    // server. Both the request and failure listener will
    // try to close one session from different threads
    // concurrently.
+   private volatile boolean closing = false;
+
+   // When the doClose is called, we will make it actually closed
    private volatile boolean closed = false;
 
    private boolean prefixEnabled = false;
@@ -237,6 +243,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final Map<SimpleString, RoutingType> prefixes,
                             final String securityDomain,
                             boolean isLegacyProducer) throws Exception {
+      super(server.getCriticalAnalyzer(), 1);
+
       this.username = username;
 
       this.password = password;
@@ -339,7 +347,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public boolean isClosed() {
-      return closed;
+      return closing;
    }
 
    @Override
@@ -404,6 +412,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          callback.close(failed);
       }
       synchronized (this) {
+         if (closed) {
+            return;
+         }
+         closed = true;
          if (server.hasBrokerSessionPlugins()) {
             server.callBrokerSessionPlugins(plugin -> plugin.beforeCloseSession(this, failed));
          }
@@ -609,7 +621,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       ServerConsumer consumer;
       synchronized (this) {
-         if (closed) {
+         if (closing) {
             throw ActiveMQMessageBundle.BUNDLE.cannotCreateConsumerOnClosedSession(queueName);
          }
          consumer = new ServerConsumerImpl(consumerID, this, (QueueBinding) binding, filter, priority, started, browseOnly, storageManager, callback, preAcknowledge, strictUpdateDeliveryCount, managementService, supportLargeMessage, credits, server);
@@ -1777,35 +1789,45 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    @Override
    public void close(final boolean failed, final boolean force) {
       synchronized (this) {
-         if (closed) {
+         if (closing) {
             return;
          }
-         closed = true;
+         closing = true;
       }
 
       if (force) {
          context.reset();
       }
 
+      // We only add the session as component on the critical analyzer
+      // while the close is happening between the user's thread and the context's thread.
+      // Once finishClose is called to complete the operation, leaveCritical is called
+      // and the session is removed from the component's list on the critical analyzer.
+      enterCritical(CRITICAL_PATH_CLOSE);
+      getCriticalAnalyzer().add(this);
+
       context.executeOnCompletion(new IOCallback() {
          @Override
          public void onError(int errorCode, String errorMessage) {
-            callDoClose();
+            finishClose(failed);
          }
 
          @Override
          public void done() {
-            callDoClose();
-         }
-
-         private void callDoClose() {
-            try {
-               doClose(failed);
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorClosingSession(e);
-            }
+            finishClose(failed);
          }
       });
+   }
+
+   private void finishClose(boolean failed) {
+      try {
+         doClose(failed);
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.errorClosingSession(e);
+      } finally {
+         leaveCritical(CRITICAL_PATH_CLOSE);
+         getCriticalAnalyzer().remove(this);
+      }
    }
 
    @Override
@@ -2192,6 +2214,30 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    @Override
    public String toString() {
       StringBuilder sb = new StringBuilder();
+      try {
+         long txID;
+         if (tx != null) {
+            txID = tx.getID();
+         } else {
+            txID = -1L;
+         }
+         sb.append("name=").append(name).append(",");
+         sb.append("consumers=").append(consumers.size()).append(",");
+         sb.append("txID=").append(txID).append(",");
+         sb.append("remotingConnection=").append(remotingConnection);
+      } catch (Throwable justLogit) {
+         logger.debug(justLogit.getMessage(), justLogit);
+      }
+
+      insertMetadata(sb);
+
+      // This will actually appear on some management operations
+      // so please don't clog this with debug objects
+      // unless you provide a special way for management to translate sessions
+      return "ServerSessionImpl(" + sb + ")";
+   }
+
+   private void insertMetadata(StringBuilder sb) {
       if (this.metaData != null) {
          for (Map.Entry<String, String> value : metaData.entrySet()) {
             if (!sb.isEmpty()) {
@@ -2205,14 +2251,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             }
          }
       }
-      // This will actually appear on some management operations
-      // so please don't clog this with debug objects
-      // unless you provide a special way for management to translate sessions
-      return "ServerSessionImpl(" + sb.toString() + ")";
    }
-
-   // FailureListener implementation
-   // --------------------------------------------------------------------
 
    @Override
    public void connectionFailed(final ActiveMQException me, boolean failedOver) {
@@ -2220,7 +2259,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
        * This can be invoked from Netty (via channelInactive) when the connection has already been closed causing
        * spurious logging about clearing up resources for failed client connections.
        */
-      if (closed)
+      if (closing)
          return;
 
       try {

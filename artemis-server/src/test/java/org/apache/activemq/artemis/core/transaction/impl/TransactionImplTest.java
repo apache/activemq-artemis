@@ -333,11 +333,6 @@ public class TransactionImplTest extends ServerTestBase {
       }
 
       @Override
-      public void lineUpContext() {
-
-      }
-
-      @Override
       public AbstractPersistedAddressSetting recoverAddressSettings(SimpleString address) {
          return null;
       }

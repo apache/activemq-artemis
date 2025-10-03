@@ -346,11 +346,6 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
-      public void lineUpContext() {
-         manager.lineUpContext();
-      }
-
-      @Override
       public OperationContext newContext(Executor executor) {
          return manager.newContext(executor);
       }

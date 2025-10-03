@@ -18,18 +18,26 @@ package org.apache.activemq.artemis.tests.performance.journal;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.Journal;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
@@ -81,6 +89,109 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       startJournal();
       loadAndCheck();
 
+   }
+
+   @Test
+   public void testCommitOnError() throws Exception {
+      ExecutorService executorService = Executors.newSingleThreadExecutor();
+      runAfter(executorService::shutdownNow);
+      setup(10, 10 * 1024 * 1024, true);
+      createJournal();
+      startJournal();
+      load();
+      addTx(1, 1L);
+      ((JournalImpl)journal).markTXError(1, new Exception("test"));
+      OperationContextImpl context = new OperationContextImpl(executorService);
+      Assertions.assertThrows(Exception.class, () -> {
+         journal.appendCommitRecord(1, true, context, true);
+      });
+      CountDownLatch latch  = new CountDownLatch(1);
+      context.executeOnCompletion(new IOCompletion() {
+         @Override
+         public void storeLineUp() {
+
+         }
+
+         @Override
+         public void done() {
+            latch.countDown();
+         }
+
+         @Override
+         public void onError(int errorCode, String errorMessage) {
+
+         }
+      });
+
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
+   }
+
+
+   @Test
+   public void testBiggerRecordTX() throws Exception {
+      ExecutorService executorService = Executors.newSingleThreadExecutor();
+      runAfter(executorService::shutdownNow);
+      setup(10, 10 * 1024 * 1024, true);
+      createJournal();
+      startJournal();
+      load();
+      OperationContextImpl context = new OperationContextImpl(executorService);
+      Assertions.assertThrows(Exception.class, () -> {
+         addTxWithSize(1024 * 1024, 1, 1);
+      });
+      CountDownLatch latch  = new CountDownLatch(1);
+      context.executeOnCompletion(new IOCompletion() {
+         @Override
+         public void storeLineUp() {
+
+         }
+
+         @Override
+         public void done() {
+            latch.countDown();
+         }
+
+         @Override
+         public void onError(int errorCode, String errorMessage) {
+
+         }
+      });
+
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
+   }
+
+
+   @Test
+   public void testBiggerRecord() throws Exception {
+      ExecutorService executorService = Executors.newSingleThreadExecutor();
+      runAfter(executorService::shutdownNow);
+      setup(10, 10 * 1024 * 1024, true);
+      createJournal();
+      startJournal();
+      load();
+      OperationContextImpl context = new OperationContextImpl(executorService);
+      Assertions.assertThrows(Exception.class, () -> {
+         addWithSize(1024 * 1024, context, 1, 1);
+      });
+      CountDownLatch latch  = new CountDownLatch(1);
+      context.executeOnCompletion(new IOCompletion() {
+         @Override
+         public void storeLineUp() {
+
+         }
+
+         @Override
+         public void done() {
+            latch.countDown();
+         }
+
+         @Override
+         public void onError(int errorCode, String errorMessage) {
+            new Exception("errorCode=" + errorCode).printStackTrace();
+         }
+      });
+
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
    }
 
    @Test
