@@ -25,6 +25,7 @@ import org.jgroups.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class wraps a JChannel with a reference counter. The reference counter controls the life of the JChannel. When
@@ -35,14 +36,13 @@ public class JChannelWrapper {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private boolean connected = false;
-   int refCount = 1;
+   AtomicInteger refCount = new AtomicInteger(1);
    final JChannel channel;
    final String channelName;
    final List<JGroupsReceiver> receivers = new ArrayList<>();
    private final JChannelManager manager;
 
    public JChannelWrapper(JChannelManager manager, final String channelName, JChannel channel) throws Exception {
-      this.refCount = 1;
       this.channelName = channelName;
       this.channel = channel;
       this.manager = manager;
@@ -81,16 +81,8 @@ public class JChannelWrapper {
       return channelName;
    }
 
-   public synchronized void close(boolean closeWrappedChannel) {
-      refCount--;
-      if (logger.isTraceEnabled())
-         logger.trace("{}::RefCount-- {} on channel {}", this, refCount, channelName, new Exception("Trace"));
-      if (refCount == 0) {
-         if (closeWrappedChannel) {
-            closeChannel();
-         }
-         manager.removeChannel(channelName);
-      }
+   public void close(boolean closeWrappedChannel) {
+      manager.closeWrapper(this, closeWrappedChannel);
    }
 
    public synchronized void closeChannel() {
@@ -147,17 +139,25 @@ public class JChannelWrapper {
    }
 
    public JChannelWrapper addRef() {
-      this.refCount++;
+      final int count = refCount.incrementAndGet();
       if (logger.isTraceEnabled()) {
-         logger.trace("{}::RefCount++ = {} on channel {}", this, refCount, channelName);
+         logger.trace("{}::RefCount++ = {} on channel {}", this, count, channelName);
       }
       return this;
+   }
+
+   public int decRef() {
+      final int count = refCount.decrementAndGet();
+      if (logger.isTraceEnabled()) {
+         logger.trace("{}::RefCount-- {} on channel {}", this, count, channelName, new Exception("Trace"));
+      }
+      return count;
    }
 
    @Override
    public String toString() {
       return super.toString() +
-         "{refCount=" + refCount +
+         "{refCount=" + refCount.get() +
          ", channel=" + channel +
          ", channelName='" + channelName + '\'' +
          ", connected=" + connected +

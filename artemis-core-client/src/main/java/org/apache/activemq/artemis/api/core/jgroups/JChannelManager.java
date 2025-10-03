@@ -85,4 +85,12 @@ public class JChannelManager {
       channels.remove(channelName);
    }
 
+   public synchronized void closeWrapper(JChannelWrapper wrapper, boolean closeWrappedChannel) {
+      if (wrapper.decRef() == 0) {
+         if (closeWrappedChannel) {
+            wrapper.closeChannel();
+         }
+         removeChannel(wrapper.getChannelName());
+      }
+   }
 }
