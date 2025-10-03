@@ -32,6 +32,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.Closeable;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -107,6 +109,7 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
+import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.apache.activemq.artemis.utils.runnables.RunnableList;
@@ -119,6 +122,9 @@ import org.slf4j.LoggerFactory;
 public class ServerSessionImpl implements ServerSession, FailureListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   // TODO: how to configure this?
+   private int timeoutSessionClose = 5;
 
    private boolean securityEnabled = true;
 
@@ -1787,25 +1793,32 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          context.reset();
       }
 
+      final ScheduledFuture<?> scheduledFuture = server.getScheduledPool().schedule(() -> {
+         callDoClose(failed);
+         logger.warn(ThreadDumpUtil.threadDump("Timed out closing session"));
+      }, timeoutSessionClose, TimeUnit.SECONDS);
+
       context.executeOnCompletion(new IOCallback() {
          @Override
          public void onError(int errorCode, String errorMessage) {
-            callDoClose();
+            scheduledFuture.cancel(true);
+            callDoClose(failed);
          }
 
          @Override
          public void done() {
-            callDoClose();
-         }
-
-         private void callDoClose() {
-            try {
-               doClose(failed);
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorClosingSession(e);
-            }
+            scheduledFuture.cancel(true);
+            callDoClose(failed);
          }
       });
+   }
+
+   private void callDoClose(boolean failed) {
+      try {
+         doClose(failed);
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.errorClosingSession(e);
+      }
    }
 
    @Override
