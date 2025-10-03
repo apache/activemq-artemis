@@ -67,9 +67,8 @@ import org.apache.activemq.openwire.OpenWireFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil.OPENWIRE_WILDCARD;
-
 public class AMQSession implements SessionCallback {
+
    private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // ConsumerID is generated inside the session, 0, 1, 2, ... as many consumers as you have on the session
@@ -142,12 +141,10 @@ public class AMQSession implements SessionCallback {
 
    }
 
-
    @Override
    public boolean supportsDirectDelivery() {
       return false;
    }
-
 
    @Override
    public boolean updateDeliveryCountAfterCancel(ServerConsumer consumer, MessageReference ref, boolean failed) {
@@ -174,7 +171,7 @@ public class AMQSession implements SessionCallback {
 
       for (ActiveMQDestination openWireDest : dests) {
          boolean isInternalAddress = false;
-         if (AdvisorySupport.isAdvisoryTopic(dest)) {
+         if (AdvisorySupport.isAdvisoryTopic(openWireDest)) {
             if (!connection.isSuppportAdvisory()) {
                continue;
             }
@@ -182,8 +179,8 @@ public class AMQSession implements SessionCallback {
          }
          if (openWireDest.isQueue()) {
             openWireDest = protocolManager.virtualTopicConsumerToFQQN(openWireDest);
-            SimpleString queueName = SimpleString.of(convertWildcard(openWireDest));
-
+            final String consumeName = OpenWireUtil.toCoreConsumePattern(openWireDest, server);
+            final SimpleString queueName = SimpleString.of(consumeName);
             if (!checkAutoCreateQueue(queueName, openWireDest.isTemporary(), OpenWireUtil.extractFilterStringOrNull(info, openWireDest))) {
                throw new InvalidDestinationException("Destination doesn't exist: " + queueName);
             }
@@ -364,8 +361,10 @@ public class AMQSession implements SessionCallback {
       messageSend.setBrokerInTime(System.currentTimeMillis());
 
       final ActiveMQDestination destination = messageSend.getDestination();
+      final ActiveMQDestination producerDestination = producerInfo.getDestination();
+      final ActiveMQDestination effectiveDestination = (destination != null) ? destination : producerDestination;
 
-      if (producerInfo.getDestination() == null) {
+      if (producerDestination == null) {
          // a named producer will have its target destination checked on create but an
          // anonymous producer can send to different addresses on each send so we need to
          // check here before going into message conversion and pre-dispatch stages before
@@ -375,9 +374,9 @@ public class AMQSession implements SessionCallback {
 
       final ActiveMQDestination[] actualDestinations;
       final int actualDestinationsCount;
-      if (destination.isComposite()) {
-         actualDestinations = destination.getCompositeDestinations();
-         messageSend.setOriginalDestination(destination);
+      if (effectiveDestination.isComposite()) {
+         actualDestinations = effectiveDestination.getCompositeDestinations();
+         messageSend.setOriginalDestination(effectiveDestination);
          actualDestinationsCount = actualDestinations.length;
       } else {
          actualDestinations = null;
@@ -408,15 +407,15 @@ public class AMQSession implements SessionCallback {
       }
 
       for (int i = 0; i < actualDestinationsCount; i++) {
-         final ActiveMQDestination dest = actualDestinations != null ? actualDestinations[i] : destination;
-         final String physicalName = dest.getPhysicalName();
-         final SimpleString address = SimpleString.of(physicalName, coreMessageObjectPools.getAddressStringSimpleStringPool());
+         final ActiveMQDestination dest = (actualDestinations != null) ? actualDestinations[i] : effectiveDestination;
+         final String normalizedName = OpenWireUtil.toCoreProduceAddress(dest);
+         final SimpleString address = SimpleString.of(normalizedName, coreMessageObjectPools.getAddressStringSimpleStringPool());
          //the last coreMsg could be directly the original one -> it avoid 1 copy if actualDestinations > 1 and ANY copy if actualDestinations == 1
          final org.apache.activemq.artemis.api.core.Message coreMsg = (i == actualDestinationsCount - 1) ? originalCoreMsg : originalCoreMsg.copy();
          coreMsg.setAddress(address);
 
          if (dest.isQueue()) {
-            checkCachedExistingQueues(address, physicalName, dest.isTemporary());
+            checkCachedExistingQueues(address, normalizedName, dest.isTemporary());
             coreMsg.setRoutingType(RoutingType.ANYCAST);
          } else {
             coreMsg.setRoutingType(RoutingType.MULTICAST);
@@ -446,7 +445,6 @@ public class AMQSession implements SessionCallback {
          }
       }
    }
-
    private void sendShouldBlockProducer(final ProducerInfo producerInfo,
                                         final Message messageSend,
                                         final boolean sendProducerAck,
@@ -529,14 +527,6 @@ public class AMQSession implements SessionCallback {
 
    private void blockConnection() {
       connection.blockConnection();
-   }
-
-   public String convertWildcard(ActiveMQDestination openWireDest) {
-      if (openWireDest.isTemporary() || AdvisorySupport.isAdvisoryTopic(openWireDest)) {
-         return openWireDest.getPhysicalName();
-      } else {
-         return OPENWIRE_WILDCARD.convert(openWireDest.getPhysicalName(), server.getConfiguration().getWildcardConfiguration());
-      }
    }
 
    public ServerSession getCoreSession() {
