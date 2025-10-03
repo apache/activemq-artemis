@@ -30,7 +30,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
@@ -68,6 +71,7 @@ import io.netty.buffer.Unpooled;
 public class AMQPTunneledCoreLargeMessageWriterTest {
 
    private static final byte DATA_DESCRIPTOR = 0x75;
+   private final int SMALL_OUTGOING_FRAME_SIZE_LIMIT = 2048;
 
    @Mock
    ProtonServerSenderContext serverSender;
@@ -264,6 +268,187 @@ public class AMQPTunneledCoreLargeMessageWriterTest {
       verify(protonSender, atLeastOnce()).getLocalState();
       verify(protonSender, atLeastOnce()).send(any(ReadableBuffer.class));
 
+      assertTrue(encodedByteBuf.isReadable());
+      assertEquals(expectedEncoding.readableBytes(), encodedByteBuf.readableBytes());
+      assertEquals(expectedEncoding, encodedByteBuf);
+
+      verifyNoMoreInteractions(message);
+      verifyNoMoreInteractions(reference);
+      verifyNoMoreInteractions(protonDelivery);
+   }
+
+   @Test
+   public void testMessageEncodingWrittenToDeliveryWithDeliveryAnnotationsThatExceedFrameSize() throws Exception {
+      when(protonTransport.getOutboundFrameSizeLimit()).thenReturn(SMALL_OUTGOING_FRAME_SIZE_LIMIT);
+
+      final byte[] headersBytes = new byte[4];
+
+      headersBytes[0] = 4;
+      headersBytes[1] = 5;
+      headersBytes[2] = 6;
+      headersBytes[3] = 7;
+
+      final byte[] payloadBytes = new byte[4];
+
+      payloadBytes[0] = 1;
+      payloadBytes[1] = 2;
+      payloadBytes[2] = 3;
+      payloadBytes[3] = 4;
+
+      final DeliveryAnnotations annotations = new DeliveryAnnotations(new HashMap<>());
+
+      annotations.getValue().put(Symbol.valueOf("a"), "a".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+      annotations.getValue().put(Symbol.valueOf("b"), "b".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+      annotations.getValue().put(Symbol.valueOf("c"), "c".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+      annotations.getValue().put(Symbol.valueOf("d"), "d".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+      annotations.getValue().put(Symbol.valueOf("e"), "e".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+
+      doTestMessageEncodingForTunneledCoreLargeMessageAcrossFrames(annotations, headersBytes, payloadBytes);
+   }
+
+   @Test
+   public void testMessageEncodingWrittenToDeliveryWithCoreHeaderEncodingThatExceedsFrameSize() throws Exception {
+      when(protonTransport.getOutboundFrameSizeLimit()).thenReturn(SMALL_OUTGOING_FRAME_SIZE_LIMIT);
+
+      final byte[] headersBytes = "AA".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT + 1).getBytes(StandardCharsets.US_ASCII);
+      final byte[] payloadBytes = new byte[4];
+
+      payloadBytes[0] = 1;
+      payloadBytes[1] = 2;
+      payloadBytes[2] = 3;
+      payloadBytes[3] = 4;
+
+      final DeliveryAnnotations annotations = new DeliveryAnnotations(new HashMap<>());
+
+      annotations.getValue().put(Symbol.valueOf("a"), "a");
+      annotations.getValue().put(Symbol.valueOf("b"), "b");
+      annotations.getValue().put(Symbol.valueOf("c"), "c");
+      annotations.getValue().put(Symbol.valueOf("d"), "d");
+      annotations.getValue().put(Symbol.valueOf("e"), "e");
+
+      doTestMessageEncodingForTunneledCoreLargeMessageAcrossFrames(annotations, headersBytes, payloadBytes);
+   }
+
+   @Test
+   public void testMessageEncodingWrittenToDeliveryWithBothDAandCoreHeadersExceedingFrameSize() throws Exception {
+      when(protonTransport.getOutboundFrameSizeLimit()).thenReturn(SMALL_OUTGOING_FRAME_SIZE_LIMIT);
+
+      final byte[] headersBytes = "AA".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT).getBytes(StandardCharsets.US_ASCII);
+      final byte[] payloadBytes = new byte[4];
+
+      payloadBytes[0] = 1;
+      payloadBytes[1] = 2;
+      payloadBytes[2] = 3;
+      payloadBytes[3] = 4;
+
+      final DeliveryAnnotations annotations = new DeliveryAnnotations(new HashMap<>());
+
+      annotations.getValue().put(Symbol.valueOf("a"), "a".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+      annotations.getValue().put(Symbol.valueOf("b"), "b".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+      annotations.getValue().put(Symbol.valueOf("c"), "c".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+      annotations.getValue().put(Symbol.valueOf("d"), "d".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+      annotations.getValue().put(Symbol.valueOf("e"), "e".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+
+      doTestMessageEncodingForTunneledCoreLargeMessageAcrossFrames(annotations, headersBytes, payloadBytes);
+   }
+
+   @Test
+   public void testMessageEncodingWrittenToDeliveryWithAllSectionsExceedFrameSize() throws Exception {
+      when(protonTransport.getOutboundFrameSizeLimit()).thenReturn(SMALL_OUTGOING_FRAME_SIZE_LIMIT);
+
+      final byte[] headersBytes = "AA".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT).getBytes(StandardCharsets.US_ASCII);
+      final byte[] payloadBytes = "BB".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT).getBytes(StandardCharsets.US_ASCII);
+      final DeliveryAnnotations annotations = new DeliveryAnnotations(new HashMap<>());
+
+      annotations.getValue().put(Symbol.valueOf("a"), "a".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+      annotations.getValue().put(Symbol.valueOf("b"), "b".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+      annotations.getValue().put(Symbol.valueOf("c"), "c".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+      annotations.getValue().put(Symbol.valueOf("d"), "d".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+      annotations.getValue().put(Symbol.valueOf("e"), "e".repeat(SMALL_OUTGOING_FRAME_SIZE_LIMIT));
+
+      doTestMessageEncodingForTunneledCoreLargeMessageAcrossFrames(annotations, headersBytes, payloadBytes);
+   }
+
+   private void doTestMessageEncodingForTunneledCoreLargeMessageAcrossFrames(DeliveryAnnotations annotations, byte[] headersBytes, byte[] payloadBytes) throws Exception {
+      assertEquals(protonTransport.getOutboundFrameSizeLimit(), SMALL_OUTGOING_FRAME_SIZE_LIMIT);
+
+      AMQPTunneledCoreLargeMessageWriter writer = new AMQPTunneledCoreLargeMessageWriter(serverSender);
+
+      writer.open(Mockito.mock(MessageReference.class));
+
+      final ByteBuf expectedEncoding = Unpooled.buffer();
+      final AtomicInteger payloadReaderPosition = new AtomicInteger();
+
+      writeDeliveryAnnotations(expectedEncoding, annotations);
+
+      when(reference.getProtocolData(any())).thenReturn(annotations);
+
+      writeDataSection(expectedEncoding, headersBytes);
+      writeDataSection(expectedEncoding, payloadBytes);
+
+      when(protonSender.getLocalState()).thenReturn(EndpointState.ACTIVE);
+      when(protonDelivery.isPartial()).thenReturn(true);
+      when(message.getHeadersAndPropertiesEncodeSize()).thenReturn(headersBytes.length);
+
+      // Provides the simulated encoded core headers and properties
+      doAnswer(invocation -> {
+         final ByteBuf buffer = invocation.getArgument(0);
+
+         buffer.writeBytes(headersBytes);
+
+         return null;
+      }).when(message).encodeHeadersAndProperties(any(ByteBuf.class));
+
+      when(bodyReader.getSize()).thenReturn((long) payloadBytes.length);
+
+      final ByteBuf encodedByteBuf = Unpooled.buffer();
+      final NettyWritable encodedBytes = new NettyWritable(encodedByteBuf);
+
+      // Answer back with the amount of writable bytes
+      doAnswer(invocation -> {
+         final ByteBuffer buffer = invocation.getArgument(0);
+
+         final int readSize = Math.min(buffer.remaining(), payloadBytes.length - payloadReaderPosition.get());
+
+         buffer.put(payloadBytes, payloadReaderPosition.get(), readSize);
+
+         payloadReaderPosition.addAndGet(readSize);
+
+         return readSize;
+      }).when(bodyReader).readInto(any());
+
+      final AtomicInteger estimatedFrameCount = new AtomicInteger();
+
+      // Capture the write for comparison, this avoid issues with released netty buffers
+      doAnswer(invocation -> {
+         final ReadableBuffer buffer = invocation.getArgument(0);
+
+         encodedBytes.put(buffer);
+
+         // Should call send multiple times to dispatch the split frame writes.
+         estimatedFrameCount.incrementAndGet();
+
+         return null;
+      }).when(protonSender).send(any());
+
+      try {
+         writer.writeBytes(reference);
+      } catch (IllegalStateException e) {
+         fail("Should not throw as the delivery is completed so no data should be written.");
+      }
+
+      verify(message).usageUp();
+      verify(message).getLargeBodyReader();
+      verify(message).getHeadersAndPropertiesEncodeSize();
+      verify(message).encodeHeadersAndProperties(any(ByteBuf.class));
+      verify(reference).getMessage();
+      verify(reference).getProtocolData(any());
+      verify(protonSender).getSession();
+      verify(protonDelivery).getTag();
+      verify(protonSender, atLeastOnce()).getLocalState();
+      verify(protonSender, atLeastOnce()).send(any(ReadableBuffer.class));
+
+      assertTrue(estimatedFrameCount.get() > 1);
       assertTrue(encodedByteBuf.isReadable());
       assertEquals(expectedEncoding.readableBytes(), encodedByteBuf.readableBytes());
       assertEquals(expectedEncoding, encodedByteBuf);
