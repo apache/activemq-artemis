@@ -3702,10 +3702,6 @@ class AMQPBridgeFromAddressTest extends AmqpClientTestSupport {
                                             containsString(server.getNodeID().toString())))
                             .respond();
          peer.expectFlow().withLinkCredit(1000);
-         peer.expectFlow().withLinkCredit(1000).withDrain(true)
-                          .respond()
-                          .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
-         peer.expectDetach().respond().afterDelay(50); // Defer the detach response for a bit
 
          server.addAddressInfo(new AddressInfo(SimpleString.of(getTestName()), RoutingType.MULTICAST));
 
@@ -3722,6 +3718,12 @@ class AMQPBridgeFromAddressTest extends AmqpClientTestSupport {
             connection.start();
 
             consumer.receiveNoWait();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+            peer.expectDetach().respond().afterDelay(50); // Defer the detach response for a bit
          }
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
@@ -3740,10 +3742,6 @@ class AMQPBridgeFromAddressTest extends AmqpClientTestSupport {
                                             containsString(server.getNodeID().toString())))
                             .respond();
          peer.expectFlow().withLinkCredit(1000);
-         peer.expectFlow().withLinkCredit(1000).withDrain(true)
-                          .respond()
-                          .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
-         peer.expectDetach().respond();
 
          // Create demand on the address which creates a bridge receiver again quickly which
          // can trigger a new receiver before the previous one was fully closed with a Detach
@@ -3756,6 +3754,12 @@ class AMQPBridgeFromAddressTest extends AmqpClientTestSupport {
             connection.start();
 
             consumer.receiveNoWait();
+
+            peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+            peer.expectFlow().withLinkCredit(1000).withDrain(true)
+                             .respond()
+                             .withLinkCredit(0).withDeliveryCount(1000).withDrain(true);
+            peer.expectDetach().respond();
          }
 
          peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
