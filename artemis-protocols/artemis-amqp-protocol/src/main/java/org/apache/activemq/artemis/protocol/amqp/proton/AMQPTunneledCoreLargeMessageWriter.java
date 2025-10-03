@@ -219,13 +219,11 @@ public class AMQPTunneledCoreLargeMessageWriter implements MessageWriter {
       for (; protonSender.getLocalState() != EndpointState.CLOSED && state == State.STREAMING_DELIVERY_ANNOTATIONS; ) {
          if (annotations != null && annotations.getValue() != null && !annotations.getValue().isEmpty()) {
             if (!connection.flowControl(this::resume)) {
-               break; // Resume will restart writing the headers section from where we left off.
+               break; // Resume will restart writing the delivery annotations section from where we left off.
             }
 
             final ByteBuf annotationsBuffer = getOrCreateDeliveryAnnotationsBuffer();
-            final int readSize = (int) Math.min(frameBuffer.writableBytes(), annotationsBuffer.readableBytes() - position);
-
-            position += readSize;
+            final int readSize = Math.min(frameBuffer.writableBytes(), annotationsBuffer.readableBytes());
 
             annotationsBuffer.readBytes(frameBuffer, readSize);
 
@@ -239,7 +237,6 @@ public class AMQPTunneledCoreLargeMessageWriter implements MessageWriter {
 
             if (!annotationsBuffer.isReadable()) {
                encodingBuffer = null;
-               position = 0;
                state = State.STREAMING_CORE_HEADERS;
             }
          } else {
@@ -259,9 +256,7 @@ public class AMQPTunneledCoreLargeMessageWriter implements MessageWriter {
          }
 
          final ByteBuf headerBuffer = getOrCreateMessageHeaderBuffer();
-         final int readSize = (int) Math.min(frameBuffer.writableBytes(), headerBuffer.readableBytes() - position);
-
-         position += readSize;
+         final int readSize = Math.min(frameBuffer.writableBytes(), headerBuffer.readableBytes());
 
          headerBuffer.readBytes(frameBuffer, readSize);
 
@@ -275,7 +270,6 @@ public class AMQPTunneledCoreLargeMessageWriter implements MessageWriter {
 
          if (!headerBuffer.isReadable()) {
             encodingBuffer = null;
-            position = 0;
             state = State.STREAMING_BODY;
          }
       }
