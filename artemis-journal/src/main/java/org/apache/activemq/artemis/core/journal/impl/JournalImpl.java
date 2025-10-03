@@ -919,7 +919,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                final boolean sync,
                                final IOCompletion callback) throws Exception {
       checkJournalIsLoaded();
-      lineUpContext(callback);
 
       if (logger.isTraceEnabled()) {
          logger.trace("scheduling appendAddRecord::id={}, userRecordType={}, record = {}", id, recordType, record);
@@ -929,6 +928,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       final int addRecordEncodeSize = addRecord.getEncodeSize();
 
       checkRecordSize(addRecordEncodeSize, record);
+
+      lineUpContext(callback);
 
       final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
       appendExecutor.execute(() -> {
@@ -966,7 +967,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                               final boolean sync,
                               final IOCompletion callback) throws Exception {
       checkJournalIsLoaded();
-      lineUpContext(callback);
 
       if (logger.isTraceEnabled()) {
          logger.trace("scheduling appendAddEvent::id={}, userRecordType={}, record = {}", id, recordType, record);
@@ -975,6 +975,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       final JournalInternalRecord addRecord = new JournalAddRecord(JournalImpl.EVENT_RECORD, id, recordType, persister, record);
 
       checkRecordSize(addRecord.getEncodeSize(), record);
+
+      lineUpContext(callback);
 
       final SimpleFuture<Boolean> result = newSyncAndCallbackResult(sync, callback);
       appendExecutor.execute(() -> {
@@ -1022,7 +1024,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                   final boolean sync,
                                   final IOCompletion callback) throws Exception {
       checkJournalIsLoaded();
-      lineUpContext(callback);
 
       if (logger.isTraceEnabled()) {
          logger.trace("scheduling appendUpdateRecord::id={}, userRecordType={}", id, recordType);
@@ -1035,6 +1036,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       } else {
          onFoundAddInfo = new SimpleFutureImpl<>();
       }
+
+      lineUpContext(callback);
 
       if (onFoundAddInfo == null) {
          internalAppendUpdateRecord(id, recordType, persister, record, false, false, null, callback);
@@ -1142,7 +1145,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
 
       checkJournalIsLoaded();
-      lineUpContext(callback);
 
       final SimpleFuture<Boolean> onFoundAddInfo;
 
@@ -1151,6 +1153,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       } else {
          onFoundAddInfo = new SimpleFutureImpl<>();
       }
+
+      lineUpContext(callback);
 
       if (onFoundAddInfo == null) {
          internalAppendDeleteRecord(id, false, null, callback);
@@ -1448,13 +1452,13 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
    }
 
-   private void setErrorCondition(IOCallback otherCallback, JournalTransaction jt, Throwable t) {
+   private void setErrorCondition(IOCallback ioCallback, JournalTransaction jt, Throwable t) {
       if (jt != null) {
          jt.onError(ActiveMQExceptionType.IO_ERROR.getCode(), t.getMessage());
       }
 
-      if (otherCallback != null) {
-         otherCallback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), t.getMessage());
+      if (ioCallback != null) {
+         ioCallback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), t.getMessage());
       }
    }
 
@@ -1467,9 +1471,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                   final IOCompletion callback,
                                   final boolean lineUpContext) throws Exception {
       checkJournalIsLoaded();
-      if (lineUpContext) {
-         lineUpContext(callback);
-      }
 
       if (logger.isTraceEnabled()) {
          logger.trace("scheduling appendCommitRecord::txID={}", txID);
@@ -1480,6 +1481,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          txcheck.checkErrorCondition();
       }
 
+      if (lineUpContext) {
+         lineUpContext(callback);
+      }
 
       final SimpleFuture<JournalTransaction> result = newSyncAndCallbackResult(sync, callback);
 
@@ -3522,5 +3526,10 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     */
    public int getCompactCount() {
       return compactCount;
+   }
+
+   public void markTXError(long txID, Throwable t) {
+      JournalTransaction tx = transactions.get(txID);
+      tx.onError(-1, t.getMessage());
    }
 }

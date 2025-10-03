@@ -497,6 +497,49 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
    }
 
    @Test
+   public void testCommitOnRolledBack() throws Exception {
+      ExecutorService executorService = Executors.newSingleThreadExecutor();
+      runAfter(executorService::shutdownNow);
+
+      setup(2, 60 * 1024, false);
+
+      createJournal();
+
+      startJournal();
+
+      load();
+
+      addTx(1, 2);
+      rollback(1);
+      startCompact();
+
+      OperationContextImpl context = new OperationContextImpl(executorService);
+      journal.appendCommitRecord(1, false, context);
+      CountDownLatch latch = new CountDownLatch(1);
+      AtomicInteger error = new AtomicInteger(0);
+      context.executeOnCompletion(new IOCallback() {
+         @Override
+         public void done() {
+            latch.countDown();
+         }
+
+         @Override
+         public void onError(int errorCode, String errorMessage) {
+            error.incrementAndGet();
+            latch.countDown();
+         }
+      });
+
+      assertTrue(latch.await(10, TimeUnit.SECONDS));
+
+      assertEquals(1, error.get());
+
+      finishCompact();
+
+      stopJournal();
+   }
+
+   @Test
    public void testCompactPrepareRestart2() throws Exception {
       setup(2, 60 * 1024, false);
 

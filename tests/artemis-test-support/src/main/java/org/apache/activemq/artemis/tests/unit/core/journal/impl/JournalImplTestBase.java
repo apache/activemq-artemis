@@ -46,6 +46,8 @@ import org.apache.activemq.artemis.core.journal.TestableJournal;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
+import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncoding;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ReusableLatch;
@@ -389,16 +391,20 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
    }
 
    protected void add(final long... arguments) throws Exception {
-      addWithSize(recordLength, arguments);
+      addWithSize(recordLength, null, arguments);
    }
 
    protected void addWithSize(final int size, final long... arguments) throws Exception {
+      addWithSize(size, null, arguments);
+   }
+
+   protected void addWithSize(final int size, OperationContext context, final long... arguments) throws Exception {
       for (long element : arguments) {
          byte[] record = generateRecord(size);
 
          beforeJournalOperation();
 
-         journal.appendAddRecord(element, (byte) 0, record, sync);
+         journal.appendAddRecord(element, (byte) 0, new ByteArrayEncoding(record), sync, context);
 
          records.add(new RecordInfo(element, (byte) 0, record, false, false, (short) 0));
       }
@@ -465,12 +471,16 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
    }
 
    protected void addTx(final long txID, final long... arguments) throws Exception {
+      addTxWithSize(recordLength, txID, arguments);
+   }
+
+   protected void addTxWithSize(final int size, final long txID, final long... arguments) throws Exception {
       TransactionHolder tx = getTransaction(txID);
 
       for (long element : arguments) {
          // SIZE_BYTE + SIZE_LONG + SIZE_LONG + SIZE_INT + record.length +
          // SIZE_BYTE
-         byte[] record = generateRecord(recordLength - (JournalImpl.SIZE_ADD_RECORD_TX + 1));
+         byte[] record = generateRecord(size - (JournalImpl.SIZE_ADD_RECORD_TX + 1));
 
          beforeJournalOperation();
 

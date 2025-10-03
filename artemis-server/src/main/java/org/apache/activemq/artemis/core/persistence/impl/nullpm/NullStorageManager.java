@@ -648,10 +648,6 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public void lineUpContext() {
-   }
-
-   @Override
    public void deletePendingLargeMessage(final long recordID) throws Exception {
    }
 

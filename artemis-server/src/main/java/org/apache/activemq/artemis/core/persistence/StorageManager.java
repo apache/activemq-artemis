@@ -117,8 +117,6 @@ public interface StorageManager extends MapStorageManager, IDGenerator, ActiveMQ
     */
    OperationContext getContext();
 
-   void lineUpContext();
-
    /**
     * It just creates an OperationContext without associating it
     */
