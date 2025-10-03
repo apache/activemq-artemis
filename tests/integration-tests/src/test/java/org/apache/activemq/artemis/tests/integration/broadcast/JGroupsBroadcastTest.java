@@ -16,18 +16,29 @@
  */
 package org.apache.activemq.artemis.tests.integration.broadcast;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.ChannelBroadcastEndpointFactory;
+import org.apache.activemq.artemis.api.core.JGroupsBroadcastEndpoint;
 import org.apache.activemq.artemis.api.core.jgroups.JChannelManager;
 import org.apache.activemq.artemis.tests.util.ArtemisTestCase;
 import org.jgroups.JChannel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Deque;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JGroupsBroadcastTest extends ArtemisTestCase {
 
@@ -107,4 +118,103 @@ public class JGroupsBroadcastTest extends ArtemisTestCase {
       }
    }
 
+
+   @Test
+   public void testConcurrentAccess() throws Exception {
+
+      final CountDownLatch inClose = new CountDownLatch(1);
+      final CountDownLatch doClose = new CountDownLatch(1);
+
+      final Deque<Throwable> errors = new ConcurrentLinkedDeque<>();
+
+      class InstrumentedJChannel extends JChannel {
+         final AtomicBoolean closed = new AtomicBoolean(false);
+
+         InstrumentedJChannel() throws Exception {
+         }
+
+         @Override
+         public synchronized void close() {
+            closed.set(true);
+            inClose.countDown();
+            try {
+               doClose.await(100, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+               throw new RuntimeException(e);
+            }
+         }
+
+         @Override
+         public synchronized JChannel connect(String cluster_name) throws Exception {
+            if (closed.get()) {
+               throw new IllegalStateException("closed");
+            }
+            return this;
+         }
+
+         @Override
+         public boolean isConnected() {
+            return !closed.get();
+         }
+      }
+
+      AtomicInteger numChannels = new AtomicInteger(0);
+      class JGroupsBroadcastEndpointWithChannel extends JGroupsBroadcastEndpoint {
+         JGroupsBroadcastEndpointWithChannel() {
+            super(JChannelManager.getInstance(), "shared");
+         }
+
+         @Override
+         public JChannel createChannel() throws Exception {
+            numChannels.incrementAndGet();
+            return new InstrumentedJChannel();
+         }
+      }
+
+      ExecutorService executor = Executors.newFixedThreadPool(2);
+      runAfter(executor::shutdownNow);
+
+      try {
+         executor.execute(() -> {
+            try {
+               JGroupsBroadcastEndpoint endpointWithSharedChannel = new JGroupsBroadcastEndpointWithChannel().initChannel();
+               endpointWithSharedChannel.openClient();
+               endpointWithSharedChannel.close(false);
+
+            } catch (Exception e) {
+               errors.add(e);
+               throw new RuntimeException(e);
+            }
+         });
+
+         executor.execute(() -> {
+
+            try {
+
+               // try and share while closing
+               inClose.await(5, TimeUnit.SECONDS);
+
+               JGroupsBroadcastEndpoint endpointWithSharedChannel = new JGroupsBroadcastEndpointWithChannel().initChannel();
+
+               doClose.countDown();
+
+               endpointWithSharedChannel.openClient();
+               endpointWithSharedChannel.close(false);
+
+            } catch (Exception e) {
+               errors.add(e);
+               throw new RuntimeException(e);
+            } finally {
+               doClose.countDown();
+            }
+         });
+
+      } finally {
+         executor.shutdown();
+      }
+      executor.awaitTermination(10, TimeUnit.SECONDS);
+      executor.shutdownNow();
+      assertTrue(errors.isEmpty());
+      assertEquals(2, numChannels.get());
+   }
 }
