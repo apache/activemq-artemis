@@ -1467,9 +1467,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                                   final IOCompletion callback,
                                   final boolean lineUpContext) throws Exception {
       checkJournalIsLoaded();
-      if (lineUpContext) {
-         lineUpContext(callback);
-      }
 
       if (logger.isTraceEnabled()) {
          logger.trace("scheduling appendCommitRecord::txID={}", txID);
@@ -1480,6 +1477,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          txcheck.checkErrorCondition();
       }
 
+      if (lineUpContext) {
+         lineUpContext(callback);
+      }
 
       final SimpleFuture<JournalTransaction> result = newSyncAndCallbackResult(sync, callback);
 
@@ -3522,5 +3522,10 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
     */
    public int getCompactCount() {
       return compactCount;
+   }
+
+   public void markTXError(long txID, Throwable t) {
+      JournalTransaction tx = transactions.get(txID);
+      tx.onError(-1, t.getMessage());
    }
 }
