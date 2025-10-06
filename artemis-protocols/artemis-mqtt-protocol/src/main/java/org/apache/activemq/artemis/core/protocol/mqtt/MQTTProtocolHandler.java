@@ -525,7 +525,17 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          } else {
             session.getProtocolHandler().sendConnack(MQTTReasonCodes.NOT_AUTHORIZED_3);
          }
-         disconnect(true);
+         // avoid a race with sending the CONNACK packet and disconnecting the client
+         server.getStorageManager().afterCompleteOperations(new IOCallback() {
+            @Override
+            public void done() {
+               disconnect(true);
+            }
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+            }
+         });
          result = Boolean.FALSE;
       }
 
