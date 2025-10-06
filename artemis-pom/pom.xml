@@ -45,7 +45,7 @@
          <dependency>
             <groupId>org.junit</groupId>
             <artifactId>junit-bom</artifactId>
-            <version>${junit5.version}</version>
+            <version>${junit6.version}</version>
             <type>pom</type>
             <scope>import</scope>
             <!-- Eclipse Public License - v 2.0 -->
