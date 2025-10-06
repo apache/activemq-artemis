@@ -16,15 +16,18 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
-import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
+import javax.jms.Connection;
+import javax.jms.Session;
 import java.io.EOFException;
 import java.util.Arrays;
+import java.util.Set;
 
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.MQTTException;
@@ -34,11 +37,54 @@ import org.fusesource.mqtt.codec.CONNACK;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 public class MQTTSecurityTest extends MQTTTestSupport {
 
    @Override
    public boolean isSecurityEnabled() {
       return true;
+   }
+
+   @Override
+   protected void configureBrokerSecurity(ActiveMQServer server) {
+      super.configureBrokerSecurity(server);
+      server.getSecurityRepository().addMatch(server.getConfiguration().getManagementNotificationAddress().toString(), Set.of(new Role("full", true, true, true, true, true, true, true, true, true, true, false, false)));
+   }
+
+   /*
+    * This test is not 100% reliable to reproduce the original race condition. It will only fail intermittently.
+    */
+   @Test
+   void testMqttConnectionAcknowledgment() throws Exception {
+      /*
+       * The durable JMS subscription on the notifications address makes the race condition more likely to reproduce
+       * since the authentication failure triggers a notification.
+       */
+      Connection c = cf.createConnection(fullUser, fullPass);
+      c.setClientID(getName());
+      Session s = c.createSession();
+      s.createDurableSubscriber(s.createTopic(server.getConfiguration().getManagementNotificationAddress().toString()), getName());
+      MqttClient client = null;
+
+      try {
+         client = createPaho3_1_1Client(MqttClient.generateClientId());
+         final MqttConnectOptions options = new MqttConnectOptions();
+         options.setUserName("wronguser");
+         options.setPassword("wrongpass".toCharArray());
+         client.connect(options);
+         fail("Should have thrown an exception");
+      } catch (MqttException me) {
+         assertEquals(MqttException.REASON_CODE_NOT_AUTHORIZED, me.getReasonCode());
+      } finally {
+         if (client != null) {
+            client.close();
+         }
+         c.close();
+      }
    }
 
    @Test
