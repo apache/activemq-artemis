@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.remoting;
+package org.apache.activemq.artemis.utils;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
 import java.io.ByteArrayInputStream;
@@ -27,6 +27,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.ssl.SslHandler;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.slf4j.Logger;
@@ -52,7 +53,9 @@ public class CertificateUtil {
       X509Certificate[] certificates = null;
       if (remotingConnection != null) {
          Connection transportConnection = remotingConnection.getTransportConnection();
-         if (transportConnection instanceof NettyConnection nettyConnection) {
+         if (transportConnection instanceof NettyServerConnection nettyServerConnection) {
+            certificates = nettyServerConnection.getPeerCertificates();
+         } else if (transportConnection instanceof NettyConnection nettyConnection) {
             certificates = getCertsFromChannel(nettyConnection.getChannel());
          }
       }
@@ -87,7 +90,7 @@ public class CertificateUtil {
       return result;
    }
 
-   private static X509Certificate[] getCertsFromChannel(Channel channel) {
+   public static X509Certificate[] getCertsFromChannel(Channel channel) {
       Certificate[] plainCerts = null;
       ChannelHandler channelHandler = channel.pipeline().get("ssl");
       if (channelHandler != null && channelHandler instanceof SslHandler sslHandler) {

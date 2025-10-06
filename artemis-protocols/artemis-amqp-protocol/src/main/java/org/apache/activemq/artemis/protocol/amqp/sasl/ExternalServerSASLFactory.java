@@ -18,13 +18,13 @@ package org.apache.activemq.artemis.protocol.amqp.sasl;
 
 import java.security.Principal;
 
-import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.protocol.amqp.broker.AmqpInterceptor;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPRoutingHandler;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.utils.CertificateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;

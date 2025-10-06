@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
-import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCertsFromConnection;
-import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getPeerPrincipalFromConnection;
+import static org.apache.activemq.artemis.utils.CertificateUtil.getCertsFromConnection;
+import static org.apache.activemq.artemis.utils.CertificateUtil.getPeerPrincipalFromConnection;
 
 import java.io.IOException;
 import java.security.Principal;

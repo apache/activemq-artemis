@@ -35,7 +35,7 @@ import org.apache.activemq.artemis.utils.SecurityManagerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCertsFromConnection;
+import static org.apache.activemq.artemis.utils.CertificateUtil.getCertsFromConnection;
 
 /**
  * This implementation delegates to the JAAS security interfaces.
