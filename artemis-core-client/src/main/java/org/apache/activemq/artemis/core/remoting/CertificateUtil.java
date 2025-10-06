@@ -17,25 +17,16 @@
 package org.apache.activemq.artemis.core.remoting;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
-import java.io.ByteArrayInputStream;
 import java.security.Principal;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.ssl.SslHandler;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class CertificateUtil {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String SSL_HANDLER_NAME = "ssl";
 
@@ -50,11 +41,8 @@ public class CertificateUtil {
 
    public static X509Certificate[] getCertsFromConnection(RemotingConnection remotingConnection) {
       X509Certificate[] certificates = null;
-      if (remotingConnection != null) {
-         Connection transportConnection = remotingConnection.getTransportConnection();
-         if (transportConnection instanceof NettyConnection nettyConnection) {
-            certificates = getCertsFromChannel(nettyConnection.getChannel());
-         }
+      if (remotingConnection != null && remotingConnection.getTransportConnection() instanceof NettyConnection nettyConnection) {
+         certificates = nettyConnection.getCertificates();
       }
       return certificates;
    }
@@ -85,46 +73,5 @@ public class CertificateUtil {
       }
 
       return result;
-   }
-
-   private static X509Certificate[] getCertsFromChannel(Channel channel) {
-      Certificate[] plainCerts = null;
-      ChannelHandler channelHandler = channel.pipeline().get("ssl");
-      if (channelHandler != null && channelHandler instanceof SslHandler sslHandler) {
-         try {
-            plainCerts = sslHandler.engine().getSession().getPeerCertificates();
-         } catch (SSLPeerUnverifiedException e) {
-            // ignore
-         }
-      }
-
-      /*
-       * When using the OpenSSL provider on the broker the getPeerCertificates() method does *not* return a
-       * X509Certificate[] so we need to convert the Certificate[] that is returned. This code is inspired by Tomcat's
-       * org.apache.tomcat.util.net.jsse.JSSESupport class.
-       */
-      X509Certificate[] x509Certs = null;
-      if (plainCerts != null && plainCerts.length > 0) {
-         x509Certs = new X509Certificate[plainCerts.length];
-         for (int i = 0; i < plainCerts.length; i++) {
-            if (plainCerts[i] instanceof X509Certificate x509Certificate) {
-               x509Certs[i] = x509Certificate;
-            } else {
-               try {
-                  x509Certs[i] = (X509Certificate) CertificateFactory
-                     .getInstance("X.509").generateCertificate(new ByteArrayInputStream(plainCerts[i].getEncoded()));
-               } catch (Exception ex) {
-                  logger.trace("Failed to convert SSL cert", ex);
-                  return null;
-               }
-            }
-
-            if (logger.isTraceEnabled()) {
-               logger.trace("Cert #{} = {}", i, x509Certs[i]);
-            }
-         }
-      }
-
-      return x509Certs;
    }
 }
