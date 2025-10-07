@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.codec.EncoderImpl;
 import org.apache.qpid.proton.codec.EncodingCodes;
+import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
@@ -218,8 +219,8 @@ public class AMQPTunneledCoreLargeMessageWriter implements MessageWriter {
    private boolean trySendDeliveryAnnotations(ByteBuf frameBuffer, NettyReadable frameView) {
       for (; protonSender.getLocalState() != EndpointState.CLOSED && state == State.STREAMING_DELIVERY_ANNOTATIONS; ) {
          if (annotations != null && annotations.getValue() != null && !annotations.getValue().isEmpty()) {
-            if (!connection.flowControl(this::resume)) {
-               break; // Resume will restart writing the delivery annotations section from where we left off.
+            if (isFlowControlled(frameBuffer, frameView)) {
+               break;
             }
 
             final ByteBuf annotationsBuffer = getOrCreateDeliveryAnnotationsBuffer();
@@ -251,8 +252,8 @@ public class AMQPTunneledCoreLargeMessageWriter implements MessageWriter {
    // data could be sent due to a flow control event.
    private boolean trySendHeadersAndProperties(ByteBuf frameBuffer, NettyReadable frameView) {
       for (; protonSender.getLocalState() != EndpointState.CLOSED && state == State.STREAMING_CORE_HEADERS; ) {
-         if (!connection.flowControl(this::resume)) {
-            break; // Resume will restart writing the headers section from where we left off.
+         if (isFlowControlled(frameBuffer, frameView)) {
+            break;
          }
 
          final ByteBuf headerBuffer = getOrCreateMessageHeaderBuffer();
@@ -287,7 +288,7 @@ public class AMQPTunneledCoreLargeMessageWriter implements MessageWriter {
          final long bodySize = context.getSize();
 
          for (; protonSender.getLocalState() != EndpointState.CLOSED && state == State.STREAMING_BODY; ) {
-            if (!connection.flowControl(this::resume)) {
+            if (isFlowControlled(frameBuffer, frameView)) {
                break;
             }
 
@@ -361,6 +362,18 @@ public class AMQPTunneledCoreLargeMessageWriter implements MessageWriter {
          serverSender.reportDeliveryError(this, reference, deliveryError);
       } finally {
          frameBuffer.release();
+      }
+   }
+
+   private boolean isFlowControlled(ByteBuf frameBuffer, ReadableBuffer frameView) {
+      if (!connection.flowControl(this::resume)) {
+         if (frameBuffer.isReadable()) {
+            protonSender.send(frameView); // Store inflight data in the sender
+         }
+
+         return true;
+      } else {
+         return false;
       }
    }
 
