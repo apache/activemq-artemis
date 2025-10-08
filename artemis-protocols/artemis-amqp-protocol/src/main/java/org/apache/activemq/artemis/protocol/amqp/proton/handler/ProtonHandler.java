@@ -463,6 +463,8 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       if (clientSASLMechanism == null) {
          logger.info("Outbound connection failed - unknown mechanism, offered mechanisms: {}",
                    Arrays.asList(sasl.getRemoteMechanisms()));
+         sasl.setListener(null);
+         transport.close_head();
          dispatchAuthFailed();
       } else {
          sasl.setMechanisms(clientSASLMechanism.getName());
