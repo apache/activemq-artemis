@@ -15,7 +15,7 @@ For more general information see the https://www.apache.org/legal/release-policy
 
 Things to do before issuing a new release:
 
-* Update `docs/user-manual/en/versions.adoc` to include appropriate release notes and upgrade instructions.
+* Update `docs/user-manual/versions.adoc` to include appropriate release notes and upgrade instructions.
 See previous entries for guidance.
 * Build the release locally using:
 +

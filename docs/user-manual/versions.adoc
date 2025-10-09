@@ -15,7 +15,7 @@ NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#u
 
 == 2.43.0
 
-https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=XXX[Full release notes]
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12356053[Full release notes]
 
 === Highlights
 
@@ -23,6 +23,8 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 * The https://github.com/haproxy/haproxy/blob/master/doc/proxy-protocol.txt[PROXY Protocol] is now supported!
 This means that clients connecting through an applicable reverse proxy (e.g. HAProxy, nginx, etc.) will have the original client IP address reflected in the logs and in the web console rather than that of the proxy itself.
 More details available xref:proxy-protocol.adoc[here].
+* It is now possible to remove or add acceptors or a running broker. https://issues.apache.org/jira/browse/ARTEMIS-5609[Click here] for more details.
+* AMQP Federation now supports filtering. https://issues.apache.org/jira/browse/ARTEMIS-5625[Click here] for more details.
 
 === Upgrading from 2.41.0
 
