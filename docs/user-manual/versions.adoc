@@ -26,7 +26,7 @@ More details available xref:proxy-protocol.adoc[here].
 * It is now possible to remove or add acceptors or a running broker. https://issues.apache.org/jira/browse/ARTEMIS-5609[Click here] for more details.
 * AMQP Federation now supports filtering. https://issues.apache.org/jira/browse/ARTEMIS-5625[Click here] for more details.
 
-=== Upgrading from 2.41.0
+=== Upgrading
 
 * As part of the work for https://issues.apache.org/jira/browse/ARTEMIS-5557[ARTEMIS-5557] to report executor service metrics the names of many ActiveMQ-related threads were changed to be more clear and consistent.
 This will be visible, for example, when inspecting thread dumps or if you happen to include the thread name in your logging output.
