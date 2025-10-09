@@ -118,6 +118,37 @@ public class AMQPConnectSaslTest extends AmqpClientTestSupport {
 
    @Test
    @Timeout(20)
+   public void testReconnectAfterSaslFailure() throws Exception {
+      try (ProtonTestServer peer = new ProtonTestServer()) {
+         // First attempt, refuse
+         peer.expectFailingSASLPlainConnect(SaslCode.SYS_TEMP.getValue().byteValue(), PLAIN, ANONYMOUS);
+         peer.expectConnectionToDrop();
+
+         // Second attempt, succeeds
+         peer.expectSASLPlainConnect(USER, PASSWD, PLAIN, ANONYMOUS);
+         peer.expectOpen().respond();
+         peer.expectBegin().respond();
+         peer.start();
+
+         final URI remoteURI = peer.getServerURI();
+         logger.debug("Connect test started, peer listening on: {}", remoteURI);
+
+         AMQPBrokerConnectConfiguration amqpConnection =
+               new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + remoteURI.getPort());
+         amqpConnection.setReconnectAttempts(1); // Allow 1 reconnect
+         amqpConnection.setRetryInterval(200);
+         amqpConnection.setUser(USER);
+         amqpConnection.setPassword(PASSWD);
+
+         server.getConfiguration().addAMQPConnection(amqpConnection);
+         server.start();
+
+         peer.waitForScriptToComplete(5, TimeUnit.SECONDS);
+      }
+   }
+
+   @Test
+   @Timeout(20)
    public void testConnectsWithXOauth2() throws Exception {
       try (ProtonTestServer peer = new ProtonTestServer()) {
          peer.expectSASLHeader().respondWithSASLHeader();

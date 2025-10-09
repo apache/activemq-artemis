@@ -490,6 +490,8 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       switch (sasl.getState()) {
          case PN_SASL_FAIL:
             logger.info("Outbound connection failed, authentication failure");
+            sasl.setListener(null);
+            transport.close_head();
             dispatchAuthFailed();
             break;
          case PN_SASL_PASS:
