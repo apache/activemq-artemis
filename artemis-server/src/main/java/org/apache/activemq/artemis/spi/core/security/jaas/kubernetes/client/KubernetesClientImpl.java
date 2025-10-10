@@ -55,18 +55,40 @@ public class KubernetesClientImpl implements KubernetesClient {
 
    private URI apiUri;
    private String tokenPath;
-   private String caPath;
+
+   private static volatile HttpClient httpClient;
+
+   private static HttpClient getHttpClientSingleton() {
+      HttpClient result = httpClient;
+      if (result != null) {
+         return result;
+      }
+      synchronized (KubernetesClientImpl.class) {
+         if (httpClient == null) {
+            try {
+               httpClient = HttpClient.newBuilder().sslContext(buildSSLContext()).build();
+            } catch (Exception e) {
+               logger.error("Unable to build a valid SSLContext or HttpClient", e);
+            }
+         }
+      }
+      return httpClient;
+   }
+
+   // for tests
+   public static void clearHttpClient() {
+      httpClient = null;
+   }
 
    public KubernetesClientImpl() {
       this.tokenPath = getParam(KUBERNETES_TOKEN_PATH, DEFAULT_KUBERNETES_TOKEN_PATH);
-      this.caPath = getParam(KUBERNETES_CA_PATH, DEFAULT_KUBERNETES_CA_PATH);
       String host = getParam(KUBERNETES_HOST);
       String port = getParam(KUBERNETES_PORT);
       this.apiUri = URI.create(String.format(KUBERNETES_TOKENREVIEW_URI_PATTERN, host, port));
       logger.debug("using apiUri {}", apiUri);
    }
 
-   public String getParam(String name, String defaultValue) {
+   public static String getParam(String name, String defaultValue) {
       String value = System.getProperty(name);
       if (value == null) {
          value = System.getenv(name);
@@ -95,14 +117,10 @@ public class KubernetesClientImpl implements KubernetesClient {
       }
       String jsonRequest = buildJsonRequest(token);
 
-      SSLContext ctx;
-      try {
-         ctx = buildSSLContext();
-      } catch (Exception e) {
-         logger.error("Unable to build a valid SSLContext", e);
+      HttpClient client = getHttpClient();
+      if (client == null) {
          return tokenReview;
       }
-      HttpClient client = HttpClient.newBuilder().sslContext(ctx).build();
 
       HttpRequest request = HttpRequest.newBuilder(apiUri)
             .header("Authorization", "Bearer " + authToken)
@@ -122,6 +140,10 @@ public class KubernetesClientImpl implements KubernetesClient {
          logger.error("Unable to request ReviewToken", e);
       }
       return tokenReview;
+   }
+
+   protected HttpClient getHttpClient() {
+      return KubernetesClientImpl.getHttpClientSingleton();
    }
 
    private String readFile(String path) throws IOException {
@@ -147,8 +169,9 @@ public class KubernetesClientImpl implements KubernetesClient {
             .build().toString();
    }
 
-   private SSLContext buildSSLContext() throws Exception {
+   private static SSLContext buildSSLContext() throws Exception {
       SSLContext ctx = SSLContext.getInstance("TLS");
+      String caPath = getParam(KUBERNETES_CA_PATH, DEFAULT_KUBERNETES_CA_PATH);
       File certFile = new File(caPath);
       if (!certFile.exists()) {
          logger.debug("Kubernetes CA certificate not found at: {}. Truststore not configured", caPath);

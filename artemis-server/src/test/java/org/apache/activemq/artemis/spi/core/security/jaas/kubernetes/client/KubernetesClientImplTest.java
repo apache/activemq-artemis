@@ -104,6 +104,7 @@ public class KubernetesClientImplTest {
 
    @BeforeEach
    public void reset() {
+      KubernetesClientImpl.clearHttpClient();
       mockServer.reset();
    }
 
@@ -169,12 +170,12 @@ public class KubernetesClientImplTest {
          if (System.getProperty(envKv.getKey()) == null) {
 
             KubernetesClientImpl clientImpl = new KubernetesClientImpl();
-            assertEquals(envKv.getValue(), clientImpl.getParam(envKv.getKey(), null));
+            assertEquals(envKv.getValue(), KubernetesClientImpl.getParam(envKv.getKey(), null));
 
             final String valFromProp = "bla";
             try {
                System.setProperty(envKv.getKey(), valFromProp);
-               assertEquals(valFromProp, clientImpl.getParam(envKv.getKey(), null));
+               assertEquals(valFromProp, KubernetesClientImpl.getParam(envKv.getKey(), null));
             } finally {
                System.clearProperty(envKv.getKey());
             }
@@ -183,7 +184,7 @@ public class KubernetesClientImplTest {
             String candidate = valFromProp;
             for (int i = 0; i < 10; i++) {
                if (System.getenv(candidate) == null && System.getProperty(candidate) == null) {
-                  assertEquals(candidate, clientImpl.getParam(candidate, candidate));
+                  assertEquals(candidate, KubernetesClientImpl.getParam(candidate, candidate));
                   break;
                }
                candidate += i;
@@ -195,4 +196,10 @@ public class KubernetesClientImplTest {
       }
    }
 
+   @Test
+   public void testSingeltonHttpClient() throws Exception {
+      KubernetesClientImpl clientImplFirst = new KubernetesClientImpl();
+      KubernetesClientImpl clientImplSecond = new KubernetesClientImpl();
+      assertEquals(clientImplFirst.getHttpClient(), clientImplSecond.getHttpClient());
+   }
 }
