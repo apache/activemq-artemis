@@ -59,9 +59,10 @@ public class JournalTransaction implements IOCallback {
    private volatile int errorCode = 0;
 
    private static final AtomicIntegerFieldUpdater<JournalTransaction> upUpdater = AtomicIntegerFieldUpdater.newUpdater(JournalTransaction.class, "up");
+   private static final AtomicIntegerFieldUpdater<JournalTransaction> doneUpdater = AtomicIntegerFieldUpdater.newUpdater(JournalTransaction.class, "done");
    private volatile int up;
 
-   private int done = 0;
+   private volatile int done = 0;
 
    private volatile IOCallback delegateCompletion;
 
@@ -365,7 +366,7 @@ public class JournalTransaction implements IOCallback {
 
    @Override
    public void done() {
-      if (++done == upUpdater.get(this) && delegateCompletion != null) {
+      if (doneUpdater.incrementAndGet(this) == upUpdater.get(this) && delegateCompletion != null) {
          final IOCallback delegateToCall = delegateCompletion;
          // We need to set the delegateCompletion to null first or blocking commits could miss a callback
          // What would affect mainly tests
