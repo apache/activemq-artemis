@@ -41,7 +41,6 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -135,6 +134,7 @@ import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.json.JsonString;
 import org.apache.activemq.artemis.json.JsonValue;
+import org.apache.activemq.artemis.securitymanager.SecurityManagerCompatibility;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.Env;
@@ -3003,7 +3003,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public Configuration copy() throws Exception {
-      return AccessController.doPrivileged((PrivilegedExceptionAction<Configuration>) () -> {
+      return SecurityManagerCompatibility.get().doPrivileged((PrivilegedExceptionAction<Configuration>) () -> {
          ByteArrayOutputStream bos = new ByteArrayOutputStream();
          ObjectOutputStream os = new ObjectOutputStream(bos);
          os.writeObject(ConfigurationImpl.this);

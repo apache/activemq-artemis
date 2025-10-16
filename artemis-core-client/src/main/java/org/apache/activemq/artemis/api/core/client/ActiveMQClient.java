@@ -16,16 +16,6 @@
  */
 package org.apache.activemq.artemis.api.core.client;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
@@ -34,9 +24,19 @@ import org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnect
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.securitymanager.SecurityManagerCompatibility;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
+
+import java.security.PrivilegedAction;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Utility class for creating ActiveMQ Artemis {@link ClientSessionFactory} objects.
@@ -256,7 +256,7 @@ public final class ActiveMQClient {
 
    private static synchronized ExecutorService internalGetGlobalThreadPool(ExecutorService executorService, String groupName, int poolSize) {
       if (executorService == null) {
-         ThreadFactory factory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory(groupName, true, ClientSessionFactoryImpl.class.getClassLoader()));
+         ThreadFactory factory = SecurityManagerCompatibility.get().doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory(groupName, true, ClientSessionFactoryImpl.class.getClassLoader()));
 
          if (poolSize == -1) {
             executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), factory);
@@ -269,7 +269,7 @@ public final class ActiveMQClient {
 
    public static synchronized ScheduledExecutorService getGlobalScheduledThreadPool() {
       if (globalScheduledThreadPool == null) {
-         ThreadFactory factory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("client-global-scheduled", true, ClientSessionFactoryImpl.class.getClassLoader()));
+         ThreadFactory factory = SecurityManagerCompatibility.get().doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("client-global-scheduled", true, ClientSessionFactoryImpl.class.getClassLoader()));
 
          globalScheduledThreadPool = new ScheduledThreadPoolExecutor(ActiveMQClient.globalScheduledThreadPoolSize, factory);
       }

@@ -16,19 +16,19 @@
  */
 package org.apache.activemq.artemis.ra;
 
+import org.apache.activemq.artemis.securitymanager.SecurityManagerCompatibility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.SecurityException;
 import javax.resource.spi.security.PasswordCredential;
 import javax.security.auth.Subject;
 import java.io.Serializable;
-import java.security.AccessController;
+import java.lang.invoke.MethodHandles;
 import java.security.PrivilegedAction;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * Credential information
@@ -156,7 +156,7 @@ public class ActiveMQRACredential implements Serializable {
          logger.trace("getCredential({}, {})", subject, mcf);
 
          GetCredentialAction action = new GetCredentialAction(subject, mcf);
-         return AccessController.doPrivileged(action);
+         return SecurityManagerCompatibility.get().doPrivileged(action);
       }
    }
 }

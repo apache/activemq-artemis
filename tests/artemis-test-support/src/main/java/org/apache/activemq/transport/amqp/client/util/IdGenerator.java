@@ -22,6 +22,7 @@ import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.activemq.artemis.securitymanager.SecurityManagerCompatibility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -42,15 +43,7 @@ public class IdGenerator {
 
    static {
       String stub = "";
-      boolean canAccessSystemProps = true;
-      try {
-         SecurityManager sm = System.getSecurityManager();
-         if (sm != null) {
-            sm.checkPropertiesAccess();
-         }
-      } catch (SecurityException se) {
-         canAccessSystemProps = false;
-      }
+      boolean canAccessSystemProps = !SecurityManagerCompatibility.get().isEnabled();
 
       if (canAccessSystemProps) {
          int idGeneratorPort = 0;

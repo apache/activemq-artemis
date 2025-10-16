@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,6 +81,7 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalRollbackR
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.securitymanager.SecurityManagerCompatibility;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
@@ -2840,7 +2840,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
 
       if (providedIOThreadPool == null) {
-         ThreadFactory factory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("io", true, JournalImpl.class.getClassLoader()));
+         ThreadFactory factory = SecurityManagerCompatibility.get().doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("io", true, JournalImpl.class.getClassLoader()));
 
          threadPool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue(), factory);
          ioExecutorFactory = new OrderedExecutorFactory(threadPool);

@@ -18,6 +18,17 @@
  */
 package org.apache.activemq.artemis.core.server.management;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
+import org.apache.activemq.artemis.core.management.impl.ManagementRemotingConnection;
+import org.apache.activemq.artemis.core.security.CheckType;
+import org.apache.activemq.artemis.core.security.SecurityAuth;
+import org.apache.activemq.artemis.core.server.ActivateCallback;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.logs.AuditLogger;
+import org.apache.activemq.artemis.securitymanager.SecurityManagerCompatibility;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.MBeanAttributeInfo;
@@ -28,21 +39,9 @@ import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.AccessControlContext;
-import java.security.AccessController;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
-import org.apache.activemq.artemis.core.management.impl.ManagementRemotingConnection;
-import org.apache.activemq.artemis.core.security.CheckType;
-import org.apache.activemq.artemis.core.security.SecurityAuth;
-import org.apache.activemq.artemis.core.server.ActivateCallback;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.logs.AuditLogger;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public class ArtemisRbacInvocationHandler implements GuardInvocationHandler {
 
@@ -338,9 +337,8 @@ public class ArtemisRbacInvocationHandler implements GuardInvocationHandler {
       final ManagementRemotingConnection managementRemotingConnection = new ManagementRemotingConnection() {
          @Override
          public Subject getSubject() {
-            AccessControlContext accessControlContext = AccessController.getContext();
-            if (accessControlContext != null) {
-               return Subject.getSubject(accessControlContext);
+            if (SecurityManagerCompatibility.get().isEnabled()) {
+               return SecurityManagerCompatibility.get().current();
             }
             return null;
          }

@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import java.security.AccessControlContext;
-import java.security.AccessController;
+import org.apache.activemq.artemis.securitymanager.SecurityManagerCompatibility;
+
 import java.security.PrivilegedAction;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +37,7 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
 
    private final ClassLoader tccl;
 
-   private final AccessControlContext acc;
+   private final boolean securityManagerEnabled;
 
    private final String prefix;
 
@@ -72,14 +72,14 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
 
       this.daemon = daemon;
 
-      this.acc = AccessController.getContext();
+      this.securityManagerEnabled = SecurityManagerCompatibility.get().isEnabled();
    }
 
    @Override
    public Thread newThread(final Runnable command) {
       // create a thread in a privileged block if running with Security Manager
-      if (acc != null) {
-         return AccessController.doPrivileged(new ThreadCreateAction(command), acc);
+      if (securityManagerEnabled) {
+         return SecurityManagerCompatibility.get().doPrivileged(new ThreadCreateAction(command));
       } else {
          return createThread(command);
       }
@@ -125,8 +125,8 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
       };
       t.setDaemon(daemon);
       t.setPriority(threadPriority);
-      if (acc != null) {
-         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+      if (SecurityManagerCompatibility.get().isEnabled()) {
+         SecurityManagerCompatibility.get().doPrivileged((PrivilegedAction<Void>) () -> {
             t.setContextClassLoader(tccl);
             return null; // nothing to return
          });

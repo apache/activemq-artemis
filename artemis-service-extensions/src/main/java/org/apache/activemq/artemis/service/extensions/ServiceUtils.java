@@ -18,12 +18,12 @@ package org.apache.activemq.artemis.service.extensions;
 
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import org.apache.activemq.artemis.securitymanager.SecurityManagerCompatibility;
 import org.apache.activemq.artemis.service.extensions.transactions.TransactionManagerLocator;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
@@ -70,7 +70,7 @@ public class ServiceUtils {
     * {@code null} if none is loaded.
     */
    private static TransactionManager findTransactionManager() {
-      return AccessController.doPrivileged((PrivilegedAction<TransactionManager>) () -> {
+      return SecurityManagerCompatibility.get().doPrivileged((PrivilegedAction<TransactionManager>) () -> {
          Iterator<TransactionManagerLocator> it = ServiceLoader.load(TransactionManagerLocator.class, ServiceUtils.class.getClassLoader()).iterator();
          while (it.hasNext() && transactionManager == null) {
             transactionManager = it.next().getTransactionManager();
@@ -84,7 +84,7 @@ public class ServiceUtils {
     * the default {@code ActiveMQXAResourceWrapperFactoryImpl} if none is loaded.
     */
    private static ActiveMQXAResourceWrapperFactory findActiveMQXAResourceWrapperFactory() {
-      return AccessController.doPrivileged((PrivilegedAction<ActiveMQXAResourceWrapperFactory>) () -> {
+      return SecurityManagerCompatibility.get().doPrivileged((PrivilegedAction<ActiveMQXAResourceWrapperFactory>) () -> {
          Iterator<ActiveMQXAResourceWrapperFactory> iterator = ServiceLoader.load(ActiveMQXAResourceWrapperFactory.class, ServiceUtils.class.getClassLoader()).iterator();
          if (iterator.hasNext()) {
             return iterator.next();

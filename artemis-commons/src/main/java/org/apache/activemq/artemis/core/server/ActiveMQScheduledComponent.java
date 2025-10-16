@@ -16,8 +16,12 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import org.apache.activemq.artemis.securitymanager.SecurityManagerCompatibility;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.invoke.MethodHandles;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -27,10 +31,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is for components with a scheduled at a fixed rate.
@@ -188,7 +188,7 @@ public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, R
    }
 
    private ClassLoader getThisClassLoader() {
-      return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () -> ActiveMQScheduledComponent.this.getClass().getClassLoader());
+      return SecurityManagerCompatibility.get().doPrivileged((PrivilegedAction<ClassLoader>) () -> ActiveMQScheduledComponent.this.getClass().getClassLoader());
 
    }
 

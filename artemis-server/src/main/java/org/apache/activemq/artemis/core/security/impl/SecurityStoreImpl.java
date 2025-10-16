@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.core.security.impl;
 import javax.security.auth.Subject;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
-import java.security.AccessControlContext;
-import java.security.AccessController;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
@@ -47,6 +45,7 @@ import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.logs.AuditLogger;
+import org.apache.activemq.artemis.securitymanager.SecurityManagerCompatibility;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -210,11 +209,10 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             }
          } else {
             if (user == null && password == null && connection instanceof ManagementRemotingConnection) {
-               AccessControlContext accessControlContext = AccessController.getContext();
-               if (accessControlContext != null) {
+               if (SecurityManagerCompatibility.get().isEnabled()) {
                   check = false;
                   userIsValid = true;
-                  subject = Subject.getSubject(accessControlContext);
+                  subject = SecurityManagerCompatibility.get().current();
                   validatedUser = getUserFromSubject(subject);
                }
             }
@@ -467,9 +465,8 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
     */
    private Subject getSubjectForAuthorization(SecurityAuth auth, ActiveMQSecurityManager5 securityManager) {
       if (auth.getUsername() == null && auth.getPassword() == null && auth.getRemotingConnection() instanceof ManagementRemotingConnection) {
-         AccessControlContext accessControlContext = AccessController.getContext();
-         if (accessControlContext != null) {
-            return Subject.getSubject(accessControlContext);
+         if (SecurityManagerCompatibility.get().isEnabled()) {
+            return SecurityManagerCompatibility.get().current();
          }
       }
 

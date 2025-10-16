@@ -16,16 +16,6 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
-import java.io.File;
-import java.io.IOException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
@@ -39,6 +29,7 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
+import org.apache.activemq.artemis.securitymanager.SecurityManagerCompatibility;
 import org.apache.activemq.artemis.spi.core.remoting.ConsumerContext;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.FutureLatch;
@@ -49,7 +40,16 @@ import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.security.PrivilegedAction;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 public final class ClientConsumerImpl implements ClientConsumerInternal {
 
@@ -1023,21 +1023,21 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    }
 
    private ClassLoader safeInstallContextClassLoader() {
-      if (System.getSecurityManager() == null) {
+      if (!SecurityManagerCompatibility.get().isEnabled()) {
          try {
             return unsafeInstallContextClassLoader();
          } catch (SecurityException ignored) {
             // racy security manager set
          }
       }
-      return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) this::unsafeInstallContextClassLoader);
+      return SecurityManagerCompatibility.get().doPrivileged((PrivilegedAction<ClassLoader>) this::unsafeInstallContextClassLoader);
    }
 
    private void safeRestoreContextClassLoader(final ClassLoader originalClassLoader) {
       if (Objects.equals(originalClassLoader, contextClassLoader)) {
          return;
       }
-      if (System.getSecurityManager() == null) {
+      if (!SecurityManagerCompatibility.get().isEnabled()) {
          try {
             Thread.currentThread().setContextClassLoader(originalClassLoader);
             return;
@@ -1045,7 +1045,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
             // racy security manager set
          }
       }
-      AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+      SecurityManagerCompatibility.get().doPrivileged((PrivilegedAction<Void>) () -> {
          Thread.currentThread().setContextClassLoader(originalClassLoader);
          return null;
       });

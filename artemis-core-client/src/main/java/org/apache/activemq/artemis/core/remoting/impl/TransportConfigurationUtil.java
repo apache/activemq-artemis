@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +25,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfigurationHelper;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.securitymanager.SecurityManagerCompatibility;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 
 /**
@@ -66,7 +66,7 @@ public class TransportConfigurationUtil {
    }
 
    private static Object instantiateObject(final String className, final Class expectedType) {
-      return AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+      return SecurityManagerCompatibility.get().doPrivileged((PrivilegedAction<Object>) () -> {
          try {
             return ClassloadingUtil.newInstanceFromClassLoader(TransportConfigurationUtil.class, className, expectedType);
          } catch (IllegalStateException e) {

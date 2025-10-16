@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Array;
 import java.net.URI;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,6 +62,7 @@ import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
 import org.apache.activemq.artemis.core.cluster.DiscoveryListener;
 import org.apache.activemq.artemis.core.protocol.core.impl.ActiveMQClientProtocolManagerFactory;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
+import org.apache.activemq.artemis.securitymanager.SecurityManagerCompatibility;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.remoting.Connector;
@@ -228,7 +228,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    private ThreadFactory getThreadFactory(String groupName) {
-      return AccessController.doPrivileged(new PrivilegedAction<>() {
+      return SecurityManagerCompatibility.get().doPrivileged(new PrivilegedAction<>() {
          @Override
          public ThreadFactory run() {
             return new ActiveMQThreadFactory(groupName + System.identityHashCode(this), true, ClientSessionFactoryImpl.class.getClassLoader());
@@ -258,7 +258,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       if (config.connectionLoadBalancingPolicyClassName == null) {
          throw new IllegalStateException("Please specify a load balancing policy class name on the session factory");
       }
-      AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+      SecurityManagerCompatibility.get().doPrivileged((PrivilegedAction<Object>) () -> {
          loadBalancingPolicy = (ConnectionLoadBalancingPolicy) ClassloadingUtil.newInstanceFromClassLoader(ServerLocatorImpl.class, config.connectionLoadBalancingPolicyClassName, ConnectionLoadBalancingPolicy.class);
          return null;
       });
@@ -1958,7 +1958,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       if (interceptorList == null || interceptorList.trim().isEmpty()) {
          return;
       }
-      AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+      SecurityManagerCompatibility.get().doPrivileged((PrivilegedAction<Object>) () -> {
 
          String[] arrayInterceptor = interceptorList.split(",");
          for (String strValue : arrayInterceptor) {

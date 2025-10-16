@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.logs;
 
-import java.lang.reflect.Constructor;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
+import org.apache.activemq.artemis.securitymanager.SecurityManagerCompatibility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
+import java.security.PrivilegedAction;
 
 public class BundleFactory {
 
@@ -31,10 +31,10 @@ public class BundleFactory {
    }
 
    public static <T> T newBundle(final Class<T> type, String category) {
-      if (System.getSecurityManager() == null) {
+      if (!SecurityManagerCompatibility.get().isEnabled()) {
          return doNewBundle(type, category);
       } else {
-         return AccessController.doPrivileged((PrivilegedAction<T>) () -> doNewBundle(type, category));
+         return SecurityManagerCompatibility.get().doPrivileged((PrivilegedAction<T>) () -> doNewBundle(type, category));
       }
    }
 
