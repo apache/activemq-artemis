@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.cluster;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +39,7 @@ import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -111,7 +111,7 @@ public final class DiscoveryGroup implements ActiveMQComponent {
 
       started = true;
 
-      ThreadFactory tfactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("discovery-group-" + name, true, DiscoveryGroup.class.getClassLoader()));
+      ThreadFactory tfactory = SecurityManagerShim.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("discovery-group-" + name, true, DiscoveryGroup.class.getClassLoader()));
 
       thread = tfactory.newThread(new DiscoveryRunnable());
 

@@ -24,7 +24,6 @@ import javax.net.ssl.SSLParameters;
 import java.lang.invoke.MethodHandles;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -101,6 +100,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ProxyProtocolUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -447,7 +447,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          channelClazz = LocalServerChannel.class;
          eventLoopGroup = new DefaultEventLoopGroup();
       } else {
-         ThreadFactory threadFactory = AccessController.doPrivileged((PrivilegedAction<ActiveMQThreadFactory>) () -> new ActiveMQThreadFactory(threadFactoryGroupName, true, ClientSessionFactoryImpl.class.getClassLoader()));
+         ThreadFactory threadFactory = SecurityManagerShim.doPrivileged((PrivilegedAction<ActiveMQThreadFactory>) () -> new ActiveMQThreadFactory(threadFactoryGroupName, true, ClientSessionFactoryImpl.class.getClassLoader()));
          if (useEpoll && CheckDependencies.isEpollAvailable()) {
             channelClazz = EpollServerSocketChannel.class;
             eventLoopGroup = new EpollEventLoopGroup(remotingThreads, threadFactory);

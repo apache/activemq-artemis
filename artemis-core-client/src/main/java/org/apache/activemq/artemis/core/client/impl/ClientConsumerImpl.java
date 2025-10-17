@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.client.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -47,6 +46,7 @@ import org.apache.activemq.artemis.utils.TokenBucketLimiter;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -1023,21 +1023,21 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    }
 
    private ClassLoader safeInstallContextClassLoader() {
-      if (System.getSecurityManager() == null) {
+      if (!SecurityManagerShim.isSecurityManagerEnabled()) {
          try {
             return unsafeInstallContextClassLoader();
          } catch (SecurityException ignored) {
             // racy security manager set
          }
       }
-      return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) this::unsafeInstallContextClassLoader);
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<ClassLoader>) this::unsafeInstallContextClassLoader);
    }
 
    private void safeRestoreContextClassLoader(final ClassLoader originalClassLoader) {
       if (Objects.equals(originalClassLoader, contextClassLoader)) {
          return;
       }
-      if (System.getSecurityManager() == null) {
+      if (!SecurityManagerShim.isSecurityManagerEnabled()) {
          try {
             Thread.currentThread().setContextClassLoader(originalClassLoader);
             return;
@@ -1045,7 +1045,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
             // racy security manager set
          }
       }
-      AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+      SecurityManagerShim.doPrivileged((PrivilegedAction<Void>) () -> {
          Thread.currentThread().setContextClassLoader(originalClassLoader);
          return null;
       });

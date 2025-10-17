@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.ra.inflow;
 
 import java.lang.reflect.Method;
-import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,6 +63,7 @@ import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConf
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -585,7 +585,7 @@ public class ActiveMQActivation {
       ClassLoader tccl;
 
       try {
-         tccl = AccessController.doPrivileged((PrivilegedExceptionAction<ClassLoader>) ActiveMQActivation.class::getClassLoader);
+         tccl = SecurityManagerShim.doPrivileged((PrivilegedExceptionAction<ClassLoader>) ActiveMQActivation.class::getClassLoader);
       } catch (Throwable e) {
          logger.warn(e.getMessage(), e);
          tccl = null;

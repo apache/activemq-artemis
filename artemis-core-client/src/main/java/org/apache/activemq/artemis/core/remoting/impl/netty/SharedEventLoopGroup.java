@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
@@ -33,6 +32,7 @@ import io.netty.util.concurrent.Promise;
 
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 public class SharedEventLoopGroup extends DelegatingEventLoopGroup {
 
@@ -61,7 +61,7 @@ public class SharedEventLoopGroup extends DelegatingEventLoopGroup {
             f.cancel(false);
          }
       } else {
-         instance = new SharedEventLoopGroup(eventLoopGroupSupplier.apply((ThreadFactory) AccessController.doPrivileged((PrivilegedAction) () -> new ActiveMQThreadFactory("client-remoting", true, ClientSessionFactoryImpl.class.getClassLoader()))));
+         instance = new SharedEventLoopGroup(eventLoopGroupSupplier.apply((ThreadFactory) SecurityManagerShim.doPrivileged((PrivilegedAction) () -> new ActiveMQThreadFactory("client-remoting", true, ClientSessionFactoryImpl.class.getClassLoader()))));
       }
       instance.channelFactoryCount.incrementAndGet();
       return instance;

@@ -38,7 +38,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Map;
 import java.util.Properties;
@@ -60,6 +59,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactor
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.URISupport;
 
@@ -156,7 +156,7 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
 
       if (protocolManagerFactoryStr != null && !protocolManagerFactoryStr.trim().isEmpty() &&
          !protocolManagerFactoryStr.equals("undefined")) {
-         AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+         SecurityManagerShim.doPrivileged((PrivilegedAction<Object>) () -> {
             ClientProtocolManagerFactory protocolManagerFactory = (ClientProtocolManagerFactory) ClassloadingUtil.newInstanceFromClassLoader(ActiveMQConnectionFactory.class, protocolManagerFactoryStr, ClientProtocolManagerFactory.class);
             serverLocator.setProtocolManagerFactory(protocolManagerFactory);
             return null;

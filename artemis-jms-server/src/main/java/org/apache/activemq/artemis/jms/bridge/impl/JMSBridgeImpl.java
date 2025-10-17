@@ -36,7 +36,6 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.TransactionRolledbackException;
 import javax.transaction.xa.XAResource;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -73,6 +72,7 @@ import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.ActiveMQRegistry;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -345,7 +345,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          stopping = false;
       }
 
-      moduleTccl = AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () -> Thread.currentThread().getContextClassLoader());
+      moduleTccl = SecurityManagerShim.doPrivileged((PrivilegedAction<ClassLoader>) () -> Thread.currentThread().getContextClassLoader());
 
       locateRecoveryRegistry();
 
@@ -1637,7 +1637,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          public Thread newThread(Runnable r) {
             final Thread thr = new Thread(group, r);
             if (moduleTccl != null) {
-               AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+               SecurityManagerShim.doPrivileged((PrivilegedAction<Object>) () -> {
                   thr.setContextClassLoader(moduleTccl);
                   return null;
                });

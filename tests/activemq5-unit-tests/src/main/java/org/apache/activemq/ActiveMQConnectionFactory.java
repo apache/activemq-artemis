@@ -28,7 +28,6 @@ import javax.jms.TopicConnectionFactory;
 import javax.naming.Context;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,6 +38,7 @@ import java.util.Properties;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.Objects;
 
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.activemq.blob.BlobTransferPolicy;
 import org.apache.activemq.broker.region.policy.RedeliveryPolicyMap;
 import org.apache.activemq.jndi.JNDIBaseStorable;
@@ -69,12 +69,12 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       String host = null;
       String port = null;
       try {
-         host = AccessController.doPrivileged((PrivilegedAction<String>) () -> {
+         host = SecurityManagerShim.doPrivileged((PrivilegedAction<String>) () -> {
             String result = System.getProperty("org.apache.activemq.AMQ_HOST");
             result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_HOST", "localhost") : result;
             return result;
          });
-         port = AccessController.doPrivileged((PrivilegedAction<String>) () -> {
+         port = SecurityManagerShim.doPrivileged((PrivilegedAction<String>) () -> {
             String result = System.getProperty("org.apache.activemq.AMQ_PORT");
             result = (result == null || result.isEmpty()) ? System.getProperty("AMQ_PORT", "61616") : result;
             return result;
@@ -95,7 +95,7 @@ public class ActiveMQConnectionFactory extends JNDIBaseStorable implements Conne
       String bindURL = null;
 
       try {
-         bindURL = AccessController.doPrivileged((PrivilegedAction<String>) () -> {
+         bindURL = SecurityManagerShim.doPrivileged((PrivilegedAction<String>) () -> {
             String result = System.getProperty("org.apache.activemq.BROKER_BIND_URL");
             result = (result == null || result.isEmpty()) ? System.getProperty("BROKER_BIND_URL", defaultURL) : result;
             return result;

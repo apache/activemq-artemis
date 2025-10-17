@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,6 +91,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.PemConfigUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -223,7 +223,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       paused = false;
 
       // this is used for in-vm but for Netty it's only used for executing failure listeners
-      threadPool = Executors.newCachedThreadPool(AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory(server.getThreadGroupName("remoting-service"), false, Thread.currentThread().getContextClassLoader())));
+      threadPool = Executors.newCachedThreadPool(SecurityManagerShim.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory(server.getThreadGroupName("remoting-service"), false, Thread.currentThread().getContextClassLoader())));
 
       for (TransportConfiguration info : acceptorsConfig.values()) {
          createAcceptor(info);

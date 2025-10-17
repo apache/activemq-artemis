@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -58,6 +57,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ListUtil;
 import org.apache.activemq.artemis.utils.XmlProvider;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine.Command;
@@ -231,7 +231,7 @@ public final class XmlDataImporter extends ConnectionConfigurationAbtract {
    }
 
    private static URL findResource(final String resourceName) {
-      return AccessController.doPrivileged((PrivilegedAction<URL>) () -> ClassloadingUtil.findResource(resourceName));
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<URL>) () -> ClassloadingUtil.findResource(resourceName));
    }
 
    private void processXml() throws Exception {

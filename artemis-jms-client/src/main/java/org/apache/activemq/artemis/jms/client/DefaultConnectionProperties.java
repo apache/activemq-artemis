@@ -17,8 +17,9 @@
 
 package org.apache.activemq.artemis.jms.client;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
+
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 /**
  * This class will provide default properties for constructors
@@ -51,7 +52,7 @@ public class DefaultConnectionProperties {
    public static String DEFAULT_PASSWORD_CODEC;
 
    static String getProperty(final String defaultValue, final String... propertyNames) {
-      return AccessController.doPrivileged((PrivilegedAction<String>) () -> {
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<String>) () -> {
          for (String name : propertyNames) {
             String property = System.getProperty(name);
             if (property != null && !property.isEmpty()) {

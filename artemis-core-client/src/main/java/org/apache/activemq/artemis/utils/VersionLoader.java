@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +30,7 @@ import java.util.StringTokenizer;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.core.version.impl.VersionImpl;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 /**
  * This loads the version info in from a version.properties file.
@@ -49,7 +49,7 @@ public final class VersionLoader {
       try {
 
          try {
-            PROP_FILE_NAME = AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty(VersionLoader.VERSION_PROP_FILE_KEY));
+            PROP_FILE_NAME = SecurityManagerShim.doPrivileged((PrivilegedAction<String>) () -> System.getProperty(VersionLoader.VERSION_PROP_FILE_KEY));
          } catch (Throwable e) {
             ActiveMQClientLogger.LOGGER.unableToInitVersionLoader(e);
             PROP_FILE_NAME = null;

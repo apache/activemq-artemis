@@ -20,7 +20,6 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.lang.invoke.MethodHandles;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.EnumSet;
 import java.util.List;
@@ -129,6 +128,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1174,7 +1174,7 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    protected ClassLoader lookupTCCL() {
-      return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () -> Thread.currentThread().getContextClassLoader());
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<ClassLoader>) () -> Thread.currentThread().getContextClassLoader());
 
    }
 

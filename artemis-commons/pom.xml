@@ -112,6 +112,33 @@
             <skipCommonsJavadocGeneration>${maven.javadoc.skip}</skipCommonsJavadocGeneration>
          </properties>
       </profile>
+      <profile>
+         <id>jdk25on</id>
+         <activation>
+            <jdk>[25,)</jdk>
+         </activation>
+         <build>
+            <plugins>
+               <plugin>
+                  <artifactId>maven-compiler-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>java25-compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                           <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                           <release>25</release>
+                           <compileSourceRoots>${project.basedir}/src/main/java25</compileSourceRoots>
+                           <multiReleaseOutput>true</multiReleaseOutput>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
    </profiles>
 
    <build>
@@ -191,6 +218,4 @@
          </plugin>
       </plugins>
    </build>
-
-
 </project>

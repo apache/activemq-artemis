@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +37,7 @@ import org.apache.activemq.artemis.core.server.transformer.RegisteredTransformer
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 public class ServiceRegistryImpl implements ServiceRegistry {
 
@@ -250,7 +250,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
    @SuppressWarnings("TypeParameterUnusedInFormals")
    public <T> T loadClass(final String className, Class expectedType) {
-      return AccessController.doPrivileged((PrivilegedAction<T>) () -> (T) ClassloadingUtil.newInstanceFromClassLoader(className, expectedType));
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<T>) () -> (T) ClassloadingUtil.newInstanceFromClassLoader(className, expectedType));
    }
 
    private Transformer instantiateTransformer(final TransformerConfiguration transformerConfiguration) {
