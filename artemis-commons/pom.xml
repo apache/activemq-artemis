@@ -136,6 +136,21 @@
                      </execution>
                   </executions>
                </plugin>
+               <plugin>
+                  <artifactId>maven-jar-plugin</artifactId>
+                  <!-- Do jar creation earlier, before the "test" phase, so that the
+                       multi-release-jar content is visible to any dependent modules,
+                       enabling them to use the relevant classes during their tests. -->
+                  <executions>
+                     <execution>
+                        <id>default-jar</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                           <goal>jar</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+               </plugin>
             </plugins>
          </build>
       </profile>
