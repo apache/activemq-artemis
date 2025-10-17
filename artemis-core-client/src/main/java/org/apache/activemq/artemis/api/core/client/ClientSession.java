@@ -43,7 +43,7 @@ public interface ClientSession extends XAResource, AutoCloseable {
    String JMS_SESSION_IDENTIFIER_PROPERTY = "jms-session";
 
    /**
-    * Just like {@link ClientSession.AddressQuery#JMS_SESSION_IDENTIFIER_PROPERTY} this is used to identify the ClientID
+    * Just like {@link #JMS_SESSION_IDENTIFIER_PROPERTY} this is used to identify the ClientID
     * over JMS Session. However this is only used when the JMS Session.clientID is set (which is optional). With this
     * property management tools and the server can identify the jms-client-id used over JMS
     */
