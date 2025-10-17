@@ -32,8 +32,12 @@ import org.apache.activemq.artemis.utils.FileUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+// 2.10.0 fails on Java 23+ without workarounds.
+@EnabledForJreRange(max = JRE.JAVA_22)
 @ExtendWith(ParameterizedTestExtension.class)
 public class SerializationTest extends VersionedBase {
 

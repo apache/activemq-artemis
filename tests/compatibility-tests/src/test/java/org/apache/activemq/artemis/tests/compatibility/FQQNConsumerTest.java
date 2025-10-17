@@ -45,7 +45,10 @@ public class FQQNConsumerTest extends ServerBase {
 
       // FQQN was added into 2.7.0, hence we only test the server as SNAPSHOT or TWO_SEVEN_ZERO
       List testsList = combinatory(new Object[]{SNAPSHOT}, new Object[]{SNAPSHOT, TWO_FOUR, TWO_ONE, TWO_SIX_THREE, TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_FOUR, TWO_ONE, TWO_SIX_THREE, TWO_SEVEN_ZERO});
-      addCombinations(testsList, null, new Object[] {TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_SEVEN_ZERO});
+      if (getJavaVersion() <= 22) {
+         // 2.7.0 server fails on JDK23+ without workarounds.
+         addCombinations(testsList, null, new Object[] {TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_SEVEN_ZERO}, new Object[]{SNAPSHOT, TWO_SEVEN_ZERO});
+      }
       return testsList;
    }
 

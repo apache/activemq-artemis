@@ -51,7 +51,10 @@ public class AddressPauseJournalCompatibilityTest extends VersionedBase {
       //      combinations.add(new Object[]{SNAPSHOT, ONE_FIVE, ONE_FIVE});
       //      combinations.add(new Object[]{ONE_FIVE, ONE_FIVE, ONE_FIVE});
 
-      combinations.add(new Object[]{null, TWO_TEN_ZERO, SNAPSHOT});
+      if (getJavaVersion() <= 22) {
+         // 2.10.0 server fails on JDK23+ without workarounds.
+         combinations.add(new Object[]{null, TWO_TEN_ZERO, SNAPSHOT});
+      }
       // the purpose on this one is just to validate the test itself.
       /// if it can't run against itself it won't work at all
       combinations.add(new Object[]{null, SNAPSHOT, SNAPSHOT});

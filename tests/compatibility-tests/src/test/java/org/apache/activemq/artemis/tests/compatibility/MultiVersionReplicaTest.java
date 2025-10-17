@@ -59,12 +59,16 @@ public class MultiVersionReplicaTest extends ClasspathBase {
    @Parameters(name = "main={0}, backup={1}")
    public static Collection getParameters() {
       List<Object[]> combinations = new ArrayList<>();
-      combinations.add(new Object[]{TWO_TWENTYTWO_ZERO, SNAPSHOT});
-      combinations.add(new Object[]{SNAPSHOT, TWO_TWENTYTWO_ZERO});
-      combinations.add(new Object[]{TWO_SEVENTEEN_ZERO, SNAPSHOT});
-      combinations.add(new Object[]{SNAPSHOT, TWO_SEVENTEEN_ZERO});
-      combinations.add(new Object[]{TWO_EIGHTEEN_ZERO, SNAPSHOT});
-      combinations.add(new Object[]{SNAPSHOT, TWO_EIGHTEEN_ZERO});
+
+      if (getJavaVersion() <= 22) {
+         // Old 2.x servers fail on JDK23+ without workarounds.
+         combinations.add(new Object[]{TWO_TWENTYTWO_ZERO, SNAPSHOT});
+         combinations.add(new Object[]{SNAPSHOT, TWO_TWENTYTWO_ZERO});
+         combinations.add(new Object[]{TWO_SEVENTEEN_ZERO, SNAPSHOT});
+         combinations.add(new Object[]{SNAPSHOT, TWO_SEVENTEEN_ZERO});
+         combinations.add(new Object[]{TWO_EIGHTEEN_ZERO, SNAPSHOT});
+         combinations.add(new Object[]{SNAPSHOT, TWO_EIGHTEEN_ZERO});
+      }
       // The SNAPSHOT/SNAPSHOT is here as a test validation only, like in other cases where SNAPSHOT/SNAPSHOT is used.
       combinations.add(new Object[]{SNAPSHOT, SNAPSHOT});
       return combinations;
