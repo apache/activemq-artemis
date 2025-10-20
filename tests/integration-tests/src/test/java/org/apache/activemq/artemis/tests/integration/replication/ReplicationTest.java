@@ -684,8 +684,8 @@ public final class ReplicationTest extends ActiveMQTestBase {
    }
 
    /**
-    * We need to shutdown the executors before calling {@link super#tearDown()} (which will check for leaking threads).
-    * Due to that, we need to close/stop all components here.
+    * We need to shutdown the executors before calling {@link ActiveMQTestBase#tearDown()} (which will check for leaking
+    * threads). Due to that, we need to close/stop all components here.
     */
    @Override
    @AfterEach
