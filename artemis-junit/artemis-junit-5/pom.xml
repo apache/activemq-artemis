@@ -32,6 +32,19 @@
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
    </properties>
 
+   <dependencyManagement>
+      <dependencies>
+         <dependency>
+            <groupId>org.junit</groupId>
+            <artifactId>junit-bom</artifactId>
+            <version>${junit5.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+            <!-- Eclipse Public License - v 2.0 -->
+         </dependency>
+      </dependencies>
+   </dependencyManagement>
+
    <dependencies>
       <dependency>
          <groupId>org.junit.jupiter</groupId>
