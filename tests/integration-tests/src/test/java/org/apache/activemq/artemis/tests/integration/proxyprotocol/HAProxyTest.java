@@ -243,7 +243,7 @@ public class HAProxyTest extends MultiprotocolJMSClientTestSupport {
          } catch (Exception e) {
             throw new RuntimeException(e);
          }
-         cf.setKeyStorePassword("securepass");
+         cf.setTrustStorePassword("securepass");
          return cf.createConnection();
       }, version);
    }
