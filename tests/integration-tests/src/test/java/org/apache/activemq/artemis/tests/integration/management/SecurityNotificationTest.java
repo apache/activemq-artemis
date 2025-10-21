@@ -28,9 +28,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import javax.management.JMX;
 import javax.security.auth.Subject;
 import java.lang.management.ManagementFactory;
-import java.security.PrivilegedExceptionAction;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -54,6 +54,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -154,7 +155,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
          ManagementFactory.getPlatformMBeanServer(),
          ObjectNameBuilder.DEFAULT.getAddressObjectName(ActiveMQDefaultConfiguration.getDefaultManagementNotificationAddress()), AddressControl.class, false);
 
-      Exception e = Subject.doAs(guestSubject, (PrivilegedExceptionAction<Exception>) () -> {
+      Exception e = SecurityManagerShim.callAs(guestSubject, (Callable<Exception>) () -> {
          try {
             addressControl.sendMessage(null, 1, "hi", false, null, null);
             fail("need Send permission");

@@ -45,8 +45,6 @@ import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,10 +56,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionException;
 import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -385,9 +386,9 @@ public class LDAPLoginModule implements AuditLoginModule {
 
          NamingEnumeration<SearchResult> results = null;
          try {
-            results = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.USER_BASE), filter, constraints));
-         } catch (PrivilegedActionException e) {
-            Exception cause = e.getException();
+            results = SecurityManagerShim.callAs(brokerGssapiIdentity, (Callable< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.USER_BASE), filter, constraints));
+         } catch (CompletionException e) {
+            Throwable cause = e.getCause();
             FailedLoginException ex = new FailedLoginException("Error executing search query to resolve DN");
             ex.initCause(cause);
             throw ex;
@@ -511,9 +512,9 @@ public class LDAPLoginModule implements AuditLoginModule {
       Queue<String> pendingNameExpansion = new LinkedList<>();
       NamingEnumeration<SearchResult> results = null;
       try {
-         results = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.ROLE_BASE), filter, constraints));
-      } catch (PrivilegedActionException e) {
-         Exception cause = e.getException();
+         results = SecurityManagerShim.callAs(brokerGssapiIdentity, (Callable< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.ROLE_BASE), filter, constraints));
+      } catch (CompletionException e) {
+         Throwable cause = e.getCause();
          NamingException ex = new NamingException("Error executing search query to resolve roles");
          ex.initCause(cause);
          throw ex;
@@ -548,9 +549,9 @@ public class LDAPLoginModule implements AuditLoginModule {
                logger.debug("  filter: {}", expandFilter);
             }
             try {
-               results = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.ROLE_BASE), expandFilter, constraints));
-            } catch (PrivilegedActionException e) {
-               Exception cause = e.getException();
+               results = SecurityManagerShim.callAs(brokerGssapiIdentity, (Callable< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.ROLE_BASE), expandFilter, constraints));
+            } catch (CompletionException e) {
+               Throwable cause = e.getCause();
                NamingException ex = new NamingException("Error executing search query to expand roles");
                ex.initCause(cause);
                throw ex;
@@ -708,11 +709,15 @@ public class LDAPLoginModule implements AuditLoginModule {
             extendInitialEnvironment(config, env);
 
             try {
-               context = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction<DirContext>) () -> new InitialDirContext(env));
-            } catch (PrivilegedActionException e) {
-               throw e.getException();
-            }
+               context = SecurityManagerShim.callAs(brokerGssapiIdentity, (Callable<DirContext>) () -> new InitialDirContext(env));
+            } catch (CompletionException ce) {
+               Throwable cause = ce.getCause();
+               if (cause instanceof Exception ex) {
+                  throw ex;
+               }
 
+               throw ce;
+            }
          } catch (NamingException e) {
             closeContext();
             ActiveMQServerLogger.LOGGER.failedToOpenContext(e);

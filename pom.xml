@@ -176,6 +176,8 @@
       <apache.httpcore.version>4.4.16</apache.httpcore.version>
       <apache.httpclient.version>4.5.14</apache.httpclient.version>
       <shrinkwrap-api.version>1.2.6</shrinkwrap-api.version>
+      <!-- Override parent property for shade plugin version -->
+      <version.maven-shade-plugin>3.6.1</version.maven-shade-plugin>
 
       <!-- for JakartaEE -->
       <version.batavia>1.0.15.Final</version.batavia>
@@ -431,8 +433,8 @@
                         <configuration>
                            <rules>
                               <requireJavaVersion>
-                                 <version>[17, 18)</version>
-                                 <message>JDK 17 is required when building the release</message>
+                                 <version>[25, 26)</version>
+                                 <message>JDK 25 is required when building the release</message>
                               </requireJavaVersion>
                            </rules>
                         </configuration>

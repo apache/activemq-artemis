@@ -22,10 +22,10 @@ import javax.resource.spi.SecurityException;
 import javax.resource.spi.security.PasswordCredential;
 import javax.security.auth.Subject;
 import java.io.Serializable;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Set;
 
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -156,7 +156,7 @@ public class ActiveMQRACredential implements Serializable {
          logger.trace("getCredential({}, {})", subject, mcf);
 
          GetCredentialAction action = new GetCredentialAction(subject, mcf);
-         return AccessController.doPrivileged(action);
+         return SecurityManagerShim.doPrivileged(action);
       }
    }
 }

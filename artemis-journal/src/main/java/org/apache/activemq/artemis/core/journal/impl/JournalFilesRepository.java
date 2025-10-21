@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collection;
@@ -43,6 +42,7 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
@@ -600,11 +600,11 @@ public class JournalFilesRepository {
                                   final boolean init,
                                   final boolean tmpCompact,
                                   final long fileIdPreSet) throws Exception {
-      if (System.getSecurityManager() == null) {
+      if (!SecurityManagerShim.isSecurityManagerEnabled()) {
          return createFile0(keepOpened, multiAIO, init, tmpCompact, fileIdPreSet);
       } else {
          try {
-            return AccessController.doPrivileged((PrivilegedExceptionAction<JournalFile>) () -> createFile0(keepOpened, multiAIO, init, tmpCompact, fileIdPreSet));
+            return SecurityManagerShim.doPrivileged((PrivilegedExceptionAction<JournalFile>) () -> createFile0(keepOpened, multiAIO, init, tmpCompact, fileIdPreSet));
          } catch (PrivilegedActionException e) {
             throw unwrapException(e);
          }

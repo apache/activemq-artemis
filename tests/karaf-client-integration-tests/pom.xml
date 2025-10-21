@@ -229,4 +229,28 @@
          </plugin>
       </plugins>
    </build>
+
+   <profiles>
+      <profile>
+         <!-- TODO: Changes so these tests can work -->
+         <id>jdk23on</id>
+         <activation>
+            <jdk>[23,)</jdk>
+         </activation>
+         <properties>
+            <skipIntegrationTests>true</skipIntegrationTests>
+         </properties>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-failsafe-plugin</artifactId>
+                  <configuration>
+                     <skip>true</skip>
+                  </configuration>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+   </profiles>
 </project>

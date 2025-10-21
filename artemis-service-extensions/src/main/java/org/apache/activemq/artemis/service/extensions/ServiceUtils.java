@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.service.extensions;
 
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,6 +27,7 @@ import org.apache.activemq.artemis.service.extensions.transactions.TransactionMa
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactory;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperFactoryImpl;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 public class ServiceUtils {
 
@@ -70,7 +70,7 @@ public class ServiceUtils {
     * {@code null} if none is loaded.
     */
    private static TransactionManager findTransactionManager() {
-      return AccessController.doPrivileged((PrivilegedAction<TransactionManager>) () -> {
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<TransactionManager>) () -> {
          Iterator<TransactionManagerLocator> it = ServiceLoader.load(TransactionManagerLocator.class, ServiceUtils.class.getClassLoader()).iterator();
          while (it.hasNext() && transactionManager == null) {
             transactionManager = it.next().getTransactionManager();
@@ -84,7 +84,7 @@ public class ServiceUtils {
     * the default {@code ActiveMQXAResourceWrapperFactoryImpl} if none is loaded.
     */
    private static ActiveMQXAResourceWrapperFactory findActiveMQXAResourceWrapperFactory() {
-      return AccessController.doPrivileged((PrivilegedAction<ActiveMQXAResourceWrapperFactory>) () -> {
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<ActiveMQXAResourceWrapperFactory>) () -> {
          Iterator<ActiveMQXAResourceWrapperFactory> iterator = ServiceLoader.load(ActiveMQXAResourceWrapperFactory.class, ServiceUtils.class.getClassLoader()).iterator();
          if (iterator.hasNext()) {
             return iterator.next();

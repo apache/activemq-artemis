@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,6 +25,7 @@ import java.util.ServiceLoader;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 public final class PasswordMaskingUtil {
 
@@ -176,7 +176,7 @@ public final class PasswordMaskingUtil {
       final String codecClassName = parts[0];
 
       // load class
-      codecInstance = AccessController.doPrivileged((PrivilegedAction<SensitiveDataCodec<String>>) () -> {
+      codecInstance = SecurityManagerShim.doPrivileged((PrivilegedAction<SensitiveDataCodec<String>>) () -> {
          ServiceLoader<SensitiveDataCodec> serviceLoader = ServiceLoader.load(SensitiveDataCodec.class, PasswordMaskingUtil.class.getClassLoader());
          try {
             // Service load the codec, if a service is available

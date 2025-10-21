@@ -112,6 +112,48 @@
             <skipCommonsJavadocGeneration>${maven.javadoc.skip}</skipCommonsJavadocGeneration>
          </properties>
       </profile>
+      <profile>
+         <id>jdk24on</id>
+         <activation>
+            <jdk>[24,)</jdk>
+         </activation>
+         <build>
+            <plugins>
+               <plugin>
+                  <artifactId>maven-compiler-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>java24-compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                           <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                           <release>24</release>
+                           <compileSourceRoots>${project.basedir}/src/main/java24</compileSourceRoots>
+                           <multiReleaseOutput>true</multiReleaseOutput>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+               <plugin>
+                  <artifactId>maven-jar-plugin</artifactId>
+                  <!-- Do jar creation earlier, before the "test" phase, so that the
+                       multi-release-jar content is visible to any dependent modules,
+                       enabling them to use the relevant classes during their tests. -->
+                  <executions>
+                     <execution>
+                        <id>default-jar</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                           <goal>jar</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
    </profiles>
 
    <build>
@@ -191,6 +233,4 @@
          </plugin>
       </plugins>
    </build>
-
-
 </project>

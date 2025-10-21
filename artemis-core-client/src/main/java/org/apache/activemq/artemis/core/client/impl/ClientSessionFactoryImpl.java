@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.client.impl;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.ref.WeakReference;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,6 +74,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1124,7 +1124,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       }
       // else... we will try to instantiate a new one
 
-      return AccessController.doPrivileged((PrivilegedAction<ConnectorFactory>) () -> (ConnectorFactory) ClassloadingUtil.newInstanceFromClassLoader(ClientSessionFactoryImpl.class, connectorFactoryClassName, ConnectorFactory.class));
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<ConnectorFactory>) () -> (ConnectorFactory) ClassloadingUtil.newInstanceFromClassLoader(ClientSessionFactoryImpl.class, connectorFactoryClassName, ConnectorFactory.class));
    }
 
    public class CloseRunnable implements Runnable {

@@ -21,23 +21,24 @@ package org.apache.activemq.artemis.tests.extensions;
 import javax.security.auth.Subject;
 
 import java.lang.reflect.Method;
-import java.security.PrivilegedExceptionAction;
+import java.util.concurrent.Callable;
 
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
 
-public class SubjectDotDoAsExtension implements InvocationInterceptor {
+public class SubjectDotCallAsExtension implements InvocationInterceptor {
 
    final Subject subject;
 
-   public SubjectDotDoAsExtension(Subject subject) {
+   public SubjectDotCallAsExtension(Subject subject) {
       this.subject = subject;
    }
 
    @Override
    public void interceptTestMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext) throws Throwable {
-      Exception e = Subject.doAs(subject, (PrivilegedExceptionAction<Exception>) () -> {
+      Exception e = SecurityManagerShim.callAs(subject, (Callable<Exception>) () -> {
          try {
             invocation.proceed();
          } catch (Throwable e1) {

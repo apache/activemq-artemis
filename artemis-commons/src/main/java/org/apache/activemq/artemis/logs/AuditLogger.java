@@ -19,11 +19,11 @@ package org.apache.activemq.artemis.logs;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.GetLogger;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
-import java.security.AccessController;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,7 +70,7 @@ public interface AuditLogger {
     * set)}
     */
    static String getCaller() {
-      Subject subject = Subject.getSubject(AccessController.getContext());
+      Subject subject = SecurityManagerShim.currentSubject();
       if (subject == null) {
          subject = currentCaller.get();
       }

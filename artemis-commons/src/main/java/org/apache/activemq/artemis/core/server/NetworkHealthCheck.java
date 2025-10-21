@@ -25,7 +25,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +33,7 @@ import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -165,7 +165,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
 
 
    private ClassLoader getThisClassLoader() {
-      return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () -> NetworkHealthCheck.this.getClass().getClassLoader());
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<ClassLoader>) () -> NetworkHealthCheck.this.getClass().getClassLoader());
 
    }
 

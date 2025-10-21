@@ -26,7 +26,6 @@ import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,8 +38,6 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +46,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionException;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -60,6 +59,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.api.ldap.model.constants.SupportedSaslMechanisms;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
@@ -338,7 +338,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
    }
 
    @Test
-   public void testSaslGssapiLdapAuth() throws Exception {
+   public void testSaslGssapiLdapAuth() throws Throwable {
 
       final Hashtable<String, String> env = new Hashtable<>();
       env.put(Context.PROVIDER_URL, "ldap://localhost:1024");
@@ -348,7 +348,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
       LoginContext loginContext = new LoginContext("broker-sasl-gssapi");
       loginContext.login();
       try {
-         Subject.doAs(loginContext.getSubject(), (PrivilegedExceptionAction<Object>) () -> {
+         SecurityManagerShim.callAs(loginContext.getSubject(), (Callable<Object>) () -> {
 
             Set<String> set = new HashSet<>();
 
@@ -369,8 +369,8 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
             return null;
 
          });
-      } catch (PrivilegedActionException e) {
-         throw e.getException();
+      } catch (CompletionException ce) {
+         throw ce.getCause();
       }
    }
 

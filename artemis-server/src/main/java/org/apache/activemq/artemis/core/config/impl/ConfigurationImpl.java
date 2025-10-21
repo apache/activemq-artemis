@@ -41,7 +41,6 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -143,6 +142,7 @@ import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.XMLUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
 import org.apache.commons.beanutils.BeanUtilsBean;
@@ -3003,7 +3003,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public Configuration copy() throws Exception {
-      return AccessController.doPrivileged((PrivilegedExceptionAction<Configuration>) () -> {
+      return SecurityManagerShim.doPrivileged((PrivilegedExceptionAction<Configuration>) () -> {
          ByteArrayOutputStream bos = new ByteArrayOutputStream();
          ObjectOutputStream os = new ObjectOutputStream(bos);
          os.writeObject(ConfigurationImpl.this);
