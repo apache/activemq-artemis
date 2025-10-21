@@ -23,7 +23,6 @@ import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -224,6 +223,7 @@ import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerImpl;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -3246,7 +3246,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    private ActiveMQThreadFactory getThreadFactory(String name) {
-      return AccessController.doPrivileged((PrivilegedAction<ActiveMQThreadFactory>) () -> new ActiveMQThreadFactory(getThreadGroupName(name), false, ClientSessionFactoryImpl.class.getClassLoader()));
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<ActiveMQThreadFactory>) () -> new ActiveMQThreadFactory(getThreadGroupName(name), false, ClientSessionFactoryImpl.class.getClassLoader()));
    }
 
    @Override

@@ -27,9 +27,10 @@ import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
-import java.security.PrivilegedExceptionAction;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionException;
 
 import jdk.management.jfr.FlightRecorderMXBean;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -54,8 +55,9 @@ import org.apache.activemq.artemis.core.server.management.ArtemisRbacMBeanServer
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
-import org.apache.activemq.artemis.tests.extensions.SubjectDotDoAsExtension;
+import org.apache.activemq.artemis.tests.extensions.SubjectDotCallAsExtension;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,7 +74,7 @@ public class JmxSecurityTest {
    }
 
    @RegisterExtension
-   public SubjectDotDoAsExtension doAs = new SubjectDotDoAsExtension(subject);
+   public SubjectDotCallAsExtension callAs = new SubjectDotCallAsExtension(subject);
 
    ActiveMQServer server;
 
@@ -309,26 +311,26 @@ public class JmxSecurityTest {
       subjectB.getPrincipals().add(new RolePrincipal("b"));
 
       // client A View queue A
-      assertEquals(Long.valueOf(0), Subject.doAs(subjectA, (PrivilegedExceptionAction<Long>) () -> queueControlA.countMessages()));
+      assertEquals(Long.valueOf(0), SecurityManagerShim.callAs(subjectA, (Callable<Long>) () -> queueControlA.countMessages()));
 
       // client B view queue A
       try {
-         assertEquals(Long.valueOf(0), Subject.doAs(subjectB, (PrivilegedExceptionAction<Long>) () -> queueControlA.countMessages()));
+         assertEquals(Long.valueOf(0), SecurityManagerShim.callAs(subjectB, (Callable<Long>) () -> queueControlA.countMessages()));
          fail("should throw exception here");
-      } catch (Exception e) {
-         assertInstanceOf(SecurityException.class, e);
+      } catch (CompletionException ce) {
+         assertInstanceOf(SecurityException.class, ce.getCause());
       }
 
       // client B View queue B
-      assertEquals(Long.valueOf(0), Subject.doAs(subjectB, (PrivilegedExceptionAction<Long>) () -> queueControlB.countMessages()));
+      assertEquals(Long.valueOf(0), SecurityManagerShim.callAs(subjectB, (Callable<Long>) () -> queueControlB.countMessages()));
 
 
       // client A View queue B
       try {
-         assertEquals(Long.valueOf(0), Subject.doAs(subjectA, (PrivilegedExceptionAction<Long>) () -> queueControlB.countMessages()));
+         assertEquals(Long.valueOf(0), SecurityManagerShim.callAs(subjectA, (Callable<Long>) () -> queueControlB.countMessages()));
          fail("should throw exception here");
-      } catch (Exception e) {
-         assertInstanceOf(SecurityException.class, e);
+      } catch (CompletionException ce) {
+         assertInstanceOf(SecurityException.class, ce.getCause());
       }
    }
 

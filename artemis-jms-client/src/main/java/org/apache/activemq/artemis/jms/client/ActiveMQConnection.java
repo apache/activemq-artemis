@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.jms.client;
 
 import java.lang.ref.WeakReference;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Set;
@@ -57,6 +56,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 /**
  * ActiveMQ Artemis implementation of a JMS Connection.
@@ -359,7 +359,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
             }
          }
 
-         AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+         SecurityManagerShim.doPrivileged((PrivilegedAction<Object>) () -> {
             failoverListenerExecutor.shutdown();
             return null;
          });

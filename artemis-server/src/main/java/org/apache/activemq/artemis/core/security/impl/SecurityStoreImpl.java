@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.core.security.impl;
 import javax.security.auth.Subject;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
-import java.security.AccessControlContext;
-import java.security.AccessController;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
@@ -61,6 +59,7 @@ import org.apache.activemq.artemis.utils.CertificateUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,11 +209,10 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             }
          } else {
             if (user == null && password == null && connection instanceof ManagementRemotingConnection) {
-               AccessControlContext accessControlContext = AccessController.getContext();
-               if (accessControlContext != null) {
+               subject = SecurityManagerShim.currentSubject();
+               if (subject != null) {
                   check = false;
                   userIsValid = true;
-                  subject = Subject.getSubject(accessControlContext);
                   validatedUser = getUserFromSubject(subject);
                }
             }
@@ -467,10 +465,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
     */
    private Subject getSubjectForAuthorization(SecurityAuth auth, ActiveMQSecurityManager5 securityManager) {
       if (auth.getUsername() == null && auth.getPassword() == null && auth.getRemotingConnection() instanceof ManagementRemotingConnection) {
-         AccessControlContext accessControlContext = AccessController.getContext();
-         if (accessControlContext != null) {
-            return Subject.getSubject(accessControlContext);
-         }
+         return SecurityManagerShim.currentSubject();
       }
 
       String authnCacheKey = createAuthenticationCacheKey(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection());

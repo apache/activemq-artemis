@@ -26,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +55,7 @@ import org.apache.activemq.artemis.marker.WebServerComponentMarker;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.PemConfigUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.ee9.security.DefaultAuthenticatorFactory;
 import org.eclipse.jetty.ee9.servlet.FilterHolder;
@@ -144,7 +144,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       }
       ActiveMQWebLogger.LOGGER.startingEmbeddedWebServer();
 
-      ThreadFactory threadFactory = AccessController.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("web", false, WebServerComponent.class.getClassLoader()));
+      ThreadFactory threadFactory = SecurityManagerShim.doPrivileged((PrivilegedAction<ThreadFactory>) () -> new ActiveMQThreadFactory("web", false, WebServerComponent.class.getClassLoader()));
       ThreadPool threadPool = new QueuedThreadPool(webServerConfig.maxThreads, webServerConfig.minThreads, webServerConfig.idleThreadTimeout, -1, null, null, threadFactory);
       Scheduler scheduler = new ScheduledExecutorScheduler("activemq-web-scheduled", false);
       server = new Server(threadPool, scheduler, null);

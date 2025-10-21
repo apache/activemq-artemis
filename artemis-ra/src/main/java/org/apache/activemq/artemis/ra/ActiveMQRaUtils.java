@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.ra;
 
 import javax.naming.Context;
 import java.lang.reflect.Method;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.jgroups.JChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,7 +185,7 @@ public final class ActiveMQRaUtils {
     * JChannel object to be located.
     */
    public static JChannel locateJGroupsChannel(final String locatorClass, final String name) {
-      return AccessController.doPrivileged((PrivilegedAction<JChannel>) () -> {
+      return SecurityManagerShim.doPrivileged((PrivilegedAction<JChannel>) () -> {
          try {
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             Class<?> aClass = loader.loadClass(locatorClass);
@@ -205,7 +205,7 @@ public final class ActiveMQRaUtils {
     * to do a privileged block should do with the AccessController directly.
     */
    private static Object safeInitNewInstance(final String className) {
-      return AccessController.doPrivileged(new PrivilegedAction<>() {
+      return SecurityManagerShim.doPrivileged(new PrivilegedAction<>() {
          @Override
          public Object run() {
             ClassLoader loader = getClass().getClassLoader();

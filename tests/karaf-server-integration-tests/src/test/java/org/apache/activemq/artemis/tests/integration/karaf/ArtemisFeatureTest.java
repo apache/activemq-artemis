@@ -32,7 +32,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.StringReader;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -44,6 +43,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.utils.JsonLoader;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.apache.karaf.shell.api.console.Session;
@@ -167,7 +167,7 @@ public class ArtemisFeatureTest extends Assert {
 
          // Test browsing
          try (QueueBrowser browser = sess.createBrowser(queue)) {
-            Enumeration messages = browser.getEnumeration();
+            Enumeration<?> messages = browser.getEnumeration();
             while (messages.hasMoreElements()) {
                messages.nextElement();
             }
@@ -211,7 +211,7 @@ public class ArtemisFeatureTest extends Assert {
          subject.getPrincipals().add(new RolePrincipal("admin"));
          subject.getPrincipals().add(new RolePrincipal("manager"));
          subject.getPrincipals().add(new RolePrincipal("viewer"));
-         return Subject.doAs(subject, (PrivilegedAction<String>) () -> {
+         return SecurityManagerShim.callAs(subject, (Callable<String>) () -> {
             try {
                if (!silent) {
                   System.out.println(command);

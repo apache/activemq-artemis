@@ -19,14 +19,16 @@ package org.apache.activemq.artemis.core.server.management;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.junit.jupiter.api.Test;
 
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
-import java.security.PrivilegedExceptionAction;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.concurrent.Callable;
 
 public class ArtemisMBeanServerGuardTest extends ServerTestBase {
    @Test
@@ -68,7 +70,7 @@ public class ArtemisMBeanServerGuardTest extends ServerTestBase {
       controlList.addToRoleAccess("testdomain", "broker=myBroker", "getSomething", "admin");
       Subject subject = new Subject();
       subject.getPrincipals().add(new RolePrincipal("admin"));
-      Object result = Subject.doAs(subject, (PrivilegedExceptionAction<Object>) () -> {
+      Object result = SecurityManagerShim.callAs(subject, (Callable<Object>) () -> {
          try {
             return guard.canInvoke(activeMQServerObjectName.getCanonicalName(), "getSomething");
          } catch (Exception e1) {
@@ -89,7 +91,7 @@ public class ArtemisMBeanServerGuardTest extends ServerTestBase {
       controlList.addToRoleAccess("testdomain", "broker=myBroker", "getSomething", "admin");
       Subject subject = new Subject();
       subject.getPrincipals().add(new RolePrincipal("view"));
-      Object result = Subject.doAs(subject, (PrivilegedExceptionAction<Object>) () -> {
+      Object result = SecurityManagerShim.callAs(subject, (Callable<Object>) () -> {
          try {
             return guard.canInvoke(activeMQServerObjectName.getCanonicalName(), "getSomething");
          } catch (Exception e1) {

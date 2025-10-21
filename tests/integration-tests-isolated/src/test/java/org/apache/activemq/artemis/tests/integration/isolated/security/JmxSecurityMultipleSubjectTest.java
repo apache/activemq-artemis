@@ -24,9 +24,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import javax.management.JMX;
 import javax.security.auth.Subject;
 import java.lang.management.ManagementFactory;
-import java.security.PrivilegedExceptionAction;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.server.management.ArtemisRbacMBeanServer
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -101,7 +102,7 @@ public class JmxSecurityMultipleSubjectTest {
       }
 
       // requiring update
-      Exception e = Subject.doAs(updateSubject, (PrivilegedExceptionAction<Exception>) () -> {
+      Exception e = SecurityManagerShim.callAs(updateSubject, (Callable<Exception>) () -> {
          try {
             // update first
             activeMQServerControl.addConnector("c", "tcp://localhost:89");
@@ -115,7 +116,7 @@ public class JmxSecurityMultipleSubjectTest {
       });
       assertNull(e);
 
-      e = Subject.doAs(viewSubject, (PrivilegedExceptionAction<Exception>) () -> {
+      e = SecurityManagerShim.callAs(viewSubject, (Callable<Exception>) () -> {
          try {
             activeMQServerControl.addConnector("d", "tcp://localhost:89");
             return null;
@@ -125,7 +126,7 @@ public class JmxSecurityMultipleSubjectTest {
       });
       assertNotNull(e, "view permission is not sufficient");
 
-      e = Subject.doAs(updateSubject, (PrivilegedExceptionAction<Exception>) () -> {
+      e = SecurityManagerShim.callAs(updateSubject, (Callable<Exception>) () -> {
          try {
             activeMQServerControl.forceFailover();
             return null;

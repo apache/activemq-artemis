@@ -22,11 +22,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 
 public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
 
@@ -111,11 +112,11 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
 
    @Override
    protected Class resolveClass(final ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-      if (System.getSecurityManager() == null) {
+      if (!SecurityManagerShim.isSecurityManagerEnabled()) {
          return resolveClass0(desc);
       } else {
          try {
-            return AccessController.doPrivileged((PrivilegedExceptionAction<Class>) () -> resolveClass0(desc));
+            return SecurityManagerShim.doPrivileged((PrivilegedExceptionAction<Class>) () -> resolveClass0(desc));
          } catch (PrivilegedActionException e) {
             throw unwrapException(e);
          }
@@ -124,11 +125,11 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
 
    @Override
    protected Class resolveProxyClass(final String[] interfaces) throws IOException, ClassNotFoundException {
-      if (System.getSecurityManager() == null) {
+      if (!SecurityManagerShim.isSecurityManagerEnabled()) {
          return resolveProxyClass0(interfaces);
       } else {
          try {
-            return AccessController.doPrivileged((PrivilegedExceptionAction<Class>) () -> resolveProxyClass0(interfaces));
+            return SecurityManagerShim.doPrivileged((PrivilegedExceptionAction<Class>) () -> resolveProxyClass0(interfaces));
          } catch (PrivilegedActionException e) {
             throw unwrapException(e);
          }

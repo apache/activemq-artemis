@@ -20,7 +20,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.Validator;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,6 +117,7 @@ import org.apache.activemq.artemis.utils.XMLConfigurationUtil;
 import org.apache.activemq.artemis.utils.XMLUtil;
 import org.apache.activemq.artemis.utils.XmlProvider;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -1004,7 +1004,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       Map<String, String> properties = getMapOfChildPropertyElements(item);
 
-      ActiveMQServerPlugin serverPlugin = AccessController.doPrivileged((PrivilegedAction<ActiveMQServerPlugin>) () -> (ActiveMQServerPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, ActiveMQServerPlugin.class));
+      ActiveMQServerPlugin serverPlugin = SecurityManagerShim.doPrivileged((PrivilegedAction<ActiveMQServerPlugin>) () -> (ActiveMQServerPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, ActiveMQServerPlugin.class));
 
       serverPlugin.init(properties);
 
@@ -1078,7 +1078,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       Map<String, String> properties = getMapOfChildPropertyElements(item);
 
-      ActiveMQMetricsPlugin metricsPlugin = AccessController.doPrivileged((PrivilegedAction<ActiveMQMetricsPlugin>) () -> (ActiveMQMetricsPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, ActiveMQMetricsPlugin.class));
+      ActiveMQMetricsPlugin metricsPlugin = SecurityManagerShim.doPrivileged((PrivilegedAction<ActiveMQMetricsPlugin>) () -> (ActiveMQMetricsPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, ActiveMQMetricsPlugin.class));
 
       ActiveMQServerLogger.LOGGER.initializingMetricsPlugin(clazz, properties.toString());
 
@@ -1261,7 +1261,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      SecuritySettingPlugin securitySettingPlugin = AccessController.doPrivileged((PrivilegedAction<SecuritySettingPlugin>) () -> (SecuritySettingPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, SecuritySettingPlugin.class));
+      SecuritySettingPlugin securitySettingPlugin = SecurityManagerShim.doPrivileged((PrivilegedAction<SecuritySettingPlugin>) () -> (SecuritySettingPlugin) ClassloadingUtil.newInstanceFromClassLoader(FileConfigurationParser.class, clazz, SecuritySettingPlugin.class));
 
       return new Pair<>(securitySettingPlugin, settings);
    }

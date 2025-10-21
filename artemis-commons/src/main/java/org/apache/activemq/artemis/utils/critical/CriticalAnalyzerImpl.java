@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.utils.critical;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ConcurrentModificationException;
 import java.util.List;
@@ -26,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -63,7 +63,7 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
          }
 
          private ClassLoader getThisClassLoader() {
-            return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () -> CriticalAnalyzerImpl.this.getClass().getClassLoader());
+            return SecurityManagerShim.doPrivileged((PrivilegedAction<ClassLoader>) () -> CriticalAnalyzerImpl.this.getClass().getClassLoader());
 
          }
 

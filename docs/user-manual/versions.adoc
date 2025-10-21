@@ -13,6 +13,14 @@ NOTE: If the upgrade spans multiple versions then the steps from *each* version 
 
 NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#upgrading-the-broker[Upgrading the Broker]  chapter in addition to any version-specific upgrade instructions outlined here.
 
+== 2.44.0
+
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12356324[Full release notes]
+
+=== Highlights
+
+* Support for building and running on Java 25. https://issues.apache.org/jira/browse/ARTEMIS-5711[Click here] for more details.
+
 == 2.43.0
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12356053[Full release notes]

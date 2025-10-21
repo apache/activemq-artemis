@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Array;
 import java.net.URI;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,6 +73,7 @@ import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.actors.Actor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutor;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -228,7 +228,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    private ThreadFactory getThreadFactory(String groupName) {
-      return AccessController.doPrivileged(new PrivilegedAction<>() {
+      return SecurityManagerShim.doPrivileged(new PrivilegedAction<>() {
          @Override
          public ThreadFactory run() {
             return new ActiveMQThreadFactory(groupName + System.identityHashCode(this), true, ClientSessionFactoryImpl.class.getClassLoader());
@@ -258,7 +258,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       if (config.connectionLoadBalancingPolicyClassName == null) {
          throw new IllegalStateException("Please specify a load balancing policy class name on the session factory");
       }
-      AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+      SecurityManagerShim.doPrivileged((PrivilegedAction<Object>) () -> {
          loadBalancingPolicy = (ConnectionLoadBalancingPolicy) ClassloadingUtil.newInstanceFromClassLoader(ServerLocatorImpl.class, config.connectionLoadBalancingPolicyClassName, ConnectionLoadBalancingPolicy.class);
          return null;
       });
@@ -1958,7 +1958,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       if (interceptorList == null || interceptorList.trim().isEmpty()) {
          return;
       }
-      AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+      SecurityManagerShim.doPrivileged((PrivilegedAction<Object>) () -> {
 
          String[] arrayInterceptor = interceptorList.split(",");
          for (String strValue : arrayInterceptor) {

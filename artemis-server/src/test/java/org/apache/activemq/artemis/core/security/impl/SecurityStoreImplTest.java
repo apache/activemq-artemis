@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.security.impl;
 
 import javax.security.auth.Subject;
 import java.security.Principal;
-import java.security.PrivilegedExceptionAction;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -33,12 +33,15 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class SecurityStoreImplTest {
@@ -187,7 +190,7 @@ public class SecurityStoreImplTest {
       viewSubject.getPrincipals().add(new UserPrincipal("v"));
       viewSubject.getPrincipals().add(new RolePrincipal("viewers"));
 
-      Object checkResult = Subject.doAs(viewSubject, (PrivilegedExceptionAction<Object>) () -> {
+      Boolean checkResult = SecurityManagerShim.callAs(viewSubject, (Callable<Boolean>) () -> {
          try {
             securityStore.check(SimpleString.of("test"), CheckType.VIEW, session);
             return true;
@@ -196,7 +199,8 @@ public class SecurityStoreImplTest {
          }
       });
 
-      assertEquals(true, checkResult);
+      assertNotNull(checkResult);
+      assertTrue(checkResult);
    }
 
    @Test

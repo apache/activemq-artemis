@@ -37,14 +37,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -59,6 +58,7 @@ import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -287,7 +287,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
          viewSubject.getPrincipals().add(new UserPrincipal("v"));
          viewSubject.getPrincipals().add(new RolePrincipal("viewers"));
 
-         throw Subject.doAs(viewSubject, (PrivilegedExceptionAction<Exception>) () -> {
+         throw SecurityManagerShim.callAs(viewSubject, (Callable<Exception>) () -> {
             try {
                runtime.getVmVersion();
                return null;
@@ -321,7 +321,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       viewSubject.getPrincipals().add(new UserPrincipal("v"));
       viewSubject.getPrincipals().add(new RolePrincipal("viewers"));
 
-      Object ret = Subject.doAs(viewSubject, (PrivilegedExceptionAction<Object>) () -> {
+      Object ret = SecurityManagerShim.callAs(viewSubject, (Callable<Object>) () -> {
          try {
             return serverControl.getCurrentTimeMillis();
          } catch (Exception e1) {
@@ -337,7 +337,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       noPermSubject.getPrincipals().add(new UserPrincipal("dud"));
       noPermSubject.getPrincipals().add(new RolePrincipal("dud"));
 
-      ret = Subject.doAs(noPermSubject, (PrivilegedExceptionAction<Object>) () -> {
+      ret = SecurityManagerShim.callAs(noPermSubject, (Callable<Object>) () -> {
          try {
             return serverControl.getCurrentTimeMillis();
          } catch (Exception e1) {
@@ -371,7 +371,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       viewSubject.getPrincipals().add(new UserPrincipal("v"));
       viewSubject.getPrincipals().add(new RolePrincipal("viewers"));
 
-      Object ret = Subject.doAs(viewSubject, (PrivilegedExceptionAction<Object>) () -> {
+      Object ret = SecurityManagerShim.callAs(viewSubject, (Callable<Object>) () -> {
          try {
             return serverControl.isSecurityEnabled();
          } catch (Exception e1) {
@@ -388,7 +388,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       noPermSubject.getPrincipals().add(new UserPrincipal("dud"));
       noPermSubject.getPrincipals().add(new RolePrincipal("dud"));
 
-      ret = Subject.doAs(noPermSubject, (PrivilegedExceptionAction<Object>) () -> {
+      ret = SecurityManagerShim.callAs(noPermSubject, (Callable<Object>) () -> {
          try {
             return serverControl.isSecurityEnabled();
          } catch (Exception e1) {
@@ -421,7 +421,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       viewSubject.getPrincipals().add(new UserPrincipal("v"));
       viewSubject.getPrincipals().add(new RolePrincipal("viewers"));
 
-      Object ret = Subject.doAs(viewSubject, (PrivilegedExceptionAction<Object>) () -> {
+      Object ret = SecurityManagerShim.callAs(viewSubject, (Callable<Object>) () -> {
          try {
             return serverControl.isSecurityEnabled();
          } catch (Exception e1) {
@@ -459,7 +459,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       viewSubject.getPrincipals().add(new UserPrincipal("v"));
       viewSubject.getPrincipals().add(new RolePrincipal("viewers"));
 
-      Object ret =  Subject.doAs(viewSubject, (PrivilegedExceptionAction<Object>) () -> {
+      Object ret =  SecurityManagerShim.callAs(viewSubject, (Callable<Object>) () -> {
          try {
             return serverControl.isSecurityEnabled();
          } catch (Exception e1) {
@@ -472,7 +472,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       assertTrue(((Exception)ret).getMessage().contains("EDIT"));
 
       // another `is` op is ok with view
-      ret =  Subject.doAs(viewSubject, (PrivilegedExceptionAction<Object>) () -> {
+      ret =  SecurityManagerShim.callAs(viewSubject, (Callable<Object>) () -> {
          try {
             return serverControl.isActive();
          } catch (Exception e1) {
@@ -514,7 +514,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       testSubject.getPrincipals().add(new UserPrincipal("v"));
       testSubject.getPrincipals().add(new RolePrincipal("viewers"));
 
-      Object ret =  Subject.doAs(testSubject, (PrivilegedExceptionAction<Object>) () -> {
+      Object ret =  SecurityManagerShim.callAs(testSubject, (Callable<Object>) () -> {
          try {
             return serverControl.getAddressCount();
          } catch (Exception e1) {
@@ -529,7 +529,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       // with updaters role we can access a specific method
       testSubject.getPrincipals().add(new RolePrincipal("updaters"));
 
-      ret =  Subject.doAs(testSubject, (PrivilegedExceptionAction<Object>) () -> {
+      ret =  SecurityManagerShim.callAs(testSubject, (Callable<Object>) () -> {
          try {
             return serverControl.isSecurityEnabled();
          } catch (Exception e1) {
@@ -568,7 +568,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       viewSubject.getPrincipals().add(new UserPrincipal("v"));
       viewSubject.getPrincipals().add(new RolePrincipal("viewers"));
 
-      Object result = Subject.doAs(viewSubject, (PrivilegedExceptionAction<Object>) () -> {
+      Object result = SecurityManagerShim.callAs(viewSubject, (Callable<Object>) () -> {
          try {
             return proxy.queryNames(queryName, null);
          } catch (Exception e1) {
@@ -603,7 +603,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       viewSubject.getPrincipals().add(new UserPrincipal("v"));
       viewSubject.getPrincipals().add(new RolePrincipal("mbeanServer"));
 
-      Object result = Subject.doAs(viewSubject, (PrivilegedExceptionAction<Object>) () -> {
+      Object result = SecurityManagerShim.callAs(viewSubject, (Callable<Object>) () -> {
          try {
             return proxy.queryNames(null, null);
          } catch (Exception e1) {
@@ -611,11 +611,11 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
          }
       });
       assertNotNull(result);
-      assertEquals(1, ((Set) result).size());
+      assertEquals(1, ((Set<?>) result).size());
 
       // give view role
       viewSubject.getPrincipals().add(new RolePrincipal("viewers"));
-      result = Subject.doAs(viewSubject, (PrivilegedExceptionAction<Object>) () -> {
+      result = SecurityManagerShim.callAs(viewSubject, (Callable<Object>) () -> {
          try {
             return proxy.queryNames(null, null);
          } catch (Exception e1) {
@@ -624,7 +624,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       });
 
       assertNotNull(result);
-      assertEquals(2, ((Set) result).size());
+      assertEquals(2, ((Set<?>) result).size());
 
       // and they are there, we just don't see them
       assertEquals(5, proxy.getMBeanCount().intValue());
@@ -652,12 +652,13 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       ObjectName runtimeName = new ObjectName("java.lang", "type", "Runtime");
       final RuntimeMXBean runtime = JMX.newMBeanProxy(
          proxy, runtimeName, RuntimeMXBean.class, false);
+      assertNotNull(runtime);
 
       Subject viewSubject = new Subject();
       viewSubject.getPrincipals().add(new UserPrincipal("v"));
       viewSubject.getPrincipals().add(new RolePrincipal("viewers"));
 
-      Object result = Subject.doAs(viewSubject, (PrivilegedAction<Object>) () -> {
+      Object result = SecurityManagerShim.callAs(viewSubject, (Callable<Object>) () -> {
          try {
             return securityControl.canInvoke(runtimeName.toString());
          } catch (Exception e1) {
@@ -667,7 +668,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       assertNotNull(result);
       assertFalse((Boolean) result, "in the absence of an operation to check, update required");
 
-      result = Subject.doAs(viewSubject, (PrivilegedAction<Object>) () -> {
+      result = SecurityManagerShim.callAs(viewSubject, (Callable<Object>) () -> {
          try {
             return securityControl.canInvoke(runtimeName.toString(), "getVmName");
          } catch (Exception e1) {
@@ -677,7 +678,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       assertNotNull(result);
       assertTrue((Boolean) result);
 
-      result = Subject.doAs(viewSubject, (PrivilegedAction<Object>) () -> {
+      result = SecurityManagerShim.callAs(viewSubject, (Callable<Object>) () -> {
          try {
             return securityControl.canInvoke(runtimeName.toString(), "getVmName", new String[]{"args", "are", "ignored"});
          } catch (Exception e1) {
@@ -691,7 +692,7 @@ public class ArtemisRbacMBeanServerBuilderTest extends ServerTestBase {
       Map<String, List<String>> bulkQuery = new HashMap<>();
       bulkQuery.put(runtimeName.toString(), List.of("getVmName()", "getVersion()"));
 
-      result = Subject.doAs(viewSubject, (PrivilegedAction<Object>) () -> {
+      result = SecurityManagerShim.callAs(viewSubject, (Callable<Object>) () -> {
          try {
             return securityControl.canInvoke(bulkQuery);
          } catch (Exception e1) {
