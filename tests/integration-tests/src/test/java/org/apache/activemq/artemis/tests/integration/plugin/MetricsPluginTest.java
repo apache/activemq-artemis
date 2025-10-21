@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -86,50 +87,105 @@ public class MetricsPluginTest extends ActiveMQTestBase {
 
    @Test
    public void testForArtemisMetricsPresence() throws Exception {
-      class Metric {
-         public final String name;
-         public final Double value;
-         public final List<Tag> tags;
-
-         private Metric(String name, Double value) {
-            this(name, value, Collections.emptyList());
-         }
-
-         private Metric(String name, Double value, List<Tag> tags) {
-            this.name = name;
-            this.value = value;
-            this.tags = tags;
-         }
-
-         @Override
-         public String toString() {
-            return name + ": " + value + ": " + tags;
-         }
-
-         @Override
-         public boolean equals(Object obj) {
-            if (this == obj) {
-               return true;
-            }
-            if (!(obj instanceof Metric other)) {
-               return false;
-            }
-
-            return Objects.equals(name, other.name) &&
-                   Objects.equals(value, other.value) &&
-                   Objects.equals(tags, other.tags);
-         }
-
-         @Override
-         public int hashCode() {
-            return Objects.hash(name, value, tags);
-         }
-      }
 
       final String queueName = "simpleQueue";
       final String addressName = "simpleAddress";
       session.createQueue(QueueConfiguration.of(queueName).setAddress(addressName).setRoutingType(RoutingType.ANYCAST));
 
+      Matcher<Iterable<? extends Metric>> anyOrder = containsInAnyOrder(
+         // broker metrics
+         new Metric("artemis.address.memory.usage",  0.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.address.memory.usage.percentage", 0.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.connection.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.total.connection.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.session.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.total.session.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.active", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.replica.sync", 0.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.disk.store.usage", 0.0, Arrays.asList(Tag.of("broker", "localhost"))),
+         new Metric("artemis.authentication.count", 0.0, Arrays.asList(Tag.of("broker", "localhost"), Tag.of("result", "success"))),
+         new Metric("artemis.authentication.count", 0.0, Arrays.asList(Tag.of("broker", "localhost"), Tag.of("result", "failure"))),
+         new Metric("artemis.authorization.count", 0.0, Arrays.asList(Tag.of("broker", "localhost"), Tag.of("result", "success"))),
+         new Metric("artemis.authorization.count", 0.0, Arrays.asList(Tag.of("broker", "localhost"), Tag.of("result", "failure"))),
+         // simpleQueue metrics
+         new Metric("artemis.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.durable.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.durable.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.delivering.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.delivering.durable.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.delivering.persistent_size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.delivering.durable.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.scheduled.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.scheduled.durable.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.scheduled.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.scheduled.durable.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.messages.acknowledged", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.messages.added", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.messages.killed", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.messages.expired", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         new Metric("artemis.consumer.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
+         // simpleAddress metrics
+         new Metric("artemis.routed.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.unrouted.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.address.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.number.of.pages", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.limit.percent", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
+         // activemq.notifications metrics
+         new Metric("artemis.routed.message.count", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.unrouted.message.count", 2.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.address.size", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.number.of.pages", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
+         new Metric("artemis.limit.percent", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost")))
+      );
+
+      // Making sure any async operations will have time to fill up the data structure
+      Wait.waitFor(() -> anyOrder.matches(parseMetrics()), 10_000, 100);
+      // doing the actual assertion. I do this in two steps for proper formatting on junit as an assertion error
+      assertThat(parseMetrics(), anyOrder);
+   }
+
+   class Metric {
+      public final String name;
+      public final Double value;
+      public final List<Tag> tags;
+
+      private Metric(String name, Double value) {
+         this(name, value, Collections.emptyList());
+      }
+
+      private Metric(String name, Double value, List<Tag> tags) {
+         this.name = name;
+         this.value = value;
+         this.tags = tags;
+      }
+
+      @Override
+      public String toString() {
+         return name + ": " + value + ": " + tags;
+      }
+
+      @Override
+      public boolean equals(Object obj) {
+         if (this == obj) {
+            return true;
+         }
+         if (!(obj instanceof Metric other)) {
+            return false;
+         }
+
+         return Objects.equals(name, other.name) &&
+            Objects.equals(value, other.value) &&
+            Objects.equals(tags, other.tags);
+      }
+
+      @Override
+      public int hashCode() {
+         return Objects.hash(name, value, tags);
+      }
+   }
+
+   private List<Metric> parseMetrics() {
       Map<Meter.Id, Double> metrics = getMetrics();
       List<Metric> artemisMetrics = metrics.entrySet().stream()
               .map(entry -> new Metric(
@@ -138,53 +194,7 @@ public class MetricsPluginTest extends ActiveMQTestBase {
                       entry.getKey().getTags()))
               .filter(metric -> metric.name.startsWith("artemis"))
               .collect(Collectors.toList());
-
-      assertThat(artemisMetrics, containsInAnyOrder(
-              // broker metrics
-              new Metric("artemis.address.memory.usage",  0.0, Arrays.asList(Tag.of("broker", "localhost"))),
-              new Metric("artemis.address.memory.usage.percentage", 0.0, Arrays.asList(Tag.of("broker", "localhost"))),
-              new Metric("artemis.connection.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
-              new Metric("artemis.total.connection.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
-              new Metric("artemis.session.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
-              new Metric("artemis.total.session.count", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
-              new Metric("artemis.active", 1.0, Arrays.asList(Tag.of("broker", "localhost"))),
-              new Metric("artemis.replica.sync", 0.0, Arrays.asList(Tag.of("broker", "localhost"))),
-              new Metric("artemis.disk.store.usage", 0.0, Arrays.asList(Tag.of("broker", "localhost"))),
-              new Metric("artemis.authentication.count", 0.0, Arrays.asList(Tag.of("broker", "localhost"), Tag.of("result", "success"))),
-              new Metric("artemis.authentication.count", 0.0, Arrays.asList(Tag.of("broker", "localhost"), Tag.of("result", "failure"))),
-              new Metric("artemis.authorization.count", 0.0, Arrays.asList(Tag.of("broker", "localhost"), Tag.of("result", "success"))),
-              new Metric("artemis.authorization.count", 0.0, Arrays.asList(Tag.of("broker", "localhost"), Tag.of("result", "failure"))),
-              // simpleQueue metrics
-              new Metric("artemis.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.durable.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.durable.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.delivering.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.delivering.durable.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.delivering.persistent_size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.delivering.durable.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.scheduled.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.scheduled.durable.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.scheduled.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.scheduled.durable.persistent.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.messages.acknowledged", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.messages.added", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.messages.killed", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.messages.expired", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              new Metric("artemis.consumer.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"), Tag.of("queue", "simpleQueue"))),
-              // simpleAddress metrics
-              new Metric("artemis.routed.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
-              new Metric("artemis.unrouted.message.count", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
-              new Metric("artemis.address.size", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
-              new Metric("artemis.number.of.pages", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
-              new Metric("artemis.limit.percent", 0.0, Arrays.asList(Tag.of("address", "simpleAddress"), Tag.of("broker", "localhost"))),
-              // activemq.notifications metrics
-              new Metric("artemis.routed.message.count", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
-              new Metric("artemis.unrouted.message.count", 2.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
-              new Metric("artemis.address.size", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
-              new Metric("artemis.number.of.pages", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost"))),
-              new Metric("artemis.limit.percent", 0.0, Arrays.asList(Tag.of("address", "activemq.notifications"), Tag.of("broker", "localhost")))
-      ));
+      return artemisMetrics;
    }
 
    @Test
