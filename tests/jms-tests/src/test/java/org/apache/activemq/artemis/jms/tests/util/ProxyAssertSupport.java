@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.jms.tests.util;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.function.Executable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -336,6 +337,24 @@ public class ProxyAssertSupport {
    public static void assertNotSame(final java.lang.Object object, final java.lang.Object object1) {
       try {
          Assertions.assertNotSame(object, object1);
+      } catch (AssertionError e) {
+         logger.warn("AssertionFailure::", e);
+         throw e;
+      }
+   }
+
+   public static <T extends Throwable> T assertThrows(Class<T> expectedType, Executable executable) {
+      try {
+         return Assertions.assertThrows(expectedType, executable);
+      } catch (AssertionError e) {
+         logger.warn("AssertionFailure::", e);
+         throw e;
+      }
+   }
+
+   public static void assertDoesNotThrow(Executable executable) {
+      try {
+         Assertions.assertDoesNotThrow(executable);
       } catch (AssertionError e) {
          logger.warn("AssertionFailure::", e);
          throw e;

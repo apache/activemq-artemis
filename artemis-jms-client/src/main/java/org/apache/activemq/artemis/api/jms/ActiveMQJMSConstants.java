@@ -34,4 +34,7 @@ public class ActiveMQJMSConstants {
    public static final int INDIVIDUAL_ACKNOWLEDGE = 101;
 
    public static final String JMS_ACTIVEMQ_ENABLE_BYTE_ARRAY_JMS_CORRELATION_ID_PROPERTY_NAME = "amq.jms.support-bytes-id";
+
+   public static final String JMS_MAX_TEXT_MESSAGE_SIZE = "jmsMaxTextMessageSize";
+
 }

@@ -39,6 +39,10 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQCompatibleMessage;
 
+import java.util.Optional;
+
+import static org.apache.activemq.artemis.api.core.Message.TEXT_TYPE;
+
 /**
  * ActiveMQ Artemis implementation of a JMS MessageConsumer.
  */
@@ -65,8 +69,6 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
    private final String selector;
 
    private final SimpleString autoDeleteQueueName;
-
-
 
    protected ActiveMQMessageConsumer(final ConnectionFactoryOptions options,
                                      final ActiveMQConnection connection,
@@ -216,6 +218,17 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
          ActiveMQMessage jmsMsg = null;
 
          if (coreMessage != null) {
+
+            Optional<Integer> jmsMaxTextMessageSize = connection.getJmsMaxTextMessageSize();
+            if (jmsMaxTextMessageSize.isPresent()) {
+               if (coreMessage.getType() == TEXT_TYPE && coreMessage.getBodySize() > jmsMaxTextMessageSize.get()) {
+                  String errorMsg = "The text message exceeds maximum set size of %d bytes.".formatted(jmsMaxTextMessageSize.get());
+                  ActiveMQException amqe = new ActiveMQException(errorMsg);
+                  ActiveMQClientLogger.LOGGER.unableToGetMessage(amqe);
+                  throw amqe;
+               }
+            }
+
             ClientSession coreSession = session.getCoreSession();
             boolean needSession = ackMode == Session.CLIENT_ACKNOWLEDGE ||
                ackMode == ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE ||
