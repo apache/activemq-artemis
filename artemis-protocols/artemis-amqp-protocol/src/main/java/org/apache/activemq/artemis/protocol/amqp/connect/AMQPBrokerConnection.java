@@ -64,6 +64,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
@@ -102,11 +103,13 @@ import org.apache.activemq.artemis.utils.CertificateUtil;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.Target;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.SenderSettleMode;
+import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
@@ -869,6 +872,17 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                            }
 
                            topUpCreditIfNeeded();
+                        }
+
+                        @Override
+                        protected void actualDelivery(Message message,
+                                                      Delivery delivery,
+                                                      DeliveryAnnotations deliveryAnnotations,
+                                                      Receiver receiver,
+                                                      Transaction tx) {
+                           // the message needs to match the routing type on the receiver
+                           message.setRoutingType(queue.getRoutingType());
+                           super.actualDelivery(message, delivery, deliveryAnnotations, receiver, tx);
                         }
                      };
                   });
