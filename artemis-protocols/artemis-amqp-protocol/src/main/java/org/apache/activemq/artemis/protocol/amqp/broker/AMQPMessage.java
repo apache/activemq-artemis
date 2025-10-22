@@ -1247,6 +1247,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final AMQPMessage setAddress(String address) {
+      new Exception("SetAddress").printStackTrace();
       setAddress(cachedAddressSimpleString(address));
       return this;
    }
@@ -1349,6 +1350,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public final RoutingType getRoutingType() {
+      new Exception("getting routingType").printStackTrace();
       ensureMessageDataScanned();
       Object routingType = getMessageAnnotation(AMQPMessageSupport.ROUTING_TYPE);
 

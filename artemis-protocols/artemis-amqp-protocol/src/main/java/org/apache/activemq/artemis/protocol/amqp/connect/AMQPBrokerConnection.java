@@ -881,7 +881,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                                                       Receiver receiver,
                                                       Transaction tx) {
                            // the message needs to match the routing type on the receiver
-                           message.setRoutingType(queue.getRoutingType());
+                           //message.setRoutingType(queue.getRoutingType());
                            super.actualDelivery(message, delivery, deliveryAnnotations, receiver, tx);
                         }
                      };

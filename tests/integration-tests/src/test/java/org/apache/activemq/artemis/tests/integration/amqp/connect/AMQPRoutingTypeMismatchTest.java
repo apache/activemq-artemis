@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPReceiverBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPSenderBrokerConnectionElement;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -95,6 +96,61 @@ public class AMQPRoutingTypeMismatchTest extends AmqpTestSupport {
       server2.start();
 
       Queue dlqServer2 = server2.locateQueue("topic.DLQ");
+      Wait.assertEquals(nmessages, dlqServer2::getMessageCount, 5000, 100);
+   }
+
+   @Test
+   public void testSenderTargetingQueueWithRoutingTypeNotMatchingOriginalMessageTarget() throws Exception {
+      final String DLQ_NAME = "topic.DLQ";
+
+      final ActiveMQServer server2 = createServer(AMQP_PORT_2, false);
+      server2.getConfiguration().getAddressSettings().clear();
+      server2.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of(DLQ_NAME)).setRedeliveryDelay(0).setMaxDeliveryAttempts(1));
+      server2.getConfiguration().addQueueConfiguration(QueueConfiguration.of(DLQ_NAME).setRoutingType(RoutingType.ANYCAST));
+      server2.setIdentity("Server2");
+      server2.start();
+
+      final AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("test", "tcp://localhost:" + AMQP_PORT_2);
+      amqpConnection.addSender((AMQPSenderBrokerConnectionElement) new AMQPSenderBrokerConnectionElement().setMatchAddress(DLQ_NAME));
+
+      final ActiveMQServer server = createServer(AMQP_PORT, false);
+      server.getConfiguration().getAddressSettings().clear();
+      server.getConfiguration().addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.of(DLQ_NAME)).setRedeliveryDelay(0).setMaxDeliveryAttempts(1));
+      server.getConfiguration().addQueueConfiguration(QueueConfiguration.of(DLQ_NAME).setRoutingType(RoutingType.ANYCAST));
+      server.getConfiguration().addAddressConfiguration(new CoreAddressConfiguration().setName(getName()).addRoutingType(RoutingType.MULTICAST));
+      server.getConfiguration().addAMQPConnection(amqpConnection);
+      server.setIdentity("Server1");
+      server.start();
+
+      final ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT);
+      final long nmessages = 1;
+
+      try (Connection connection = factory.createConnection()) {
+         connection.setClientID("myID");
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         MessageConsumer consumer = session.createDurableConsumer(session.createTopic(getName()), "myTopic");
+         MessageProducer producer = session.createProducer(session.createTopic(getName()));
+         for (int i = 0; i < nmessages; i++) {
+            producer.send(session.createTextMessage("hello"));
+         }
+         session.commit();
+         connection.start();
+         for (int i = 0; i < nmessages; i++) {
+            assertNotNull(consumer.receive(5000));
+         }
+         session.rollback();
+         assertNull(consumer.receive(100));
+      }
+
+      Wait.assertTrue(() -> server2.addressQuery(SimpleString.of(DLQ_NAME)).isExists(), 5_000, 100);
+      Wait.assertTrue(() -> server2.queueQuery(SimpleString.of(DLQ_NAME)).isExists(), 5_000, 100);
+
+      final Queue dlq = server.locateQueue(DLQ_NAME);
+      Wait.assertEquals(1, dlq::getConsumerCount, 5000, 100); // SENDER listening on local DLQ for forwards
+      Wait.assertEquals(0L, dlq::getMessageCount, 5000, 100);
+      Wait.assertEquals(nmessages, dlq::getMessagesAcknowledged, 5000, 100);
+
+      final Queue dlqServer2 = server2.locateQueue(DLQ_NAME);
       Wait.assertEquals(nmessages, dlqServer2::getMessageCount, 5000, 100);
    }
 
