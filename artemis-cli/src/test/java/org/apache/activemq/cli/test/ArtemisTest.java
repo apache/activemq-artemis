@@ -194,6 +194,27 @@ public class ArtemisTest extends CliTestBase {
       Artemis.main("create", instance1.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune");
    }
 
+   @Test
+   @Timeout(60)
+   public void testDefaultMaxHops() throws Exception {
+      testMaxHops(Create.DEFAULT_MAX_HOPS);
+   }
+
+   @Test
+   @Timeout(60)
+   public void testCustomMaxHops() throws Exception {
+      testMaxHops(Create.DEFAULT_MAX_HOPS + 1);
+   }
+
+   private void testMaxHops(int maxHops) throws Exception {
+      List<String> args = new ArrayList<>(List.of("--silent", "--no-autotune", "--clustered"));
+      if (maxHops != Create.DEFAULT_MAX_HOPS) {
+         args.add("--max-hops");
+         args.add(String.valueOf(maxHops));
+      }
+      FileConfiguration configuration = createFileConfiguration(getTestMethodName(), args.toArray(String[]::new));
+      assertEquals(maxHops, configuration.getClusterConfigurations().get(0).getMaxHops());
+   }
 
    @Test
    @Timeout(60)
