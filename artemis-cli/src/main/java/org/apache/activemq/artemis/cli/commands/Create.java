@@ -58,6 +58,8 @@ public class Create extends InstallAbstract {
 
    private static final Integer MQTT_PORT = 1883;
 
+   public static final Integer DEFAULT_MAX_HOPS = 1;
+
    /*  **********************************************************************************
     *  Note for developers: These are tested at StreamClassPathTest on the unit test.
     *  This is to make sure maven or something else is not hiding these resources.
@@ -163,7 +165,7 @@ public class Create extends InstallAbstract {
    private boolean clustered = false;
 
    @Option(names = "--max-hops", description = "Number of hops on the cluster configuration.")
-   private int maxHops = 0;
+   private int maxHops = DEFAULT_MAX_HOPS;
 
    @Option(names = "--message-load-balancing", description = "Message load balancing policy for cluster. Default: ON_DEMAND. Valid values: ON_DEMAND, STRICT, OFF, OFF_WITH_REDISTRIBUTION.")
    private MessageLoadBalancingType messageLoadBalancing = MessageLoadBalancingType.ON_DEMAND;
