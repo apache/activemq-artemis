@@ -702,6 +702,9 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
          super();
       }
 
+      /**
+       * @see AbstractPool#AbstractPool(int)
+       */
       public StringSimpleStringPool(final int capacity) {
          super(capacity);
       }
