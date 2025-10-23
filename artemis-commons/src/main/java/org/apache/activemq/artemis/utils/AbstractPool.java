@@ -38,6 +38,13 @@ public abstract class AbstractPool<I, O> {
       this(DEFAULT_POOL_CAPACITY);
    }
 
+   /**
+    * Constructs an AbstractPool instance with a specified initial capacity. The capacity is rounded up to the next
+    * highest power of two, and this determines the size of the internal array used by the pool.
+    *
+    * @param capacity the desired initial capacity of the pool
+    * @see MathUtil#findNextPositivePowerOfTwo(int)
+    */
    public AbstractPool(final int capacity) {
       entries = (O[]) new Object[MathUtil.findNextPositivePowerOfTwo(capacity)];
       mask = entries.length - 1;
