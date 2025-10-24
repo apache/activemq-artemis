@@ -39,8 +39,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -881,6 +883,48 @@ public class WebServerComponentTest extends ArtemisTestCase {
    }
 
    @Test
+   public void testIsolationOfSessions() throws Exception {
+      BindingDTO bindingDTO1 = new BindingDTO();
+      bindingDTO1.uri = "http://localhost:0";
+      bindingDTO1.apps = new ArrayList<>();
+      bindingDTO1.apps.add(createSimpleAppDTO("app1"));
+      bindingDTO1.apps.add(createSimpleAppDTO("app2"));
+
+      BindingDTO bindingDTO2 = new BindingDTO();
+      bindingDTO2.uri = "http://localhost:0";
+      bindingDTO2.apps = new ArrayList<>();
+      bindingDTO2.apps.add(createSimpleAppDTO("app1"));
+      bindingDTO2.apps.add(createSimpleAppDTO("app2"));
+
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.setBindings(List.of(bindingDTO1, bindingDTO2));
+      webServerDTO.path = "";
+
+      WebServerComponent webServerComponent = new WebServerComponent();
+      assertFalse(webServerComponent.isStarted());
+      testedComponents.add(webServerComponent);
+      webServerComponent.configure(webServerDTO, "./target", "./target");
+      webServerComponent.start();
+
+      try {
+         List<Pair<WebAppContext, String>> webContextData = webServerComponent.getWebContextData();
+         assertEquals(4, webContextData.size());
+
+         Set<String> sessionCookieNames = new HashSet<>();
+         for (Pair<WebAppContext, String> contextData : webContextData) {
+            WebAppContext webContext = contextData.getA();
+
+            String sessionCookieName = webContext.getSessionHandler().getSessionCookieConfig().getName();
+            String sessionPath = webContext.getSessionHandler().getSessionPath();
+            assertTrue(sessionCookieNames.add(sessionCookieName + sessionPath),
+                  "A session with the name cookie " + sessionCookieName + " and the path " + sessionPath + " already exists!");
+         }
+      } finally {
+         webServerComponent.stop(true);
+      }
+   }
+
+   @Test
    public void testDefaultRootRedirect() throws Exception {
       testRootRedirect(null, 404, null);
    }
@@ -931,6 +975,16 @@ public class WebServerComponentTest extends ArtemisTestCase {
       webServerDTO.setBindings(Collections.singletonList(bindingDTO));
       webServerDTO.path = "";
       return webServerDTO;
+   }
+
+   private AppDTO createSimpleAppDTO(String name) throws Exception {
+      final String warName = name + ".war";
+      createTestWar(warName);
+
+      AppDTO app = new AppDTO();
+      app.url = name + "/";
+      app.war = warName;
+      return app;
    }
 
    private void createTestWar(String warName) throws Exception {

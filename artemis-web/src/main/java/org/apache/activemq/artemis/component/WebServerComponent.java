@@ -194,6 +194,8 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
                WebAppContext webContext = createWebAppContext(app.url, app.war, dirToUse, virtualHosts[i]);
                handlers.addHandler(webContext);
                webContext.getSessionHandler().getSessionCookieConfig().setComment("__SAME_SITE_STRICT__");
+               webContext.getSessionHandler().getSessionCookieConfig().setName("JSESSIONID_" + i + "_" + connector.getPort());
+               webContext.getSessionHandler().setSessionPath(webContext.getContextPath());
                webContext.addEventListener(new ServletContextListener() {
                   @Override
                   public void contextInitialized(ServletContextEvent sce) {
