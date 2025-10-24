@@ -2399,7 +2399,7 @@ public class ServerSessionImpl extends CriticalComponentImpl implements ServerSe
 
       RoutingStatus result = RoutingStatus.OK;
 
-      RoutingType routingType = msg.getRoutingType();
+      RoutingType routingTypeFromMessage = msg.getRoutingType();
 
          /* TODO-now: How to address here with AMQP?
          if (originalAddress != null) {
@@ -2410,7 +2410,7 @@ public class ServerSessionImpl extends CriticalComponentImpl implements ServerSe
             }
          } */
 
-      final AddressInfo targetFromMessage = new AddressInfo(msg.getAddressSimpleString(), routingType);
+      final AddressInfo targetFromMessage = new AddressInfo(msg.getAddressSimpleString(), routingTypeFromMessage);
       AddressInfo art = getAddressAndRoutingType(targetFromMessage);
       if (art != targetFromMessage) {
          // remove the prefix from the message, with the address model change, only non prefixed addresses exist on the broker
