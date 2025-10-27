@@ -5,8 +5,8 @@
 
 == Overview
 
-Apache ActiveMQ Artemis clusters allow groups of Apache ActiveMQ Artemis servers to be grouped together in order to share message processing load.
-Each active node in the cluster is an active Apache ActiveMQ Artemis server which manages its own messages and handles its own connections.
+Clusters allow groups of brokers to be grouped together in order to share message processing load.
+Each active node in the cluster manages its own messages and handles its own connections.
 
 The cluster is formed by each node declaring _cluster connections_ to other nodes in the core configuration file `broker.xml`.
 When a node forms a cluster connection to another node, internally it creates a _core bridge_ (as described in xref:core-bridges.adoc#core-bridges[Core Bridges]) connection between it and the other node, this is done transparently behind the scenes - you don't have to declare an explicit bridge for each node.
@@ -14,7 +14,7 @@ These cluster connections allow messages to flow between the nodes of the cluste
 
 Nodes can be connected together to form a cluster in many different topologies, we will discuss a couple of the more common topologies later in this chapter.
 
-We'll also discuss client side load balancing, where we can balance client connections across the nodes of the cluster, and we'll consider message redistribution where Apache ActiveMQ Artemis will redistribute messages between nodes to avoid starvation.
+We'll also discuss client side load balancing, where we can balance client connections across the nodes of the cluster, and we'll consider message redistribution where the broker will redistribute messages between nodes to avoid starvation.
 
 Another important part of clustering is _server discovery_ where servers can broadcast their connection details so clients or other servers can connect to them with the minimum of configuration.
 
@@ -22,8 +22,8 @@ Another important part of clustering is _server discovery_ where servers can bro
 ====
 [#copy-warning]
 Once a cluster node has been configured it is common to simply copy that configuration to other nodes to produce a symmetric cluster.
-However, care must be taken when copying the Apache ActiveMQ Artemis files.
-Do not copy the Apache ActiveMQ Artemis _data_ (i.e. the `bindings`, `journal`, `paging`, and `large-messages` directories) from one node to another.
+However, care must be taken when copying the files.
+Do not copy the _data_ (i.e. the `bindings`, `journal`, `paging`, and `large-messages` directories) from one node to another.
 When a node is started for the first time and initializes its journal files it also persists a special identifier to the `journal` directory.
 This id _must_ be unique among nodes in the cluster or the cluster will not form properly.
 ====
@@ -59,8 +59,8 @@ A messaging client wants to be able to connect to the servers of the cluster wit
 * Other servers.
 Servers in a cluster want to be able to create cluster connections to each other without having prior knowledge of all the other servers in the cluster.
 
-This information, let's call it the Cluster Topology, is actually sent around normal Apache ActiveMQ Artemis connections to clients and to other servers over cluster connections.
-This being the case we need a way of establishing the initial first connection.
+This information, let's call it the Cluster Topology, is actually sent around normal connections to clients and to other servers over cluster connections.
+This being the case, we need a way of establishing the initial first connection.
 This can be done using dynamic discovery techniques like https://en.wikipedia.org/wiki/User_Datagram_Protocol[UDP] and http://www.jgroups.org/[JGroups], or by providing a list of initial connectors.
 
 === Dynamic Discovery
@@ -77,7 +77,7 @@ The broadcast group takes a connector and broadcasts it on the network.
 Depending on which broadcasting technique you configure, it uses either UDP or JGroups to broadcast connector information.
 
 Broadcast groups are defined in the server configuration file `broker.xml`.
-There can be many broadcast groups per Apache ActiveMQ Artemis server.
+There can be many broadcast groups per broker.
 All broadcast groups must be defined in a `broadcast-groups` element.
 
 Let's take a look at an example broadcast group from `broker.xml` that defines a UDP broadcast group:
@@ -151,13 +151,12 @@ Here is another example broadcast group that defines a JGroups broadcast group:
 To be able to use JGroups to broadcast, one must specify two attributes, i.e. `jgroups-file` and `jgroups-channel`, as discussed in details as following:
 
 jgroups-file::
- attribute.
 This is the name of JGroups configuration file.
 It will be used to initialize JGroups channels.
-Make sure the file is in the java resource path so that Apache ActiveMQ Artemis can load it.
+Make sure the file is in the Java resource path so that the broker can load it.
 The typical location for the file is the `etc` directory from the broker instance.
+
 jgroups-channel::
- attribute.
 The name that JGroups channels connect to for broadcasting.
 
 [NOTE]
@@ -208,13 +207,13 @@ The following is an example of a JGroups file
 </config>
 ----
 
-As it shows, the file content defines a jgroups protocol stacks.
-If you want Apache ActiveMQ Artemis to use this stacks for channel creation, you have to make sure the value of `jgroups-file` in your broadcast-group/discovery-group configuration to be the name of this jgroups configuration file.
-For example if the above stacks configuration is stored in a file named "jgroups-stacks.xml" then your `jgroups-file` should be like
+As it shows, the file content defines a JGroups protocol stack.
+If you want the broker to use this stack for channel creation, you have to make sure the value of `jgroups-file` in your broadcast-group/discovery-group configuration to be the name of this JGroups configuration file.
+For example, if the above configuration is stored in a file named "jgroups-stack.xml" then your `jgroups-file` should be like:
 
 [,xml]
 ----
-<jgroups-file>jgroups-stacks.xml</jgroups-file>
+<jgroups-file>jgroups-stack.xml</jgroups-file>
 ----
 
 ==== Discovery Groups
@@ -226,12 +225,12 @@ As it receives broadcasts on the broadcast endpoint from a particular server it 
 
 If it has not received a broadcast from a particular server for a length of time it will remove that server's entry from its list.
 
-Discovery groups are used in two places in Apache ActiveMQ Artemis:
+Discovery groups are used in two places:
 
 * By cluster connections so they know how to obtain an initial connection to download the topology
 * By messaging clients so they know how to obtain an initial connection to download the topology
 
-Although a discovery group will always accept broadcasts, its current list of available primary and backup servers is only ever used when an initial connection is made, from then server discovery is done over the normal Apache ActiveMQ Artemis connections.
+Although a discovery group will always accept broadcasts, its current list of available primary and backup servers is only ever used when an initial connection is made, from then server discovery is done over the normal connections.
 
 [NOTE]
 ====
@@ -243,7 +242,7 @@ For example, if broadcast is configured using UDP, the discovery group must also
 
 For cluster connections, discovery groups are defined in the server side configuration file `broker.xml`.
 All discovery groups must be defined inside a `discovery-groups` element.
-There can be many discovery groups defined by Apache ActiveMQ Artemis server.
+There can be many discovery groups defined.
 Let's look at an example:
 
 [,xml]
@@ -303,18 +302,15 @@ Here is another example that defines a JGroups discovery group:
 To receive broadcast from JGroups channels, one must specify two attributes, `jgroups-file` and `jgroups-channel`, as discussed in details as following:
 
 jgroups-file::
- attribute.
-This is the name of JGroups configuration file.
+This is the name of the JGroups configuration file.
 It will be used to initialize JGroups channels.
-Make sure the file is in the java resource path so that Apache ActiveMQ Artemis can load it.
+Make sure the file is in the java resource path so that the broker can load it.
+
 jgroups-channel::
- attribute.
 The name that JGroups channels connect to for receiving broadcasts.
 
 [NOTE]
 ====
-
-
 The JGroups attributes (`jgroups-file` and `jgroups-channel`) and UDP specific attributes described above are exclusive of each other.
 Only one set can be specified in a discovery group configuration.
 Don't mix them!
@@ -322,8 +318,8 @@ Don't mix them!
 
 ==== Discovery Groups on the Client Side
 
-Let's discuss how to configure an Apache ActiveMQ Artemis client to use discovery to discover a list of servers to which it can connect.
-The way to do this differs depending on whether you're using JMS or the core API.
+Let's discuss how to configure a Core client to use discovery to discover a list of servers to which it can connect.
+The way to do this differs depending on whether you're using JMS or the Core API.
 
 ===== Configuring client discovery
 
@@ -372,7 +368,7 @@ The brackets are expanded so the same query can be appended after the last brack
 
 == Server-Side Message Load Balancing
 
-If cluster connections are defined between nodes of a cluster, then Apache ActiveMQ Artemis will load balance messages arriving at a particular node from a client.
+If cluster connections are defined between nodes of a cluster, then the broker will load balance messages arriving at a particular node from a client.
 
 Let's take a simple example of a cluster of four nodes A, B, C, and D arranged in a _symmetric cluster_ (described in Symmetrical Clusters section).
 We have a queue called `OrderQueue` deployed on each node of the cluster.
@@ -386,9 +382,9 @@ The messages are forwarded from the receiving node to other nodes of the cluster
 This is all done on the server side, the client maintains a single connection to node A.
 
 For example, messages arriving on node A might be distributed in the following order between the nodes: B, D, C, A, B, D, C, A, B, D.
-The exact order depends on the order the nodes started up, but the algorithm used is round robin.
+The exact order depends on the order the nodes started up, but the algorithm used is round-robin.
 
-Apache ActiveMQ Artemis cluster connections can be configured to always blindly load balance messages in a round robin fashion irrespective of whether there are any matching consumers on other nodes, but they can be a bit cleverer than that and also be configured to only distribute to other nodes if they have matching consumers.
+Cluster connections can be configured to always blindly load balance messages in a round-robin fashion irrespective of whether there are any matching consumers on other nodes, but they can be a bit cleverer than that and also be configured to only distribute to other nodes if they have matching consumers.
 We'll look at both these cases in turn with some examples, but first we'll discuss configuring cluster connections in general.
 
 === Configuring Cluster Connections
@@ -396,7 +392,7 @@ We'll look at both these cases in turn with some examples, but first we'll discu
 Cluster connections group servers into clusters so that messages can be load balanced between the nodes of the cluster.
 Let's take a look at a typical cluster connection.
 Cluster connections are always defined in `broker.xml` inside a `cluster-connection` element.
-There can be zero or more cluster connections defined per Apache ActiveMQ Artemis server.
+There can be zero or more cluster connections defined per broker.
 
 [,xml]
 ----
@@ -438,7 +434,7 @@ To prevent an address from being matched on this cluster connection, prepend a c
 In the case shown above the cluster connection will load balance messages sent to all addresses (since it's empty).
 +
 The address can be any value and you can have many cluster connections with different values of `address`, simultaneously balancing messages for those addresses, potentially to different clusters of servers.
-By having multiple cluster connections on different addresses a single Apache ActiveMQ Artemis Server can effectively take part in multiple clusters simultaneously.
+By having multiple cluster connections on different addresses, a single broker can effectively take part in multiple clusters simultaneously.
 +
 Be careful not to have multiple cluster connections with overlapping values of `address`, e.g. "europe" and "europe.news" since this could result in the same messages being distributed between more than one cluster connection, possibly resulting in duplicate deliveries.
 +
@@ -519,10 +515,10 @@ This parameter replaces the deprecated `forward-when-no-consumers` parameter.
 If this is set to `OFF` then messages will never be forwarded to another node in the cluster
 +
 If this is set to `STRICT` then each incoming message will be round robin'd even though the same queues on the other nodes of the cluster may have no consumers at all, or they may have consumers that have non matching message filters (selectors).
-Note that Apache ActiveMQ Artemis will _not_ forward messages to other nodes if there are no _queues_ of the same name on the other nodes, even if this parameter is set to `STRICT`.
+Note that the broker will _not_ forward messages to other nodes if there are no _queues_ of the same name on the other nodes, even if this parameter is set to `STRICT`.
 Using `STRICT` is like setting the legacy `forward-when-no-consumers` parameter to `true`.
 +
-If this is set to `ON_DEMAND` then Apache ActiveMQ Artemis will only forward messages to other nodes of the cluster if the address to which they are being forwarded has queues which have consumers, and if those consumers have message filters (selectors) at least one of those selectors must match the message.
+If this is set to `ON_DEMAND` then the broker will only forward messages to other nodes of the cluster if the address to which they are being forwarded has queues which have consumers, and if those consumers have message filters (selectors) at least one of those selectors must match the message.
 Using `ON_DEMAND` is like setting the legacy `forward-when-no-consumers` parameter to `false`.
 +
 If this is set to `OFF_WITH_REDISTRIBUTION` then like with 'OFF' messages won't be initially routed to other nodes in the cluster.
@@ -535,12 +531,12 @@ Default is `ON_DEMAND`.
 
 max-hops::
 When a cluster connection decides the set of nodes to which it might load balance a message, those nodes do not have to be directly connected to it via a cluster connection.
-Apache ActiveMQ Artemis can be configured to also load balance messages to nodes which might be connected to it only indirectly with other Apache ActiveMQ Artemis servers as intermediates in a chain.
+The broker can be configured to also load balance messages to nodes which might be connected to it only indirectly with other brokers as intermediates in a chain.
 +
-This allows Apache ActiveMQ Artemis to be configured in more complex topologies and still provide message load balancing.
+This allows the broker to be configured in more complex topologies and still provide message load balancing.
 We'll discuss this more later in this chapter.
 +
-The default value for this parameter is `1`, which means messages are only load balanced to other Apache ActiveMQ Artemis serves which are directly connected to this server.
+The default value for this parameter is `1`, which means messages are only load balanced to other brokers which are directly connected to this server.
 This parameter is optional.
 
 confirmation-window-size::
@@ -598,7 +594,7 @@ Default is 30.
 
 === Cluster User Credentials
 
-When creating connections between nodes of a cluster to form a cluster connection, Apache ActiveMQ Artemis uses a cluster user and cluster password which is defined in `broker.xml`:
+When creating connections between nodes of a cluster to form a cluster connection, the broker uses a cluster user and cluster password which is defined in `broker.xml`:
 
 [,xml]
 ----
@@ -609,16 +605,16 @@ When creating connections between nodes of a cluster to form a cluster connectio
 [WARNING]
 ====
 It is imperative that these values are changed from their default, or remote clients will be able to make connections to the server using the default values.
-If they are not changed from the default, Apache ActiveMQ Artemis will detect this and pester you with a warning on every start-up.
+If they are not changed from the default, the broker will detect this and pester you with a warning on every start-up.
 ====
 
 == Client-Side Load balancing
 
-With Apache ActiveMQ Artemis client-side load balancing, subsequent sessions created using a single session factory can be connected to different nodes of the cluster.
+With client-side load balancing, subsequent sessions created using a single session factory can be connected to different nodes of the cluster.
 This allows sessions to spread smoothly across the nodes of a cluster and not be "clumped" on any particular node.
 
 The load balancing policy to be used by the client factory is configurable.
-Apache ActiveMQ Artemis provides four out-of-the-box load balancing policies, and you can also implement your own and use that.
+Four out-of-the-box load balancing policies are available, and you can also implement your own.
 
 The out-of-the-box policies are
 
@@ -646,7 +642,7 @@ Use `org.apache.activemq.artemis.api.core.client.loadbalance.FirstElementConnect
 
 You can also implement your own policy by implementing the interface `org.apache.activemq.artemis.api.core.client.loadbalance.ConnectionLoadBalancingPolicy`
 
-Specifying which load balancing policy to use differs whether you are using JMS or the core API.
+Specifying which load balancing policy to use differs whether you are using JMS or the Core API.
 If you don't specify a policy then the default will be used which is `org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy`.
 
 The parameter `connectionLoadBalancingPolicyClassName` can be set on the URI to configure what load balancing policy to use:
@@ -696,7 +692,7 @@ However, there is a situation it doesn't solve: What happens if the consumers on
 If there are no consumers on the queue the message won't get consumed and we have a _starvation_ situation.
 
 This is where message redistribution comes in.
-With message redistribution Apache ActiveMQ Artemis can be configured to automatically _redistribute_ messages from queues which have no consumers or consumers with filters that don't match messages.
+With message redistribution the broker can be configured to automatically _redistribute_ messages from queues which have no consumers or consumers with filters that don't match messages.
 The messages are re-routed to other nodes in the cluster which do have matching consumers.
 To enable this functionality `message-load-balancing` must be `ON_DEMAND` or `OFF_WITH_REDISTRIBUTION`
 
@@ -720,7 +716,7 @@ Here's an address settings snippet from `broker.xml` showing how message redistr
 The above `address-settings` block would set a `redistribution-delay` of `0` for any queue which is bound to any address.
 So the above would enable instant (no delay) redistribution for all addresses.
 
-The attribute `match` can be an exact match or it can be a string that conforms to the Apache ActiveMQ Artemis wildcard syntax (described in xref:wildcard-syntax.adoc#wildcard-syntax[Wildcard Syntax]).
+The attribute `match` can be an exact match, or it can be a string that conforms to the xref:wildcard-syntax.adoc#wildcard-syntax[wildcard syntax].
 
 The element `redistribution-delay` defines the delay in milliseconds between detecting the need for redistribution and actually attempting redistribution.
 A delay of zero means the messages will be immediately redistributed.
@@ -746,7 +742,7 @@ This configuration will not impact the internal processes which manage the store
 
 == Cluster topologies
 
-Apache ActiveMQ Artemis clusters can be connected together in many different topologies, let's consider the two most common ones here
+Clusters can be connected together in many different topologies, let's consider the two most common ones here
 
 === Symmetric cluster
 
@@ -783,10 +779,10 @@ Node A would then know to distribute messages to node B when they arrive, even t
 
 === Scaling Down
 
-Apache ActiveMQ Artemis supports scaling down a cluster with no message loss (even for non-durable messages).
+The broker supports scaling down a cluster with no message loss (even for non-durable messages).
 This is especially useful in certain environments (e.g. the cloud) where the size of a cluster may change relatively frequently.
 When scaling up a cluster (i.e. adding nodes) there is no risk of message loss, but when scaling down a cluster (i.e. removing nodes) the messages on those nodes would be lost unless the broker sent them to another node in the cluster.
-Apache ActiveMQ Artemis can be configured to do just that.
+The broker can be configured to do just that.
 
 To enable this behavior configure `scale-down` in the `live-only` `ha-policy`, e.g.:
 

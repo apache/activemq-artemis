@@ -1,6 +1,6 @@
 = Destinations
 
-We already talked about addressing differences between ActiveMQ and Artemis in the xref:README.adoc[introduction].
+We already talked about addressing differences between ActiveMQ and {project-name-short} in the xref:README.adoc[introduction].
 Now let's dig into the details and see how to configure JMS queues and topics.
 It's important to note here that both brokers are configured by default to _auto-create_ destinations requested by clients, which is preferred behavior for many use cases.
 This is configured using authorization security policies, so we will cover this topic in the later sections of this manual.
@@ -16,13 +16,13 @@ In ActiveMQ, destinations are pre-defined in the `<destinations>` section of the
 </destinations>
 ----
 
-Things looks a bit different in Artemis.
+Things looks a bit different in {project-name-short}.
 We already explained that queues are `anycast` addresses and topics are `multicast` ones.
 We're not gonna go deep into the address settings details here and you're advised to look at the user manual for that.
 Let's just see what we need to do in order to replicate ActiveMQ configuration.
 
 Addresses are defined in `<addresses>` section of the `etc/broker.xml` configuration file.
-So the corresponding Artemis configuration for the ActiveMQ example above, looks like this:
+So the corresponding {project-name-short} configuration for the ActiveMQ example above, looks like this:
 
 [,xml]
 ----

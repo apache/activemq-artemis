@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-This chapter describes how security works with Apache ActiveMQ Artemis and how you can configure it.
+This chapter describes how security works with {project-name-full} and how you can configure it.
 
 == Basic Configuration
 
@@ -45,18 +45,12 @@ It's also possible to set `reject-empty-validated-user`.
 If `true` the server will reject any message that doesn't have a validated user.
 This option is `false` by default.
 
-== Role based security for addresses
+== Role-based security for addresses
 
-Apache ActiveMQ Artemis contains a flexible role-based security model for applying security to queues, based on their addresses.
+Role-based security is applied to queues based on their address.
+Either an exact match on the address or a xref:wildcard-syntax.adoc#wildcard-syntax[wildcard match] can be used.
 
-As explained in xref:core.adoc#using-core[Using Core], Apache ActiveMQ Artemis core consists mainly of sets of queues bound to addresses.
-A message is sent to an address and the server looks up the set of queues that are bound to that address, the server then routes the message to those set of queues.
-
-Apache ActiveMQ Artemis allows sets of permissions to be defined against the queues based on their address.
-An exact match on the address can be used or a xref:wildcard-syntax.adoc#wildcard-syntax[wildcard match] can be used.
-
-There are different permissions that can be given to the set of queues which match the address.
-Those permissions are:
+Here are different permissions that can be granted:
 
 createAddress::
 This permission allows the user to create an address fitting the `match`.
@@ -88,7 +82,7 @@ This permission allows the user to browse a queue bound to the matching address.
 manage::
 This permission allows the user to invoke management operations by sending management messages to the management address.
 
-The following two permissions pertain to operations on the xref:management.adoc#management[management apis] of the broker. They split management operations into two sets, read only for `view`, and `edit` for mutating operations. The split is controlled by a regular expression. Methods that match will require the `view` permission, all others require `edit`. The regular expression can be modified through the configuration attribute xref:configuration-index.adoc#view-permission-method-match-pattern[`view-permission-method-match-pattern`]. These permissions are applicable to the xref:management.adoc#fine-grained-rbac-on-management-messages[management address] and to xref:management.adoc#jmx-authorization-in-broker-xml[MBean access]. They are granted to match addresses prefixed with the xref:configuration-index.adoc#management-rbac-prefix[management prefix].
+The following two permissions pertain to operations on the xref:management.adoc#management[management apis] of the broker. They split management operations into two sets, read-only for `view`, and `edit` for mutating operations. The split is controlled by a regular expression. Methods that match will require the `view` permission, all others require `edit`. The regular expression can be modified through the configuration attribute xref:configuration-index.adoc#view-permission-method-match-pattern[`view-permission-method-match-pattern`]. These permissions are applicable to the xref:management.adoc#fine-grained-rbac-on-management-messages[management address] and to xref:management.adoc#jmx-authorization-in-broker-xml[MBean access]. They are granted to match addresses prefixed with the xref:configuration-index.adoc#management-rbac-prefix[management prefix].
 
 view::
 This permission allows access to a read-only subset of management operations.
@@ -115,21 +109,19 @@ Let's take a simple example, here's a security block from `broker.xml` file:
 
 Using the default xref:wildcard-syntax.adoc#wildcard-syntax[wildcard syntax] the `#` character signifies "any sequence of words".
 Words are delimited by the `.` character.
-Therefore, the above security block applies to any address that starts with the string "globalqueues.europe.".
+Therefore, the above security block applies to any address that starts with the string `globalqueues.europe.`.
 
-Only users who have the `admin` role can create or delete durable queues bound to an address that starts with the string "globalqueues.europe."
+Only users who have the `admin` role can create or delete durable queues bound to an address that starts with the string `globalqueues.europe.`.
 
-Any users with the roles `admin`, `guest`, or `europe-users` can create or delete temporary queues bound to an address that starts with the string "globalqueues.europe."
+Any users with the roles `admin`, `guest`, or `europe-users` can create or delete temporary queues bound to an address that starts with the string `globalqueues.europe.`.
 
-Any users with the roles `admin` or `europe-users` can send messages to these addresses or consume messages from queues bound to an address that starts with the string "globalqueues.europe."
+Any users with the roles `admin` or `europe-users` can send messages to these addresses or consume messages from queues bound to an address that starts with the string `globalqueues.europe.`.
 
-The mapping between a user and what roles they have is handled by the security manager.
-Apache ActiveMQ Artemis ships with a user manager that reads user credentials from a file on disk, and can also plug into JAAS or JBoss Application Server security.
+The security manager handles the mapping between a user and what roles they have.
+For more information on configuring the security manager, please see <<User credentials,here>>.
 
-For more information on configuring the security manager, please see 'Changing the Security Manager'.
-
-There can be zero or more `security-setting` elements in each xml file.
-Where more than one match applies to a set of addresses the _more specific_ match takes precedence.
+There can be zero or more `security-setting` elements where more than one match applies to a set of addresses.
+The _more specific_ match takes precedence.
 
 Let's look at an example of that, here's another `security-setting` block:
 
@@ -149,9 +141,9 @@ All the settings will be taken from the more specific matching block, so for the
 The permissions `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue` are not inherited from the other `security-setting` block.
 
 By not inheriting permissions, it allows you to effectively deny permissions in more specific `security-setting` blocks by simply not specifying them.
-Otherwise it would not be possible to deny permissions in sub-groups of addresses.
+Otherwise, it would not be possible to deny permissions in sub-groups of addresses.
 
-=== Fine-grained security using fully qualified queue name
+=== Fine-grained security using a fully qualified queue name
 
 In certain situations it may be necessary to configure security that is more fine-grained that simply across an entire address.
 For example, consider an address with multiple queues:
@@ -248,8 +240,8 @@ See the JavaDoc on `org.apache.activemq.artemis.core.server.SecuritySettingPlugi
 
 ==== LegacyLDAPSecuritySettingPlugin
 
-This plugin will read the security information that was previously handled by http://activemq.apache.org/security.html[`LDAPAuthorizationMap`] and the http://activemq.apache.org/cached-ldap-authorization-module.html[`cachedLDAPAuthorizationMap`] in Apache ActiveMQ Classic and turn it into Artemis security settings where possible.
-The security implementations of ActiveMQ Classic and Artemis don't match perfectly so some translation must occur to achieve near equivalent functionality.
+This plugin will read the security information that was previously handled by http://activemq.apache.org/security.html[`LDAPAuthorizationMap`] and the http://activemq.apache.org/cached-ldap-authorization-module.html[`cachedLDAPAuthorizationMap`] in Apache ActiveMQ and turn it into {project-name-short} security settings where possible.
+The security implementations of ActiveMQ and {project-name-short} don't match perfectly so some translation must occur to achieve near equivalent functionality.
 
 Here is an example of the plugin's configuration:
 
@@ -364,11 +356,11 @@ This is a 1-character value that should match the `delimiter` xref:wildcard-synt
 The plugin will translate any `.` character to this value in an LDAP entry defining a destination name.
 The default value is `.`.
 
-The name of the queue or topic defined in LDAP will serve as the "match" for the security-setting, the permission value will be mapped from the ActiveMQ Classic type to the Artemis type, and the role will be mapped as-is.
+The name of the queue or topic defined in LDAP will serve as the "match" for the security-setting, the permission value will be mapped from the ActiveMQ type to the {project-name-short} type, and the role will be mapped as-is.
 
-ActiveMQ Classic only has 3 permission types - `read`, `write`, and `admin`.
+ActiveMQ only has 3 permission types - `read`, `write`, and `admin`.
 These permission types are described on their http://activemq.apache.org/security.html[website].
-However, as described previously, ActiveMQ Artemis has 9 permission types - `createAddress`, `deleteAddress`, `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue`, `send`, `consume`, `browse`, and `manage`.
+However, as described previously, {project-name-short} has 9 permission types - `createAddress`, `deleteAddress`, `createDurableQueue`, `deleteDurableQueue`, `createNonDurableQueue`, `deleteNonDurableQueue`, `send`, `consume`, `browse`, and `manage`.
 Here's how the old types are mapped to the new types:
 
 read::
@@ -382,25 +374,25 @@ admin::
 
 As mentioned, there are a few places where a translation was performed to achieve some equivalence.:
 
-* This mapping doesn't include the Artemis `manage` permission type by default since there is no type analogous for that in ActiveMQ Classic.
+* This mapping doesn't include the {project-name-short} `manage` permission type by default since there is no type analogous for that in ActiveMQ.
 However, if `mapAdminToManage` is `true` then the legacy `admin` permission will be mapped to the `manage` permission.
-* The `admin` permission in ActiveMQ Classic relates to whether or not the broker will auto-create a destination if it doesn't exist and the user sends a message to it.
-Artemis automatically allows the automatic creation of a destination if the user has permission to send message to it.
-Therefore, the plugin will map the `admin` permission to the 6 aforementioned permissions in Artemis by default.
+* The `admin` permission in ActiveMQ relates to whether or not the broker will auto-create a destination if it doesn't exist and the user sends a message to it.
+{project-name-short} automatically allows the automatic creation of a destination if the user has permission to send messages to it.
+Therefore, the plugin will map the `admin` permission to the 6 aforementioned permissions in {project-name-short} by default.
 If `mapAdminToManage` is `true` then the legacy `admin` permission will be mapped to the `manage` permission as well.
 
 == Secure Sockets Layer (SSL) Transport
 
-When messaging clients are connected to servers, or servers are connected to other servers (e.g. via bridges) over an untrusted network then Apache ActiveMQ Artemis allows that traffic to be encrypted using the Secure Sockets Layer (SSL) transport.
+When messaging clients are connected to servers, or servers are connected to other servers (e.g. via bridges) over an untrusted network, then traffic can be encrypted using the Secure Sockets Layer (SSL) transport.
 
 For more information on configuring the SSL transport, please see xref:configuring-transports.adoc#configuring-the-transport[Configuring the Transport].
 
 == User credentials
 
-Apache ActiveMQ Artemis ships with three security manager implementations:
+Three security manager implementations are available:
 
 * The flexible, pluggable `ActiveMQJAASSecurityManager` which supports any standard JAAS login module.
-Artemis ships with several login modules which will be discussed further down.
+Several login modules (discussed later) are available.
 This is the default security manager.
 * The `ActiveMQBasicSecurityManager` which doesn't use JAAS and only supports auth via username & password credentials.
 It also supports adding, removing, and updating users via the management API.
@@ -441,7 +433,7 @@ In short, the file defines:
 * a flag which indicates whether the success of the login module is `required`, `requisite`, `sufficient`, or `optional` (see more details on these flags in the https://docs.oracle.com/en/java/javase/17/docs/api/java.base/javax/security/auth/login/Configuration.html[JavaDoc])
 * a list of configuration options specific to the login module implementation
 
-By default, the location and name of `login.config` is specified on the Artemis command-line which is set by `etc/artemis.profile` on linux and  `etc\artemis.profile.cmd` on Windows.
+By default, the location and name of `login.config` is specified on the command-line which is set by `etc/artemis.profile` on Linux and  `etc\artemis.profile.cmd` on Windows.
 
 ==== Dual Authentication
 
@@ -603,8 +595,8 @@ guest=password
 Passwords in `artemis-users.properties` can be hashed.
 Such passwords should follow the syntax `ENC(<hash>)`.
 
-Hashed passwords can easily be added to `artemis-users.properties` using the `user` CLI command from the Artemis _instance_.
-This command will not work  from the Artemis home, and it will also not work unless the broker has been started.
+Hashed passwords can easily be added to `artemis-users.properties` using the `user` CLI command from the broker _instance_.
+This command will not work from the broker home, and it will also not work unless the broker is running.
 
 [,sh]
 ----
@@ -623,8 +615,8 @@ users=system,user
 guests=guest
 ----
 
-As mentioned above, the Artemis command-line interface supports a command to `add` a user.
-Commands to `list` (one or all) users, `remove` a user, and `reset` a user's password and/or role(s) are also supported via the command-line interface as well as the normal management interfaces (e.g. JMX, web console, etc.).
+As mentioned above, the xref:using-cli.adoc#command-line-interface[command-line interface] supports a command to `add` a user.
+Commands to `list` (one or all) users, `remove` a user, and `reset` a user's password and/or role(s) are also supported via the xref:using-cli.adoc#command-line-interface[command-line interface] as well as the normal management interfaces (e.g. JMX, web console, etc.).
 
 ____
 *Warning*
@@ -640,7 +632,7 @@ ____
 ==== LDAPLoginModule
 
 The LDAP login module enables you to perform authentication and authorization by checking the incoming credentials against user data stored in a central X.500 directory server.
-For systems that already have an X.500 directory server in place, this means that you can rapidly integrate ActiveMQ Artemis with the existing security database and user accounts can be managed using the X.500 system.
+For systems that already have an X.500 directory server in place, this means that you can rapidly integrate the broker with the existing security database and user accounts can be managed using the X.500 system.
 It is implemented by `org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginModule`.
 
 initialContextFactory::
@@ -1045,7 +1037,7 @@ users=system:serviceaccounts:other-ns:test-sa
 === SCRAM-SHA SASL Mechanism
 
 SCRAM (Salted Challenge Response Authentication Mechanism) is an authentication mechanism that can establish mutual authentication using passwords.
-Apache ActiveMQ Artemis supports SCRAM-SHA-256 and SCRAM-SHA-512 SASL mechanisms to provide authentication for AMQP connections.
+SCRAM-SHA-256 and SCRAM-SHA-512 SASL mechanisms can provide authentication for AMQP connections.
 
 The following properties of SCRAM make it safe to use SCRAM-SHA even on unencrypted connections:
 
@@ -1123,13 +1115,13 @@ amqp-sasl-gssapi {
 
 === Role Mapping
 
-On the server, a Kerberos or SCRAM-SHA JAAS authenticated Principal must be added to the Subject's principal set as an Apache ActiveMQ Artemis UserPrincipal using the corresponding Apache ActiveMQ Artemis `Krb5LoginModule` or `SCRAMLoginModule` login modules.
+On the server, a Kerberos or SCRAM-SHA JAAS authenticated principal must be added to the Subject's principal set as a `UserPrincipal` using the corresponding `Krb5LoginModule` or `SCRAMLoginModule` login modules.
 They are separate to allow conversion and role mapping to be as restrictive or permissive as desired.
 
-The <<propertiesloginmodule,PropertiesLoginModule>> or <<ldaploginmodule,LDAPLoginModule>> can then be used to map the authenticated  Principal to an Apache ActiveMQ Artemis <<role-based-security-for-addresses,Role>>.
-Note that in the case of Kerberos, the Peer Principal does not exist as an Apache ActiveMQ Artemis user, only as a role member.
+The <<propertiesloginmodule,`PropertiesLoginModule`>> or <<ldaploginmodule,`LDAPLoginModule`>> can then be used to map the authenticated  Principal to a <<role-based-security-for-addresses,role>>.
+Note that in the case of Kerberos, the Peer Principal does not exist as a user, only as a role member.
 
-In the following example, any existing Kerberos authenticated peer will convert to an Apache ActiveMQ Artemis user principal and will have role mapping applied by the LDAPLoginModule as appropriate.
+In the following example, any existing Kerberos authenticated peer will convert to a user principal and will have role mapping applied by the `LDAPLoginModule` as appropriate.
 
 ----
 activemq {
@@ -1172,7 +1164,7 @@ Nevertheless, if you just want to share user data between a single live/backup p
 User management is provided by the broker's management API.
 This includes the ability to add, list, update, and remove users & roles.
 As with all management functions, this is available via JMX, management messages, HTTP (via Jolokia), web console, etc.
-These functions are also available from the ActiveMQ Artemis command-line interface.
+These functions are also available from the xref:using-cli.adoc#command-line-interface[command-line interface].
 Having the broker store this data directly means that it must be running in order to manage users.
 There is no way to modify the bindings data manually.
 
@@ -1317,7 +1309,6 @@ Please see xref:management.adoc#management[Management] for instructions on how t
 
 == Securing the console
 
-Artemis comes with a web console that allows user to browse Artemis documentation via an embedded server.
 By default the web access is plain HTTP.
 It is configured in `bootstrap.xml`:
 
@@ -1330,7 +1321,7 @@ It is configured in `bootstrap.xml`:
 </web>
 ----
 
-Alternatively you can edit the above configuration to enable secure access using HTTPS protocol.
+Alternatively, you can edit the above configuration to enable secure access using HTTPS protocol.
 e.g.:
 
 [,xml]
@@ -1409,27 +1400,29 @@ keytool -storetype pkcs12 -keystore client-truststore.p12 -storepass securepass 
 
 ## Controlling JMS ObjectMessage deserialization
 
-Artemis provides a simple class filtering mechanism with which a user can specify which packages are to be trusted and which are not. Objects whose classes are from trusted packages can be deserialized without problem, whereas those from 'not trusted' packages will be denied deserialization.
+A simple class filtering mechanism is available so that a user can specify which packages are to be trusted and which are not.
+Objects whose classes are from trusted packages can be deserialized without problem, whereas those from 'not trusted' packages will be denied deserialization.
 
-Artemis keeps a `deny list` to keep track of packages that are not trusted and a `allow list` for trusted packages. By default both lists are empty, meaning any serializable object is allowed to be deserialized.
+A `deny list` tracks packages that are not trusted and an `allow list` tracks trusted packages.
+By default, both lists are empty, meaning _any_ serializable object is allowed to be deserialized.
 If an object whose class matches one of the packages in deny list, it is not allowed to be deserialized.
 If it matches one in the allow list the object can be deserialized.
 If a package appears in both deny list and allow list, the one in deny list takes precedence.
-If a class neither matches with `deny list` nor with the `allow list`, the class deserialization will be denied unless the allow list is empty (meaning the user doesn't specify the allow list at all).
+If a class neither matches with deny list nor with the allow list, the class deserialization will be denied unless the allow list is empty (meaning the user doesn't specify the allow list at all).
 
-A class is considered as a 'match' if:
+A class is considered as a "match" if:
 
 * its full name exactly matches one of the entries in the list.
 * its package matches one of the entries in the list or is a sub-package of one of the entries.
 
-For example, if a class full name is "org.apache.pkg1.Class1", some matching
+For example, if a class full name is `org.apache.pkg1.Class1`, some matching
 entries could be:
 
 * `org.apache.pkg1.Class1` - exact match.
 * `org.apache.pkg1` - exact package match.
-* `org.apache` -- sub package match.
+* `org.apache` -- sub-package match.
 
-A `*` means 'match-all' in a deny or allow list.
+A `*` means "match-all".
 
 ### Config via Connection Factories
 

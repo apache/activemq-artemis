@@ -5,10 +5,10 @@
 
 Message groups are sets of messages that have the following characteristics:
 
-* Messages in a message group share the same group id, i.e. they have same group identifier property (`JMSXGroupID` for JMS, `_AMQ_GROUP_ID` for Apache ActiveMQ Artemis Core API).
+* Messages in a message group share the same group id, i.e. they have same group identifier property (`JMSXGroupID` for JMS, `_AMQ_GROUP_ID` for the Core API).
 * Messages in a message group are always consumed by the same consumer, even if there are many consumers on a queue.
 They pin all messages with the same group id to the same consumer.
-If that consumer closes another consumer is chosen and will receive all messages with the same group id.
+If that consumer closes, another consumer is chosen and will receive all messages with the same group id.
 
 Message groups are useful when you want all messages for a certain value of the property to be processed serially by the same consumer.
 
@@ -198,7 +198,7 @@ There is a number of ways to set `group-buckets`.
 </address>
 ----
 
-Specified on creating a Queue by using the CORE api specifying the parameter  `group-buckets` to `20`.
+Specified on creating a Queue by using the Core API specifying the parameter  `group-buckets` to `20`.
 
 Or on auto-create when using the JMS Client by using address parameters when  creating the destination used by the consumer.
 
@@ -311,4 +311,4 @@ This is because this will determine how often the last-time-use value should be 
 
 === Clustered Grouping Example
 
-See the xref:examples.adoc#clustered-grouping[Clustered Grouping Example] which shows how to configure message groups with a ActiveMQ Artemis Cluster.
+See the xref:examples.adoc#clustered-grouping[Clustered Grouping Example] which shows how to configure message groups with a cluster.

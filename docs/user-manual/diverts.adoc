@@ -3,7 +3,6 @@
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis allows you to configure objects called _diverts_ with some simple server configuration.
 Diverts allow you to transparently divert messages routed to one address to one or more other addresses, without making any changes to any client application logic.
 
 Diverts can be _exclusive_ or _non-exclusive_.
@@ -11,7 +10,7 @@ Diverts can be _exclusive_ or _non-exclusive_.
 An xref:#exclusive-divert[_exclusive_] divert routes messages the new address(es) only.
 Messages are not routed to the old address at all.
 
-A xref:#non-exclusive-divert[_non-exclusive_] divert routes messags to the old address and a _copy_ of the messages are also sent to the new address(es).
+A xref:#non-exclusive-divert[_non-exclusive_] divert routes messages to the old address and a _copy_ of the messages are also sent to the new address(es).
 Think of non-exclusive divert as _splitting_ message flow, e.g. there may be a requirement to monitor every order sent to an order queue.
 
 Multiple diverts can be configured for a single address.
@@ -82,18 +81,18 @@ This allows you to change the messages body or properties before it is diverted.
 In this example the transformer simply adds a header that records the time the divert happened.
 See the xref:transformers.adoc#transformers[transformer chapter] for more details about transformer-specific configuration.
 
-This example is actually diverting messages to a local store and forward queue, which is configured with a bridge which forwards the message to an address on another ActiveMQ Artemis server.
+This example is actually diverting messages to a local store and forward queue, which is configured with a bridge which forwards the message to an address on another broker.
 Please see the example for more details.
 
 == Non-exclusive Divert
 
 Now we'll take a look at a non-exclusive divert.
-Non exclusive diverts are the same as exclusive diverts, but they only forward a _copy_ of the message to the new address.
+Non-exclusive diverts are the same as exclusive diverts, but they only forward a _copy_ of the message to the new address.
 The original message continues to the old address
 
 You can therefore think of non-exclusive diverts as _splitting_ a message flow.
 
-Non exclusive diverts can be configured in the same way as exclusive diverts with an optional filter and transformer, here's an example non-exclusive divert, again from the divert example:
+Non-exclusive diverts can be configured in the same way as exclusive diverts with an optional filter and transformer, here's an example non-exclusive divert, again from the divert example:
 
 [,xml]
 ----

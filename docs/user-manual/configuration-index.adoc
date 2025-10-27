@@ -362,7 +362,7 @@ The system will create as many files as needed however when reclaiming files it 
 | -1
 
 | xref:persistence.adoc#configuring-the-message-journal[journal-sync-non-transactional]
-| if true wait for non transaction data to be synced to the journal before returning response to client.
+| if true wait for non-transaction data to be synced to the journal before returning response to client.
 | `true`
 
 | xref:persistence.adoc#configuring-the-message-journal[journal-sync-transactional]

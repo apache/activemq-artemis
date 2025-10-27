@@ -40,8 +40,8 @@ You can use these following configuration options on broker.xml to configure how
 | Should the server log, be halted or shutdown upon failures (default `LOG`)
 |===
 
-The default for critical-analyzer-policy is `LOG`, however the generated broker.xml will have it set to `HALT`.
-That is because we cannot halt the VM if you are embedding ActiveMQ Artemis into an application server or on a multi tenant environment.
+The default for critical-analyzer-policy is `LOG`, however the generated `broker.xml` will have it set to `HALT`.
+That is because we cannot halt the VM if you are embedding a broker or operating in a multi-tenant environment.
 
 The broker on the distribution will then have it set to `HALT`, but if you use it in any other way the default will be `LOG`.
 

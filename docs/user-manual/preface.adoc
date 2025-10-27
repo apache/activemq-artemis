@@ -1,4 +1,4 @@
-= Why use Apache ActiveMQ Artemis?
+= Why use {project-name-full}?
 :idprefix:
 :idseparator: -
 :docinfo: shared
@@ -6,16 +6,16 @@
 Here are just a few reasons:
 
 * 100% open source software.
-Apache ActiveMQ Artemis is licensed using the Apache Software License v 2.0 to minimise barriers to adoption.
-* Apache ActiveMQ Artemis is designed with usability in mind.
+{project-name-full} is licensed using the Apache Software License v 2.0 to minimise barriers to adoption.
+* {project-name-full} is designed with usability in mind.
 * Written in Java.
 Runs on any platform with a Java 11+ runtime, that's everything from Windows desktops to IBM mainframes.
 * Amazing performance.
-Our ground-breaking high performance journal provides persistent messaging performance at rates normally seen for non-persistent messaging, our non-persistent messaging performance rocks the boat too.
+Our ground-breaking high-performance journal provides persistent messaging performance at rates normally seen for non-persistent messaging, our non-persistent messaging performance rocks the boat too.
 * Full feature set.
 All the features you'd expect in any serious messaging system, and others you won't find anywhere else.
 * Elegant, clean-cut design with minimal third party dependencies.
-Run ActiveMQ Artemis stand-alone, run it in integrated in your favourite Java EE application server, or run it embedded inside your own product.
+Run the broker stand-alone, run it in integrated in your favourite Java EE application server, or run it embedded inside your own product.
 It's up to you.
 * Seamless high availability.
 We provide a HA solution with automatic client failover so you can guarantee zero message loss or duplication in event of server failure.

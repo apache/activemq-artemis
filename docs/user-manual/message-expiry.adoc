@@ -5,16 +5,16 @@
 
 Messages can be set with an optional _time to live_ when sending them.
 
-Apache ActiveMQ Artemis will not deliver a message to a consumer after it's time-to-live has been exceeded.
-If the message hasn't been delivered by the time that time-to-live is reached the server can discard it.
+{project-name-full} will not deliver a message to a consumer after it's time-to-live has been exceeded.
+If the message hasn't been delivered by the time that time-to-live is reached, the server can discard it.
 
-Apache ActiveMQ Artemis's addresses can be assigned an expiry address so that, when messages are expired, they are removed from the queue and sent to the expiry address.
+Addresses can be assigned an expiry address so that, when messages are expired, they are removed from the queue and sent to the expiry address.
 Many different queues can be bound to an expiry address.
 These _expired_ messages can later be consumed for further inspection.
 
 == Core API
 
-Using the Apache ActiveMQ Artemis Core API you can set an expiration time directly on the message:
+Using the Core API you can set an expiration time directly on the message:
 
 [,java]
 ----
@@ -204,7 +204,7 @@ Here is an example configuration:
 </address-setting>
 ----
 
-The queue holding the expired messages can be accessed directly either by using the queue's name by itself (e.g. when using the core client) or by using the fully qualified queue name (e.g. when using a JMS client) just like any other queue.
+The queue holding the expired messages can be accessed directly either by using the queue's name by itself (e.g. when using the Core client) or by using the fully qualified queue name (e.g. when using a JMS client) just like any other queue.
 Also, note that the queue is auto-created which means it will be auto-deleted as per the relevant `address-settings`.
 
 == Configuring The Expiry Reaper Thread

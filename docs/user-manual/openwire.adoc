@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis supports the http://activemq.apache.org/openwire.html[OpenWire] protocol so that an Apache ActiveMQ Classic JMS client can talk directly to an Apache ActiveMQ Artemis server.
+{project-name-full} supports the http://activemq.apache.org/openwire.html[OpenWire] protocol so that an Apache ActiveMQ Classic JMS client can talk directly to an {project-name-full} server.
 By default there is an `acceptor` configured to accept OpenWire connections on port `61616`.
 
 See the general xref:protocols-interoperability.adoc#protocols-and-interoperability[Protocols and Interoperability] chapter for details on configuring an `acceptor` for OpenWire.

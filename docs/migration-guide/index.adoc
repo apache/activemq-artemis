@@ -1,6 +1,6 @@
-= Apache ActiveMQ Artemis Migration Guide
+= {project-name-full} Migration Guide
 
-The migration guide outlines how users can migrate an existing ActiveMQ Classic broker installation to ActiveMQ Artemis.
+The migration guide outlines how users can migrate an existing ActiveMQ broker installation to {project-name-short}.
 
 include::_preface.adoc[leveloffset=1]
 include::_key-differences.adoc[leveloffset=1]

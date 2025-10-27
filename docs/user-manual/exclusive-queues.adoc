@@ -25,7 +25,7 @@ Exclusive queues can be statically configured using the `exclusive` boolean  pro
 </address>
 ----
 
-Specified on creating a Queue by using the CORE api specifying the parameter  `exclusive` to `true`.
+Specified on creating a Queue by using the Core API specifying the parameter  `exclusive` to `true`.
 
 Or on auto-create when using the JMS Client by using address parameters when  creating the destination used by the consumer.
 

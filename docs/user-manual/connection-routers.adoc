@@ -3,8 +3,8 @@
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis connection routers allow incoming client connections to be distributed across multiple <<target-broker,target brokers>>.
-The target brokers are grouped in <<pools,pools>> and the connection routers use a <<keys,key>> to select a target broker from a pool of brokers according to a <<policies,policy>>.
+Connection routers allow incoming client connections to be distributed across multiple <<target-broker,target brokers>>.
+The target brokers are grouped in <<pools,pools>>, and the connection routers use a <<keys,key>> to select a target broker from a pool of brokers according to a <<policies,policy>>.
 
 == Target Broker
 
@@ -251,7 +251,7 @@ With the 'data gravity' mindset, operators are less concerned with numbers of co
 
 == Redirection
 
-Apache ActiveMQ Artemis provides a protocol-native redirection as well as a management API for other clients using a messaging protocol which doesn't support redirection.
+A protocol-native redirection is provided as well as a management API for other clients using a messaging protocol which doesn't support redirection.
 
 === Native Redirection
 

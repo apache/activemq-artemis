@@ -3,16 +3,16 @@
 :idseparator: -
 :docinfo: shared
 
-In this chapter we'll discuss how to tune Apache ActiveMQ Artemis for optimum performance.
+In this chapter we'll discuss how to tune {project-name-full} for optimum performance.
 
 == Tuning persistence
 
-* To get the best performance from Apache ActiveMQ Artemis whilst using persistent messages it is recommended that the file store is used.
-Apache ActiveMQ Artemis also supports JDBC persistence, but there is a performance cost when persisting to a database vs local disk.
+* To get the best performance whilst using persistent messages it is recommended that the file store is used.
+JDBC persistence is also supported, but there is a performance cost when persisting to a database vs. local disk.
 * Put the message journal on its own physical volume.
-If the disk is shared with other processes e.g. transaction co-ordinator, database or other journals which are also reading and writing from it, then this may greatly reduce performance since the disk head may be skipping all over the place between the different files.
-One of the advantages of an append only journal is that disk head movement is minimised - this advantage is destroyed if the disk is shared.
-If you're using paging or large messages make sure they're ideally put on separate volumes too.
+If the disk is shared with other processes (e.g. transaction co-ordinator, database or other journals which are also reading and writing from it), then this may greatly reduce performance since the disk head may be skipping all over the place between the different files.
+One of the advantages of an append-only journal is that disk head movement is minimised - this advantage is destroyed if the disk is shared.
+If you're using paging or large messages, make sure they're ideally put on separate volumes too.
 * Minimum number of journal files.
 Set `journal-min-files` to a number of files that would fit your average sustainable rate.
 This number represents the lower threshold of the journal file pool.
@@ -56,14 +56,14 @@ By default JMS messages are durable.
 If you don't really need durable messages then set them to be non-durable.
 Durable messages incur a lot more overhead in persisting them to storage.
 * Batch many sends or acknowledgements in a single transaction.
-Apache ActiveMQ Artemis will only require a network round trip on the commit, not on every send or acknowledgement.
+The Core client will only require a network round trip on the commit, not on every send or acknowledgement.
 
 == Other Tunings
 
-There are various other places in Apache ActiveMQ Artemis where we can perform some tuning:
+There are various other tunings available:
 
 * Use Asynchronous Send Acknowledgements.
-If you need to send durable messages non transactionally and you need a guarantee that they have reached the server by the time the call to send() returns, don't set durable messages to be sent blocking, instead use asynchronous send acknowledgements to get your acknowledgements of send back in a separate stream, see xref:send-guarantees.adoc#guarantees-of-sends-and-commits[Guarantees of sends and commits] for more information on this.
+If you need to send durable messages non-transactionally and you need a guarantee that they have reached the server by the time the call to send() returns, don't set durable messages to be sent blocking, instead use asynchronous send acknowledgements to get your acknowledgements of send back in a separate stream, see xref:send-guarantees.adoc#guarantees-of-sends-and-commits[Guarantees of sends and commits] for more information on this.
 * Use pre-acknowledge mode.
 With pre-acknowledge mode, messages are acknowledged `before` they are sent to the client.
 This reduces the amount of acknowledgement traffic on the wire.
@@ -75,7 +75,7 @@ If you don't need message persistence, turn it off altogether by setting `persis
 * Sync transactions lazily.
 Setting `journal-sync-transactional` to `false` in `broker.xml` can give you better transactional persistent performance at the expense of some possibility of loss of transactions on failure.
 See xref:send-guarantees.adoc#guarantees-of-sends-and-commits[Guarantees of sends and commits] for more information.
-* Sync non transactional lazily.
+* Sync non-transactional lazily.
 Setting `journal-sync-non-transactional` to `false` in `broker.xml` can give you better non-transactional persistent performance at the expense of some possibility of loss of durable messages on failure.
 See  xref:send-guarantees.adoc#guarantees-of-sends-and-commits[Guarantees of sends and commits] for more information.
 * Send messages non blocking.
@@ -84,9 +84,9 @@ This means you don't have to wait a whole network round trip for every message s
 See  xref:send-guarantees.adoc#guarantees-of-sends-and-commits[Guarantees of sends and commits] for more information.
 * If you have very fast consumers, you can increase consumer-window-size.
 This effectively disables consumer flow control.
-* Use the core API not JMS.
-Using the JMS API you will have slightly lower performance than using the core API, since all JMS operations need to be translated into core operations before the server can handle them.
-If using the core API try to use methods that take `SimpleString` as much as possible.
+* Use the Core API not JMS.
+Using the JMS API you will have slightly lower performance than using the Core API, since all JMS operations need to be translated into core operations before the server can handle them.
+If using the Core API try to use methods that take `SimpleString` as much as possible.
 `SimpleString`, unlike java.lang.String does not require copying before it is written to the wire, so if you re-use `SimpleString` instances between calls then you can avoid some unnecessary copying.
 * If using frameworks like Spring, configure destinations permanently broker side and enable `cacheDestinations` on the client side.
 See the xref:using-jms.adoc#setting-the-destination-cache[Setting The Destination Cache] for more information on this.
@@ -118,7 +118,6 @@ serveruser   hard  nofile  20000
 This would allow up to 20000 file handles to be open by the user `serveruser`.
 
 * Use `batch-delay` and set `direct-deliver` to false for the best throughput for very small messages.
-Apache ActiveMQ Artemis comes with a preconfigured connector/acceptor pair (`netty-throughput`) in `broker.xml` and JMS connection factory (`ThroughputConnectionFactory`) in ``activemq-jms.xml``which can be used to give the very best throughput, especially for small messages.
 See the xref:configuring-transports.adoc#configuring-the-transport[Configuring the Transport] for more information on this.
 
 == Tuning the VM
@@ -127,13 +126,13 @@ We highly recommend you use the latest Java JVM for the best performance.
 We test internally using the Sun JVM, so some of these tunings won't apply to JDKs from other providers (e.g. IBM or JRockit)
 
 * Memory settings.
-Give as much memory as you can to the server.
-Apache ActiveMQ Artemis can run in low memory by using paging (described in xref:paging.adoc#paging[Paging]) but if it can run with all queues in RAM this will improve performance.
+Give as much memory as you can to the broker.
+It can run in low memory by using xref:paging.adoc#paging[paging], but if it can run with all queues in RAM this will improve performance.
 The amount of memory you require will depend on the size and number of your queues and the size and number of your messages.
-Use the JVM arguments `-Xms` and `-Xmx` to set server available RAM.
+Use the JVM arguments `-Xms` and `-Xmx` to set available RAM.
 We recommend setting them to the same high value.
 +
-When under periods of high load, it is likely that Artemis will be generating and destroying lots of objects.
+When under periods of high load, it is likely that the broker will be generating and destroying lots of objects.
 This can result in a build up of stale objects.
 To reduce the chance of running out of memory and causing a full GC (which may introduce pauses and unintentional behaviour), it is recommended that the max heap size (`-Xmx`) for the JVM is set at least to 5 x the `global-max-size` of the broker.
 As an example, in a situation where the broker is under high load and running with a `global-max-size` of 1GB, it is recommended the max heap size is set to 5GB.

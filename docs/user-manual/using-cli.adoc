@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-ActiveMQ Artemis has a Command Line Interface (CLI) that can used to manage a few aspects of the broker like instance creation, basic user management, queue & address management, etc.
+A Command Line Interface (CLI) can used to manage a few aspects of the broker like instance creation, basic user management, queue & address management, etc.
 This interface is designed for simple use-cases with _humans_ in mind.
 It is not an exhaustive set of commands for complete broker management.
 There is a comprehensive xref:management.adoc[management API] available with many operations that return JSON formatted output which is better suited for use in scripts and other automated processes.
@@ -339,7 +339,7 @@ myUser
 Type the password for a retry
 ----
 
-== Artemis Shell
+== Shell
 
 To initialize the shell session, type `./artemis shell` (or just `./artemis` if you prefer):
 
@@ -348,7 +348,7 @@ To initialize the shell session, type `./artemis shell` (or just `./artemis` if 
 $ ./artemis
 ----
 
-The ActiveMQ Artemis shell provides an interface that can be used to execute commands directly without leaving the Java Virtual Machine.
+The shell provides an interface that can be used to execute commands directly without leaving the Java Virtual Machine.
 
 [,console]
 ----

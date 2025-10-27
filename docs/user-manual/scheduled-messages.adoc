@@ -26,7 +26,7 @@ producer.send(message);
 TextMessage messageReceived = (TextMessage) consumer.receive();
 ----
 
-Scheduled messages can also be sent using the core API, by setting the same property on the core message before sending.
+Scheduled messages can also be sent using the Core API, by setting the same property on the core message before sending.
 
 == Example
 

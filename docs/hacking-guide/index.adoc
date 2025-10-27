@@ -1,6 +1,6 @@
-= Apache ActiveMQ Artemis Hacking Guide
+= {project-name-full} Hacking Guide
 
-This hacking guide outlines how developers can get involved in contributing to the Apache ActiveMQ Artemis project.
+This hacking guide outlines how developers can get involved in contributing to the {project-name-full} project.
 
 include::_code.adoc[leveloffset=1]
 include::_building.adoc[leveloffset=1]

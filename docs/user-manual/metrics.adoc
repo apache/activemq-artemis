@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis can export metrics to a variety of monitoring systems via the https://micrometer.io/[Micrometer] vendor-neutral application metrics facade.
+{project-name-full} can export metrics to a variety of monitoring systems via the https://micrometer.io/[Micrometer] vendor-neutral application metrics facade.
 
 Important runtime metrics have been instrumented via the Micrometer API, and all a user needs to do is implement `org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin` in order to instantiate and configure a `io.micrometer.core.instrument.MeterRegistry` implementation.
 Relevant implementations of `MeterRegistry` are available from the https://github.com/micrometer-metrics/micrometer/tree/master/implementations[Micrometer code-base].
@@ -51,7 +51,7 @@ A _tag_ is a piece of metadata that gives context to the metric.
 These tags are the foundation of what is sometimes referred to as "dimensional metrics."
 Metrics _may_ have additional tags, but at the very least they will all have the `broker` tag.
 
-Lastly, all metrics specifically for ActiveMQ Artemis are prefixed with `artemis.`.
+Lastly, all metrics specifically for the broker are prefixed with `artemis.`.
 
 === Broker
 

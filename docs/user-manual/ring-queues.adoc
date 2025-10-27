@@ -129,7 +129,7 @@ Therefore, since a ring queue prefers messages at the tail of the queue over mes
 
 Transaction or core session rollbacks are treated the same way.
 
-If you wish to avoid these kinds of situations and you're using the core client directly or the core JMS client you can minimize messages in delivery by reducing the size of `consumerWindowSize` (1024 * 1024 bytes by default).
+If you wish to avoid these kinds of situations and you're using the Core client directly or the core JMS client you can minimize messages in delivery by reducing the size of `consumerWindowSize` (1024 * 1024 bytes by default).
 
 == Scheduled Messages
 

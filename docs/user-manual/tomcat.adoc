@@ -5,10 +5,10 @@
 
 == Resource Context Client Configuration
 
-Apache ActiveMQ Artemis provides support for configuring the client in the `context.xml` of the Tomcat container.
+A {project-name-short} client can be configured in the `context.xml` of the Tomcat container.
 
-This is very similar to the way this is done in ActiveMQ Classic so anyone migrating should find this familiar.
-Please note though the connection url and properties that can be set for ActiveMQ Artemis are different please see https://activemq.apache.org/artemis/migration/[Migration Documentation]
+This is very similar to the way this is done in ActiveMQ so anyone migrating should find this familiar.
+Please note, the connection url and properties are different please see https://activemq.apache.org/artemis/migration/[Migration Documentation]
 
 === Example of Connection Factory
 

@@ -3,8 +3,8 @@
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis supports the https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=amqp[AMQP 1.0] specification.
-By default there are `acceptor` elements configured to accept AMQP connections on ports `61616` and `5672`.
+The https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=amqp[AMQP 1.0] specification is supported.
+By default, there are `acceptor` elements configured to accept AMQP connections on ports `61616` and `5672`.
 
 See the general xref:protocols-interoperability.adoc#protocols-and-interoperability[Protocols and Interoperability] chapter for details on configuring an `acceptor` for AMQP.
 
@@ -21,7 +21,7 @@ and many others.
 
 == Examples
 
-We have a few examples as part of the xref:examples.adoc[Artemis examples]:
+We have a project with xref:examples.adoc[a few examples]:
 
 * .NET:
  ** ./examples/protocols/amqp/dotnet
@@ -67,7 +67,7 @@ If regardless these recommendations you still need and want to intercept and cha
 
 == AMQP and security
 
-The Apache ActiveMQ Artemis Server accepts the PLAIN, ANONYMOUS, and GSSAPI SASL mechanism.
+The PLAIN, ANONYMOUS, and GSSAPI SASL mechanisms are accepted.
 These are implemented on the broker's xref:security.adoc#authentication-authorization[security] infrastructure.
 
 == AMQP and destinations
@@ -91,7 +91,7 @@ If a coordinator is used then the underlying server session will be transacted a
 
 [NOTE]
 ====
-AMQP allows the use of multiple transactions per session, `amqp:multi-txns-per-ssn`, however in this version of Apache ActiveMQ Artemis will only support single transactions per session.
+AMQP allows the use of multiple transactions per session, `amqp:multi-txns-per-ssn`, however, only a single transaction per session is supported by the broker.
 ====
 
 == AMQP scheduling message delivery
@@ -193,17 +193,17 @@ This contains a real example for configuring amqpIdleTimeout:
 <acceptor name="amqp">tcp://0.0.0.0:5672?amqpIdleTimeout=0;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;directDeliver=false;batchDelay=10</acceptor>
 ----
 
-== Web Sockets
+== WebSockets
 
-Apache ActiveMQ Artemis also supports AMQP over https://html.spec.whatwg.org/multipage/web-sockets.html[Web Sockets].
-Modern web browsers which support Web Sockets can send and receive AMQP messages.
+AMQP over https://html.spec.whatwg.org/multipage/web-sockets.html[WebSockets] is also supported.
+Modern web browsers which support WebSockets can send and receive AMQP messages.
 
-AMQP over Web Sockets is supported via a normal AMQP acceptor:
+AMQP over WebSockets is supported via a normal AMQP acceptor:
 
 [,xml]
 ----
 <acceptor name="amqp-ws-acceptor">tcp://localhost:5672?protocols=AMQP</acceptor>
 ----
 
-With this configuration, Apache ActiveMQ Artemis will accept AMQP connections over Web Sockets on the port `5672`.
+With this configuration, the broker will accept AMQP connections over WebSockets on the port `5672`.
 Web browsers can then connect to `ws://<server>:5672` using a Web Socket to send and receive AMQP messages.

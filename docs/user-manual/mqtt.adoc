@@ -3,11 +3,11 @@
 :idseparator: -
 :docinfo: shared
 
-MQTT is a light weight, client to server, publish / subscribe messaging protocol.
+MQTT is a light weight, client-to-server, publish / subscribe messaging protocol.
 MQTT has been specifically designed to reduce transport overhead (and thus network traffic) and code footprint on client devices.
 For this reason MQTT is ideally suited to constrained devices such as sensors and actuators and is quickly becoming the defacto standard communication protocol for IoT.
 
-Apache ActiveMQ Artemis supports the following MQTT versions (with links to their respective specifications):
+{project-name-full} supports the following MQTT versions (with links to their respective specifications):
 
 * https://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html[3.1]
 * https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html[3.1.1]
@@ -166,19 +166,19 @@ This conversion isn't free so *if you want the best MQTT performance* use `broke
 
 Of course, changing the default syntax also means other clients on other protocols will need to follow this same syntax as well as the `match` values of your `address-setting` configuration elements.
 
-== Web Sockets
+== WebSockets
 
-Apache ActiveMQ Artemis also supports MQTT over https://html.spec.whatwg.org/multipage/web-sockets.html[Web Sockets].
-Modern web browsers which support Web Sockets can send and receive MQTT messages.
+MQTT over https://html.spec.whatwg.org/multipage/web-sockets.html[WebSockets] is also supported.
+Modern web browsers which support WebSockets can send and receive MQTT messages.
 
-MQTT over Web Sockets is supported via a normal MQTT acceptor:
+MQTT over WebSockets is supported via a normal MQTT acceptor:
 
 [,xml]
 ----
 <acceptor name="mqtt-ws-acceptor">tcp://host:1883?protocols=MQTT</acceptor>
 ----
 
-With this configuration, Apache ActiveMQ Artemis will accept MQTT connections over Web Sockets on the port `1883`.
+With this configuration, the broker will accept MQTT connections over WebSockets on the port `1883`.
 Web browsers can then connect to `ws://<server>:1883` using a Web Socket to send and receive MQTT messages.
 
 SSL/TLS is also available, e.g.:

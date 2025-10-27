@@ -3,24 +3,24 @@
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis includes powerful automatic duplicate message detection, filtering out duplicate messages without you having to code your own fiddly duplicate detection logic at the application level.
-This chapter will explain what duplicate detection is, how Apache ActiveMQ Artemis uses it, and how to configure it.
+The broker includes powerful automatic duplicate message detection, filtering out duplicate messages without you having to code your own fiddly duplicate detection logic at the application level.
+This chapter will explain what duplicate detection is, how the broker uses it, and how to configure it.
 
-When sending messages from a client to a server, or indeed from a server to another server, if the target server or connection fails sometime after sending the message, but before the sender receives a response that the send (or commit) was processed successfully then the sender cannot know for sure if the message was sent successfully to the address.
+When sending messages from a client to a server, or indeed from a server to another server, if the target server or connection fails sometime after sending the message, but before the sender receives a response that the send (or commit) was processed successfully, then the sender cannot know for sure if the message was sent successfully to the address.
 
-If the target server or connection failed after the send was received and processed but before the response was sent back then the message will have been sent to the address successfully, but if the target server or connection failed before the send was received and finished processing then it will not have been sent to the address successfully.
-From the senders point of view it's not possible to distinguish these two cases.
+If the target server or connection failed after the send was received and processed, but before the response was sent back then the message will have been sent to the address successfully, but if the target server or connection failed before the send was received and finished processing, then it will not have been sent to the address successfully.
+From the senders' point of view, it's not possible to distinguish these two cases.
 
-When the server recovers this leaves the client in a difficult situation.
+When the server recovers, this leaves the client in a difficult situation.
 It knows the target server failed, but it does not know if the last message reached its destination successfully.
 If it decides to resend the last message then that could result in a duplicate message being sent to the address.
-If each message was an order or a trade then this could result in the order being fulfilled twice or the trade being double booked.
+If each message was an order or a trade then this could result in the order being fulfilled twice or the trade being double-booked.
 This is clearly not a desirable situation.
 
 Sending the message(s) in a transaction does not help either.
-If the server or connection fails while the transaction commit is being processed it is also indeterminate whether the transaction was successfully committed or not!
+If the server or connection fails while the transaction commit is being processed, it is also indeterminate whether the transaction was successfully committed or not!
 
-To solve these issues Apache ActiveMQ Artemis provides automatic duplicate messages detection for messages sent to addresses.
+Automatic duplicate messages detection solves these problems.
 
 == Using Duplicate Detection for Message Sending
 
@@ -51,7 +51,7 @@ String myUniqueID = "This is my unique id";   // Could use a UUID for this
 message.setStringProperty(HDR_DUPLICATE_DETECTION_ID.toString(), myUniqueID);
 ----
 
-If using the Artemis Core client the value of the property can be of type `String`, `SimpleString`, or `byte[]`.
+If using the Core client the value of the property can be of type `String`, `SimpleString`, or `byte[]`.
 
 Here's an example of setting the property using the Core API:
 
