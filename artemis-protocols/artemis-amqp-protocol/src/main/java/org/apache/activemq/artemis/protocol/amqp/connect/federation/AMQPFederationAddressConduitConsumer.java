@@ -67,7 +67,7 @@ public final class AMQPFederationAddressConduitConsumer extends AMQPFederationAd
 
       @Override
       protected void routeFederatedMessage(Message message, Delivery delivery, Receiver receiver, Transaction tx) throws Exception {
-         sessionSPI.serverSend(this, tx, receiver, delivery, cachedAddress, routingContext, message);
+         sessionSPI.serverSend(this, tx, receiver, delivery, cachedAddress, getPreferredRoutingType(), routingContext, message);
       }
    }
 }

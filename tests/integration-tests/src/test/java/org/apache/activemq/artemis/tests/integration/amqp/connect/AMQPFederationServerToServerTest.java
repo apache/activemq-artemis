@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -63,6 +64,11 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.transport.amqp.client.AmqpClient;
+import org.apache.activemq.transport.amqp.client.AmqpConnection;
+import org.apache.activemq.transport.amqp.client.AmqpMessage;
+import org.apache.activemq.transport.amqp.client.AmqpReceiver;
+import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.RepeatedTest;
@@ -2081,6 +2087,77 @@ public class AMQPFederationServerToServerTest extends AmqpClientTestSupport {
 
          Wait.assertTrue(() -> server.bindingQuery(addressName, false).getQueueNames().size() == 0, 10_000, 50);
          Wait.assertTrue(() -> remoteServer.bindingQuery(addressName, false).getQueueNames().size() == 0, 10_000, 50);
+      }
+   }
+
+   @Test
+   @Timeout(20)
+   public void testFederateFromRemoteDLQThatHasMessagesSentToMulticastAddressOriginially() throws Exception {
+      logger.info("Test started: {}", getTestName());
+
+      final AMQPFederationQueuePolicyElement queuePolicy = new AMQPFederationQueuePolicyElement();
+      queuePolicy.setName("remote-dlq-policy");
+      queuePolicy.addToIncludes(getDeadLetterAddress(), getDeadLetterAddress());
+
+      final AMQPFederatedBrokerConnectionElement element = new AMQPFederatedBrokerConnectionElement();
+      element.setName("From-Server1-DLQ");
+      element.addLocalQueuePolicy(queuePolicy);
+
+      final AMQPBrokerConnectConfiguration amqpConnection =
+         new AMQPBrokerConnectConfiguration(getTestName(), "tcp://localhost:" + SERVER_PORT);
+      amqpConnection.setReconnectAttempts(10); // Limit reconnects
+      amqpConnection.setRetryInterval(50);
+      amqpConnection.addElement(element);
+
+      remoteServer.getConfiguration().addAMQPConnection(amqpConnection);
+      remoteServer.start();
+      server.start();
+
+      // Configure defaults
+      createAddressAndQueues(remoteServer);
+      createAddressAndQueues(server);
+
+      final AmqpClient client = createAmqpClient();
+      final AmqpConnection clientConnection = addConnection(client.connect());
+      final AmqpSession clientSession = clientConnection.createSession();
+      final AmqpReceiver receiver = clientSession.createReceiver(getTopicName());
+
+      receiver.flow(1);
+
+      final ConnectionFactory factoryLocal = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + SERVER_PORT);
+
+      try (Connection connection = factoryLocal.createConnection()) {
+         connection.setClientID("test-federation");
+         connection.start();
+
+         final Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE);
+         final Topic topic = session.createTopic(getTopicName());
+         final MessageProducer producer = session.createProducer(topic);
+
+         // Sends a Topic message with Qpid JMS so that source message has the AMQP JMS mapping headers.
+         producer.send(session.createTextMessage("Message:"));
+      }
+
+      final AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
+      assertNotNull(received);
+      received.reject(); // Terminal outcome should be DLQ'd
+
+      final ConnectionFactory factoryRemote = new JmsConnectionFactory(
+         "amqp://localhost:" + SERVER_PORT_REMOTE + "?jms.prefetchPolicy.all=0");
+
+      try (Connection connectionR = factoryRemote.createConnection();
+           Session sessionR = connectionR.createSession(Session.AUTO_ACKNOWLEDGE)) {
+
+         connectionR.start();
+
+         final Queue queue = sessionR.createQueue(getDeadLetterAddress());
+         final MessageConsumer consumer = sessionR.createConsumer(queue);
+
+         Wait.assertTrue(() -> server.queueQuery(SimpleString.of(getDeadLetterAddress())).isExists(), 1_000);
+         Wait.assertTrue(() -> remoteServer.queueQuery(SimpleString.of(getDeadLetterAddress())).isExists(), 1_000);
+         Wait.assertEquals(1L, () -> remoteServer.queueQuery(SimpleString.of(getDeadLetterAddress())).getMessageCount(), 5_000, 10);
+
+         assertNotNull(consumer.receiveNoWait());
       }
    }
 }

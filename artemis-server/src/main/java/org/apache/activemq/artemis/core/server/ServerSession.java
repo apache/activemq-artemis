@@ -348,6 +348,14 @@ public interface ServerSession extends SecurityAuth {
                       boolean noAutoCreateQueue,
                       RoutingContext routingContext) throws Exception;
 
+   RoutingStatus send(Transaction tx,
+                      SimpleString address,
+                      RoutingType routingType,
+                      Message message,
+                      boolean direct,
+                      String senderName,
+                      boolean noAutoCreateQueue,
+                      RoutingContext routingContext) throws Exception;
 
    RoutingStatus doSend(Transaction tx,
                         Message msg,
@@ -357,6 +365,15 @@ public interface ServerSession extends SecurityAuth {
                         boolean noAutoCreateQueue) throws Exception;
 
    RoutingStatus doSend(Transaction tx,
+                        Message msg,
+                        SimpleString originalAddress,
+                        boolean direct,
+                        String senderName,
+                        boolean noAutoCreateQueue,
+                        RoutingContext routingContext) throws Exception;
+
+   RoutingStatus doSend(Transaction tx,
+                        RoutingType routingType,
                         Message msg,
                         SimpleString originalAddress,
                         boolean direct,

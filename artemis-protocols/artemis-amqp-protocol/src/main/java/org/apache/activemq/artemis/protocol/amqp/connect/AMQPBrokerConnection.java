@@ -851,7 +851,8 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                         public void initialize() throws Exception {
                            initialized = true;
                            address = SimpleString.of(target.getAddress());
-                           defRoutingType = getRoutingType(target.getCapabilities(), address);
+                           explicitRoutingType = queue.getRoutingType();
+                           implicitRoutingType = queue.getRoutingType();
 
                            try {
                               // Check if the queue that triggered the attach still exists or has it been removed
