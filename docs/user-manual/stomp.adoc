@@ -4,11 +4,11 @@
 :docinfo: shared
 
 https://stomp.github.io/[STOMP] is a text-orientated wire protocol that allows STOMP clients to communicate with STOMP Brokers.
-Apache ActiveMQ Artemis supports STOMP 1.0, 1.1 and 1.2.
+{project-name-full} supports STOMP 1.0, 1.1 and 1.2.
 
-STOMP clients are available for several languages and platforms making it a good choice for interoperability.
+STOMP clients are available for several languages and platforms, making it a good choice for interoperability.
 
-By default there are `acceptor` elements configured to accept STOMP connections on ports `61616` and `61613`.
+By default, there are `acceptor` elements configured to accept STOMP connections on ports `61616` and `61613`.
 
 See the general xref:protocols-interoperability.adoc#protocols-and-interoperability[Protocols and Interoperability] chapter for details on configuring an `acceptor` for STOMP.
 
@@ -19,26 +19,26 @@ Refer to the STOMP xref:examples.adoc[examples] for a look at some of this funct
 === Transactional Acknowledgements
 
 The STOMP specification identifies *transactional acknowledgements* as an optional feature.
-Support for transactional acknowledgements is not implemented in Apache ActiveMQ Artemis.
-The `ACK` frame can not be part of a transaction.
+Support for transactional acknowledgements is not implemented.
+The `ACK` frame cannot be part of a transaction.
 It will be ignored if its `transaction` header is set.
 
 === Virtual Hosting
 
-Apache ActiveMQ Artemis currently doesn't support virtual hosting, which means the `host` header in `CONNECT` frame will be ignored.
+Virtual hosting isn't supported which means the `host` header in `CONNECT` frame will be ignored.
 
 == Mapping STOMP destinations to addresses and queues
 
-STOMP clients deals with _destinations_ when sending messages and subscribing.
-Destination names are simply strings which are mapped to some form of destination on the server - how the server translates these is left to the server implementation.
+STOMP clients deal with _destinations_ when sending messages and subscribing.
+Destination names are simply strings that are mapped to some form of destination on the server - how the server translates this is left to the implementation.
 
-In Apache ActiveMQ Artemis, these destinations are mapped to _addresses_ and _queues_ depending on the operation being done and the desired semantics (e.g. anycast or multicast).
+These destinations are mapped to _addresses_ and _queues_ depending on the operation being done and the desired semantics (e.g. anycast or multicast).
 
 == Logging
 
 Incoming and outgoing STOMP frames can be logged by enabling `DEBUG` for `org.apache.activemq.artemis.core.protocol.stomp.StompConnection`.
 This can be extremely useful for debugging or simply monitoring client activity.
-Along with the STOMP frame itself the remote IP address of the client is logged as well as the internal connection ID so that frames from the same client can be correlated.
+Along with the STOMP frame itself, the remote IP address of the client is logged as well as the internal connection ID so that frames from the same client can be correlated.
 
 Follow xref:logging.adoc#configuring-a-specific-level-for-a-logger[these steps] to configure logging appropriately.
 
@@ -250,19 +250,19 @@ When a large message is delivered to a STOMP consumer, the broker will automatic
 If a large message is compressed, the server will uncompressed it before sending it to stomp clients.
 The default value of `stompMinLargeMessageSize` is the same as the default value of xref:large-messages.adoc#configuring-the-core-client[minLargeMessageSize].
 
-== Web Sockets
+== WebSockets
 
-Apache ActiveMQ Artemis also supports STOMP over https://html.spec.whatwg.org/multipage/web-sockets.html[Web Sockets].
-Modern web browsers which support Web Sockets can send and receive STOMP messages.
+STOMP over https://html.spec.whatwg.org/multipage/web-sockets.html[WebSockets] is also supported.
+Modern web browsers which support WebSockets can send and receive STOMP messages.
 
-STOMP over Web Sockets is supported via the normal STOMP acceptor:
+STOMP over WebSockets is supported via the normal STOMP acceptor:
 
 [,xml]
 ----
 <acceptor name="stomp-ws-acceptor">tcp://localhost:61614?protocols=STOMP</acceptor>
 ----
 
-With this configuration, Apache ActiveMQ Artemis will accept STOMP connections over Web Sockets on the port `61614`.
+With this configuration, the broker will accept STOMP connections over WebSockets on the port `61614`.
 Web browsers can then connect to `ws://<server>:61614` using a Web Socket to send and receive STOMP messages.
 
 A companion JavaScript library to ease client-side development is available from https://github.com/jmesnil/stomp-websocket[GitHub] (please see its http://jmesnil.net/stomp-websocket/doc/[documentation] for a complete description).
@@ -277,7 +277,7 @@ By default the broker encodes them as binary.
 However, this can be changed by using the `webSocketEncoderType` acceptor URL parameter.
 Valid values are `binary` and `text`.
 
-The `stomp-websockets` xref:examples.adoc[example] shows how to configure an Apache ActiveMQ Artemis broker to have web browsers and Java applications exchanges messages.
+The `stomp-websockets` xref:examples.adoc[example] shows how to configure a broker to have web browsers and Java applications exchanges messages.
 
 == Flow Control
 
@@ -286,7 +286,7 @@ This is broadly discussed in the xref:flow-control.adoc#flow-control[Flow Contro
 
 This ability is similar to the `activemq.prefetchSize` header supported by ActiveMQ Classic.
 However, that header specifies the size in terms of _messages_ whereas `consumer-window-size` specifies the size in terms of _bytes_.
-ActiveMQ Artemis supports the `activemq.prefetchSize` header for backwards compatibility but the value will be interpreted as _bytes_ just like `consumer-window-size` would be.
+The `activemq.prefetchSize` header is supported for backwards compatibility, but the value will be interpreted as _bytes_ just like `consumer-window-size` would be.
 If both `activemq.prefetchSize` and `consumer-window-size` are set then the value for `consumer-window-size` will be used.
 
 Setting `consumer-window-size` to `0` will ensure that once a STOMP client receives a message that it will _not_ receive another one until it sends the appropriate `ACK` or `NACK` frame for the message it already has.

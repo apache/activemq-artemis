@@ -49,7 +49,7 @@ It is waiting for the primary to fail before it activates and begins accepting r
 
 == HA Policies
 
-Apache ActiveMQ Artemis supports two main policies for backing up a server:
+Two main policies are available for backing up a server:
 
 * *shared store*
 * *replication*
@@ -173,8 +173,8 @@ Specifies that if the NFS server is unavailable the error should be reported rat
 +
 [TIP]
 ====
-The https://linux.die.net/man/5/nfs[NFS documentation] notes the potential for "silent data corruption" when using `soft`. 
-This can be safely ignored in the case of ActiveMQ Artemis.
+The https://linux.die.net/man/5/nfs[NFS documentation] notes the potential for "silent data corruption" when using `soft`.
+This can be safely ignored.
 ====
 lookupcache=none::
 Disables lookup caching.
@@ -922,17 +922,17 @@ The normal reconnect settings apply when the client is reconnecting so these sho
 
 == Client Failover
 
-Apache ActiveMQ Artemis clients can be configured to receive knowledge of all primary and backup servers, so that in event of connection failure the client will detect this and reconnect to the backup server.
+Core clients can be configured to receive knowledge of all primary and backup servers, so that in event of connection failure the client will detect this and reconnect to the backup server.
 The backup server will then automatically recreate any sessions and consumers that existed on each connection before failover, thus saving the user from having to hand-code manual reconnection logic.
 For further details see xref:client-failover.adoc#core-client-failover[Client Failover]
 
 .A Note on Seamless Failover
 ****
-Apache ActiveMQ Artemis does not reproduce _full_ server state between active and passive servers.
-When a core client automatically creates a new session on the backup that session won't contain any information about messages already sent or acknowledged in the previous session.
+The broker does not reproduce _full_ server state between active and passive servers.
+When a Core client automatically creates a new session on the backup, that session won't contain any information about messages already sent or acknowledged in the previous session.
 Any in-flight sends or acknowledgements at the time of failover will also be lost if they weren't written to storage.
 
-Theoretically we could provide a 100% transparent, seamless failover which would avoid any lost messages or acknowledgements.
+Theoretically, we could provide a 100% transparent, seamless failover which would avoid any lost messages or acknowledgements.
 However, this comes at a great cost: reproducing the full server state (including the queues, session, etc.).
 This would require every operation on the primary server to be reproduced on the backup server in the exact same global order to ensure a consistent state.
 This is extremely hard to do in a performant and scalable way, especially when one considers that multiple threads are changing the active server's state concurrently.
@@ -949,25 +949,25 @@ However, this is not 100% transparent to the client code.
 === Handling Blocking Calls During Failover
 
 If the client code is in a blocking call to the server, waiting for a response to continue its execution, when failover occurs, the new session will not have any knowledge of the call that was in progress.
-This call might otherwise hang for ever, waiting for a response that will never come.
+This call might otherwise hang forever, waiting for a response that will never come.
 
-To prevent this, Apache ActiveMQ Artemis will unblock any blocking calls that were in progress at the time of failover by making them throw a `javax.jms.JMSException` (if using JMS), or a `ActiveMQException` with error code `ActiveMQException.UNBLOCKED`.
+To prevent this, the broker will unblock any blocking calls that were in progress at the time of failover by making them throw a `javax.jms.JMSException` (if using JMS), or a `ActiveMQException` with error code `ActiveMQException.UNBLOCKED`.
 It is up to the client code to catch this exception and retry any operations if desired.
 
-If the method being unblocked is a call to commit(), or prepare(), then the transaction will be automatically rolled back and Apache ActiveMQ Artemis will throw a `javax.jms.TransactionRolledBackException` (if using JMS), or a `ActiveMQException` with error code `ActiveMQException.TRANSACTION_ROLLED_BACK` if using the core API.
+If the method being unblocked is a call to `commit()`, or `prepare()`, then the transaction will be automatically rolled back and will throw a `javax.jms.TransactionRolledBackException` (if using JMS), or a `ActiveMQException` with error code `ActiveMQException.TRANSACTION_ROLLED_BACK` if using the Core API.
 
 === Handling Failover With Transactions
 
 If the session is transactional and messages have already been sent or acknowledged in the current transaction, then the server cannot be sure that messages sent or acknowledgements have not been lost during the failover.
 
-Consequently the transaction will be marked as rollback-only, and any subsequent attempt to commit it will throw a `javax.jms.TransactionRolledBackException` (if using JMS), or a `ActiveMQException` with error code `ActiveMQException.TRANSACTION_ROLLED_BACK` if using the core API.
+Consequently, the transaction will be marked as rollback-only, and any subsequent attempt to commit it will throw a `javax.jms.TransactionRolledBackException` (if using JMS), or a `ActiveMQException` with error code `ActiveMQException.TRANSACTION_ROLLED_BACK` if using the Core API.
 
 [WARNING]
 ====
-The caveat to this rule is when XA is used either via JMS or through the core API.
+The caveat to this rule is when XA is used either via JMS or through the Core API.
 If 2 phase commit is used and prepare has already been called then rolling back could cause a `HeuristicMixedException`.
 Because of this the commit will throw a `XAException.XA_RETRY` exception.
-This informs the Transaction Manager that it should retry the commit at some later point in time, a side effect of this is that any non persistent messages will be lost.
+This informs the Transaction Manager that it should retry the commit at some later point in time, a side effect of this is that any non-persistent messages will be lost.
 To avoid this use persistent messages when using XA.
 With acknowledgements this is not an issue since they are flushed to the server before prepare gets called.
 ====
@@ -976,14 +976,15 @@ It is up to the user to catch the exception, and perform any client side local r
 There is no need to manually rollback the session - it is already rolled back.
 The user can then just retry the transactional operations again on the same session.
 
-Apache ActiveMQ Artemis ships with a fully functioning example demonstrating how to do this, please see xref:examples.adoc#examples[the examples] chapter.
+A fully functioning example demonstrating how to do this is available.
+Please see xref:examples.adoc#examples[the examples] chapter.
 
 If failover occurs when a commit call is being executed, the server, as previously described, will unblock the call to prevent a hang, since no response will come back.
 In this case it is not easy for the client to determine whether the transaction commit was actually processed before failure occurred.
 
 [NOTE]
 ====
-If XA is being used either via JMS or through the core API then an `XAException.XA_RETRY` is thrown.
+If XA is being used either via JMS or through the Core API then an `XAException.XA_RETRY` is thrown.
 This is to inform Transaction Managers that a retry should occur at some point.
 At some later point in time the Transaction Manager will retry the commit.
 If the original commit has not occurred then it will still exist and be committed, if it does not exist then it is assumed to have been committed although the transaction manager may log a warning.
@@ -997,15 +998,15 @@ If the transaction had indeed been committed successfully before failover, then 
 By catching the rollback exceptions and retrying, catching unblocked calls and enabling duplicate detection, _once and only once_ delivery guarantees can be provided for messages in the case of failure, guaranteeing 100% no loss or duplication of messages.
 ====
 
-==== Handling Failover With Non Transactional Sessions
+==== Handling Failover With Non-Transactional Sessions
 
-If the session is non transactional, messages or acknowledgements can be lost in the event of a failover.
+If the session is non-transactional, messages or acknowledgements can be lost in the event of a failover.
 
-If you wish to provide _once and only once_ delivery guarantees for non transacted sessions too, enable duplicate detection, and catch unblock exceptions as described in <<handling-blocking-calls-during-failover,Handling Blocking Calls During Failover>>
+If you wish to provide _once and only once_ delivery guarantees for non-transacted sessions too, enable duplicate detection, and catch unblock exceptions as described in <<handling-blocking-calls-during-failover,Handling Blocking Calls During Failover>>
 
 ==== Use client connectors to fail over
 
-Apache ActiveMQ Artemis clients retrieve the backup connector from the topology updates that the cluster brokers send.
+Core clients retrieve the backup connector from the topology updates that the cluster brokers send.
 If the connection options of the clients don't match the options of the cluster brokers the clients can define a client connector that will be used in place of the connector in the topology.
 To define a client connector it must have a name that matches the name of the connector defined in the `cluster-connection` of the broker, i.e. supposing to have a primary broker with the cluster connector name `node-0` and a backup broker with the `cluster-connector` name `node-1` the client connection url must define 2 connectors with the names `node-0` and `node-1`:
 
@@ -1050,30 +1051,31 @@ Client connection url
 
 === Getting Notified of Connection Failure
 
-JMS provides a standard mechanism for getting notified asynchronously of connection failure: `java.jms.ExceptionListener`.
-Please consult the JMS javadoc or any good JMS tutorial for more information on how to use this.
+JMS provides a standard mechanism for getting notified asynchronously of connection failure: `ExceptionListener`.
+Please consult the JMS JavaDoc or any good JMS tutorial for more information on how to use this.
 
-The Apache ActiveMQ Artemis core API also provides a similar feature in the form of the class `org.apache.activemq.artemis.core.client.SessionFailureListener`
+The Core API also provides a similar feature in the form of the class `org.apache.activemq.artemis.core.client.SessionFailureListener`
 
-Any ExceptionListener or SessionFailureListener instance will always be called by ActiveMQ Artemis on event of connection failure, *irrespective* of whether the connection was successfully failed over, reconnected or reattached, however you can find out if reconnect or reattach has happened by either the `failedOver` flag passed in on the `connectionFailed` on `SessionfailureListener` or by inspecting the error code on the `javax.jms.JMSException` which will be one of the following:
+Any `ExceptionListener` or `SessionFailureListener` instance will always be called in the event of a connection failure, *irrespective* of whether the connection was successfully failed over, reconnected or reattached.
+However, you can find out if reconnect or reattach has happened by either the `failedOver` flag passed in on the `connectionFailed` on `SessionfailureListener` or by inspecting the error code on the `JMSException` which will be one of the following:
 
-JMSException error codes:
+`JMSException` error codes:
 
 FAILOVER::
-Failover has occurred and we have successfully reattached or reconnected.
+Failover has occurred, and we have successfully reattached or reconnected.
 
 DISCONNECT::
 No failover has occurred and we are disconnected.
 
 === Application-Level Failover
 
-In some cases you may not want automatic client failover, and prefer to handle any connection failure yourself, and code your own manually reconnection logic in your own failure handler.
+In some cases you may not want automatic client failover and prefer to handle any connection failure yourself and code your own manual reconnection logic in your own failure handler.
 We define this as _application-level_ failover, since the failover is handled at the user application level.
 
 To implement application-level failover, if you're using JMS then you need to set an `ExceptionListener` class on the JMS connection.
-The `ExceptionListener` will be called by Apache ActiveMQ Artemis in the event that connection failure is detected.
+The `ExceptionListener` will be called in the event that connection failure is detected.
 In your `ExceptionListener`, you would close your old JMS connections, potentially look up new connection factory instances from JNDI and creating new connections.
 
 For a working example of application-level failover, please see xref:examples.adoc#application-layer-failover[the Application-Layer Failover Example].
 
-If you are using the core API, then the procedure is very similar: you would set a `FailureListener` on the core `ClientSession` instances.
+If you are using the Core API, then the procedure is very similar: you would set a `FailureListener` on the core `ClientSession` instances.

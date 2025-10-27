@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-Artemis resources can be run inside JUnit Tests by using provided Rules (for JUnit 4) or Extensions (for JUnit 5).
+Broker resources can be run inside JUnit tests by using provided rules (for JUnit 4) or extensions (for JUnit 5).
 This can make it easier to embed messaging functionality in your tests.
 
 These are provided by the packages `artemis-junit` (JUnit 4) and `artemis-junit-5` (JUnit 5).

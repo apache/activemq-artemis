@@ -26,7 +26,7 @@ Last-Value queues can be statically configured in broker.xml via the `last-value
 </address>
 ----
 
-Specified on creating a queue by using the CORE api specifying the parameter  `lastValue` to `true`.
+Specified on creating a queue by using the Core API specifying the parameter  `lastValue` to `true`.
 
 Or on auto-create when using the JMS Client by using address parameters when  creating the destination used by the consumer.
 
@@ -61,7 +61,7 @@ Last-Value queues can also just be configured via the `last-value` boolean prope
 </address>
 ----
 
-Specified on creating a queue by using the CORE api specifying the parameter  `lastValue` to `true`.
+Specified on creating a queue by using the Core API specifying the parameter  `lastValue` to `true`.
 
 Or on auto-create when using the JMS Client by using address parameters when  creating the destination used by the consumer.
 

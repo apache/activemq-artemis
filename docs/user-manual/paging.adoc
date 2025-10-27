@@ -3,13 +3,13 @@
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis transparently supports huge queues containing millions of messages while the server is running with limited memory.
+The broker transparently supports huge queues containing millions of messages with limited memory.
 
-In such a situation it's not possible to store all of the queues in memory at any one time, so Apache ActiveMQ Artemis transparently _pages_ messages into and out of memory as they are needed, thus allowing massive queues with a low memory footprint.
+In such a situation it's not possible to store all of the queues in memory at any one time, so the broker transparently _pages_ messages into and out of memory as they are needed, thus allowing massive queues with a low memory footprint.
 
-Apache ActiveMQ Artemis will start paging messages to disk, when the size of all messages in memory for an address exceeds a configured maximum size.
+The broker will start paging messages to disk when the size of all messages in memory for an address exceeds a configured maximum size.
 
-The default configuration from Artemis has destinations with paging.
+The default configuration uses paging.
 
 == Page Files
 
@@ -36,7 +36,7 @@ This is different to browsing as we will "browse" the entire queue looking for m
 You can configure the location of the paging folder in `broker.xml`.
 
 * `paging-directory` Where page files are stored.
-Apache ActiveMQ Artemis will create one folder for each address being paged under this configured location.
+The broker will create one folder for each address being paged under this configured location.
 Default is `data/paging`.
 
 == Paging Mode
@@ -255,4 +255,4 @@ If the limit determined from `page-limit-bytes`, once converted to a number of p
 
 == Example
 
-See the xref:examples.adoc#paging[Paging Example] which shows how to use paging with  Apache ActiveMQ Artemis.
+See the xref:examples.adoc#paging[Paging Example] which shows how to use paging.

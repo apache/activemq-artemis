@@ -9,11 +9,11 @@ JMS specifies 3 acknowledgement modes:
 * `CLIENT_ACKNOWLEDGE`
 * `DUPS_OK_ACKNOWLEDGE`
 
-Apache ActiveMQ Artemis supports two additional modes: `PRE_ACKNOWLEDGE` and `INDIVIDUAL_ACKNOWLEDGE`
+{project-name-full} supports two additional modes: `PRE_ACKNOWLEDGE` and `INDIVIDUAL_ACKNOWLEDGE`
 
-In some cases you can afford to lose messages in event of failure, so it would make sense to acknowledge the message on the server _before_ delivering it to the client.
+In some cases you can afford to lose messages in the event of a failure, so it would make sense to acknowledge the message on the server _before_ delivering it to the client.
 
-This extra mode is supported by Apache ActiveMQ Artemis and will call it _pre-acknowledge_ mode.
+This extra mode is called _pre-acknowledge_ mode.
 
 The disadvantage of acknowledging on the server before delivery is that the message will be lost if the system crashes _after_ acknowledging the message on the server but _before_ it is delivered to the client.
 In that case, the message is lost and will not be recovered when the system restart.

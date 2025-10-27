@@ -52,7 +52,7 @@ Delayed redelivery is defined in the address-setting configuration:
 </address-setting>
 ----
 
-If a `redelivery-delay` is specified, Apache ActiveMQ Artemis will wait this delay before redelivering the messages.
+If a `redelivery-delay` is specified, the broker will wait this delay before redelivering the messages.
 
 By default, there is no redelivery delay (``redelivery-delay``is set to 0).
 
@@ -115,7 +115,7 @@ To prevent a client infinitely receiving the same undelivered message (regardles
 
 Any such messages can then be diverted to queue(s) where they can later be perused by the system administrator for action to be taken.
 
-Apache ActiveMQ Artemis's addresses can be assigned a dead letter address.
+Addresses can be assigned a dead letter address.
 Once the messages have been unsuccessfully delivered for a given number of attempts, they are removed from their queue and sent to the relevant dead letter address.
 These _dead letter_ messages can later be consumed from the dead letter address for further inspection.
 
@@ -185,7 +185,7 @@ Here is an example configuration:
 </address-setting>
 ----
 
-The queue holding the undeliverable messages can be accessed directly either by using the queue's name by itself (e.g. when using the core client) or by using the fully qualified queue name (e.g. when using a JMS client) just like any other queue.
+The queue holding the undeliverable messages can be accessed directly either by using the queue's name by itself (e.g. when using the Core client) or by using the fully qualified queue name (e.g. when using a JMS client) just like any other queue.
 Also, note that the queue is auto-created which means it will be auto-deleted as per the relevant `address-settings`.
 
 === Example
@@ -194,14 +194,14 @@ See: Dead Letter section of the xref:examples.adoc#examples[Examples] for an exa
 
 == Delivery Count Persistence
 
-In normal use, Apache ActiveMQ Artemis does not update delivery count _persistently_ until a message is rolled back (i.e. the delivery count is not updated _before_ the message is delivered to the consumer).
+In normal use, the broker does not update delivery count _persistently_ until a message is rolled back (i.e. the delivery count is not updated _before_ the message is delivered to the consumer).
 In most messaging use cases, the messages are consumed, acknowledged and forgotten as soon as they are consumed.
 In these cases, updating the delivery count persistently before delivering the message would add an extra persistent step _for each message delivered_, implying a significant performance penalty.
 
 However, if the delivery count is not updated persistently before the message delivery happens, in the event of a server crash, messages might have been delivered but that will not have been reflected in the delivery count.
 During the recovery phase, the server will not have knowledge of that and will deliver the message with `redelivered` set to `false` while it should be `true`.
 
-As this behavior breaks strict JMS semantics, Apache ActiveMQ Artemis allows to persist delivery count before message delivery but this feature is disabled by default due to performance implications.
+As this behavior breaks strict JMS semantics, the broker can persist the delivery count before message delivery, but this feature is disabled by default due to performance implications.
 
 To enable it, set `persist-delivery-count-before-delivery` to `true` in `broker.xml`:
 

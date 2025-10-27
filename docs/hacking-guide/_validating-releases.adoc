@@ -60,7 +60,7 @@ After you configure this, all the maven objects will be available to your builds
 
 == Using the examples
 
-The Apache ActiveMQ Artemis examples will create servers and use most of the maven components as real application were supposed to do.
+The examples will create servers and use most of the maven components as real application were supposed to do.
 You can do this by running these examples after the `.m2` profile installations for the staged repository.
 
-Of course you can use your own applications after you have staged the maven repository.
+Of course, you can use your own applications after you have staged the maven repository.

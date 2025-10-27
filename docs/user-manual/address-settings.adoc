@@ -264,8 +264,8 @@ Whether or not the broker should automatically create a queue when a message is 
 Queues which are auto-created are durable, non-temporary, and non-transient.
 Default is `true`.
 +
-NOTE: Automatic queue creation does _not_ work for the core client.
-The core API is a low-level API and is not meant to have such automation.
+NOTE: Automatic queue creation does _not_ work for the Core client.
+The Core API is a low-level API and is not meant to have such automation.
 
 include::_auto-queue-creation-note.adoc[]
 
@@ -315,8 +315,8 @@ auto-create-addresses::
 Whether or not the broker should automatically create an address when a message is sent to or a consumer tries to consume from a queue which is mapped to an address whose name fits the address `match`.
 Default is `true`.
 +
-NOTE: automatic address creation does _not_ work for the core client.
-The core API is a low-level API and is not meant to have such automation.
+NOTE: automatic address creation does _not_ work for the Core client.
+The Core API is a low-level API and is not meant to have such automation.
 
 auto-delete-addresses::
 Whether or not the broker should automatically delete auto-created addresses once the address no longer has any queues.

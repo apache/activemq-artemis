@@ -3,13 +3,13 @@
 :idseparator: -
 :docinfo: shared
 
-In this section we will discuss connection time-to-live (TTL) and explain how Apache ActiveMQ Artemis deals with crashed clients and clients which have exited without cleanly closing their resources.
+In this section we will discuss connection time-to-live (TTL) and explain how the broker deals with crashed clients and clients which have exited without cleanly closing their resources.
 
 == Cleaning up Resources on the Server
 
-Before an Apache ActiveMQ Artemis client application exits it is considered good practice that it should close its resources in a controlled manner, using a `finally` block.
+Before a client application exits it is considered good practice that it should close its resources in a controlled manner, using a `finally` block.
 
-Here's an example of a well behaved core client application closing its session and session factory in a finally block:
+Here's an example of a well-behaved Core client application closing its session and session factory in a `finally` block:
 
 [,java]
 ----
@@ -76,9 +76,9 @@ If this occurs then it can leave server side resources, like sessions, hanging o
 If these were not removed they would cause a resource leak on the server and over time this result in the server running out of memory or other resources.
 
 We have to balance the requirement for cleaning up dead client resources with the fact that sometimes the network between the client and the server can fail and then come back, allowing the client to reconnect.
-Apache ActiveMQ Artemis supports client reconnection, so we don't want to clean up "dead" server side resources too soon or this will prevent any client from reconnecting, as it won't be able to find its old sessions on the server.
+The Core protocol supports client reconnection, so we don't want to clean up "dead" server side resources too soon or this will prevent any client from reconnecting, as it won't be able to find its old sessions on the server.
 
-Apache ActiveMQ Artemis makes all of this configurable via a _connection TTL_.
+The broker makes all of this configurable via a _connection TTL_.
 Basically, the TTL determines how long the server will keep a connection alive in the absence of any data arriving from the client.
 The client will automatically send "ping" packets periodically to prevent the server from closing it down.
 If the server doesn't receive any packets on a connection for the connection TTL time, then it will automatically close all the sessions on the server that relate to that connection.
@@ -99,11 +99,9 @@ However, this can be changed if necessary by using the  `connection-ttl-check-in
 
 == Closing Forgotten Resources
 
-As previously discussed, it's important that all core client sessions and JMS connections are always closed explicitly in a `finally` block when you are finished using them.
-
-If you fail to do so, Apache ActiveMQ Artemis will detect this at garbage collection time, and log a warning (If you are using JMS the warning will involve a JMS connection).
-
-Apache ActiveMQ Artemis will then close the connection / client session for you.
+As previously discussed, it's important that all Core client sessions and JMS connections are always closed explicitly in a `finally` block when you are finished using them.
+If you fail to do so, the Core client will detect this at garbage collection time, and log a warning (If you are using JMS the warning will involve a JMS connection).
+It will then close the connection / client session for you.
 
 Note that the log will also tell you the exact line of your user code where you created the JMS connection / client session that you later did not close.
 This will enable you to pinpoint the error in your code and correct it appropriately.

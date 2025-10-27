@@ -3,23 +3,23 @@
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis provides a powerful filter language based on a subset of the SQL 92 expression syntax.
+{project-name-full} provides a powerful filter language based on a subset of the SQL 92 expression syntax.
 
 It is the same as the syntax used for JMS & Jakarta Messaging selectors, but the predefined identifiers are different.
-For documentation on JMS selector syntax please the JavaDoc for https://docs.oracle.com/javaee/7/api/javax/jms/Message.html[`javax.jms.Message`].
-For the corresponding Jakarta Messaging JavaDoc see https://jakarta.ee/specifications/messaging/3.0/apidocs/jakarta/jms/message[`jakarta.jms.Message`]
+For documentation on JMS selector syntax please see the JavaDoc for https://docs.oracle.com/javaee/7/api/javax/jms/Message.html[`javax.jms.Message`].
+For the corresponding Jakarta Messaging JavaDoc see https://jakarta.ee/specifications/messaging/3.0/apidocs/jakarta/jms/message[`jakarta.jms.Message`].
 
-Filter expressions are used in several places in Apache ActiveMQ Artemis
+Filter expressions are used in several places:
 
 * Predefined Queues.
 When pre-defining a queue, in `broker.xml` in either the core or jms configuration a filter expression can be defined for a queue.
 Only messages that match the filter expression will enter the queue.
 * Core bridges can be defined with an optional filter expression, only matching messages will be bridged (see xref:core-bridges.adoc#core-bridges[Core Bridges]).
 * Diverts can be defined with an optional filter expression, only matching messages will be diverted (see xref:diverts.adoc#diverting-and-splitting-message-flows[Diverts]).
-* Filter are also used programmatically when creating consumers, queues and in several places as described in xref:management.adoc#management[management].
+* Filters are also used programmatically when creating consumers, queues and in several places as described in xref:management.adoc#management[management].
 
-There are some differences between JMS selector expressions and Apache ActiveMQ Artemis core filter expressions.
-Whereas JMS selector expressions operate on a JMS message, Apache ActiveMQ Artemis core filter expressions operate on a core message.
+There are some differences between JMS selector expressions and Core filter expressions.
+Whereas JMS selector expressions operate on a JMS message, Core filter expressions operate on a core message.
 
 The following identifiers can be used in a core filter expressions to refer to attributes of the core message in an expression:
 
@@ -59,7 +59,7 @@ Any other identifiers used in core filter expressions will be assumed to be prop
 
 The JMS and Jakarta Messaging specs state that a String property should not get converted to a numeric when used in a selector.
 So for example, if a message has the `age` property set to `String` `21` then the following selector should not match it: `age > 18`.
-Since Apache ActiveMQ Artemis supports STOMP clients which can only send messages with string properties, that restriction is a bit limiting.
+STOMP clients, for example, can only send messages with string properties, which is a bit limiting.
 Therefore, if you want your filter expressions to auto-convert `String` properties to the appropriate number type, just prefix it with `convert_string_expressions:`.
 If you changed the filter expression in the previous example to be `convert_string_expressions:age > 18`, then it would  match the aforementioned message.
 
@@ -78,7 +78,7 @@ For example, if a message had the `foo-bar` property set to `0` then the filter 
 
 == XPath
 
-Apache ActiveMQ Artemis also supports special https://en.wikipedia.org/wiki/XPath[XPath] filters which operate on the _body_ of a message.
+Special https://en.wikipedia.org/wiki/XPath[XPath] filters which operate on the _body_ of a message are also available.
 The body must be XML.
 To use an XPath filter use this syntax:
 

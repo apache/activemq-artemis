@@ -16,8 +16,8 @@ Broker connections are configured by the `<broker-connections>` XML element in t
 
 == AMQP Server Connections
 
-An ActiveMQ Artemis broker can initiate connections using the AMQP protocol.
-This means that the broker can connect to another AMQP server (not necessarily ActiveMQ Artemis) and create elements on that connection.
+The broker can initiate connections using the AMQP protocol.
+This means that the broker can connect to another AMQP server (not necessarily {project-name-short}) and create elements on that connection.
 
 To define an AMQP broker connection, add an `<amqp-connection>` element within the `<broker-connections>` element in the `broker.xml` configuration file.
 For example:
@@ -48,7 +48,7 @@ auto-start::
 Should the broker connection start automatically with the broker. Default is `true`.
 If `false` it is necessary to call a management operation to start it.
 
-NOTE: The connection URI options for transport settings, such as enabling and configuring TLS, are common with other Artemis connector URIs.
+NOTE: The connection URI options for transport settings, such as enabling and configuring TLS, are common with other broker connector URIs.
 See xref:configuring-transports.adoc#configuring-netty-ssl[the transport doc] for more.
 An example configuration for a TLS AMQP broker-connection can be found in the broker xref:examples.adoc[examples] at _./examples/features/broker-connection/amqp-sending-overssl_.
 
@@ -221,7 +221,7 @@ Previously existing messages will not be forwarded to other brokers.
 
 == Dual Mirror (Disaster Recovery)
 
-ActiveMQ Artemis supports automatic fallback mirroring.
+Automatic fallback mirroring is supported.
 Every sent message and every acknowledgement is asynchronously replicated to the mirrored broker.
 
 On the following diagram there will be two servers called _DataCenter1_, and _DataCenter2_.
@@ -270,7 +270,7 @@ On the provided example above, two brokers are configured to mirror each other a
 
 == Senders and Receivers
 
-It is possible to connect an ActiveMQ Artemis broker to another AMQP endpoint simply by creating a sender or receiver broker connection element.
+It is possible to connect a broker to another AMQP endpoint simply by creating a `sender` or `receiver` element.
 
 For a `sender`, the broker creates a message consumer on a queue that sends messages to another AMQP endpoint.
 
@@ -278,7 +278,7 @@ For a `receiver`, the broker creates a message producer on an address that recei
 
 Both elements function as a message bridge.
 However, there is no additional overhead required to process messages.
-Senders and receivers behave just like any other consumer or producer in ActiveMQ Artemis.
+Senders and receivers behave just like any other consumer or producer.
 
 Specific queues can be configured by senders or receivers.
 Wildcard expressions can be used to match senders and receivers to specific addresses or _sets_ of addresses.
@@ -354,10 +354,10 @@ This creates an infinite loop of sends and receives.
 The broker can be configured as a peer which connects to the https://qpid.apache.org/components/dispatch-router/[Apache Qpid Dispatch Router] and instructs it that the broker will act as a store-and-forward queue for a given AMQP waypoint address configured on the router.
 In this scenario, clients connect to a router to send and receive messages using a waypointed address, and the router routes these messages to or from the queue on the broker.
 
-The peer configuration causes ActiveMQ Artemis to create a sender and receiver pair for each destination matched in the broker-connection configuration, with these carrying special configuration to let Qpid Dispatch know to collaborate with the broker.
+The `peer` configuration causes the broker to create a sender and receiver pair for each destination matched in the broker-connection configuration, with these carrying special configuration to let Qpid Dispatch know to collaborate with the broker.
 This replaces the traditional need of a router-initiated connection and auto-links.
 
-Qpid Dispatch Router offers a lot of advanced networking options that be used together with ActiveMQ Artemis.
+Qpid Dispatch Router offers a lot of advanced networking options that be used together with the broker.
 
 With a peer configuration, the same properties are present as when there are senders and receivers.
 For example, a configuration where queues with names beginning `queue.` act as storage for the matching router waypoint address would be:

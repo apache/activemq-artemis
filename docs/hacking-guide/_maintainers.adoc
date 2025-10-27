@@ -1,8 +1,8 @@
 = Notes for Maintainers
 
-ActiveMQ Artemis committers have write access to the Apache ActiveMQ Artemis repositories and will be responsible for acknowledging and pushing commits contributed via pull requests on GitHub.
+Committers have write access to all project repositories and will be responsible for acknowledging and pushing commits contributed via pull requests on GitHub.
 
-Core ActiveMQ Artemis members are also able to push their own commits directly to the canonical Apache repository.
+Core members are also able to push their own commits directly to the canonical Apache repository.
 However, the expectation here is that the developer has made a good effort to test their changes and is reasonably confident that the changes that are being committed will not break the build.
 
 What does it mean to be reasonably confident?

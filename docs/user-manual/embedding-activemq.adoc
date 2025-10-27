@@ -1,21 +1,21 @@
-= Embedding Apache ActiveMQ Artemis
+= Embedding {project-name-full}
 :idprefix:
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis is designed as set of simple Plain Old Java Objects (POJOs).
-This means Apache ActiveMQ Artemis can be instantiated and run in any dependency injection framework such as Spring or Google Guice.
-It also means that if you have an application that could use messaging functionality internally then it can _directly instantiate_ Apache ActiveMQ Artemis clients and servers in its own application code to perform that functionality.
-We call this _embedding_ Apache ActiveMQ Artemis.
+The broker is designed as a set of simple Plain Old Java Objects (POJOs).
+This means it can be instantiated and run in any dependency injection framework such as Spring or Google Guice.
+It also means that if you have an application that could use messaging functionality internally, then it can _directly instantiate_ clients and servers in its own application code to perform that functionality.
+We call this _embedding_ a broker.
 
 Examples of applications that might want to do this include any application that needs very high performance, transactional, persistent messaging but doesn't want the hassle of writing it all from scratch.
 
-Embedding Apache ActiveMQ Artemis can be done in very few easy steps - supply a `broker.xml` on the classpath or instantiate the configuration object, instantiate the server, start it, and you have a Apache ActiveMQ Artemis running in your JVM.
+Embedding can be done in very few easy steps - supply a `broker.xml` on the classpath or instantiate the configuration object, instantiate the server, start it, and you have a broker running in your JVM.
 It's as simple and easy as that.
 
 == Embedding with XML configuration
 
-The simplest way to embed Apache ActiveMQ Artemis is to use the embedded wrapper class and configure Apache ActiveMQ Artemis through `broker.xml`.
+The simplest way to embed a broker is to use the embedded wrapper class and configure it through `broker.xml`.
 
 Here's a simple example `broker.xml`:
 
@@ -70,7 +70,7 @@ See the javadocs for this class for more details.
 You can follow this step-by-step guide to programmatically embed a broker instance.
 
 Create the `Configuration` object.
-This contains configuration information for an Apache ActiveMQ Artemis instance.
+This contains configuration information for a broker instance.
 The setter methods of this class allow you to programmatically set configuration options as described in the xref:configuration-index.adoc#configuration-reference[Server Configuration] section.
 
 The acceptors are configured through `Configuration`.

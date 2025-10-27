@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-This chapter will familiarise you with how to use the Apache ActiveMQ Artemis server.
+This chapter will familiarise you with how to use the {project-name-full} server.
 
 We'll show where it is, how to start and stop it, and we'll describe the directory layout and what all the files are and what they do.
 
@@ -26,13 +26,13 @@ The following highlights some important folders on the distribution:
 ----
 
 bin::
-binaries and scripts needed to run ActiveMQ Artemis.
+binaries and scripts needed to run the broker.
 
 lib::
-jars and libraries needed to run ActiveMQ Artemis
+jars and libraries needed to run the broker
 
 schema::
-XML Schemas used to validate ActiveMQ Artemis configuration files
+XML Schemas used to validate the broker configuration files
 
 web::
 The folder where the web context is loaded when the broker runs.
@@ -41,7 +41,7 @@ The folder where the web context is loaded when the broker runs.
 
 A broker _instance_ is the directory containing all the configuration and runtime data, such as logs and message journal, associated with a broker process.
 It is recommended that you do _not_ create the instance directory under `+${ARTEMIS_HOME}+`.
-This separation is encouraged so that you can more easily upgrade when the next version of ActiveMQ Artemis is released.
+This separation is encouraged so that you can more easily upgrade when the next version of the broker is released.
 
 On Unix systems, it is a common convention to store this kind of runtime data under the `/var/lib` directory.
 For example, to create an instance at `/var/lib/mybroker`, run the following commands in your command line shell:
@@ -332,7 +332,7 @@ Assuming you created the broker instance under `/var/lib/mybroker` all you need 
 /var/lib/mybroker/bin/artemis run
 ----
 
-To stop the Apache ActiveMQ Artemis instance you will use the same `artemis` script, but with the `stop` argument.
+To stop the instance you will use the same `artemis` script, but with the `stop` argument.
 Example:
 
 [,console]
@@ -340,9 +340,9 @@ Example:
 /var/lib/mybroker/bin/artemis stop
 ----
 
-Please note that Apache ActiveMQ Artemis requires a Java 11 or later.
+Please note that {project-name-full} requires a Java 17 or later.
 
-By default the `etc/bootstrap.xml` configuration is used.
+By default, the `etc/bootstrap.xml` configuration is used.
 The configuration can be changed e.g. by running `+./artemis run -- xml:path/to/bootstrap.xml+` or another config of your choosing.
 
 Environment variables are used to provide ease of changing ports, hosts and data directories used and can be found in `etc/artemis.profile` on linux and `etc\artemis.profile.cmd` on Windows.
@@ -414,11 +414,11 @@ Configures an embedded web server for things like the admin console.
 
 === Broker configuration file
 
-The configuration for the Apache ActiveMQ Artemis core broker is contained in `broker.xml`.
+The configuration for the broker is contained in `broker.xml`.
 
-There are many attributes which you can configure for Apache ActiveMQ Artemis.
+There are many attributes that you can configure.
 In most cases the defaults will do fine, in fact every attribute can be defaulted which means a file with a single empty `configuration` element is a valid configuration file.
-The different configuration will be explained throughout the manual or you can refer to the configuration reference xref:configuration-index.adoc#configuration-reference[here].
+The different configurations will be explained throughout the manual, or you can refer to the configuration reference xref:configuration-index.adoc#configuration-reference[here].
 
 == Other Use-Cases
 
@@ -438,7 +438,7 @@ It is also possible to not supply a default (i.e. `${activemq.remoting.netty.hos
 
 === Windows Server
 
-On windows you will have the option to run ActiveMQ Artemis as a service.
+On Windows you will have the option to run the broker as a service.
 Just use the following command to install it:
 
 ----

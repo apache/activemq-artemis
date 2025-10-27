@@ -1,22 +1,21 @@
-= Artemis on Apache Karaf
+= Apache Karaf Integration
 :idprefix:
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis is OSGi ready.
-Below you can find instruction on how to install and configure broker on Apache Karaf OSGi container.
+Below you can find instruction on how to install and configure the broker on Apache Karaf OSGi container.
 
 == Installation
 
-Apache ActiveMQ Artemis provides features that makes it easy to install the broker on Apache Karaf (4.x or later).
-First you need to define the feature URL, like
+It is easy to install the broker on Apache Karaf (4.x or later).
+First, you need to define the feature URL, like
 
 [,sh]
 ----
 karaf@root()> feature:repo-add mvn:org.apache.activemq/artemis-features/1.3.0-SNAPSHOT/xml/features
 ----
 
-This will add Artemis related features
+This will add broker-related features
 
 ----
 karaf@root()> feature:list | grep artemis

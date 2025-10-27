@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-This chapter describes how Apache ActiveMQ Artemis uses and pools threads and how you can manage them.
+This chapter describes how {project-name-full} uses and pools threads and how you can manage them.
 
 First we'll discuss how threads are managed and used on the server side then we'll look at the client side.
 
@@ -81,7 +81,7 @@ The name for threads from this pool will contain `activemq-paging-<brokerName>`.
 
 === Netty Acceptors
 
-Apache ActiveMQ Artemis will, by default, cap Netty threads on a per-acceptor basis at three times the number of cores (or hyper-threads) as reported by `Runtime.getRuntime().availableProcessors()` for processing network traffic.
+Netty threads for processing network traffic, by default, are capped on a per-acceptor basis at three times the number of cores (or hyper-threads) as reported by `Runtime.getRuntime().availableProcessors()`.
 To override this value, you can set the number of threads by specifying the parameter `remotingThreads` in the transport configuration.
 See the xref:configuring-transports.adoc#configuring-the-transport[configuring transports] for more information on this.
 
@@ -91,7 +91,7 @@ For example, for the acceptor named `amqp` the corresponding thread names will c
 === Other Server-Side Threads
 
 A thread dump from the server's JVM will have other threads as well.
-Here's other names you might find in a thread dump and the function they perform.
+Here are other names you might find in a thread dump and the function they perform.
 
 `activemq-web`::
 thread pool managed by Jetty (i.e. the xref:web-server.adoc[embedded web server]) to handle HTTP connections (e.g. from the web console or other Jolokia clients)
@@ -113,7 +113,7 @@ executes Log4j2 tasks related to `CronTriggeringPolicy` used by default `log4j2.
 
 == Client-Side Thread Management
 
-On the client side, Apache ActiveMQ Artemis maintains a single, "global" static scheduled thread pool and a single, "global" static general thread pool for use by all clients using the same classloader in that JVM instance.
+On the client side, the Core client maintains a single, "global" static scheduled thread pool and a single, "global" static general thread pool for use by all clients using the same classloader in that JVM instance.
 
 The static scheduled thread pool has a maximum size of `5` threads by default.
 This can be changed using the `scheduledThreadPoolMaxSize` URI parameter.
@@ -121,6 +121,6 @@ This can be changed using the `scheduledThreadPoolMaxSize` URI parameter.
 The general purpose thread pool has an unbounded maximum size.
 This is changed using the `threadPoolMaxSize` URL parameter.
 
-If required Apache ActiveMQ Artemis can also be configured so that each `ClientSessionFactory` instance does not use these "global" static pools but instead maintains its own scheduled and general purpose pool.
+If required the Core client can also be configured so that each `ClientSessionFactory` instance does not use these "global" static pools but instead maintains its own scheduled and general purpose pool.
 Any sessions created from that `ClientSessionFactory` will use those pools instead.
 This is configured using the `useGlobalPools` boolean URL parameter.

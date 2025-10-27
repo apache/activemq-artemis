@@ -5,7 +5,7 @@ It *aggregates* all chapters into a single document following the same pattern a
 image::images/activemq-logo.png[align="center"]
 
 [.text-center]
-*An in-depth manual on all aspects of Apache ActiveMQ Artemis {project-version}*
+*An in-depth manual on all aspects of {project-name-full} {project-version}*
 
 //== Overview
 

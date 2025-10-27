@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis embeds the https://www.eclipse.org/jetty/[Jetty web server].
+{project-name-full} embeds the https://www.eclipse.org/jetty/[Jetty web server].
 Its main purpose is to host the xref:management-console.adoc#management-console[Management Console].
 However, it can also host other web applications.
 

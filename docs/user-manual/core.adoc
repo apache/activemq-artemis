@@ -3,18 +3,18 @@
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis core is a messaging system with its own API.
-We call this the _core API_.
+Core is a messaging system with its own API.
+We call this the _Core API_.
 
-If you don't want to use the JMS API or any of the other supported protocols you can use the core API directly.
-The core API provides all the functionality of JMS but without much of the complexity.
+If you don't want to use the JMS API or any of the other supported protocols, you can use the Core API directly.
+The Core API provides all the functionality of JMS but without much of the complexity.
 It also provides features that are not available using JMS.
 
 == Core Messaging Concepts
 
-Some of the core messaging concepts are similar to JMS concepts, but core messaging concepts are also different in some ways as well.
-In general the core API is simpler than the JMS API, since we remove distinctions between queues, topics and subscriptions.
-We'll discuss each of the major core messaging concepts in turn, but to see the API in detail please consult the Javadoc.
+Some of the Core messaging concepts are similar to JMS concepts, but Core messaging concepts are different in some ways as well.
+In general, the Core API is simpler than the JMS API since we remove distinctions between queues, topics, and subscriptions.
+We'll discuss each of the major Core messaging concepts in turn, but to see the API in detail, please consult the Javadoc.
 
 Also refer to the xref:address-model.adoc#address-model[address model] chapter for a high-level overview of these concepts as well as configuration details.
 
@@ -23,7 +23,7 @@ Also refer to the xref:address-model.adoc#address-model[address model] chapter f
 * A message is the unit of data which is sent between clients and servers.
 * A message has a body which is a buffer containing convenient methods for reading and writing data into it.
 * A message has a set of properties which are key-value pairs.
-Each property key is a string and property values can be of type integer, long, short, byte, byte[], String, double, float or boolean.
+Each property key is a string and property values can be of type integer, long, short, byte, byte[], String, double, float, or boolean.
 * A message has an _address_ it is being sent to.
 When the message arrives on the server it is routed to any queues that are bound to the address.
 The routing semantics (i.e. anycast or multicast) are determined by the "routing type" of the address and queue.
@@ -39,7 +39,7 @@ The broker will attempt to deliver higher priority messages before lower priorit
 * Messages can be specified with an optional expiry time.
 The broker will not deliver messages after its expiry time has been exceeded.
 * Messages also have an optional timestamp which represents the time the message was sent.
-* Apache ActiveMQ Artemis also supports the sending/consuming of very large messages much larger than can fit in available RAM at any one time.
+* Very large messages (i.e. much larger than can fit in available RAM at any one time) can be sent & consumed.
 
 == Core API
 
@@ -64,20 +64,20 @@ In JMS terms think of them as JMS Connections.
 === ClientSession
 
 A client uses a ``ClientSession``for consuming and producing messages and for grouping them in transactions.
-`ClientSession` instances can support both transactional and non transactional semantics and also provide an `XAResource` interface so messaging operations can be performed as part of a http://www.oracle.com/technetwork/java/javaee/tech/jta-138684.html[JTA] transaction.
+`ClientSession` instances can support both transactional and non-transactional semantics and also provide an `XAResource` interface so messaging operations can be performed as part of a http://www.oracle.com/technetwork/java/javaee/tech/jta-138684.html[JTA] transaction.
 
 `ClientSession` instances group `ClientConsumer` instances and `ClientProducer` instances.
 
 `ClientSession` instances can be registered with an optional `SendAcknowledgementHandler`.
 This allows your client code to be notified asynchronously when sent messages have successfully reached the server.
-This unique Apache ActiveMQ Artemis feature, allows you to have full guarantees that sent messages have reached the server without having to block on each message sent until a response is received.
-Blocking on each messages sent is costly since it requires a network round trip for each message sent.
-By not blocking and receiving send acknowledgements asynchronously you can create true end to end asynchronous systems which is not possible using the standard JMS API.
-For more information on this advanced feature please see the section xref:send-guarantees.adoc#guarantees-of-sends-and-commits[Guarantees of sends and commits].
+This unique feature allows you to have full guarantees that sent messages have reached the server without having to block on each message sent until a response is received.
+Blocking on each message sent is costly since it requires a network round trip for each message sent.
+By not blocking and receiving send acknowledgements asynchronously, you can create true end-to-end asynchronous systems that are not possible using the standard JMS API.
+For more information on this advanced feature, please see the section xref:send-guarantees.adoc#guarantees-of-sends-and-commits[Guarantees of sends and commits].
 
 ==== Identifying your client application for management and debugging
 
-Assigning IDs to your core session can help you with monitoring and debugging using the xref:management-console.adoc#management-console[management console], e.g.:
+Assigning IDs to your Core session can help you with monitoring and debugging using the xref:management-console.adoc#management-console[management console], e.g.:
 
 [,java]
 ----
@@ -112,7 +112,7 @@ This is  discussed further in the section on performance tuning xref:perf-tuning
 
 == A simple example of using Core
 
-Here's a very simple program using the core messaging API to send and receive a message.
+Here's a very simple program using the Core messaging API to send and receive a message.
 Logically it's comprised of two sections: firstly setting up the producer to write a message to an _address_, and secondly, creating a _queue_ for the consumer using anycast routing, creating the consumer, and _starting_ it.
 
 [,java]

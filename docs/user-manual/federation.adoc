@@ -26,8 +26,8 @@ When it comes back online it will resume operation as normal.
 
 Federation can transmit messages between brokers (or clusters) in different administrative domains:
 
-* they may have different configuration, users and setup;
-* they may run on different versions of ActiveMQ Artemis
+* they may have different configurations, users, and setups
+* they may run on different versions of the broker
 
 === Dynamic and Selective
 

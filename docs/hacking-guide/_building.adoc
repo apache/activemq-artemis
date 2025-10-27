@@ -64,11 +64,15 @@ $ mvn -o ...
 
 == Building the ASYNC IO library
 
-ActiveMQ Artemis provides the `ASYNCIO` `journal-type` which interacts with the Linux kernel libaio library. The ASYNCIO journal type should be used where possible as it is far superior in terms of performance.
+The `ASYNCIO` `journal-type` which interacts with the Linux kernel libaio library.
+The ASYNCIO journal type should be used where possible as it is far superior in terms of performance.
 
-ActiveMQ Artemis does not ship with the Artemis Native ASYNCIO library in the _source_ distribution. This need to be built prior to running `mvn install`, to ensure that the ASYNCIO journal type is available in the resulting build. Don't worry if you don't want to use ASYNCIO or your system does not support libaio, ActiveMQ Artemis will check at runtime to see if the required libraries and system dependencies are available, if not it will default to using NIO.
+The ASYNCIO native library is not included in the broker _source_ distribution.
+It needs to be built prior to running `mvn install` to ensure that the ASYNCIO journal type is available in the resulting build.
+Don't worry if you don't want to use ASYNCIO or your system does not support libaio.
+The broker will check at runtime to see if the required libraries and system dependencies are available and, if not, it will default to using NIO.
 
-To build the ActiveMQ Artemis ASYNCIO native libraries, please follow link:https://github.com/apache/activemq-artemis-native[these instructions].
+To build the ASYNCIO native libraries, please follow link:https://github.com/apache/activemq-artemis-native[these instructions].
 
 == Open Web Application Security Project (OWASP) Report
 

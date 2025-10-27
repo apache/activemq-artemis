@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-Artemis provides some built-in performance test tools based on the https://javaee.github.io/jms-spec/pages/JMS20FinalRelease[JMS 2 API] to help users (and developers) to stress test a configured Artemis broker instance in different scenarios.
+Performance test tools based on the https://javaee.github.io/jms-spec/pages/JMS20FinalRelease[JMS 2 API] are available to help users (and developers) stress test a broker instance in different scenarios.
 
 These command-line tools won't represent a full-fat benchmark (such as https://openmessaging.cloud/docs/benchmarks/[Open Messaging]), but can be used as building blocks to produce one.
 They are also quite useful on their own.
@@ -59,8 +59,7 @@ WARN  [org.apache.activemq.artemis.core.client] AMQ212053: CompletionListener/Se
 It shows two things:
 
 . the load generator uses https://jakarta.ee/specifications/messaging/2.0/apidocs/javax/jms/messageproducer#send-javax.jms.Destination-javax.jms.Message-javax.jms.CompletionListener-[async message producers]
-. `confirmationWindowSize` is an Artemis CORE protocol specific setting;
-the `perf` commands uses CORE as the default JMS provider
+. `confirmationWindowSize` is specific to the Core protocol; the `perf` commands uses Core as the default JMS provider
 
 === Live Latency Console Reporting
 
@@ -111,7 +110,7 @@ transfer time::
 percentiles of latency to transfer messages from producer(s) to consumer(s)
 
 The `perf` commands uses https://jakarta.ee/specifications/messaging/2.0/apidocs/javax/jms/messageproducer#send-javax.jms.Destination-javax.jms.Message-javax.jms.CompletionListener-[JMS 2 async message producers] that allow the load generator to accumulate in-flight sent messages and depending on the protocol implementation, may block its producer thread due to producer flow control.
-e.g: the Artemis CORE protocol can block producers threads to refill producers credits, while the https://qpid.apache.org/components/jms/index.html[QPID-JMS] won't.
+e.g: the Core client can block producer threads to refill credits while https://qpid.apache.org/components/jms/index.html[Qpid JMS] won't.
 
 The `perf` tool is implementing its own in-flight sent requests tracking and can be configured to limit the amount of pending sent messages,  while reporting the rate by which producers are "blocked" awaiting completions
 

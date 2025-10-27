@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-Every messaging protocol and API that Apache ActiveMQ Artemis supports defines a different set of messaging resources.
+Every supported messaging protocol and API defines a different set of messaging resources.
 
 * JMS uses _queues_ and _topics_
 * STOMP uses generic _destinations_
@@ -48,7 +48,7 @@ WARNING: It is possible to define queues with a different routing type for the s
 
 == Automatic Configuration
 
-By default Apache ActiveMQ Artemis will automatically create addresses and queues to support the semantics of whatever protocol you're using.
+By default, the broker will automatically create addresses and queues to support the semantics of whatever protocol you're using.
 The broker understands how to support each protocol's functionality with the core resources so that in most cases no manual configuration is required.
 This saves you from having to preconfigure each address and queue before a client can connect to it.
 
@@ -357,7 +357,7 @@ Each of the following advanced configurations have their own chapter so their de
 
 == How to filter messages
 
-Apache ActiveMQ Artemis supports the ability to filter messages using xref:filter-expressions.adoc#filter-expressions[Filter Expressions].
+Messages can be filtered using xref:filter-expressions.adoc#filter-expressions[Filter Expressions].
 
 Filters can be applied in two places - on a queue and on a consumer.
 

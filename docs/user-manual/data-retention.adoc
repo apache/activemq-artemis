@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-If you enable `journal-retention-directory` on broker.xml, ActiveMQ Artemis will keep copy of every data that has passed through the broker on this folder.
+If you enable `journal-retention-directory` in `broker.xml` a copy of every journal file used by the broker will be kept in this folder.
 
 [,xml]
 ----
@@ -16,13 +16,13 @@ If you enable `journal-retention-directory` on broker.xml, ActiveMQ Artemis will
 </configuration>
 ----
 
-ActiveMQ Artemis will keep a copy of each generated journal file, up to the configured retention period, at the unit chose.
-On the example above the system would keep all the journal files up to 365 days.
+The broker will keep a copy of each generated journal file, up to the configured retention period at the unit chosen.
+In the example above, the system would keep all the journal files up to 365 days.
 
-It is also possible to limit the number of files kept on the retention directory.
-You can keep a storage-limit, and the system will start removing older files when you have more files than the configured storage limit.
+It is also possible to limit the number of files kept in the retention directory.
+You can define `storage-limit` and older files will be removed when this limit is exceeded.
 
-Notice the storage limit is optional however you need to be careful to not run out of disk space at the retention folder or the broker might be shutdown because of a critical IO failure.
+Notice `storage-limit` is optional, but you need to be careful to not run out of disk space in the retention folder or the broker might be shutdown because of a critical IO failure.
 
 You can use the CLI tools to inspect and recover data from the history, by just passing the journal folder being the retention directory.
 

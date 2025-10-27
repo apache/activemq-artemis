@@ -3,25 +3,25 @@
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis distributes a native library, used as a bridge for its fast journal, between Apache ActiveMQ Artemis and Linux libaio.
+{project-name-full} distributes a native library, used to integrate with Linux libaio.
 
 `libaio` is a library, developed as part of the Linux kernel project.
 With `libaio` we submit writes to the operating system where they are processed asynchronously.
 Some time later the OS will call our code back when they have been processed.
 
-We use this in our high performance journal if configured to do so, please see xref:persistence.adoc#persistence[Persistence].
+We use this in our high-performance journal if configured to do so, please see xref:persistence.adoc#persistence[Persistence].
 
-These are the native libraries distributed by Apache ActiveMQ Artemis:
+These are the native libraries we distribute:
 
 * libartemis-native-64.so - x86 64 bits
 * We distributed a 32-bit version until early 2017.
 While it's not available on the distribution any longer it should still be possible to compile to a 32-bit environment if needed.
 
-When using libaio, Apache ActiveMQ Artemis will always try loading these files as long as they are on the xref:using-server.adoc#library-path[library path]
+When using libaio, the broker will always load these files at startup as long as they are on the xref:using-server.adoc#library-path[library path].
 
 == Runtime dependencies
 
-If you just want to use the provided native binaries you need to install the required libaio dependency.
+If you just want to use the provided native binaries, you need to install the required libaio dependency.
 You can install libaio using the following steps either as the root user or using `sudo`:
 
 * On Fedora, CentOS, Rocky Linux, Red Hat Enterprise Linux, etc.:
@@ -55,12 +55,11 @@ The value for `<package-name>` will depend on which Linux distribution version y
 |libaio1t64
 |===
 +
-Since the package name in later versions of Ubuntu and Debian is different you'll also need to create a symlink on these versions so that the ActiveMQ Artemis Native library can find the shared library at the expected location, e.g.:
+Since the package name in later versions of Ubuntu and Debian is different, you'll also need to create a symlink on these versions so that the libaio shared library can be found at the expected location, e.g.:
 +
 ----
 ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/libaio.so.1
 ----
-
 
 == Compiling the native libraries
 
@@ -70,8 +69,6 @@ In the case that you are using Linux on a platform other than x86_32 or x86_64 (
 
 [NOTE]
 ====
-
-
 The native layer is only available on Linux.
 If you are in a platform other than Linux the native compilation will not work
 ====

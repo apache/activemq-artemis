@@ -9,12 +9,12 @@ It *links* to all chapters following the same basic pattern as _book.adoc. These
 image::images/activemq-logo.png[align="center"]
 
 [.text-center]
-*An in-depth manual on all aspects of Apache ActiveMQ Artemis {project-version}*
+*An in-depth manual on all aspects of {project-name-full} {project-version}*
 
 == Overview
 
 * xref:project-info.adoc#general-project-information[General Project Information]
-* xref:preface.adoc#why-use-apache-activemq-artemis[Why use Apache ActiveMQ Artemis?]
+* xref:preface.adoc#why-use-{project-name-full-url}[Why use {project-name-full}?]
 * xref:messaging-concepts.adoc#messaging-concepts[Messaging Concepts]
 * xref:architecture.adoc#core-architecture[Core Architecture]
 
@@ -138,8 +138,8 @@ image::images/activemq-logo.png[align="center"]
 * xref:graceful-shutdown.adoc#graceful-server-shutdown[Graceful Server Shutdown]
 * xref:web-server.adoc#embedded-web-server[Configuring & Managing the Embedded Web Server]
 * xref:logging.adoc#logging[Logging]
-* xref:embedding-activemq.adoc#embedding-apache-activemq-artemis[Embedding Apache ActiveMQ Artemis]
-* xref:karaf.adoc#artemis-on-apache-karaf[Apache Karaf Integration]
+* xref:embedding-activemq.adoc#embedding-{project-name-full-url}[Embedding {project-name-full}]
+* xref:karaf.adoc#apache-karaf-integration[Apache Karaf Integration]
 * xref:tomcat.adoc#apache-tomcat-support[Apache Tomcat Support]
 * xref:cdi-integration.adoc#cdi-integration[CDI Integration]
 * xref:copied-message-properties.adoc#properties-for-copied-messages[Properties for Copied Messages]

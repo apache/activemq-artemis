@@ -91,7 +91,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 * MQTT performance improvements for:
 ** xref:mqtt.adoc#persistent-subscriptions[persisting subscriptions]
 ** matching subscription identifiers to topic filters for 5.0 clients
-* Upgrade to https://activemq.apache.org/components/artemis-console/download/release-notes-1.2.1[ActiveMQ Artemis Console 1.2.1] with lots of usability improvements
+* Upgrade to https://activemq.apache.org/components/artemis-console/download/release-notes-1.2.1[{project-name-short} Console 1.2.1] with lots of usability improvements
 * Support for XOAUTH SASL mechanism for xref:amqp-broker-connections.adoc[AMQP broker connections]
 * And for developers...almost 2,500 lines of code were eliminated by consistently using the convenience methods from Java's `java.util.Objects` class across the code-base (e.g. https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Objects.html#hash(java.lang.Object...)[`hash`], https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Objects.html#toString(java.lang.Object)[`toString`], https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Objects.html#equals(java.lang.Object,java.lang.Object)[`equals`], https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Objects.html#requireNonNull(T)[`requireNonNull`], etc.).
 
@@ -370,7 +370,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 * Mirrored Core Messages can now be sent on their native format without conversions
 * Mirror bug fixes and improvements
-* https://issues.apache.org/jira/browse/ARTEMIS-3474[ActiveMQ Artemis has now adopted] more inclusive language definitions.
+* https://issues.apache.org/jira/browse/ARTEMIS-3474[{project-name-short} has now adopted] more inclusive language definitions.
 * The examples are now part of its own repository:  https://github.com/apache/activemq-artemis-examples/
 
 === Upgrading from 2.31.x
@@ -418,10 +418,10 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 === Highlights
 
-* Introduced an xref:using-cli.adoc#artemis-shell[interactive shell] for running CLI command as well as xref:using-cli.adoc#bash-and-zsh-auto-complete[Bash & ZSH auto-complete support].
+* Introduced an xref:using-cli.adoc#shell[interactive shell] for running CLI command as well as xref:using-cli.adoc#bash-and-zsh-auto-complete[Bash & ZSH auto-complete support].
 * Added a CLI cluster verification tool to help monitor broker topologies.
 Use via the `check cluster` command.
-* The `queue stat` command is now able to to verify the message counts on the entire cluster topology when clustering is in use.
+* The `queue stat` command is now able to verify the message counts on the entire cluster topology when clustering is in use.
 * Added xref:amqp-broker-connections.adoc#federation[AMQP Federation] support to broker connections.
 * xref:mqtt.adoc#persistent-subscriptions[MQTT subscription state is now persisted].
 * Significantly improved the Paging JDBC Persistence.
@@ -431,7 +431,7 @@ See https://issues.apache.org/jira/browse/ARTEMIS-4383[ARTEMIS-4383] for more de
 
 === Upgrading from 2.30.0
 
-* Due to https://issues.apache.org/jira/browse/ARTEMIS-4372[ARTEMIS-4372] and the introduction of the new Artemis shell feature when you invoke `./artemis` it will now start the new shell to navigate through the CLI commands rather than just spitting out the `help` text.
+* Due to https://issues.apache.org/jira/browse/ARTEMIS-4372[ARTEMIS-4372] and the introduction of the new shell feature when you invoke `./artemis` it will now start the new shell to navigate through the CLI commands rather than just spitting out the `help` text.
 
 == 2.30.0
 
@@ -691,7 +691,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12351083&projectI
 === Highlights
 
 * xref:mqtt.adoc#mqtt[MQTT 5] is now supported.
-* A new set of xref:perf-tools.adoc#performance-tools[performance tools] are now available to evaluate throughput and Response Under Load performance of Artemis
+* A new set of xref:perf-tools.adoc#performance-tools[performance tools] are now available to evaluate throughput and Response Under Load performance of {project-name-short}
 * Diverts now support xref:diverts.adoc#composite-divert[multiple addresses]
 * xref:config-reload.adoc#configuration-reload[Runtime configuration reloading] now supports bridges.
 * xref:paging.adoc#paging-mode[Paging] can now be configured by message count.
@@ -759,11 +759,11 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 === Upgrading from 2.17.0
 
 . Due to https://issues.apache.org/jira/browse/ARTEMIS-3367[ARTEMIS-3367] the default setting for `verifyHost` on _core connectors_ has been changed from `false` to `true`.
-This means that *core clients will now expect the `CN` or Subject Alternative Name values of the broker's SSL certificate to match the hostname in the client's URL*.
+This means that *Core clients will now expect the `CN` or Subject Alternative Name values of the broker's SSL certificate to match the hostname in the client's URL*.
 +
 This impacts all core-based clients including core JMS clients and core connections between cluster nodes.
 Although this is a "breaking" change, _not_ performing hostname verification is a security risk (e.g. due to man-in-the-middle attacks).
-Enabling it by default aligns core client behavior with industry standards.
+Enabling it by default aligns Core client behavior with industry standards.
 To deal with this you can do one of the following:
 
  ** Update your SSL certificates to use a hostname which matches the hostname in the client's URL.
@@ -1210,7 +1210,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 
 === Upgrading from 2.4.0
 
-. Due to changes from https://issues.apache.org/jira/browse/ARTEMIS-1644[ARTEMIS-1644] any `acceptor` that needs to be compatible with HornetQ and/or Artemis 1.x clients needs to have `anycastPrefix=jms.queue.;multicastPrefix=jms.topic.` in the `acceptor` url.
+. Due to changes from https://issues.apache.org/jira/browse/ARTEMIS-1644[ARTEMIS-1644] any `acceptor` that needs to be compatible with HornetQ and/or {project-name-short} 1.x clients needs to have `anycastPrefix=jms.queue.;multicastPrefix=jms.topic.` in the `acceptor` url.
 This prefix used to be configured automatically behind the scenes when the broker detected  these old types of clients, but that broke certain use-cases with no possible work-around.
 See  https://issues.apache.org/jira/browse/ARTEMIS-1644[ARTEMIS-1644] for more details.
 
@@ -1222,7 +1222,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 === Highlights
 
 * xref:management.adoc#role-based-authorisation-for-jmx[JMX configuration via XML] rather than having to use system properties via command line or start script.
-* Configuration of xref:protocols-interoperability.adoc#stomp-over-web-sockets[max frame payload length for STOMP web-socket].
+* Configuration of xref:protocols-interoperability.adoc#stomp-over-websockets[max frame payload length for STOMP web-socket].
 * Ability to configure HA using JDBC persistence.
 * Implement xref:management.adoc#management[role-based access control for management objects].
 

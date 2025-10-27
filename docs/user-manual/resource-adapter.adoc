@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-For using Apache ActiveMQ Artemis in a Java EE or Jakarta EE environment, you can use the JCA Resource Adapter.
+For using {project-name-full} in a Java EE or Jakarta EE environment, you can use the JCA Resource Adapter.
 
 A JCA-based JMS connection factory has 2 big advantages over a plain JMS connection factory:
 
@@ -107,7 +107,7 @@ You can't configure any properties.
 
 Config options https://github.com/apache/activemq-artemis/blob/{{ config.version }}/artemis-ra/src/main/java/org/apache/activemq/artemis/ra/inflow/ActiveMQActivationSpec.java[ActiveMQActivationSpec]
 
-In the activation spec you can configure all the things you need to get messages consumed from ActiveMQ Artemis.
+In the activation spec you can configure all the things you need to get messages consumed.
 
 useJndi::
 true if you want lookup destinations via jndi.
@@ -138,7 +138,7 @@ subscriptionDurability::
 Durable / NonDurable
 
 subscriptionName::
-Artemis holds all messages for this name if you use durable subscriptions
+the broker holds all messages for this name if you use durable subscriptions
 
 == Logging
 

@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis provides a simple CDI integration.
+{project-name-full} provides a simple CDI integration.
 It can either use an embedded broker or connect to a remote broker.
 
 == Configuring a connection

@@ -3,17 +3,17 @@
 :idseparator: -
 :docinfo: shared
 
-Although Apache ActiveMQ Artemis provides a JMS agnostic messaging API, many users will be more comfortable using JMS.
+Although {project-name-full} provides a JMS agnostic messaging API, many users will be more comfortable using JMS.
 
 JMS is a very popular API standard for messaging, and most messaging systems provide a JMS API.
 If you are completely new to JMS we suggest you follow the https://docs.oracle.com/javaee/7/tutorial/partmessaging.htm[Oracle JMS tutorial] - a full JMS tutorial is out of scope for this guide.
 
-Apache ActiveMQ Artemis also ships with a wide range of examples, many of which demonstrate JMS API usage.
+There are a wide range of examples, many of which demonstrate JMS API usage.
 A good place to start would be to play around with the simple JMS Queue and Topic example, but we also provide examples for many other parts of the JMS API.
 A full description of the examples is available in xref:examples.adoc#examples[Examples].
 
 In this section we'll go through the main steps in configuring the server for JMS and creating a simple JMS program.
-We'll also show how to configure and use JNDI, and also how to use JMS with Apache ActiveMQ Artemis without using any JNDI.
+We'll also show how to configure and use JNDI, and also how to use JMS without using any JNDI.
 
 == A simple ordering system
 
@@ -28,18 +28,16 @@ We also want to pre-deploy the queue, i.e. specify the queue in the server confi
 == JNDI
 
 The JMS specification establishes the convention that _administered objects_ (i.e. JMS queue, topic and connection factory instances) are made available via the JNDI API.
-Brokers are free to implement JNDI as they see fit assuming the implementation fits the API.
-Apache ActiveMQ Artemis does not have a JNDI server.
+Brokers are free to implement JNDI as they see fit, assuming the implementation fits the API.
+{project-name-full} does not have a JNDI server.
 Rather, it uses a client-side JNDI implementation that relies on special properties set in the environment to construct the appropriate JMS objects.
-In other words, no objects are stored in JNDI on the Apache ActiveMQ Artemis server, instead they are simply instantiated on the client based on the provided configuration.
+In other words, no objects are stored in JNDI on the broker; instead, they are simply instantiated on the client based on the provided configuration.
 Let's look at the different kinds of administered objects and how to configure them.
 
 [NOTE]
 ====
-
-
-The following configuration properties _are strictly required when Apache ActiveMQ Artemis is running in stand-alone mode_.
-When Apache ActiveMQ Artemis is integrated to an application server (e.g. Wildfly) the application server itself will almost certainly provide a JNDI client with its own properties.
+The following configuration properties _are strictly required when the broker is running in stand-alone mode_.
+When integrated into an application server (e.g. Wildfly) the application server itself will almost certainly provide a JNDI client with its own properties.
 ====
 
 === ConnectionFactory JNDI
@@ -47,7 +45,7 @@ When Apache ActiveMQ Artemis is integrated to an application server (e.g. Wildfl
 A JMS connection factory is used by the client to make connections to the server.
 It knows the location of the server it is connecting to, as well as many other configuration parameters.
 
-Here's a simple example of the JNDI context environment for a client looking up a connection factory to access an _embedded_ instance of Apache ActiveMQ Artemis:
+Here's a simple example of the JNDI context environment for a client looking up a connection factory to access an _embedded_ broker:
 
 [,properties]
 ----
@@ -90,7 +88,7 @@ In the example above the client is using the `tcp` scheme for the provider URL.
 A client may also specify multiple comma-delimited host:port combinations in the URL (e.g. `(tcp://remote-host1:5445,remote-host2:5445)`).
 Whether there is one or many host:port combinations in the URL they are treated as the _initial connector(s)_ for the underlying connection.
 
-The `udp` scheme is also supported which should use a host:port combination that matches the `group-address` and `group-port` from the corresponding `broadcast-group` configured on the ActiveMQ Artemis server(s).
+The `udp` scheme is also supported which should use a host:port combination that matches the `group-address` and `group-port` from the corresponding `broadcast-group` configured on the broker(s).
 
 Each scheme has a specific set of properties which can be set using the traditional URL query string format (e.g. `scheme://host:port?key1=value1&key2=value2`) to customize the underlying transport mechanism.
 For example, if a client wanted to connect to a remote server using TCP and SSL it would create a connection factory like so, `tcp://remote-host:5445?ssl-enabled=true`.
@@ -173,8 +171,8 @@ The interface provided will depend on whether you're using the JMS or Jakarta Me
 JMS destinations are also typically looked up via JNDI.
 As with connection factories, destinations can be configured using special properties in the JNDI context environment.
 The property _name_ should follow the pattern: `queue.<jndi-binding>` or `topic.<jndi-binding>`.
-The property _value_ should be the name of the queue hosted by the Apache ActiveMQ Artemis server.
-For example, if the server had a JMS queue configured like so:
+The property _value_ should be the name of the queue hosted by the broker.
+For example, if the broker had a JMS queue configured like so:
 
 [,xml]
 ----
@@ -221,7 +219,7 @@ Queue orderQueue = (Queue)ic.lookup("queues/OrderQueue");
 
 Connection connection = cf.createConnection();
 
-//And we create a non transacted JMS Session, with AUTO\_ACKNOWLe.g. //acknowledge mode:
+//And we create a non-transacted JMS Session, with AUTO\_ACKNOWLe.g. //acknowledge mode:
 
 Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -264,14 +262,14 @@ ____
 
 == Directly instantiating JMS Resources without using JNDI
 
-Although it is a very common JMS usage pattern to lookup JMS _Administered Objects_ (that's JMS Queue, Topic and ConnectionFactory instances) from JNDI, in some cases you just think "Why do I need JNDI?
+Although it is a widespread JMS usage pattern to look up JMS _Administered Objects_ (i.e. JMS Queue, Topic and ConnectionFactory instances) from JNDI, in some cases you just think "Why do I need JNDI?
 Why can't I just instantiate these objects directly?"
 
-With Apache ActiveMQ Artemis you can do exactly that.
-Apache ActiveMQ Artemis supports the direct instantiation of JMS Queue, Topic and ConnectionFactory instances, so you don't have to use JNDI at all.
+With {project-name-full} you can do exactly that.
+It supports the direct instantiation of JMS Queue, Topic and ConnectionFactory instances, so you don't have to use JNDI at all.
 
 ____
-For a full working example of direct instantiation please look at the xref:examples.adoc#instantiate-jms-objects-directly[Instantiate JMS Objects  Directly] example under the JMS  section of the examples.
+For a full working example of direct instantiation, please look at the xref:examples.adoc#instantiate-jms-objects-directly[Instantiate JMS Objects  Directly] example under the JMS  section of the examples.
 ____
 
 Here's our simple example, rewritten to not use JNDI at all:
@@ -293,7 +291,7 @@ Queue orderQueue = ActiveMQJMSClient.createQueue("OrderQueue");
 
 Connection connection = cf.createConnection();
 
-//And we create a non transacted JMS Session, with AUTO\_ACKNOWLe.g. //acknowledge mode:
+//And we create a non-transacted JMS Session, with AUTO\_ACKNOWLe.g. //acknowledge mode:
 
 Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 

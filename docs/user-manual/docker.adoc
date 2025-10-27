@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-One of the simplest ways to get started with ActiveMQ Artemis is by using one of our Docker images.
+One of the simplest ways to get started is by using one of our Docker images.
 
 == Official Images
 
@@ -45,7 +45,7 @@ Read on for more details.
 
 == Build your own Image
 
-In order to build an image you need an ActiveMQ Artemis binary distribution.
+In order to build an image you need a binary distribution.
 This can be sourced *locally* (in which case you need to build the project first) or *remotely* based on an official Apache release.
 
 === Using a Local Release
@@ -131,7 +131,7 @@ be saved and reused on each run.
 
 ==== Overriding files in `etc` folder
 
-You can use customized configuration for the ActiveMQ Artemis instance by replacing the files residing in the `etc` folder with the custom ones, e.g. `broker.xml` or `artemis.profile`.
+You can use customized configuration for the broker instance by replacing the files residing in the `etc` folder with the custom ones, e.g. `broker.xml` or `artemis.profile`.
 Put the replacement files inside a folder and map it as a volume to:
 ----
 /var/lib/artemis-instance/etc-override

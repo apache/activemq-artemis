@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-Apache ActiveMQ Artemis clients can be configured to automatically <<reconnect-to-the-same-server,reconnect to the same server>>, <<reconnect-to-the-backup-server,reconnect to the backup server>> or <<reconnect-to-other-active-servers,reconnect to other active servers>> in the event that a failure is detected in the connection between the client and the server.
+Clients using the Core protocol can be configured to automatically <<reconnect-to-the-same-server,reconnect to the same server>>, <<reconnect-to-the-backup-server,reconnect to the backup server>> or <<reconnect-to-other-active-servers,reconnect to other active servers>> in the event that a failure is detected in the connection between the client and the server.
 The clients detect connection failure when they have not received any packets from the server within the time given by `client-failure-check-period` as explained in section xref:connection-ttl.adoc#detecting-dead-connections[Detecting Dead Connections].
 
 == Reconnect to the same server
@@ -17,7 +17,7 @@ This is done 100% transparently and the client can continue exactly as if nothin
 
 The way this works is as follows:
 
-As Apache ActiveMQ Artemis clients send commands to their servers they store each sent command in an in-memory buffer.
+As Core clients send commands to their servers they store each sent command in an in-memory buffer.
 In the case that connection failure occurs and the client subsequently reattaches to the same server, as part of the reattachment protocol the server informs the client during reattachment with the id of the last command it successfully received from that client.
 
 If the client has sent more commands than were received before failover it can replay any sent commands from its buffer so that the client and server can reconcile their states.Ac
@@ -112,4 +112,4 @@ If your client does manage to reconnect but the session is no longer available o
 
 == ExceptionListeners and SessionFailureListeners
 
-Please note, that when a client reconnects or re-attaches, any registered JMS `ExceptionListener` or core API `SessionFailureListener` will be called.
+Please note, that when a client reconnects or re-attaches, any registered JMS `ExceptionListener` or Core API `SessionFailureListener` will be called.
