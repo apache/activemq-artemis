@@ -382,10 +382,13 @@ public abstract class AMQPFederationAddressConsumer extends AMQPFederationConsum
          }
 
          address = SimpleString.of(target.getAddress());
-         defRoutingType = getRoutingType(target.getCapabilities(), address);
+         explicitRoutingType = getExplicitRoutingType(target.getCapabilities(), address);
+         implicitRoutingType = getImplicitRoutingType(address);
+
+         final RoutingType selectedRoutingType = explicitRoutingType != null ? explicitRoutingType : implicitRoutingType;
 
          try {
-            final AddressQueryResult result = sessionSPI.addressQuery(address, defRoutingType, false);
+            final AddressQueryResult result = sessionSPI.addressQuery(address, selectedRoutingType, false);
 
             // We initiated this link so the target should refer to an address that definitely exists
             // however there is a chance the address was removed in the interim.

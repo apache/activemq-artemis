@@ -35,4 +35,12 @@ public enum RoutingType {
          default -> null;
       };
    }
+
+   public static RoutingType getTypeOrDefault(byte type, RoutingType defaultType) {
+      return switch (type) {
+         case 0 -> MULTICAST;
+         case 1 -> ANYCAST;
+         default -> defaultType;
+      };
+   }
 }

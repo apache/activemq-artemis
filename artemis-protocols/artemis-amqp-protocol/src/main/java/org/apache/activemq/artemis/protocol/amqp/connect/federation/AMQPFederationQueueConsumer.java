@@ -295,10 +295,13 @@ public final class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
          }
 
          address = SimpleString.of(target.getAddress());
-         defRoutingType = getRoutingType(target.getCapabilities(), address);
+         explicitRoutingType = getExplicitRoutingType(target.getCapabilities(), address);
+         implicitRoutingType = getImplicitRoutingType(address);
+
+         final RoutingType selectedRoutingType = explicitRoutingType != null ? explicitRoutingType : implicitRoutingType;
 
          try {
-            final QueueQueryResult result = sessionSPI.queueQuery(address, defRoutingType, false);
+            final QueueQueryResult result = sessionSPI.queueQuery(address, selectedRoutingType, false);
 
             // We initiated this link so the target should refer to an queue that definitely exists
             // however there is a chance the queue was removed in the interim.
@@ -345,7 +348,7 @@ public final class AMQPFederationQueueConsumer extends AMQPFederationConsumer {
             }
 
             signalPluginBeforeFederationConsumerMessageHandled(theMessage);
-            sessionSPI.serverSend(this, tx, receiver, delivery, cachedFqqn, routingContext, theMessage);
+            sessionSPI.serverSend(this, tx, receiver, delivery, cachedFqqn, getPreferredRoutingType(), routingContext, theMessage);
             signalPluginAfterFederationConsumerMessageHandled(theMessage);
          } catch (Exception e) {
             logger.warn("Inbound delivery for {} encountered an error: {}", consumerInfo, e.getMessage(), e);

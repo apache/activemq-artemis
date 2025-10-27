@@ -235,7 +235,7 @@ public class ProtonServerReceiverContextTest {
       source.setDefaultOutcome(defaultOutcome);
       when(mockReceiver.getSource()).thenReturn(source);
 
-      doThrow(deliveryException).when(mockSession).serverSend(eq(rc), nullable(Transaction.class), eq(mockReceiver), eq(mockDelivery), nullable(SimpleString.class), any(RoutingContext.class), nullable(AMQPMessage.class));
+      doThrow(deliveryException).when(mockSession).serverSend(eq(rc), nullable(Transaction.class), eq(mockReceiver), eq(mockDelivery), nullable(SimpleString.class), any(), any(RoutingContext.class), nullable(AMQPMessage.class));
 
       rc.onMessage(mockDelivery);
 

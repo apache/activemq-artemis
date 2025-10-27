@@ -32,6 +32,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -329,10 +330,13 @@ public class AMQPBridgeFromAddressReceiver extends AMQPBridgeReceiver {
          }
 
          address = SimpleString.of(receiverInfo.getLocalAddress());
-         defRoutingType = receiverInfo.getRoutingType();
+         explicitRoutingType = getExplicitRoutingType(target.getCapabilities(), address);
+         implicitRoutingType = getImplicitRoutingType(address);
+
+         final RoutingType selectedRoutingType = explicitRoutingType != null ? explicitRoutingType : implicitRoutingType;
 
          try {
-            final AddressQueryResult result = sessionSPI.addressQuery(address, defRoutingType, false);
+            final AddressQueryResult result = sessionSPI.addressQuery(address, selectedRoutingType, false);
 
             // We initiated this link so the settings should refer to an address that definitely exists
             // however there is a chance the address was removed in the interim.
@@ -374,7 +378,7 @@ public class AMQPBridgeFromAddressReceiver extends AMQPBridgeReceiver {
                             transformer, message, theMessage);
             }
 
-            sessionSPI.serverSend(this, tx, receiver, delivery, cachedAddress, routingContext, theMessage);
+            sessionSPI.serverSend(this, tx, receiver, delivery, cachedAddress, getPreferredRoutingType(), routingContext, theMessage);
          } catch (Exception e) {
             logger.warn("Inbound delivery for {} encountered an error: {}", receiverInfo, e.getMessage(), e);
             deliveryFailed(delivery, receiver, e);

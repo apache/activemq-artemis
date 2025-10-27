@@ -518,36 +518,33 @@ public class AMQPSessionCallback implements SessionCallback {
                           Receiver receiver,
                           Delivery delivery,
                           SimpleString address,
+                          RoutingType routingType,
                           RoutingContext routingContext,
                           Message message) throws Exception {
 
       context.incrementSettle();
 
-      RoutingType routingType = null;
-      if (address != null) {
+      final SimpleString messageAddress = message.getAddressSimpleString();
+      final SimpleString selectedAddress;
+
+      if (!context.isAnonymousRelay()) {
          // set Fixed-address producer if the message.properties.to address differs from the producer
-         if (!address.toString().equals(message.getAddress())) {
+         if (!address.equals(messageAddress)) {
             message.setAddress(address);
          }
-         routingType = context.getDefRoutingType();
-      } else {
-         // Anonymous-relay producer, message must carry a To value
-         address = message.getAddressSimpleString();
-         if (address == null) {
-            // Errors are not currently handled as required by AMQP 1.0 anonterm-v1.0
-            rejectMessage(context, delivery, Symbol.valueOf("failed"), "Missing 'to' field for message sent to an anonymous producer");
-            return;
-         }
 
-         routingType = message.getRoutingType();
-         if (routingType == null) {
-            routingType = context.getRoutingType(receiver, address);
-         }
+         selectedAddress = address;
+      } else if (messageAddress == null) {
+         // Anonymous-relay producer, message must carry a To value
+         // Errors are not currently handled as required by AMQP 1.0 anonterm-v1.0
+         rejectMessage(context, delivery, Symbol.valueOf("failed"), "Missing 'to' field for message sent to an anonymous producer");
+         return;
+      } else {
+         selectedAddress = messageAddress;
       }
 
-      //here check queue-autocreation
-      if (!checkAddressAndAutocreateIfPossible(address, routingType)) {
-         ActiveMQException e = ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist(address.toString());
+      if (!checkAddressAndAutocreateIfPossible(selectedAddress, routingType)) {
+         ActiveMQException e = ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist(selectedAddress.toString());
          if (transaction != null) {
             transaction.markAsRollbackOnly(e);
          }
@@ -557,7 +554,7 @@ public class AMQPSessionCallback implements SessionCallback {
       OperationContext oldcontext = recoverContext();
 
       try {
-         PagingStore store = manager.getServer().getPagingManager().getPageStore(message.getAddressSimpleString());
+         PagingStore store = manager.getServer().getPagingManager().getPageStore(selectedAddress);
          if (store != null && store.isRejectingMessages()) {
             // We drop pre-settled messages (and abort any associated Tx)
             String amqpAddress = delivery.getLink().getTarget().getAddress();
@@ -572,7 +569,7 @@ public class AMQPSessionCallback implements SessionCallback {
          } else {
             message.setConnectionID(receiver.getSession().getConnection().getRemoteContainer());
             // We need to transfer IO execution to a different thread otherwise we may deadlock netty loop
-            sessionExecutor.execute(() -> inSessionSend(context, transaction, message, delivery, receiver, routingContext));
+            sessionExecutor.execute(() -> inSessionSend(context, transaction, message, selectedAddress, routingType, delivery, receiver, routingContext));
          }
       } catch (Exception e) {
          onSendFailed(message, transaction, e);
@@ -604,19 +601,20 @@ public class AMQPSessionCallback implements SessionCallback {
 
          }
       });
-
    }
 
    private void inSessionSend(final ProtonServerReceiverContext context,
                               final Transaction transaction,
                               final Message message,
+                              final SimpleString address,
+                              final RoutingType routingType,
                               final Delivery delivery,
                               final Receiver receiver,
                               final RoutingContext routingContext) {
       OperationContext oldContext = recoverContext();
       try {
          if (invokeIncoming(message, (ActiveMQProtonRemotingConnection) transportConnection.getProtocolConnection()) == null) {
-            serverSession.send(transaction, message, directDeliver, receiver.getName(), false, routingContext);
+            serverSession.send(transaction, address, routingType, message, directDeliver, receiver.getName(), false, routingContext);
 
             afterIO(new IOCallback() {
                @Override
