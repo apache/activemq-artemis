@@ -48,7 +48,7 @@ public abstract class URISchema<T, P> {
 
    protected String getHost(URI uri) {
       URI defaultFactory = getDefaultURI();
-      if (defaultFactory != null && uri.getHost() == null && defaultFactory.getScheme().equals(uri.getScheme())) {
+      if (defaultFactory != null && uri.getHost() == null && defaultFactory.getScheme() != null && defaultFactory.getScheme().equals(uri.getScheme())) {
          uri = defaultFactory;
       }
       return uri.getHost();
