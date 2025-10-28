@@ -84,6 +84,9 @@ public class BindingDTO {
    @XmlAttribute
    private Boolean sslAutoReload;
 
+   @XmlAttribute
+   private Boolean http2;
+
    public String getKeyStorePassword() throws Exception {
       return getPassword(this.keyStorePassword);
    }
@@ -234,6 +237,14 @@ public class BindingDTO {
 
    public void setSslAutoReload(Boolean sslAutoReload) {
       this.sslAutoReload = sslAutoReload;
+   }
+
+   public Boolean getHttp2() {
+      return http2;
+   }
+
+   public void setHttp2(Boolean http2) {
+      this.http2 = http2;
    }
 
    public BindingDTO() {

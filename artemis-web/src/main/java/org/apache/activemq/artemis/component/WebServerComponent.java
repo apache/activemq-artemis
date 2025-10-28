@@ -332,11 +332,16 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          httpConfiguration.setSendServerVersion(false);
          HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfiguration);
 
-         HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpConfiguration);
-         ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
-         alpn.setDefaultProtocol(HttpVersion.HTTP_1_1.asString());
-         SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, alpn.getProtocol());
-         connector = new ServerConnector(server, sslConnectionFactory, alpn, h2, httpFactory);
+         if (Boolean.FALSE.equals(binding.getHttp2())) {
+            SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, HttpVersion.HTTP_1_1.asString());
+            connector = new ServerConnector(server, sslConnectionFactory, httpFactory);
+         } else {
+            HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpConfiguration);
+            ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
+            alpn.setDefaultProtocol(HttpVersion.HTTP_1_1.asString());
+            SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, alpn.getProtocol());
+            connector = new ServerConnector(server, sslConnectionFactory, alpn, h2, httpFactory);
+         }
       } else {
          httpConfiguration.setSendServerVersion(false);
          ConnectionFactory connectionFactory = new HttpConnectionFactory(httpConfiguration);

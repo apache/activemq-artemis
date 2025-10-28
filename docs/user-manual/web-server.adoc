@@ -120,6 +120,10 @@ Whether or not the key and trust store files must be watched for changes and aut
 The watch period is controlled by the `scanPeriod` attribute of the `web` element, for further details see <<Web>>.
 Default is `false`.
 
+http2::
+Whether or not the HTTP/2 protocol is enabled.
+Default is `true`.
+
 === App
 
 Each web application should be defined in an `app` element inside an `binding` element.
