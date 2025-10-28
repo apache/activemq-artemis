@@ -108,6 +108,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import static java.net.http.HttpClient.Version.HTTP_1_1;
 import static java.net.http.HttpClient.Version.HTTP_2;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -366,7 +367,25 @@ public class WebServerComponentTest extends ArtemisTestCase {
 
    @Test
    public void testHttp2() throws Exception {
-      WebServerComponent webServerComponent = startSimpleSecureServer(null, null);
+      testWithHttp2Client(null);
+   }
+
+   @Test
+   public void testHttp2Enabled() throws Exception {
+      testWithHttp2Client(true);
+   }
+
+   @Test
+   public void testHttp2Disabled() throws Exception {
+      testWithHttp2Client(false);
+   }
+
+   private void testWithHttp2Client(Boolean http2) throws Exception {
+      BindingDTO bindingDTO = new BindingDTO();
+      bindingDTO.setKeyStorePath(KEY_STORE_PATH);
+      bindingDTO.setKeyStorePassword(KEY_STORE_PASSWORD);
+      bindingDTO.setHttp2(http2);
+      WebServerComponent webServerComponent = startSimpleSecureServer(bindingDTO);
       final int port = webServerComponent.getPort();
 
       SSLContext context = new SSLSupport()
@@ -396,7 +415,11 @@ public class WebServerComponentTest extends ArtemisTestCase {
       }
 
       assertNotNull(response);
-      assertEquals(HTTP_2, response.version());
+      if (Boolean.FALSE.equals(http2)) {
+         assertEquals(HTTP_1_1, response.version());
+      } else {
+         assertEquals(HTTP_2, response.version());
+      }
       assertEquals(200, response.statusCode());
       assertEquals("12345", response.body());
    }
