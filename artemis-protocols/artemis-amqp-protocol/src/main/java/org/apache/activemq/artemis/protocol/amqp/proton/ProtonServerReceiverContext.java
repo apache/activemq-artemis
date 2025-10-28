@@ -92,7 +92,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
 
             try {
                if (getPreferredRoutingType() == RoutingType.ANYCAST) {
-                  sessionSPI.createTemporaryQueue(address, explicitRoutingType);
+                  sessionSPI.createTemporaryQueue(address, RoutingType.ANYCAST);
                } else {
                   sessionSPI.createTemporaryAddress(address);
                }
