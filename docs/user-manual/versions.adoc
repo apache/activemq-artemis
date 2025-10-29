@@ -20,6 +20,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 === Highlights
 
 * Support for building and running on Java 25. https://issues.apache.org/jira/browse/ARTEMIS-5711[Click here] for more details.
+* Support xref:web-server.adoc#binding[toggling off HTTP/2 support] for the management web server. https://issues.apache.org/jira/browse/ARTEMIS-5723[Click here] for more details.
 
 == 2.43.0
 
