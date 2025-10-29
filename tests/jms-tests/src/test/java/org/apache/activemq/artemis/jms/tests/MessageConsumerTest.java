@@ -49,6 +49,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
@@ -3670,6 +3671,92 @@ public class MessageConsumerTest extends JMSTestCase {
       }
    }
 
+   @Test
+   public void testReceiveThrowsTextMessageAboveSetMaxSize() throws Exception {
+      Connection producerConnection = null;
+
+      Connection consumerConnection = null;
+
+      try {
+         String brokerURL = "tcp://127.0.0.1:61616?blockOnAcknowledge=true&blockOnDurableSend=true&blockOnNonDurableSend=true";
+
+         producerConnection = createConnection(new ActiveMQConnectionFactory(brokerURL));
+
+         var cf = new ActiveMQConnectionFactory(brokerURL + "&jmsMaxTextMessageSize=20");
+         cf.setMinLargeMessageSize(10);
+         consumerConnection = createConnection(
+                 cf
+         );
+
+         Session producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         MessageProducer queueProducer = producerSession.createProducer(queue1);
+
+         MessageConsumer queueConsumer = consumerSession.createConsumer(queue1);
+
+         consumerConnection.start();
+
+         TextMessage tm = producerSession.createTextMessage("Hello, world!");
+
+         queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+
+         queueProducer.send(tm);
+
+         JMSException exception = ProxyAssertSupport.assertThrows(JMSException.class, queueConsumer::receive);
+         ProxyAssertSupport.assertEquals("The text message exceeds maximum set size of 20 bytes.", exception.getMessage());
+      } finally {
+         if (producerConnection != null) {
+            producerConnection.close();
+         }
+         if (consumerConnection != null) {
+            consumerConnection.close();
+         }
+      }
+   }
+
+   @Test
+   public void testReceiveDoesNotThrowWhenMessageIsBelowSetMaximuSize() throws Exception {
+      Connection producerConnection = null;
+
+      Connection consumerConnection = null;
+
+      try {
+         String brokerURL = "tcp://127.0.0.1:61616?blockOnAcknowledge=true&blockOnDurableSend=true&blockOnNonDurableSend=true";
+
+         producerConnection = createConnection(new ActiveMQConnectionFactory(brokerURL));
+
+         consumerConnection = createConnection(
+                 new ActiveMQConnectionFactory(brokerURL + "&jmsMaxTextMessageSize=100")
+         );
+
+         Session producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         Session consumerSession = consumerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         MessageProducer queueProducer = producerSession.createProducer(queue1);
+
+         MessageConsumer queueConsumer = consumerSession.createConsumer(queue1);
+
+         consumerConnection.start();
+
+         TextMessage tm = producerSession.createTextMessage("Hello, world!");
+
+         queueProducer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+
+         queueProducer.send(tm);
+
+         ProxyAssertSupport.assertDoesNotThrow(queueConsumer::receive);
+      } finally {
+         if (producerConnection != null) {
+            producerConnection.close();
+         }
+         if (consumerConnection != null) {
+            consumerConnection.close();
+         }
+      }
+   }
 
    private class ConnectionCloseMessageListener implements MessageListener {
 

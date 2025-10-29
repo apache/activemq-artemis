@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.jms.client;
 import java.lang.ref.WeakReference;
 import java.security.PrivilegedAction;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,6 +54,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
@@ -134,6 +136,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    private final ConnectionFactoryOptions options;
 
+   private Integer jmsMaxTextMessageSize;
 
    public ActiveMQConnection(final ConnectionFactoryOptions options,
                              final String username,
@@ -170,6 +173,16 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       this.enable1xPrefixes = enable1xPrefixes;
 
       creationStack = new Exception();
+
+      if (sessionFactory != null && sessionFactory.getConnectorConfiguration() != null) {
+         int maxSize = ConfigurationHelper.getIntProperty(
+                 ActiveMQJMSConstants.JMS_MAX_TEXT_MESSAGE_SIZE,
+                 0,
+                 sessionFactory.getConnectorConfiguration().getExtraParams());
+         if (maxSize > 0) {
+            this.jmsMaxTextMessageSize = maxSize;
+         }
+      }
    }
 
    /**
@@ -647,6 +660,10 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       }
    }
 
+   public Optional<Integer> getJmsMaxTextMessageSize() {
+      return Optional.ofNullable(jmsMaxTextMessageSize);
+   }
+
    private void addSessionMetaData(ClientSession session) throws ActiveMQException {
       session.addMetaData(ClientSession.JMS_SESSION_IDENTIFIER_PROPERTY, "");
       if (clientID != null) {
@@ -679,7 +696,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    public String getDeserializationAllowList() {
       return this.factoryReference.getDeserializationAllowList();
    }
-
 
    private static class JMSFailureListener implements SessionFailureListener {
 
