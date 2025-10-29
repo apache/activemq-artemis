@@ -164,7 +164,10 @@ public class PagingTest extends ParameterDBTestBase {
       List<Object[]> databases = new ArrayList<>();
       databases.add(new Object[] {Database.JOURNAL, true});
       databases.add(new Object[] {Database.JOURNAL, false});
-      databases.add(new Object[] {Database.randomDB(), false});
+      Database database = Database.randomDB();
+      if (database != null) {
+         databases.add(new Object[]{database, false});
+      }
       return databases;
    }
 
