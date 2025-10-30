@@ -66,7 +66,7 @@ public class AsynchronousProducerCreditsImpl extends AbstractProducerCreditsImpl
          }
          callback.onCreditsFlow(balance <= 0, this);
 
-         if (balance < 0 && arriving == 0) {
+         if (balance <= 0 && arriving == 0) {
             // there are no more credits arriving and we are still negative, async large message send asked too much and we need to counter balance
             logger.debug("Starve credits counter balance");
             int request = -balance + windowSize * 2;
