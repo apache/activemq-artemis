@@ -119,6 +119,13 @@ if [ -f "$ARTEMIS_OOME_DUMP" ] ; then
   mv $ARTEMIS_OOME_DUMP $ARTEMIS_OOME_DUMP.bkp
 fi
 
+JAVA_VERSION=`$JAVACMD -version 2>&1 | head -n 1 | awk -F '"' '{print $2}' | cut -d'.' -f1`
+if [ "$JAVA_VERSION" = "24" ] || [ "$JAVA_VERSION" = "25" ] ; then
+  ALLOW_UNSAFE="--sun-misc-unsafe-memory-access=allow"
+else
+  ALLOW_UNSAFE=""
+fi
+
 exec "$JAVACMD" \
     $LOGGING_ARGS \
     $JAVA_ARGS \
@@ -132,6 +139,7 @@ exec "$JAVACMD" \
     -Djava.io.tmpdir="$ARTEMIS_INSTANCE/tmp" \
     -Ddata.dir="$ARTEMIS_DATA_DIR" \
     -Dartemis.instance.etc="$ARTEMIS_INSTANCE_ETC" \
+    $ALLOW_UNSAFE \
     $DEBUG_ARGS \
     $JAVA_ARGS_APPEND \
     org.apache.activemq.artemis.boot.Artemis "$@"
