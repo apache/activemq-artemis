@@ -240,4 +240,15 @@ public class WildcardConfiguration implements Serializable {
          }
       }
    }
+
+   /**
+    * Checks whether the specified character matches any of the configured wildcard characters: single word, any words,
+    * or delimiter.
+    *
+    * @param input the character to be checked
+    * @return true if the input character matches one of the wildcard characters; false otherwise
+    */
+   public boolean contains(char input) {
+      return input == getSingleWord() || input == getAnyWords() || input == getDelimiter();
+   }
 }

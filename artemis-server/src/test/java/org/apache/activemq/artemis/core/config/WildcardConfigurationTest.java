@@ -150,4 +150,18 @@ public class WildcardConfigurationTest {
       assertTrue(DEFAULT_WILDCARD.isWild("a.*.\\#"));
       assertTrue(DEFAULT_WILDCARD.isWild("a.\\*.#"));
    }
+
+   @Test
+   public void testContains() {
+      assertFalse(DEFAULT_WILDCARD.contains('x'));
+      assertFalse(DEFAULT_WILDCARD.contains('!'));
+
+      assertTrue(DEFAULT_WILDCARD.contains('#'));
+      assertTrue(DEFAULT_WILDCARD.contains('*'));
+      assertTrue(DEFAULT_WILDCARD.contains('.'));
+
+      assertTrue(new WildcardConfiguration().setAnyWords('!').contains('!'));
+      assertTrue(new WildcardConfiguration().setDelimiter('!').contains('!'));
+      assertTrue(new WildcardConfiguration().setSingleWord('!').contains('!'));
+   }
 }

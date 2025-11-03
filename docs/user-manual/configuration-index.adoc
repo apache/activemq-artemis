@@ -565,7 +565,7 @@ In most cases this should be set to '1'.
 
 | internal-naming-prefix
 | the prefix used when naming the internal queues and addresses required for implementing certain behaviours.
-| `$.activemq.internal`
+| `$.activemq.internal.`
 
 | xref:security.adoc#tracking-the-validated-user[populate-validated-user]
 | whether or not to add the name of the validated user to the messages that user sends.
