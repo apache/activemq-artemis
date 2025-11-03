@@ -240,4 +240,22 @@ public class WildcardConfiguration implements Serializable {
          }
       }
    }
+
+   /**
+    * Checks if the given input string represents a valid character that matches one of the defined wildcard characters.
+    * <p>
+    * The input string must contain exactly one character. If the input is null, empty, or contains more than one
+    * character, an IllegalArgumentException is thrown.
+    *
+    * @param input the input string to check; it must contain exactly one character
+    * @return true if the single character in the input matches one of the wildcard characters, otherwise false
+    * @throws IllegalArgumentException if the input is null, empty, or contains more than one character
+    */
+   public boolean contains(String input) {
+      if (input == null || input.isEmpty() || input.length() > 1) {
+         throw new IllegalArgumentException();
+      }
+      char inputChar = input.charAt(0);
+      return inputChar == getSingleWord() || inputChar == getAnyWords() || inputChar == getDelimiter();
+   }
 }

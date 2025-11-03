@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WildcardConfigurationTest {
@@ -149,5 +150,23 @@ public class WildcardConfigurationTest {
       assertTrue(DEFAULT_WILDCARD.isWild("a.*.#"));
       assertTrue(DEFAULT_WILDCARD.isWild("a.*.\\#"));
       assertTrue(DEFAULT_WILDCARD.isWild("a.\\*.#"));
+   }
+
+   @Test
+   public void testContains() {
+      assertThrows(IllegalArgumentException.class, () -> DEFAULT_WILDCARD.contains("xx"));
+      assertThrows(IllegalArgumentException.class, () -> DEFAULT_WILDCARD.contains(""));
+      assertThrows(IllegalArgumentException.class, () -> DEFAULT_WILDCARD.contains(null));
+
+      assertFalse(DEFAULT_WILDCARD.contains("x"));
+      assertFalse(DEFAULT_WILDCARD.contains("!"));
+
+      assertTrue(DEFAULT_WILDCARD.contains("#"));
+      assertTrue(DEFAULT_WILDCARD.contains("*"));
+      assertTrue(DEFAULT_WILDCARD.contains("."));
+
+      assertTrue(new WildcardConfiguration().setAnyWords('!').contains("!"));
+      assertTrue(new WildcardConfiguration().setDelimiter('!').contains("!"));
+      assertTrue(new WildcardConfiguration().setSingleWord('!').contains("!"));
    }
 }

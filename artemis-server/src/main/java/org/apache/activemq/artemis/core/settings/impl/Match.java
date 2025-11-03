@@ -60,19 +60,21 @@ public class Match<T> {
 
       if (wildcardConfiguration.getAnyWordsString().equals(match)) {
          // replace any regex characters
-         actMatch = Match.WILDCARD_REPLACEMENT;
+         actMatch = WILDCARD_REPLACEMENT;
       } else {
          // this is to match with what's documented
          actMatch = actMatch.replace(wildcardConfiguration.getDelimiterString() + wildcardConfiguration.getAnyWordsString(), wildcardConfiguration.getAnyWordsString());
-         actMatch = actMatch.replace(Match.DOT, Match.DOT_REPLACEMENT);
-         actMatch = actMatch.replace(Match.DOLLAR, Match.DOLLAR_REPLACEMENT);
+         actMatch = actMatch.replace(DOT, DOT_REPLACEMENT);
+         if (!wildcardConfiguration.contains(DOLLAR)) {
+            actMatch = actMatch.replace(DOLLAR, DOLLAR_REPLACEMENT);
+         }
          actMatch = actMatch.replace(wildcardConfiguration.getSingleWordString(), String.format(WORD_WILDCARD_REPLACEMENT_FORMAT, Pattern.quote(wildcardConfiguration.getDelimiterString())));
 
          // this one has to be done by last as we are using .* and it could be replaced wrongly if delimiter is '.'
          actMatch = actMatch.replace(wildcardConfiguration.getAnyWordsString(), String.format(WILDCARD_CHILD_REPLACEMENT_FORMAT, Pattern.quote(wildcardConfiguration.getDelimiterString())));
       }
       // we need to anchor with eot to ensure we have a full match
-      pattern = Pattern.compile(actMatch + "$");
+      pattern = Pattern.compile(actMatch + DOLLAR);
       this.literal = literal;
    }
 
