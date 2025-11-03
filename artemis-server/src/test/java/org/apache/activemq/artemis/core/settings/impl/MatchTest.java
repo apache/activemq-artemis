@@ -28,9 +28,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class MatchTest {
 
    @Test
-   public void predicateTestAnyChild() {
+   public void predicateTestAnyChildDefault() {
+      predicateTestAnyChild(WildcardConfiguration.DEFAULT_WILDCARD_CONFIGURATION.getAnyWords());
+   }
 
-      final Match<?> underTest = new Match<>("test.#", null, new WildcardConfiguration());
+   @Test
+   public void predicateTestAnyChildDollar() {
+      predicateTestAnyChild('$');
+   }
+
+   private void predicateTestAnyChild(char anyWords) {
+
+      final Match<?> underTest = new Match<>("test." + anyWords, null, new WildcardConfiguration().setAnyWords(anyWords));
       final Predicate<String> predicate = underTest.getPattern().asPredicate();
 
       assertTrue(predicate.test("test"));
