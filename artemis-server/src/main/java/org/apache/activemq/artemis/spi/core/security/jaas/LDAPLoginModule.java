@@ -71,6 +71,20 @@ public class LDAPLoginModule implements AuditLoginModule {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   private static final ThreadLocal<Map<String, String>> environmentThreadLocal = new ThreadLocal<>();
+
+   public static Map<String, String> getEnvironment() {
+      return environmentThreadLocal.get();
+   }
+
+   protected static void setEnvironment(Map<String, String> environment) {
+      environmentThreadLocal.set(environment);
+   }
+
+   protected static void removeEnvironment() {
+      environmentThreadLocal.remove();
+   }
+
    enum ConfigKey {
 
       DEBUG("debug"),
@@ -708,6 +722,7 @@ public class LDAPLoginModule implements AuditLoginModule {
 
             extendInitialEnvironment(config, env);
 
+            setEnvironment(env);
             try {
                context = SecurityManagerShim.callAs(brokerGssapiIdentity, (Callable<DirContext>) () -> new InitialDirContext(env));
             } catch (CompletionException ce) {
@@ -717,6 +732,8 @@ public class LDAPLoginModule implements AuditLoginModule {
                }
 
                throw ce;
+            } finally {
+               removeEnvironment();
             }
          } catch (NamingException e) {
             closeContext();
@@ -735,6 +752,10 @@ public class LDAPLoginModule implements AuditLoginModule {
          if (initialContextEnv.get(propName) == null && !ConfigKey.contains(propName)) {
             initialContextEnv.put(propName, prop.getPropertyValue());
          }
+      }
+
+      if (codecClass != null) {
+         initialContextEnv.put(ConfigKey.PASSWORD_CODEC.getName(), codecClass);
       }
    }
 

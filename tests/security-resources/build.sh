@@ -52,6 +52,7 @@ keytool -storetype pkcs12 -keystore server-ca-keystore.p12 -storepass $STORE_PAS
 
 keytool -storetype pkcs12 -keystore server-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -importcert -alias server-ca -file server-ca.crt -noprompt
 keytool -storetype pkcs12 -keystore server-keystore.p12 -storepass $STORE_PASS -keypass $KEY_PASS -importcert -alias server -file server.crt
+cp server-keystore.p12 server-keystore-without-ca.p12 && keytool -delete -noprompt -alias server-ca -storetype pkcs12 -keystore server-keystore-without-ca.p12 -storepass $STORE_PASS
 
 keytool -importkeystore -srckeystore server-keystore.p12 -destkeystore server-keystore.jceks -srcstoretype pkcs12 -deststoretype jceks -srcstorepass securepass -deststorepass securepass
 keytool -importkeystore -srckeystore server-keystore.p12 -destkeystore server-keystore.jks -srcstoretype pkcs12 -deststoretype jks -srcstorepass securepass -deststorepass securepass

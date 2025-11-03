@@ -806,6 +806,107 @@ Define a `member` attribute for each member of the role/group, setting the `memb
 If you want to add roles to user entries, you would need to customize the directory schema, by adding a suitable attribute type to the user entry's object class.
 The chosen attribute type must be capable of handling multiple values.
 
+===== LDAPLoginSSLSocketFactory
+
+To secure the connection to your LDAP server using SSL/TLS, you can configure `LDAPLoginModule` to use `LDAPLoginSSLSocketFactory`.
+This socket factory provides comprehensive SSL configuration options including keystore, truststore, and certificate validation settings.
+
+To use `LDAPLoginSSLSocketFactory`, you need to:
+
+1. Enable SSL/TLS by setting the property `java.naming.security.protocol` to 'ssl' or by using `ldaps://` protocol in your `connectionURL`.
+2. Set `java.naming.ldap.factory.socket` to `org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginSSLSocketFactory`.
+3. Configure the SSL-related options as described below.
+
+Here's an example configuration in `login.config`:
+
+----
+LDAPLogin {
+   org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginModule required
+       debug=false
+       initialContextFactory=com.sun.jndi.ldap.LdapCtxFactory
+       connectionURL="ldaps://ldapserver:636"
+       java.naming.ldap.factory.socket=org.apache.activemq.artemis.spi.core.security.jaas.LDAPLoginSSLSocketFactory
+       connectionUsername="uid=admin,ou=system"
+       connectionPassword="secret"
+       userBase="ou=User,ou=ActiveMQ,ou=system"
+       userSearchMatching="(uid={0})"
+       userSearchSubtree=false
+       roleBase="ou=Group,ou=ActiveMQ,ou=system"
+       roleName=cn
+       roleSearchMatching="(member=uid={1})"
+       roleSearchSubtree=true
+       truststorePath="/path/to/truststore.jks"
+       truststorePassword="trustpass"
+       keystorePath="/path/to/keystore.jks"
+       keystorePassword="keypass";
+};
+----
+
+The following SSL configuration options are supported:
+
+keyStoreProvider::
+The provider used for the keystore.
+For example, `SUN`, `SunJCE`, etc.
+Default is `null`.
+
+keystoreType::
+The type of keystore being used.
+For example, `PKCS12`, `JKS`, `JCEKS`, `PEM` etc.
+Default is `JKS`.
+
+keystorePath::
+The path to the keystore file containing the client certificate and private key.
+This is only required if client certificate authentication is needed.
+Default is `null`.
+
+keystorePassword::
+The password for the keystore file.
+Supports xref:masking-passwords.adoc#masking-passwords[password masking].
+Default is `null`.
+
+keystoreAlias::
+The alias of the certificate to use from the keystore if multiple certificates exist.
+Default is `null`.
+
+truststoreProvider::
+The provider used for the truststore.
+For example, `SUN`, `SunJCE`, etc.
+Default is `null`.
+
+truststoreType::
+The type of truststore being used.
+For example, `PKCS12`, `JKS`, `JCEKS`, `PEM` etc.
+Default is `JKS`.
+
+truststorePath::
+The path to the truststore file containing the trusted CA certificates.
+This is required to validate the LDAP server's certificate.
+Default is `null`.
+
+truststorePassword::
+The password for the truststore file.
+Supports xref:masking-passwords.adoc#masking-passwords[password masking].
+Default is `null`.
+
+crlPath::
+The path to the Certificate Revocation List (CRL) file for additional certificate validation.
+Default is `null`.
+
+trustAll::
+Boolean flag to disable certificate validation and trust all certificates.
+Default is `false`.
++
+WARNING: Setting this to `true` is insecure and should only be used for testing purposes.
+
+trustManagerFactoryPlugin::
+The fully qualified class name of a custom trust manager factory plugin for advanced certificate validation scenarios.
+Default is `null`.
+
+passwordCodec::
+The fully qualified class name of a custom password codec for decoding masked passwords.
+See xref:masking-passwords.adoc#masking-passwords[password masking] for more details.
+Default is `org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec`.
+
 ==== CertificateLoginModule
 
 The JAAS certificate authentication login module must be used in combination with SSL and the clients must be configured with their own certificate.
