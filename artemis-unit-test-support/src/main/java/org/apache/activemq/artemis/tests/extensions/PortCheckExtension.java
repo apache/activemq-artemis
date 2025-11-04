@@ -59,7 +59,7 @@ public class PortCheckExtension implements Extension, BeforeEachCallback, AfterE
       ServerSocket s = null;
       try {
          s = new ServerSocket();
-         s.bind(new InetSocketAddress("localhost", 61616));
+         s.bind(new InetSocketAddress("localhost", port));
          return true;
       } catch (IOException e) {
          e.printStackTrace();
