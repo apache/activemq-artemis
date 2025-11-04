@@ -4206,7 +4206,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                primaryOnlyPolicy.getScaleDownPolicy().getConnectors().add(0, connector);
             }
 
-            server.fail(true);
+            server.stop(true, true);
          }
       }
    }
