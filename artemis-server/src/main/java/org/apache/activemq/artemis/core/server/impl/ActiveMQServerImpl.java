@@ -1924,7 +1924,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                                                        autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, context, prefixes));
       }
 
-      ServerSessionImpl session = new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, storageManager, postOffice, resourceManager, securityStore, managementService, this, configuration.getManagementAddress(), defaultAddress == null ? null : SimpleString.of(defaultAddress), callback, context, pagingManager, prefixes, securityDomain, isLegacyProducer);
+      ServerSessionImpl session = new ServerSessionImpl(name, username, password, validatedUser, minLargeMessageSize, autoCommitSends, autoCommitAcks, preAcknowledge, configuration.isPersistDeliveryCountBeforeDelivery(), xa, connection, this, defaultAddress == null ? null : SimpleString.of(defaultAddress), callback, context, prefixes, securityDomain, isLegacyProducer);
 
       sessions.put(name, session);
       totalSessionCount.incrementAndGet();

@@ -17,9 +17,6 @@
 
 package org.apache.activemq.artemis.tests.integration.consumer;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,11 +24,9 @@ import java.util.HashMap;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
-import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
-import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.protocol.ServerPacketDecoder;
 import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImpl;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnection;
@@ -63,6 +58,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
 
 /**
  * as worked through ARTEMIS-4476 we fixed the possibility of a ghost consumer (a term coined by a user), where the
@@ -110,6 +109,10 @@ public class OrphanedConsumerDefenseTest extends ActiveMQTestBase {
       ActiveMQServer mockServer = Mockito.mock(ActiveMQServer.class);
       Mockito.when(mockServer.getExecutorFactory()).thenReturn(executorFactory);
       Mockito.when(mockServer.getConfiguration()).thenReturn(configuration);
+      Mockito.when(mockServer.getManagementService()).thenReturn(mock(ManagementService.class));
+      Mockito.when(mockServer.getConfiguration()).thenReturn(mock(Configuration.class));
+      Mockito.when(mockServer.getResourceManager()).thenReturn(mock(ResourceManager.class));
+      Mockito.when(mockServer.getSecurityStore()).thenReturn(mock(SecurityStore.class));
 
       BufferHandler bufferHandler = Mockito.mock(BufferHandler.class);
       InVMConnection inVMConnection = new InVMConnection(1, bufferHandler, Mockito.mock(BaseConnectionLifeCycleListener.class), artemisExecutor);
@@ -118,7 +121,7 @@ public class OrphanedConsumerDefenseTest extends ActiveMQTestBase {
       remotingConnection.destroy();
       ServerSessionImpl session = new ServerSessionImpl(RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(), RandomUtil.randomUUIDString(),
                                                         RandomUtil.randomUUIDString(), 1000, true, true, true, true, true,
-                                                        remotingConnection, storageManager, Mockito.mock(PostOffice.class), Mockito.mock(ResourceManager.class), Mockito.mock(SecurityStore.class), Mockito.mock(ManagementService.class), mockServer, RandomUtil.randomUUIDSimpleString(), RandomUtil.randomUUIDSimpleString(), Mockito.mock(SessionCallback.class), Mockito.mock(OperationContext.class), Mockito.mock(PagingManager.class), new HashMap<>(), "securityDomain", false);
+                                                        remotingConnection, mockServer, RandomUtil.randomUUIDSimpleString(), Mockito.mock(SessionCallback.class), Mockito.mock(OperationContext.class), new HashMap<>(), "securityDomain", false);
 
       try {
          new ServerConsumerImpl(1, session, null, null, 1, true, false, new NullStorageManager(), sessionCallback, true, true, managementService, false, 0, server);
