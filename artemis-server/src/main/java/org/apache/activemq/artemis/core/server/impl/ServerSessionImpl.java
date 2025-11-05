@@ -229,17 +229,10 @@ public class ServerSessionImpl extends CriticalComponentImpl implements ServerSe
                             final boolean strictUpdateDeliveryCount,
                             final boolean xa,
                             final RemotingConnection remotingConnection,
-                            final StorageManager storageManager,
-                            final PostOffice postOffice,
-                            final ResourceManager resourceManager,
-                            final SecurityStore securityStore,
-                            final ManagementService managementService,
                             final ActiveMQServer server,
-                            final SimpleString managementAddress,
                             final SimpleString defaultAddress,
                             final SessionCallback callback,
                             final OperationContext context,
-                            final PagingManager pagingManager,
                             final Map<SimpleString, RoutingType> prefixes,
                             final String securityDomain,
                             boolean isLegacyProducer) throws Exception {
@@ -261,22 +254,22 @@ public class ServerSessionImpl extends CriticalComponentImpl implements ServerSe
 
       this.remotingConnection = remotingConnection;
 
-      this.storageManager = storageManager;
+      this.storageManager = server.getStorageManager();
 
-      this.postOffice = postOffice;
+      this.postOffice = server.getPostOffice();
 
-      this.resourceManager = resourceManager;
+      this.resourceManager = server.getResourceManager();
 
-      this.securityStore = securityStore;
+      this.securityStore = server.getSecurityStore();
 
-      this.pagingManager = pagingManager;
+      this.pagingManager = server.getPagingManager();
 
       timeoutSeconds = resourceManager.getTimeoutSeconds();
       this.xa = xa;
 
       this.strictUpdateDeliveryCount = strictUpdateDeliveryCount;
 
-      this.managementService = managementService;
+      this.managementService = server.getManagementService();
 
       this.name = name;
 
@@ -287,7 +280,7 @@ public class ServerSessionImpl extends CriticalComponentImpl implements ServerSe
          prefixEnabled = true;
       }
 
-      this.managementAddress = managementAddress;
+      this.managementAddress = managementService.getManagementAddress();
 
       this.callback = callback;
 
@@ -1905,7 +1898,7 @@ public class ServerSessionImpl extends CriticalComponentImpl implements ServerSe
             if (addressSettings.isAutoCreateAddresses() || queueConfig.isTemporary()) {
                // Try to update the address with the new routing-type if possible.
                try {
-                  createAddress(addressInfo.addRoutingType(queueConfig.getRoutingType()), true);
+                  createAddress(new AddressInfo(addressInfo.getName(), EnumSet.copyOf(addressInfo.getRoutingTypes())).addRoutingType(queueConfig.getRoutingType()).setTemporary(addressInfo.isTemporary()), true);
                } catch (ActiveMQAddressExistsException e) {
                   // The address may have been created by another thread in the mean-time. Catch and do nothing.
                }
