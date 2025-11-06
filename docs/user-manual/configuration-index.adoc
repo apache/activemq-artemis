@@ -117,9 +117,14 @@ acceptorConfigurations.tcp.params.port=61616
 
 ==== Usage
 
-The `artemis run` command script supports `--properties <properties file url>`, where a properties file can be configured.
+The `artemis run` command script supports `--properties <path to properties files comma list>` where properties file paths can be configured.
+If a properties path string ends in a '/' it represents a directory. Any file name matching the regex `.*\.(json|properties)` in that directory is treated as broker configuration.
 
-There is a related xref:management.adoc#server-management[server management operation] `exportConfigAsProperties` that will export the current configuration as broker properties. Use this to get a better understanding of how properties apply to the broker configuration and how they map from xml.
+It is possible to override the default regex filter pattern with a `filter` query parameter on the directory path, e.g: `--properties '/home/x/broker_props/?filter=.*\.custom_props'`.
+
+==== Broker configuration in properties format
+
+The xref:management.adoc#server-management[server management operation] `exportConfigAsProperties` will export the current configuration of a broker as broker properties. Use this to get a better understanding of how properties apply to the broker configuration and how they map from xml.
 
 ==== Attribute Names with Dots
 Dots are significant in property keys because they identify the nesting level. If attribute names contain dots those need to be quoted. The quote string is specified via the property `key.surround` and has a default value of the double quote character: `"`.

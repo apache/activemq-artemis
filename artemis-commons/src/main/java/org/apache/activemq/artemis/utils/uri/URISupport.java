@@ -132,6 +132,10 @@ public class URISupport {
       return rc;
    }
 
+   public static String stripQuery(String url) {
+      return url.substring(0, url.indexOf('?'));
+   }
+
    public static boolean containsQuery(String uri) {
       return uri.contains("?");
    }
