@@ -60,6 +60,7 @@ import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.Adler32;
@@ -145,6 +146,7 @@ import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.utils.sm.SecurityManagerShim;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
+import org.apache.activemq.artemis.utils.uri.URISupport;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.Converter;
@@ -168,6 +170,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public static final String PROPERTY_CLASS_SUFFIX = ".class";
 
    public static final String REDACTED = "**redacted**";
+
+   private static final String FILTER_QUERY_PARAMETER_KEY = "filter";
 
    private static final long serialVersionUID = 4077088945050267843L;
 
@@ -480,6 +484,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    private File artemisInstance;
    private transient JsonObject jsonStatus = JsonLoader.createObjectBuilder().build();
    private final Set<String> keysToRedact = new HashSet<>();
+   private static final Pattern defaultPropertiesFileNamePattern = Pattern.compile(".*\\.(json|properties)");
 
    private JsonObject getJsonStatus() {
       if (jsonStatus == null) {
@@ -567,16 +572,25 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
-   public Configuration parseProperties(String fileUrlToProperties) throws Exception {
+   public Configuration parseProperties(String pathsToProperties) throws Exception {
       // system property overrides location of file(s)
-      fileUrlToProperties = resolvePropertiesSources(fileUrlToProperties);
-      if (fileUrlToProperties != null) {
-         for (String fileUrl : fileUrlToProperties.split(",")) {
-            if (fileUrl.endsWith("/")) {
+      pathsToProperties = resolvePropertiesSources(pathsToProperties);
+      if (pathsToProperties != null) {
+         for (String path : pathsToProperties.split(",")) {
+            Pattern patternToUse = defaultPropertiesFileNamePattern;
+            if (URISupport.containsQuery(path)) {
+               Map<String, String> parameters = URISupport.parseQuery(path);
+               if (parameters.containsKey(FILTER_QUERY_PARAMETER_KEY)) {
+                  patternToUse = Pattern.compile(parameters.get(FILTER_QUERY_PARAMETER_KEY));
+               }
+               path = URISupport.stripQuery(path);
+            }
+            if (path.endsWith("/")) {
                // treat as a directory and parse every property file in alphabetical order
-               File dir = new File(fileUrl);
+               File dir = new File(path);
                if (dir.exists()) {
-                  String[] files = dir.list((file, s) -> s.endsWith(".json") || s.endsWith(".properties"));
+                  final Pattern forLambda = patternToUse;
+                  String[] files = dir.list((file, s) -> forLambda.matcher(s).matches());
                   if (files != null && files.length > 0) {
                      Arrays.sort(files);
                      for (String fileName : files) {
@@ -585,7 +599,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
                   }
                }
             } else {
-               parseFileProperties(new File(fileUrl));
+               parseFileProperties(new File(path));
             }
          }
       }

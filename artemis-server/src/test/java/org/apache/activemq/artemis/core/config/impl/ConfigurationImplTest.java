@@ -2771,6 +2771,27 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
    }
 
    @Test
+   public void testRegxPropertiesFilesInDir() throws Exception {
+
+      File tmpFile = File.createTempFile("a_stuff", ".properties", temporaryFolder);
+      Properties properties = new Properties();
+      properties.put("name", "a");
+      properties.store(new FileOutputStream(tmpFile), null);
+
+      tmpFile =   File.createTempFile("b_stuff", ".0-properties", temporaryFolder);
+      properties = new Properties();
+      properties.put("name", "0");
+      properties.store(new FileOutputStream(tmpFile), null);
+
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.parseProperties(temporaryFolder + "/");
+      assertEquals("a", configuration.getName());
+
+      configuration.parseProperties(temporaryFolder + "/?filter=.*\\.(json|properties|0-properties)");
+      assertEquals("0", configuration.getName());
+   }
+
+   @Test
    public void testNameWithDotsSurroundWithDollarDollar() throws Throwable {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
