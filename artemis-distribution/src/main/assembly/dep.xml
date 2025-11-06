@@ -129,6 +129,7 @@
          <lineEnding>keep</lineEnding>
          <excludes>
             <exclude>bin/artemis</exclude>
+            <exclude>bin/artemis.cmd</exclude>
             <exclude>**/target/**</exclude>
             <exclude>**/**/*.iml</exclude>
             <exclude>**/**/*.dat</exclude>
@@ -140,7 +141,17 @@
       <fileSet>
          <directory>src/main/resources</directory>
          <outputDirectory>${file.separator}</outputDirectory>
-         <lineEnding>keep</lineEnding>
+         <lineEnding>dos</lineEnding>
+         <includes>
+            <include>bin/artemis.cmd</include>
+         </includes>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
+      </fileSet>
+      <fileSet>
+         <directory>src/main/resources</directory>
+         <outputDirectory>${file.separator}</outputDirectory>
+         <lineEnding>unix</lineEnding>
          <includes>
             <include>bin/artemis</include>
          </includes>
