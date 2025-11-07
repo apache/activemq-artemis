@@ -381,19 +381,23 @@ public final class PagingManagerImpl implements PagingManager {
       return names.toArray(new SimpleString[names.size()]);
    }
 
+   private void stopStore(SimpleString storeName, PagingStore store) {
+      try {
+         store.stop();
+      } catch (Throwable ok) {
+         logger.debug(ok.getMessage(), ok);
+      }
+   }
+
    @Override
    public void reloadStores() throws Exception {
       lock();
       try {
-         List<PagingStore> reloadedStores = pagingStoreFactory.reloadStores(addressSettingsRepository);
+         stores.forEach(this::stopStore);
+         stores.clear();
 
+         List<PagingStore> reloadedStores = pagingStoreFactory.reloadStores(addressSettingsRepository);
          for (PagingStore store : reloadedStores) {
-            // when reloading, we need to close the previously loaded version of this
-            // store
-            PagingStore oldStore = stores.remove(store.getStoreName());
-            if (oldStore != null) {
-               oldStore.stop();
-            }
             store.getCursorProvider().counterRebuildStarted();
             store.start();
             stores.put(store.getStoreName(), store);
@@ -401,7 +405,6 @@ public final class PagingManagerImpl implements PagingManager {
       } finally {
          unlock();
       }
-
    }
 
    @Override

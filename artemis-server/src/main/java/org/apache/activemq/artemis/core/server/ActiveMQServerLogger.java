@@ -140,8 +140,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 221024, value = "Backup server {} is synchronized with primary server, nodeID={}.", level = LogMessage.Level.INFO)
    void backupServerSynchronized(ActiveMQServerImpl server, String nodeID);
 
-   @LogMessage(id = 221025, value = "Replication: sending {} (size={}) to replica.", level = LogMessage.Level.INFO)
-   void replicaSyncFile(SequentialFile jf, Long size);
+   @LogMessage(id = 221025, value = "Replication: sending {} (size={}) to replica, origin={}", level = LogMessage.Level.INFO)
+   void replicaSyncFile(SequentialFile jf, Long size, Object identification);
 
    @LogMessage(id = 221027, value = "Bridge {} is connected", level = LogMessage.Level.INFO)
    void bridgeConnected(BridgeImpl name);
@@ -1519,4 +1519,7 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224152, value = "Closing connection from {} for PROXY Protocol violation. Acceptor {} uses proxyProtocolEnabled={}, but connection {} PROXY Protocol.", level = LogMessage.Level.WARN)
    void proxyProtocolViolation(String remoteAddress, String acceptorName, boolean proxyProtocolEnabled, String actualUsage);
+
+   @LogMessage(id = 224153, value = "Unable to find page {} on Address {} while reloading ACKNOWLEDGE_CURSOR, deleting record {}.", level = LogMessage.Level.INFO)
+   void cannotFindPageFileDuringPageAckReload(long pageNr, Object address, long id);
 }

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -33,8 +34,12 @@ import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QueueFactoryImpl implements QueueFactory {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected final HierarchicalRepository<AddressSettings> addressSettingsRepository;
 

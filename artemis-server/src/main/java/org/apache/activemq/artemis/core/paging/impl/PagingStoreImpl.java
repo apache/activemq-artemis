@@ -1868,7 +1868,7 @@ public class PagingStoreImpl implements PagingStore {
          if (!sFile.exists()) {
             continue;
          }
-         ActiveMQServerLogger.LOGGER.replicaSyncFile(sFile, sFile.size());
+         ActiveMQServerLogger.LOGGER.replicaSyncFile(sFile, sFile.size(), storeName);
          replicator.syncPages(sFile, id, getAddress());
       }
    }

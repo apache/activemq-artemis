@@ -167,19 +167,21 @@ public class TransactionImpl implements Transaction {
 
    @Override
    public boolean hasTimedOut(final long currentTime, final int defaultTimeout) {
-      synchronized (timeoutLock) {
-         boolean timedout;
-         if (timeoutSeconds == -1) {
-            timedout = getState() != Transaction.State.PREPARED && currentTime > createTime + (long) defaultTimeout * 1000;
-         } else {
-            timedout = getState() != Transaction.State.PREPARED && currentTime > createTime + (long) timeoutSeconds * 1000;
-         }
+      try (ArtemisCloseable lock = storageManager.closeableReadLock()) {
+         synchronized (timeoutLock) {
+            boolean timedout;
+            if (timeoutSeconds == -1) {
+               timedout = getState() != Transaction.State.PREPARED && currentTime > createTime + (long) defaultTimeout * 1000;
+            } else {
+               timedout = getState() != Transaction.State.PREPARED && currentTime > createTime + (long) timeoutSeconds * 1000;
+            }
 
-         if (timedout) {
-            markAsRollbackOnly(new ActiveMQTransactionTimeoutException());
-         }
+            if (timedout) {
+               markAsRollbackOnly(new ActiveMQTransactionTimeoutException());
+            }
 
-         return timedout;
+            return timedout;
+         }
       }
    }
 
@@ -270,79 +272,82 @@ public class TransactionImpl implements Transaction {
    public void commit(final boolean onePhase) throws Exception {
       logger.trace("TransactionImpl::commit::{}", this);
 
-      synchronized (timeoutLock) {
-         if (state == State.COMMITTED) {
-            // I don't think this could happen, but just in case
-            logger.debug("TransactionImpl::commit::{} is being ignored", this);
-            return;
-         }
-         if (state == State.ROLLBACK_ONLY) {
-            internalRollback();
 
-            if (exception != null) {
-               throw exception;
-            } else {
-               // Do nothing
+      try (ArtemisCloseable lock = storageManager.closeableReadLock()) {
+         synchronized (timeoutLock) {
+            if (state == State.COMMITTED) {
+               // I don't think this could happen, but just in case
+               logger.debug("TransactionImpl::commit::{} is being ignored", this);
                return;
             }
-         }
+            if (state == State.ROLLBACK_ONLY) {
+               internalRollback();
 
-         if (xid != null) {
-            if (onePhase && state != State.ACTIVE || !onePhase && state != State.PREPARED) {
-               throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
-            }
-         } else {
-            if (state != State.ACTIVE) {
-               throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
-            }
-         }
-
-         beforeCommit();
-
-         doCommit();
-
-         // We want to make sure that nothing else gets done after the commit is issued
-         // this will eliminate any possibility or races
-         final List<TransactionOperation> operationsToComplete = this.operations;
-         this.operations = null;
-
-         // We use the Callback even for non persistence
-         // If we are using non-persistence with replication, the replication manager will have
-         // to execute this runnable in the correct order
-         // This also will only use a different thread if there are any IO pending.
-         // If the IO finished early by the time we got here, we won't need an executor
-         storageManager.afterCompleteOperations(new IOCallback() {
-
-            @Override
-            public void onError(final int errorCode, final String errorMessage) {
-               ActiveMQServerLogger.LOGGER.ioErrorOnTX("commit - afterComplete", errorCode, errorMessage);
+               if (exception != null) {
+                  throw exception;
+               } else {
+                  // Do nothing
+                  return;
+               }
             }
 
-            @Override
-            public void done() {
-               afterCommit(operationsToComplete);
+            if (xid != null) {
+               if (onePhase && state != State.ACTIVE || !onePhase && state != State.PREPARED) {
+                  throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
+               }
+            } else {
+               if (state != State.ACTIVE) {
+                  throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
+               }
             }
-         }, getRequiredConsistency());
 
-         final List<TransactionOperation> storeOperationsToComplete = this.storeOperations;
-         this.storeOperations = null;
+            beforeCommit();
 
-         if (storeOperationsToComplete != null) {
-            storageManager.afterStoreOperations(new IOCallback() {
+            doCommit();
+
+            // We want to make sure that nothing else gets done after the commit is issued
+            // this will eliminate any possibility or races
+            final List<TransactionOperation> operationsToComplete = this.operations;
+            this.operations = null;
+
+            // We use the Callback even for non persistence
+            // If we are using non-persistence with replication, the replication manager will have
+            // to execute this runnable in the correct order
+            // This also will only use a different thread if there are any IO pending.
+            // If the IO finished early by the time we got here, we won't need an executor
+            storageManager.afterCompleteOperations(new IOCallback() {
 
                @Override
                public void onError(final int errorCode, final String errorMessage) {
-                  ActiveMQServerLogger.LOGGER.ioErrorOnTX("commit - afterStore", errorCode, errorMessage);
+                  ActiveMQServerLogger.LOGGER.ioErrorOnTX("commit - afterComplete", errorCode, errorMessage);
                }
 
                @Override
                public void done() {
-                  afterCommit(storeOperationsToComplete);
+                  afterCommit(operationsToComplete);
                }
-            });
-         }
+            }, getRequiredConsistency());
 
-         wired();
+            final List<TransactionOperation> storeOperationsToComplete = this.storeOperations;
+            this.storeOperations = null;
+
+            if (storeOperationsToComplete != null) {
+               storageManager.afterStoreOperations(new IOCallback() {
+
+                  @Override
+                  public void onError(final int errorCode, final String errorMessage) {
+                     ActiveMQServerLogger.LOGGER.ioErrorOnTX("commit - afterStore", errorCode, errorMessage);
+                  }
+
+                  @Override
+                  public void done() {
+                     afterCommit(storeOperationsToComplete);
+                  }
+               });
+            }
+
+            wired();
+         }
       }
    }
 
@@ -468,21 +473,23 @@ public class TransactionImpl implements Transaction {
 
    @Override
    public boolean tryRollback() {
-      synchronized (timeoutLock) {
-         if (state == State.ROLLEDBACK) {
-            // I don't think this could happen, but just in case
-            logger.debug("TransactionImpl::rollbackIfPossible::{} is being ignored", this);
-            return true;
-         }
-         if (state != State.PREPARED) {
-            try {
-               internalRollback();
+      try (ArtemisCloseable lock = storageManager.closeableReadLock()) {
+         synchronized (timeoutLock) {
+            if (state == State.ROLLEDBACK) {
+               // I don't think this could happen, but just in case
+               logger.debug("TransactionImpl::rollbackIfPossible::{} is being ignored", this);
                return true;
-            } catch (Exception e) {
-               // nothing we can do beyond logging
-               // no need to special handler here as this was not even supposed to happen at this point
-               // even if it happenes this would be the exception of the exception, so we just log here
-               logger.warn(e.getMessage(), e);
+            }
+            if (state != State.PREPARED) {
+               try {
+                  internalRollback();
+                  return true;
+               } catch (Exception e) {
+                  // nothing we can do beyond logging
+                  // no need to special handler here as this was not even supposed to happen at this point
+                  // even if it happenes this would be the exception of the exception, so we just log here
+                  logger.warn(e.getMessage(), e);
+               }
             }
          }
       }
@@ -493,25 +500,27 @@ public class TransactionImpl implements Transaction {
    public void rollback() throws Exception {
       logger.trace("TransactionImpl::rollback::{}", this);
 
-      synchronized (timeoutLock) {
-         // if it was marked as prepare/commit while delay, it needs to be cancelled
-         delayedRunnable = null;
-         if (state == State.ROLLEDBACK) {
-            // I don't think this could happen, but just in case
-            logger.debug("TransactionImpl::rollback::{} is being ignored", this);
-            return;
-         }
-         if (xid != null) {
-            if (state != State.PREPARED && state != State.ACTIVE && state != State.ROLLBACK_ONLY) {
-               throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
+      try (ArtemisCloseable lock = storageManager.closeableReadLock()) {
+         synchronized (timeoutLock) {
+            // if it was marked as prepare/commit while delay, it needs to be cancelled
+            delayedRunnable = null;
+            if (state == State.ROLLEDBACK) {
+               // I don't think this could happen, but just in case
+               logger.debug("TransactionImpl::rollback::{} is being ignored", this);
+               return;
             }
-         } else {
-            if (delayed == 0 && state != State.ACTIVE && state != State.ROLLBACK_ONLY) {
-               throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
+            if (xid != null) {
+               if (state != State.PREPARED && state != State.ACTIVE && state != State.ROLLBACK_ONLY) {
+                  throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
+               }
+            } else {
+               if (delayed == 0 && state != State.ACTIVE && state != State.ROLLBACK_ONLY) {
+                  throw new ActiveMQIllegalStateException("Transaction is in invalid state " + state);
+               }
             }
-         }
 
-         internalRollback();
+            internalRollback();
+         }
       }
    }
 
@@ -573,21 +582,25 @@ public class TransactionImpl implements Transaction {
 
    @Override
    public void suspend() {
-      synchronized (timeoutLock) {
-         if (state != State.ACTIVE) {
-            throw new IllegalStateException("Can only suspend active transaction");
+      try (ArtemisCloseable lock = storageManager.closeableReadLock()) {
+         synchronized (timeoutLock) {
+            if (state != State.ACTIVE) {
+               throw new IllegalStateException("Can only suspend active transaction");
+            }
+            state = State.SUSPENDED;
          }
-         state = State.SUSPENDED;
       }
    }
 
    @Override
    public void resume() {
-      synchronized (timeoutLock) {
-         if (state != State.SUSPENDED) {
-            throw new IllegalStateException("Can only resume a suspended transaction");
+      try (ArtemisCloseable lock = storageManager.closeableReadLock()) {
+         synchronized (timeoutLock) {
+            if (state != State.SUSPENDED) {
+               throw new IllegalStateException("Can only resume a suspended transaction");
+            }
+            state = State.ACTIVE;
          }
-         state = State.ACTIVE;
       }
    }
 
@@ -608,46 +621,52 @@ public class TransactionImpl implements Transaction {
 
    @Override
    public void markAsRollbackOnly(final ActiveMQException exception) {
-      synchronized (timeoutLock) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("TransactionImpl::{} marking rollbackOnly for {}, msg={}", this, exception.toString(), exception.getMessage());
-         }
-
-         // cancelling any delayed commit or prepare
-         delayedRunnable = null;
-
-         if (isEffective()) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("Trying to mark transaction {} xid={} as rollbackOnly but it was already effective (prepared, committed or rolledback!)", id, xid);
+      try (ArtemisCloseable lock = storageManager.closeableReadLock()) {
+         synchronized (timeoutLock) {
+            if (logger.isTraceEnabled()) {
+               logger.trace("TransactionImpl::{} marking rollbackOnly for {}, msg={}", this, exception.toString(), exception.getMessage());
             }
-            return;
-         }
 
-         if (logger.isDebugEnabled()) {
-            logger.debug("Marking Transaction {} as rollback only", id);
-         }
-         state = State.ROLLBACK_ONLY;
+            // cancelling any delayed commit or prepare
+            delayedRunnable = null;
 
-         this.exception = exception;
+            if (isEffective()) {
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Trying to mark transaction {} xid={} as rollbackOnly but it was already effective (prepared, committed or rolledback!)", id, xid);
+               }
+               return;
+            }
+
+            if (logger.isDebugEnabled()) {
+               logger.debug("Marking Transaction {} as rollback only", id);
+            }
+            state = State.ROLLBACK_ONLY;
+
+            this.exception = exception;
+         }
       }
    }
 
    @Override
    public void delay() {
-      synchronized (timeoutLock) {
-         delayed++;
+      try (ArtemisCloseable lock = storageManager.closeableReadLock()) {
+         synchronized (timeoutLock) {
+            delayed++;
+         }
       }
    }
 
    @Override
    public void delayDone() {
-      synchronized (timeoutLock) {
-         if (--delayed <= 0) {
-            if (delayedRunnable != null) {
-               try {
-                  delayedRunnable.run();
-               } finally {
-                  delayedRunnable = null;
+      try (ArtemisCloseable lock = storageManager.closeableReadLock()) {
+         synchronized (timeoutLock) {
+            if (--delayed <= 0) {
+               if (delayedRunnable != null) {
+                  try {
+                     delayedRunnable.run();
+                  } finally {
+                     delayedRunnable = null;
+                  }
                }
             }
          }
