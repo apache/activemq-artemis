@@ -331,7 +331,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    static {
       metaBean.add(SlowConsumerThresholdMeasurementUnit.class, "slowConsumerThresholdMeasurementUnit", (t, p) -> t.slowConsumerThresholdMeasurementUnit = p, t -> t.slowConsumerThresholdMeasurementUnit);
    }
-   private SlowConsumerThresholdMeasurementUnit slowConsumerThresholdMeasurementUnit = DEFAULT_SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT;
+   private SlowConsumerThresholdMeasurementUnit slowConsumerThresholdMeasurementUnit = null;
 
    static {
       metaBean.add(Long.class, "slowConsumerCheckPeriod", (t, p) -> t.slowConsumerCheckPeriod = p, t -> t.slowConsumerCheckPeriod);
@@ -445,7 +445,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    static {
       metaBean.add(Integer.class, "managementBrowsePageSize", (t, p) -> t.managementBrowsePageSize = p, t -> t.managementBrowsePageSize);
    }
-   private Integer managementBrowsePageSize = AddressSettings.MANAGEMENT_BROWSE_PAGE_SIZE;
+   private Integer managementBrowsePageSize = null;
 
    static {
       metaBean.add(Long.class, "maxSizeBytesRejectThreshold", (t, p) -> t.maxSizeBytesRejectThreshold = p, t -> t.maxSizeBytesRejectThreshold);
