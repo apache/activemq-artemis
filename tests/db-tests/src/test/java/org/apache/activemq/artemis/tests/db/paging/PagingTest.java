@@ -34,6 +34,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
@@ -94,9 +95,11 @@ import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderImpl;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderTestAccessor;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionImpl;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryDatabase;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreFactoryNIO;
@@ -111,6 +114,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.QueueAccessor;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -124,11 +128,13 @@ import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.LongHashSet;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -6557,6 +6563,171 @@ public class PagingTest extends ParameterDBTestBase {
                                 final Map<String, AddressSettings> settings) {
       server.getConfiguration().setAddressQueueScanPeriod(100);
    }
+
+
+   /**
+    * Introduce future ACKs hoping the server will clean them up before starting
+    * this could happen when users remove paging folders. This is a cleanup task.
+    * **/
+   @TestTemplate
+   public void testCleanupFutureAcks() throws Exception {
+      Assumptions.assumeTrue(database == Database.JOURNAL); // this test is playing with removing files
+
+      Configuration config = createDefaultNettyConfig();
+
+      server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1);
+      server.start();
+      int numberOfMessages = 100;
+
+      String queueName = "TEST" + RandomUtil.randomUUIDString();
+
+      try {
+         server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
+      } catch (Exception ignored) {
+      }
+
+      // Send messages, remove them by removing the page folder on the first iteration
+      for (int repeat = 0; repeat < 2; repeat++) {
+         Wait.waitFor(() -> server.locateQueue(queueName) != null);
+         Queue testQueue = server.locateQueue(queueName);
+         testQueue.getPagingStore().startPaging();
+         assertTrue(testQueue.getPagingStore().isPaging());
+
+         ConnectionFactory connectionFactory = CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616");
+         try (Connection connection = connectionFactory.createConnection()) {
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer producer = session.createProducer(session.createQueue(queueName));
+            for (int i = 0; i < numberOfMessages; i++) {
+               logger.debug("Sent {}", i);
+               TextMessage message = session.createTextMessage("hello " + i);
+               message.setIntProperty("i", i);
+               producer.send(message);
+            }
+         }
+
+         if (repeat == 0) {
+            PageSubscriptionImpl subscription = QueueAccessor.getSubscription(testQueue);
+            try (PageIterator iterator = subscription.iterator(true)) {
+               long txID = server.getStorageManager().generateID();
+               int i = 0;
+               while (iterator.hasNext()) {
+                  PagedReference reference = iterator.next();
+                  assertEquals(i++, (int)reference.getMessage().getIntProperty("i"));
+                  server.getStorageManager().storeCursorAcknowledgeTransactional(txID, testQueue.getID(), reference.getPosition());
+               }
+               server.getStorageManager().commit(txID);
+            }
+            logger.info(">>>> removing page folder and restarting server");
+            File pagingFolder = server.getConfiguration().getPagingLocation();
+            FileUtil.deleteDirectory(pagingFolder);
+            pagingFolder.mkdirs();
+            server.stop();
+            server = createServer(createDefaultConfig(0, true));
+            server.start();
+         }
+      }
+
+      ConnectionFactory connectionFactory = CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616");
+      try (Connection connection = connectionFactory.createConnection()) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer consumer = session.createConsumer(session.createQueue(queueName));
+         connection.start();
+         for (int i = 0; i < numberOfMessages; i++) {
+            javax.jms.Message message = consumer.receive(5000);
+            assertNotNull(message);
+            assertEquals(i, message.getIntProperty("i"));
+         }
+      }
+   }
+
+   /**
+    * Introduce future ACKs hoping the server will clean them up before starting
+    * this could happen when users remove paging folders. This is a cleanup task. **/
+   @TestTemplate
+   public void testCleanupFuturePGCompletes() throws Exception {
+      Configuration config = createDefaultNettyConfig();
+
+      server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1);
+      server.start();
+      int numberOfMessages = 100;
+
+      String queueName = "TEST" + RandomUtil.randomUUIDString();
+
+      try {
+         server.addAddressInfo(new AddressInfo(queueName).addRoutingType(RoutingType.ANYCAST));
+         server.createQueue(QueueConfiguration.of(queueName).setRoutingType(RoutingType.ANYCAST));
+      } catch (Exception ignored) {
+      }
+
+      Wait.waitFor(() -> server.locateQueue(queueName) != null);
+      Queue testQueue = server.locateQueue(queueName);
+      testQueue.getPagingStore().startPaging();
+      assertTrue(testQueue.getPagingStore().isPaging());
+
+      ConnectionFactory connectionFactory = CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616");
+      try (Connection connection = connectionFactory.createConnection()) {
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         MessageProducer producer = session.createProducer(session.createQueue(queueName));
+         for (int i = 0; i < 10; i++) {
+            logger.debug("Sent {}", i);
+            TextMessage message = session.createTextMessage("hello " + i);
+            producer.send(message);
+         }
+         session.commit();
+
+         connection.start();
+         MessageConsumer consumer = session.createConsumer(session.createQueue(queueName));
+         for (int i = 0; i < 5; i++) {
+            assertNotNull(consumer.receive(5000));
+         }
+         session.commit();
+      }
+
+      PageSubscriptionImpl subscription = QueueAccessor.getSubscription(testQueue);
+      // this next block is introducing a scenario that could happen during replication failback
+      // where cleanup is disabled and then re-established after replication is finished
+      {
+         subscription.getPagingStore().disableCleanup();
+         for (long i = 5; i < 100; i++) {
+            PageSubscriptionImpl.PageCursorInfo pageInfo = subscription.getPageInfo(i);
+            boolean done = pageInfo.isDone(); // this is to force the calculation and reading from the file.
+                                               // this would probably happen its own, but I want to ensure the failing condition here.
+            if (logger.isDebugEnabled()) {
+               logger.debug("page {}, isDone={}", i, done);
+            }
+         }
+         // this will introduce the pageComplete records, and they will survive since cleanup is actually disabled.
+         // which is something we turn on and off during failback.
+         subscription.cleanupEntries(false);
+      }
+
+      try (Connection connection = connectionFactory.createConnection()) {
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+         MessageProducer producer = session.createProducer(session.createQueue(queueName));
+         for (int i = 0; i < numberOfMessages; i++) {
+            logger.debug("Sent {}", i);
+            TextMessage message = session.createTextMessage("hello " + i);
+            producer.send(message);
+            if (i > 0 && i % 10 == 0) {
+               session.commit();
+               testQueue.getPagingStore().forceAnotherPage();
+            }
+         }
+         session.commit();
+      }
+
+      try (Connection connection = connectionFactory.createConnection()) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer consumer = session.createConsumer(session.createQueue(queueName));
+         connection.start();
+         for (int i = 0; i < numberOfMessages + 5; i++) { // + 5 includes original few messages that were sent and acke (10 sent, 5 acked)
+            javax.jms.Message message = consumer.receive(5000);
+            assertNotNull(message);
+         }
+      }
+   }
+
 
    @TestTemplate
    public void testSimpleNoTXSend() throws Exception {

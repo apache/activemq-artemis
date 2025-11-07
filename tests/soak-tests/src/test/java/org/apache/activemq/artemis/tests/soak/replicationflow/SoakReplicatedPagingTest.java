@@ -59,7 +59,6 @@ import org.apache.activemq.artemis.cli.commands.helper.HelperCreate;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
 import org.apache.activemq.artemis.tests.extensions.parameterized.Parameters;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
-import org.apache.activemq.artemis.utils.ExecuteUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.Wait;
@@ -268,22 +267,8 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
    }
 
    protected void jstack() throws Exception {
-      try {
-         System.out.println("*******************************************************************************************************************************");
-         System.out.println("SERVER 0 jstack");
-         System.out.println("*******************************************************************************************************************************");
-         ExecuteUtil.runCommand(true, 1, TimeUnit.MINUTES, "jstack", "" + server0.pid());
-      } catch (Throwable e) {
-         logger.warn("Error executing jstack on Server 0", e);
-      }
-      try {
-         System.out.println("*******************************************************************************************************************************");
-         System.out.println("SERVER 1 jstack");
-         System.out.println("*******************************************************************************************************************************");
-         ExecuteUtil.runCommand(true, 1, TimeUnit.MINUTES, "jstack", "" + server1.pid());
-      } catch (Throwable e) {
-         logger.warn("Error executing jstack on Server 1", e);
-      }
+      jstack(server0.pid(), "SERVER 0");
+      jstack(server1.pid(), "SERVER 1");
    }
 
    public void produce(ConnectionFactory factory, int index, CountDownLatch latch) {

@@ -290,6 +290,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
          boolean persist = false;
 
          final ArrayList<PageCursorInfo> completedPages = new ArrayList<>();
+         final ArrayList<PageCursorInfo> nonExistingPages = new ArrayList<>();
 
          // First get the completed pages using a lock
          synchronized (consumedPages) {
@@ -309,6 +310,9 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
                   if (currentPage != null && entry.getKey() == pageStore.getCurrentPage().getPageId()) {
                      logger.trace("We can't clear page {} 's the current page", entry.getKey());
+                  } else if (info.getNumberOfMessages() <= 0 && !pageStore.checkPageFileExists(info.getPageId())) {
+                     logger.debug("marking page {} as non existent", info.getPageId());
+                     nonExistingPages.add(info);
                   } else {
                      if (logger.isTraceEnabled()) {
                         logger.trace("cleanup marking page {} as complete", info.pageId);
@@ -318,6 +322,10 @@ public final class PageSubscriptionImpl implements PageSubscription {
                   }
                }
             }
+         }
+
+         for (PageCursorInfo deletedPage : nonExistingPages) {
+            consumedPages.remove(deletedPage.pageId);
          }
 
          for (PageCursorInfo infoPG : completedPages) {

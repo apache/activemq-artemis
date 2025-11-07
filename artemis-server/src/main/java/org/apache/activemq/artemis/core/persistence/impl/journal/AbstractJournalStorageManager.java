@@ -1282,12 +1282,16 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                      PageSubscription sub = locateSubscription(encoding.queueID, pageSubscriptions, queueInfos, pagingManager);
 
-                     if (sub != null) {
-                        sub.reloadACK(encoding.position);
-                     } else {
+                     if (sub == null) {
                         ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloading(encoding.queueID);
                         messageJournal.tryAppendDeleteRecord(record.id, this::recordNotFoundCallback, false);
-
+                     } else {
+                        if (encoding.position.getPageNr() >= sub.getPagingStore().getFirstPage() && encoding.position.getPageNr() <= sub.getPagingStore().getCurrentWritingPage()) {
+                           sub.reloadACK(encoding.position);
+                        } else {
+                           ActiveMQServerLogger.LOGGER.cannotFindPageFileDuringPageAckReload(encoding.position.getPageNr(), sub.getPagingStore().getStoreName(), record.id);
+                           messageJournal.tryAppendDeleteRecord(record.id, this::recordNotFoundCallback, false);
+                        }
                      }
 
                      break;
