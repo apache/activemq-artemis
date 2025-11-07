@@ -34,6 +34,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: activemq-artemis
+          cache-dependency-path: activemq-artemis/pom.xml
 
       - name: Install JDK ${{ matrix.java }}
         uses: actions/setup-java@v4
@@ -69,6 +70,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: activemq-artemis
+          cache-dependency-path: activemq-artemis/pom.xml
 
       - name: Install JDK ${{ matrix.java }}
         uses: actions/setup-java@v4
