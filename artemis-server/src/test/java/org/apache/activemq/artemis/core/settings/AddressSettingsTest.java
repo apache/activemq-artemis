@@ -16,10 +16,7 @@
  */
 package org.apache.activemq.artemis.core.settings;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import java.io.StringReader;
 import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -28,9 +25,14 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AddressSettingsTest extends ServerTestBase {
 
@@ -261,6 +263,10 @@ public class AddressSettingsTest extends ServerTestBase {
       assertEquals(addressSettings.getAddressFullMessagePolicy(), jsonClone.getAddressFullMessagePolicy());
 
       assertEquals(addressSettings, jsonClone);
+   }
 
+   @Test
+   public void testToJSONEmpty() {
+      assertEquals(0, JsonLoader.readObject(new StringReader(new AddressSettings().toJSON())).size());
    }
 }
