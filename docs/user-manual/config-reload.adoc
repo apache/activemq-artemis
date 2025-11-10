@@ -505,16 +505,6 @@ Below lists the effects of adding, deleting and updating of an element/attribute
 | Will be set back to the default `null`
 | On reload group-first-key will be updated
 
-| attribute `last-value`
-| On reload last-value will be updated
-| Will be set back to the default `false`
-| On reload last-value will be updated
-
-| attribute `last-value-key`
-| On reload last-value-key will be updated
-| Will be set back to the default `null`
-| On reload last-value-key will be updated
-
 | attribute `non-destructive`
 | On reload non-destructive will be updated
 | Will be set back to the default `false`
@@ -539,11 +529,6 @@ Below lists the effects of adding, deleting and updating of an element/attribute
 | The filter will be added after reloading
 | The filter will be removed after reloading
 | The filter will be updated after reloading
-
-| `<durable>`
-| The queue durability will be set to the given value after reloading
-| The queue durability will be set to the default `true` after reloading
-| The queue durability will be set to the new value after reloading
 
 | `<user>`
 | The queue user will be set to the given value after reloading
