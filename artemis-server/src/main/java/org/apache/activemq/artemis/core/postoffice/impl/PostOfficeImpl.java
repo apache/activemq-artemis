@@ -1215,7 +1215,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                logger.debug("PostOffice::simpleRoute null as bindings");
             }
          }
-         if (bindings == null) {
+         if (bindings == null || context.getQueueCount() == 0) {
             context.setReusable(false);
             context.clear();
             if (addressInfo != null) {
@@ -1306,7 +1306,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
       if (bindings != null) {
          bindings.route(message, context);
-         if (addressInfo != null) {
+         if (addressInfo != null && context.getQueueCount() > 0) {
             addressInfo.incrementRoutedMessageCount();
          }
       }

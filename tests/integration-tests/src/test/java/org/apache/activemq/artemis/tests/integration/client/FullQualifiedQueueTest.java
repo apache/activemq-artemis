@@ -312,7 +312,8 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
       producer.send(m);
 
 
-      Wait.assertEquals(1L, () -> server.getAddressInfo(anycastAddress).getRoutedMessageCount(), 2000, 100);
+      Wait.assertEquals(useProperty ? 1L : 0L, () -> server.getAddressInfo(anycastAddress).getRoutedMessageCount(), 2000, 100);
+      Wait.assertEquals(useProperty ? 0L : 1L, () -> server.getAddressInfo(anycastAddress).getUnRoutedMessageCount(), 2000, 100);
       Wait.assertEquals(useProperty ? 1L : 0L, () -> server.locateQueue(anycastQ1).getMessageCount(), 2000, 100);
    }
 }
