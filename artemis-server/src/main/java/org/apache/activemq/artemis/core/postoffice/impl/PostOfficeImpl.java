@@ -1306,8 +1306,12 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
       if (bindings != null) {
          bindings.route(message, context);
-         if (addressInfo != null) {
-            addressInfo.incrementRoutedMessageCount();
+         if (context.getQueueCount() > 0) {
+            if (addressInfo != null) {
+               addressInfo.incrementRoutedMessageCount();
+            }
+         } else {
+            return null;
          }
       }
       return bindings;
