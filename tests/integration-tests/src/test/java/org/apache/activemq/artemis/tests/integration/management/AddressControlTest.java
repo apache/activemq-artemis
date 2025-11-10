@@ -532,6 +532,25 @@ public class AddressControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testGetRoutedMessageCountWithFilter() throws Exception {
+      SimpleString address = RandomUtil.randomUUIDSimpleString();
+      session.createAddress(address, RoutingType.ANYCAST, false);
+
+      AddressControl addressControl = createManagementControl(address);
+      assertEquals(0, addressControl.getMessageCount());
+
+      ClientProducer producer = session.createProducer(address.toString());
+      producer.send(session.createMessage(false));
+      assertTrue(Wait.waitFor(() -> addressControl.getRoutedMessageCount() == 0, 2000, 100));
+      assertTrue(Wait.waitFor(() -> addressControl.getUnRoutedMessageCount() == 1, 2000, 100));
+
+      session.createQueue(QueueConfiguration.of(address).setRoutingType(RoutingType.ANYCAST).setFilterString("key='foo'"));
+      producer.send(session.createMessage(false));
+      assertTrue(Wait.waitFor(() -> addressControl.getRoutedMessageCount() == 0, 2000, 100));
+      assertTrue(Wait.waitFor(() -> addressControl.getUnRoutedMessageCount() == 2, 2000, 100));
+   }
+
+   @Test
    public void testSendMessage() throws Exception {
       SimpleString address = RandomUtil.randomUUIDSimpleString();
       session.createAddress(address, RoutingType.ANYCAST, false);
