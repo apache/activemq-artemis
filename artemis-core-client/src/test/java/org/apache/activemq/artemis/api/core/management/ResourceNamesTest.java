@@ -85,6 +85,15 @@ public class ResourceNamesTest {
    }
 
    @TestTemplate
+   public void testDecomposeRetroactiveAddressNamedAddress() {
+      String testAddress = "address";
+      String prefix = ActiveMQDefaultConfiguration.getInternalNamingPrefix().replace('.', delimiterChar);
+      String baseName = prefix + testAddress + delimiter;
+      String testResourceAddressName = baseName + ResourceNames.ADDRESS.replace('.', delimiterChar) + ResourceNames.RETROACTIVE_SUFFIX;
+      assertEquals(testAddress.toString(), ResourceNames.decomposeRetroactiveResourceAddressName(prefix, delimiter, testResourceAddressName));
+   }
+
+   @TestTemplate
    public void testIsRetroactiveResource() {
       assertTrue(ResourceNames.isRetroactiveResource(prefix, SimpleString.of(testResourceAddressName)));
       assertTrue(ResourceNames.isRetroactiveResource(prefix, SimpleString.of(testResourceMulticastQueueName)));
