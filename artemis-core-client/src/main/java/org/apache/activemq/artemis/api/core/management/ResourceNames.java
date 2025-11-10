@@ -73,7 +73,7 @@ public final class ResourceNames {
    }
 
    public static String decomposeRetroactiveResourceAddressName(String prefix, String delimiter, String address) {
-      return address.substring(address.indexOf(prefix) + prefix.length(), address.indexOf(delimiter + trimLastCharacter(ADDRESS)));
+      return address.substring(prefix.length(), address.length() - (delimiter.length() + ADDRESS.length() + RETROACTIVE_SUFFIX.length()));
    }
 
    private static String trimLastCharacter(String toTrim) {
