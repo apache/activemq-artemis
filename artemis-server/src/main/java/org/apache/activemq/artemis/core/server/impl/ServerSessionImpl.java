@@ -2436,7 +2436,7 @@ public class ServerSessionImpl extends CriticalComponentImpl implements ServerSe
          throw e;
       }
 
-      if (server.getConfiguration().isPopulateValidatedUser() && validatedUser != null) {
+      if (server.getConfiguration().isPopulateValidatedUser() && validatedUser != null && !validatedUser.equals(server.getConfiguration().getClusterUser())) {
          message.setValidatedUserID(validatedUser);
       }
 
