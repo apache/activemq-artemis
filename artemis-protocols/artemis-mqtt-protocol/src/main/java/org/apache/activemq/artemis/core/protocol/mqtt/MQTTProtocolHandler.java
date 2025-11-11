@@ -321,7 +321,9 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       try {
          session.getMqttPublishManager().sendToQueue(message, false);
       } catch (DisconnectException e) {
-         sendDisconnect(e.getCode());
+         if (session.getVersion() == MQTTVersion.MQTT_5) {
+            sendDisconnect(e.getCode());
+         }
          disconnect(true);
       }
    }

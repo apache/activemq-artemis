@@ -131,6 +131,9 @@ public class AssertionLoggerHandler extends AbstractAppender implements Closeabl
     * Find a stacktrace that contains the parameters passed as an argument
     */
    public boolean findTrace(final String trace) {
+      if (!captureStackTrace) {
+         throw new IllegalStateException("captureStackTrace must be enabled to use this method");
+      }
       for (LogEntry logEntry : messages) {
          if (logEntry.stackTrace != null && logEntry.stackTrace.contains(trace)) {
             return true;
