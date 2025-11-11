@@ -248,7 +248,7 @@ public class MQTTPublishManager {
                    * Throwing an exception here will ultimately close the connection. This is the default behavior.
                    */
                   if (closeMqttConnectionOnPublishAuthorizationFailure) {
-                     throw e;
+                     throw new DisconnectException();
                   } else {
                      logger.debug("MQTT 3.1.1 client not authorized to publish message.");
                   }

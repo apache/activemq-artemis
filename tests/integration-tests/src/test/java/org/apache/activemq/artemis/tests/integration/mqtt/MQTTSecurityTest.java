@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -39,6 +40,7 @@ import org.junit.jupiter.api.Timeout;
 
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -138,27 +140,31 @@ public class MQTTSecurityTest extends MQTTTestSupport {
    @Test
    @Timeout(30)
    public void testPublishAuthorizationFailOn311WithDisconnect() throws Exception {
-      String version = "3.1.1";
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
+         String version = "3.1.1";
 
-      BlockingConnection connection = null;
-      try {
-         MQTT mqtt = createMQTTConnection("test-" + version, true);
-         mqtt.setUserName(noprivUser);
-         mqtt.setPassword(noprivPass);
-         mqtt.setConnectAttemptsMax(1);
-         mqtt.setVersion(version);
-         connection = mqtt.blockingConnection();
-         connection.connect();
-         connection.publish("foo", new byte[0], QoS.EXACTLY_ONCE, false);
-         fail("Should have triggered an exception");
-      } catch (EOFException e) {
-         // OK
-      } catch (Exception e) {
-         e.printStackTrace();
-         fail("Should not have caught an Exception");
-      } finally {
-         if (connection != null && connection.isConnected())
-            connection.disconnect();
+         BlockingConnection connection = null;
+         try {
+            MQTT mqtt = createMQTTConnection("test-" + version, true);
+            mqtt.setUserName(noprivUser);
+            mqtt.setPassword(noprivPass);
+            mqtt.setConnectAttemptsMax(1);
+            mqtt.setVersion(version);
+            connection = mqtt.blockingConnection();
+            connection.connect();
+            connection.publish("foo", new byte[0], QoS.EXACTLY_ONCE, false);
+            fail("Should have triggered an exception");
+         } catch (EOFException e) {
+            // OK
+         } catch (Exception e) {
+            e.printStackTrace();
+            fail("Should not have caught an Exception");
+         } finally {
+            if (connection != null && connection.isConnected())
+               connection.disconnect();
+         }
+
+         assertFalse(loggerHandler.findTrace("does not have permission"));
       }
    }
 
