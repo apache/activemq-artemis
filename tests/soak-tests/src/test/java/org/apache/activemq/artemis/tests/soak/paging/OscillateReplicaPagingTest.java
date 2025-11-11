@@ -105,7 +105,7 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
 
    private void waitReplicaSync() throws Exception {
 
-      for (int i = 0; i < 30; i++) {
+      for (int i = 0; i < 4; i++) {
          SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", "guest", "guest");
          try {
             runAfter(simpleManagement::close);
