@@ -286,7 +286,6 @@ public class ServerSessionImpl extends CriticalComponentImpl implements ServerSe
 
       this.defaultAddress = defaultAddress;
 
-      remotingConnection.addFailureListener(this);
       this.context = context;
 
       this.sessionExecutor = server.getExecutorFactory().getExecutor();

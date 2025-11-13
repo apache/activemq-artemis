@@ -1928,6 +1928,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       sessions.put(name, session);
       totalSessionCount.incrementAndGet();
+      connection.addFailureListener(session);
+      if (connection.isDestroyed()) {
+         session.close(true);
+      }
 
       if (hasBrokerSessionPlugins()) {
          callBrokerSessionPlugins(plugin -> plugin.afterCreateSession(session));
