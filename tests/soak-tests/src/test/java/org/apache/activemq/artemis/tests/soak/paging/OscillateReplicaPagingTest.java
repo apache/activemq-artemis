@@ -33,7 +33,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -218,9 +217,35 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
    static final int OSCILLATE_PRODUCERS = 10;
    static final int BUSY_PRODUCERS = 1;
    static final int BUSY_CONSUMERS = 1;
-   static final int REPEATS = 10;
 
-   CyclicBarrier barrierOscillation = new CyclicBarrier(OSCILLATE_PRODUCERS);
+   public int optionOscillatedRuntime() {
+      return 5_000;
+   }
+   private final int OSCILLATED_RUNTIME = optionOscillatedRuntime();
+
+   protected int optionRepeats() {
+      return 2;
+   }
+   private final int REPEATS = optionRepeats();
+
+   protected int optionNumberOfMessagesFailback() {
+      return 100;
+   }
+   private final int NUMBER_OF_MESSAGES_FAILBACK = optionNumberOfMessagesFailback();
+
+   protected int optionNumberOfMessagesDestroyPage() {
+      return 10_000;
+   }
+   private final int NUMBER_OF_MESSAGES_DESTROY_PAGE = optionNumberOfMessagesDestroyPage();
+
+   /**
+    * One of the tests need an additional destination full of messages.
+    * This is not really part of the test, however it's here to fillup the replication catchup with extra stuff
+    * and introduce races. */
+   protected int optionBusyLoadSize() {
+      return 2000;
+   }
+   private final int BUSY_LOAD_SIZE = optionBusyLoadSize();
 
    AtomicInteger errors = new AtomicInteger(0);
    CountDownLatch done;
@@ -230,7 +255,6 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
 
    @Test
    public void testOscillateLoad() throws Throwable {
-      final int KEEP_RUNNING = 20_000;
 
       startLive();
       startBackup();
@@ -278,7 +302,7 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
       // this is just to validate I configured it correctly
       assertEquals(threadsUsed, TOTAL_THREADS);
 
-      Thread.sleep(KEEP_RUNNING);
+      Thread.sleep(OSCILLATED_RUNTIME);
       running = false;
       assertTrue(done.await(100, TimeUnit.SECONDS));
 
@@ -309,19 +333,17 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
    }
 
    @Test
-   public void testHoldMessagesAndRemove() throws Exception {
+   public void testHoldMessagesAndDestroyPage() throws Exception {
       startLive();
 
       ActiveMQConnectionFactory factory = createConnectionFactory("tcp://localhost:61616");
       factory.setBlockOnDurableSend(false);
 
-      final int NUMBER_OF_MESSAGES = 10_000;
-
       try (Connection connection = factory.createConnection()) {
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
          MessageProducer producer = session.createProducer(session.createTopic(OSCILLATE_ADDRESS));
 
-         for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+         for (int i = 0; i < NUMBER_OF_MESSAGES_DESTROY_PAGE; i++) {
             Message message = session.createTextMessage(BODY_STRING);
             message.setIntProperty("originalI", i);
             producer.send(message);
@@ -330,12 +352,12 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
                logger.debug("Sending {}", i);
             }
          }
-         logger.debug("Sent {}", NUMBER_OF_MESSAGES);
+         logger.debug("Sent {}", NUMBER_OF_MESSAGES_DESTROY_PAGE);
          session.commit();
 
          MessageConsumer consumer = session.createConsumer(session.createQueue(OSCILLATE_QUEUE_EXPRESSION), "originalI >= 100 AND originalI < 90000");
          connection.start();
-         for (int i = 100; i < NUMBER_OF_MESSAGES - 1000; i++) {
+         for (int i = 100; i < NUMBER_OF_MESSAGES_DESTROY_PAGE - 1000; i++) {
             Message message = consumer.receive(5000);
             assertNotNull(message);
             assertEquals(i, message.getIntProperty("originalI"));
@@ -345,9 +367,9 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
             }
          }
          session.commit();
-         logger.debug("Received {}", NUMBER_OF_MESSAGES - 1);
+         logger.debug("Received {}", NUMBER_OF_MESSAGES_DESTROY_PAGE - 1);
 
-         for (int i = NUMBER_OF_MESSAGES; i < NUMBER_OF_MESSAGES + 5000; i++) {
+         for (int i = NUMBER_OF_MESSAGES_DESTROY_PAGE; i < NUMBER_OF_MESSAGES_DESTROY_PAGE + 5000; i++) {
             Message message = session.createTextMessage(BODY_STRING);
             message.setIntProperty("originalI", i);
             producer.send(message);
@@ -383,7 +405,7 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
          }
       }
 
-      int lastMessages = 10_000;
+      int lastMessages = NUMBER_OF_MESSAGES_DESTROY_PAGE;
 
       try (Connection connection = factory.createConnection()) {
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
@@ -423,23 +445,23 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
             }
          }
          session.commit();
-         logger.debug("final Received {}", NUMBER_OF_MESSAGES - 1);
+         logger.debug("final Received {}", NUMBER_OF_MESSAGES_DESTROY_PAGE - 1);
       }
 
    }
 
    @Test
-   public void testOscillateWhileFailingBack() throws Exception {
-      internalOsillateAndFailback(false);
+   public void testOscillateAndFailback() throws Exception {
+      internalOscillateAndFailback(false);
    }
 
    @Test
-   public void testOscillateWhileFailingBack_PurgePageFolders() throws Exception {
-      internalOsillateAndFailback(true);
+   public void testOscillateAndFailbackPurge() throws Exception {
+      internalOscillateAndFailback(true);
    }
 
-
-   private void internalOsillateAndFailback(boolean purgePageFolders) throws Exception {
+   private void internalOscillateAndFailback(boolean purgePageFolders) throws Exception {
+      logger.info("running internalOscillateAndFailback with purgePageFolders={}", purgePageFolders);
       // reconfiguring servers
       configurePurgePageFolders0(purgePageFolders);
       configurePurgePageFolders1(purgePageFolders);
@@ -452,10 +474,6 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
       waitReplicaSync();
 
       ActiveMQConnectionFactory factory = createConnectionFactory("tcp://localhost:61616");
-      ActiveMQConnectionFactory slowConsumerFactory = createConnectionFactory("tcp://localhost:61616");
-      slowConsumerFactory.setConsumerWindowSize(0);
-
-      int NUMBER_OF_MESSAGES = 500;
 
       Integer originalBindingCounts = null;
 
@@ -474,13 +492,14 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
             assertEquals(originalBindingCounts.intValue(), bindingsRecordCount.intValue());
          }
 
-         logger.debug("Repeat ######################################################################################################################## {}", repeat);
+         logger.info("Repeat ######################################################################################################################## {}", repeat);
          try (Connection connection = factory.createConnection()) {
             Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 
             if (repeat == 0) {
                MessageProducer producer = session.createProducer(session.createQueue(BUSY_QUEUE));
-               for (int i = 0; i < NUMBER_OF_MESSAGES * 2; i++) {
+               // We need a large amount of messages in paging, so sync-replication takes time
+               for (int i = 0; i < BUSY_LOAD_SIZE; i++) {
                   Message message = session.createTextMessage(BODY_STRING);
                   message.setIntProperty(propertyIdentification, i);
                   message.setStringProperty("_AMQ_GROUP_ID", "group" + (i % 10));
@@ -495,7 +514,7 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
             }
 
             MessageProducer producer = session.createProducer(session.createTopic(OSCILLATE_ADDRESS));
-            for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+            for (int i = 0; i < NUMBER_OF_MESSAGES_FAILBACK; i++) {
                Message message = session.createTextMessage(BODY_STRING);
                message.setIntProperty(propertyIdentification, i);
                message.setStringProperty("_AMQ_GROUP_ID", "group" + (i % 10));
@@ -505,12 +524,12 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
                   logger.debug("Sending {}", i);
                }
             }
-            logger.debug("Sent {}", NUMBER_OF_MESSAGES);
+            logger.debug("Sent {}", NUMBER_OF_MESSAGES_FAILBACK);
             session.commit();
 
             MessageConsumer consumer = session.createConsumer(session.createQueue(OSCILLATE_QUEUE_EXPRESSION));
             connection.start();
-            for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+            for (int i = 0; i < NUMBER_OF_MESSAGES_FAILBACK; i++) {
                Message message = consumer.receive(5000);
                assertNotNull(message);
                assertEquals(i, message.getIntProperty(propertyIdentification));
@@ -520,7 +539,6 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
                }
             }
             session.commit();
-            logger.debug("Received {}", NUMBER_OF_MESSAGES - 1);
             consumer.close();
          }
 
@@ -537,8 +555,7 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
 
          logger.debug("First page before starting {}", firstPage);
 
-         Thread.sleep(5000); // allow some processing
-
+         Thread.sleep(1000);
          // rebooting backup
          destroyBackup();
          startBackup();
@@ -550,10 +567,12 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
          logger.debug("******************************************************************************************************************************* starting live");
          startLive();
          waitReplicaSync();
+         Thread.sleep(2000); // allow some processing on live
          // restart just live now
          destroyLive();
          startLive();
          waitReplicaSync();
+         Thread.sleep(2000); // allow some processing on live
 
          running.set(false);
          assertTrue(done.await(1, TimeUnit.MINUTES));
@@ -660,6 +679,7 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
                   sent++;
                   if (sent == 25) {
                      session.commit();
+                     produced.addAndGet(sent);
                      sent = 0;
                      logger.debug("load on producer {}", produced.addAndGet(sent));
 
@@ -728,15 +748,6 @@ public class OscillateReplicaPagingTest extends SoakTestBase {
             if (waitOscillation <= 100) {
                waitOscillation = 1000;
             }
-
-            try {
-               barrierOscillation.await(1, TimeUnit.SECONDS);
-            } catch (InterruptedException interruptedException) {
-               Thread.currentThread().interrupt();
-            } catch (Exception dontCare) {
-               logger.debug(dontCare.getMessage(), dontCare);
-            }
-
          }
 
       } catch (Exception e) {

@@ -852,24 +852,26 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public void purgeFolder() {
-      writeLock();
-      try {
-         if (!isStorePaging() && !hasPendingIO() && fileFactory != null) {
-            ActiveMQServerLogger.LOGGER.purgingPageFolder(fileFactory.getDirectoryName(), storeName);
-            // closing used pages...
-            // all files need to be closed before we can remove a folder
-            usedPages.forEachUsedPage(this::closePage);
-            usedPages.clear();
-            closePage(currentPage);
-            currentPage = null;
-            numberOfPages = 0;
-            if (deleteFolder()) {
-               // we delete the subscription's journal information after the folder is removed
-               cursorProvider.forEachSubscription(PageSubscription::deleteCursorInfo);
+      try (ArtemisCloseable readLock = storageManager.closeableReadLock()) {
+         writeLock();
+         try {
+            if (!isStorePaging() && !hasPendingIO() && fileFactory != null) {
+               ActiveMQServerLogger.LOGGER.purgingPageFolder(fileFactory.getDirectoryName(), storeName);
+               // closing used pages...
+               // all files need to be closed before we can remove a folder
+               usedPages.forEachUsedPage(this::closePage);
+               usedPages.clear();
+               closePage(currentPage);
+               currentPage = null;
+               numberOfPages = 0;
+               if (deleteFolder()) {
+                  // we delete the subscription's journal information after the folder is removed
+                  cursorProvider.forEachSubscription(PageSubscription::deleteCursorInfo);
+               }
             }
+         } finally {
+            writeUnlock();
          }
-      } finally {
-         writeUnlock();
       }
    }
 
