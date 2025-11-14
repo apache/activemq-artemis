@@ -4644,10 +4644,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          configuration.setAMQPConnectionConfigurations(config.getAMQPConnection());
          configuration.setPurgePageFolders(config.isPurgePageFolders());
       }
+      configuration.parseProperties(propertiesFileUrl);
+      updateStatus(ServerStatus.CONFIGURATION_COMPONENT, configuration.getStatus());
       configurationReloadDeployed.set(false);
       if (isActive()) {
-         configuration.parseProperties(propertiesFileUrl);
-         updateStatus(ServerStatus.CONFIGURATION_COMPONENT, configuration.getStatus());
          deployReloadableConfigFromConfiguration();
       }
    }
