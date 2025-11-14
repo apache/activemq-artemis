@@ -104,6 +104,7 @@ import org.apache.activemq.artemis.core.server.routing.policies.PolicyFactoryRes
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
+import org.apache.activemq.artemis.core.settings.impl.DiskFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
@@ -128,6 +129,7 @@ import org.w3c.dom.NodeList;
 import static org.apache.activemq.artemis.core.config.impl.Validators.ADDRESS_FULL_MESSAGE_POLICY_TYPE;
 import static org.apache.activemq.artemis.core.config.impl.Validators.COMPONENT_ROUTING_TYPE;
 import static org.apache.activemq.artemis.core.config.impl.Validators.DELETION_POLICY_TYPE;
+import static org.apache.activemq.artemis.core.config.impl.Validators.DISK_FULL_MESSAGE_POLICY_TYPE;
 import static org.apache.activemq.artemis.core.config.impl.Validators.GE_ZERO;
 import static org.apache.activemq.artemis.core.config.impl.Validators.GT_ZERO;
 import static org.apache.activemq.artemis.core.config.impl.Validators.JOURNAL_TYPE;
@@ -258,6 +260,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private static final String ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME = "address-full-policy";
 
    private static final String PAGE_FULL_MESSAGE_POLICY_NODE_NAME = "page-full-policy";
+
+   private static final String DISK_FULL_MESSAGE_POLICY_NODE_NAME = "disk-full-policy";
 
    private static final String MAX_READ_PAGE_BYTES_NODE_NAME = "max-read-page-bytes";
 
@@ -1368,6 +1372,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setMessageCounterHistoryDayLimit(XMLUtil.parseInt(child));
          } else if (ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setAddressFullMessagePolicy(Enum.valueOf(AddressFullMessagePolicy.class, ADDRESS_FULL_MESSAGE_POLICY_TYPE.validate(ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME, getTrimmedTextContent(child))));
+         } else if (DISK_FULL_MESSAGE_POLICY_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setDiskFullMessagePolicy(Enum.valueOf(DiskFullMessagePolicy.class, DISK_FULL_MESSAGE_POLICY_TYPE.validate(DISK_FULL_MESSAGE_POLICY_NODE_NAME, getTrimmedTextContent(child))));
          } else if (PAGE_FULL_MESSAGE_POLICY_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setPageFullMessagePolicy(Enum.valueOf(PageFullMessagePolicy.class, PAGE_FULL_MESSAGE_POLICY_TYPE.validate(PAGE_FULL_MESSAGE_POLICY_NODE_NAME, getTrimmedTextContent(child))));
          } else if (LVQ_NODE_NAME.equalsIgnoreCase(name) || DEFAULT_LVQ_NODE_NAME.equalsIgnoreCase(name)) {

@@ -538,4 +538,7 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229258, value = "Invalid cluster bridge message! No queue IDs defined in the property {}")
    ActiveMQIllegalStateException noQueueIdsDefined(SimpleString idsHeaderName);
 
+   @Message(id = 229259, value = "Invalid disk full message policy type {}")
+   IllegalArgumentException invalidDiskFullPolicyType(String val);
+
 }

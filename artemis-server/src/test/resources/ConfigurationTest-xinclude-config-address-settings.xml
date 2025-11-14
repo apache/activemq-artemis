@@ -22,6 +22,7 @@
       <min-expiry-delay>2</min-expiry-delay>
       <max-expiry-delay>3</max-expiry-delay>
       <no-expiry>true</no-expiry>
+      <disk-full-policy>DROP</disk-full-policy>
       <redelivery-delay>1</redelivery-delay>
       <redelivery-collision-avoidance-factor>0.5</redelivery-collision-avoidance-factor>
       <max-size-bytes>817M</max-size-bytes>
