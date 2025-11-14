@@ -35,9 +35,10 @@ jobs:
         with:
           path: activemq-artemis
 
-      - name: Cache Maven Local Repo
+      # Cache is prepared by the 'checks' jobs below
+      - name: Restore Maven Local Repo Cache
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/.m2/repository/
@@ -58,12 +59,6 @@ jobs:
           cd activemq-artemis
           mvn -s .github/maven-settings.xml -Dorg.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED=AnythingNotNull -Pfast-tests -Pcompatibility-tests install
 
-      - name: Clean Up Before Caching
-        run: |
-          rm -rf ~/.m2/repository/org/apache/activemq/tests
-          rm -rf ~/.m2/repository/org/apache/activemq/examples
-          if [ -d ~/.m2/repository/org/apache/activemq ]; then find ~/.m2/repository/org/apache/activemq -name "*-SNAPSHOT" -type d -prune -exec rm -r '{}' \; ; fi
-
       - name: Archive Test Logs
         if: failure()
         uses: actions/upload-artifact@v4
@@ -78,7 +73,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ 17, 21, 25]
+        java: [ 17, 21, 25 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -112,13 +107,13 @@ jobs:
         if: matrix.java == '25'
         run: |
           cd activemq-artemis
-          mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Pdev -Prelease -Dgpg.skip install
+          mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Pdev -Prelease -Dgpg.skip -Pcompatibility-tests -DskipCompatibilityTests install
 
       - name: Build Main (JDK <25)
         if: matrix.java != '25'
         run: |
           cd activemq-artemis
-          mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Pdev -Pjmh -Popenwire-tests -DskipActiveMQ5Tests install
+          mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Pdev -Pjmh -Popenwire-tests -DskipActiveMQ5Tests -Pcompatibility-tests -DskipCompatibilityTests -Dshade-plugin-create-sources=true install
 
       - name: Set Examples Version to Artemis Version
         run: |
@@ -139,6 +134,8 @@ jobs:
         run: |
           cd activemq-artemis-examples
           mvn -s ../activemq-artemis/.github/maven-settings.xml install -Pexamples,noRun
+          mvn -s ../activemq-artemis/.github/maven-settings.xml -f examples/features/standard/security-keycloak/pom.xml install -PnoRun
+          mvn -s ../activemq-artemis/.github/maven-settings.xml -f examples/features/sub-modules/pom.xml install -Prelease -Denforcer.skip
 
       - name: Javadoc Check (JDK25 / -Prelease)
         if: matrix.java == '25'
@@ -152,11 +149,22 @@ jobs:
           cd activemq-artemis
           mvn -s .github/maven-settings.xml javadoc:javadoc
 
-      - name: Website Content Check (JDK25 only / -Prelease)
+      - name: Website Content Check (JDK25 / -Prelease)
         if: matrix.java == '25'
         run: |
           cd activemq-artemis
           mvn -s .github/maven-settings.xml clean install -DskipTests -Prelease -am -pl "artemis-website"
+
+      - name: Website Content Check (JDK <25)
+        if: matrix.java != '25'
+        run: |
+          cd activemq-artemis
+          mvn -s .github/maven-settings.xml clean install -DskipTests -Prelease -Denforcer.skip -am -pl "artemis-website"
+
+      - name: Additional Cache Priming
+        run: |
+          cd activemq-artemis
+          mvn -s .github/maven-settings.xml clean verify -Prelease -Denforcer.skip -pl "artemis-unit-test-support,org.apache.activemq:artemis-junit-5"
 
       - name: Clean Up Before Caching
         run: |
