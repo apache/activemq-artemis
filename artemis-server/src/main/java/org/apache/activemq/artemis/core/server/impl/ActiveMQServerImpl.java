@@ -4642,10 +4642,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          configuration.setAMQPConnectionConfigurations(config.getAMQPConnection());
          configuration.setPurgePageFolders(config.isPurgePageFolders());
       }
+      configuration.parseProperties(propertiesFileUrl);
+      updateStatus(ServerStatus.CONFIGURATION_COMPONENT, configuration.getStatus());
       configurationReloadDeployed.set(false);
       if (isActive()) {
-         configuration.parseProperties(propertiesFileUrl);
-         updateStatus(ServerStatus.CONFIGURATION_COMPONENT, configuration.getStatus());
          deployReloadableConfigFromConfiguration();
       }
    }
@@ -4660,90 +4660,94 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          addressSettingsRepository.swap(configuration.getAddressSettings().entrySet());
          recoverStoredAddressSettings();
 
-         ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");
-         // Filter out all active diverts
-         final Set<SimpleString> divertsToRemove = postOffice.getAllBindings()
-                 .filter(binding -> binding instanceof DivertBinding)
-                 .map(Binding::getUniqueName)
-                 .collect(Collectors.toSet());
-         // Go through the currently configured diverts
-         for (DivertConfiguration divertConfig : configuration.getDivertConfigurations()) {
-            // Retain diverts still configured to exist
-            divertsToRemove.remove(SimpleString.of(divertConfig.getName()));
-            // Deploy newly added diverts, reconfigure existing
-            final SimpleString divertName = SimpleString.of(divertConfig.getName());
-            final DivertBinding divertBinding = (DivertBinding) postOffice.getBinding(divertName);
-            if (divertBinding == null) {
-               deployDivert(divertConfig);
-            } else {
-               if ((divertBinding.isExclusive() != divertConfig.isExclusive()) ||
-                       !divertBinding.getAddress().toString().equals(divertConfig.getAddress())) {
-                  // Diverts whose exclusivity or address has changed have to be redeployed.
-                  // See the Divert interface and look for setters. Absent setter is a hint that maybe that property is immutable.
-                  destroyDivert(divertName);
+         if (postOffice.isStarted()) {
+            ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");
+
+            // Filter out all active diverts
+            final Set<SimpleString> divertsToRemove = postOffice.getAllBindings()
+                  .filter(binding -> binding instanceof DivertBinding)
+                  .map(Binding::getUniqueName)
+                  .collect(Collectors.toSet());
+            // Go through the currently configured diverts
+            for (DivertConfiguration divertConfig : configuration.getDivertConfigurations()) {
+               // Retain diverts still configured to exist
+               divertsToRemove.remove(SimpleString.of(divertConfig.getName()));
+               // Deploy newly added diverts, reconfigure existing
+               final SimpleString divertName = SimpleString.of(divertConfig.getName());
+               final DivertBinding divertBinding = (DivertBinding) postOffice.getBinding(divertName);
+               if (divertBinding == null) {
                   deployDivert(divertConfig);
                } else {
-                  // Diverts with their exclusivity and address unchanged can be updated directly.
-                  updateDivert(divertConfig);
+                  if ((divertBinding.isExclusive() != divertConfig.isExclusive()) ||
+                        !divertBinding.getAddress().toString().equals(divertConfig.getAddress())) {
+                     // Diverts whose exclusivity or address has changed have to be redeployed.
+                     // See the Divert interface and look for setters. Absent setter is a hint that maybe that property is immutable.
+                     destroyDivert(divertName);
+                     deployDivert(divertConfig);
+                  } else {
+                     // Diverts with their exclusivity and address unchanged can be updated directly.
+                     updateDivert(divertConfig);
+                  }
                }
             }
-         }
-         // Remove all remaining diverts
-         for (final SimpleString divertName : divertsToRemove) {
-            try {
-               destroyDivert(divertName);
-            } catch (Throwable e) {
-               logger.warn("Divert {} could not be removed", divertName, e);
+            // Remove all remaining diverts
+            for (final SimpleString divertName : divertsToRemove) {
+               try {
+                  destroyDivert(divertName);
+               } catch (Throwable e) {
+                  logger.warn("Divert {} could not be removed", divertName, e);
+               }
             }
+            recoverStoredDiverts();
          }
-         recoverStoredDiverts();
 
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("addresses");
          undeployAddressesAndQueueNotInConfiguration(configuration);
          deployAddressesFromConfiguration(configuration);
          deployQueuesFromListQueueConfiguration(configuration.getQueueConfigs(), null);
 
-         ActiveMQServerLogger.LOGGER.reloadingConfiguration("bridges");
+         if (clusterManager.isStarted()) {
+            ActiveMQServerLogger.LOGGER.reloadingConfiguration("bridges");
 
-         for (BridgeConfiguration newBridgeConfig : configuration.getBridgeConfigurations()) {
+            for (BridgeConfiguration newBridgeConfig : configuration.getBridgeConfigurations()) {
 
-            String bridgeName = newBridgeConfig.getName();
-            newBridgeConfig.setParentName(bridgeName);
+               String bridgeName = newBridgeConfig.getName();
+               newBridgeConfig.setParentName(bridgeName);
 
-            //Look for bridges with matching parentName. Only need first match in case of concurrent bridges
-            Bridge existingBridge = clusterManager.getBridges().values().stream()
-               .filter(bridge -> bridge.getConfiguration().getParentName().equals(bridgeName))
-               .findFirst()
-               .orElse(null);
+               //Look for bridges with matching parentName. Only need first match in case of concurrent bridges
+               Bridge existingBridge = clusterManager.getBridges().values().stream()
+                     .filter(bridge -> bridge.getConfiguration().getParentName().equals(bridgeName))
+                     .findFirst()
+                     .orElse(null);
 
-            if (existingBridge != null && existingBridge.getConfiguration().isConfigurationManaged() && !existingBridge.getConfiguration().equals(newBridgeConfig)) {
-               // this is an existing bridge but the config changed so stop the current bridge and deploy the new one
-               destroyBridge(bridgeName);
-               deployBridge(newBridgeConfig);
-            } else if (existingBridge == null) {
-               // this is a new bridge
-               deployBridge(newBridgeConfig);
-            }
-
-         }
-
-         //Look for already running bridges no longer in configuration, stop if found
-         for (final Bridge existingBridge : clusterManager.getBridges().values()) {
-            BridgeConfiguration existingBridgeConfig = existingBridge.getConfiguration();
-
-            if (existingBridgeConfig.isConfigurationManaged()) {
-               String existingBridgeName = existingBridgeConfig.getParentName();
-
-               boolean noLongerConfigured = configuration.getBridgeConfigurations().stream()
-                  .noneMatch(bridge -> bridge.getParentName().equals(existingBridgeName));
-
-               if (noLongerConfigured) {
-                  destroyBridge(existingBridgeName);
+               if (existingBridge != null && existingBridge.getConfiguration().isConfigurationManaged() && !existingBridge.getConfiguration().equals(newBridgeConfig)) {
+                  // this is an existing bridge but the config changed so stop the current bridge and deploy the new one
+                  destroyBridge(bridgeName);
+                  deployBridge(newBridgeConfig);
+               } else if (existingBridge == null) {
+                  // this is a new bridge
+                  deployBridge(newBridgeConfig);
                }
             }
+
+            //Look for already running bridges no longer in configuration, stop if found
+            for (final Bridge existingBridge : clusterManager.getBridges().values()) {
+               BridgeConfiguration existingBridgeConfig = existingBridge.getConfiguration();
+
+               if (existingBridgeConfig.isConfigurationManaged()) {
+                  String existingBridgeName = existingBridgeConfig.getParentName();
+
+                  boolean noLongerConfigured = configuration.getBridgeConfigurations().stream()
+                        .noneMatch(bridge -> bridge.getParentName().equals(existingBridgeName));
+
+                  if (noLongerConfigured) {
+                     destroyBridge(existingBridgeName);
+                  }
+               }
+            }
+            recoverStoredBridges();
          }
 
-         recoverStoredBridges();
          recoverStoredConnectors();
 
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("protocol services");
