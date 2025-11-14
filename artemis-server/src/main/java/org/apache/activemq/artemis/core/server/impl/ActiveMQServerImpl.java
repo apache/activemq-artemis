@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import javax.management.MBeanServer;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -53,10 +54,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import javax.management.MBeanServer;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQDeleteAddressException;
@@ -4650,33 +4648,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          updateStatus(ServerStatus.CONFIGURATION_COMPONENT, configuration.getStatus());
          deployReloadableConfigFromConfiguration();
       }
-   }
-
-   private static <T> void setDefaultIfUnset(Supplier<T> getter, Consumer<T> setter, T defaultValue) {
-      if (getter.get() == null) {
-         setter.accept(defaultValue);
-      }
-   }
-
-   private static void setUnsetQueueParamsToDefaults(QueueConfiguration c) {
-      // Param list taken from PostOfficeImpl::updateQueue
-      setDefaultIfUnset(c::getMaxConsumers, c::setMaxConsumers, ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers());
-      setDefaultIfUnset(c::getRoutingType, c::setRoutingType, ActiveMQDefaultConfiguration.getDefaultRoutingType());
-      setDefaultIfUnset(c::isPurgeOnNoConsumers, c::setPurgeOnNoConsumers, ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers());
-      setDefaultIfUnset(c::isEnabled, c::setEnabled, ActiveMQDefaultConfiguration.getDefaultEnabled());
-      setDefaultIfUnset(c::isExclusive, c::setExclusive, ActiveMQDefaultConfiguration.getDefaultExclusive());
-      setDefaultIfUnset(c::isGroupRebalance, c::setGroupRebalance, ActiveMQDefaultConfiguration.getDefaultGroupRebalance());
-      setDefaultIfUnset(c::getGroupBuckets, c::setGroupBuckets, ActiveMQDefaultConfiguration.getDefaultGroupBuckets());
-      setDefaultIfUnset(c::getGroupFirstKey, c::setGroupFirstKey, ActiveMQDefaultConfiguration.getDefaultGroupFirstKey());
-      setDefaultIfUnset(c::isNonDestructive, c::setNonDestructive, ActiveMQDefaultConfiguration.getDefaultNonDestructive());
-      setDefaultIfUnset(c::getConsumersBeforeDispatch, c::setConsumersBeforeDispatch, ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch());
-      setDefaultIfUnset(c::getDelayBeforeDispatch, c::setDelayBeforeDispatch, ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch());
-      setDefaultIfUnset(c::getFilterString, c::setFilterString, SimpleString.of(""));
-      // Defaults to false automatically as per isConfigurationManaged() JavaDoc
-      setDefaultIfUnset(c::isConfigurationManaged, c::setConfigurationManaged, false);
-      // Setting to null might have side effects
-      setDefaultIfUnset(c::getUser, c::setUser, null);
-      setDefaultIfUnset(c::getRingSize, c::setRingSize, ActiveMQDefaultConfiguration.getDefaultRingSize());
    }
 
    private void deployReloadableConfigFromConfiguration() throws Exception {
