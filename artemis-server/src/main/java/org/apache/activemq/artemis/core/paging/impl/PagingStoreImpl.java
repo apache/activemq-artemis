@@ -56,6 +56,7 @@ import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.DiskFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
@@ -121,6 +122,8 @@ public class PagingStoreImpl implements PagingStore {
    private Long pageLimitMessages;
 
    private PageFullMessagePolicy pageFullMessagePolicy;
+
+   private DiskFullMessagePolicy diskFullMessagePolicy;
 
    private int pageSize;
 
@@ -303,6 +306,8 @@ public class PagingStoreImpl implements PagingStore {
       rejectThreshold = addressSettings.getMaxSizeBytesRejectThreshold();
 
       pageFullMessagePolicy = addressSettings.getPageFullMessagePolicy();
+
+      diskFullMessagePolicy = addressSettings.getDiskFullMessagePolicy();
 
       pageLimitBytes = addressSettings.getPageLimitBytes();
 
@@ -1292,46 +1297,75 @@ public class PagingStoreImpl implements PagingStore {
          return false;
       }
 
-      if (addressFullMessagePolicy == AddressFullMessagePolicy.FAIL && (maxSize != -1 || maxMessages != -1 || usingGlobalMaxSize || pagingManager.isDiskFull())) {
-         if (isFull()) {
-            if (runOnFailure && runWhenAvailable != null) {
+      if (pagingManager.isDiskFull()) {
+         if (diskFullMessagePolicy == DiskFullMessagePolicy.FAIL) {
+            if (runOnFailure) {
                addToBlockList(runWhenAvailable, blockedCallback);
                pagingManager.addBlockedStore(this);
             }
             return false;
          }
-      } else if (pagingManager.isDiskFull() || addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK && (maxMessages != -1 || maxSize != -1 || usingGlobalMaxSize)) {
-         if (pagingManager.isDiskFull() || this.full || pagingManager.isGlobalFull()) {
+
+         if (diskFullMessagePolicy == null || diskFullMessagePolicy == DiskFullMessagePolicy.BLOCK) {
             if (runWhenBlocking != null) {
                runWhenBlocking.run();
             }
 
             addToBlockList(runWhenAvailable, blockedCallback);
 
-            // We check again to avoid a race condition where the size can come down just after the element
-            // has been added, but the check to execute was done before the element was added
-            // NOTE! We do not fix this race by locking the whole thing, doing this check provides
-            // MUCH better performance in a highly concurrent environment
-            if (!pagingManager.isGlobalFull() && !full) {
-               // run it now
+            // Avoid a race condition see description below
+            if (!pagingManager.isDiskFull()) {
                runWhenAvailable.run();
                onMemoryFreedRunnables.remove(runWhenAvailable);
             } else {
-               if (usingGlobalMaxSize || pagingManager.isDiskFull()) {
-                  pagingManager.addBlockedStore(this);
-               }
+               pagingManager.addBlockedStore(this);
 
                if (!blocking) {
-                  if (pagingManager.isDiskFull()) {
-                     ActiveMQServerLogger.LOGGER.blockingDiskFull(address);
-                  } else {
-                     ActiveMQServerLogger.LOGGER.blockingMessageProduction(address, getPageInfo());
-                  }
+                  ActiveMQServerLogger.LOGGER.blockingDiskFull(address);
                   blocking = true;
                }
             }
 
             return true;
+         }
+      } else {
+         if (addressFullMessagePolicy == AddressFullMessagePolicy.FAIL && (maxSize != -1 || maxMessages != -1 || usingGlobalMaxSize)) {
+            if (isFull()) {
+               if (runOnFailure && runWhenAvailable != null) {
+                  addToBlockList(runWhenAvailable, blockedCallback);
+                  pagingManager.addBlockedStore(this);
+               }
+               return false;
+            }
+         } else if (addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK && (maxMessages != -1 || maxSize != -1 || usingGlobalMaxSize)) {
+            if (this.full || pagingManager.isGlobalFull()) {
+               if (runWhenBlocking != null) {
+                  runWhenBlocking.run();
+               }
+
+               addToBlockList(runWhenAvailable, blockedCallback);
+
+               // We check again to avoid a race condition where the size can come down just after the element
+               // has been added, but the check to execute was done before the element was added
+               // NOTE! We do not fix this race by locking the whole thing, doing this check provides
+               // MUCH better performance in a highly concurrent environment
+               if (!pagingManager.isGlobalFull() && !full) {
+                  // run it now
+                  runWhenAvailable.run();
+                  onMemoryFreedRunnables.remove(runWhenAvailable);
+               } else {
+                  if (usingGlobalMaxSize) {
+                     pagingManager.addBlockedStore(this);
+                  }
+
+                  if (!blocking) {
+                     ActiveMQServerLogger.LOGGER.blockingMessageProduction(address, getPageInfo());
+                     blocking = true;
+                  }
+               }
+
+               return true;
+            }
          }
       }
 
@@ -1400,6 +1434,28 @@ public class PagingStoreImpl implements PagingStore {
          return -1;
       }
 
+      boolean diskFull = pagingManager.isDiskFull();
+
+      if (diskFullMessagePolicy == DiskFullMessagePolicy.DROP || diskFullMessagePolicy == DiskFullMessagePolicy.FAIL) {
+         if (diskFull) {
+            if (message.isLargeMessage()) {
+               ((LargeServerMessage) message).deleteFile();
+            }
+
+            if (diskFullMessagePolicy == DiskFullMessagePolicy.FAIL) {
+               throw ActiveMQMessageBundle.BUNDLE.addressIsFull(address.toString());
+            }
+
+            // Dist is full, just drop the data
+            if (!printedDropMessagesWarning) {
+               printedDropMessagesWarning = true;
+               ActiveMQServerLogger.LOGGER.pageStoreDropMessages(storeName, getPageInfo());
+            }
+
+            return 0;
+         }
+      }
+
       boolean full = isFull();
 
       if (addressFullMessagePolicy == AddressFullMessagePolicy.DROP || addressFullMessagePolicy == AddressFullMessagePolicy.FAIL) {
@@ -1444,9 +1500,7 @@ public class PagingStoreImpl implements PagingStore {
          return 0;
       }
 
-      int creditsUsed = writePage(message, tx, listCtx, pageDecorator, useFlowControl);
-
-      return creditsUsed;
+      return writePage(message, tx, listCtx, pageDecorator, useFlowControl);
    }
 
    private int writePage(Message message,

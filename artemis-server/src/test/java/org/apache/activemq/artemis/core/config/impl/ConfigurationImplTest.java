@@ -101,6 +101,7 @@ import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.core.server.transformer.AddHeadersTransformer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
+import org.apache.activemq.artemis.core.settings.impl.DiskFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCDataSourceUtils;
@@ -1704,6 +1705,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       properties.put("addressSettings.NeedToSet.defaultQueueRoutingType", RoutingType.ANYCAST);
       properties.put("addressSettings.NeedToSet.autoDeleteQueuesMessageCount", 6789);
       properties.put("addressSettings.NeedToSet.addressFullMessagePolicy", AddressFullMessagePolicy.DROP);
+      properties.put("addressSettings.NeedToSet.diskFullMessagePolicy", DiskFullMessagePolicy.DROP);
       properties.put("addressSettings.NeedToSet.maxSizeBytes", 6666);
       properties.put("addressSettings.NeedToSet.redistributionDelay", 22);
       properties.put("addressSettings.NeedToSet.maxSizeBytesRejectThreshold", 12334);
@@ -1773,6 +1775,7 @@ public class ConfigurationImplTest extends AbstractConfigurationTestBase {
       assertEquals(RoutingType.ANYCAST, configuration.getAddressSettings().get("NeedToSet").getDefaultQueueRoutingType());
       assertEquals(6789, configuration.getAddressSettings().get("NeedToSet").getAutoDeleteQueuesMessageCount());
       assertEquals(AddressFullMessagePolicy.DROP, configuration.getAddressSettings().get("NeedToSet").getAddressFullMessagePolicy());
+      assertEquals(DiskFullMessagePolicy.DROP, configuration.getAddressSettings().get("NeedToSet").getDiskFullMessagePolicy());
       assertEquals(6666, configuration.getAddressSettings().get("NeedToSet").getMaxSizeBytes());
       assertEquals(22, configuration.getAddressSettings().get("NeedToSet").getRedistributionDelay());
       assertEquals(12334, configuration.getAddressSettings().get("NeedToSet").getMaxSizeBytesRejectThreshold());
