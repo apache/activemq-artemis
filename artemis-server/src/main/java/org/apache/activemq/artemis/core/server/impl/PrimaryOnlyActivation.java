@@ -67,6 +67,12 @@ public class PrimaryOnlyActivation extends Activation {
    @Override
    public void run() {
       try {
+         if (activeMQServer.getConfiguration().getConfigurationFileRefreshPeriod() > 0) {
+            // we may have stale config after waiting for a lock for a while
+            if (activeMQServer.getUptimeMillis() > activeMQServer.getConfiguration().getConfigurationFileRefreshPeriod()) {
+               activeMQServer.reloadConfigurationFile();
+            }
+         }
          activeMQServer.initialisePart1(false);
 
          activeMQServer.registerActivateCallback(activeMQServer.getNodeManager().startPrimaryNode());

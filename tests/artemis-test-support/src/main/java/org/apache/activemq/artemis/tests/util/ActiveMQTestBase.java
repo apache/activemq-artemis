@@ -468,6 +468,9 @@ public abstract class ActiveMQTestBase extends ArtemisTestCase {
       // When it comes to the testsuite, we don't need any batching, I will leave some minimal batching to exercise the codebase
       configuration.setJournalBufferTimeout_AIO(100).setJournalBufferTimeout_NIO(100);
 
+      // protect programmatic config before start, a common pattern that is only good for the current default which is 5s
+      configuration.setConfigurationFileRefreshPeriod(-1);
+
       return configuration;
    }
 

@@ -115,6 +115,7 @@ public class JMSSaslExternalLDAPTest extends AbstractLdapTestUnit {
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("SaslExternalPlusLdap");
       Configuration configuration = new ConfigurationImpl().setSecurityEnabled(true).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName())).setJournalDirectory(ActiveMQTestBase.getJournalDir(testDir, 0, false)).setBindingsDirectory(ActiveMQTestBase.getBindingsDir(testDir, 0, false)).setPagingDirectory(ActiveMQTestBase.getPageDir(testDir, 0, false)).setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(testDir, 0, false));
+      configuration.setConfigurationFileRefreshPeriod(-1); // such that config reload does not whack programmatic config
       server = ActiveMQServers.newActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, false);
 
 
