@@ -80,6 +80,7 @@ import org.apache.activemq.artemis.core.server.metrics.plugins.SimpleMetricsPlug
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerBasePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.DiskFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
 import org.apache.activemq.artemis.tests.extensions.parameterized.ParameterizedTestExtension;
@@ -519,6 +520,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertEquals(2L, (long) configInstance.getAddressSettings().get("a1").getMinExpiryDelay());
       assertEquals(3L, (long) configInstance.getAddressSettings().get("a1").getMaxExpiryDelay());
       assertTrue(configInstance.getAddressSettings().get("a1").isNoExpiry());
+      assertEquals(DiskFullMessagePolicy.DROP, configInstance.getAddressSettings().get("a1").getDiskFullMessagePolicy());
       assertEquals(AddressSettings.DEFAULT_AUTO_CREATE_EXPIRY_RESOURCES, configInstance.getAddressSettings().get("a1").isAutoCreateExpiryResources());
       assertEquals(AddressSettings.DEFAULT_EXPIRY_QUEUE_PREFIX, configInstance.getAddressSettings().get("a1").getExpiryQueuePrefix());
       assertEquals(AddressSettings.DEFAULT_EXPIRY_QUEUE_SUFFIX, configInstance.getAddressSettings().get("a1").getExpiryQueueSuffix());
@@ -561,6 +563,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertEquals(-1L, (long) configInstance.getAddressSettings().get("a2").getMinExpiryDelay());
       assertEquals(-1L, (long) configInstance.getAddressSettings().get("a2").getMaxExpiryDelay());
       assertFalse(configInstance.getAddressSettings().get("a2").isNoExpiry());
+      assertNull(configInstance.getAddressSettings().get("a2").getDiskFullMessagePolicy());
       assertTrue(configInstance.getAddressSettings().get("a2").isAutoCreateDeadLetterResources());
       assertEquals("", configInstance.getAddressSettings().get("a2").getExpiryQueuePrefix().toString());
       assertEquals(".EXP", configInstance.getAddressSettings().get("a2").getExpiryQueueSuffix().toString());

@@ -63,6 +63,7 @@ import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.DiskFullMessagePolicy;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessagePersister;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
@@ -1095,6 +1096,65 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testCheckMemoryOnDiskFull() throws Exception {
+      SequentialFileFactory factory = new FakeSequentialFileFactory();
+
+      PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
+
+      PagingManager mockManager = Mockito.mock(FakePagingManager.class);
+
+      ArtemisExecutor sameThreadExecutor = Runnable::run;
+      PagingStoreImpl store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, scheduledExecutorService, 100,
+              mockManager, nullStorageManager, factory, storeFactory,
+              PagingStoreImplTest.destinationTestName,
+              new AddressSettings(),
+              sameThreadExecutor, true);
+
+      store.start();
+      try {
+         // isDiskFull called twice when no disk full message policy is set or when disk full message policy is BLOCK
+         Mockito.when(mockManager.isDiskFull()).thenReturn(
+                 true, true, // null
+                 true, true, // BLOCK
+                 true, // FAIL
+                 true, // DROP
+                 false
+         );
+
+         CountingRunnable trackMemoryCheck = new CountingRunnable();
+
+         // No disk full policy
+         assertTrue(store.checkMemory(trackMemoryCheck, null));
+         assertEquals(0, trackMemoryCheck.getCount());
+
+         // Disk full policy BLOCK
+         store.applySetting(new AddressSettings().setDiskFullMessagePolicy(DiskFullMessagePolicy.BLOCK));
+
+         assertTrue(store.checkMemory(trackMemoryCheck, null));
+         assertEquals(0, trackMemoryCheck.getCount());
+
+         // Disk full policy FAIL
+         store.applySetting(new AddressSettings().setDiskFullMessagePolicy(DiskFullMessagePolicy.FAIL));
+
+         assertFalse(store.checkMemory(trackMemoryCheck, null));
+         assertEquals(0, trackMemoryCheck.getCount());
+
+         // Disk full policy DROP
+         store.applySetting(new AddressSettings().setDiskFullMessagePolicy(DiskFullMessagePolicy.DROP));
+
+         assertTrue(store.checkMemory(trackMemoryCheck, null));
+         assertEquals(1, trackMemoryCheck.getCount());
+
+         // Release blocks
+         assertTrue(store.checkReleasedMemory());
+         assertEquals(4, trackMemoryCheck.getCount());
+
+      } finally {
+         store.stop();
+      }
+   }
+
    protected PagingManager createMockManager() {
       return new FakePagingManager();
    }
@@ -1263,7 +1323,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          // Do another check, this time indicate the disk is full during the first couple
          // requests, making the task initially be retained for later but then executed.
          final CountingRunnable trackMemoryCheck2 = new CountingRunnable();
-         Mockito.when(mockManager.isDiskFull()).thenReturn(true, true, false);
+         Mockito.when(mockManager.isDiskFull()).thenReturn(true, false);
          assertEquals(0, trackMemoryCheck2.getCount());
          store.checkMemory(trackMemoryCheck2, null);
          assertEquals(1, trackMemoryCheck2.getCount());

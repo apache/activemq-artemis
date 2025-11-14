@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfig
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.DiskFullMessagePolicy;
 import org.apache.activemq.artemis.tests.util.ServerTestBase;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
@@ -1067,5 +1068,24 @@ public class FileConfigurationParserTest extends ServerTestBase {
 
       assertEquals("#", match.getAddressMatch());
       assertEquals("myQueue", match.getQueueMatch());
+   }
+
+   @Test
+   public void testParsingDiskFullPolicy() throws Exception {
+      String configStr = """
+         <configuration>
+            <address-settings>
+               <address-setting match="foo">
+                  <disk-full-policy>FAIL</disk-full-policy>
+               </address-setting>
+            </address-settings>
+         </configuration>""";
+
+      FileConfigurationParser parser = new FileConfigurationParser();
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration configuration = parser.parseMainConfig(input);
+      AddressSettings settings = configuration.getAddressSettings().get("foo");
+      assertEquals(DiskFullMessagePolicy.FAIL, settings.getDiskFullMessagePolicy());
    }
 }
