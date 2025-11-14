@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
@@ -37,6 +36,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +45,8 @@ import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 
 public class PageCleanupWhileReplicaCatchupTest extends FailoverTestBase {
 
@@ -91,23 +93,33 @@ public class PageCleanupWhileReplicaCatchupTest extends FailoverTestBase {
    @Timeout(160)
    public void testPageCleanup() throws Throwable {
 
+      CyclicBarrier startFlag = new CyclicBarrier(NUMBER_OF_WORKERS + 1);
+
       Worker[] workers = new Worker[NUMBER_OF_WORKERS];
 
       for (int i = 0; i < NUMBER_OF_WORKERS; i++) {
          primaryServer.getServer().addAddressInfo(new AddressInfo("WORKER_" + i).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
          primaryServer.getServer().createQueue(QueueConfiguration.of("WORKER_" + i).setRoutingType(RoutingType.ANYCAST).setDurable(true));
-         workers[i] = new Worker("WORKER_" + i);
+         workers[i] = new Worker("WORKER_" + i, startFlag);
          workers[i].start();
       }
 
       for (int i = 0; i < NUMBER_OF_RESTARTS; i++) {
          logger.debug("Starting replica {}", i);
          backupServer.start();
-         Wait.assertTrue(backupServer.getServer()::isReplicaSync);
+         Wait.assertTrue(primaryServer.getServer()::isReplicaSync);
+         try {
+            startFlag.await(1, TimeUnit.SECONDS);
+         } catch (Throwable ignored) {
+         }
          backupServer.stop();
       }
 
       running = false;
+      try {
+         startFlag.await(100, TimeUnit.MILLISECONDS);
+      } catch (Throwable ignored) {
+      }
 
       for (Worker worker : workers) {
          worker.join();
@@ -127,27 +139,37 @@ public class PageCleanupWhileReplicaCatchupTest extends FailoverTestBase {
 
    class Worker extends Thread {
 
+      final CyclicBarrier startFlag;
       final String queueName;
       final Queue queue;
       volatile Throwable throwable;
 
-      Worker(String queue) {
+      Worker(String queue, CyclicBarrier startFlag) {
          super("Worker on queue " + queue + " for test on PageCleanupWhileReplicaCatchupTest");
          this.queueName = queue;
          this.queue = primaryServer.getServer().locateQueue(queueName);
+         this.startFlag = startFlag;
       }
 
       @Override
       public void run() {
          try {
-            ConnectionFactory factory = CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616");
-            try (Connection connection = factory.createConnection()) {
-               Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-               connection.start();
-               javax.jms.Queue jmsQueue = session.createQueue(queueName);
-               MessageConsumer consumer = session.createConsumer(jmsQueue);
-               MessageProducer producer = session.createProducer(jmsQueue);
-               while (running) {
+            ActiveMQConnectionFactory factory = (ActiveMQConnectionFactory) CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616");
+            factory.setCallTimeout(1000);
+            factory.setCallFailoverTimeout(1000);
+            while (running) {
+               // align all the workers in the same place
+               try {
+                  startFlag.await(1, TimeUnit.SECONDS);
+               } catch (Throwable ignored) {
+               }
+               if (!running) break;
+               try (Connection connection = factory.createConnection()) {
+                  Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                  connection.start();
+                  javax.jms.Queue jmsQueue = session.createQueue(queueName);
+                  MessageConsumer consumer = session.createConsumer(jmsQueue);
+                  MessageProducer producer = session.createProducer(jmsQueue);
                   queue.getPagingStore().startPaging();
                   for (int i = 0; i < 10; i++) {
                      producer.send(session.createTextMessage("hello " + i));
@@ -155,7 +177,6 @@ public class PageCleanupWhileReplicaCatchupTest extends FailoverTestBase {
                   for (int i = 0; i < 10; i++) {
                      assertNotNull(consumer.receive(5000));
                   }
-                  Thread.sleep(500); // this is just pacing producing and consuming
                }
             }
          } catch (Throwable e) {
