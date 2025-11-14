@@ -46,6 +46,7 @@ Here an example of an `address-setting` entry that might be found in the `broker
       <max-size-bytes-reject-threshold>-1</max-size-bytes-reject-threshold>
       <page-size-bytes>10MB</page-size-bytes>
       <address-full-policy>PAGE</address-full-policy>
+      <disk-full-policy>BLOCK</disk-full-policy>
       <message-counter-history-day-limit></message-counter-history-day-limit>
       <last-value-queue>false</last-value-queue> <!-- deprecated! see default-last-value-queue -->
       <default-last-value-queue>false</default-last-value-queue>
@@ -187,6 +188,15 @@ If the value is `DROP` then further messages will be silently dropped.
 If the value is `FAIL` then further messages will be dropped and an exception will be thrown on the client-side.
 If the value is `BLOCK` then client message producers will block when they try and send further messages.
 See the xref:flow-control.adoc#flow-control[Flow Control] and xref:paging.adoc#paging[Paging] chapters for more info.
+
+disk-full-policy::
+This attribute can have one of the following values: `DROP`, `FAIL` or `BLOCK` and determines what happens when a disk becomes full.
+The default value is `BLOCK`.
+If the value is `DROP` then further messages will be silently dropped.
+If the value is `FAIL` then further messages will be dropped and an exception will be thrown on the client-side.
+If the value is `BLOCK` then client message producers will block when they try and send further messages.
+See the xref:flow-control.adoc#flow-control[Flow Control], xref:paging.adoc#paging[Paging] and xref:paging.adoc#monitoring-disk[Monitoring Disk] chapters for more info.
+
 
 message-counter-history-day-limit::
 is the number of days to keep message counter history for this address assuming that `message-counter-enabled` is `true`.

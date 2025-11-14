@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
+import org.apache.activemq.artemis.core.settings.impl.DiskFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
@@ -144,6 +145,15 @@ public final class Validators {
          !value.equals(AddressFullMessagePolicy.BLOCK.toString()) &&
          !value.equals(AddressFullMessagePolicy.FAIL.toString())) {
          throw ActiveMQMessageBundle.BUNDLE.invalidAddressFullPolicyType(value);
+      }
+      return value;
+   };
+
+   public static final Validator<String> DISK_FULL_MESSAGE_POLICY_TYPE = (name, value) -> {
+      if (value == null || !value.equals(DiskFullMessagePolicy.DROP.toString()) &&
+              !value.equals(DiskFullMessagePolicy.BLOCK.toString()) &&
+              !value.equals(DiskFullMessagePolicy.FAIL.toString())) {
+         throw ActiveMQMessageBundle.BUNDLE.invalidDiskFullPolicyType(value);
       }
       return value;
    };

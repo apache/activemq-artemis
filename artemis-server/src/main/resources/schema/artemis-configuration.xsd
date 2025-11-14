@@ -4307,6 +4307,21 @@
             </xsd:simpleType>
          </xsd:element>
 
+         <xsd:element name="disk-full-policy" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  what happens when disk becomes full
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:string">
+                  <xsd:enumeration value="DROP"/>
+                  <xsd:enumeration value="FAIL"/>
+                  <xsd:enumeration value="BLOCK"/>
+               </xsd:restriction>
+            </xsd:simpleType>
+         </xsd:element>
+
          <xsd:element name="page-full-policy" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
