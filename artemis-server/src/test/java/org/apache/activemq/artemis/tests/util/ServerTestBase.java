@@ -35,6 +35,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -160,9 +161,9 @@ public abstract class ServerTestBase extends ArtemisTestCase {
          clearServers();
       }
 
-      List<Exception> exceptions;
+      List<ClientSessionFactory> csfs;
       try {
-         exceptions = checkCsfStopped();
+         csfs = checkCsfStopped();
       } finally {
          cleanupPools();
       }
@@ -170,9 +171,10 @@ public abstract class ServerTestBase extends ArtemisTestCase {
       InVMConnector.resetThreadPool();
 
       //clean up pools before failing
-      if (!exceptions.isEmpty()) {
-         for (Exception exception : exceptions) {
-            exception.printStackTrace(System.out);
+      if (!csfs.isEmpty()) {
+         System.out.println(csfs.size() + " ClientSessionFactories still running:");
+         for (ClientSessionFactory csf : csfs) {
+            System.out.println("\t" + csf.toString());
          }
          System.out.println(threadDump("Thread dump with reconnects happening"));
       }
@@ -569,19 +571,19 @@ public abstract class ServerTestBase extends ArtemisTestCase {
       return createServer(realFiles, createDefaultConfig(0, false), AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, -1, -1);
    }
 
-   private List<Exception> checkCsfStopped() throws Exception {
+   private List<ClientSessionFactory> checkCsfStopped() throws Exception {
       if (!Wait.waitFor(ClientSessionFactoryImpl.CLOSE_RUNNABLES::isEmpty, 5_000)) {
          List<ClientSessionFactoryImpl.CloseRunnable> closeRunnables = new ArrayList<>(ClientSessionFactoryImpl.CLOSE_RUNNABLES);
-         List<Exception> exceptions = new ArrayList<>();
+         List<ClientSessionFactory> csfs = new ArrayList<>();
 
          if (!closeRunnables.isEmpty()) {
             for (ClientSessionFactoryImpl.CloseRunnable closeRunnable : closeRunnables) {
                if (closeRunnable != null) {
-                  exceptions.add(closeRunnable.stop().createTrace);
+                  csfs.add(closeRunnable.stop());
                }
             }
          }
-         return exceptions;
+         return csfs;
       }
 
       return Collections.emptyList();
