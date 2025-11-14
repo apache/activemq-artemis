@@ -182,8 +182,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return factories;
    }
 
-   private final Exception traceException = new Exception();
-
    private ServerLocatorConfig config = new ServerLocatorConfig();
 
    private String passwordCodec;
@@ -334,8 +332,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                              final boolean useHA,
                              final DiscoveryGroupConfiguration discoveryGroupConfiguration,
                              final TransportConfiguration[] transportConfigs) {
-      traceException.fillInStackTrace();
-
       this.topology = Objects.requireNonNullElseGet(topology, () -> new Topology(this));
 
       this.ha = useHA;

@@ -155,8 +155,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private volatile boolean closed;
 
-   public final Exception createTrace;
-
    public static final Set<CloseRunnable> CLOSE_RUNNABLES = Collections.synchronizedSet(new HashSet<>());
 
    private final ConfirmationWindowWarning confirmationWindowWarning;
@@ -207,8 +205,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                           final List<Interceptor> incomingInterceptors,
                           final List<Interceptor> outgoingInterceptors,
                           final TransportConfiguration[] connectorConfigs) {
-      createTrace = new Exception();
-
       this.serverLocator = serverLocator;
 
       this.clientProtocolManager = serverLocator.newProtocolManager();
@@ -997,7 +993,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             return true;
          }
       } catch (InterruptedException ignore) {
-         throw new ActiveMQInterruptedException(createTrace);
+         throw new ActiveMQInterruptedException(ignore);
       }
       return false;
    }

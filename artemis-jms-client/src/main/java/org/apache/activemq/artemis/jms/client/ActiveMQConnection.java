@@ -128,8 +128,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    private ClientSession initialSession;
 
-   private final Exception creationStack;
-
    private ActiveMQConnectionFactory factoryReference;
 
    private final ConnectionFactoryOptions options;
@@ -168,8 +166,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       this.cacheDestinations = cacheDestinations;
 
       this.enable1xPrefixes = enable1xPrefixes;
-
-      creationStack = new Exception();
    }
 
    /**
