@@ -3,7 +3,7 @@
 :idseparator: -
 :docinfo: shared
 
-{project-name-full} uses a specific syntax for representing wildcards in security settings, address settings and when creating consumers.
+{project-name-full} uses a specific syntax for representing wildcards in security settings, address settings, and when creating consumers.
 
 The syntax is similar to that used by https://www.amqp.org[AMQP].
 
@@ -72,3 +72,15 @@ For that, the `<wildcard-addresses>` configuration tag is used.
 ----
 
 The example above shows the default configuration.
+
+[NOTE]
+====
+It is technically _possible_ to use `$` as a custom wildcard character, but it is **not recommended** for three main reasons:
+
+. The default value of `internal-naming-prefix` is `$.activemq.internal.` which includes a `$` character.
+While this value can be changed, doing so may cause problems if, for example, you have already created a cluster while the default value was in use.
+In this case the broker will have already created store-and-forward resources that will have to be renamed manually.
+Similar problems exist with retroactive addresses.
+. AMQP federation and mirroring use `$` in the names of their internal resources.
+. The MQTT protocol uses `$` for certain bits of functionality (e.g. shared subscriptions) and this cannot be changed so MQTT functionality would need to be completely avoided.
+====
