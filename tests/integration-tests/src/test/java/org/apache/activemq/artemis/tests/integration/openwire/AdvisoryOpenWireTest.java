@@ -71,7 +71,7 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
          Wait.waitFor(() -> advisoryAddress.getMessageCount() == 0);
 
          Wait.assertEquals(0, advisoryAddress::getMessageCount);
-         Wait.assertEquals(2, advisoryAddress::getRoutedMessageCount);
+         Wait.assertEquals(2, advisoryAddress::getUnRoutedMessageCount);
 
       }
    }
@@ -104,7 +104,7 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
          Wait.waitFor(() -> advisoryAddress.getMessageCount() == 0);
 
          Wait.assertEquals(0, advisoryAddress::getMessageCount);
-         Wait.assertEquals(2, advisoryAddress::getRoutedMessageCount);
+         Wait.assertEquals(2, advisoryAddress::getUnRoutedMessageCount);
 
       }
    }
