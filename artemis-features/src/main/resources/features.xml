@@ -96,6 +96,12 @@
 		<bundle>mvn:org.apache.activemq/artemis-jms-client-osgi/${pom.version}</bundle>
 	</feature>
 
+	<feature name="artemis-jakarta-client" version="${pom.version}" description="ActiveMQ Artemis Jakarta Messaging Client libraries">
+		<feature>artemis-common</feature>
+		<bundle dependency="true">mvn:jakarta.jms/jakarta.jms-api/${jakarta.jms-api.version.alt}</bundle>
+		<bundle>mvn:org.apache.activemq/artemis-jakarta-client-osgi/${pom.version}</bundle>
+	</feature>
+
 	<feature name="artemis-amqp-client" version="${pom.version}" description="ActiveMQ Artemis AMQP Client libraries">
 		<feature>transaction</feature>
 		<feature>netty-core</feature>
