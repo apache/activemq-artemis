@@ -38,12 +38,15 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -198,5 +201,33 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
       }
       Wait.assertTrue(() -> findLogRecord(getAuditLog(), "is consuming a message from"), 5000);
       Wait.assertTrue(() -> findLogRecord(getAuditLog(), "acknowledged message from"), 5000);
+   }
+
+   @Test
+   public void testExpiration() throws Exception {
+      final int EXPIRATION = 1000;
+      final SimpleString queue = RandomUtil.randomUUIDSimpleString();
+      final SimpleString expiryQueue = RandomUtil.randomUUIDSimpleString();
+
+      JMXConnector jmxConnector = getJmxConnector();
+      MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
+      String brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
+      ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, true);
+
+      final ActiveMQServerControl serverControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getActiveMQServerObjectName(), ActiveMQServerControl.class, false);
+
+      serverControl.addAddressSettings(queue.toString(), new AddressSettings().setExpiryAddress(expiryQueue).toJSON());
+
+      session.createQueue(QueueConfiguration.of(queue).setAddress(queue).setDurable(false));
+      session.createQueue(QueueConfiguration.of(expiryQueue).setAddress(expiryQueue).setDurable(false));
+
+      ClientProducer producer = session.createProducer(queue);
+      ClientMessage message = session.createMessage(false);
+      message.setExpiration(System.currentTimeMillis() + EXPIRATION);
+      producer.send(message);
+
+      Thread.sleep(EXPIRATION);
+
+      Wait.assertTrue(() -> findLogRecord(getAuditLog(), "User system@internal acknowledged message from"), EXPIRATION * 2, 100);
    }
 }

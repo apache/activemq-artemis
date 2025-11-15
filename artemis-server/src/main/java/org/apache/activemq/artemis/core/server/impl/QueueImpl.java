@@ -107,6 +107,7 @@ import org.apache.activemq.artemis.core.transaction.impl.BindingsTransactionImpl
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.BooleanUtil;
 import org.apache.activemq.artemis.utils.Env;
@@ -1733,8 +1734,16 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (AuditLogger.isMessageLoggingEnabled()) {
             // it's possible for the consumer to be null (e.g. acking the message administratively)
             final ServerSession session = consumer != null ? server.getSessionByID(consumer.getSessionID()) : null;
-            final Subject subject = session == null ? null : session.getRemotingConnection().getSubject();
-            final String remoteAddress = session == null ? null : session.getRemotingConnection().getRemoteAddress();
+            final Subject subject;
+            final String remoteAddress;
+            if (session == null) {
+               subject = new Subject();
+               subject.getPrincipals().add(new UserPrincipal("system"));
+               remoteAddress = "internal";
+            } else {
+               subject = session.getRemotingConnection().getSubject();
+               remoteAddress = session.getRemotingConnection().getRemoteAddress();
+            }
 
             if (transactional) {
                AuditLogger.addAckToTransaction(subject, remoteAddress, getName().toString(), ref.getMessage().toString(), tx.toString());
