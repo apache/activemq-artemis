@@ -103,6 +103,10 @@
          <artifactId>jetty-alpn-java-server</artifactId>
       </dependency>
       <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-unixdomain-server</artifactId>
+      </dependency>
+      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-server</artifactId>
          <scope>test</scope>

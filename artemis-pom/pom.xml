@@ -595,6 +595,12 @@
             <version>${jetty-servlet-api.version}</version>
             <!-- License: (Joint): Apache 2.0 or EPL 2.0 -->
          </dependency>
+         <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-unixdomain-server</artifactId>
+            <version>${jetty.version}</version>
+            <!-- License: (Joint): Apache 2.0 or EPL 2.0 -->
+         </dependency>
          <!-- ## End Jetty Wed Dependencies ## -->
 
          <!-- for URL reflection. Using Populate on URI Factory at activemq-commons -->

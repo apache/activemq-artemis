@@ -63,6 +63,7 @@ import org.eclipse.jetty.ee9.webapp.WebAppContext;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.server.ConnectionFactory;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -75,6 +76,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.unixdomain.server.UnixDomainServerConnector;
 import org.eclipse.jetty.util.Scanner;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -107,7 +109,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
    private final List<String> consoleUrls = new ArrayList<>();
    private final List<String> jolokiaUrls = new ArrayList<>();
    private final List<Pair<WebAppContext, String>> webContextData = new ArrayList<>();
-   private ServerConnector[] connectors;
+   private Connector[] connectors;
    private Path artemisHomePath;
    private Path temporaryWarDir;
    private String artemisInstance;
@@ -168,9 +170,10 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          }
       }
 
+      httpConfiguration.setSendServerVersion(false);
+
       List<BindingDTO> bindings = this.webServerConfig.getAllBindings();
-      connectors = new ServerConnector[bindings.size()];
-      String[] virtualHosts = new String[bindings.size()];
+      connectors = new Connector[bindings.size()];
 
       this.artemisHomePath = Paths.get(Objects.requireNonNullElse(artemisHome, "."));
       Path homeWarDir = artemisHomePath.resolve(this.webServerConfig.path).toAbsolutePath();
@@ -180,10 +183,18 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          BindingDTO binding = bindings.get(i);
          URI uri = new URI(binding.uri);
          String scheme = uri.getScheme();
-         ServerConnector connector = createServerConnector(httpConfiguration, i, binding, uri, scheme);
 
-         connectors[i] = connector;
-         virtualHosts[i] = "@Connector-" + i;
+         if ("http".equals(scheme) || "https".equals(scheme)) {
+            ServerConnector connector = createServerConnector(httpConfiguration, binding, uri, scheme);
+            connectors[i] = connector;
+         }
+         else if ("unix".equals(scheme)) {
+            UnixDomainServerConnector connector = createUnixDomainServerConnector(httpConfiguration, binding, uri);
+            connectors[i] = connector;
+         } else {
+            System.out.println("Scheme " + scheme + " is not supported!");
+            connectors[i] = null;
+         }
 
          if (binding.apps != null && !binding.apps.isEmpty()) {
             for (AppDTO app : binding.apps) {
@@ -191,10 +202,13 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
                if (new File(instanceWarDir.toFile() + File.separator + app.war).exists()) {
                   dirToUse = instanceWarDir;
                }
-               WebAppContext webContext = createWebAppContext(app.url, app.war, dirToUse, virtualHosts[i]);
+               WebAppContext webContext;
+               webContext = createWebAppContext(app.url, app.war, dirToUse, null);
                handlers.addHandler(webContext);
                webContext.getSessionHandler().getSessionCookieConfig().setComment("__SAME_SITE_STRICT__");
-               webContext.getSessionHandler().getSessionCookieConfig().setName("JSESSIONID_" + i + "_" + connector.getPort());
+               if ("http".equals(scheme) || "unix".equals(scheme)) {
+                  webContext.getSessionHandler().getSessionCookieConfig().setName("JSESSIONID_" + i + "_" + 8161);
+               }
                webContext.getSessionHandler().setSessionPath(webContext.getContextPath());
                webContext.addEventListener(new ServletContextListener() {
                   @Override
@@ -224,7 +238,6 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       homeContext.setContextPath("/");
       homeContext.setBaseResourceAsPath(homeWarDir);
       homeContext.setHandler(homeResourceHandler);
-      homeContext.setVirtualHosts(Arrays.asList(virtualHosts));
 
       ResourceHandler instanceResourceHandler = new ResourceHandler();
       instanceResourceHandler.setDirAllowed(false);
@@ -234,7 +247,6 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       instanceContext.setContextPath("/");
       instanceContext.setBaseResourceAsPath(instanceWarDir);
       instanceContext.setHandler(instanceResourceHandler);
-      instanceContext.setVirtualHosts(Arrays.asList(virtualHosts));
 
       DefaultHandler defaultHandler = new DefaultHandler();
       defaultHandler.setServeFavIcon(false);
@@ -282,7 +294,6 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
    }
 
    private ServerConnector createServerConnector(HttpConfiguration httpConfiguration,
-                                              int i,
                                               BindingDTO binding,
                                               URI uri,
                                               String scheme) throws Exception {
@@ -329,7 +340,6 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          secureRequestCustomizer.setSniHostCheck(Objects.requireNonNullElse(binding.getSniHostCheck(), DEFAULT_SNI_HOST_CHECK_VALUE));
          secureRequestCustomizer.setSniRequired(Objects.requireNonNullElse(binding.getSniRequired(), DEFAULT_SNI_REQUIRED_VALUE));
          httpConfiguration.addCustomizer(secureRequestCustomizer);
-         httpConfiguration.setSendServerVersion(false);
          HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfiguration);
 
          if (Boolean.FALSE.equals(binding.getHttp2())) {
@@ -342,16 +352,34 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
             SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, alpn.getProtocol());
             connector = new ServerConnector(server, sslConnectionFactory, alpn, h2, httpFactory);
          }
+         connector.setPort(uri.getPort());
+         connector.setHost(uri.getHost());
       } else {
-         httpConfiguration.setSendServerVersion(false);
          ConnectionFactory connectionFactory = new HttpConnectionFactory(httpConfiguration);
          connector = new ServerConnector(server, connectionFactory);
+         connector.setPort(uri.getPort());
+         connector.setHost(uri.getHost());
       }
-      connector.setPort(uri.getPort());
-      connector.setHost(uri.getHost());
-      connector.setName("Connector-" + i);
       return connector;
    }
+
+   private UnixDomainServerConnector createUnixDomainServerConnector(HttpConfiguration httpConfiguration, BindingDTO binding, URI uri) throws Exception {
+         UnixDomainServerConnector connector;
+         ConnectionFactory connectionFactory = new HttpConnectionFactory(httpConfiguration);
+         connector = new UnixDomainServerConnector(server, connectionFactory);
+         connector.setUnixDomainPath(getUnixPath(uri));
+      return connector;
+   }
+
+   private Path getUnixPath(URI uri) {
+      String uriString = uri.toString();
+      String path = uriString.substring(7, uriString.length());
+
+      if (path == null || path.isEmpty()) {
+         throw new IllegalArgumentException("Unix domain socket URI must have a valid path: " + uri);
+      }
+      return Path.of(path);
+   } 
 
    private File getStoreFile(String storeFilename) {
       File storeFile = new File(storeFilename);
@@ -496,8 +524,8 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
    }
 
    public int getPort(int connectorIndex) {
-      if (connectorIndex < connectors.length) {
-         return connectors[connectorIndex].getLocalPort();
+      if ((connectorIndex < connectors.length) && connectors[connectorIndex] instanceof ServerConnector) {
+         return ((ServerConnector)connectors[connectorIndex]).getLocalPort();
       }
       return -1;
    }
@@ -522,8 +550,6 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       // Set the default authenticator factory to avoid NPE due to the following commit:
       // https://github.com/eclipse/jetty.project/commit/7e91d34177a880ecbe70009e8f200d02e3a0c5dd
       webapp.getSecurityHandler().setAuthenticatorFactory(new DefaultAuthenticatorFactory());
-
-      webapp.setVirtualHosts(new String[]{virtualHost});
 
       return webapp;
    }
