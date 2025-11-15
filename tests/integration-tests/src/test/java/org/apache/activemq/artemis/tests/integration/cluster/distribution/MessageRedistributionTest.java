@@ -47,6 +47,8 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
+import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -57,6 +59,8 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.junit.jupiter.api.BeforeEach;
@@ -1326,6 +1330,54 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       verifyReceiveAllInRange(0, 10, 1);
       verifyReceiveAllInRange(10, 20, 2);
+   }
+
+   @Test
+   public void testValidatedUserWithRedistribution() throws Exception {
+      final String USERNAME = "myUser";
+      final String PASSWORD = "myPass";
+      final String ROLE = "myRole";
+      SecurityConfiguration securityConfiguration = new SecurityConfiguration();
+      securityConfiguration.addUser(USERNAME, PASSWORD);
+      securityConfiguration.addRole(USERNAME, ROLE);
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfiguration);
+      servers[0].getConfiguration()
+         .setPopulateValidatedUser(true)
+         .setSecurityEnabled(true);
+      servers[0].setSecurityManager(securityManager);
+      servers[1].getConfiguration()
+         .setPopulateValidatedUser(true)
+         .setSecurityEnabled(true);
+      servers[1].setSecurityManager(securityManager);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
+
+      startServers(0, 1);
+
+      Role role = new Role(ROLE, true, true, true, true, true, true, true, true, true, true, false, false);
+      Set<Role> roles = new HashSet<>();
+      roles.add(role);
+      servers[0].getSecurityRepository().addMatch("#", roles);
+      servers[1].getSecurityRepository().addMatch("#", roles);
+
+      setupSessionFactory(0, isNetty(), false, USERNAME, PASSWORD);
+      setupSessionFactory(1, isNetty(), false, USERNAME, PASSWORD);
+
+      createQueue(0, "queues.testaddress", "queue0", null, false, USERNAME, PASSWORD);
+      createQueue(1, "queues.testaddress", "queue0", null, false, USERNAME, PASSWORD);
+
+      waitForBindings(0, "queues.testaddress", 1, 0, true);
+      waitForBindings(1, "queues.testaddress", 1, 0, true);
+
+      waitForBindings(0, "queues.testaddress", 1, 0, false);
+      waitForBindings(1, "queues.testaddress", 1, 0, false);
+
+      send(0, "queues.testaddress", 1, false, null, USERNAME, PASSWORD);
+
+      addConsumer(1, 1, "queue0", null, true, USERNAME, PASSWORD);
+
+      ClientMessage m = consumers[1].consumer.receive(1000);
+      assertNotNull(m);
+      assertEquals(USERNAME, m.getValidatedUserID());
    }
 
    @Test

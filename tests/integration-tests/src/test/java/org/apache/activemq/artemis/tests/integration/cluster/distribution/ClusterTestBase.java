@@ -749,13 +749,31 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                               final String filterVal,
                               final RoutingType routingType,
                               final AtomicInteger duplicateDetectionSeq) throws Exception {
+      sendInRange(node, address, msgStart, msgEnd, durable, filterVal, routingType, duplicateDetectionSeq, null, null);
+   }
+
+   protected void sendInRange(final int node,
+                              final String address,
+                              final int msgStart,
+                              final int msgEnd,
+                              final boolean durable,
+                              final String filterVal,
+                              final RoutingType routingType,
+                              final AtomicInteger duplicateDetectionSeq,
+                              final String username,
+                              final String password) throws Exception {
       ClientSessionFactory sf = sfs[node];
 
       if (sf == null) {
          throw new IllegalArgumentException("No sf at " + node);
       }
 
-      ClientSession session = sf.createSession(false, false, false);
+      ClientSession session;
+      if (username != null && password != null) {
+         session = sf.createSession(username, password, false, true, true, false, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
+      } else {
+         session = sf.createSession(false, true, true);
+      }
 
       try {
          ClientProducer producer = session.createProducer(address);
@@ -865,6 +883,16 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                        final boolean durable,
                        final String filterVal) throws Exception {
       send(node, address, numMessages, durable, filterVal, null);
+   }
+
+   protected void send(final int node,
+                       final String address,
+                       final int numMessages,
+                       final boolean durable,
+                       final String filterVal,
+                       final String username,
+                       final String password) throws Exception {
+      sendInRange(node, address, 0, numMessages, durable, filterVal, null, null, username, password);
    }
 
    protected void send(final int node,
