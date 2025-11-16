@@ -83,10 +83,15 @@ Basically, the TTL determines how long the server will keep a connection alive i
 The client will automatically send "ping" packets periodically to prevent the server from closing it down.
 If the server doesn't receive any packets on a connection for the connection TTL time, then it will automatically close all the sessions on the server that relate to that connection.
 
-The connection TTL is configured on the URI using the `connectionTtl` parameter.
+The connection TTL is configured on the URI using the `connectionTtl` parameter., e.g.:
 
-The default value for connection ttl on an "unreliable" connection (e.g. a Netty connection using the `tcp` URL scheme) is ``60000``ms, i.e. 1 minute.
-The default value for connection ttl on a "reliable" connection (e.g. an in-vm connection using the `vm` URL scheme) is `-1`.
+[,]
+----
+tcp://localhost:61616?connectionTtl=60000
+----
+
+The default `connectionTtl` on an "unreliable" connection (e.g. a Netty connection using the `tcp` URL scheme) is `60000` milliseconds (i.e. 1 minute).
+The default `connectionTtl` on a "reliable" connection (e.g. an in-vm connection using the `vm` URL scheme) is `-1`.
 A value of `-1` for `connectionTtl` means the server will never time out the connection on the server side.
 
 If you do not wish clients to be able to specify their own connection TTL, you can override all values used by a global value set on the server side.
@@ -111,16 +116,25 @@ This will enable you to pinpoint the error in your code and correct it appropria
 In the previous section we discussed how the client sends pings to the server and how "dead" connection resources are cleaned up by the server.
 There's also another reason for pinging, and that's for the _client_ to be able to detect that the server or network has failed.
 
-As long as the client is receiving data from the server it will consider the connection to be still alive.
+This is controlled by setting the `clientFailureCheckPeriod` parameter on the client's connection URI, e.g.:
 
-If the client does not receive any packets for a configurable number of milliseconds then it will consider the connection failed and will either initiate failover, or call any `FailureListener` instances (or `ExceptionListener` instances if you are using JMS) depending on how  it has been configured.
+[,]
+----
+tcp://localhost:61616?clientFailureCheckPeriod=30000
+----
 
-This is controlled by setting the `clientFailureCheckPeriod` parameter on the URI your client is using to connect, e.g. `tcp://localhost:61616?clientFailureCheckPeriod=30000`.
-
-The default value for client failure check period on an "unreliable" connection (e.g. a Netty connection) is `30000` ms, i.e. 30 seconds.
-The default value for client failure check period on a "reliable" connection (e.g. an in-vm connection) is `-1`.
+The default `clientFailureCheckPeriod` on an "unreliable" connection (e.g. a Netty connection) is `30000` milliseconds (i.e. 30 seconds).
+The default `clientFailureCheckPeriod` on a "reliable" connection (e.g. an in-vm connection) is `-1`.
 A value of `-1` means the client will never fail the connection on the client side if no data is received from the server.
-Typically this is much lower than connection TTL to allow clients to reconnect in case of transitory failure.
+
+The `clientFailureCheckPeriod` controls two distinct, but related, operations:
+
+. How often ping packets are sent from the client to the server
+. How often the client checks for connection TTL violations
+
+If the client does not receive any packets during a period equal to or longer than the aforementioned `connectionTTL`, then it will consider the connection failed and will either initiate a failover or call any `FailureListener` instances (or `ExceptionListener` instances if you are using JMS) depending on how it has been configured.
+
+The lower the `clientFailureCheckPeriod` the quicker failures will be detected once the `connectionTTL` elapses, but of course the more pings will be sent, consuming network bandwidth.
 
 == Configuring Asynchronous Connection Execution
 
