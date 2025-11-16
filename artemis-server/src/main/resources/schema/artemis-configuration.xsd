@@ -3559,14 +3559,6 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="initial-replication-sync-timeout" type="xsd:long" default="30000" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  The amount of time to wait for the replica to acknowledge it has received all the necessary data from
-                  the replicating server at the final step of the initial replication synchronization process.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
          <xsd:element name="vote-on-replication-failure" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
